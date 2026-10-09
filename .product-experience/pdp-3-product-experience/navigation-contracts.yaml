@@ -73,3 +73,17 @@ rules:
   - Preserve project, exact source version, selected language intent, source time, job identity, and draft edits across navigation.
   - Keep recovery available from every job state; never route OUTCOME_UNKNOWN to a new submission.
   - Back navigation returns to the prior view and position without committing a draft or changing source media.
+informationArchitecture:
+  ordinaryPathProviderSelection:
+    id: media.navigation.ordinary-path-provider-boundary.v1
+    authority: user-delegated-Media-experience-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    rule: Ordinary product navigation starts from the user's intended media outcome and eligible Media operations or recipes; it does not expose a technical vendor, model, or provider catalog as the default task path.
+    disclosure: Technical execution details may appear only when needed to explain an exact selected profile, data location, cost, or limitation; displaying those details does not authorize a provider or execution.
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.intent
+      - .product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.recipe
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.externalStackSelectionRule
+    nonClaims:
+      - no provider or model is selected, qualified, or admitted by this navigation rule
+      - no runtime view has been verified by this definition
+    status: MEDIA_OWNER_DEFINITION_ONLY; independent-PDP3-review-open; runtime-NOT_ADMITTED

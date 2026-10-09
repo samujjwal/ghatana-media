@@ -2,6 +2,13 @@ schemaVersion: media.typography-layout.v1
 productId: media
 authority: Media reading hierarchy and layout behavior; Shared owns typography and layout primitives
 status: authored-proposal; shared-token-binding-and-P0-010-pending
+mediaOwnerDefinitionDecision:
+  status: MEDIA_OWNER_ACCEPTED_DEFINITION_ONLY
+  authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate
+  scope: Reading hierarchy, simple/guided/expert density, task/review/engineering presentation profiles, and progressive disclosure rules below
+  acceptance: Density changes information amount and grouping only; it cannot alter permission, action meaning, effect, or finality.
+  exclusions: [Shared typography/spacing token values, measured usability or comprehension findings, immutable package binding, independent visual/accessibility acceptance]
+  rationale: Keep the immediate safe task and exact source/version visible; progressively disclose diagnostic detail without hiding rights, uncertainty, destructive effects, or recovery.
 dependencies:
   pdp0: .product-experience/pdp-0-product-truth/information-architecture.yaml
   sharedOwner: ghatana-shared
@@ -13,9 +20,9 @@ readingOrder:
   - supporting-evidence-and-provenance
   - advanced-controls
 density:
-  simple: one primary task, essential source context, and the next safe action
-  guided: decision inputs, timing details, rights status, and review evidence
-  expert: typed media parameters and provenance; no hidden change to action meaning
+  simple: intent and safe defaults for one primary task, essential source/version context, and the next safe action over the same state and actions
+  guided: quality, style, duration, reference, output, and privacy choices plus timing, rights status, decision inputs, and review evidence over the same state and actions
+  expert: typed graph, curves, solver limits, generation, color, audio, and encoding controls plus measurements and provenance over the same state and actions; no hidden change to action meaning or authority
 # Delegated Media owner selection over the existing simple/guided/expert behaviors.
 # Tools controls the public enum; Shared owns the actual typographic values.
 densityProfiles:

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "media.component-source-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-083",
+  "authority": "User-delegated Media definition ownership; coordinator source review",
+  "scope": "Formal source prop/type projection for exactly28 contract-only families; preserve3 public-source dispositions",
+  "sourceFingerprints": {
+    ".product-experience/pdp-2-design-interface-system/component-contracts.yaml": "5d5eb8711b84b2666b1a593a00e62c4ec935966d6f9e4f65f19385aade6ea290",
+    ".product-experience/pdp-2-design-interface-system/component-value-types.yaml": "2a9d0209151c6c1879906dbdfccd6cdf265ee06de4c7c700a773150cada417ef",
+    "scripts/lib/pdp-design-composition-validator.mjs": "7197f7b6cd0ebf6a4e774ca66466702fa6eaa2b3e2108702f3a82b27699b6d90",
+    "tests/pdp-design-interface-component-contracts.test.mjs": "dff0b9b84f349dd078a593a77e6d16a2267387a521b5f23b25ccbbca70aeee7e",
+    "tests/pdp-design-composition.test.mjs": "5dc5b6c53075e138dd26866bfc486ac41b83e8cc704177dd06f82fc45a5509f3"
+  },
+  "verification": {
+    "command": "node --test tests/pdp-design-interface-component-contracts.test.mjs tests/pdp-design-composition.test.mjs",
+    "passed": 13,
+    "failed": 0,
+    "outputSha256": "7fece704b0b7dc0f6c0818d5f2f2f1e99e3e2af487fd695f74e0b866dbcfc324",
+    "outputRef": "docs/implementation/verification/pdp-38/component-source-review.log"
+  },
+  "wholeTaskCriterionEstablished": false,
+  "SharedExportBindingFor28Families": "NOT_ESTABLISHED",
+  "renderedBehavior": "NOT_EVALUATED",
+  "independentVisualAndATReview": "NOT_EVALUATED",
+  "nativeLifecycleReceipt": null
+}

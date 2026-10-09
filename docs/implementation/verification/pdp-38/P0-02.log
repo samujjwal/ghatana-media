@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: source applicability validates the exact Cartesian population without admitting measurement
+ok 1 - source applicability validates the exact Cartesian population without admitting measurement
+  ---
+  duration_ms: 2.57091
+  type: 'test'
+  ...
+# Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
+ok 2 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
+  ---
+  duration_ms: 5464.138941
+  type: 'test'
+  ...
+# Subtest: unknown applicability, missing evidence and invented measurements remain errors
+ok 3 - unknown applicability, missing evidence and invented measurements remain errors
+  ---
+  duration_ms: 1.763625
+  type: 'test'
+  ...
+# Subtest: explicit applicability decision keeps missing output identity in scope without qualified measurements
+ok 4 - explicit applicability decision keeps missing output identity in scope without qualified measurements
+  ---
+  duration_ms: 3.266248
+  type: 'test'
+  ...
+# Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
+ok 5 - every declared NFR has one complete owner measurement method without implying observation or acceptance
+  ---
+  duration_ms: 10507.790311
+  type: 'test'
+  ...
+# Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
+ok 6 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
+  ---
+  duration_ms: 1.025917
+  type: 'test'
+  ...
+# Subtest: missing method material and attempted qualification promotion fail validation
+ok 7 - missing method material and attempted qualification promotion fail validation
+  ---
+  duration_ms: 3.405747
+  type: 'test'
+  ...
+# Subtest: SLO and human/specialist methods remain gated on their real external evidence
+ok 8 - SLO and human/specialist methods remain gated on their real external evidence
+  ---
+  duration_ms: 0.299384
+  type: 'test'
+  ...
+# Subtest: trustworthy-output applicability follows output-producer role and preserves incomplete candidates
+ok 9 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
+  ---
+  duration_ms: 5525.148535
+  type: 'test'
+  ...
+# Subtest: provider and recovery populations include exact local compute and unknown asynchronous operations
+ok 10 - provider and recovery populations include exact local compute and unknown asynchronous operations
+  ---
+  duration_ms: 5202.34222
+  type: 'test'
+  ...
+# Subtest: all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
+ok 11 - all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
+  ---
+  duration_ms: 11108.307413
+  type: 'test'
+  ...
+# Subtest: all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
+ok 12 - all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
+  ---
+  duration_ms: 858.640634
+  type: 'test'
+  ...
+# Subtest: rational frame-rate limits use the exact BigInt validator and fail closed
+ok 13 - rational frame-rate limits use the exact BigInt validator and fail closed
+  ---
+  duration_ms: 19.436
+  type: 'test'
+  ...
+# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+ok 14 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+  ---
+  duration_ms: 1241.777216
+  type: 'test'
+  ...
+# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 15 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+  ---
+  duration_ms: 16042.910129
+  type: 'test'
+  ...
+# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+ok 16 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+  ---
+  duration_ms: 6496.794551
+  type: 'test'
+  ...
+# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
+ok 17 - P0-06 enumerates exact capability applicability without inventing a measured population
+  ---
+  duration_ms: 11575.525042
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 34374.973159

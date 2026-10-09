@@ -135,7 +135,11 @@ test("all 462 capability leaves have operation-specific inputs, outcomes, precon
   assert.ok(reviewed.leaves.every((leaf) => leaf.coverageDecision.purposeSpecificOutcomeRefs?.length));
   assert.ok(reviewed.leaves.every((leaf) => leaf.coverageDecision.proposedInterfaceRefs?.every((ref) => leaf.coverageDecision.normativeRefs.includes(`.product-experience/pdp-0-product-truth/applications-channels.yaml#${ref}`))));
   assert.ok(reviewed.leaves.filter((leaf) => leaf.coverageDecision.disposition === "UNRESOLVED").every((leaf) => leaf.coverageDecision.proposedInterfaceRefs?.length && /not established/u.test(leaf.coverageDecision.interfaceAdmissionStatus)));
-  assert.match(reviewed.status, /does-not-close|pending|best-effort/iu);
+  assert.match(reviewed.status, /^owner-defined-462-of-462-exact-leaf-applicability-and-bounds; independent-review-and-runtime-admission-open$/u,
+    "current owner authoring is distinct from the preserved historical coverage counters above");
+  assert.equal(reviewed.currentOwnerDefinitionCensus.ownerDefinitionStateCounts.OWNER_DEFINED_DEFINITION_ONLY, 462);
+  assert.match(reviewed.currentOwnerDefinitionCensus.definitionReviewStatus, /not independent PDP acceptance or runtime admission/u);
+  assert.equal(reviewed.currentOwnerDefinitionCensus.executionAdmission, "NOT_ADMITTED");
   assert.equal(reviewed.leaves.length, 462);
   const sourceIds = leaves.map(({ id }) => id);
   const reviewIds = reviewed.leaves.map(({ id }) => id);

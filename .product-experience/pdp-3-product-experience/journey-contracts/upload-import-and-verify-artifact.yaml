@@ -6,20 +6,24 @@ status: proposal; upload-policy-and-public-contract-review-pending
 definitionReview:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
   decisionRef: .product-experience/decision-log.md#PXD-049
-  boundary: PDP-3 definition accepted; phase acceptance and runtime admission remain separate and pending
+  boundary: PDP-3 definition accepted; phase acceptance and runtime admission
+    remain separate and pending
   runtimeAdmission: NOT_ADMITTED
 scope: accept-one-authorized-source-as-an-immutable-artifact-version;
   upload-receipt-and-VERIFYING-are-not-usable-artifact-finality;
   processing-and-external-delivery-are-outside-this-journey
 outcomes:
-  [
-    media.goal.understand-media,
-    media.goal.preserve-source,
-    media.goal.resolve-safely
-  ]
-actors: [ media.creator, media.editor ]
+  - media.goal.understand-media
+  - media.goal.preserve-source
+  - media.goal.resolve-safely
+actors:
+  - media.creator
+  - media.editor
 intent: media.intent.understand
-channels: [ media.channel.web, media.channel.http-api, media.channel.sdk ]
+channels:
+  - media.channel.web
+  - media.channel.http-api
+  - media.channel.sdk
 preconditions:
   - Resolve the current principal, workspace, and any selected project before
     exposing or mutating protected artifact data.
@@ -31,6 +35,7 @@ preconditions:
     project-specific MediaAsset attachment.
 steps:
   - view: media.view.browse-media
+    actionRef: media.action.select-artifact-source
     screenContractRef: screen-contracts/browse-media.yaml
     result: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
     surfaceRefs:
@@ -127,11 +132,229 @@ steps:
         - scripts/check-product-experience-local.mjs
       runtimeAdmission: NOT_ADMITTED
       runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
+      journeyRef: J-02
+      ordinal: 1
+      viewRef: media.view.browse-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.select-artifact-source
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - current-workspace-context
+          - source-choice-is-local-or-an-already-admitted-reference
+        effect: bind-one-exact-source-selection-to-the-current-upload-draft-without-transferring-bytes
+        reversibilityDisposition: REVERSIBLE
+        finality: local-selection-only
+        failureRecovery: preserve-the-workspace-and-project-target;
+          explain-an-unavailable-or-disallowed-source
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: bind-one-exact-source-selection-to-the-current-upload-draft-without-transferring-bytes
+      stepSourceFacts:
+        intent: browse authorized immutable artifact versions and reach an admitted
+          source-import action
+        result: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: authorized-observation-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Show only artifact versions currently authorized for this principal
+            and tenant; preserve exact immutable version and separately recorded
+            integrity/policy dispositions.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: scoped-read
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Denied, inaccessible, stale, offline, or unknown observations remain
+            distinct; never infer global absence, failure, or availability.
+            Preserve exact scoped identity and do not mutate after an unknown
+            result.
+        degradedBehavior: null
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-read-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Re-read only the same scoped artifact identity after authority is
+            rechecked; no mutation follows unknown/unavailable observation.
+        postconditions:
+          - No bytes are exposed by browse.
+          - No upload or artifact lifecycle state changes.
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - selected-workspace
+            - selected-project-target-when-present
+            - source-name
+            - stable-upload-identity
+            - acknowledged-transfer-progress
+            - integrity-disposition
+            - next-inspection-action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.artifact
+          - media.domain.artifact-version
+        stateRefs:
+          - media-upload-and-artifact/AVAILABLE
+        canonicalOperationRef: null
+        authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs:
+          - media.scenario.upload-permission-revoked
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-02
+        scenarioRefs:
+          - media.scenario.upload-permission-revoked
+        scenarios:
+          - scenarioRef: media.scenario.upload-permission-revoked
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-permission-revoked
+            initialConditions: source-or-workspace-authority-is-revoked-after-the-transfer-begins
+            expected: stop-accepting-new-parts-and-apply-the-recorded-partial-data-retention-policy
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: authorized-observation-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Show only artifact versions currently authorized for this principal
+            and tenant; preserve exact immutable version and separately recorded
+            integrity/policy dispositions.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: scoped-read
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Denied, inaccessible, stale, offline, or unknown observations remain
+            distinct; never infer global absence, failure, or availability.
+            Preserve exact scoped identity and do not mutate after an unknown
+            result.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-read-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Re-read only the same scoped artifact identity after authority is
+            rechecked; no mutation follows unknown/unavailable observation.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-artifact-source
+        actionRef: media.action.select-artifact-source
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-artifact-source
+          intendedResult: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+          effect: bind-one-exact-source-selection-to-the-current-upload-draft-without-transferring-bytes
+          finality: local-selection-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-artifact-source
+          guards:
+            - current-workspace-context
+            - source-choice-is-local-or-an-already-admitted-reference
+          failure: preserve-the-workspace-and-project-target;
+            explain-an-unavailable-or-disallowed-source
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-artifact-source
+          recovery: preserve-the-workspace-and-project-target;
+            explain-an-unavailable-or-disallowed-source
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs:
+          - media-upload-and-artifact/AVAILABLE
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: EXACT_AUTHORITY_REF
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs:
+          - media.domain.artifact
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+        observation: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: browse authorized immutable artifact versions and reach an admitted
+          source-import action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml#purpose
+        actionRef: media.action.select-artifact-source
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: NO_SCREEN_ACTION_CONSEQUENCE_CROSSWALK
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs: []
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.upload-permission-revoked
+    capabilityRefs: []
   - view: media.view.import-media
     screenContractRef: screen-contracts/import-media.yaml
     action: media.action.begin-artifact-upload
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [ media.artifact.upload, media.artifact.import ]
+    capabilityRefs: [media.artifact.upload, media.artifact.import]
     result: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
     surfaceRefs:
       - media.surface.web
@@ -180,7 +403,7 @@ steps:
         verified.
       - No upload command establishes AVAILABLE, rights, consent, or project
         attachment.
-    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -241,11 +464,274 @@ steps:
         - scripts/check-product-experience-local.mjs
       runtimeAdmission: NOT_ADMITTED
       runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+      journeyRef: J-02
+      ordinal: 2
+      viewRef: media.view.import-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.begin-artifact-upload
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - current-principal-and-workspace
+          - exact-source-selected
+          - current-upload-and-import-authority
+          - rights-consent-retention-and-format-admission
+        effect: establish-one-stable-upload-identity-and-accept-only-owner-acknowledged-bounded-parts
+        reversibilityDisposition: CONDITIONAL
+        finality: upload-receipt-is-not-artifact-availability;
+          verification-must-record-size-digest-format-and-policy-disposition
+        failureRecovery: preserve-the-stable-upload-identity;
+          inspect-an-unknown-result-before-starting-another-upload
+        domainOperationDisposition: EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation-slice.begin-upload
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: admit one authorized source and report its actual transfer and integrity
+          state
+        result: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: begin-command-and-subordinate-phases
+          sourceRef: media.operation-slice.begin-upload
+          proposal: Create or replay one tenant/principal/idempotency-key-bound session
+            and report only acknowledged contiguous parts. Successful
+            finalization enters VERIFYING only after exact size and digest
+            verification; not AVAILABLE.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: bounded-command
+          sourceRef: media.operation-slice.begin-upload
+          proposal: Reject invalid/mismatched request without mutation; lost
+            acknowledgement remains unknown; policy/rights/source/storage denial
+            remains explicit. Client-buffered bytes are not receipt.
+        degradedBehavior: null
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-request-or-upload-identity
+          sourceRef: media.operation-slice.begin-upload
+          proposal: "Unknown begin: inspect same tenant/principal/key. Unknown chunk:
+            inspect the same upload before any command; no automatic replay.
+            Retain partial data only under recorded retention."
+        postconditions:
+          - Upload session is distinct from artifact/version identity.
+          - Append remains RECEIVING and accepts next contiguous part; progress
+            is not completion.
+          - Complete enters VERIFYING only after expected bytes and full digest
+            are verified.
+          - No upload command establishes AVAILABLE, rights, consent, or project
+            attachment.
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - selected-workspace
+            - selected-project-target-when-present
+            - source-name
+            - stable-upload-identity
+            - acknowledged-transfer-progress
+            - integrity-disposition
+            - next-inspection-action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.upload-session
+          - media.domain.artifact
+          - media.domain.artifact-version
+        stateRefs:
+          - media-upload-and-artifact/RECEIVING
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/REJECTED
+          - media-upload-and-artifact/EXPIRED
+        canonicalOperationRef: media.operation-slice.begin-upload
+        authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
+        transitionRef: media-upload-and-artifact/T01
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        scenarioRefs:
+          - media.scenario.upload-interrupted
+        capabilityRefs: [media.artifact.upload, media.artifact.import]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-02
+        scenarioRefs:
+          - media.scenario.upload-interrupted
+        scenarios:
+          - scenarioRef: media.scenario.upload-interrupted
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-interrupted
+            initialConditions: an-upload-has-owner-acknowledged-parts-then-loses-network-connectivity
+            expected: preserve-one-stable-upload-identity-and-resume-only-after-source-and-current-authority-match
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: begin-command-and-subordinate-phases
+          sourceRef: media.operation-slice.begin-upload
+          proposal: Create or replay one tenant/principal/idempotency-key-bound session
+            and report only acknowledged contiguous parts. Successful
+            finalization enters VERIFYING only after exact size and digest
+            verification; not AVAILABLE.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: bounded-command
+          sourceRef: media.operation-slice.begin-upload
+          proposal: Reject invalid/mismatched request without mutation; lost
+            acknowledgement remains unknown; policy/rights/source/storage denial
+            remains explicit. Client-buffered bytes are not receipt.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-request-or-upload-identity
+          sourceRef: media.operation-slice.begin-upload
+          proposal: "Unknown begin: inspect same tenant/principal/key. Unknown chunk:
+            inspect the same upload before any command; no automatic replay.
+            Retain partial data only under recorded retention."
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload
+        actionRef: media.action.begin-artifact-upload
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload
+          intendedResult: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
+          effect: establish-one-stable-upload-identity-and-accept-only-owner-acknowledged-bounded-parts
+          finality: upload-receipt-is-not-artifact-availability;
+            verification-must-record-size-digest-format-and-policy-disposition
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload
+          guards:
+            - current-principal-and-workspace
+            - exact-source-selected
+            - current-upload-and-import-authority
+            - rights-consent-retention-and-format-admission
+          failure: preserve-the-stable-upload-identity;
+            inspect-an-unknown-result-before-starting-another-upload
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload
+          recovery: preserve-the-stable-upload-identity;
+            inspect-an-unknown-result-before-starting-another-upload
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: SOURCE_TRANSITION_REF_PRESENT; OWNER/INDEPENDENT ACCEPTANCE MUST BE READ
+          FROM PDP1
+        transitionRef: media-upload-and-artifact/T01
+        stateRefs:
+          - media-upload-and-artifact/RECEIVING
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/REJECTED
+          - media-upload-and-artifact/EXPIRED
+        operationRef: media.operation-slice.begin-upload
+        sourceRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REF
+          transitionRef: SOURCE_TRANSITION_REF_PRESENT
+          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs:
+          - media.domain.upload-session
+          - media.domain.artifact
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.begin-upload
+            operationKind: COMMAND
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.begin-upload/stateBinding
+            stateApplicability:
+              uploadSession: new-identity-enters-OPEN;
+                existing-equal-replay-returns-current-persisted-upload-session-projection
+              productLifecycle: RECEIVING-while-bounded-upload-is-open;
+                upload-session-receipt-does-not-establish-an-artifact
+              transitionRefs: []
+              projectionLoss: runtime-OPEN-is-upload-session-state-not-proof-of-product-artifact-availability
+            scopeStatus: accepted-bounded-owner-definition;
+              trusted-host-storage-and-independent-admission-open
+            runtimeAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: admit one authorized source and report its actual transfer and integrity
+          state
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#purpose
+        actionRef: media.action.begin-artifact-upload
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation-slice.begin-upload
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.artifact.upload, media.artifact.import]
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.upload-interrupted
   - view: media.view.import-media
     screenContractRef: screen-contracts/import-media.yaml
     action: media.action.resume-artifact-upload
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [ media.artifact.upload.resume ]
+    capabilityRefs: [media.artifact.upload.resume]
     when: an-existing-upload-is-interrupted-and-its-identity-source-metadata-and-current-authority-still-match
     result: resume-the-matching-upload-or-explain-why-it-cannot-resume;
       never-create-a-duplicate-from-an-unknown-result
@@ -262,7 +748,11 @@ steps:
       - media-upload-and-artifact/QUARANTINED
       - media-upload-and-artifact/REJECTED
       - media-upload-and-artifact/EXPIRED
-    canonicalOperationRef: media.operation-slice.inspect-upload
+    canonicalOperationRefs:
+      - media.operation-slice.inspect-upload
+      - media.operation-slice.append-upload-chunk
+      - media.operation-slice.complete-upload
+    canonicalOperationRef: null
     authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
     decisionRef: .product-experience/decision-log.md#PXD-049
     transitionRef: media-upload-and-artifact/T01
@@ -298,7 +788,7 @@ steps:
       - No append in FINALIZING or any terminal state.
       - Completion enters VERIFYING only; no step asserts AVAILABLE, rights
         clearance, downstream usability, or attachment.
-    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -377,7 +867,361 @@ steps:
         - scripts/check-product-experience-local.mjs
       runtimeAdmission: NOT_ADMITTED
       runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+      journeyRef: J-02
+      ordinal: 3
+      viewRef: media.view.import-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.resume-artifact-upload
+        semanticRole: ORDERED_DOMAIN_WORKFLOW
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - existing-stable-upload-identity
+          - current-tenant-and-owning-principal-scope
+          - matching-source-metadata-and-immutable-request-binding
+          - current-authority-and-retention-policy
+          - observed-state-permits-continuation
+        effect: inspect-the-same-upload-first;
+          recheck-current-authority-source-and-state;
+          require-explicit-user-confirmation;
+          append-only-remaining-contiguous-parts;
+          complete-only-the-same-unexpired-complete-session
+        reversibilityDisposition: CONDITIONAL
+        finality: inspection-is-read-only; append-remains-RECEIVING;
+          completion-enters-VERIFYING-only-after-exact-size-and-full-digest-checks;
+          no-AVAILABLE-rights-or-attachment-claim
+        failureRecovery: unknown-inspection-does-not-authorize-mutation;
+          inspect-after-unknown-before-any-command;
+          never-append-in-FINALIZING-COMPLETED-ABORTED-EXPIRED;
+          preserve-same-identity
+        domainOperationDisposition: EXACT_ORDERED_WORKFLOW
+        exactOperationRefs:
+          - media.operation-slice.inspect-upload
+          - media.operation-slice.append-upload-chunk
+          - media.operation-slice.complete-upload
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: admit one authorized source and report its actual transfer and integrity
+          state
+        result: resume-the-matching-upload-or-explain-why-it-cannot-resume;
+          never-create-a-duplicate-from-an-unknown-result
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: ordered-compound-resume-action
+          sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+          proposal: Inspect the same upload, recheck current authority/source/request
+            binding/retention/state, require explicit confirmation, append only
+            remaining contiguous parts, then complete the same unexpired session
+            after expected size/digest verification. Completion enters VERIFYING
+            only.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: guarded-compound-action
+          sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+          proposal: Unknown inspection cannot authorize append. Denial, source mismatch,
+            unknown status, FINALIZING, COMPLETED, ABORTED, EXPIRED, REJECTED,
+            or QUARANTINED forbids append; preserve source and observed/unknown
+            status.
+        degradedBehavior: null
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-upload-only; no-automatic-replay
+          sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+          proposal: After lost append acknowledgement, inspect before any command. After
+            lost completion acknowledgement, inspect the same upload and
+            reconcile persisted same-upload completion only after
+            reauthorization; never create a successor identity.
+        postconditions:
+          - Inspect is read/reconcile only and does not itself resume transfer.
+          - Append is allowed only in RECEIVING for remaining contiguous parts.
+          - No append in FINALIZING or any terminal state.
+          - Completion enters VERIFYING only; no step asserts AVAILABLE, rights
+            clearance, downstream usability, or attachment.
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - selected-workspace
+            - selected-project-target-when-present
+            - source-name
+            - stable-upload-identity
+            - acknowledged-transfer-progress
+            - integrity-disposition
+            - next-inspection-action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.upload-session
+          - media.domain.artifact
+          - media.domain.artifact-version
+        stateRefs:
+          - media-upload-and-artifact/RECEIVING
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/AVAILABLE
+          - media-upload-and-artifact/QUARANTINED
+          - media-upload-and-artifact/REJECTED
+          - media-upload-and-artifact/EXPIRED
+        canonicalOperationRef: null
+        canonicalOperationRefs:
+          - media.operation-slice.inspect-upload
+          - media.operation-slice.append-upload-chunk
+          - media.operation-slice.complete-upload
+        authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
+        transitionRef: media-upload-and-artifact/T01
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        scenarioRefs:
+          - media.scenario.upload-interrupted
+          - media.scenario.upload-outcome-unknown
+          - media.scenario.upload-permission-revoked
+        capabilityRefs: [media.artifact.upload.resume]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-02
+        scenarioRefs:
+          - media.scenario.upload-interrupted
+          - media.scenario.upload-outcome-unknown
+          - media.scenario.upload-permission-revoked
+        scenarios:
+          - scenarioRef: media.scenario.upload-interrupted
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-interrupted
+            initialConditions: an-upload-has-owner-acknowledged-parts-then-loses-network-connectivity
+            expected: preserve-one-stable-upload-identity-and-resume-only-after-source-and-current-authority-match
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.upload-outcome-unknown
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-outcome-unknown
+            initialConditions: the-last-upload-acknowledgement-was-lost-after-a-possible-commit
+            expected: inspect-or-reconcile-the-same-stable-upload-identity;
+              disable-duplicate-upload
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.upload-permission-revoked
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-permission-revoked
+            initialConditions: source-or-workspace-authority-is-revoked-after-the-transfer-begins
+            expected: stop-accepting-new-parts-and-apply-the-recorded-partial-data-retention-policy
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: ordered-compound-resume-action
+          sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+          proposal: Inspect the same upload, recheck current authority/source/request
+            binding/retention/state, require explicit confirmation, append only
+            remaining contiguous parts, then complete the same unexpired session
+            after expected size/digest verification. Completion enters VERIFYING
+            only.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: guarded-compound-action
+          sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+          proposal: Unknown inspection cannot authorize append. Denial, source mismatch,
+            unknown status, FINALIZING, COMPLETED, ABORTED, EXPIRED, REJECTED,
+            or QUARANTINED forbids append; preserve source and observed/unknown
+            status.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-upload-only; no-automatic-replay
+          sourceRef: .product-experience/pdp-1-domain-data/action-contracts.yaml#operationSliceBindings
+          proposal: After lost append acknowledgement, inspect before any command. After
+            lost completion acknowledgement, inspect the same upload and
+            reconcile persisted same-upload completion only after
+            reauthorization; never create a successor identity.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.resume-artifact-upload
+        actionRef: media.action.resume-artifact-upload
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.resume-artifact-upload
+          intendedResult: resume-the-matching-upload-or-explain-why-it-cannot-resume;
+            never-create-a-duplicate-from-an-unknown-result
+          effect: inspect-the-same-upload-first;
+            recheck-current-authority-source-and-state;
+            require-explicit-user-confirmation;
+            append-only-remaining-contiguous-parts;
+            complete-only-the-same-unexpired-complete-session
+          finality: inspection-is-read-only; append-remains-RECEIVING;
+            completion-enters-VERIFYING-only-after-exact-size-and-full-digest-checks;
+            no-AVAILABLE-rights-or-attachment-claim
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.resume-artifact-upload
+          guards:
+            - existing-stable-upload-identity
+            - current-tenant-and-owning-principal-scope
+            - matching-source-metadata-and-immutable-request-binding
+            - current-authority-and-retention-policy
+            - observed-state-permits-continuation
+          failure: unknown-inspection-does-not-authorize-mutation;
+            inspect-after-unknown-before-any-command;
+            never-append-in-FINALIZING-COMPLETED-ABORTED-EXPIRED;
+            preserve-same-identity
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.resume-artifact-upload
+          recovery: unknown-inspection-does-not-authorize-mutation;
+            inspect-after-unknown-before-any-command;
+            never-append-in-FINALIZING-COMPLETED-ABORTED-EXPIRED;
+            preserve-same-identity
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: SOURCE_TRANSITION_REF_PRESENT; OWNER/INDEPENDENT ACCEPTANCE MUST BE READ
+          FROM PDP1
+        transitionRef: media-upload-and-artifact/T01
+        stateRefs:
+          - media-upload-and-artifact/RECEIVING
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/AVAILABLE
+          - media-upload-and-artifact/QUARANTINED
+          - media-upload-and-artifact/REJECTED
+          - media-upload-and-artifact/EXPIRED
+        operationRef: null
+        sourceRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: EXACT_ORDERED_OPERATION_REFS
+          authorityRef: EXACT_AUTHORITY_REF
+          transitionRef: SOURCE_TRANSITION_REF_PRESENT
+          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs:
+          - media.domain.upload-session
+          - media.domain.artifact
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: resume-the-matching-upload-or-explain-why-it-cannot-resume;
+          never-create-a-duplicate-from-an-unknown-result
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.inspect-upload
+            operationKind: QUERY
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.inspect-upload/stateBinding
+            stateApplicability:
+              uploadSession: returns-stored-upload-session-state-without-mutation
+              productLifecycle: observation-only; does-not-promote-or-finalize-the-artifact
+              transitionRefs: []
+              projectionLoss: runtime-upload-status-is-not-a-freshness-currentness-or-external-effect-receipt
+            scopeStatus: accepted-bounded-read-semantics;
+              independent-phase-review-and-runtime-qualification-open
+            runtimeAdmission: LOCAL_CONTRACT_TESTS_ONLY;
+              production-trusted-identity-and-independent-acceptance-unqualified
+          - operationRef: media.operation-slice.append-upload-chunk
+            operationKind: COMMAND
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.append-upload-chunk/stateBinding
+            stateApplicability:
+              uploadSession: OPEN-accepts-only-current-nextChunkIndex;
+                persisted-matching-duplicate-does-not-advance-progress
+              productLifecycle: remains-RECEIVING;
+                chunk-acknowledgement-does-not-enter-VERIFYING-or-AVAILABLE
+              transitionRefs: []
+              projectionLoss: bytesReceived-and-nextChunkIndex-are-progress-observations-not-artifact-state-or-completeness
+            scopeStatus: accepted-bounded-owner-definition;
+              trusted-host-storage-and-independent-admission-open
+            runtimeAdmission: NOT_ADMITTED
+          - operationRef: media.operation-slice.complete-upload
+            operationKind: COMMAND
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs:
+              - media-upload-and-artifact/T01
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.complete-upload/stateBinding
+            stateApplicability:
+              uploadSession: successful-finalization-produces-COMPLETED-and-preserves-original-artifact-identity-on-replay
+              productLifecycle: completed-upload-enters-VERIFYING-only;
+                integrity-check-does-not-claim-security-rights-format-or-policy-disposition
+              transitionRefs:
+                - media-upload-and-artifact/T01
+              projectionLoss: UploadSession-COMPLETED-and-MediaArtifact-receipt-are-not-AVAILABLE;
+                verification-evidence-and-disposition-remain-separate
+            scopeStatus: accepted-bounded-owner-definition;
+              trusted-host-storage-and-independent-admission-open
+            runtimeAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: admit one authorized source and report its actual transfer and integrity
+          state
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml#purpose
+        actionRef: media.action.resume-artifact-upload
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation-slice.inspect-upload
+          - media.operation-slice.append-upload-chunk
+          - media.operation-slice.complete-upload
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.artifact.upload.resume]
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.upload-interrupted
+      - media.scenario.upload-outcome-unknown
+      - media.scenario.upload-permission-revoked
   - view: media.view.job-status
+    actionRef: media.action.view-job-status
     screenContractRef: screen-contracts/job-status.yaml
     when: the-owner-contract-returns-a-stable-job-identity-for-asynchronous-integrity-or-format-verification
     result: show-the-existing-verification-job-and-finality;
@@ -385,16 +1229,16 @@ steps:
     surfaceRefs:
       - media.surface.web
     objectRefs:
-      - media.domain.artifact-verification-job
-      - media.domain.upload-session
-      - media.domain.artifact
+      - media.domain.project
+      - media.domain.artifact-version
+      - media.domain.processing-job
     stateRefs:
       - media-upload-and-artifact/VERIFYING
       - media-upload-and-artifact/AVAILABLE
       - media-upload-and-artifact/QUARANTINED
       - media-upload-and-artifact/REJECTED
-    canonicalOperationRef: null
-    authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
+    canonicalOperationRef: media.operation.action.view-job-status
+    authorityRef: null
     decisionRef: .product-experience/decision-log.md#PXD-040
     transitionRef: null
     handoffRef: null
@@ -424,7 +1268,7 @@ steps:
       - No job or artifact lifecycle transition is caused by this screen.
       - Verification-authority evidence, not job COMPLETED alone, governs
         artifact state.
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
     verification:
       status: not-run
       requiredChecks:
@@ -483,11 +1327,290 @@ steps:
         - scripts/check-product-experience-local.mjs
       runtimeAdmission: NOT_ADMITTED
       runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+      journeyRef: J-02
+      ordinal: 4
+      viewRef: media.view.job-status
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.view-job-status
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        guards:
+          - stable-job-reference
+        effect: read-current-job-and-attempt-evidence
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only
+        failureRecovery: keep-last-known-state-labelled-stale
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.view-job-status
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: read-current-job-and-attempt-evidence
+      stepSourceFacts:
+        intent: view-one-existing-job-status-and-choose-a-safe-next-action
+        result: show-the-existing-verification-job-and-finality;
+          do-not-label-a-transfer-id-as-a-processing-job
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: conditional-same-job-observation
+          sourceRef: media.operation-slice.inspect-job
+          proposal: If and only if an owner-issued stable verification job ID exists, show
+            current scoped job observation separately from upload/artifact
+            identities. Job COMPLETED is not artifact AVAILABLE.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: job-read-only
+          sourceRef: media.operation-slice.inspect-job
+          proposal: If no stable job ID exists omit the observation;
+            inaccessible/stale/offline/unknown does not imply global absence,
+            upload failure, rejection, or availability.
+        degradedBehavior: null
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-job-read-only
+          sourceRef: media.operation-slice.inspect-job
+          proposal: Re-read the same owner-issued ID after authority check; do not
+            create/retry a job or infer artifact state from job finality.
+        postconditions:
+          - Job ID remains distinct from uploadId and artifactId.
+          - No job or artifact lifecycle transition is caused by this screen.
+          - Verification-authority evidence, not job COMPLETED alone, governs
+            artifact state.
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - selected-workspace
+            - selected-project-target-when-present
+            - source-name
+            - stable-upload-identity
+            - acknowledged-transfer-progress
+            - integrity-disposition
+            - next-inspection-action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs:
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/AVAILABLE
+          - media-upload-and-artifact/QUARANTINED
+          - media-upload-and-artifact/REJECTED
+        canonicalOperationRef: media.operation.action.view-job-status
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        scenarioRefs:
+          - media.scenario.artifact-verification-running
+          - media.scenario.artifact-verification-outcome-unknown
+          - media.scenario.artifact-verification-completed
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: [media.job.view-status]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-02
+        scenarioRefs:
+          - media.scenario.artifact-verification-running
+          - media.scenario.artifact-verification-outcome-unknown
+          - media.scenario.artifact-verification-completed
+        scenarios:
+          - scenarioRef: media.scenario.artifact-verification-running
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.artifact-verification-running
+            initialConditions: owner-issued-verification-job-is-running-for-an-existing-upload-identity
+            expected: show-job-state-stage-progress-and-related-upload-as-distinct-identities
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.artifact-verification-outcome-unknown
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.artifact-verification-outcome-unknown
+            initialConditions: verification-job-may-have-committed-without-confirmed-finality
+            expected: view-status-or-check-outcome-for-the-same-job-identity;
+              preserve-the-related-upload-identity; do-not-create-a-duplicate
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.artifact-verification-completed
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.artifact-verification-completed
+            initialConditions: owner-issued-verification-job-has-confirmed-completion-evidence
+            expected: show-completion-finality-and-recorded-verification-evidence-without-inferencing-from-upload-status
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: conditional-same-job-observation
+          sourceRef: media.operation-slice.inspect-job
+          proposal: If and only if an owner-issued stable verification job ID exists, show
+            current scoped job observation separately from upload/artifact
+            identities. Job COMPLETED is not artifact AVAILABLE.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: job-read-only
+          sourceRef: media.operation-slice.inspect-job
+          proposal: If no stable job ID exists omit the observation;
+            inaccessible/stale/offline/unknown does not imply global absence,
+            upload failure, rejection, or availability.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-job-read-only
+          sourceRef: media.operation-slice.inspect-job
+          proposal: Re-read the same owner-issued ID after authority check; do not
+            create/retry a job or infer artifact state from job finality.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        operationRef: media.operation.action.view-job-status
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+        actionRef: media.action.view-job-status
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          intendedResult: show-the-existing-verification-job-and-finality;
+            do-not-label-a-transfer-id-as-a-processing-job
+          effect: read-current-job-and-attempt-evidence
+          finality: read-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          guards:
+            - stable-job-reference
+          failure: keep-last-known-state-labelled-stale
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          recovery: keep-last-known-state-labelled-stale
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs:
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/AVAILABLE
+          - media-upload-and-artifact/QUARANTINED
+          - media-upload-and-artifact/REJECTED
+        operationRef: media.operation.action.view-job-status
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        observation: show-the-existing-verification-job-and-finality;
+          do-not-label-a-transfer-id-as-a-processing-job
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: view-one-existing-job-status-and-choose-a-safe-next-action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml#purpose
+        actionRef: media.action.view-job-status
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.view-job-status
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.job.view-status]
+        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs:
+      - media.scenario.artifact-verification-running
+      - media.scenario.artifact-verification-outcome-unknown
+      - media.scenario.artifact-verification-completed
+    capabilityRefs: [media.job.view-status]
   - view: media.view.inspect-media
     screenContractRef: screen-contracts/inspect-media.yaml
     action: media.action.inspect-artifact
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [ media.artifact.inspect ]
+    capabilityRefs: [media.artifact.inspect]
     when: the-artifact-state-is-AVAILABLE-or-an-authorized-review-is-required
     result: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
     surfaceRefs:
@@ -529,7 +1652,7 @@ steps:
       - Metadata inspection does not dereference content or establish rights.
       - T02 is verification-authority-owned and is not performed by this UI
         action.
-    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
       requiredChecks:
@@ -587,6 +1710,282 @@ steps:
         - scripts/check-product-experience-local.mjs
       runtimeAdmission: NOT_ADMITTED
       runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+      journeyRef: J-02
+      ordinal: 5
+      viewRef: media.view.inspect-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-artifact
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+        guards:
+          - exact-artifact-or-upload-identity
+          - current-read-authority
+        effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+        reversibilityDisposition: UNKNOWN
+        finality: read-only;
+          inspection-does-not-promote-quarantine-or-attach-to-a-project
+        failureRecovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+        domainOperationDisposition: EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation-slice.inspect-artifact
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: inspect one exact artifact version, its integrity evidence, metadata,
+          and separately governed lifecycle
+        result: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: principal-scoped-exact-version-read
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Show exact authorized version, recorded integrity evidence, and
+            separate policy disposition. Show AVAILABLE only when authoritative
+            state records it after all T02 criteria.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: metadata-read-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Keep unknown metadata unknown. Inaccessible/absent responses remain
+            scoped; inspection cannot expose bytes, grant rights, or mutate
+            state.
+        degradedBehavior: null
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-version-read-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Re-read the same artifact version after current authority check; no
+            transition, attachment, or processing is implied.
+        postconditions:
+          - Metadata inspection does not dereference content or establish rights.
+          - T02 is verification-authority-owned and is not performed by this UI
+            action.
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - selected-workspace
+            - selected-project-target-when-present
+            - source-name
+            - stable-upload-identity
+            - acknowledged-transfer-progress
+            - integrity-disposition
+            - next-inspection-action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.artifact
+          - media.domain.artifact-version
+        stateRefs:
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/AVAILABLE
+          - media-upload-and-artifact/QUARANTINED
+          - media-upload-and-artifact/REJECTED
+        canonicalOperationRef: media.operation-slice.inspect-artifact
+        authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        scenarioRefs:
+          - media.scenario.upload-checksum-mismatch
+          - media.scenario.upload-format-unsupported
+          - media.scenario.upload-quarantined
+          - media.scenario.upload-verified-available
+        capabilityRefs: [media.artifact.inspect]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-02
+        scenarioRefs:
+          - media.scenario.upload-checksum-mismatch
+          - media.scenario.upload-format-unsupported
+          - media.scenario.upload-quarantined
+          - media.scenario.upload-verified-available
+        scenarios:
+          - scenarioRef: media.scenario.upload-checksum-mismatch
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-checksum-mismatch
+            initialConditions: expected-size-or-part-or-full-digest-does-not-match-recorded-upload-content
+            expected: do-not-promote-to-available;
+              record-owner-policy-rejection-or-quarantine-and-show-truthful-integrity-copy
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.upload-format-unsupported
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-format-unsupported
+            initialConditions: inspected-content-format-is-not-admitted-by-the-current-public-contract
+            expected: keep-the-artifact-unavailable-and-report-the-supported-format-boundary-without-parsing-it-as-usable
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.upload-quarantined
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-quarantined
+            initialConditions: verification-or-policy-review-is-required-before-the-artifact-can-be-used
+            expected: hold-new-reads-and-processing-until-an-authorized-disposition-is-recorded
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.upload-verified-available
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.upload-verified-available
+            initialConditions: size-part-integrity-full-digest-format-and-required-policy-checks-have-recorded-an-available-version
+            expected: expose-one-exact-immutable-artifact-version-with-integrity-and-unknown-metadata-distinguished
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: principal-scoped-exact-version-read
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Show exact authorized version, recorded integrity evidence, and
+            separate policy disposition. Show AVAILABLE only when authoritative
+            state records it after all T02 criteria.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: metadata-read-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Keep unknown metadata unknown. Inaccessible/absent responses remain
+            scoped; inspection cannot expose bytes, grant rights, or mutate
+            state.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-version-read-only
+          sourceRef: media.operation-slice.inspect-artifact
+          proposal: Re-read the same artifact version after current authority check; no
+            transition, attachment, or processing is implied.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+        actionRef: media.action.inspect-artifact
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          intendedResult: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
+          effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+          finality: read-only;
+            inspection-does-not-promote-quarantine-or-attach-to-a-project
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          guards:
+            - exact-artifact-or-upload-identity
+            - current-read-authority
+          failure: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          recovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        transitionRef: null
+        stateRefs:
+          - media-upload-and-artifact/VERIFYING
+          - media-upload-and-artifact/AVAILABLE
+          - media-upload-and-artifact/QUARANTINED
+          - media-upload-and-artifact/REJECTED
+        operationRef: media.operation-slice.inspect-artifact
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REF
+          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs:
+          - media.domain.artifact
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.inspect-artifact
+            operationKind: QUERY
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.inspect-artifact/stateBinding
+            stateApplicability:
+              artifact: returns-stored-immutable-artifact-metadata-and-opaque-object-reference-without-mutation
+              productLifecycle: state-is-not-present-in-the-wire-observation;
+                metadata-or-objectReference-does-not-establish-AVAILABLE
+              transitionRefs: []
+              projectionLoss: opaque-object-reference-is-not-a-byte-retrieval-url-or-current-rights-and-availability-proof
+            scopeStatus: accepted-bounded-read-semantics;
+              independent-phase-review-and-runtime-qualification-open
+            runtimeAdmission: LOCAL_CONTRACT_TESTS_ONLY;
+              production-trusted-identity-and-independent-acceptance-unqualified
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: inspect one exact artifact version, its integrity evidence, metadata,
+          and separately governed lifecycle
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#purpose
+        actionRef: media.action.inspect-artifact
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation-slice.inspect-artifact
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.artifact.inspect]
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.upload-checksum-mismatch
+      - media.scenario.upload-format-unsupported
+      - media.scenario.upload-quarantined
+      - media.scenario.upload-verified-available
 optionalContinuation:
   action: media.action.attach-source-asset
   boundary: attachment-creates-a-project-specific-reference-to-an-existing-immutable-artifact-version;
@@ -625,16 +2024,17 @@ recovery: Preserve the source name, selected project target, stable upload
   unknown finality requires inspection of the same upload identity before any
   successor request.
 contextPreserved:
-  [
-    selected-workspace,
-    selected-project-target-when-present,
-    source-name,
-    stable-upload-identity,
-    acknowledged-transfer-progress,
-    integrity-disposition,
-    next-inspection-action
-  ]
-channelEquivalents: [ web, http-api, sdk ]
+  - selected-workspace
+  - selected-project-target-when-present
+  - source-name
+  - stable-upload-identity
+  - acknowledged-transfer-progress
+  - integrity-disposition
+  - next-inspection-action
+channelEquivalents:
+  - web
+  - http-api
+  - sdk
 accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
 requiredScenarioBehaviors:
   status: seven-metadata-only-PDP-3-fixtures-authored;
@@ -655,20 +2055,19 @@ requiredScenarioBehaviors:
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
 scenarioRefs:
-  [
-    media.scenario.upload-interrupted,
-    media.scenario.upload-checksum-mismatch,
-    media.scenario.upload-format-unsupported,
-    media.scenario.upload-quarantined,
-    media.scenario.upload-verified-available,
-    media.scenario.upload-outcome-unknown,
-    media.scenario.upload-permission-revoked,
-    media.scenario.artifact-verification-running,
-    media.scenario.artifact-verification-outcome-unknown,
-    media.scenario.artifact-verification-completed
-  ]
+  - media.scenario.upload-interrupted
+  - media.scenario.upload-checksum-mismatch
+  - media.scenario.upload-format-unsupported
+  - media.scenario.upload-quarantined
+  - media.scenario.upload-verified-available
+  - media.scenario.upload-outcome-unknown
+  - media.scenario.upload-permission-revoked
+  - media.scenario.artifact-verification-running
+  - media.scenario.artifact-verification-outcome-unknown
+  - media.scenario.artifact-verification-completed
 unresolvedProductDecisions:
   - exact-supported-source-formats-and-size-or-duration-bounds-remain-with-the-media.artifact.upload-owner-and-qualified-public-contract
   - external-provider-imports-and-progressive-transfer-limits-require-an-admitted-source-integration-and-rights-policy
-  - runtime-transport-admission-and-independent-qualification-remain-open; source-bounded-resume-and-verification-definitions-are-recorded-under-PXD-046-and-PXD-049
+  - runtime-transport-admission-and-independent-qualification-remain-open;
+    source-bounded-resume-and-verification-definitions-are-recorded-under-PXD-046-and-PXD-049
 runtimeAdmission: NOT_ADMITTED

@@ -101,10 +101,10 @@ test("keeps the two remaining parity findings open because current sources lack 
   // The operation catalog explicitly remains proposal-only, with cross-
   // interface bindings and owner review pending. Those source facts make the
   // second finding a real semantic dependency, not a structural mismatch.
-  assert.match(operations, /^scopeStatus: proposal-only;.*cross-interface-bindings-and-owner-review-pending$/mu);
+  assert.match(operations, /^scopeStatus: proposal-only;[\s\S]*?cross-interface-bindings-and-owner-review-pending$/mu);
   const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
   assert.match(parity, /bindingStatus: names align to existing operation family names; handler schema\/authority contract and semantic-owner acceptance remain pending/u);
-  assert.match(parity, /bindingStatus: 17-domain-operation-candidates; 26-identities-remain-unresolved-including-transport-only-and-provider-admin-roles/u);
+  assert.match(parity, /bindingStatus: 17-domain-operation-candidates-remain-proposed; eight-source-evidenced-health-or-metrics-identities-are-transport-only; ten-model-or-voice-administration-identities-are-provider-admin; eight-profile-adaptation-or-feedback-identities-remain-unresolved/u);
 
   const actual = analyzeContractParity(validStructuralInput({
     agentToolRegistry: toolRegistry,
@@ -112,7 +112,7 @@ test("keeps the two remaining parity findings open because current sources lack 
   }));
   assert.deepEqual(actual.gaps.filter((gap) => gap.startsWith("Agent Tool structural inventory") || gap.startsWith("semantic binding unresolved:")), [
     "Agent Tool structural inventory found 4 tools; operation bindings and complete input/result contract parity remain pending",
-    "semantic binding unresolved: PDP-1 operations remain proposal-only; nine-organizational-families-with-distinct-operation-identities; cross-interface-bindings-and-owner-review-pending; structural identities are not accepted mappings",
+    "semantic binding unresolved: PDP-1 operations remain proposal-only;; structural identities are not accepted mappings",
   ]);
 });
 
@@ -389,7 +389,7 @@ test("typed UI action dispositions reconcile exactly to the 146 source identitie
   const ui = parity.split("\ntypedUiActionDispositions:\n")[1];
   assert.ok(ui, "typed UI action disposition section is present");
   assert.match(ui, /^  denominator: 146$/mu);
-  const entriesText = ui.split("\n  entries:\n")[1];
+  const entriesText = ui.split("\n  entries:\n")[1].split(/\n(?=[a-zA-Z][\w-]*:)/u)[0];
   const entries = entriesText.trimEnd().split(/(?=^  - identity: )/mu).map((text) => {
     const [, identity, body] = text.match(/^  - identity: (media\.action\.[^\n]+)\n([\s\S]*)$/u) ?? [];
     return [text, identity, body];
@@ -445,7 +445,8 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   assert.ok(sourceSection, "source-denominator UI action section is present");
   const sourceDenominatorSection = operations.match(/uiProductActions:\n([\s\S]*?)\n  httpOperations:/u)?.[1];
   assert.ok(sourceDenominatorSection, "PDP-1 source denominator and exact refs are present");
-  const typedSection = parity.split("\ntypedUiActionDispositions:\n")[1];
+  const typedSection = parity.match(/\ntypedUiActionDispositions:\n([\s\S]*?)(?=\n[a-zA-Z][\w-]*:)/u)?.[1];
+  assert.ok(typedSection, "typed UI action section ends at the next top-level artifact section");
   assert.ok(typedSection, "typed UI action section is present");
 
   const parseCounts = (section) => {
@@ -500,8 +501,8 @@ test("the two UI action binding views reconcile exact PDP-1 refs and preserve ev
   }, {});
   assert.deepEqual(typedDispositionCounts, sourceDispositionCounts, "both views of action dispositions agree");
 
-  const unresolvedText = sourceDenominatorSection.match(/^    unresolvedActionIds: \[([^\]]*)\]$/mu)?.[1] ?? "";
-  const unresolvedIds = [...unresolvedText.matchAll(/media\.action\.[a-z0-9.-]+/gu)].map((match) => match[0]);
+  const unresolvedText = sourceDenominatorSection.split("    unresolvedActionIds:\n")[1] ?? "";
+  const unresolvedIds = [...unresolvedText.matchAll(/^      - (media\.action\.[^\n]+)$/gmu)].map(([, id]) => id);
   const expectedUnresolved = sourceIds.filter((identity) => !explicitOperationIds.has(identity));
   assert.equal(unresolvedIds.length, 132);
   assert.equal(new Set(unresolvedIds).size, 132);
@@ -548,21 +549,27 @@ test("semantic candidates never contradict the HTTP and gRPC typed role disposit
     const candidateBlock = surface.match(/proposedSemanticCandidates:\n([\s\S]*?)(?=\n    unresolved:|\n    dispositionCounts:)/u)?.[1] ?? "";
     return [...candidateBlock.matchAll(/\[([^\]]*)\]/gu)].flatMap((match) => match[1].split(",").map((id) => id.trim()));
   };
-  const httpRoleOnly = [...inlineList(typedHttp, "transportOnly"), ...inlineList(typedHttp, "providerAdmin")];
+  const httpRoleOnly = inlineList(typedHttp, "transportOnly");
+  const sourceTransportOnlyBlock = httpSurface.match(/sourceBackedNonOperationDispositions:\n      TRANSPORT_ONLY:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
+  const sourceTransportOnly = [...sourceTransportOnlyBlock.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
   const httpUnresolved = inlineList(httpSurface, "unresolved");
-  assert.deepEqual(httpUnresolved.sort(), httpRoleOnly.sort(), "all role-only HTTP identities remain unresolved as operation bindings");
+  assert.deepEqual(httpRoleOnly.sort(), sourceTransportOnly.sort(), "typed HTTP transport roles reconcile to exact source dispositions");
+  assert.deepEqual(httpUnresolved, ["getMediaProviders"], "provider inventory remains unresolved as a potential product query");
   assert.equal(httpRoleOnly.some((identity) => candidateIds(httpSurface).includes(identity)), false,
-    "transport-only/provider-admin HTTP identities cannot be proposed as domain operations");
-  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 13, boundedDefinition: 5, unresolved: 9\}/u);
+    "transport-only HTTP identities cannot be proposed as domain operations");
+  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 13, boundedDefinition: 5, transportOnly: 8, unresolved: 1\}/u);
 
   const grpcRoleOnly = [...inlineList(typedGrpc, "transportOnly"), ...inlineList(typedGrpc, "providerAdmin")];
+  const sourceGrpcNonOperationBlock = grpcSurface.match(/sourceBackedNonOperationDispositions:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
+  const sourceGrpcNonOperation = [...sourceGrpcNonOperationBlock.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
+  assert.deepEqual(grpcRoleOnly.sort(), sourceGrpcNonOperation.sort(), "typed gRPC transport/admin roles reconcile to exact source dispositions");
   const grpcCandidateIds = candidateIds(grpcSurface);
-  const grpcUnresolved = [...grpcSurface.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
-    .flatMap((match) => match[2].split(",").map((method) => `${match[1]}.${method.trim()}`));
-  assert.deepEqual(grpcUnresolved.sort(), grpcRoleOnly.sort(), "all role-only gRPC identities remain unresolved as operation bindings");
+  const grpcUnresolvedRoleIds = [...grpcSurface.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
+    .flatMap(([, service, methods]) => methods.split(",").filter((method) => method.trim()).map((method) => `${service}.${method.trim()}`));
+  assert.equal(grpcUnresolvedRoleIds.length, 8, "profile/adaptation/feedback methods remain unresolved explicitly");
   assert.equal(grpcRoleOnly.some((identity) => grpcCandidateIds.includes(identity)), false,
     "transport-only/provider-admin gRPC identities cannot be proposed as domain operations");
-  assert.match(grpcSurface, /dispositionCounts: \{mappedProposal: 17, unresolved: 26\}/u);
+  assert.match(grpcSurface, /dispositionCounts: \{mappedProposal: 17, transportOnly: 8, providerAdmin: 10, unresolved: 8\}/u);
 
   const grpcSource = operations.match(/^  grpcRpcs:\n([\s\S]*?)(?=^  cliSimulationCommands:)/mu)?.[1];
   assert.ok(grpcSource, "PDP-1 gRPC source observation section exists");
@@ -587,7 +594,7 @@ test("retired unsafe retry remains in historical finding census only while sourc
   const input = validStructuralInput({sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source}});
   const result = analyzeContractParity(input);
   assert.equal(result.retiredFindings.length, 5);
-  assert.equal(result.historicalFindingCount, result.observedFindingCount + 5);
+  assert.equal(result.historicalFindingCount, result.historicalObservedFindingCount + 5);
   const unsafe = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replace('throw new MediaOperationNotAdmittedError("media.operation.retry");', 'return this.request("POST", "/retry");')}};
   assert.equal(analyzeContractParity(unsafe).retiredFindings.some(row => row.path.endsWith(':retry')), false);
   assert.equal(analyzeContractParity(unsafe).retiredFindings.length, 4);
@@ -600,14 +607,17 @@ test("retired unsafe retry remains in historical finding census only while sourc
 
 test("live source finding census keeps unresolved owner gaps and retired routes explicit", () => {
   const result = analyzeContractParity(collectLiveInput());
-  // The 45 reconciled findings are individually source-dispositioned. Two
-  // authoritative semantic gaps remain (Agent Tool contracts and PDP-1
-  // owner-reviewed cross-interface bindings); neither can be closed by names.
+  // The historical source census remains 47 findings: 45 dispositioned and
+  // two open. New typed contract validation gaps stay visible in the current
+  // result without changing that historical program truth.
+  assert.equal(result.historicalObservedFindingCount, 47);
   assert.equal(result.observedFindingCount, 47);
   assert.equal(result.reconciledFindings.length, 45);
   assert.equal(result.gaps.length, 2);
   assert.equal(result.historicalFindingCount, 52);
   assert.equal(result.historicalDispositionedCount, 50);
+  assert.equal(result.historicalUnresolvedCount, 2);
+  assert.equal(result.typedContractGaps.length, 0);
   assert.equal(result.retiredFindings.length, 5);
   assert.match(result.gaps.join("\n"), /Agent Tool structural inventory found 4 tools/u);
   assert.match(result.gaps.join("\n"), /PDP-1 operations remain proposal-only/u);

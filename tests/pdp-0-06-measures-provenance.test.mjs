@@ -90,8 +90,9 @@ test("P0-06 defines exact outcome/capability crosswalks and deterministic profil
     assert.match(measure.calculation, /NOT_EVALUATED/u);
     assert.equal(measure.valueUnit, "percent; retain raw integer numerator and denominator with each observation.");
     assert.match(measure.profileBinding, /Freeze/u);
-    assert.match(measure.capabilityCrosswalkStatus, /source-trace-only/u);
-    assert.match(measure.populationEnumeration, /^NOT_EVALUATED/u);
+    assert.match(measure.capabilityCrosswalkStatus, /exact-.*(?:owner-applicability|candidate-leaf)-crosswalk/u);
+    assert.match(measure.capabilityCrosswalkStatus, /admitted-population-and-measurements-NOT_EVALUATED/u);
+    assert.match(measure.populationEnumeration, /NOT_EVALUATED/u);
     assert.ok(measure.ownerRecommendation.length > 40);
     assert.match(measure.baseline, /^NOT_EVALUATED/u);
     assert.match(measure.target, /^NOT_SET/u);

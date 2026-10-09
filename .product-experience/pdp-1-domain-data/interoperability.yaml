@@ -100,3 +100,24 @@ unresolved:
   - consumer-inventory-and-compatibility-proof
   - verified-cross-product-artifact-reference-and-version-semantics
   - tool-protocol-and-SDK-release-support-status
+
+canonicalDefinitionConversionBinding:
+  sourceRef: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+  executableModel: scripts/lib/media-temporal-spatial-definition-model.mjs
+  decisionRef: .product-experience/decision-log.md#PXD-074
+  scope: Explicitly typed definition profiles only; this binding does not reinterpret existing unspecified WordTimestamp units, Number fps or service-specific scalar coordinates.
+  interchangeRules:
+    - Decimal/wire transport must preserve exact integer/rational components; JSON Number cannot represent arbitrary signed-64-bit ticks losslessly.
+    - Unspecified source clock, endpoint convention, unit, origin or image version is NOT_ADMITTED to these converters. A name such as start/end/fps is insufficient.
+    - Rational cadence 30000/1001 frames per second is represented by timeBase 1001/30000 seconds per frame, never an approximate 29.97 scalar alias.
+    - Loss and source/target time bases accompany every inexact converted timestamp; a downstream renderer must not hide uncertainty or claim scientific alignment.
+    - Audio boundary arithmetic does not subtract encoder priming/padding without separately identified qualified stream metadata and explicit offset mapping.
+    - Image coordinate conversion preserves exact image version; crop, rotation, display aspect and world-frame conversions require an additional declared transform and loss report.
+    - Pixel-center and pixel-boundary profiles are distinct identified conventions; their converters reject cross-profile values. Center normalization uses exact (index+1/2)/dimension; no legacy coordinate field is assigned this convention implicitly.
+  verification: tests/media-temporal-spatial-definition-model.test.mjs
+  independentExpertDecision: PENDING
+  runtimeAndWireAdapterQualification: NOT_EVALUATED
+  supplementalDefinitionDecisionRefs:
+    - .product-experience/decision-log.md#PXD-079
+    - .product-experience/decision-log.md#PXD-080
+  canonicalDescriptorRef: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions

@@ -4,11 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 const parseYaml = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml').parse;
+import { enumerateExpectedMediaObligations } from '../scripts/lib/media-obligation-denominator-audit.mjs';
 const componentContracts = parseYaml(fs.readFileSync('.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'utf8')).components;
 
 const proposal = JSON.parse(fs.readFileSync('config/closure/media-product-definition/l02-source-case-links.json', 'utf8'));
 const obligations = JSON.parse(fs.readFileSync('config/closure/media-product-definition/obligations.json', 'utf8'));
 const simulationPackage = JSON.parse(fs.readFileSync('libs/media-experience-simulation/package.json', 'utf8'));
+const expectedPopulation = enumerateExpectedMediaObligations({root:process.cwd(),parseYaml});
 const obligationIds = obligations.map(({ id }) => id);
 const obligationsById = new Map(obligations.map((obligation) => [obligation.id, obligation]));
 const screenContractsDirectory = '.product-experience/pdp-3-product-experience/screen-contracts';
@@ -228,10 +230,12 @@ function validateLink(link) {
 test('L-02 source-link proposal preserves all obligations and validates exact existing test identities', () => {
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
-  assert.equal(new Set(proposal.obligationIds).size, 348);
+  assert.deepEqual(expectedPopulation.issues, []);
+  assert.deepEqual([...obligationIds].sort(), expectedPopulation.records.map(({obligationId}) => obligationId).sort());
+  assert.equal(new Set(proposal.obligationIds).size, expectedPopulation.records.length);
   assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 44);
   assert.equal(proposal.candidateLinks.length, 65);
-  assert.equal(proposal.unmappedObligationIds.length, 304);
+  assert.equal(proposal.unmappedObligationIds.length, expectedPopulation.records.length - 44);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 

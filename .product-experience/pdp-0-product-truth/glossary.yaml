@@ -1,5 +1,11 @@
 schemaVersion: media.product-glossary.v1
 productId: media
+productIdentity:
+  displayName: Ghatana Media
+  canonicalProductId: media
+  targetRepository: samujjwal/ghatana-media
+  repositoryRole: independently-versioned-Ghatana-product-repository
+  repositoryBoundary: This is a product repository, not a runtime-platform repository or a child workspace of ghatana-products.
 status: proposed-for-phase-0-review
 sourceRefs:
   - master-plan:task-P0-002
@@ -28,6 +34,11 @@ terms:
     definition: The standalone, independently versioned Ghatana product that owns Media domain semantics, product APIs and clients, runtime composition, and its admitted media capabilities.
     aliases: [Media, media product]
     distinctions: [The product is broader than MediaSynth and broader than any one Media runtime service.]
+    semanticScope: Media owns product semantics, APIs and clients, runtime composition, artifact/job/stream domain state, MediaSynth, animation, simulation, quality, editing, composition, and delivery.
+    platformBoundary: Media is a product consumer of Ghatana platform contracts; it does not replace the generic agent graph, Tools product-development lifecycle, or Kernel lifecycle engine.
+    capabilityScopeRule: The complete capability catalog remains in product-definition scope; selecting or qualifying a pilot does not reduce the catalog, and unsupported or absent capabilities remain explicit.
+    catalogDiscoverabilityRule: The full capability catalog remains discoverable through search, reusable recipes, and expert inspection even when a capability is unsupported, unqualified, or not selected for a pilot.
+    capabilityScopePreservationRule: Preserve the full intended Media capability scope across migration and prioritization; capability selection, qualification, or dependency blockage does not erase unrelated defined capabilities.
     forbiddenConflations: [ghatana-products portfolio registry, Ghatana core runtime, a single deployed Media service]
   - id: media.term.media-runtime
     term: Media runtime
@@ -39,19 +50,31 @@ terms:
     term: MediaSynth
     definition: Media's generative orchestration subsystem, composing admitted Media planning and execution capabilities under Media intent and policy.
     aliases: [Media synthesis orchestration]
-    distinctions: [It is a subsystem of Ghatana Media, not another product, generic platform, standalone product authority, or mandatory separately deployed service.]
-    forbiddenConflations: [Ghatana Media product, generic AI Inference router, an individual model/provider]
+    distinctions:
+      - It is a subsystem of Ghatana Media, not another product, generic platform, standalone product authority, or mandatory separately deployed service.
+      - It is not a second product or separate generic platform and is not required to be independently deployed.
+    forbiddenConflations:
+      - Ghatana Media product
+      - generic AI Inference router
+      - an individual model/provider
+      - a second AI Inference router, Agent Runtime, Action Plane, Event Plane, Data Cloud, generic audit, observability, or product-development framework
+    scopeChangeRule: Expanding MediaSynth into a new model/provider execution function requires an explicit Media product-owner decision and must preserve the AI-Inference ownership boundary.
   - id: media.term.media-simulation
     term: Media product simulation
     definition: A Media domain workflow that models or presents a declared simulated/procedural world or process for a media outcome.
     aliases: [simulation workflow]
     distinctions: [Its model, fidelity, solver, limits, and reproducibility must be declared; domain truth remains with the qualified domain owner.]
     forbiddenConflations: [Experience Explorer simulation, ordinary rendered illustration, scientific validation by visual plausibility]
+    experienceProjectionScope: Exact screens and views, channel experience mappings, content, interactions, journeys, scenarios, and product simulation semantics are projections bound to PDP-0/1/2 meaning; this scope does not create a standalone Explorer completion workstream.
   - id: media.term.explorer-simulation
     term: Experience Explorer simulation
     definition: A deterministic mock or projection used to explore and verify proposed product experiences without claiming production execution.
     aliases: [Explorer simulation, UI simulation]
-    distinctions: [It tests an experience projection; it does not qualify models, runtime behavior, or external certification.]
+    distinctions:
+      - It tests an experience projection; it does not qualify models, runtime behavior, or external certification.
+      - It does not supply real runtime execution or measured results.
+      - A standalone Explorer project is outside the PDP-0 through PDP-3 completion mandate; its projected content remains a consumer of accepted PDP meanings.
+    projectionCompletenessRule: Keep exact screens and views, channel experience mappings, content, interactions, journeys, and scenarios bound to their owning PDP definitions; do not promote a projection to product behavior or implementation evidence.
     forbiddenConflations: [Media product simulation, live runtime execution, provider qualification]
   - id: media.term.product-truth
     term: Product Truth
@@ -82,6 +105,7 @@ terms:
     definition: A canonical user or authorized-system expression of the desired Media outcome and relevant constraints.
     aliases: [user intent, action intent]
     distinctions: [Intent compiles to inspectable canonical actions or plans and remains distinct from provider selection.]
+    conversationOutputRule: Authorized conversation-derived intent compiles into inspectable canonical actions or plans. Text or media in a conversation is not automatically an operation input or output. Bind only the exact user-authorized content, version, and fields declared by the canonical operation; conversation-wide output requires an explicit operation contract and consent.
     forbiddenConflations: [model name, execution state, approval, effect finality]
   - id: media.term.recipe
     term: MediaRecipe
@@ -93,7 +117,9 @@ terms:
     term: Resolved execution plan
     definition: The policy-checked resolution of intent into specific admitted operations, parameters, dependencies, and effect boundaries for an execution.
     aliases: [plan]
-    distinctions: [A plan is distinct from immutable user intent, runtime attempt state, and a durable authorization to exceed its declared scope.]
+    distinctions:
+      - A plan is distinct from immutable user intent, runtime attempt state, and a durable authorization to exceed its declared scope.
+      - Plan inspection is not execution or paid inference by default.
     forbiddenConflations: [MediaRecipe, accepted output, provider qualification]
   - id: media.term.document-intelligence
     term: Document Intelligence
@@ -106,24 +132,28 @@ terms:
     definition: Generic extraction of structured information from governed documents under Shared contracts and Document Intelligence execution.
     aliases: [document parsing, generic OCR/extraction]
     distinctions: [A document represented as JPEG/PNG remains a document; generic extraction is not a Media responsibility.]
+    dependencyBindingBoundary: Deployment-specific resolved or public artifact bindings belong to the runtime dependency owner and must remain constrained by PDP-0 dependency semantics; this definition does not authorize deployment or copy runtime bindings into product meaning.
     forbiddenConflations: [scene-text tracking, video-frame temporal association, Media artifact semantics]
   - id: media.term.scene-text-recognition
     term: Media scene-text recognition
     definition: Media-specific recognition use that selects frames or regions and associates detected text with media time, scene, track, overlay, editing, or composition intent.
     aliases: [scene text, temporal text recognition, video text tracking]
     distinctions: [Media owns temporal/scene semantics; a narrow adapter may consume Document Intelligence public APIs for generic recognition facts.]
+    isolationRule: Running a decoder, script, simulation, or model out of process does not by itself establish a sandbox; execution isolation must explicitly bound resources, filesystem, network, subprocesses, and output registration.
     forbiddenConflations: [generic OCR engine, generic document extraction, text in an image automatically being Media-owned]
   - id: media.term.artifact
     term: Artifact
     definition: A versioned media object or result whose identity, bytes/reference, metadata, access, and lifecycle are governed by the owning contract.
     aliases: [media artifact]
     distinctions: [A product artifact is not interchangeable with a project binding or independent byte store.]
+    credentialHandlingRule: Never store bearer credentials in project files, command history, or exported plans; artifact references and project bindings are not credential containers.
     forbiddenConflations: [MediaAsset, project revision, generic ParsedDocument]
   - id: media.term.media-asset
     term: MediaAsset
     definition: A project's usage or binding of an artifact, with project-specific organization and references.
     aliases: [asset binding]
     distinctions: [It is not a second authority for artifact bytes.]
+    marketingAuthorityBoundary: MediaAsset describes a project-specific binding and must not create a second marketing identity or product authority for the referenced artifact.
     forbiddenConflations: [artifact storage, derived artifact, project revision]
   - id: media.term.derived-artifact
     term: Derived artifact
@@ -140,8 +170,10 @@ terms:
   - id: media.term.processing-job
     term: ProcessingJob
     definition: A durable, observable unit of requested Media work with intent, attempts, state, outputs, and truthful finality.
+    renderJobBoundary: RenderJob is a typed view of ProcessingJob with render intent, not a separate job lifecycle.
+    streamDisconnectRule: An event-stream disconnect does not lose durable job state; job state remains observable through its canonical identity.
     aliases: [Media job, job]
-    distinctions: [RenderJob and ArtifactVerificationJob are typed views of ProcessingJob intent, not separate lifecycle authorities; job finality does not replace artifact lifecycle state.]
+    distinctions: [RenderJob and ArtifactVerificationJob are typed views of ProcessingJob intent, not separate lifecycle authorities; job finality does not replace artifact lifecycle state; losing an event-stream connection does not erase durable job state.]
     forbiddenConflations: [provider request, browser attachment, project revision]
   - id: media.term.artifact-verification-job
     term: Artifact verification job
@@ -166,6 +198,7 @@ terms:
     definition: Newly synthesized detail or content produced while restoring, enhancing, or generating media.
     aliases: [generated detail, reconstruction]
     distinctions: [It must be disclosed where material and cannot certify recovery of unknowable original detail.]
+    modelBindingRule: Model-specific names such as flux_dev, sdxl_turbo, and ltx_i2v are candidate bindings only, not product defaults or evidence of license eligibility.
     forbiddenConflations: [recovered original evidence, deterministic composition, measured source detail]
   - id: media.term.local-private-execution
     term: Local or private execution
@@ -176,6 +209,8 @@ terms:
   - id: media.term.capability-status
     term: Capability status dimensions
     definition: Separate states for product definition, implementation, qualification, license admission, and runtime availability.
+    evidenceRule: A definition record establishes only the definition axis; it does not assert implementation, model qualification, license admission, or runtime availability.
+    discoverySafetyRule: Capability discovery reports the safe contract, currently eligible combinations, limits, unsupported combinations, and qualification status; a catalog listing alone cannot claim an unavailable or unqualified option is executable.
     aliases: [capability availability]
     distinctions: [Unknown and not-evaluated are not available; a declared capability can exist in product scope without an implementation.]
     forbiddenConflations: [source presence, package declaration, successful one-off execution, qualified support]
@@ -189,7 +224,9 @@ terms:
     term: Processing provenance
     definition: Authorized, lifecycle-bounded lineage describing inputs, transformations, relevant identities, and processing context for a result.
     aliases: [lineage]
-    distinctions: [Provenance supports inspection and does not independently prove content truth or justify indefinite retention.]
+    distinctions:
+      - Provenance supports inspection and does not independently prove content truth or justify indefinite retention.
+      - Missing or stripped provenance is unavailable evidence, not proof that media is authentic or malicious.
     forbiddenConflations: [audit authority, content authenticity, permanent retention right]
   - id: media.term.audit-intent
     term: Audit intent
@@ -202,18 +239,26 @@ terms:
     definition: Independent declarations for access/sharing, classification, processing location, consent/rights, and retention.
     aliases: [privacy settings]
     distinctions: [A single label such as private or public cannot substitute for each applicable policy axis.]
+    summaryRule: >-
+      Offer a simple human-readable summary of access/sharing, classification,
+      processing location, consent/rights, and retention when useful, while
+      preserving each applicable axis independently in the underlying
+      decision and record.
     forbiddenConflations: [tenant access, processing location, public release, rights clearance]
   - id: media.term.disclosure-levels
     term: Simple, Guided, and Expert
     definition: Three progressive disclosure levels over one Media semantic model, action set, and state.
     aliases: [Simple, Guided, Expert]
     distinctions: [Switching levels preserves authority and edits; it does not create separate workflows.]
+    capabilityAbsenceRule: Capability absence or inapplicability is explicit; do not invent fake implementations of unrelated methods to satisfy a shared interface.
     forbiddenConflations: [user permissions, product editions, different capability implementations]
   - id: media.term.deterministic-composition
     term: Deterministic composition
     definition: Reproducible placement/rendering of exact text, logos, captions, figures, or disclosures through declared composition rules.
     aliases: [exact-content composition]
-    distinctions: [It is used when exact content must not be altered by generation; the full encoded output may still have declared reproducibility limits.]
+    distinctions:
+      - It is used when exact content must not be altered by generation; the full encoded output may still have declared reproducibility limits.
+      - A generative model is not the authority for exact text.
     forbiddenConflations: [generative text rendering, cross-platform bitwise determinism]
   - id: media.term.media-time
     term: Media presentation time
@@ -238,6 +283,7 @@ terms:
     definition: A versioned textual observation of spoken content, optionally linked to speakers and source media time.
     aliases: [speech transcript]
     distinctions: [Recognition, alignment, language, and speaker uncertainty remain explicit; a transcript is not itself a caption track.]
+    translationMeaningRule: Dubbing may assist translation, but the user or domain owner retains meaning approval; duration fit does not justify mistranslation.
     forbiddenConflations: [caption presentation, verified quotation, source audio]
   - id: media.term.caption
     term: Caption
@@ -250,6 +296,7 @@ terms:
     definition: Existing internal build, Java namespace, or package identity retained as a compatibility name during behavior-preserving relocation.
     aliases: [audio-video, AudioVideo]
     distinctions: [These names remain valid only where an existing build or public compatibility contract requires them; new product-facing names use Ghatana Media or Media.]
+    scopePreservationRule: Preserve full intended Media capability scope across behavior-preserving relocation; legacy package or namespace identity is only a compatibility label and does not narrow product meaning.
     forbiddenConflations: [a separate Audio-Video product, the full Media capability scope, a user-facing intent]
 namingRules:
   productDisplayName: Ghatana Media
@@ -261,7 +308,7 @@ namingRules:
   compatibilityNames:
     source: docs/migration/expert-reviewed-master-plan.md#2-1-stable-naming
     allowedOnlyFor: existing-build-coordinates-java-namespaces-and-published-package-identities
-    examples: [audio-video, AudioVideo, com.ghatana.audio.video, '@audio-video/types', '@audio-video/client', '@audio-video/ui']
+    examples: [audio-video, AudioVideo, com.ghatana.audio.video, '@audio-video/types', '@audio-video/client', '@audio-video/ui', com.ghatana.media.*, com.ghatana.audio.video.*]
     rule: Preserve during migration; do not use as new product labels, new capability names, or new package names.
   jobStatusAndOutcome:
     distinction: Job status describes the current lifecycle record; job outcome describes whether the submitted effect is confirmed, failed, or still unknown.
@@ -286,6 +333,12 @@ namingRules:
       - { insteadOf: 'Retry', use: 'Check status before retrying when outcome is unknown' }
 unitsAndConventions:
   status: proposed-needs-owner-contract-validation
+  boundedInputRule: >-
+    Validate finite limits for text length, nested object depth, array counts,
+    source size, duration, pixel/frame count, sample rate, channels, graph
+    nodes and edges, timeline clips, generated candidates, and output bytes.
+    Define each bound in the owning capability/profile contract; this rule
+    requires validation but does not invent universal numeric limits.
   rules:
     - id: media.unit.rational-time
       quantity: Time and rates
@@ -300,6 +353,7 @@ unitsAndConventions:
       quantity: Scene-space geometry
       representation: Proposed initial convention is right-handed, +Y up, meters, seconds, kilograms, radians; camera forward -Z; quaternions [x, y, z, w]; column vectors; local transform T × R × S; world transform parentWorld × local; column-major serialized matrices.
       conversionRule: Validate against admitted Ghatana scene/model contracts before acceptance; use explicit tested conversions and reject silent axis or degree/radian changes.
+      ownerDeclaredUnitOverrideRule: The initial Media-native convention is a default only. A domain owner may declare converted units for its domain; bind the source and destination unit systems, exact conversion mapping, precision/rounding and applicable coordinate-frame changes, preserve that declaration with the value, and reject implicit or lossy conversion unless explicitly authorized by the domain contract.
     - id: media.unit.image-coordinates
       quantity: Image-space coordinates
       representation: Proposed top-left origin and pixel-center coordinates; normalized coordinate mappings must be declared.
@@ -308,3 +362,4 @@ unitsAndConventions:
       quantity: Measured or estimated properties
       representation: Record unit, method, applicable uncertainty/confidence, and whether the value is measured, inferred, or generated.
       conversionRule: Never silently present an estimate or predicted output as ground truth.
+      estimatePresentationRule: Label every estimated or predicted value as estimated/predicted and retain its method and applicable uncertainty; do not represent it as measured ground truth.

@@ -5,9 +5,7 @@ status:
   productAdmission: pending
   runtimeSupportClaims: none
   note: >-
-    Repository/API/client presence is evidence of a source surface only. It
-    does not prove package publication, deployment, qualification, licensing,
-    end-user support, or runtime availability.
+    Repository/API/client presence is evidence of a source surface only. It does not prove package publication, deployment, qualification, licensing, end-user support, or runtime availability.
 dependencies:
   p0-001:
     status: accepted-boundary-slice
@@ -53,8 +51,7 @@ sourceEvidence:
       fact: Legacy desktop application material is retained in an archive.
       doesNotProve: An active or supported desktop application.
   currentBoundary: >-
-    The archived desktop application and product-specific legacy experience are
-    preservation material only unless separately qualified and admitted.
+    The archived desktop application and product-specific legacy experience are preservation material only unless separately qualified and admitted.
 
 channels:
   - id: media.channel.web
@@ -67,9 +64,49 @@ channels:
     phase0Admission: pending
     evidence: Master-plan proposed view routes in section 20.2; active supported Web deployment is not evidenced by this artifact.
     intendedRole: Primary interactive product surface if selected and admitted.
-    viewReferences: [M-HOME, M-PROJECTS, M-PROJECT, M-ASSETS, M-ASSET, M-UPLOAD, M-CREATE, M-PLAN, M-STORYBOARD, M-IMAGE, M-VIDEO, M-AUDIO, M-SPEECH, M-VOICE, M-CAPTIONS, M-DUB, M-ENHANCE, M-COMPARE, M-EDIT, M-MASK, M-ANIMATION, M-SCENE, M-SIMULATION, M-COMPOSER, M-COLOR, M-QUALITY, M-RENDER, M-ACTIVITY, M-JOB, M-OUTPUTS, M-OUTPUT, M-DELIVERY, M-REVIEW, M-RIGHTS, M-PROVENANCE, M-PROFILES, M-PROVIDERS, M-OPERATIONS, M-SETTINGS, M-AUTH, M-HELP]
+    viewReferences:
+      - M-HOME
+      - M-PROJECTS
+      - M-PROJECT
+      - M-ASSETS
+      - M-ASSET
+      - M-UPLOAD
+      - M-CREATE
+      - M-PLAN
+      - M-STORYBOARD
+      - M-IMAGE
+      - M-VIDEO
+      - M-AUDIO
+      - M-SPEECH
+      - M-VOICE
+      - M-CAPTIONS
+      - M-DUB
+      - M-ENHANCE
+      - M-COMPARE
+      - M-EDIT
+      - M-MASK
+      - M-ANIMATION
+      - M-SCENE
+      - M-SIMULATION
+      - M-COMPOSER
+      - M-COLOR
+      - M-QUALITY
+      - M-RENDER
+      - M-ACTIVITY
+      - M-JOB
+      - M-OUTPUTS
+      - M-OUTPUT
+      - M-DELIVERY
+      - M-REVIEW
+      - M-RIGHTS
+      - M-PROVENANCE
+      - M-PROFILES
+      - M-PROVIDERS
+      - M-OPERATIONS
+      - M-SETTINGS
+      - M-AUTH
+      - M-HELP
     supportRule: Design for responsive, semantic, keyboard-operable processes; availability for any deployment/browser remains unverified.
-
   - id: media.channel.api
     name: Protocol-neutral API
     definitionState: proposed
@@ -79,9 +116,10 @@ channels:
     runtimeAvailability: UNKNOWN
     phase0Admission: pending
     intendedRole: Logical API semantics shared by admitted concrete transports; this identity does not imply HTTP or gRPC availability for any operation.
-    concreteTransportReferences: [media.channel.http-api, media.channel.grpc-api]
+    concreteTransportReferences:
+      - media.channel.http-api
+      - media.channel.grpc-api
     supportRule: Resolve per-operation transport bindings and contracts before claiming endpoint support; protocol-neutral API references do not widen HTTP or gRPC admission.
-
   - id: media.channel.embedded
     name: Embedded Media experience
     definitionState: proposed
@@ -92,7 +130,6 @@ channels:
     phase0Admission: pending
     intendedRole: Media experience or capability presented inside an explicitly admitted host product context while Media retains its domain and state authority.
     supportRule: Host context, identity, rights, navigation, and handoff contracts are required; this channel is distinct from product-to-product API integration and does not imply an embedded runtime exists.
-
   - id: media.channel.http-api
     name: HTTP/OpenAPI
     definitionState: proposed
@@ -105,7 +142,6 @@ channels:
     evidence: services/media/contracts/openapi/media.yaml
     intendedRole: Public machine/product integration and supported read/write operations as admitted per operation.
     supportRule: Routes, operations, authentication, finality, idempotency, and availability require owner-reviewed public bindings; the OpenAPI file alone does not establish them.
-
   - id: media.channel.grpc-api
     name: gRPC service contracts
     definitionState: proposed
@@ -121,7 +157,6 @@ channels:
       - services/media/modules/vision/vision-service/src/main/proto/vision_service.proto
       - services/media/modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
     supportRule: Each service and operation requires its own provider, auth, cancellation, finality, and runtime disposition.
-
   - id: media.channel.sdk
     name: Client libraries
     definitionState: proposed
@@ -136,19 +171,48 @@ channels:
       - services/media/libs/audio-video-types/package.json
       - services/media/libs/audio-video-ui/package.json
     supportRule: Source package presence is not publication or consumer-compatibility proof; publishable exports and supported client environments remain to be verified.
-
   - id: media.channel.cli
     name: Command-line batch interface
-    definitionState: proposed
+    definitionState: owner-defined-command-identity; commands-and-admission-pending
     implementationState: no-user-facing-Media-CLI-admission-established
     qualificationState: NOT_EVALUATED
     licenseAdmissionState: NOT_EVALUATED
     runtimeAvailability: UNKNOWN
     phase0Admission: pending
+    commandIdentity: ghatana-media
+    commandIdentityMeaning: Canonical intended product CLI command label only; this does not assert an installed, published, supported, or runtime-available executable.
     evidence: Master-plan sections 17 and 20 propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.
     intendedRole: Deterministic non-interactive plan/submit/watch/reconcile over the same Media semantic state/actions as Web and API.
     supportRule: Consequential operations require explicit authority; scripts/build entrypoints are not treated as a product CLI.
-
+    ownerCliDefinitionContract:
+      id: media.cli.definition-boundaries.v1
+      authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      sourceBasis:
+        - .product-experience/pdp-1-domain-data/operations.yaml#actionOperationDispositionInventory
+        - Master-plan sections 17 and 20 cited by media.channel.cli
+      definitionOnly: true
+      pathHandling:
+        rule: A local filesystem path is a client-side input reference only. Never reinterpret it as an HTTP route, URL, server filesystem path, or arbitrary server-side retrieval target.
+        serverRead: A server-side read requires an exact canonical Media artifact/version identity and current authorized query contract; local paths are not Media artifact identities.
+      interruptHandling:
+        ctrlC:
+          effect: stop-local-wait-or-stream-observation
+          exitCode: 130
+          serverCancellation: false
+          jobStateChange: false
+          unknownMutationOutcome: A command already sent remains pending or OUTCOME_UNKNOWN until an exact authorized reconciliation query resolves it; interruption does not imply rejection or cancellation.
+      flagApplicability:
+        rule: Each flag is declared per exact command identity and request schema; unknown, inapplicable, or conflicting flags fail before dispatch. A flag name shared across commands does not imply shared meaning.
+        readOnlyCommands:
+          idempotencyKey: FORBIDDEN_OR_NOT_APPLICABLE; queries do not accept a replay key because they create no effect.
+        consequentialCommands:
+          idempotencyKey: REQUIRED_ONLY_WHEN_THE_EXACT_CANONICAL_COMMAND_SCHEMA_DECLARES_IT; never inferred from CLI family or added to queries.
+      outputAndExit:
+        query: Emit a bounded observation with observedAt; exit status describes local query completion only.
+        command: Emit the exact canonical receipt/error/unknown outcome; exit status does not expand operation finality.
+        interruptExitCode: 130
+      scopeStatus: "OWNER_DEFINED_CLI_SEMANTICS; CLI executable, parser, route, server behavior and channel admission are not established"
+      executionAdmission: NOT_ADMITTED
   - id: media.channel.product-integration
     name: Product-to-product integration
     definitionState: proposed
@@ -160,7 +224,6 @@ channels:
     intendedRole: Share typed requests/results and owner-referenced artifacts without sharing private databases or duplicating domain authority.
     handoffContract: handoff-contracts.yaml
     supportRule: Each integration is separately admitted; a consumer reference or open request is not fulfillment.
-
   - id: media.channel.legacy-desktop
     name: Archived desktop product experience
     definitionState: historical-archive
@@ -236,6 +299,16 @@ localeAdmission:
     - { tag: hi-IN, script: Devanagari, status: proposed-test-fixture-not-launch-claim }
     - { tag: ar, script: Arabic/RTL, status: proposed-only-no-locale-support-claim }
     - { tag: qps-ploc, script: pseudo-localization, status: proposed-only-no-locale-support-claim }
+  requiredResilienceTestRule:
+    id: media.locale.required-resilience-test-rule
+    rule: >-
+      Where locale behavior is claimed, exercise at least Latin and Devanagari fixtures plus RTL or pseudo-localization.
+      Verify bidi direction, licensed font fallback, script shaping, long-label expansion, translated-caption wrapping,
+      and date/number/time formatting independently for each admitted capability. A fixture passing is test evidence for
+      that exact capability and configuration only; it does not admit a locale, establish launch support, or certify
+      localization generally.
+    testOnlyFixtures: [en-Latin, hi-IN-Devanagari, ar-Arabic-RTL, qps-ploc-pseudo-localization]
+    scopeStatus: DEFINITION_ONLY; no locale set or runtime is admitted here.
   rules:
     - Unadmitted or unqualified language/voice choices appear as unavailable with a reason; never silently fall back to English.
     - Locale admission requires testing long labels, translated-caption wrapping, bidi/RTL, shaping, licensed font fallback, and formatting independently per capability.
@@ -245,3 +318,53 @@ applicationAndConsumerContext:
   ownerRegistry: handoff-contracts.yaml
   observedConsumerInventory: migration/consumer-inventory.yaml
   note: Consumer availability, contract acceptance, fulfillment, activation, and channel admission are distinct statuses.
+ownerLeafApplicabilityRules:
+  decisionId: MEDIA-OWNER-2026-10-08-P0-07-LEAF-CHANNEL-APPLICABILITY-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication.records
+  ruleBoundary: Definition-scope decisions only; none of these rows is runtime, license, qualification, or channel admission.
+  rules:
+    EXACT_SOURCE_CHANNEL_LABEL: Map each capability supportedChannels label only to the channel whose source ID has that exact label; logical api maps only to media.channel.api.
+    API_ALIAS_DOES_NOT_ASSERT_HTTP_GRPC_OR_SDK_EQUIVALENCE: A leaf naming logical api is definition-applicable to HTTP, gRPC, and SDK contract work only as a pending concrete adapter; no transport equivalence, endpoint, or package admission is claimed.
+    AGENT_ROLE_OR_EXPLICIT_PRODUCT_INTEGRATION: Agent definition scope applies only when the leaf explicitly names automation-agent or product-integration; exact per-action tool binding, host identity, and authorization remain required.
+    NO_AGENT_ROLE_OR_PRODUCT_INTEGRATION_IN_THIS_LEAF_SOURCE: No Agent tool invocation is included for the leaf unless its actor/interface source explicitly includes an automation agent or product integration.
+    EVENTS_ARE_VERSIONED_NOTIFICATIONS_NOT_COMMAND_TRANSPORT: Events are not capability invocation channels. Exact producer/observer applicability is defined by PDP-1 event contracts; no event is command acknowledgement absent an explicit receipt contract.
+    ARCHIVED_DESKTOP_SOURCE_ONLY: Legacy desktop is excluded from active product scope based on archived-only consumer inventory; no desktop feature or migration is implied.
+    NO_EXACT_LEAF_SOURCE_OR_PRODUCT_ACTOR_SCOPE_FOR_CHANNEL: The Media owner does not select a channel absent an exact source label or explicit actor/interface role; this is a definition-scope exclusion, not a runtime denial.
+ownerDefinedChannels:
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication.records.channelApplicability
+  records:
+    - id: media.channel.agent
+      name: Agent tool mediation
+      definitionState: owner-defined; independent-review-pending
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      licenseAdmissionState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      phase0Admission: pending
+      intendedRole: Expose only exact, owner-defined Media operation and query contracts to an admitted host agent. The host supplies trusted tenant/principal/workspace context; tool arguments cannot assert identity or elevate authority.
+      authorityBoundary: Every call is re-authorized under the exact Media contract and current policy. No general shell, arbitrary URL retrieval, provider selection, unsupported parameter, or bypass of rights, consent, workspace, or finality checks.
+      resultBoundary: Return the canonical typed result or declared error with provenance and observedAt. A tool response is not proof of external completion unless the canonical operation receipt says so.
+      contractRequirement: Exact action-to-operation mapping, input/output schema, trusted context, delegation, errors, idempotency, and unknown-outcome recovery are required before any Agent channel admission.
+      sourceBasis:
+        - .product-experience/pdp-0-product-truth/applications-channels.yaml#applicationAndConsumerContext
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
+      executionAdmission: NOT_ADMITTED
+    - id: media.channel.event
+      name: Domain event observation and notification
+      definitionState: owner-defined; independent-review-pending
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      licenseAdmissionState: NOT_EVALUATED
+      runtimeAvailability: UNKNOWN
+      phase0Admission: pending
+      intendedRole: Observe only explicitly catalogued Media domain events or user notification events. This channel is not a command invocation surface.
+      authorityBoundary: Events are tenant-scoped, minimized, versioned observations. Event names, producer, ordering, deduplication, replay, retention and privacy are defined by the exact PDP-1 event contract; an event is not command acknowledgement or finality without a contract-specific receipt.
+      contractRequirement: Event publisher/observer, schema, ordering, deduplication, privacy, durability, and recovery contract must be exact; external event-plane and runtime qualification remain separate.
+      sourceBasis:
+        - .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope
+        - .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts
+      executionAdmission: NOT_ADMITTED
+channelIdentityPrecedence: channels preserves the nine historically authored channel observations; ownerDefinedChannels.records adds the two Media-owner decisions for Agent and Event. The active Media definition union is both collections (11 IDs); neither source observation nor owner definition implies phase admission or runtime support.

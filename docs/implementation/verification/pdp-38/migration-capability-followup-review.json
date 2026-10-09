@@ -1,0 +1,553 @@
+{
+  "schemaVersion": "media.pdp-0-3-capability-migration-reviewed-followup.v1",
+  "sourceBaselineSha256": "c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da",
+  "records": [
+    {
+      "claimId": "MPSEM-0029-C005",
+      "exactSourceText": "Tools development workflows are not production media execution.",
+      "sourceTextSha256": "cfbdab7c214c4cb30b24a1f8412a4a10a9a252efe1198d2263f16544e4af7f50",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/families/@id=media.capability/capabilityIds/2",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.genericMechanicsBoundary.tools",
+      "targetValueSha256": "a91596a61a97c48e53199e0881967626737e4045bb3b615bc3dec85637b09a7a",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Tools authoring and development workflows do not establish production Media execution, durable dispatch, or product finality; production invocation still requires an exact admitted Media operation, trusted delegation, current policy, and authoritative receipt.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "sourceTextSha256": "cfbdab7c214c4cb30b24a1f8412a4a10a9a252efe1198d2263f16544e4af7f50",
+            "currentSourceLines": [
+              105,
+              105
+            ]
+          }
+        },
+        {
+          "predicate": "claim-specific-owner-boundary-and-runtime-limits-match",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.genericMechanicsBoundary.tools",
+            "targetValue": {
+              "rule": "Tools authoring or development workflows do not constitute production Media execution, durable provider dispatch, or product finality.",
+              "admission": "Any production invocation needs an exact admitted Media operation, trusted delegation, current policy, and authoritative receipt."
+            },
+            "targetValueSha256": "a91596a61a97c48e53199e0881967626737e4045bb3b615bc3dec85637b09a7a",
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs"
+          }
+        }
+      ],
+      "negativeCases": [
+        "No implementation, provider dispatch, durable execution, or production runtime availability follows from a Tools development workflow.",
+        "Do not treat this P0 semantic definition as package qualification, independent review, or phase acceptance."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0033-C002",
+      "exactSourceText": "Animation, simulation, audio and video clocks need different semantics",
+      "sourceTextSha256": "20459e55fed8f994165bd556ce973907c6520171cd8349d0f46c8d40deb60e9b",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.generate.video.drive.audio/label",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#separateClocks",
+      "targetValueSha256": "3906d2d4601fd6f15e5c0cd7d9c82378e5b97aa2834d37cf7b2ba998d4e87a42",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Animation, simulation, audio and video clocks each have distinct source-defined identities, rates, units, and coupling; unresolved compatibility and qualification remain pending.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              109,
+              109
+            ],
+            "sourceTextSha256": "20459e55fed8f994165bd556ce973907c6520171cd8349d0f46c8d40deb60e9b"
+          }
+        },
+        {
+          "predicate": "claim-specific-time-semantics-and-conversion-contract-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#separateClocks",
+            "targetValue": [
+              {
+                "id": "media_presentation_time",
+                "meaning": "Presentation position in the admitted output/edit timeline.",
+                "unit": "rational seconds or integer output frames/samples.",
+                "evidence": "Media currently exposes milliseconds/duration and numeric fps on several compatibility surfaces."
+              },
+              {
+                "id": "source_decode_and_presentation_timestamps",
+                "meaning": "Container/decoder timestamps for source samples or frames, including discontinuities and variable-frame-rate inputs.",
+                "unit": "Original time base plus integer PTS/DTS; preserve stream identity and mapping.",
+                "evidence": "Current Media protobuf projections expose millisecond timestamps but no general rational VFR timestamp map was found."
+              },
+              {
+                "id": "audio_sample_time",
+                "meaning": "Sample index in one identified audio stream.",
+                "unit": "integer sample index plus samples-per-second rational rate.",
+                "requiredMetadata": [
+                  "sampleRate",
+                  "sampleFormat",
+                  "channelLayout",
+                  "sampleCount",
+                  "encoderPriming",
+                  "encoderPadding"
+                ]
+              },
+              {
+                "id": "t_sim",
+                "meaning": "Domain model or physical simulation time.",
+                "unit": "Explicit domain unit; seconds is the proposed native unit only when the domain model permits SI seconds.",
+                "coupling": "Story pause/scrub does not advance t_sim unless an explicit, bounded model command says so."
+              },
+              {
+                "id": "t_story",
+                "meaning": "Explanation, animation, or editorial presentation time.",
+                "unit": "Rational seconds or an exact frame/sample position.",
+                "coupling": "Pausing or seeking story time does not change model state unless a declared timeline action dispatches a model command."
+              },
+              {
+                "id": "wall_clock_deadline",
+                "meaning": "Operational deadline or lifecycle instant, separate from media and simulation timelines.",
+                "unit": "Absolute wall-clock Instant for a deadline; Duration for a timeout/lease interval; monotonic elapsed time for durations measured inside a process.",
+                "evidence": "Existing Media Java runtime uses Instant and Duration for these purposes."
+              }
+            ],
+            "targetValueSha256": "3906d2d4601fd6f15e5c0cd7d9c82378e5b97aa2834d37cf7b2ba998d4e87a42",
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs",
+            "authorityLimit": "Proposed Media rules below are not current API guarantees. Existing field names and semantics remain compatibility-bound until an approved, versioned adapter or schema change is implemented and verified."
+          }
+        }
+      ],
+      "negativeCases": [
+        "The proposed time representations do not alter compatibility-bound existing APIs or protobufs.",
+        "No conversion implementation, clock calibration, media fidelity, model qualification, or runtime availability is claimed."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0033-C004",
+      "exactSourceText": "Specify unit/frame conversions.",
+      "sourceTextSha256": "6fe6693b4718db1bdbba395fd870bec0efab4890335995744876493c8de60752",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.stream.frame.submit/label",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#conversionRequirements",
+      "targetValueSha256": "09b62b8df9894b651af29d517e1066c0e65f6bf74fb9ce491b3ae7c7d9416b01",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Time and frame conversion must retain source and destination clocks/rates, origin, interval policy, exact rational mapping, and explicit recorded loss/rounding; missing rules reject or remain unresolved.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              109,
+              109
+            ],
+            "sourceTextSha256": "6fe6693b4718db1bdbba395fd870bec0efab4890335995744876493c8de60752"
+          }
+        },
+        {
+          "predicate": "claim-specific-time-semantics-and-conversion-contract-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#conversionRequirements",
+            "targetValue": [
+              "Each conversion names source clock/time base, destination clock/rate, origin, and rounding/interval policy.",
+              "Frame/sample mapping is based on the exact rational source rate and PTS map, not a rounded fps label.",
+              "At 24000/1001 fps, do not replace the source rate with 24 fps without creating a new normalized artifact and recording drift/loss.",
+              "VFR imports retain a presentation-time map or create a separately identified normalized artifact with an explicit conversion report.",
+              "Preserve sample count, encoder priming/padding, stream discontinuities, and measured drift where available.",
+              "Drop-frame timecode support, interpretation, and round-trip behavior are unverified; timecode is never inferred from elapsed duration.",
+              "Distinguish frameCount/rate duration from (frameCount - 1)/rate last-frame presentation timestamp; use the admitted container/model contract to interpret endpoints."
+            ],
+            "targetValueSha256": "09b62b8df9894b651af29d517e1066c0e65f6bf74fb9ce491b3ae7c7d9416b01",
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs",
+            "authorityLimit": "Proposed Media rules below are not current API guarantees. Existing field names and semantics remain compatibility-bound until an approved, versioned adapter or schema change is implemented and verified."
+          }
+        }
+      ],
+      "negativeCases": [
+        "The proposed time representations do not alter compatibility-bound existing APIs or protobufs.",
+        "No conversion implementation, clock calibration, media fidelity, model qualification, or runtime availability is claimed."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0035-C003",
+      "exactSourceText": "Qualification per metric/domain/provider",
+      "sourceTextSha256": "73783353a0fd8ceff0e3480850d1da03d434335660ee8c1e64ae41d00df1d6ec",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.quality.video.video.assess-qualified-physical-plausibility/label",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules/4",
+      "targetValueSha256": "5cfa9070f2d70b893f979fd386bc60e4cb600cd50fb5fa97b1428b69f11be86c",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Qualification is scoped to an exact declared leaf and execution profile; a new model, engine, version/digest, codec, configuration, hardware class, language, quality dataset, or material policy change may invalidate prior evidence. A family, provider, or package label does not qualify a result.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              111,
+              111
+            ],
+            "sourceTextSha256": "73783353a0fd8ceff0e3480850d1da03d434335660ee8c1e64ae41d00df1d6ec"
+          }
+        },
+        {
+          "predicate": "claim-specific-qualification-scope-and-invalidation-rule-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules/4",
+            "targetValue": "Qualification applies to a declared leaf and scope, not a family/package/provider label. A new model, engine, version, weight digest, codec, configuration, hardware class, language, quality dataset, or materially changed policy may invalidate evidence.",
+            "targetValueSha256": "5cfa9070f2d70b893f979fd386bc60e4cb600cd50fb5fa97b1428b69f11be86c",
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs",
+            "status": "P0-003-definition-in-progress"
+          }
+        }
+      ],
+      "negativeCases": [
+        "No model, provider, metric, engine, profile, or hardware combination is qualified by this policy.",
+        "Capability definition and qualification semantics do not imply runtime availability or phase acceptance."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0039-C003",
+      "exactSourceText": "Isolate decoders, scripts, simulations and model artifacts",
+      "sourceTextSha256": "d5e9df1e4b3da7bd8a9f0d36ad37a53183dcc836c38513c3b2b977dad2794e4a",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.enhance.image.compression-repair/label",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline/1",
+      "targetValueSha256": "09eed4eac0ea5c32c662cc7471792c8cba67ceabbd687635c2d9c40aef3ba55c",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Untrusted decoders, engines and executable assets are isolated in workers with unprivileged identity, bounded resources, restricted network egress, approved read inputs, isolated scratch/output locations, and owned process trees.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              115,
+              115
+            ],
+            "sourceTextSha256": "d5e9df1e4b3da7bd8a9f0d36ad37a53183dcc836c38513c3b2b977dad2794e4a"
+          }
+        },
+        {
+          "predicate": "claim-specific-worker-isolation-policy-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline/1",
+            "targetValue": "Decode and execute engines in isolated workers with unprivileged identity, bounded resources, restricted network egress, approved read inputs, isolated scratch/output paths, and owned process trees.",
+            "targetValueSha256": "09eed4eac0ea5c32c662cc7471792c8cba67ceabbd687635c2d9c40aef3ba55c",
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs",
+            "policyStatus": "P0-003-definition-in-progress"
+          }
+        }
+      ],
+      "negativeCases": [
+        "The security policy does not establish that any decoder, engine, script, simulation or model artifact has been admitted or qualified.",
+        "No runtime enforcement, deployment isolation, or security acceptance is claimed."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0043-C002",
+      "exactSourceText": "A complete feature list was easily confused with launch availability",
+      "sourceTextSha256": "131d45e53dafca7881a1718a47102b428374d926aaab5fe6e956c32f0798a6f5",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/families/@id=media.artifact/capabilityIds/6",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules",
+      "targetValueSha256": "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Definition, implementation, licensing, qualification, and runtime availability remain independent; a full catalog or defined capability does not imply current launch availability.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              119,
+              119
+            ],
+            "sourceTextSha256": "131d45e53dafca7881a1718a47102b428374d926aaab5fe6e956c32f0798a6f5"
+          }
+        },
+        {
+          "predicate": "claim-specific-owner-rule-and-limits-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules",
+            "targetValue": [
+              "Never infer one dimension from another. An implementation can be unlicensed, unqualified, unavailable, or blocked.",
+              "UNKNOWN is not AVAILABLE; NOT_EVALUATED is not FAILED and is not evidence of success.",
+              "Availability is profile-, tenant/policy-, deployment-, region-, language-, format-, rights-, and time-scoped. Record observation time, owner, fingerprints, and expiry/revalidation triggers.",
+              "A capability is eligible for invocation only when the exact implementation binding is admitted by license and policy, qualification covers the requested dimensions, and live runtime checks report available. Missing evidence blocks or yields a policy-permitted explicit fallback.",
+              "Qualification applies to a declared leaf and scope, not a family/package/provider label. A new model, engine, version, weight digest, codec, configuration, hardware class, language, quality dataset, or materially changed policy may invalidate evidence.",
+              "Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and delivery compatibility as separate observations with method/version, applicability, uncertainty, and abstention.",
+              "A predicted/estimated output is never represented as ground truth. Simulation rendering or a visually plausible scene does not prove validated simulation.",
+              "Do not silently lower preservation, resolution, duration, frame rate, fidelity, language, cost, locality, or delivery requirements. Record requested/effective profile and explicit fallback authorization.",
+              "For document intelligence, preserve the Shared frozen contract, operation-generation cancellation, dimensional qualification, non-activation state, and owner-bound runtime. Media scene-text leaves depend on the public DI API; generic OCR/document processing is not a Media implementation."
+            ],
+            "targetValueSha256": "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791",
+            "assertedChecks": [
+              "Never infer one dimension from another.",
+              "UNKNOWN is not AVAILABLE."
+            ],
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs"
+          }
+        }
+      ],
+      "negativeCases": [
+        "Definition does not establish implementation, qualification, current runtime availability, or phase acceptance.",
+        "Do not infer provider routing, execution attempt, or activation unless a separate exact owner contract says so."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0080-C002",
+      "exactSourceText": "They are not shown as working capabilities until the appropriate qualified execution target exists.",
+      "sourceTextSha256": "da3bffd54018cfa74a95596b33be90e85775bef408f3c6147f7f61e93d378ff7",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.check-outcome/constraints/1",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules/3",
+      "targetValueSha256": "a596d2fa68e81f96eef5d5f6f1d568f0278347c4ca6c9d808decca6e5ac317d5",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Invocation requires an admitted exact implementation, license and policy admission, qualification covering the requested scope, and a live availability check; missing evidence blocks or yields only policy-permitted explicit fallback.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              198,
+              198
+            ],
+            "sourceTextSha256": "da3bffd54018cfa74a95596b33be90e85775bef408f3c6147f7f61e93d378ff7"
+          }
+        },
+        {
+          "predicate": "claim-specific-owner-rule-and-limits-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules/3",
+            "targetValue": "A capability is eligible for invocation only when the exact implementation binding is admitted by license and policy, qualification covers the requested dimensions, and live runtime checks report available. Missing evidence blocks or yields a policy-permitted explicit fallback.",
+            "targetValueSha256": "a596d2fa68e81f96eef5d5f6f1d568f0278347c4ca6c9d808decca6e5ac317d5",
+            "assertedChecks": [
+              "exact implementation binding is admitted",
+              "qualification covers the requested dimensions",
+              "live runtime checks report available"
+            ],
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs"
+          }
+        }
+      ],
+      "negativeCases": [
+        "Definition does not establish implementation, qualification, current runtime availability, or phase acceptance.",
+        "Do not infer provider routing, execution attempt, or activation unless a separate exact owner contract says so."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0095-C004",
+      "exactSourceText": "ordinary media recipes are not agent graphs |",
+      "sourceTextSha256": "317b0689d4b95fbd46eb91b01c5955957f004edd865834be28fdcf093f320da9",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/families/@id=media.simulation/capabilityIds/12",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.recipe",
+      "targetValueSha256": "67039dc05b3742d094ed80ce8771afbe6ec005d416f525ed127bcb01668e3510",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "A MediaRecipe is a versioned, bounded reusable workflow shape and content binding; it does not route generic model providers or represent an execution attempt.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              226,
+              226
+            ],
+            "sourceTextSha256": "317b0689d4b95fbd46eb91b01c5955957f004edd865834be28fdcf093f320da9"
+          }
+        },
+        {
+          "predicate": "claim-specific-owner-rule-and-limits-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.recipe",
+            "targetValue": {
+              "id": "media.term.recipe",
+              "term": "MediaRecipe",
+              "definition": "A versioned, bounded description of a reusable processing, animation, or simulation workflow shape and its content bindings.",
+              "aliases": [
+                "recipe"
+              ],
+              "distinctions": [
+                "A recipe describes workflow shape and does not route generic model providers or represent an execution attempt."
+              ],
+              "forbiddenConflations": [
+                "model-routing policy",
+                "job state machine",
+                "provider capability"
+              ]
+            },
+            "targetValueSha256": "67039dc05b3742d094ed80ce8771afbe6ec005d416f525ed127bcb01668e3510",
+            "assertedChecks": [
+              "does not route generic model providers",
+              "does not represent an execution attempt"
+            ],
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs"
+          }
+        }
+      ],
+      "negativeCases": [
+        "Definition does not establish implementation, qualification, current runtime availability, or phase acceptance.",
+        "Do not infer provider routing, execution attempt, or activation unless a separate exact owner contract says so."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0101-C002",
+      "exactSourceText": "Preserve their document-extraction integration",
+      "sourceTextSha256": "1670e01ab9f01c6eb7410f24a710b7aeeedb4eff7312eb0a32316eb6d66007ec",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.color.skin-tone-preserve/label",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#documentIntelligence",
+      "targetValueSha256": "1e85b7a93f44116653a20a715d50d366c5bf3bc6ab3ec5b1e625493bb4d96456",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Preserve the frozen Shared document-extraction contract and operation-generation cancellation; Media owns only the specified media-semantic scope, and migration has not activated a new implementation.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              232,
+              232
+            ],
+            "sourceTextSha256": "1670e01ab9f01c6eb7410f24a710b7aeeedb4eff7312eb0a32316eb6d66007ec"
+          }
+        },
+        {
+          "predicate": "claim-specific-owner-rule-and-limits-inspected",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#documentIntelligence",
+            "targetValue": {
+              "owner": "Ghatana services/document-intelligence",
+              "contractOwner": "Ghatana Shared @ghatana/document-extraction",
+              "MediaScope": [
+                "time ranges",
+                "scene/region semantics",
+                "temporal tracking",
+                "media edit/overlay intent"
+              ],
+              "MediaMustNotOwn": [
+                "generic OCR/parser implementation",
+                "PDF/Office/document workflow",
+                "document extraction schema or embeddings"
+              ],
+              "activationState": "not-activated-by-migration; retain prior dimensional qualification and cancellation restrictions",
+              "currentBlockers": [
+                "GAP-14",
+                "GAP-MEDIA-DI-PUBLIC-CLIENT"
+              ]
+            },
+            "targetValueSha256": "1e85b7a93f44116653a20a715d50d366c5bf3bc6ab3ec5b1e625493bb4d96456",
+            "assertedChecks": [
+              "Ghatana services/document-intelligence",
+              "Ghatana Shared @ghatana/document-extraction",
+              "not-activated-by-migration"
+            ],
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs"
+          }
+        }
+      ],
+      "negativeCases": [
+        "Definition does not establish implementation, qualification, current runtime availability, or phase acceptance.",
+        "Do not infer provider routing, execution attempt, or activation unless a separate exact owner contract says so."
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    },
+    {
+      "claimId": "MPSEM-0041-C004",
+      "exactSourceText": "No technical-provider navigation in the ordinary path.",
+      "sourceTextSha256": "34696c6d33f41b33670ff7c70b9c1799c8da5c07f6acf7a90ded06c0fbb0e3cf",
+      "previousTargetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/families/@id=media.animation/capabilityIds/6",
+      "proposedTargetRef": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml#informationArchitecture.ordinaryPathProviderSelection",
+      "targetValueSha256": "538e119303eef45902a4ea6edba43a91fe8cbe1447486072aaf53af7da74987c",
+      "semanticReviewStatus": "SEMANTIC_PARITY_VERIFIED",
+      "materialMeaning": "Ordinary product navigation starts from the user's intended media outcome and eligible Media operations or recipes; it does not expose a technical vendor, model, or provider catalog as the default task path.",
+      "reviewedPredicates": [
+        {
+          "predicate": "source-claim-pinned-to-exact-historical-span",
+          "evidence": {
+            "sourceRef": "docs/migration/expert-reviewed-master-plan.md@2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a",
+            "currentSourceLines": [
+              117,
+              117
+            ],
+            "sourceTextSha256": "34696c6d33f41b33670ff7c70b9c1799c8da5c07f6acf7a90ded06c0fbb0e3cf"
+          }
+        },
+        {
+          "predicate": "claim-specific-media-navigation-boundary-authored",
+          "evidence": {
+            "targetRef": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml#informationArchitecture.ordinaryPathProviderSelection",
+            "targetValue": {
+              "id": "media.navigation.ordinary-path-provider-boundary.v1",
+              "authority": "user-delegated-Media-experience-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+              "rule": "Ordinary product navigation starts from the user's intended media outcome and eligible Media operations or recipes; it does not expose a technical vendor, model, or provider catalog as the default task path.",
+              "disclosure": "Technical execution details may appear only when needed to explain an exact selected profile, data location, cost, or limitation; displaying those details does not authorize a provider or execution.",
+              "sourceRefs": [
+                ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.intent",
+                ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.recipe",
+                ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.externalStackSelectionRule"
+              ],
+              "nonClaims": [
+                "no provider or model is selected, qualified, or admitted by this navigation rule",
+                "no runtime view has been verified by this definition"
+              ],
+              "status": "MEDIA_OWNER_DEFINITION_ONLY; independent-PDP3-review-open; runtime-NOT_ADMITTED"
+            },
+            "targetValueSha256": "538e119303eef45902a4ea6edba43a91fe8cbe1447486072aaf53af7da74987c",
+            "testSource": "tests/pdp-migration-capability-routing-followup.test.mjs",
+            "status": "MEDIA_OWNER_DEFINITION_ONLY; independent-PDP3-review-open; runtime-NOT_ADMITTED"
+          }
+        }
+      ],
+      "negativeCases": [
+        "no provider or model is selected, qualified, or admitted by this navigation rule",
+        "no runtime view has been verified by this definition"
+      ],
+      "testSources": [
+        "tests/pdp-migration-capability-routing-followup.test.mjs"
+      ],
+      "acceptanceEffect": "none",
+      "sourceEditsNeeded": []
+    }
+  ]
+}

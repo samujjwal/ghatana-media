@@ -1,0 +1,277 @@
+schemaVersion: media.gui-composition-validation-grammar.v1
+owner: ghatana-media-product-experience
+authority: Media owns the source definition of screen composition; this grammar validates links and semantic coverage, not visual admission
+scopeStatus: MEDIA_OWNER_SOURCE_RULES; Shared publication and independent visual/accessibility acceptance remain separate
+sourceRefs:
+  screenSchema: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+  screenRegistry: .product-experience/pdp-3-product-experience/screen-registry.yaml
+  templates: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+  layouts: .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+  recipes: .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml
+  patterns: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml
+  componentContracts: .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+  actions: .product-experience/pdp-3-product-experience/action-registry.yaml
+  accessibility: .product-experience/pdp-2-design-interface-system/accessibility.yaml
+  finality: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
+linkRules:
+  template: screenContract.templateId and screenContract.templateContract.templateRef must identify the same canonical template.
+  layout: Every screenContract.layoutIds entry must resolve to a canonical layout, and the selected template/layout pair must be reciprocally declared by both catalogs.
+  recipe: Each template and recipe must reciprocally bind by recipeRefs/templateRef; the recipe semanticPattern must be a primary pattern or approved overlay of that template.
+  pattern: Every selected screen pattern must be a primary pattern or an explicitly compatible overlay of its selected template.
+  requiredRegions: The exact templateId/templateContract.templateRef binding inherits that template's ordered required region sequence; exact patternIds and patternOverlayIds bind their own ordered pattern region sequences. Screen anatomy is additive, screen-specific product detail and is not a renamed copy of the shared template/pattern vocabulary. No substring or inferred-name matching is permitted. Each selected reference must resolve to the exact canonical sequence pinned below.
+  overlaySelection: Consequential actions with uncertain finality select a required safe unknown-outcome/recovery overlay in patternOverlayIds; template availability alone does not count as selection.
+  component: Every screen component and every selected-pattern component resolves to a Media component contract with nonempty anatomy, keyboard semantics, and accessibility semantics.
+accessibilityRules:
+  screenFocus: Every screen composition carries an accessibility rule that preserves focus and reading order; this source rule is proposal-level and does not establish conformance.
+  keyboard: Every composed component has an explicit keyboard contract and accessible behavior; every action identifier resolves to a source-owned action definition.
+  unknownFinality: If an action can remain pending, uncertain, or unknown, the selected template's primary patterns or approved overlays must include a safe unknown-outcome/recovery pattern with an explicit unknown state.
+nonClaims:
+  - This grammar does not claim rendered screen correctness, assistive-technology acceptance, public Shared package admission, or PDP-2 phase receipt.
+  - A valid composition link does not authorize an action or establish runtime behavior.
+regionContracts:
+  templates:
+    "media.gui.template.collection": ["context", "heading", "filters", "results", "pagination", "empty-or-error", "primary-action"]
+    "media.gui.template.workbench": ["project-context", "source-player", "synchronized-work-area", "selection-details", "validation", "save-action"]
+    "media.gui.template.job-observation": ["job-identity", "state-and-finality", "progress", "outputs", "cancellation-or-recovery", "provenance"]
+    "media.gui.template.review-and-compare": ["source-context", "compared-identities", "comparison-content", "quality-and-uncertainty", "provenance", "decision-actions"]
+    "media.gui.template.consent-gate": ["requested-outcome", "affected-material", "scope-and-validity", "decision", "next-safe-action"]
+    "media.gui.template.render-preparation-and-review": ["composition-snapshot", "profile-and-validation", "rights-and-estimates", "submission-and-job-finality", "output-verification", "review-decision", "delivery-status"]
+    "media.gui.template.lifecycle-confirmation": ["exact-target-and-version", "authority-and-preconditions", "impact-and-retention", "explicit-confirmation", "pending-or-unknown-finality", "safe-verification-and-recovery"]
+    "media.gui.template.media-composition": ["project-context", "composition-version", "multitrack-timeline", "track-and-clip-list", "transition-and-caption-alignment", "brand-and-typography-references", "safe-area-and-output-profile", "validation-state", "save-action"]
+    "media.gui.template.operational-readiness": ["readiness-scope", "observation-time-and-freshness", "check-results", "capacity-and-dependency-disposition", "safe-recovery-guidance", "audit-reference"]
+    "media.gui.template.record-detail": ["workspace-and-project-context", "exact-record-identity", "observed-state", "detail-and-provenance", "uncertainty-and-limitations", "governed-actions"]
+    "media.gui.template.workspace-settings": ["workspace-identity", "settings-scope", "category-navigation", "current-and-inherited-values", "policy-owner", "affected-workflows", "unsaved-changes", "save-and-reset-actions"]
+    "media.gui.template.project-overview": ["project-identity-and-version", "source-and-output-summary", "pending-work-summary", "intent-launcher", "recovery-and-navigation"]
+    "media.gui.template.task-setup": ["project-context", "requested-outcome", "selected-inputs", "capability-and-policy-disposition", "validation", "next-safe-action"]
+  patterns:
+    "media.gui.pattern.project-browser": ["workspace-context", "search", "result-list", "empty-or-error-state", "create-action"]
+    "media.gui.pattern.project-context-header": ["workspace", "project-identity", "revision", "access-state", "safe-next-action"]
+    "media.gui.pattern.intent-launcher": ["intent-name", "outcome", "availability", "reason", "choose-action"]
+    "media.gui.pattern.creation-plan-review": ["outcome", "inputs", "choices", "limits", "consent-and-rights", "effect-summary", "confirm-or-edit"]
+    "media.gui.pattern.source-picker": ["source-context", "searchable-artifacts", "version", "eligibility", "selection"]
+    "media.gui.pattern.upload-and-verification": ["upload-id", "transfer-progress", "verification-job-id", "verification-stage", "artifact-availability", "recovery"]
+    "media.gui.pattern.job-status-and-recovery": ["job-identity", "state", "finality", "progress", "outputs", "next-safe-action"]
+    "media.gui.pattern.activity-attention": ["activity-heading", "job-identity-and-purpose", "recorded-state-and-finality", "supported-age-or-urgency", "safe-next-action", "empty-or-unavailable-state"]
+    "media.gui.pattern.multitrack-composition": ["composition-version", "multitrack-timeline", "track-and-clip-list", "transition-and-caption-alignment", "brand-and-typography-references", "safe-area-and-output-profile", "validation-state"]
+    "media.gui.pattern.transcript-and-playback": ["player", "transport-controls", "source-time", "transcript-region", "selection"]
+    "media.gui.pattern.caption-editor": ["source-context", "selected-cue", "text-editor", "timing", "validation", "save-as-new-version"]
+    "media.gui.pattern.version-comparison": ["version-identities", "comparison-basis", "aligned-content", "difference-summary", "provenance"]
+    "media.gui.pattern.review-approval": ["exact-output-version-identity", "review-scope-and-current-decision-state", "content-and-quality-evidence", "rights-and-policy-status", "reviewer-authority", "decision-outcome-and-follow-up"]
+    "media.gui.pattern.quality-and-uncertainty": ["observation", "scope", "method", "value-or-uncertainty", "threshold", "reviewer-state"]
+    "media.gui.pattern.rights-and-consent-review": ["material", "right-or-consent", "scope", "source", "validity", "decision", "next-action"]
+    "media.gui.pattern.rendering": ["exact-composition-snapshot", "profile-and-validation", "rights-and-estimates", "explicit-submission", "job-state", "output-verification-and-review", "separate-delivery"]
+    "media.gui.pattern.provenance-and-lineage": ["artifact-identity", "source-links", "derivation-steps", "methods", "timestamps", "unknowns"]
+    "media.gui.pattern.safe-confirmation-and-unknown-outcome": ["effect-summary", "preconditions", "confirmation", "pending-state", "outcome-check", "safe-recovery"]
+    "media.gui.pattern.destructive-lifecycle-action": ["exact-target-and-version-scope", "authority-and-preconditions", "impact-retention-and-reversibility", "explicit-confirmation", "pending-or-unknown-outcome", "safe-verification-and-recovery"]
+
+normativeRuleRecords:
+  - id: "media.gui.composition-rule.link.template"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/template"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/template"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "screenContract.templateId and screenContract.templateContract.templateRef must identify the same canonical template."
+  - id: "media.gui.composition-rule.link.layout"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/layout"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/layout"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Every screenContract.layoutIds entry must resolve to a canonical layout, and the selected template/layout pair must be reciprocally declared by both catalogs."
+  - id: "media.gui.composition-rule.link.recipe"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/recipe"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/recipe"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Each template and recipe must reciprocally bind by recipeRefs/templateRef; the recipe semanticPattern must be a primary pattern or approved overlay of that template."
+  - id: "media.gui.composition-rule.link.pattern"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/pattern"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/pattern"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Every selected screen pattern must be a primary pattern or an explicitly compatible overlay of its selected template."
+  - id: "media.gui.composition-rule.link.requiredRegions"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/requiredRegions"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/requiredRegions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact templateId/templateContract.templateRef binding inherits that template's ordered required region sequence; exact patternIds and patternOverlayIds bind their own ordered pattern region sequences. Screen anatomy is additive, screen-specific product detail and is not a renamed copy of the shared template/pattern vocabulary. No substring or inferred-name matching is permitted. Each selected reference must resolve to the exact canonical sequence pinned below."
+  - id: "media.gui.composition-rule.link.overlaySelection"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/overlaySelection"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/overlaySelection"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Consequential actions with uncertain finality select a required safe unknown-outcome/recovery overlay in patternOverlayIds; template availability alone does not count as selection."
+  - id: "media.gui.composition-rule.link.component"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/component"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/linkRules/component"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Every screen component and every selected-pattern component resolves to a Media component contract with nonempty anatomy, keyboard semantics, and accessibility semantics."
+  - id: "media.gui.composition-rule.accessibility.screenFocus"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/screenFocus"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/screenFocus"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Every screen composition carries an accessibility rule that preserves focus and reading order; this source rule is proposal-level and does not establish conformance."
+  - id: "media.gui.composition-rule.accessibility.keyboard"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/keyboard"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/keyboard"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "Every composed component has an explicit keyboard contract and accessible behavior; every action identifier resolves to a source-owned action definition."
+  - id: "media.gui.composition-rule.accessibility.unknownFinality"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/unknownFinality"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/accessibilityRules/unknownFinality"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "If an action can remain pending, uncertain, or unknown, the selected template's primary patterns or approved overlays must include a safe unknown-outcome/recovery pattern with an explicit unknown state."
+  - id: "media.gui.composition-region.template.collection"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.collection"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.collection/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.collection is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.workbench"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.workbench"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.workbench/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.workbench is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.job-observation"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.job-observation"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.job-observation/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.job-observation is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.review-and-compare"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.review-and-compare"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.review-and-compare/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.review-and-compare is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.consent-gate"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.consent-gate"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.consent-gate/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.consent-gate is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.render-preparation-and-review"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.render-preparation-and-review"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.render-preparation-and-review/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.render-preparation-and-review is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.lifecycle-confirmation"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.lifecycle-confirmation"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.lifecycle-confirmation/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.lifecycle-confirmation is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.media-composition"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.media-composition"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.media-composition/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.media-composition is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.operational-readiness"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.operational-readiness"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.operational-readiness/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.operational-readiness is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.record-detail"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.record-detail"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.record-detail/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.record-detail is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.workspace-settings"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.workspace-settings"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.workspace-settings/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.workspace-settings is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.project-overview"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.project-overview"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.project-overview/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.project-overview is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.template.task-setup"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/templates/media.gui.template.task-setup"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#/templates/@id=media.gui.template.task-setup/regions"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.template.task-setup is pinned in the Media composition grammar and is inherited by screens that select this exact template."
+  - id: "media.gui.composition-region.pattern.project-browser"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.project-browser"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.project-browser/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.project-browser is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.project-context-header"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.project-context-header"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.project-context-header/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.project-context-header is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.intent-launcher"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.intent-launcher"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.intent-launcher/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.intent-launcher is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.creation-plan-review"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.creation-plan-review"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.creation-plan-review/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.creation-plan-review is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.source-picker"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.source-picker"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.source-picker/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.source-picker is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.upload-and-verification"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.upload-and-verification"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.upload-and-verification/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.upload-and-verification is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.job-status-and-recovery"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.job-status-and-recovery"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.job-status-and-recovery/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.job-status-and-recovery is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.activity-attention"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.activity-attention"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.activity-attention/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.activity-attention is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.multitrack-composition"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.multitrack-composition"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.multitrack-composition/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.multitrack-composition is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.transcript-and-playback"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.transcript-and-playback"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.transcript-and-playback/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.transcript-and-playback is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.caption-editor"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.caption-editor"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.caption-editor/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.caption-editor is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.version-comparison"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.version-comparison"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.version-comparison/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.version-comparison is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.review-approval"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.review-approval"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.review-approval/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.review-approval is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.quality-and-uncertainty"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.quality-and-uncertainty"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.quality-and-uncertainty/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.quality-and-uncertainty is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.rights-and-consent-review"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.rights-and-consent-review"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.rights-and-consent-review/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.rights-and-consent-review is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.rendering"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.rendering"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.rendering/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.rendering is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.provenance-and-lineage"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.provenance-and-lineage"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.provenance-and-lineage/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.provenance-and-lineage is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.safe-confirmation-and-unknown-outcome"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.safe-confirmation-and-unknown-outcome"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.safe-confirmation-and-unknown-outcome/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.safe-confirmation-and-unknown-outcome is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."
+  - id: "media.gui.composition-region.pattern.destructive-lifecycle-action"
+    ruleRef: ".product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#/regionContracts/patterns/media.gui.pattern.destructive-lifecycle-action"
+    sourceRef: ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.destructive-lifecycle-action/anatomy"
+    authorityRef: ".product-experience/decision-log.md#PXD-076"
+    normativeRequirement: "The exact ordered required-region sequence for media.gui.pattern.destructive-lifecycle-action is pinned in the Media composition grammar and is inherited by screens that select this exact pattern."

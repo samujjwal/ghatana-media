@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "media.required-dependency-owner-review-request.v1",
+  "scope": "PDP0-PDP3 only",
+  "ownerRepository": "samujjwal/ghatana-tools",
+  "sourceCommit": "6ed280283872df7889369b71abb3c9e62cb17f8d",
+  "requestUrl": "https://github.com/samujjwal/ghatana-tools/issues/31",
+  "requestState": "REQUESTED_NOT_ACCEPTED",
+  "independentDecision": null,
+  "publicArtifactAdmission": null,
+  "verification": {
+    "packageTests": 31,
+    "typecheck": "PASS",
+    "isolatedPackedConsumer": "PASS; four exports",
+    "broaderPackedConsumer": "BLOCKED missing installed @ghatana/workflow-runner/process-host",
+    "requirementsCrosswalk": "BLOCKED missing installed @ghatana/verification-planner/discovery"
+  },
+  "nonClaims": [
+    "No Tools package-owner acceptance",
+    "No release publication",
+    "No Media independent acceptance",
+    "No Lifecycle phase receipt"
+  ]
+}

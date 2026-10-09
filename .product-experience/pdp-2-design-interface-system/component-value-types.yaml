@@ -1,0 +1,4658 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: media.component-value-types.v1
+title: Media component domain value type schemas
+description: Closed source-owned value types used by proposal-only typed component input contracts; resolving a schema
+  does not admit runtime or public Shared implementation.
+normativeTypeRecords:
+  - id: media.component-value-type.MediaViewRef
+    schemaRef: media.component-value-types.v1#/$defs/MediaViewRef
+    description: Exact canonical Media screen or lane-view identity from the current screen registry.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-3-product-experience/screen-registry.yaml#/screens
+      - .product-experience/pdp-3-product-experience/screen-registry.yaml#/laneViews
+  - id: media.component-value-type.RegisteredMediaReturnRouteRef
+    schemaRef: media.component-value-types.v1#/$defs/RegisteredMediaReturnRouteRef
+    description: Exact Media screen-registry identity eligible for host allowlist binding; source membership does not prove
+      host registration or runtime binding.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-3-product-experience/screen-registry.yaml#/screens
+  - id: media.component-value-type.MediaActionIntentRef
+    schemaRef: media.component-value-types.v1#/$defs/MediaActionIntentRef
+    description: Exact canonical Media action identity; an intent is not authorization.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions
+  - id: media.component-value-type.ActionIntentRef
+    schemaRef: media.component-value-types.v1#/$defs/ActionIntentRef
+    description: Exact canonical action identity; not a dispatched operation.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions
+  - id: media.component-value-type.CanonicalIntentRef
+    schemaRef: media.component-value-types.v1#/$defs/CanonicalIntentRef
+    description: Exact canonical user outcome intent identity from PDP-0 goals-jtbd.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents
+  - id: media.component-value-type.TenantScopedWorkspaceRef
+    schemaRef: media.component-value-types.v1#/$defs/TenantScopedWorkspaceRef
+    description: Workspace reference is tenant-scoped and never an authorization grant.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactArtifactVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+    description: Exact artifact version identity is the tuple (tenantId, artifactId, versionId); digest is evidence, not identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.ImmutableProjectRevisionRef
+    schemaRef: media.component-value-types.v1#/$defs/ImmutableProjectRevisionRef
+    description: Exact immutable project revision tuple.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactCompositionVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactCompositionVersionRef
+    description: Exact immutable composition version tuple.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactTranscriptVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactTranscriptVersionRef
+    description: Exact immutable transcript version tuple.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactModelVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactModelVersionRef
+    description: Exact model version includes its immutable version and integrity digest.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactSceneVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+    description: Tenant-scoped exact immutable scene version tuple.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactSubjectVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactSubjectVersionRef
+    description: Tenant-scoped versioned subject identity for the rights or retention decision.
+    sourceAuthority: Media
+  - id: media.component-value-type.OpaqueProjectRef
+    schemaRef: media.component-value-types.v1#/$defs/OpaqueProjectRef
+    description: Tenant-scoped project identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.ProjectSearchQuery
+    schemaRef: media.component-value-types.v1#/$defs/ProjectSearchQuery
+    description: Typed project query; text is a search term, not a scope or access predicate.
+    sourceAuthority: Media
+  - id: media.component-value-type.ArtifactSearchQuery
+    schemaRef: media.component-value-types.v1#/$defs/ArtifactSearchQuery
+    description: Typed artifact query; search filters do not establish authorization or global absence.
+    sourceAuthority: Media
+  - id: media.component-value-type.PageState
+    schemaRef: media.component-value-types.v1#/$defs/PageState
+    description: Query pagination state with exact current status and opaque cursor.
+    sourceAuthority: Media
+  - id: media.component-value-type.RationalSourceTime
+    schemaRef: media.component-value-types.v1#/$defs/RationalSourceTime
+    description: Exact signed-64-bit tick time with explicit clock id/stream and positive signed-64-bit rational seconds per
+      tick, following media.value.rational-media-time.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+  - id: media.component-value-type.RationalTimelineTimebaseRef
+    schemaRef: media.component-value-types.v1#/$defs/RationalTimelineTimebaseRef
+    description: "Rational timeline clock follows media.value.rational-media-time: identified domain/id/stream, exact
+      positive signed-64-bit seconds per tick, signed-64-bit origin, and explicit discontinuity policy."
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+  - id: media.component-value-type.SourceTimebaseRef
+    schemaRef: media.component-value-types.v1#/$defs/SourceTimebaseRef
+    description: Declared source timebase follows media.value.rational-media-time; nominal frame rate does not replace this
+      identified exact clock.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+  - id: media.component-value-type.SourceSampleTimebaseRef
+    schemaRef: media.component-value-types.v1#/$defs/SourceSampleTimebaseRef
+    description: Sample clock binds identified stream, positive uint32 rate, uint63 sample count/origin and explicit
+      priming/padding.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.sample-boundary-index
+  - id: media.component-value-type.CompositionTimebaseRef
+    schemaRef: media.component-value-types.v1#/$defs/CompositionTimebaseRef
+    description: Composition timebase follows media.value.rational-media-time and binds an identified clock stream, exact
+      positive signed-64-bit seconds per tick, signed-64-bit origin, and unit.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+  - id: media.component-value-type.OptionalHalfOpenRationalInterval
+    schemaRef: media.component-value-types.v1#/$defs/OptionalHalfOpenRationalInterval
+    description: Nullable exact rational interval; a present value must have one positive same-clock half-open interval.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.sample-boundary-index
+  - id: media.component-value-type.OptionalHalfOpenFrameInterval
+    schemaRef: media.component-value-types.v1#/$defs/OptionalHalfOpenFrameInterval
+    description: Nullable exact frame interval; a present value retains its explicit frame/timebase boundaries.
+    sourceAuthority: Media
+  - id: media.component-value-type.PositiveRationalRate
+    schemaRef: media.component-value-types.v1#/$defs/PositiveRationalRate
+    description: Positive uint32 rational rate; zero and overflow fail closed.
+    sourceAuthority: Media
+  - id: media.component-value-type.DigestWithAlgorithm
+    schemaRef: media.component-value-types.v1#/$defs/DigestWithAlgorithm
+    description: Integrity digest identifies algorithm and encoded digest value; digest is not artifact identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExplicitChannelLayout
+    schemaRef: media.component-value-types.v1#/$defs/ExplicitChannelLayout
+    description: Explicit ordered channel identities; no implied downmix or layout conversion.
+    sourceAuthority: Media
+  - id: media.component-value-type.ConsentValidity
+    schemaRef: media.component-value-types.v1#/$defs/ConsentValidity
+    description: Closed owner-defined ConsentValidity values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.IdentityHandoffRequest
+    schemaRef: media.component-value-types.v1#/$defs/IdentityHandoffRequest
+    description: PXD-082 adapter request; request construction is not authentication or authorization.
+    sourceAuthority: Media
+  - id: media.component-value-type.IdentityHandoffResult
+    schemaRef: media.component-value-types.v1#/$defs/IdentityHandoffResult
+    description: Exact PXD-082 normalized owner result; schema presence alone does not verify the external signer or owner pin.
+    sourceAuthority: Media
+  - id: media.component-value-type.IdentityOwnerPin
+    schemaRef: media.component-value-types.v1#/$defs/IdentityOwnerPin
+    description: Trusted owner pin is supplied out of band; result cannot supply its own expected pin.
+    sourceAuthority: Media
+  - id: media.component-value-type.IdentityHandoffEvaluation
+    schemaRef: media.component-value-types.v1#/$defs/IdentityHandoffEvaluation
+    description: Bounded evaluation record carries exact request/result, trusted owner pin, evaluation time and recomputable
+      disposition; not proof of live identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.RightsConsentScope
+    schemaRef: media.component-value-types.v1#/$defs/RightsConsentScope
+    description: Rights or consent decision is bound to tenant, exact subject version, purpose, and territory.
+    sourceAuthority: Media
+  - id: media.component-value-type.RightsConsentType
+    schemaRef: media.component-value-types.v1#/$defs/RightsConsentType
+    description: Closed owner-defined RightsConsentType values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.RetentionDecision
+    schemaRef: media.component-value-types.v1#/$defs/RetentionDecision
+    description: Closed owner-defined RetentionDecision values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.EffectFinality
+    schemaRef: media.component-value-types.v1#/$defs/EffectFinality
+    description: Closed owner-defined EffectFinality values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.ProposalFinality
+    schemaRef: media.component-value-types.v1#/$defs/ProposalFinality
+    description: Closed owner-defined ProposalFinality values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.MediaJobState
+    schemaRef: media.component-value-types.v1#/$defs/MediaJobState
+    description: Closed owner-defined MediaJobState values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.CanonicalOperationState
+    schemaRef: media.component-value-types.v1#/$defs/CanonicalOperationState
+    description: Closed owner-defined CanonicalOperationState values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.AccessDisposition
+    schemaRef: media.component-value-types.v1#/$defs/AccessDisposition
+    description: Closed owner-defined AccessDisposition values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.QualificationDisposition
+    schemaRef: media.component-value-types.v1#/$defs/QualificationDisposition
+    description: Closed owner-defined QualificationDisposition values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.ObservationFreshness
+    schemaRef: media.component-value-types.v1#/$defs/ObservationFreshness
+    description: Closed owner-defined ObservationFreshness values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.UploadTransferState
+    schemaRef: media.component-value-types.v1#/$defs/UploadTransferState
+    description: Closed owner-defined UploadTransferState values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.TypedExitDisposition
+    schemaRef: media.component-value-types.v1#/$defs/TypedExitDisposition
+    description: Closed owner-defined TypedExitDisposition values; unknown or pending never implies success or permission.
+    sourceAuthority: Media
+  - id: media.component-value-type.IanaMediaType
+    schemaRef: media.component-value-types.v1#/$defs/IanaMediaType
+    description: Normalized IANA media type.
+    sourceAuthority: Media
+  - id: media.component-value-type.BCP47LanguageTag
+    schemaRef: media.component-value-types.v1#/$defs/BCP47LanguageTag
+    description: BCP 47 language tag.
+    sourceAuthority: Media
+  - id: media.component-value-type.NonnegativeInteger
+    schemaRef: media.component-value-types.v1#/$defs/NonnegativeInteger
+    description: Nonnegative byte/sample/count value.
+    sourceAuthority: Media
+  - id: media.component-value-type.MeasuredNonnegativeInteger
+    schemaRef: media.component-value-types.v1#/$defs/MeasuredNonnegativeInteger
+    description: Observed nonnegative integer with measurement provenance.
+    sourceAuthority: Media
+  - id: media.component-value-type.CanonicalCommandId
+    schemaRef: media.component-value-types.v1#/$defs/CanonicalCommandId
+    description: Exact Media CLI command identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.OpaqueJobRef
+    schemaRef: media.component-value-types.v1#/$defs/OpaqueJobRef
+    description: Opaque Media job identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.OpaqueRequestRef
+    schemaRef: media.component-value-types.v1#/$defs/OpaqueRequestRef
+    description: Opaque request/idempotency identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.OpaqueUploadRef
+    schemaRef: media.component-value-types.v1#/$defs/OpaqueUploadRef
+    description: Opaque upload identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.CaptionDraftRef
+    schemaRef: media.component-value-types.v1#/$defs/CaptionDraftRef
+    description: Mutable session-local caption draft identity, distinct from saved immutable version.
+    sourceAuthority: Media
+  - id: media.component-value-type.TranscriptSegmentRef
+    schemaRef: media.component-value-types.v1#/$defs/TranscriptSegmentRef
+    description: Stable segment identity within exact transcript version.
+    sourceAuthority: Media
+  - id: media.component-value-type.FidelityDefinitionRef
+    schemaRef: media.component-value-types.v1#/$defs/FidelityDefinitionRef
+    description: Exact fidelity definition identity; not qualification.
+    sourceAuthority: Media
+  - id: media.component-value-type.ImageCoordinateProfileRef
+    schemaRef: media.component-value-types.v1#/$defs/ImageCoordinateProfileRef
+    description: Exact image coordinate convention/profile identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.VersionedDeliveryProfileRef
+    schemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
+    description: Exact immutable delivery profile identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.CurrentAuthorityRef
+    schemaRef: media.component-value-types.v1#/$defs/CurrentAuthorityRef
+    description: Current source authority identity; not a consent fact itself.
+    sourceAuthority: Media
+  - id: media.component-value-type.EvidenceRef
+    schemaRef: media.component-value-types.v1#/$defs/EvidenceRef
+    description: Evidence identity with source, scope, and observation metadata.
+    sourceAuthority: Media
+  - id: media.component-value-type.CompatibilityEvidence
+    schemaRef: media.component-value-types.v1#/$defs/CompatibilityEvidence
+    description: Compatibility is profile-specific and backed by explicit evidence.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExplicitFallbackPlan
+    schemaRef: media.component-value-types.v1#/$defs/ExplicitFallbackPlan
+    description: Fallback is explicit and ordered; never silently substitute.
+    sourceAuthority: Media
+  - id: media.component-value-type.AuthorizedDestinationRef
+    schemaRef: media.component-value-types.v1#/$defs/AuthorizedDestinationRef
+    description: Authorized destination reference includes scope; selecting it is not delivery acknowledgement.
+    sourceAuthority: Media
+  - id: media.component-value-type.AuthorizedPreviewRef
+    schemaRef: media.component-value-types.v1#/$defs/AuthorizedPreviewRef
+    description: Preview reference is exact-version and time-limited under current authorization.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalQualifiedProfileRef
+    schemaRef: media.component-value-types.v1#/$defs/OptionalQualifiedProfileRef
+    description: Nullable profile identity; presence does not establish profile qualification.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalIdentityHandoffRequest
+    schemaRef: media.component-value-types.v1#/$defs/OptionalIdentityHandoffRequest
+    description: Nullable PXD-082 request envelope; presence does not authenticate or authorize.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalIdentityHandoffEvaluation
+    schemaRef: media.component-value-types.v1#/$defs/OptionalIdentityHandoffEvaluation
+    description: Nullable PXD-082 evaluated result with separately configured owner pin and recomputable disposition.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalOpaqueCursor
+    schemaRef: media.component-value-types.v1#/$defs/OptionalOpaqueCursor
+    description: Nullable opaque query continuation cursor scoped to the exact query.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalOpaqueJobRef
+    schemaRef: media.component-value-types.v1#/$defs/OptionalOpaqueJobRef
+    description: Nullable opaque job identity; no job existence or finality is implied.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalOpaqueProjectRef
+    schemaRef: media.component-value-types.v1#/$defs/OptionalOpaqueProjectRef
+    description: Nullable tenant-scoped project identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalNonnegativeInteger
+    schemaRef: media.component-value-types.v1#/$defs/OptionalNonnegativeInteger
+    description: Nullable nonnegative integer in the declared owning value domain.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalRationalDuration
+    schemaRef: media.component-value-types.v1#/$defs/OptionalRationalDuration
+    description: Nullable exact rational duration in the explicitly bound clock domain.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalMeasuredProgress
+    schemaRef: media.component-value-types.v1#/$defs/OptionalMeasuredProgress
+    description: Nullable measured progress with an explicit unit and epistemic boundary.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalSimulationRunRef
+    schemaRef: media.component-value-types.v1#/$defs/OptionalSimulationRunRef
+    description: Nullable exact simulation run identity; no execution or qualification is implied.
+    sourceAuthority: Media
+  - id: media.component-value-type.OptionalTypedMachineResult
+    schemaRef: media.component-value-types.v1#/$defs/OptionalTypedMachineResult
+    description: Nullable typed machine result; null/unknown is not success.
+    sourceAuthority: Media
+  - id: media.component-value-type.EstimateWithMethodAndUncertainty
+    schemaRef: media.component-value-types.v1#/$defs/EstimateWithMethodAndUncertainty
+    description: Estimate includes method, units, and explicit uncertainty interval/confidence.
+    sourceAuthority: Media
+  - id: media.component-value-type.CaptionCueDraft
+    schemaRef: media.component-value-types.v1#/$defs/CaptionCueDraft
+    description: Caption cue uses exact rational half-open times on one source version/timebase.
+    sourceAuthority: Media
+  - id: media.component-value-type.TranscriptSegment
+    schemaRef: media.component-value-types.v1#/$defs/TranscriptSegment
+    description: Transcript segment binds exact source times and represents recognition confidence separately from truth.
+    sourceAuthority: Media
+  - id: media.component-value-type.JobAttemptSummary
+    schemaRef: media.component-value-types.v1#/$defs/JobAttemptSummary
+    description: Attempt records separate lifecycle state, effect finality, and timestamps.
+    sourceAuthority: Media
+  - id: media.component-value-type.ProvenanceUnknown
+    schemaRef: media.component-value-types.v1#/$defs/ProvenanceUnknown
+    description: Missing provenance stays typed as unknown with a reason.
+    sourceAuthority: Media
+  - id: media.component-value-type.QualityObservation
+    schemaRef: media.component-value-types.v1#/$defs/QualityObservation
+    description: Quality observation carries metric method, units, epistemic status, and uncertainty.
+    sourceAuthority: Media
+  - id: media.component-value-type.UncertaintyInterval
+    schemaRef: media.component-value-types.v1#/$defs/UncertaintyInterval
+    description: Bounded uncertainty interval; lower must not exceed upper.
+    sourceAuthority: Media
+  - id: media.component-value-type.ScopedAcceptanceThreshold
+    schemaRef: media.component-value-types.v1#/$defs/ScopedAcceptanceThreshold
+    description: Acceptance threshold is dimension-, unit-, scope-, and review-bound.
+    sourceAuthority: Media
+  - id: media.component-value-type.ReasonEvidence
+    schemaRef: media.component-value-types.v1#/$defs/ReasonEvidence
+    description: Reason includes source evidence and optional explanatory text.
+    sourceAuthority: Media
+  - id: media.component-value-type.ChunkReceipt
+    schemaRef: media.component-value-types.v1#/$defs/ChunkReceipt
+    description: Chunk receipt binds ordered byte range and content digest.
+    sourceAuthority: Media
+  - id: media.component-value-type.ArtifactVersionSummary
+    schemaRef: media.component-value-types.v1#/$defs/ArtifactVersionSummary
+    description: Artifact version summary carries immutable version, type, timestamp, and scoped access disposition.
+    sourceAuthority: Media
+  - id: media.component-value-type.IntentOption
+    schemaRef: media.component-value-types.v1#/$defs/IntentOption
+    description: Intent option cannot expose provider choice or imply execution.
+    sourceAuthority: Media
+  - id: media.component-value-type.EditConstraint
+    schemaRef: media.component-value-types.v1#/$defs/EditConstraint
+    description: Edit constraint supplies field, units, optional bounds, and explicit enforcement.
+    sourceAuthority: Media
+  - id: media.component-value-type.JobActivityRecord
+    schemaRef: media.component-value-types.v1#/$defs/JobActivityRecord
+    description: Activity is an observation scoped to one job and observation time; not an authority to replay.
+    sourceAuthority: Media
+  - id: media.component-value-type.ExactResultReference
+    schemaRef: media.component-value-types.v1#/$defs/ExactResultReference
+    description: Result ref names an exact typed result identity and optional exact immutable version; never a latest path.
+    sourceAuthority: Media
+  - id: media.component-value-type.SpectralWindowDefinition
+    schemaRef: media.component-value-types.v1#/$defs/SpectralWindowDefinition
+    description: Spectral window includes exact window/hop sizes, explicit scale, and source sample rate.
+    sourceAuthority: Media
+  - id: media.component-value-type.HalfOpenRationalInterval
+    schemaRef: media.component-value-types.v1#/$defs/HalfOpenRationalInterval
+    description: Half-open exact rational interval [start,end); end is exclusive and greater than start.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+      - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.sample-boundary-index
+  - id: media.component-value-type.ProjectSummary
+    schemaRef: media.component-value-types.v1#/$defs/ProjectSummary
+    description: Project list row binds tenant-scoped project, immutable revision, scoped access, and observation time.
+    sourceAuthority: Media
+  - id: media.component-value-type.SourceVersionCandidate
+    schemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
+    description: Candidate names exact immutable source version, type, access, and independent rights disposition.
+    sourceAuthority: Media
+  - id: media.component-value-type.ArtifactVersionCandidate
+    schemaRef: media.component-value-types.v1#/$defs/ArtifactVersionCandidate
+    description: Candidate exact immutable artifact version with independent access, rights, and integrity axes.
+    sourceAuthority: Media
+  - id: media.component-value-type.AudioTrackBinding
+    schemaRef: media.component-value-types.v1#/$defs/AudioTrackBinding
+    description: Audio track binds exact source version, explicit channels, rational interval, and unit-bearing gain.
+    sourceAuthority: Media
+  - id: media.component-value-type.UnitBearingAudioGain
+    schemaRef: media.component-value-types.v1#/$defs/UnitBearingAudioGain
+    description: Audio gain always carries unit and scale.
+    sourceAuthority: Media
+  - id: media.component-value-type.AudioMeasurement
+    schemaRef: media.component-value-types.v1#/$defs/AudioMeasurement
+    description: Audio measurement carries method, unit, epistemic label, and uncertainty.
+    sourceAuthority: Media
+  - id: media.component-value-type.ChannelRoutingBinding
+    schemaRef: media.component-value-types.v1#/$defs/ChannelRoutingBinding
+    description: Channel routes are explicit, versionable decisions; no implied downmix.
+    sourceAuthority: Media
+  - id: media.component-value-type.OrderedScene
+    schemaRef: media.component-value-types.v1#/$defs/OrderedScene
+    description: Scene order and interval are bound to exact scene/source versions and continuity status.
+    sourceAuthority: Media
+  - id: media.component-value-type.VersionedTransitionSpec
+    schemaRef: media.component-value-types.v1#/$defs/VersionedTransitionSpec
+    description: Transition binds exact adjacent scenes, version, explicit kind, and rational duration.
+    sourceAuthority: Media
+  - id: media.component-value-type.VersionedTrack
+    schemaRef: media.component-value-types.v1#/$defs/VersionedTrack
+    description: Track identity and ordering are version-scoped with exact source version bindings.
+    sourceAuthority: Media
+  - id: media.component-value-type.Keyframe
+    schemaRef: media.component-value-types.v1#/$defs/Keyframe
+    description: Keyframe binds rational time, typed property, value unit, and explicit interpolation.
+    sourceAuthority: Media
+  - id: media.component-value-type.VersionedMask
+    schemaRef: media.component-value-types.v1#/$defs/VersionedMask
+    description: Mask geometry is coordinate-profile and exact-version bound; unknown validation does not imply propagation.
+    sourceAuthority: Media
+  - id: media.component-value-type.TrackingObservation
+    schemaRef: media.component-value-types.v1#/$defs/TrackingObservation
+    description: Tracking observation binds exact frame time and evidence; unknown/lost is not successful propagation.
+    sourceAuthority: Media
+  - id: media.component-value-type.SimulationObservation
+    schemaRef: media.component-value-types.v1#/$defs/SimulationObservation
+    description: Simulation observation is model-version, run, rational time, quantity, unit, and epistemic-status scoped.
+    sourceAuthority: Media
+  - id: media.component-value-type.QualifiedModelBinding
+    schemaRef: media.component-value-types.v1#/$defs/QualifiedModelBinding
+    description: Model binding identifies exact version/profile and separate qualification disposition with evidence.
+    sourceAuthority: Media
+  - id: media.component-value-type.ComparisonBasis
+    schemaRef: media.component-value-types.v1#/$defs/ComparisonBasis
+    description: Comparison basis is explicit, version-aware, and method-bound.
+    sourceAuthority: Media
+  - id: media.component-value-type.ScopedDifference
+    schemaRef: media.component-value-types.v1#/$defs/ScopedDifference
+    description: Difference binds both values, unit, epistemic status, and uncertainty.
+    sourceAuthority: Media
+  - id: media.component-value-type.CapabilityProfileDisposition
+    schemaRef: media.component-value-types.v1#/$defs/CapabilityProfileDisposition
+    description: Capability disposition is an exact capability/profile pair; availability and qualification remain separate.
+    sourceAuthority: Media
+  - id: media.component-value-type.ScopedPolicyDecision
+    schemaRef: media.component-value-types.v1#/$defs/ScopedPolicyDecision
+    description: Policy decision binds exact scope, current authority, outcome, and the owner's current validity disposition; any time window is separately bound by its owning policy contract.
+    sourceAuthority: Media
+  - id: media.component-value-type.TransformWithCoordinateProfile
+    schemaRef: media.component-value-types.v1#/$defs/TransformWithCoordinateProfile
+    description: Transform binds matrix, unit, coordinate profile, and exact source version.
+    sourceAuthority: Media
+  - id: media.component-value-type.SourceTimestampWithClock
+    schemaRef: media.component-value-types.v1#/$defs/SourceTimestampWithClock
+    description: Timestamp binds exact rational value, clock authority, source version, and semantic kind.
+    sourceAuthority: Media
+  - id: media.component-value-type.ScopedSignalObservation
+    schemaRef: media.component-value-types.v1#/$defs/ScopedSignalObservation
+    description: Signal observation binds interval, channel, units, method, and epistemic status.
+    sourceAuthority: Media
+  - id: media.component-value-type.ProposedPlanRef
+    schemaRef: media.component-value-types.v1#/$defs/ProposedPlanRef
+    description: ProposedPlanRef is an exact opaque typed identity/value.
+    sourceAuthority: Media
+  - id: media.component-value-type.OperationExecutionRef
+    schemaRef: media.component-value-types.v1#/$defs/OperationExecutionRef
+    description: Recorded operation execution identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.IntegrityEvidenceRef
+    schemaRef: media.component-value-types.v1#/$defs/IntegrityEvidenceRef
+    description: Integrity evidence identity, version binding, and verification algorithm.
+    sourceAuthority: Media
+  - id: media.component-value-type.OpaqueSceneEntityRef
+    schemaRef: media.component-value-types.v1#/$defs/OpaqueSceneEntityRef
+    description: Opaque scene entity identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.VersionedMaterialRef
+    schemaRef: media.component-value-types.v1#/$defs/VersionedMaterialRef
+    description: Exact immutable material version identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.ProvenanceRef
+    schemaRef: media.component-value-types.v1#/$defs/ProvenanceRef
+    description: Recorded provenance identity.
+    sourceAuthority: Media
+  - id: media.component-value-type.ScopedDecisionRef
+    schemaRef: media.component-value-types.v1#/$defs/ScopedDecisionRef
+    description: ScopedDecisionRef is an exact opaque typed identity/value.
+    sourceAuthority: Media
+  - id: media.component-value-type.VersionedDecisionRef
+    schemaRef: media.component-value-types.v1#/$defs/VersionedDecisionRef
+    description: VersionedDecisionRef is an exact opaque typed identity/value.
+    sourceAuthority: Media
+  - id: media.component-value-type.OutcomeEvidenceRef
+    schemaRef: media.component-value-types.v1#/$defs/OutcomeEvidenceRef
+    description: Evidence identity for observed outcome; not success authority.
+    sourceAuthority: Media
+$defs:
+  MediaViewRef:
+    type: string
+    enum:
+      - media.view.adjust-color
+      - media.view.animate-media
+      - media.view.arrange-scenes
+      - media.view.authenticate-and-select-context
+      - media.view.browse-media
+      - media.view.check-job-outcome
+      - media.view.check-processing-options
+      - media.view.check-processing-readiness
+      - media.view.choose-eligible-processing-option
+      - media.view.compare-caption-versions
+      - media.view.compare-results
+      - media.view.compose-media
+      - media.view.compose-scene
+      - media.view.correct-captions
+      - media.view.create-audio
+      - media.view.create-image
+      - media.view.create-media
+      - media.view.create-video
+      - media.view.deliver-output
+      - media.view.edit-captions
+      - media.view.edit-media
+      - media.view.edit-media-region
+      - media.view.explore-simulation
+      - media.view.find-projects
+      - media.view.find-task-guidance
+      - media.view.import-media
+      - media.view.improve-media
+      - media.view.inspect-media
+      - media.view.inspect-output
+      - media.view.inspect-provenance
+      - media.view.job-status
+      - media.view.monitor-transcription
+      - media.view.prepare-render
+      - media.view.resume-work
+      - media.view.review-activity
+      - media.view.review-creation-plan
+      - media.view.review-dubbing
+      - media.view.review-exact-version
+      - media.view.review-outputs
+      - media.view.review-quality
+      - media.view.review-rights-and-consent
+      - media.view.review-transcript
+      - media.view.review-workspace-settings
+      - media.view.select-source
+      - media.view.use-authorized-voice
+      - media.view.work-in-project
+      - media.view.work-with-speech
+    description: Exact canonical Media screen or lane-view identity from the current screen registry.
+    examples:
+      - media.view.adjust-color
+  RegisteredMediaReturnRouteRef:
+    type: string
+    enum:
+      - media.view.adjust-color
+      - media.view.animate-media
+      - media.view.arrange-scenes
+      - media.view.authenticate-and-select-context
+      - media.view.browse-media
+      - media.view.check-processing-options
+      - media.view.check-processing-readiness
+      - media.view.choose-eligible-processing-option
+      - media.view.compare-results
+      - media.view.compose-media
+      - media.view.compose-scene
+      - media.view.create-audio
+      - media.view.create-image
+      - media.view.create-media
+      - media.view.create-video
+      - media.view.deliver-output
+      - media.view.edit-captions
+      - media.view.edit-media
+      - media.view.edit-media-region
+      - media.view.explore-simulation
+      - media.view.find-projects
+      - media.view.find-task-guidance
+      - media.view.import-media
+      - media.view.improve-media
+      - media.view.inspect-media
+      - media.view.inspect-output
+      - media.view.inspect-provenance
+      - media.view.job-status
+      - media.view.prepare-render
+      - media.view.resume-work
+      - media.view.review-activity
+      - media.view.review-creation-plan
+      - media.view.review-dubbing
+      - media.view.review-exact-version
+      - media.view.review-outputs
+      - media.view.review-quality
+      - media.view.review-rights-and-consent
+      - media.view.review-workspace-settings
+      - media.view.use-authorized-voice
+      - media.view.work-in-project
+      - media.view.work-with-speech
+    description: Exact Media screen-registry identity eligible for host allowlist binding; source membership does not prove
+      host registration or runtime binding.
+    examples:
+      - media.view.adjust-color
+  MediaActionIntentRef:
+    type: string
+    enum: &a1
+      - media.action.add-scene-entity
+      - media.action.add-storyboard-scene
+      - media.action.align-caption-timing
+      - media.action.align-source-time-interval
+      - media.action.apply-admitted-edit
+      - media.action.apply-authorized-rights-restriction
+      - media.action.associate-authorized-reference
+      - media.action.attach-source-asset
+      - media.action.begin-artifact-upload
+      - media.action.change-interpolation-curve
+      - media.action.change-permitted-preference
+      - media.action.check-job-outcome
+      - media.action.choose-admitted-audio-operation
+      - media.action.choose-alignment-basis
+      - media.action.choose-intent
+      - media.action.choose-media-improvement-intent
+      - media.action.choose-named-destination
+      - media.action.choose-source
+      - media.action.compare-candidate-on-metric
+      - media.action.compare-caption-versions
+      - media.action.compare-media-versions
+      - media.action.continue-within-recorded-scope
+      - media.action.correct-caption
+      - media.action.create-project
+      - media.action.deliver-exact-version
+      - media.action.edit-admitted-adjustment
+      - media.action.edit-audio-mix-controls
+      - media.action.edit-keyframe
+      - media.action.edit-mask-boundary
+      - media.action.edit-requested-outcome-and-admitted-controls
+      - media.action.edit-scene-timing-or-transition
+      - media.action.edit-transition-or-caption-alignment
+      - media.action.edit-unresolved-plan-decision
+      - media.action.edit-video-temporal-plan
+      - media.action.enter-exact-edit-constraints
+      - media.action.export-authorized-provenance
+      - media.action.inspect-artifact
+      - media.action.inspect-consent-and-permitted-use
+      - media.action.inspect-driver-or-constraint
+      - media.action.inspect-effective-processing-constraints
+      - media.action.inspect-generated-candidates
+      - media.action.inspect-governing-evidence
+      - media.action.inspect-input-output-color-interpretation
+      - media.action.inspect-operation-contract
+      - media.action.inspect-operation-readiness
+      - media.action.inspect-output-preview-and-version
+      - media.action.inspect-project-creation
+      - media.action.inspect-provenance
+      - media.action.inspect-quality-evidence
+      - media.action.inspect-scene-binding
+      - media.action.inspect-setting-owner
+      - media.action.inspect-simulation-domain-and-fidelity
+      - media.action.inspect-simulation-result
+      - media.action.inspect-source
+      - media.action.inspect-source-grounded-observation
+      - media.action.inspect-source-measurements
+      - media.action.inspect-version-and-review-scope
+      - media.action.inspect-voice-authorization
+      - media.action.limit-tracking-propagation-range
+      - media.action.open-admitted-delivery-action
+      - media.action.open-approval-view
+      - media.action.open-authorized-recovery-instruction
+      - media.action.open-project
+      - media.action.open-qualification-evidence
+      - media.action.open-related-view
+      - media.action.play-source
+      - media.action.prepare-redacted-diagnostics
+      - media.action.preview-current-revision
+      - media.action.preview-motion
+      - media.action.reconcile-delivery-acknowledgment
+      - media.action.record-authorized-attestation
+      - media.action.record-candidate-for-review
+      - media.action.record-review-comment
+      - media.action.record-review-follow-up
+      - media.action.record-version-review-decision
+      - media.action.refresh-operation-readiness
+      - media.action.remove-storyboard-scene
+      - media.action.reorder-storyboard-scenes
+      - media.action.reorder-track
+      - media.action.request-admitted-speech-operation
+      - media.action.request-authorized-review
+      - media.action.request-cancellation
+      - media.action.request-live-session-reconnect
+      - media.action.request-plan-validation
+      - media.action.request-rights-review
+      - media.action.request-transcription
+      - media.action.resolve-caption-conflict
+      - media.action.restore-prior-setting-preference
+      - media.action.resume-artifact-upload
+      - media.action.retry-job
+      - media.action.return-to-requested-destination-after-identity-confirmation
+      - media.action.review-bounded-repair-proposal
+      - media.action.review-estimates-and-rights-effects
+      - media.action.review-output-evidence
+      - media.action.review-processing-parameters
+      - media.action.review-recognized-or-synthesized-content
+      - media.action.review-repair-bounds
+      - media.action.review-rights-approval-and-format-effects
+      - media.action.review-scene-timing-and-transitions
+      - media.action.review-transcript
+      - media.action.review-translated-segment
+      - media.action.review-uncertain-tracking
+      - media.action.revise-dubbing-segment
+      - media.action.revoke-authorized-consent
+      - media.action.save-caption-version
+      - media.action.save-dubbing-version
+      - media.action.save-new-revision
+      - media.action.save-setting-preference
+      - media.action.save-storyboard-revision
+      - media.action.save-versioned-edit
+      - media.action.search-authorized-artifacts
+      - media.action.search-by-user-outcome
+      - media.action.search-named-profiles
+      - media.action.search-product-guidance
+      - media.action.seek-source
+      - media.action.select-artifact-source
+      - media.action.select-authorized-reference
+      - media.action.select-eligible-processing-profile
+      - media.action.select-exact-candidates
+      - media.action.select-identity-confirmed-workspace
+      - media.action.select-keyframe
+      - media.action.select-region-or-point
+      - media.action.select-scene-entity
+      - media.action.select-shot-or-region
+      - media.action.select-simulation-output-pass
+      - media.action.select-source-time-interval
+      - media.action.select-track-or-region
+      - media.action.set-declared-simulation-input
+      - media.action.set-simulation-initial-condition
+      - media.action.share-diagnostics-after-explicit-choice
+      - media.action.start-upstream-identity-handoff
+      - media.action.stop-authorized-voice-use
+      - media.action.submit-admitted-plan
+      - media.action.submit-render
+      - media.action.submit-simulation
+      - media.action.submit-validated-request
+      - media.action.switch-measurement-presentation
+      - media.action.trim-track
+      - media.action.undo-or-redo-versioned-change
+      - media.action.update-repair-bounds
+      - media.action.update-scene-binding
+      - media.action.validate-composition
+      - media.action.validate-exact-snapshot
+      - media.action.validate-processing-profile
+      - media.action.validate-scene-references
+      - media.action.validate-simulation-plan
+      - media.action.view-job-status
+    description: Exact canonical Media action identity; an intent is not authorization.
+    examples:
+      - media.action.add-scene-entity
+  ActionIntentRef:
+    type: string
+    enum: *a1
+    description: Exact canonical action identity; not a dispatched operation.
+    examples:
+      - media.action.add-scene-entity
+  CanonicalIntentRef:
+    type: string
+    enum:
+      - media.intent.animate
+      - media.intent.check-processing-options
+      - media.intent.check-processing-readiness
+      - media.intent.choose-eligible-processing-option
+      - media.intent.create
+      - media.intent.deliver
+      - media.intent.edit
+      - media.intent.find-task-guidance
+      - media.intent.improve
+      - media.intent.inspect-provenance
+      - media.intent.manage-artifact-lifecycle
+      - media.intent.recover-live-session
+      - media.intent.resolve-job
+      - media.intent.restore-project
+      - media.intent.review-exact-version
+      - media.intent.review-rights-and-consent
+      - media.intent.review-workspace-settings
+      - media.intent.simulate
+      - media.intent.understand
+    description: Exact canonical user outcome intent identity from PDP-0 goals-jtbd.
+    examples:
+      - media.intent.animate
+  TenantScopedWorkspaceRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant scope.
+        examples:
+          - tenant-a
+      workspaceId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Opaque workspace identity within that tenant.
+        examples:
+          - workspace-a
+    required:
+      - tenantId
+      - workspaceId
+    description: Workspace reference is tenant-scoped and never an authorization grant.
+    examples:
+      - tenantId: tenant-a
+        workspaceId: workspace-a
+  ExactArtifactVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant identity for the exact immutable version.
+        examples:
+          - tenant-a
+      artifactId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable artifact identity; not a content digest.
+        examples:
+          - artifact-1
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Opaque immutable version identity within the artifact.
+        examples:
+          - version-1
+    required:
+      - tenantId
+      - artifactId
+      - versionId
+    description: Exact artifact version identity is the tuple (tenantId, artifactId, versionId); digest is evidence, not identity.
+    examples:
+      - tenantId: tenant-a
+        artifactId: artifact-1
+        versionId: version-1
+  ImmutableProjectRevisionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant scope.
+        examples:
+          - tenant-a
+      projectId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable project identity.
+        examples:
+          - project-a
+      revisionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable project revision identity.
+        examples:
+          - revision-4
+    required:
+      - tenantId
+      - projectId
+      - revisionId
+    description: Exact immutable project revision tuple.
+    examples:
+      - tenantId: tenant-a
+        projectId: project-a
+        revisionId: revision-4
+  ExactCompositionVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant scope.
+        examples:
+          - tenant-a
+      compositionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable composition identity.
+        examples:
+          - composition-a
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable composition version identity.
+        examples:
+          - version-8
+    required:
+      - tenantId
+      - compositionId
+      - versionId
+    description: Exact immutable composition version tuple.
+    examples:
+      - tenantId: tenant-a
+        compositionId: composition-a
+        versionId: version-8
+  ExactTranscriptVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant scope.
+        examples:
+          - tenant-a
+      transcriptId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable transcript identity.
+        examples:
+          - transcript-a
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable transcript version identity.
+        examples:
+          - version-2
+    required:
+      - tenantId
+      - transcriptId
+      - versionId
+    description: Exact immutable transcript version tuple.
+    examples:
+      - tenantId: tenant-a
+        transcriptId: transcript-a
+        versionId: version-2
+  ExactModelVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      modelId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable model identity.
+        examples:
+          - model-a
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable model version identity.
+        examples:
+          - version-1
+      digest:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Integrity digest bound to the version.
+        examples:
+          - sha256:abc123
+    required:
+      - modelId
+      - versionId
+      - digest
+    description: Exact model version includes its immutable version and integrity digest.
+    examples:
+      - modelId: model-a
+        versionId: version-1
+        digest: sha256:abc123
+  ExactSceneVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant scope for this scene identity.
+        examples:
+          - tenant-a
+      sceneId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable scene identity within tenant.
+        examples:
+          - scene-a
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable scene version identity.
+        examples:
+          - version-1
+    required:
+      - tenantId
+      - sceneId
+      - versionId
+    description: Tenant-scoped exact immutable scene version tuple.
+    examples:
+      - tenantId: tenant-a
+        sceneId: scene-a
+        versionId: version-1
+  ExactSubjectVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted tenant scope for the subject.
+        examples:
+          - tenant-a
+      subjectId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable subject identity within tenant.
+        examples:
+          - subject-a
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact subject version identity.
+        examples:
+          - version-1
+    required:
+      - tenantId
+      - subjectId
+      - versionId
+    description: Tenant-scoped versioned subject identity for the rights or retention decision.
+    examples:
+      - tenantId: tenant-a
+        subjectId: subject-a
+        versionId: version-1
+  OpaqueProjectRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Tenant scope.
+        examples:
+          - tenant-a
+      projectId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Opaque project identity.
+        examples:
+          - project-a
+    required:
+      - tenantId
+      - projectId
+    description: Tenant-scoped project identity.
+    examples:
+      - tenantId: tenant-a
+        projectId: project-a
+  ProjectSearchQuery:
+    type: object
+    additionalProperties: false
+    properties:
+      text:
+        type: string
+        maxLength: 512
+      sort:
+        type: string
+        enum:
+          - recent
+          - name
+      limit:
+        type: integer
+        minimum: 1
+        description: Page size bounded by the owning query contract.
+        examples:
+          - 1
+    required:
+      - text
+      - sort
+      - limit
+    description: Typed project query; text is a search term, not a scope or access predicate.
+    examples:
+      - text: review
+        sort: recent
+        limit: 20
+  ArtifactSearchQuery:
+    type: object
+    additionalProperties: false
+    properties:
+      text:
+        type: string
+        maxLength: 512
+      mediaTypes:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 8192
+          description: IANA media type filter.
+          examples:
+            - sample
+        uniqueItems: true
+      limit:
+        type: integer
+        minimum: 1
+        description: Page size bounded by the owning query contract.
+        examples:
+          - 1
+    required:
+      - text
+      - mediaTypes
+      - limit
+    description: Typed artifact query; search filters do not establish authorization or global absence.
+    examples:
+      - text: audio
+        mediaTypes:
+          - audio/wav
+        limit: 20
+  PageState:
+    type: object
+    additionalProperties: false
+    properties:
+      status:
+        type: string
+        enum:
+          - loading
+          - populated
+          - empty
+          - partial
+          - stale
+          - offline
+          - access-denied
+        description: Current query collection state.
+        examples:
+          - loading
+      nextPageRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Opaque continuation cursor scoped to the exact query.
+            examples:
+              - media.test.0
+          - type: "null"
+    required:
+      - status
+      - nextPageRef
+    description: Query pagination state with exact current status and opaque cursor.
+    examples:
+      - status: populated
+        nextPageRef: null
+  RationalSourceTime:
+    type: object
+    additionalProperties: false
+    properties:
+      clockKind:
+        type: string
+        enum:
+          - media
+          - simulation
+          - story
+        description: Explicit source clock kind; these domains are never implicitly aligned.
+        examples:
+          - media
+      clockId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable source clock identity.
+        examples:
+          - clock-source-1
+      streamId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact source stream identity.
+        examples:
+          - stream-a
+      ticks:
+        type: string
+        maxLength: 20
+        pattern: ^(?:0|-?[1-9][0-9]*)$
+        description: Signed-64-bit ticks as a decimal string; parsed with BigInt, never Number.
+      secondsPerTick:
+        type: object
+        additionalProperties: false
+        properties:
+          numerator:
+            type: string
+            maxLength: 19
+            pattern: ^[1-9][0-9]*$
+          denominator:
+            type: string
+            maxLength: 19
+            pattern: ^[1-9][0-9]*$
+        required:
+          - numerator
+          - denominator
+    required:
+      - clockKind
+      - clockId
+      - streamId
+      - ticks
+      - secondsPerTick
+    description: Exact signed-64-bit tick time with explicit clock id/stream and positive signed-64-bit rational seconds per
+      tick, following media.value.rational-media-time.
+    examples:
+      - clockKind: media
+        clockId: clock-source-1
+        streamId: stream-a
+        ticks: "3"
+        secondsPerTick:
+          numerator: "1"
+          denominator: "2"
+  RationalTimelineTimebaseRef:
+    type: object
+    additionalProperties: false
+    properties:
+      clockKind:
+        type: string
+        enum:
+          - media
+          - simulation
+          - story
+        description: Explicit clock domain.
+        examples:
+          - media
+      clockId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable timeline clock identity.
+        examples:
+          - clock-timeline-1
+      streamId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact clock stream identity.
+        examples:
+          - stream-a
+      secondsPerTick: &a2
+        type: object
+        additionalProperties: false
+        properties:
+          numerator:
+            type: string
+            maxLength: 20
+            pattern: ^(?:0|-?[1-9][0-9]*)$
+          denominator:
+            type: string
+            maxLength: 19
+            pattern: ^[1-9][0-9]*$
+            description: Positive signed-64-bit integer encoded in base-10 for exact BigInt arithmetic.
+        required:
+          - numerator
+          - denominator
+        description: Exact signed-64-bit decimal-string rational pair; consumers parse with bounded BigInt and reject unsafe
+          Number coercion.
+        examples:
+          - numerator: "1"
+            denominator: "1"
+      originTicks:
+        type: string
+        maxLength: 20
+        pattern: ^(?:0|-?[1-9][0-9]*)$
+      discontinuityPolicy:
+        type: string
+        enum:
+          - explicit-segments
+          - continuous-only
+          - unknown
+        description: Clock discontinuity handling.
+        examples:
+          - explicit-segments
+    required:
+      - clockKind
+      - clockId
+      - streamId
+      - secondsPerTick
+      - originTicks
+      - discontinuityPolicy
+    description: "Rational timeline clock follows media.value.rational-media-time: identified domain/id/stream, exact
+      positive signed-64-bit seconds per tick, signed-64-bit origin, and explicit discontinuity policy."
+    examples:
+      - clockKind: media
+        clockId: clock-timeline-1
+        streamId: stream-a
+        secondsPerTick:
+          numerator: "1001"
+          denominator: "24000"
+        originTicks: "0"
+        discontinuityPolicy: explicit-segments
+  SourceTimebaseRef:
+    type: object
+    additionalProperties: false
+    properties:
+      clockKind:
+        type: string
+        enum:
+          - media
+          - simulation
+          - story
+        description: Explicit source clock domain.
+        examples:
+          - media
+      clockId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable source clock identity.
+        examples:
+          - clock-source-1
+      streamId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact stream identity.
+        examples:
+          - stream-a
+      secondsPerTick: *a2
+      originTicks:
+        type: string
+        maxLength: 20
+        pattern: ^(?:0|-?[1-9][0-9]*)$
+      discontinuityPolicy:
+        type: string
+        enum:
+          - explicit-segments
+          - continuous-only
+          - unknown
+        description: Clock discontinuity handling.
+        examples:
+          - explicit-segments
+    required:
+      - clockKind
+      - clockId
+      - streamId
+      - secondsPerTick
+      - originTicks
+      - discontinuityPolicy
+    description: Declared source timebase follows media.value.rational-media-time; nominal frame rate does not replace this
+      identified exact clock.
+    examples:
+      - clockKind: media
+        clockId: clock-source-1
+        streamId: stream-a
+        secondsPerTick:
+          numerator: "1"
+          denominator: "48000"
+        originTicks: "0"
+        discontinuityPolicy: explicit-segments
+  SourceSampleTimebaseRef:
+    type: object
+    additionalProperties: false
+    properties:
+      clockKind:
+        const: media
+      clockId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable source sample clock identity.
+        examples:
+          - clock-sample-1
+      streamId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact sample stream identity.
+        examples:
+          - stream-a
+      sampleRateHz:
+        type: integer
+        minimum: 1
+        maximum: 4294967295
+      sampleCount:
+        type: string
+        pattern: ^(?:0|[1-9][0-9]*)$
+      channelLayoutRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact explicit channel layout.
+        examples:
+          - layout-stereo
+      originSample:
+        type: string
+        pattern: ^(?:0|[1-9][0-9]*)$
+      primingSamples:
+        type: string
+        pattern: ^(?:0|[1-9][0-9]*)$
+      paddingSamples:
+        type: string
+        pattern: ^(?:0|[1-9][0-9]*)$
+    required:
+      - clockKind
+      - clockId
+      - streamId
+      - sampleRateHz
+      - sampleCount
+      - channelLayoutRef
+      - originSample
+      - primingSamples
+      - paddingSamples
+    description: Sample clock binds identified stream, positive uint32 rate, uint63 sample count/origin and explicit
+      priming/padding.
+    examples:
+      - clockKind: media
+        clockId: clock-sample-1
+        streamId: stream-a
+        sampleRateHz: 48000
+        sampleCount: "96000"
+        channelLayoutRef: layout-stereo
+        originSample: "0"
+        primingSamples: "0"
+        paddingSamples: "0"
+  CompositionTimebaseRef:
+    type: object
+    additionalProperties: false
+    properties:
+      clockKind:
+        type: string
+        enum:
+          - media
+          - simulation
+          - story
+        description: Explicit clock domain.
+        examples:
+          - media
+      clockId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable composition clock identity.
+        examples:
+          - clock-composition-1
+      streamId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact composition stream identity.
+        examples:
+          - stream-a
+      secondsPerTick: *a2
+      originTicks:
+        type: string
+        maxLength: 20
+        pattern: ^(?:0|-?[1-9][0-9]*)$
+      unit:
+        type: string
+        enum:
+          - frame
+          - sample
+          - second
+          - tick
+        description: Declared time unit.
+        examples:
+          - frame
+    required:
+      - clockKind
+      - clockId
+      - streamId
+      - secondsPerTick
+      - originTicks
+      - unit
+    description: Composition timebase follows media.value.rational-media-time and binds an identified clock stream, exact
+      positive signed-64-bit seconds per tick, signed-64-bit origin, and unit.
+    examples:
+      - clockKind: media
+        clockId: clock-composition-1
+        streamId: stream-a
+        secondsPerTick:
+          numerator: "1001"
+          denominator: "24000"
+        originTicks: "0"
+        unit: frame
+  OptionalHalfOpenRationalInterval:
+    anyOf:
+      - $ref: media.component-value-types.v1#/$defs/HalfOpenRationalInterval
+      - type: "null"
+    description: Nullable exact rational interval; a present value must have one positive same-clock half-open interval.
+  OptionalHalfOpenFrameInterval:
+    anyOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          startFrame:
+            type: integer
+            minimum: 0
+          endFrame:
+            type: integer
+            minimum: 1
+          sourceVersionRef:
+            $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+        required:
+          - startFrame
+          - endFrame
+          - sourceVersionRef
+        description: Half-open frame interval [startFrame,endFrame), bound to an exact source version.
+        examples:
+          - startFrame: 0
+            endFrame: 1
+            sourceVersionRef:
+              tenantId: tenant-a
+              artifactId: artifact-1
+              versionId: version-1
+      - type: "null"
+    description: Nullable exact frame interval; a present value retains its explicit frame/timebase boundaries.
+  PositiveRationalRate:
+    type: object
+    additionalProperties: false
+    properties:
+      numerator:
+        type: integer
+        minimum: 1
+        maximum: 4294967295
+      denominator:
+        type: integer
+        minimum: 1
+        maximum: 4294967295
+    required:
+      - numerator
+      - denominator
+    description: Positive uint32 rational rate; zero and overflow fail closed.
+    examples:
+      - numerator: 48000
+        denominator: 1
+  DigestWithAlgorithm:
+    type: object
+    additionalProperties: false
+    properties:
+      algorithm:
+        type: string
+        enum:
+          - sha-256
+          - sha-512
+          - blake3
+        description: Named digest algorithm.
+        examples:
+          - sha-256
+      value:
+        type: string
+        pattern: ^[A-Fa-f0-9]{32,}$
+        minLength: 32
+    required:
+      - algorithm
+      - value
+    description: Integrity digest identifies algorithm and encoded digest value; digest is not artifact identity.
+    examples:
+      - algorithm: sha-256
+        value: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  ExplicitChannelLayout:
+    type: object
+    additionalProperties: false
+    properties:
+      layoutId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable channel-layout identity.
+        examples:
+          - layout-stereo
+      channels:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: \S
+          description: Explicit channel identity.
+          examples:
+            - channel-left
+        uniqueItems: true
+    required:
+      - layoutId
+      - channels
+    description: Explicit ordered channel identities; no implied downmix or layout conversion.
+    examples:
+      - layoutId: layout-stereo
+        channels:
+          - channel-left
+          - channel-right
+  ConsentValidity:
+    type: string
+    enum:
+      - active
+      - revoked
+      - expired
+      - unknown
+      - not-established
+    description: Closed owner-defined ConsentValidity values; unknown or pending never implies success or permission.
+    examples:
+      - active
+  IdentityHandoffRequest:
+    type: object
+    additionalProperties: false
+    properties:
+      action:
+        type: string
+        enum:
+          - INITIATE_IDENTITY_HANDOFF
+          - SELECT_CONFIRMED_WORKSPACE
+        description: Exact PXD-082 identity action.
+        examples:
+          - INITIATE_IDENTITY_HANDOFF
+      mediaRequest:
+        type: object
+        additionalProperties: false
+        properties:
+          registeredReturnRouteId:
+            $ref: media.component-value-types.v1#/$defs/RegisteredMediaReturnRouteRef
+          correlationId:
+            type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Non-secret correlation identity.
+            examples:
+              - corr-1
+          requestedWorkspaceId:
+            anyOf:
+              - type: string
+                minLength: 1
+                maxLength: 256
+                pattern: \S
+                description: Opaque user-selected workspace identity.
+                examples:
+                  - media.test.0
+              - type: "null"
+        required:
+          - registeredReturnRouteId
+          - correlationId
+        description: Media request contains only allowlisted route, non-secret correlation, and optional user-selected workspace.
+        examples:
+          - registeredReturnRouteId: media.view.work-in-project
+            correlationId: corr-1
+            requestedWorkspaceId: workspace-ref-1
+      hostContext:
+        type: object
+        additionalProperties: false
+        properties:
+          interactionNonce:
+            type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Host-generated single-interaction nonce.
+            examples:
+              - host-nonce-1
+          identityStatus:
+            type: string
+            enum:
+              - ANONYMOUS
+              - AUTHENTICATED
+              - UNKNOWN
+            description: Host-established identity status.
+            examples:
+              - ANONYMOUS
+          principalContextRef:
+            anyOf:
+              - type: string
+                minLength: 1
+                maxLength: 256
+                pattern: \S
+                description: Trusted host-established principal context.
+                examples:
+                  - media.test.0
+              - type: "null"
+          tenantContextRef:
+            anyOf:
+              - type: string
+                minLength: 1
+                maxLength: 256
+                pattern: \S
+                description: Trusted host-established tenant context.
+                examples:
+                  - media.test.0
+              - type: "null"
+          adapterVerificationStatus:
+            type: string
+            enum:
+              - HOST_ADAPTER_READY
+              - MISSING
+              - INVALID
+            description: Out-of-band host adapter verification status.
+            examples:
+              - HOST_ADAPTER_READY
+        required:
+          - interactionNonce
+          - identityStatus
+          - principalContextRef
+          - tenantContextRef
+          - adapterVerificationStatus
+        description: Trusted host context is out-of-band; callers cannot assert principal or tenant authority.
+        examples:
+          - interactionNonce: host-nonce-1
+            identityStatus: AUTHENTICATED
+            principalContextRef: principal-ref-1
+            tenantContextRef: tenant-ref-1
+            adapterVerificationStatus: HOST_ADAPTER_READY
+    required:
+      - action
+      - mediaRequest
+      - hostContext
+    description: PXD-082 adapter request; request construction is not authentication or authorization.
+    examples:
+      - action: SELECT_CONFIRMED_WORKSPACE
+        mediaRequest:
+          registeredReturnRouteId: media.view.work-in-project
+          correlationId: corr-1
+          requestedWorkspaceId: workspace-ref-1
+        hostContext:
+          interactionNonce: host-nonce-1
+          identityStatus: AUTHENTICATED
+          principalContextRef: principal-ref-1
+          tenantContextRef: tenant-ref-1
+          adapterVerificationStatus: HOST_ADAPTER_READY
+  IdentityHandoffResult:
+    type: object
+    additionalProperties: false
+    properties:
+      externalOwner:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Host-pinned external owner.
+        examples:
+          - media.test.0
+      externalContractRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact external contract identity.
+        examples:
+          - media.test.0
+      externalRevision:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable external contract revision.
+        examples:
+          - media.test.0
+      externalFingerprint:
+        type: string
+        pattern: ^sha256:[a-f0-9]{64}$
+      interactionNonce:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Echoed exact host nonce.
+        examples:
+          - media.test.0
+      outcome:
+        type: string
+        enum:
+          - AUTHORIZED
+          - DENIED
+          - UNAVAILABLE
+          - UNKNOWN
+          - EXPIRED_OR_REVOKED
+        description: Owner result outcome.
+        examples:
+          - AUTHORIZED
+      principalContextRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Current principal context.
+            examples:
+              - media.test.0
+          - type: "null"
+      tenantContextRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Current tenant context.
+            examples:
+              - media.test.0
+          - type: "null"
+      requestedWorkspaceId:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Exact selected workspace.
+            examples:
+              - media.test.0
+          - type: "null"
+      membershipDisposition:
+        type: string
+        enum:
+          - CURRENT_MEMBER
+          - NOT_MEMBER
+          - UNKNOWN
+        description: Current membership status.
+        examples:
+          - CURRENT_MEMBER
+      workspaceSelectionEvidenceRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Owner-issued current membership evidence.
+            examples:
+              - media.test.0
+          - type: "null"
+      observedAt:
+        type: string
+        format: date-time
+        pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$
+      validUntil:
+        type: string
+        format: date-time
+        pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$
+      registeredReturnRouteId:
+        $ref: media.component-value-types.v1#/$defs/RegisteredMediaReturnRouteRef
+      hostAdapterVerificationStatus:
+        type: string
+        enum:
+          - HOST_VERIFIED
+          - MISSING
+          - INVALID
+        description: Host verification result.
+        examples:
+          - HOST_VERIFIED
+    required:
+      - externalOwner
+      - externalContractRef
+      - externalRevision
+      - externalFingerprint
+      - interactionNonce
+      - outcome
+      - principalContextRef
+      - tenantContextRef
+      - requestedWorkspaceId
+      - membershipDisposition
+      - workspaceSelectionEvidenceRef
+      - observedAt
+      - validUntil
+      - registeredReturnRouteId
+      - hostAdapterVerificationStatus
+    description: Exact PXD-082 normalized owner result; schema presence alone does not verify the external signer or owner pin.
+    examples:
+      - externalOwner: ghatana-shared
+        externalContractRef: shared.identity.contract
+        externalRevision: rev-7
+        externalFingerprint: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        interactionNonce: host-nonce-1
+        outcome: AUTHORIZED
+        principalContextRef: principal-ref-1
+        tenantContextRef: tenant-ref-1
+        requestedWorkspaceId: workspace-ref-1
+        membershipDisposition: CURRENT_MEMBER
+        workspaceSelectionEvidenceRef: shared-evidence-ref-1
+        observedAt: 2026-10-08T11:59:00.000Z
+        validUntil: 2026-10-08T12:01:00.000Z
+        registeredReturnRouteId: media.view.work-in-project
+        hostAdapterVerificationStatus: HOST_VERIFIED
+  IdentityOwnerPin:
+    type: object
+    additionalProperties: false
+    properties:
+      externalOwner:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted configured external owner.
+        examples:
+          - media.test.0
+      externalContractRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted exact public contract identity.
+        examples:
+          - media.test.0
+      externalRevision:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Trusted immutable owner revision.
+        examples:
+          - media.test.0
+      externalFingerprint:
+        type: string
+        pattern: ^sha256:[a-f0-9]{64}$
+    required:
+      - externalOwner
+      - externalContractRef
+      - externalRevision
+      - externalFingerprint
+    description: Trusted owner pin is supplied out of band; result cannot supply its own expected pin.
+    examples:
+      - externalOwner: ghatana-shared
+        externalContractRef: shared.identity.contract
+        externalRevision: rev-7
+        externalFingerprint: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  IdentityHandoffEvaluation:
+    type: object
+    additionalProperties: false
+    properties:
+      request:
+        $ref: media.component-value-types.v1#/$defs/IdentityHandoffRequest
+      result:
+        $ref: media.component-value-types.v1#/$defs/IdentityHandoffResult
+      expectedOwnerPin:
+        $ref: media.component-value-types.v1#/$defs/IdentityOwnerPin
+      evaluatedAt:
+        type: string
+        format: date-time
+        pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$
+      evaluatorDisposition:
+        type: string
+        enum:
+          - HOST_ADAPTER_EVIDENCE_ACCEPTABLE_FOR_CONTEXT
+          - DENIED
+          - UNAVAILABLE
+          - REAUTHENTICATION_REQUIRED
+          - HOLD_UNKNOWN
+          - REQUEST_REJECTED
+        description: Recorded pure evaluator disposition; it must be recomputed before use.
+        examples:
+          - HOST_ADAPTER_EVIDENCE_ACCEPTABLE_FOR_CONTEXT
+    required:
+      - request
+      - result
+      - expectedOwnerPin
+      - evaluatedAt
+      - evaluatorDisposition
+    description: Bounded evaluation record carries exact request/result, trusted owner pin, evaluation time and recomputable
+      disposition; not proof of live identity.
+    examples:
+      - request:
+          action: SELECT_CONFIRMED_WORKSPACE
+          mediaRequest:
+            registeredReturnRouteId: media.view.work-in-project
+            correlationId: corr-1
+            requestedWorkspaceId: workspace-ref-1
+          hostContext:
+            interactionNonce: host-nonce-1
+            identityStatus: AUTHENTICATED
+            principalContextRef: principal-ref-1
+            tenantContextRef: tenant-ref-1
+            adapterVerificationStatus: HOST_ADAPTER_READY
+        result:
+          externalOwner: ghatana-shared
+          externalContractRef: shared.identity.contract
+          externalRevision: rev-7
+          externalFingerprint: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          interactionNonce: host-nonce-1
+          outcome: AUTHORIZED
+          principalContextRef: principal-ref-1
+          tenantContextRef: tenant-ref-1
+          requestedWorkspaceId: workspace-ref-1
+          membershipDisposition: CURRENT_MEMBER
+          workspaceSelectionEvidenceRef: shared-evidence-ref-1
+          observedAt: 2026-10-08T11:59:00.000Z
+          validUntil: 2026-10-08T12:01:00.000Z
+          registeredReturnRouteId: media.view.work-in-project
+          hostAdapterVerificationStatus: HOST_VERIFIED
+        expectedOwnerPin:
+          externalOwner: ghatana-shared
+          externalContractRef: shared.identity.contract
+          externalRevision: rev-7
+          externalFingerprint: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        evaluatedAt: 2026-10-08T12:00:00.000Z
+        evaluatorDisposition: HOST_ADAPTER_EVIDENCE_ACCEPTABLE_FOR_CONTEXT
+  RightsConsentScope:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Tenant scope.
+        examples:
+          - tenant-a
+      subjectVersionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactSubjectVersionRef
+      purpose:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact authorized purpose.
+        examples:
+          - purpose-edit
+      territory:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Explicit territory/jurisdiction.
+        examples:
+          - territory-us
+    required:
+      - tenantId
+      - subjectVersionRef
+      - purpose
+      - territory
+    description: Rights or consent decision is bound to tenant, exact subject version, purpose, and territory.
+    examples:
+      - tenantId: tenant-a
+        subjectVersionRef:
+          tenantId: tenant-a
+          subjectId: subject-a
+          versionId: version-1
+        purpose: purpose-edit
+        territory: territory-us
+  RightsConsentType:
+    type: string
+    enum:
+      - copyright
+      - performer
+      - voice
+      - likeness
+      - personal-data
+      - retention
+      - distribution
+      - unknown
+    description: Closed owner-defined RightsConsentType values; unknown or pending never implies success or permission.
+    examples:
+      - copyright
+  RetentionDecision:
+    type: string
+    enum:
+      - retain
+      - eligible-for-erasure
+      - erasure-pending
+      - erased
+      - denied
+      - unknown
+    description: Closed owner-defined RetentionDecision values; unknown or pending never implies success or permission.
+    examples:
+      - retain
+  EffectFinality:
+    type: string
+    enum:
+      - not-started
+      - pending
+      - succeeded
+      - partially-succeeded
+      - failed
+      - cancelled
+      - outcome-unknown
+    description: Closed owner-defined EffectFinality values; unknown or pending never implies success or permission.
+    examples:
+      - not-started
+  ProposalFinality:
+    type: string
+    enum:
+      - proposal-only
+      - unknown
+    description: Closed owner-defined ProposalFinality values; unknown or pending never implies success or permission.
+    examples:
+      - proposal-only
+  MediaJobState:
+    type: string
+    enum:
+      - queued
+      - running
+      - completed
+      - partially-succeeded
+      - failed
+      - retry-pending
+      - outcome-unknown
+      - reconciling
+      - cancelled
+    description: Closed owner-defined MediaJobState values; unknown or pending never implies success or permission.
+    examples:
+      - queued
+  CanonicalOperationState:
+    type: string
+    enum:
+      - pending
+      - succeeded
+      - partially-succeeded
+      - failed
+      - cancelled
+      - outcome-unknown
+      - blocked
+    description: Closed owner-defined CanonicalOperationState values; unknown or pending never implies success or permission.
+    examples:
+      - pending
+  AccessDisposition:
+    type: string
+    enum:
+      - authorized
+      - denied
+      - unknown
+      - unavailable
+      - limited
+    description: Closed owner-defined AccessDisposition values; unknown or pending never implies success or permission.
+    examples:
+      - authorized
+  QualificationDisposition:
+    type: string
+    enum:
+      - qualified
+      - unqualified
+      - not-evaluated
+      - pending-review
+      - unknown
+    description: Closed owner-defined QualificationDisposition values; unknown or pending never implies success or permission.
+    examples:
+      - qualified
+  ObservationFreshness:
+    type: string
+    enum:
+      - current
+      - stale
+      - partial
+      - unknown
+    description: Closed owner-defined ObservationFreshness values; unknown or pending never implies success or permission.
+    examples:
+      - current
+  UploadTransferState:
+    type: string
+    enum:
+      - ready
+      - receiving
+      - interrupted
+      - outcome-unknown
+      - verifying
+      - available
+      - quarantined
+      - rejected
+    description: Closed owner-defined UploadTransferState values; unknown or pending never implies success or permission.
+    examples:
+      - ready
+  TypedExitDisposition:
+    type: string
+    enum:
+      - success
+      - partial
+      - pending
+      - outcome-unknown
+      - blocked
+      - failed
+      - invalid-input
+      - access-denied
+    description: Closed owner-defined TypedExitDisposition values; unknown or pending never implies success or permission.
+    examples:
+      - success
+  IanaMediaType:
+    type: string
+    pattern: ^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$
+    description: Normalized IANA media type.
+    examples:
+      - audio/wav
+  BCP47LanguageTag:
+    type: string
+    pattern: ^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$
+    description: BCP 47 language tag.
+    examples:
+      - en-US
+  NonnegativeInteger:
+    type: integer
+    minimum: 0
+    description: Nonnegative byte/sample/count value.
+    examples:
+      - 0
+  MeasuredNonnegativeInteger:
+    type: integer
+    minimum: 0
+    description: Observed nonnegative integer with measurement provenance.
+    examples:
+      - 0
+  CanonicalCommandId:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Exact Media CLI command identity.
+    examples:
+      - media.cli.inspect-artifact
+  OpaqueJobRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Opaque Media job identity.
+    examples:
+      - job-a
+  OpaqueRequestRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Opaque request/idempotency identity.
+    examples:
+      - request-a
+  OpaqueUploadRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Opaque upload identity.
+    examples:
+      - upload-a
+  CaptionDraftRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Mutable session-local caption draft identity, distinct from saved immutable version.
+    examples:
+      - media.test.0
+  TranscriptSegmentRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Stable segment identity within exact transcript version.
+    examples:
+      - media.test.0
+  FidelityDefinitionRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Exact fidelity definition identity; not qualification.
+    examples:
+      - media.test.0
+  ImageCoordinateProfileRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Exact image coordinate convention/profile identity.
+    examples:
+      - media.test.0
+  VersionedDeliveryProfileRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Exact immutable delivery profile identity.
+    examples:
+      - media.test.0
+  CurrentAuthorityRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Current source authority identity; not a consent fact itself.
+    examples:
+      - media.test.0
+  EvidenceRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Evidence identity with source, scope, and observation metadata.
+    examples:
+      - media.test.0
+  CompatibilityEvidence:
+    type: object
+    additionalProperties: false
+    properties:
+      profileRef:
+        $ref: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
+      status:
+        type: string
+        enum:
+          - compatible
+          - incompatible
+          - partial
+          - unknown
+        description: Profile compatibility disposition.
+        examples:
+          - compatible
+      evidenceRefs:
+        type: array
+        minItems: 1
+        items:
+          $ref: media.component-value-types.v1#/$defs/EvidenceRef
+        uniqueItems: true
+    required:
+      - profileRef
+      - status
+      - evidenceRefs
+    description: Compatibility is profile-specific and backed by explicit evidence.
+    examples:
+      - profileRef: profile-a
+        status: compatible
+        evidenceRefs:
+          - evidence-a
+  ExplicitFallbackPlan:
+    type: object
+    additionalProperties: false
+    properties:
+      steps:
+        type: array
+        items:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: \S
+          description: Explicit fallback candidate identity.
+          examples:
+            - media.test.0
+        uniqueItems: true
+      authorizationRequired:
+        type: boolean
+      selectedStep:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Explicitly selected fallback step.
+            examples:
+              - media.test.0
+          - type: "null"
+    required:
+      - steps
+      - authorizationRequired
+      - selectedStep
+    description: Fallback is explicit and ordered; never silently substitute.
+    examples:
+      - steps:
+          - fallback-a
+        authorizationRequired: true
+        selectedStep: null
+  AuthorizedDestinationRef:
+    type: object
+    additionalProperties: false
+    properties:
+      destinationId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact recipient/destination identity.
+        examples:
+          - media.test.0
+      scopeRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Authorized delivery scope.
+        examples:
+          - media.test.0
+      acknowledgementRequired:
+        type: boolean
+    required:
+      - destinationId
+      - scopeRef
+      - acknowledgementRequired
+    description: Authorized destination reference includes scope; selecting it is not delivery acknowledgement.
+    examples:
+      - destinationId: destination-a
+        scopeRef: scope-a
+        acknowledgementRequired: true
+  AuthorizedPreviewRef:
+    type: object
+    additionalProperties: false
+    properties:
+      versionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      authorizationRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Current access authorization evidence.
+        examples:
+          - media.test.0
+      expiresAt:
+        type: string
+        format: date-time
+    required:
+      - versionRef
+      - authorizationRef
+      - expiresAt
+    description: Preview reference is exact-version and time-limited under current authorization.
+    examples:
+      - versionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        authorizationRef: grant-a
+        expiresAt: 2026-10-09T00:00:00Z
+  OptionalQualifiedProfileRef:
+    anyOf:
+      - type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact independently qualified profile identity.
+        examples:
+          - media.test.0
+      - type: "null"
+    description: Nullable profile identity; presence does not establish profile qualification.
+  OptionalIdentityHandoffRequest:
+    anyOf:
+      - $ref: media.component-value-types.v1#/$defs/IdentityHandoffRequest
+      - type: "null"
+    description: Nullable PXD-082 request envelope; presence does not authenticate or authorize.
+  OptionalIdentityHandoffEvaluation:
+    anyOf:
+      - $ref: media.component-value-types.v1#/$defs/IdentityHandoffEvaluation
+      - type: "null"
+    description: Nullable PXD-082 evaluated result with separately configured owner pin and recomputable disposition.
+  OptionalOpaqueCursor:
+    anyOf:
+      - type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Opaque continuation cursor scoped to query.
+        examples:
+          - media.test.0
+      - type: "null"
+    description: Nullable opaque query continuation cursor scoped to the exact query.
+  OptionalOpaqueJobRef:
+    anyOf:
+      - type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Optional opaque job identity.
+        examples:
+          - media.test.0
+      - type: "null"
+    description: Nullable opaque job identity; no job existence or finality is implied.
+  OptionalOpaqueProjectRef:
+    anyOf:
+      - $ref: media.component-value-types.v1#/$defs/OpaqueProjectRef
+      - type: "null"
+    description: Nullable tenant-scoped project identity.
+  OptionalNonnegativeInteger:
+    anyOf:
+      - type: integer
+        minimum: 0
+        description: Optional nonnegative integer.
+        examples:
+          - 0
+      - type: "null"
+    description: Nullable nonnegative integer in the declared owning value domain.
+  OptionalRationalDuration:
+    anyOf:
+      - $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      - type: "null"
+    description: Nullable exact rational duration in the explicitly bound clock domain.
+  OptionalMeasuredProgress:
+    anyOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          numerator:
+            type: number
+            minimum: 0
+          denominator:
+            type: number
+            exclusiveMinimum: 0
+          unit:
+            type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Progress unit.
+            examples:
+              - media.test.0
+          observedAt:
+            type: string
+            format: date-time
+        required:
+          - numerator
+          - denominator
+          - unit
+          - observedAt
+        description: Measured progress with numerator, denominator, unit, and observation time.
+        examples:
+          - numerator: 1
+            denominator: 2
+            unit: items
+            observedAt: 2026-10-08T12:00:00Z
+      - type: "null"
+    description: Nullable measured progress with an explicit unit and epistemic boundary.
+  OptionalSimulationRunRef:
+    anyOf:
+      - type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact simulation run identity.
+        examples:
+          - media.test.0
+      - type: "null"
+    description: Nullable exact simulation run identity; no execution or qualification is implied.
+  OptionalTypedMachineResult:
+    anyOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          schemaId:
+            type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Machine result schema identity.
+            examples:
+              - media.test.0
+          value:
+            type:
+              - object
+              - array
+              - string
+              - number
+              - boolean
+              - "null"
+        required:
+          - schemaId
+          - value
+        description: Machine-readable result is explicitly typed by schema identity.
+        examples:
+          - schemaId: media.cli.result.inspect.v1
+            value:
+              status: ok
+      - type: "null"
+    description: Nullable typed machine result; null/unknown is not success.
+  EstimateWithMethodAndUncertainty:
+    type: object
+    additionalProperties: false
+    properties:
+      value:
+        type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Measurement unit identity.
+        examples:
+          - media.test.0
+      methodRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact estimation method identity.
+        examples:
+          - media.test.0
+      uncertainty:
+        type: object
+        additionalProperties: false
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+          confidence:
+            type: number
+            minimum: 0
+            maximum: 1
+          basis:
+            type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Uncertainty basis.
+            examples:
+              - media.test.0
+        required:
+          - lower
+          - upper
+          - confidence
+          - basis
+    required:
+      - value
+      - unit
+      - methodRef
+      - uncertainty
+    description: Estimate includes method, units, and explicit uncertainty interval/confidence.
+    examples:
+      - value: 1
+        unit: seconds
+        methodRef: method-a
+        uncertainty:
+          lower: 0.9
+          upper: 1.1
+          confidence: 0.95
+          basis: measured-sample
+  CaptionCueDraft:
+    type: object
+    additionalProperties: false
+    properties:
+      cueId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable draft cue identity.
+        examples:
+          - media.test.0
+      text:
+        type: string
+        minLength: 1
+        maxLength: 8192
+      start:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      end:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      speakerRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Versioned speaker identity.
+            examples:
+              - media.test.0
+          - type: "null"
+    required:
+      - cueId
+      - text
+      - start
+      - end
+      - speakerRef
+    description: Caption cue uses exact rational half-open times on one source version/timebase.
+    examples:
+      - cueId: cue-a
+        text: Hello
+        start:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "0"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        end:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "2"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        speakerRef: null
+  TranscriptSegment:
+    type: object
+    additionalProperties: false
+    properties:
+      segmentId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable segment identity.
+        examples:
+          - media.test.0
+      text:
+        type: string
+        maxLength: 8192
+      start:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      end:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      confidence:
+        anyOf:
+          - type: number
+            minimum: 0
+            description: Recognition confidence in [0,1].
+            examples:
+              - 0
+          - type: "null"
+    required:
+      - segmentId
+      - text
+      - start
+      - end
+      - confidence
+    description: Transcript segment binds exact source times and represents recognition confidence separately from truth.
+    examples:
+      - segmentId: segment-a
+        text: Hello
+        start:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "0"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        end:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "2"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        confidence: 0.8
+  JobAttemptSummary:
+    type: object
+    additionalProperties: false
+    properties:
+      attemptId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable attempt identity.
+        examples:
+          - media.test.0
+      state:
+        $ref: media.component-value-types.v1#/$defs/MediaJobState
+      finality:
+        $ref: media.component-value-types.v1#/$defs/EffectFinality
+      startedAt:
+        type: string
+        format: date-time
+      endedAt:
+        anyOf:
+          - type: string
+            format: date-time
+          - type: "null"
+      reasonRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Failure reason identity.
+            examples:
+              - media.test.0
+          - type: "null"
+    required:
+      - attemptId
+      - state
+      - finality
+      - startedAt
+      - endedAt
+      - reasonRef
+    description: Attempt records separate lifecycle state, effect finality, and timestamps.
+    examples:
+      - attemptId: attempt-a
+        state: completed
+        finality: succeeded
+        startedAt: 2026-10-08T12:00:00Z
+        endedAt: 2026-10-08T12:01:00Z
+        reasonRef: null
+  ProvenanceUnknown:
+    type: object
+    additionalProperties: false
+    properties:
+      field:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Unknown or unavailable provenance field.
+        examples:
+          - media.test.0
+      status:
+        type: string
+        enum:
+          - unknown
+          - not-recorded
+          - redacted
+          - unavailable
+        description: Explicit epistemic state.
+        examples:
+          - unknown
+      reasonRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact reason identity.
+        examples:
+          - media.test.0
+    required:
+      - field
+      - status
+      - reasonRef
+    description: Missing provenance stays typed as unknown with a reason.
+    examples:
+      - field: clockAuthority
+        status: unknown
+        reasonRef: reason-not-recorded
+  QualityObservation:
+    type: object
+    additionalProperties: false
+    properties:
+      dimension:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Quality dimension identity.
+        examples:
+          - media.test.0
+      value:
+        type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Measurement unit identity.
+        examples:
+          - media.test.0
+      methodRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Measurement method.
+        examples:
+          - media.test.0
+      epistemicStatus:
+        type: string
+        enum:
+          - measured
+          - estimated
+          - inferred
+          - unknown
+        description: Epistemic status; inferred is not measured.
+        examples:
+          - measured
+      uncertainty:
+        $ref: media.component-value-types.v1#/$defs/EstimateWithMethodAndUncertainty
+    required:
+      - dimension
+      - value
+      - unit
+      - methodRef
+      - epistemicStatus
+      - uncertainty
+    description: Quality observation carries metric method, units, epistemic status, and uncertainty.
+    examples:
+      - dimension: sharpness
+        value: 1
+        unit: score
+        methodRef: method-a
+        epistemicStatus: estimated
+        uncertainty:
+          value: 1
+          unit: score
+          methodRef: method-a
+          uncertainty:
+            lower: 0.8
+            upper: 1.2
+            confidence: 0.9
+            basis: sample
+  UncertaintyInterval:
+    type: object
+    additionalProperties: false
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+      confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+      basis:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Uncertainty basis.
+        examples:
+          - media.test.0
+    required:
+      - lower
+      - upper
+      - confidence
+      - basis
+    description: Bounded uncertainty interval; lower must not exceed upper.
+    examples:
+      - lower: 0
+        upper: 1
+        confidence: 0.95
+        basis: measurement
+  ScopedAcceptanceThreshold:
+    type: object
+    additionalProperties: false
+    properties:
+      dimension:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Quality dimension.
+        examples:
+          - media.test.0
+      operator:
+        type: string
+        enum:
+          - min
+          - max
+          - range
+        description: Threshold relation.
+        examples:
+          - min
+      value:
+        type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Measurement unit.
+        examples:
+          - media.test.0
+      scopeRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact profile/scope.
+        examples:
+          - media.test.0
+      reviewRequired:
+        type: boolean
+    required:
+      - dimension
+      - operator
+      - value
+      - unit
+      - scopeRef
+      - reviewRequired
+    description: Acceptance threshold is dimension-, unit-, scope-, and review-bound.
+    examples:
+      - dimension: sharpness
+        operator: min
+        value: 0.8
+        unit: score
+        scopeRef: profile-a
+        reviewRequired: true
+  ReasonEvidence:
+    type: object
+    additionalProperties: false
+    properties:
+      reasonRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Canonical reason identity.
+        examples:
+          - media.test.0
+      evidenceRefs:
+        type: array
+        items:
+          $ref: media.component-value-types.v1#/$defs/EvidenceRef
+        uniqueItems: true
+      message:
+        type: string
+        maxLength: 2048
+    required:
+      - reasonRef
+      - evidenceRefs
+      - message
+    description: Reason includes source evidence and optional explanatory text.
+    examples:
+      - reasonRef: reason-a
+        evidenceRefs:
+          - evidence-a
+        message: Not available
+  ChunkReceipt:
+    type: object
+    additionalProperties: false
+    properties:
+      chunkIndex:
+        type: integer
+        minimum: 0
+        description: A bounded integer value.
+        examples:
+          - 0
+      byteStart:
+        type: integer
+        minimum: 0
+        description: A bounded integer value.
+        examples:
+          - 0
+      byteLength:
+        type: integer
+        minimum: 1
+        description: A bounded integer value.
+        examples:
+          - 1
+      digest:
+        $ref: media.component-value-types.v1#/$defs/DigestWithAlgorithm
+      receiptRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Idempotent chunk receipt identity.
+        examples:
+          - media.test.0
+    required:
+      - chunkIndex
+      - byteStart
+      - byteLength
+      - digest
+      - receiptRef
+    description: Chunk receipt binds ordered byte range and content digest.
+    examples:
+      - chunkIndex: 0
+        byteStart: 0
+        byteLength: 4
+        digest:
+          algorithm: sha-256
+          value: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        receiptRef: chunk-0
+  ArtifactVersionSummary:
+    type: object
+    additionalProperties: false
+    properties:
+      versionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      mediaType:
+        $ref: media.component-value-types.v1#/$defs/IanaMediaType
+      createdAt:
+        type: string
+        format: date-time
+      access:
+        $ref: media.component-value-types.v1#/$defs/AccessDisposition
+    required:
+      - versionRef
+      - mediaType
+      - createdAt
+      - access
+    description: Artifact version summary carries immutable version, type, timestamp, and scoped access disposition.
+    examples:
+      - versionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        mediaType: audio/wav
+        createdAt: 2026-10-08T12:00:00Z
+        access: authorized
+  IntentOption:
+    type: object
+    additionalProperties: false
+    properties:
+      intentRef:
+        $ref: media.component-value-types.v1#/$defs/CanonicalIntentRef
+      label:
+        type: string
+        minLength: 1
+      availability:
+        type: string
+        enum:
+          - available
+          - unavailable
+        description: Availability is separate from execution.
+        examples:
+          - available
+      reasonRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Unavailability reason.
+            examples:
+              - media.test.0
+          - type: "null"
+    required:
+      - intentRef
+      - label
+      - availability
+      - reasonRef
+    description: Intent option cannot expose provider choice or imply execution.
+    examples:
+      - intentRef: media.intent.create
+        label: Transcribe
+        availability: available
+        reasonRef: null
+  EditConstraint:
+    type: object
+    additionalProperties: false
+    properties:
+      field:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact editable field identity.
+        examples:
+          - media.test.0
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact field unit.
+        examples:
+          - media.test.0
+      minimum:
+        anyOf:
+          - type: number
+          - type: "null"
+      maximum:
+        anyOf:
+          - type: number
+          - type: "null"
+      rule:
+        type: string
+        enum:
+          - must-preserve
+          - bounded
+          - aligned
+          - owner-review-required
+        description: Edit constraint enforcement.
+        examples:
+          - must-preserve
+    required:
+      - field
+      - unit
+      - minimum
+      - maximum
+      - rule
+    description: Edit constraint supplies field, units, optional bounds, and explicit enforcement.
+    examples:
+      - field: timeline.start
+        unit: frames
+        minimum: 0
+        maximum: 1000
+        rule: aligned
+  JobActivityRecord:
+    type: object
+    additionalProperties: false
+    properties:
+      activityId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable activity observation identity.
+        examples:
+          - media.test.0
+      jobRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact job identity.
+        examples:
+          - media.test.0
+      observedAt:
+        type: string
+        format: date-time
+      state:
+        $ref: media.component-value-types.v1#/$defs/MediaJobState
+      finality:
+        $ref: media.component-value-types.v1#/$defs/EffectFinality
+      evidenceRefs:
+        type: array
+        items:
+          $ref: media.component-value-types.v1#/$defs/EvidenceRef
+        uniqueItems: true
+    required:
+      - activityId
+      - jobRef
+      - observedAt
+      - state
+      - finality
+      - evidenceRefs
+    description: Activity is an observation scoped to one job and observation time; not an authority to replay.
+    examples:
+      - activityId: activity-a
+        jobRef: job-a
+        observedAt: 2026-10-08T12:00:00Z
+        state: completed
+        finality: succeeded
+        evidenceRefs:
+          - evidence-a
+  ExactResultReference:
+    type: object
+    additionalProperties: false
+    properties:
+      resultKind:
+        type: string
+        enum:
+          - artifact-version
+          - project-revision
+          - transcript-version
+          - caption-version
+          - delivery-record
+          - provenance-record
+        description: Typed result kind.
+        examples:
+          - artifact-version
+      identity:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+      versionRef:
+        anyOf:
+          - $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+          - $ref: media.component-value-types.v1#/$defs/ExactCompositionVersionRef
+          - $ref: media.component-value-types.v1#/$defs/ExactTranscriptVersionRef
+          - type: "null"
+    required:
+      - resultKind
+      - identity
+      - versionRef
+    description: Result ref names an exact typed result identity and optional exact immutable version; never a latest path.
+    examples:
+      - resultKind: artifact-version
+        identity: artifact-1@version-1
+        versionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+  SpectralWindowDefinition:
+    type: object
+    additionalProperties: false
+    properties:
+      windowKind:
+        type: string
+        enum:
+          - hann
+          - hamming
+          - blackman
+          - rectangular
+          - other-explicit
+        description: Named explicit window function.
+        examples:
+          - hann
+      windowSizeSamples:
+        type: integer
+        minimum: 1
+        description: Exact analysis window size.
+        examples:
+          - 1
+      hopSizeSamples:
+        type: integer
+        minimum: 1
+        description: Exact hop size.
+        examples:
+          - 1
+      spectrumScale:
+        type: string
+        enum:
+          - linear-amplitude
+          - power
+          - decibel
+          - other-explicit
+        description: Explicit spectrum scale.
+        examples:
+          - linear-amplitude
+      sampleRateHz:
+        $ref: media.component-value-types.v1#/$defs/PositiveRationalRate
+    required:
+      - windowKind
+      - windowSizeSamples
+      - hopSizeSamples
+      - spectrumScale
+      - sampleRateHz
+    description: Spectral window includes exact window/hop sizes, explicit scale, and source sample rate.
+    examples:
+      - windowKind: hann
+        windowSizeSamples: 2048
+        hopSizeSamples: 512
+        spectrumScale: decibel
+        sampleRateHz:
+          numerator: 48000
+          denominator: 1
+  HalfOpenRationalInterval:
+    type: object
+    additionalProperties: false
+    properties:
+      start:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      end:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+    required:
+      - start
+      - end
+    description: Half-open exact rational interval [start,end); end is exclusive and greater than start.
+    examples:
+      - start:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "0"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        end:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "1"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+  ProjectSummary:
+    type: object
+    additionalProperties: false
+    properties:
+      projectRef:
+        $ref: media.component-value-types.v1#/$defs/OpaqueProjectRef
+      title:
+        type: string
+        minLength: 1
+        maxLength: 256
+      revisionRef:
+        anyOf:
+          - $ref: media.component-value-types.v1#/$defs/ImmutableProjectRevisionRef
+          - type: "null"
+      access:
+        $ref: media.component-value-types.v1#/$defs/AccessDisposition
+      updatedAt:
+        type: string
+        format: date-time
+    required:
+      - projectRef
+      - title
+      - revisionRef
+      - access
+      - updatedAt
+    description: Project list row binds tenant-scoped project, immutable revision, scoped access, and observation time.
+    examples:
+      - projectRef:
+          tenantId: tenant-a
+          projectId: project-a
+        title: Project
+        revisionRef:
+          tenantId: tenant-a
+          projectId: project-a
+          revisionId: revision-1
+        access: authorized
+        updatedAt: 2026-10-08T12:00:00Z
+  SourceVersionCandidate:
+    type: object
+    additionalProperties: false
+    properties:
+      versionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      mediaType:
+        $ref: media.component-value-types.v1#/$defs/IanaMediaType
+      access:
+        $ref: media.component-value-types.v1#/$defs/AccessDisposition
+      rightsDisposition:
+        type: string
+        enum:
+          - permitted-with-scope
+          - denied
+          - unknown
+          - review-required
+        description: Candidate rights status is separate from access.
+        examples:
+          - permitted-with-scope
+      sourceName:
+        type: string
+        maxLength: 256
+    required:
+      - versionRef
+      - mediaType
+      - access
+      - rightsDisposition
+      - sourceName
+    description: Candidate names exact immutable source version, type, access, and independent rights disposition.
+    examples:
+      - versionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        mediaType: audio/wav
+        access: authorized
+        rightsDisposition: permitted-with-scope
+        sourceName: Interview
+  ArtifactVersionCandidate:
+    type: object
+    additionalProperties: false
+    properties:
+      versionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      mediaType:
+        $ref: media.component-value-types.v1#/$defs/IanaMediaType
+      access:
+        $ref: media.component-value-types.v1#/$defs/AccessDisposition
+      rightsDisposition:
+        type: string
+        enum:
+          - permitted-with-scope
+          - denied
+          - unknown
+          - review-required
+        description: Candidate rights status is separate from access.
+        examples:
+          - permitted-with-scope
+      integrityDisposition:
+        type: string
+        enum:
+          - verified
+          - pending
+          - rejected
+          - unknown
+        description: Integrity status does not establish rights or safety.
+        examples:
+          - verified
+    required:
+      - versionRef
+      - mediaType
+      - access
+      - rightsDisposition
+      - integrityDisposition
+    description: Candidate exact immutable artifact version with independent access, rights, and integrity axes.
+    examples:
+      - versionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        mediaType: audio/wav
+        access: authorized
+        rightsDisposition: permitted-with-scope
+        integrityDisposition: verified
+  AudioTrackBinding:
+    type: object
+    additionalProperties: false
+    properties:
+      trackId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable track identity.
+        examples:
+          - track-a
+      sourceVersionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      channelLayout:
+        $ref: media.component-value-types.v1#/$defs/ExplicitChannelLayout
+      interval:
+        $ref: media.component-value-types.v1#/$defs/HalfOpenRationalInterval
+      gain:
+        $ref: media.component-value-types.v1#/$defs/UnitBearingAudioGain
+    required:
+      - trackId
+      - sourceVersionRef
+      - channelLayout
+      - interval
+      - gain
+    description: Audio track binds exact source version, explicit channels, rational interval, and unit-bearing gain.
+    examples:
+      - trackId: track-a
+        sourceVersionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        channelLayout:
+          layoutId: layout-stereo
+          channels:
+            - left
+            - right
+        interval:
+          start:
+            clockKind: media
+            clockId: clock-source-1
+            streamId: stream-a
+            ticks: "0"
+            secondsPerTick:
+              numerator: "1"
+              denominator: "1"
+          end:
+            clockKind: media
+            clockId: clock-source-1
+            streamId: stream-a
+            ticks: "10"
+            secondsPerTick:
+              numerator: "1"
+              denominator: "1"
+        gain:
+          value: 1
+          unit: linear-amplitude
+          scale: linear
+  UnitBearingAudioGain:
+    type: object
+    additionalProperties: false
+    properties:
+      value:
+        type: number
+      unit:
+        type: string
+        enum:
+          - linear-amplitude
+          - decibel
+          - loudness-normalized
+        description: Gain unit.
+        examples:
+          - linear-amplitude
+      scale:
+        type: string
+        enum:
+          - linear
+          - logarithmic
+        description: Gain scale.
+        examples:
+          - linear
+    required:
+      - value
+      - unit
+      - scale
+    description: Audio gain always carries unit and scale.
+    examples:
+      - value: 1
+        unit: linear-amplitude
+        scale: linear
+  AudioMeasurement:
+    type: object
+    additionalProperties: false
+    properties:
+      dimension:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Audio measurement dimension.
+        examples:
+          - loudness-integrated
+      value:
+        type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact measurement unit.
+        examples:
+          - LUFS
+      methodRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Measurement method.
+        examples:
+          - ebu-r128
+      epistemicStatus:
+        type: string
+        enum:
+          - measured
+          - estimated
+          - unknown
+        description: Measurement epistemic status.
+        examples:
+          - measured
+      uncertainty:
+        $ref: media.component-value-types.v1#/$defs/UncertaintyInterval
+    required:
+      - dimension
+      - value
+      - unit
+      - methodRef
+      - epistemicStatus
+      - uncertainty
+    description: Audio measurement carries method, unit, epistemic label, and uncertainty.
+    examples:
+      - dimension: loudness-integrated
+        value: -16
+        unit: LUFS
+        methodRef: ebu-r128
+        epistemicStatus: measured
+        uncertainty:
+          lower: -16.1
+          upper: -15.9
+          confidence: 0.95
+          basis: meter
+  ChannelRoutingBinding:
+    type: object
+    additionalProperties: false
+    properties:
+      sourceChannel:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact source channel.
+        examples:
+          - channel-left
+      destinationChannel:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact destination channel.
+        examples:
+          - channel-left
+      mapping:
+        type: string
+        enum:
+          - identity
+          - explicit-remap
+          - downmix-rule
+        description: Explicit channel mapping rule.
+        examples:
+          - identity
+      decisionRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Owner decision for routing.
+        examples:
+          - routing-decision-1
+    required:
+      - sourceChannel
+      - destinationChannel
+      - mapping
+      - decisionRef
+    description: Channel routes are explicit, versionable decisions; no implied downmix.
+    examples:
+      - sourceChannel: channel-left
+        destinationChannel: channel-left
+        mapping: identity
+        decisionRef: routing-decision-1
+  OrderedScene:
+    type: object
+    additionalProperties: false
+    properties:
+      sceneRef:
+        $ref: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+      order:
+        type: integer
+        minimum: 0
+      sourceVersionRefs:
+        type: array
+        minItems: 1
+        items:
+          $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+        uniqueItems: true
+      interval:
+        $ref: media.component-value-types.v1#/$defs/HalfOpenRationalInterval
+      continuity:
+        type: string
+        enum:
+          - validated
+          - needs-review
+          - unknown
+        description: Continuity disposition; unknown is not success.
+        examples:
+          - validated
+    required:
+      - sceneRef
+      - order
+      - sourceVersionRefs
+      - interval
+      - continuity
+    description: Scene order and interval are bound to exact scene/source versions and continuity status.
+    examples:
+      - sceneRef:
+          tenantId: tenant-a
+          sceneId: scene-a
+          versionId: version-1
+        order: 0
+        sourceVersionRefs:
+          - tenantId: tenant-a
+            artifactId: artifact-1
+            versionId: version-1
+        interval:
+          start:
+            clockKind: media
+            clockId: clock-source-1
+            streamId: stream-a
+            ticks: "0"
+            secondsPerTick:
+              numerator: "1"
+              denominator: "1"
+          end:
+            clockKind: media
+            clockId: clock-source-1
+            streamId: stream-a
+            ticks: "1"
+            secondsPerTick:
+              numerator: "1"
+              denominator: "1"
+        continuity: validated
+  VersionedTransitionSpec:
+    type: object
+    additionalProperties: false
+    properties:
+      transitionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Transition identity.
+        examples:
+          - transition-a
+      versionId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Immutable transition spec version.
+        examples:
+          - version-1
+      fromSceneRef:
+        $ref: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+      toSceneRef:
+        $ref: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+      duration:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      kind:
+        type: string
+        enum:
+          - cut
+          - dissolve
+          - wipe
+          - other-explicit
+        description: Explicit transition kind.
+        examples:
+          - cut
+    required:
+      - transitionId
+      - versionId
+      - fromSceneRef
+      - toSceneRef
+      - duration
+      - kind
+    description: Transition binds exact adjacent scenes, version, explicit kind, and rational duration.
+    examples:
+      - transitionId: transition-a
+        versionId: version-1
+        fromSceneRef:
+          tenantId: tenant-a
+          sceneId: scene-a
+          versionId: version-1
+        toSceneRef:
+          tenantId: tenant-a
+          sceneId: scene-b
+          versionId: version-2
+        duration:
+          clockKind: media
+          clockId: clock-composition-1
+          streamId: stream-a
+          ticks: "1"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "2"
+        kind: cut
+  VersionedTrack:
+    type: object
+    additionalProperties: false
+    properties:
+      trackId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable track identity.
+        examples:
+          - track-a
+      versionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactCompositionVersionRef
+      order:
+        type: integer
+        minimum: 0
+      trackKind:
+        type: string
+        enum:
+          - video
+          - audio
+          - caption
+          - animation
+          - control
+          - other-explicit
+        description: Track kind.
+        examples:
+          - video
+      sourceVersionRefs:
+        type: array
+        items:
+          $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+        uniqueItems: true
+    required:
+      - trackId
+      - versionRef
+      - order
+      - trackKind
+      - sourceVersionRefs
+    description: Track identity and ordering are version-scoped with exact source version bindings.
+    examples:
+      - trackId: track-a
+        versionRef:
+          tenantId: tenant-a
+          compositionId: composition-a
+          versionId: version-8
+        order: 0
+        trackKind: video
+        sourceVersionRefs:
+          - tenantId: tenant-a
+            artifactId: artifact-1
+            versionId: version-1
+  Keyframe:
+    type: object
+    additionalProperties: false
+    properties:
+      keyframeId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable keyframe identity.
+        examples:
+          - keyframe-a
+      time:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      propertyRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact typed property.
+        examples:
+          - transform.position.x
+      value:
+        type:
+          - number
+          - string
+          - boolean
+          - object
+          - array
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Value unit or coordinate domain.
+        examples:
+          - meters
+      interpolation:
+        type: string
+        enum:
+          - step
+          - linear
+          - bezier
+          - other-explicit
+        description: Explicit interpolation semantics.
+        examples:
+          - step
+    required:
+      - keyframeId
+      - time
+      - propertyRef
+      - value
+      - unit
+      - interpolation
+    description: Keyframe binds rational time, typed property, value unit, and explicit interpolation.
+    examples:
+      - keyframeId: keyframe-a
+        time:
+          clockKind: media
+          clockId: clock-composition-1
+          streamId: stream-a
+          ticks: "1"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "24"
+        propertyRef: transform.position.x
+        value: 0
+        unit: meters
+        interpolation: linear
+  VersionedMask:
+    type: object
+    additionalProperties: false
+    properties:
+      maskId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Stable mask identity.
+        examples:
+          - mask-a
+      versionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      coordinateProfileRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact coordinate profile.
+        examples:
+          - image-pixel-center
+      geometry:
+        type: array
+        minItems: 3
+        items:
+          type: array
+          prefixItems:
+            - type: number
+            - type: number
+          minItems: 2
+          maxItems: 2
+      validation:
+        type: string
+        enum:
+          - valid
+          - needs-review
+          - unknown
+        description: Geometry validation; unknown is not usable.
+        examples:
+          - valid
+      parentMaskRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Exact parent mask version.
+            examples:
+              - media.test.0
+          - type: "null"
+    required:
+      - maskId
+      - versionRef
+      - coordinateProfileRef
+      - geometry
+      - validation
+      - parentMaskRef
+    description: Mask geometry is coordinate-profile and exact-version bound; unknown validation does not imply propagation.
+    examples:
+      - maskId: mask-a
+        versionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        coordinateProfileRef: image-pixel-center
+        geometry:
+          - - 0
+            - 0
+          - - 1
+            - 0
+          - - 1
+            - 1
+        validation: valid
+        parentMaskRef: null
+  TrackingObservation:
+    type: object
+    additionalProperties: false
+    properties:
+      frameTime:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      status:
+        type: string
+        enum:
+          - tracked
+          - lost
+          - partial
+          - unknown
+        description: Tracking observation state.
+        examples:
+          - tracked
+      confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+      evidenceRef:
+        $ref: media.component-value-types.v1#/$defs/EvidenceRef
+    required:
+      - frameTime
+      - status
+      - confidence
+      - evidenceRef
+    description: Tracking observation binds exact frame time and evidence; unknown/lost is not successful propagation.
+    examples:
+      - frameTime:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "1"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "24"
+        status: tracked
+        confidence: 0.9
+        evidenceRef: tracking-evidence-1
+  SimulationObservation:
+    type: object
+    additionalProperties: false
+    properties:
+      modelVersionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactModelVersionRef
+      runRef:
+        anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 256
+            pattern: \S
+            description: Exact simulation run identity.
+            examples:
+              - media.test.0
+          - type: "null"
+      observedAt:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      quantityRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact physical/domain quantity.
+        examples:
+          - media.test.0
+      value:
+        type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Declared unit.
+        examples:
+          - meters-per-second
+      epistemicStatus:
+        type: string
+        enum:
+          - measured
+          - simulated
+          - estimated
+          - inferred
+          - unknown
+        description: Observation epistemic status.
+        examples:
+          - measured
+    required:
+      - modelVersionRef
+      - runRef
+      - observedAt
+      - quantityRef
+      - value
+      - unit
+      - epistemicStatus
+    description: Simulation observation is model-version, run, rational time, quantity, unit, and epistemic-status scoped.
+    examples:
+      - modelVersionRef:
+          modelId: model-a
+          versionId: version-1
+          digest: sha256:abc123
+        runRef: run-a
+        observedAt:
+          clockKind: media
+          clockId: clock-simulation-1
+          streamId: stream-a
+          ticks: "1"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        quantityRef: velocity
+        value: 1
+        unit: meters-per-second
+        epistemicStatus: simulated
+  QualifiedModelBinding:
+    type: object
+    additionalProperties: false
+    properties:
+      modelVersionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactModelVersionRef
+      profileRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact model/profile binding.
+        examples:
+          - profile-a
+      qualification:
+        $ref: media.component-value-types.v1#/$defs/QualificationDisposition
+      evidenceRefs:
+        type: array
+        items:
+          $ref: media.component-value-types.v1#/$defs/EvidenceRef
+        uniqueItems: true
+    required:
+      - modelVersionRef
+      - profileRef
+      - qualification
+      - evidenceRefs
+    description: Model binding identifies exact version/profile and separate qualification disposition with evidence.
+    examples:
+      - modelVersionRef:
+          modelId: model-a
+          versionId: version-1
+          digest: sha256:abc123
+        profileRef: profile-a
+        qualification: not-evaluated
+        evidenceRefs: []
+  ComparisonBasis:
+    type: object
+    additionalProperties: false
+    properties:
+      dimensions:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          enum:
+            - version
+            - timebase
+            - coordinate-profile
+            - measurement-method
+            - delivery-profile
+          description: Exact comparison dimension.
+          examples:
+            - version
+        uniqueItems: true
+      alignmentRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact alignment definition.
+        examples:
+          - alignment-a
+      methodRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Comparison method.
+        examples:
+          - method-a
+    required:
+      - dimensions
+      - alignmentRef
+      - methodRef
+    description: Comparison basis is explicit, version-aware, and method-bound.
+    examples:
+      - dimensions:
+          - version
+          - timebase
+        alignmentRef: alignment-a
+        methodRef: method-a
+  ScopedDifference:
+    type: object
+    additionalProperties: false
+    properties:
+      dimensionRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact compared dimension.
+        examples:
+          - media.test.0
+      leftValue:
+        type:
+          - number
+          - string
+          - boolean
+      rightValue:
+        type:
+          - number
+          - string
+          - boolean
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact unit or coordinate domain.
+        examples:
+          - media.test.0
+      epistemicStatus:
+        type: string
+        enum:
+          - measured
+          - estimated
+          - inferred
+          - unknown
+        description: Difference epistemic status.
+        examples:
+          - measured
+      uncertainty:
+        anyOf:
+          - $ref: media.component-value-types.v1#/$defs/UncertaintyInterval
+          - type: "null"
+    required:
+      - dimensionRef
+      - leftValue
+      - rightValue
+      - unit
+      - epistemicStatus
+      - uncertainty
+    description: Difference binds both values, unit, epistemic status, and uncertainty.
+    examples:
+      - dimensionRef: sharpness
+        leftValue: 0.8
+        rightValue: 0.9
+        unit: score
+        epistemicStatus: measured
+        uncertainty: null
+  CapabilityProfileDisposition:
+    type: object
+    additionalProperties: false
+    properties:
+      capabilityRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact Media capability identity.
+        examples:
+          - media.test.0
+      profileRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact Media profile identity.
+        examples:
+          - media.test.0
+      availability:
+        type: string
+        enum:
+          - available
+          - unavailable
+          - blocked
+          - unknown
+        description: Availability disposition.
+        examples:
+          - available
+      qualification:
+        $ref: media.component-value-types.v1#/$defs/QualificationDisposition
+      reasonRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact disposition reason.
+        examples:
+          - media.test.0
+    required:
+      - capabilityRef
+      - profileRef
+      - availability
+      - qualification
+      - reasonRef
+    description: Capability disposition is an exact capability/profile pair; availability and qualification remain separate.
+    examples:
+      - capabilityRef: media.capability.inspect
+        profileRef: media.profile.local
+        availability: available
+        qualification: not-evaluated
+        reasonRef: reason-a
+  ScopedPolicyDecision:
+    type: object
+    additionalProperties: false
+    properties:
+      decisionRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact immutable policy decision.
+        examples:
+          - media.test.0
+      scope:
+        $ref: media.component-value-types.v1#/$defs/RightsConsentScope
+      outcome:
+        type: string
+        enum:
+          - allow
+          - deny
+          - unknown
+          - require-review
+        description: Policy decision outcome; unknown is not allow.
+        examples:
+          - allow
+      authorityRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Current policy authority.
+        examples:
+          - media.test.0
+      validity:
+        $ref: media.component-value-types.v1#/$defs/ConsentValidity
+    required:
+      - decisionRef
+      - scope
+      - outcome
+      - authorityRef
+      - validity
+    description: Policy decision binds exact scope, current authority, outcome, and time validity.
+    examples:
+      - decisionRef: decision-a
+        scope:
+          tenantId: tenant-a
+          subjectVersionRef:
+            tenantId: tenant-a
+            subjectId: subject-a
+            versionId: version-1
+          purpose: purpose-edit
+          territory: territory-us
+        outcome: allow
+        authorityRef: authority-a
+        validity: active
+  TransformWithCoordinateProfile:
+    type: object
+    additionalProperties: false
+    properties:
+      transformId:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Transform identity.
+        examples:
+          - media.test.0
+      coordinateProfileRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact coordinate profile.
+        examples:
+          - media.test.0
+      matrix:
+        type: array
+        minItems: 9
+        maxItems: 16
+        items:
+          type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Transform value unit.
+        examples:
+          - media.test.0
+      sourceVersionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+    required:
+      - transformId
+      - coordinateProfileRef
+      - matrix
+      - unit
+      - sourceVersionRef
+    description: Transform binds matrix, unit, coordinate profile, and exact source version.
+    examples:
+      - transformId: transform-a
+        coordinateProfileRef: world-frame-v1
+        matrix:
+          - 1
+          - 0
+          - 0
+          - 0
+          - 1
+          - 0
+          - 0
+          - 0
+          - 1
+        unit: meters
+        sourceVersionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+  SourceTimestampWithClock:
+    type: object
+    additionalProperties: false
+    properties:
+      time:
+        $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+      clockAuthorityRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact clock authority.
+        examples:
+          - media.test.0
+      sourceVersionRef:
+        $ref: media.component-value-types.v1#/$defs/ExactArtifactVersionRef
+      timestampKind:
+        type: string
+        enum:
+          - capture
+          - decode
+          - presentation
+          - observation
+          - unknown
+        description: Timestamp semantic kind.
+        examples:
+          - capture
+    required:
+      - time
+      - clockAuthorityRef
+      - sourceVersionRef
+      - timestampKind
+    description: Timestamp binds exact rational value, clock authority, source version, and semantic kind.
+    examples:
+      - time:
+          clockKind: media
+          clockId: clock-source-1
+          streamId: stream-a
+          ticks: "1"
+          secondsPerTick:
+            numerator: "1"
+            denominator: "1"
+        clockAuthorityRef: clock-authority-a
+        sourceVersionRef:
+          tenantId: tenant-a
+          artifactId: artifact-1
+          versionId: version-1
+        timestampKind: presentation
+  ScopedSignalObservation:
+    type: object
+    additionalProperties: false
+    properties:
+      interval:
+        $ref: media.component-value-types.v1#/$defs/HalfOpenRationalInterval
+      channelRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Exact channel identity.
+        examples:
+          - media.test.0
+      value:
+        type: number
+      unit:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Signal measurement unit.
+        examples:
+          - media.test.0
+      methodRef:
+        type: string
+        minLength: 1
+        maxLength: 256
+        pattern: \S
+        description: Signal method.
+        examples:
+          - media.test.0
+      epistemicStatus:
+        type: string
+        enum:
+          - measured
+          - estimated
+          - unknown
+        description: Signal epistemic status.
+        examples:
+          - measured
+    required:
+      - interval
+      - channelRef
+      - value
+      - unit
+      - methodRef
+      - epistemicStatus
+    description: Signal observation binds interval, channel, units, method, and epistemic status.
+    examples:
+      - interval:
+          start:
+            clockKind: media
+            clockId: clock-source-1
+            streamId: stream-a
+            ticks: "0"
+            secondsPerTick:
+              numerator: "1"
+              denominator: "1"
+          end:
+            clockKind: media
+            clockId: clock-source-1
+            streamId: stream-a
+            ticks: "1"
+            secondsPerTick:
+              numerator: "1"
+              denominator: "1"
+        channelRef: channel-left
+        value: 0.5
+        unit: amplitude
+        methodRef: windowed-rms
+        epistemicStatus: measured
+  ProposedPlanRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: ProposedPlanRef is an exact opaque typed identity/value.
+    examples:
+      - media.test.proposedplanref
+  OperationExecutionRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Recorded operation execution identity.
+    examples:
+      - media.test.operationexecutionref
+  IntegrityEvidenceRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Integrity evidence identity, version binding, and verification algorithm.
+    examples:
+      - media.test.integrityevidenceref
+  OpaqueSceneEntityRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Opaque scene entity identity.
+    examples:
+      - media.test.opaquesceneentityref
+  VersionedMaterialRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Exact immutable material version identity.
+    examples:
+      - media.test.versionedmaterialref
+  ProvenanceRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Recorded provenance identity.
+    examples:
+      - media.test.provenanceref
+  ScopedDecisionRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: ScopedDecisionRef is an exact opaque typed identity/value.
+    examples:
+      - media.test.scopeddecisionref
+  VersionedDecisionRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: VersionedDecisionRef is an exact opaque typed identity/value.
+    examples:
+      - media.test.versioneddecisionref
+  OutcomeEvidenceRef:
+    type: string
+    minLength: 1
+    maxLength: 256
+    pattern: \S
+    description: Evidence identity for observed outcome; not success authority.
+    examples:
+      - media.test.outcomeevidenceref

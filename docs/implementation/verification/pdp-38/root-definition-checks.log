@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: fixed 38-task scope rejects extras, duplicates and missing tasks
+ok 1 - fixed 38-task scope rejects extras, duplicates and missing tasks
+  ---
+  duration_ms: 2.168203
+  type: 'test'
+  ...
+# Subtest: P0-04 source completion never implies dependency completion or original ledger completion
+ok 2 - P0-04 source completion never implies dependency completion or original ledger completion
+  ---
+  duration_ms: 1.345321
+  type: 'test'
+  ...
+# Subtest: historical complete or failed verification cannot manufacture a current source pass
+ok 3 - historical complete or failed verification cannot manufacture a current source pass
+  ---
+  duration_ms: 0.835233
+  type: 'test'
+  ...
+# Subtest: live counters preserve receipt uncertainty and dynamic source denominator
+ok 4 - live counters preserve receipt uncertainty and dynamic source denominator
+  ---
+  duration_ms: 0.396848
+  type: 'test'
+  ...
+# Subtest: passing a bounded implementation suite never establishes a whole task or specialist acceptance
+ok 5 - passing a bounded implementation suite never establishes a whole task or specialist acceptance
+  ---
+  duration_ms: 0.608669
+  type: 'test'
+  ...
+# Subtest: executable conversion limits bind to the exact owner profile, with no wire or scientific admission
+ok 6 - executable conversion limits bind to the exact owner profile, with no wire or scientific admission
+  ---
+  duration_ms: 34.968969
+  type: 'test'
+  ...
+# Subtest: rational media time converts exactly without long-duration floating point drift
+ok 7 - rational media time converts exactly without long-duration floating point drift
+  ---
+  duration_ms: 1.112852
+  type: 'test'
+  ...
+# Subtest: 29.97 rational frame boundaries preserve exact 30000/1001 cadence
+ok 8 - 29.97 rational frame boundaries preserve exact 30000/1001 cadence
+  ---
+  duration_ms: 0.293967
+  type: 'test'
+  ...
+# Subtest: inexact conversion requires a selected rounding method and reports exact signed loss
+ok 9 - inexact conversion requires a selected rounding method and reports exact signed loss
+  ---
+  duration_ms: 0.712761
+  type: 'test'
+  ...
+# Subtest: unknown clocks, implicit legacy fps/seconds and integer overflow fail closed
+ok 10 - unknown clocks, implicit legacy fps/seconds and integer overflow fail closed
+  ---
+  duration_ms: 0.772062
+  type: 'test'
+  ...
+# Subtest: sample conversion distinguishes an end boundary from a valid sample and retains priming separation
+ok 11 - sample conversion distinguishes an end boundary from a valid sample and retains priming separation
+  ---
+  duration_ms: 0.752305
+  type: 'test'
+  ...
+# Subtest: pixel boundary conversions round trip exactly and reject stale, ambiguous or out-of-bounds geometry
+ok 12 - pixel boundary conversions round trip exactly and reject stale, ambiguous or out-of-bounds geometry
+  ---
+  duration_ms: 1.080299
+  type: 'test'
+  ...
+# Subtest: physical unit conversion preserves dimension and exact decimal ratios without scientific qualification
+ok 13 - physical unit conversion preserves dimension and exact decimal ratios without scientific qualification
+  ---
+  duration_ms: 0.534193
+  type: 'test'
+  ...
+# Subtest: all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
+ok 14 - all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
+  ---
+  duration_ms: 235.429335
+  type: 'test'
+  ...
+# Subtest: composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
+ok 15 - composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
+  ---
+  duration_ms: 5.606006
+  type: 'test'
+  ...
+# Subtest: central layout and accessibility rules retain critical facts at every density and color mode
+ok 16 - central layout and accessibility rules retain critical facts at every density and color mode
+  ---
+  duration_ms: 10.021553
+  type: 'test'
+  ...
+# Subtest: HTTP health and diagnostic identities have exact source-backed transport dispositions
+ok 17 - HTTP health and diagnostic identities have exact source-backed transport dispositions
+  ---
+  duration_ms: 97.347162
+  type: 'test'
+  ...
+# Subtest: gRPC transport and provider administration methods partition the exact observed service inventory
+ok 18 - gRPC transport and provider administration methods partition the exact observed service inventory
+  ---
+  duration_ms: 3.359539
+  type: 'test'
+  ...
+# Subtest: parity inventory fails closed on duplicate or stale disposition identities
+ok 19 - parity inventory fails closed on duplicate or stale disposition identities
+  ---
+  duration_ms: 4.809804
+  type: 'test'
+  ...
+# Subtest: Media interface grammar resolves every source and preserves the complete finality safety vocabulary
+ok 20 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
+  ---
+  duration_ms: 1.031812
+  type: 'test'
+  ...
+# Subtest: legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
+ok 21 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
+  ---
+  duration_ms: 0.886823
+  type: 'test'
+  ...
+# Subtest: remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
+ok 22 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
+  ---
+  duration_ms: 61.442692
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 931.254857

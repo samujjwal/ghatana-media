@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "media.pdp38-goal-measure-source-impact.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-081",
+  "scope": "Additive current source-location observation for the already reviewed four measures and 1848 exact applicability dispositions; does not refresh historical sourceChangeLedger spans or accept migration items.",
+  "source": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+  "currentSha256": "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
+  "historicalSuccessMeasureBlock": {
+    "span": [
+      477,
+      626
+    ],
+    "lineCount": 150,
+    "previousReviewedSpan": [
+      477,
+      539
+    ],
+    "previousReviewedLineCount": 63
+  },
+  "currentSuccessMeasureBlock": {
+    "span": [
+      618,
+      77471
+    ],
+    "lineCount": 76854,
+    "header": "successMeasureContracts:",
+    "sha256": "0a5fac154f707a960e1bc80c614abe7f26a1549e2f9bc65b5412c74f4266bafa"
+  },
+  "measurementContracts": 4,
+  "normativeApplicabilityDispositions": 1848,
+  "projectionBindings": 462,
+  "nonClaims": [
+    "Measured results",
+    "Numeric target approval",
+    "Migration parent-item parity",
+    "Independent phase acceptance",
+    "Lifecycle receipt"
+  ]
+}

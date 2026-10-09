@@ -4,345 +4,1317 @@ journeyId: J-23
 pdp0JourneyRef: J-23
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Private/local workflow while disconnected and reconnect
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
-  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
-- media.goal.resolve-safely
+  - media.goal.resolve-safely
 actors:
-- media.creator
-- media.editor
-- media.administrator
+  - media.creator
+  - media.editor
+  - media.administrator
 channels:
-- media.channel.web
-- media.channel.cli
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
-  equivalence remain unbound.
+  - media.channel.web
+  - media.channel.cli
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
-- An admitted local capability, offline mode, cached asset permission, and storage policy are explicitly established.
+  - An admitted local capability, offline mode, cached asset permission, and
+    storage policy are explicitly established.
 steps:
-- view: media.view.work-in-project
-  legacyViewRef: M-PROJECT
-  screenContractRef: screen-contracts/work-in-project.yaml
-  viewIntent: Project context, source/output versions and next action
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.choose-intent
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions and
-      jobs without remote fallback.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Entitlement expires offline, local capability is unavailable, or reconnection would require unauthorized
-        egress.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Keep eligible local work, block unavailable operations, reauthenticate/revalidate at reconnect, and
-      reconcile before submission.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Preserve offline edits, pending sync state, source refs, and the identity of remote work requiring reconciliation.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.inspect-media
-  legacyViewRef: M-ASSET
-  screenContractRef: screen-contracts/inspect-media.yaml
-  viewIntent: Playback/technical metadata, versions, rights and actions
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.attach-source-asset
-  - media.action.inspect-artifact
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions and
-      jobs without remote fallback.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Entitlement expires offline, local capability is unavailable, or reconnection would require unauthorized
-        egress.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Keep eligible local work, block unavailable operations, reauthenticate/revalidate at reconnect, and
-      reconcile before submission.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Preserve offline edits, pending sync state, source refs, and the identity of remote work requiring reconciliation.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.job-status
-  legacyViewRef: M-JOB
-  screenContractRef: screen-contracts/job-status.yaml
-  viewIntent: Progress, outputs, cancel, retry/reconcile and uncertainty
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.view-job-status
-  - media.action.check-job-outcome
-  - media.action.request-cancellation
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions and
-      jobs without remote fallback.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Entitlement expires offline, local capability is unavailable, or reconnection would require unauthorized
-        egress.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Keep eligible local work, block unavailable operations, reauthenticate/revalidate at reconnect, and
-      reconcile before submission.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Preserve offline edits, pending sync state, source refs, and the identity of remote work requiring reconciliation.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.review-activity
-  legacyViewRef: M-ACTIVITY
-  screenContractRef: screen-contracts/review-activity.yaml
-  viewIntent: Jobs/notifications requiring attention; not infrastructure dashboard
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.view-job-status
-  - media.action.check-job-outcome
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions and
-      jobs without remote fallback.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Entitlement expires offline, local capability is unavailable, or reconnection would require unauthorized
-        egress.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Keep eligible local work, block unavailable operations, reauthenticate/revalidate at reconnect, and
-      reconcile before submission.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Preserve offline edits, pending sync state, source refs, and the identity of remote work requiring reconciliation.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
-  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
-terminalSuccess: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions
-  and jobs without remote fallback.
+  - view: media.view.work-in-project
+    legacyViewRef: M-PROJECT
+    screenContractRef: screen-contracts/work-in-project.yaml
+    viewIntent: Project context, source/output versions and next action
+    actionRef: media.action.choose-intent
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.choose-intent
+    surfaceRefs:
+      - media.surface.web
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Only work allowed in the admitted disconnected mode is completed;
+        reconnect reconciles versions and jobs without remote fallback.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Entitlement expires offline, local capability is unavailable, or
+            reconnection would require unauthorized egress.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Keep eligible local work, block unavailable operations,
+        reauthenticate/revalidate at reconnect, and reconcile before submission.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Preserve offline edits, pending sync state, source refs, and the
+          identity of remote work requiring reconciliation.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0
+      journeyRef: J-23
+      ordinal: 1
+      viewRef: media.view.work-in-project
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.choose-intent
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - current-project-context-when-required
+          - intent-is-in-the-admitted-product-catalog
+        effect: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+        reversibilityDisposition: REVERSIBLE
+        finality: local-selection-only
+        failureRecovery: preserve-the-project-and-current-selection;
+          explain-when-an-intent-is-unavailable
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: SINGLE_EXPLICIT_JOURNEY_STEP_CANDIDATE
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+      stepSourceFacts:
+        intent: Project context, source/output versions and next action
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Preserve offline edits, pending sync state, source refs, and the
+              identity of remote work requiring reconciliation.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-23
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+        actionRef: media.action.choose-intent
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Only work allowed in the admitted disconnected mode is completed;
+              reconnect reconciles versions and jobs without remote fallback.
+          effect: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+          finality: local-selection-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+          guards:
+            - current-project-context-when-required
+            - intent-is-in-the-admitted-product-catalog
+          failure: preserve-the-project-and-current-selection;
+            explain-when-an-intent-is-unavailable
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+          recovery: preserve-the-project-and-current-selection;
+            explain-when-an-intent-is-unavailable
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Project context, source/output versions and next action
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml#purpose
+        actionRef: media.action.choose-intent
+        candidateActionRefs:
+          - media.action.choose-intent
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.inspect-media
+    legacyViewRef: M-ASSET
+    screenContractRef: screen-contracts/inspect-media.yaml
+    viewIntent: Playback/technical metadata, versions, rights and actions
+    actionRef: media.action.inspect-artifact
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.attach-source-asset
+      - media.action.inspect-artifact
+    surfaceRefs:
+      - media.surface.web
+    objectRefs: []
+    canonicalOperationRef: media.operation-slice.inspect-artifact
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Only work allowed in the admitted disconnected mode is completed;
+        reconnect reconciles versions and jobs without remote fallback.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Entitlement expires offline, local capability is unavailable, or
+            reconnection would require unauthorized egress.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Keep eligible local work, block unavailable operations,
+        reauthenticate/revalidate at reconnect, and reconcile before submission.
+    postconditions: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Preserve offline edits, pending sync state, source refs, and the
+          identity of remote work requiring reconciliation.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+      journeyRef: J-23
+      ordinal: 2
+      viewRef: media.view.inspect-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-artifact
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+        guards:
+          - exact-artifact-or-upload-identity
+          - current-read-authority
+        effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+        reversibilityDisposition: UNKNOWN
+        finality: read-only;
+          inspection-does-not-promote-quarantine-or-attach-to-a-project
+        failureRecovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+        domainOperationDisposition: EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation-slice.inspect-artifact
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+      stepSourceFacts:
+        intent: Playback/technical metadata, versions, rights and actions
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Preserve offline edits, pending sync state, source refs, and the
+              identity of remote work requiring reconciliation.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: media.operation-slice.inspect-artifact
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        scenarioRefs: []
+        capabilityRefs: [media.artifact.inspect]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-23
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+        actionRef: media.action.inspect-artifact
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Only work allowed in the admitted disconnected mode is completed;
+              reconnect reconciles versions and jobs without remote fallback.
+          effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+          finality: read-only;
+            inspection-does-not-promote-quarantine-or-attach-to-a-project
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          guards:
+            - exact-artifact-or-upload-identity
+            - current-read-authority
+          failure: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          recovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation-slice.inspect-artifact
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.inspect-artifact
+            operationKind: QUERY
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.inspect-artifact/stateBinding
+            stateApplicability:
+              artifact: returns-stored-immutable-artifact-metadata-and-opaque-object-reference-without-mutation
+              productLifecycle: state-is-not-present-in-the-wire-observation;
+                metadata-or-objectReference-does-not-establish-AVAILABLE
+              transitionRefs: []
+              projectionLoss: opaque-object-reference-is-not-a-byte-retrieval-url-or-current-rights-and-availability-proof
+            scopeStatus: accepted-bounded-read-semantics;
+              independent-phase-review-and-runtime-qualification-open
+            runtimeAdmission: LOCAL_CONTRACT_TESTS_ONLY;
+              production-trusted-identity-and-independent-acceptance-unqualified
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Playback/technical metadata, versions, rights and actions
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#purpose
+        actionRef: media.action.inspect-artifact
+        candidateActionRefs:
+          - media.action.attach-source-asset
+          - media.action.inspect-artifact
+        operationRefs:
+          - media.operation-slice.inspect-artifact
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.artifact.inspect]
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: [media.artifact.inspect]
+  - view: media.view.job-status
+    legacyViewRef: M-JOB
+    screenContractRef: screen-contracts/job-status.yaml
+    viewIntent: Progress, outputs, cancel, retry/reconcile and uncertainty
+    actionRef: media.action.view-job-status
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.view-job-status
+      - media.action.check-job-outcome
+      - media.action.request-cancellation
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.project
+      - media.domain.artifact-version
+      - media.domain.processing-job
+    canonicalOperationRef: media.operation.action.view-job-status
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Only work allowed in the admitted disconnected mode is completed;
+        reconnect reconciles versions and jobs without remote fallback.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Entitlement expires offline, local capability is unavailable, or
+            reconnection would require unauthorized egress.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Keep eligible local work, block unavailable operations,
+        reauthenticate/revalidate at reconnect, and reconcile before submission.
+    postconditions: []
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Preserve offline edits, pending sync state, source refs, and the
+          identity of remote work requiring reconciliation.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/2
+      journeyRef: J-23
+      ordinal: 3
+      viewRef: media.view.job-status
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.view-job-status
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        guards:
+          - stable-job-reference
+        effect: read-current-job-and-attempt-evidence
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only
+        failureRecovery: keep-last-known-state-labelled-stale
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.view-job-status
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: read-current-job-and-attempt-evidence
+      stepSourceFacts:
+        intent: Progress, outputs, cancel, retry/reconcile and uncertainty
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Preserve offline edits, pending sync state, source refs, and the
+              identity of remote work requiring reconciliation.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.view-job-status
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: [media.job.view-status]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-23
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        operationRef: media.operation.action.view-job-status
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+        actionRef: media.action.view-job-status
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Only work allowed in the admitted disconnected mode is completed;
+              reconnect reconciles versions and jobs without remote fallback.
+          effect: read-current-job-and-attempt-evidence
+          finality: read-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          guards:
+            - stable-job-reference
+          failure: keep-last-known-state-labelled-stale
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          recovery: keep-last-known-state-labelled-stale
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.view-job-status
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Progress, outputs, cancel, retry/reconcile and uncertainty
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml#purpose
+        actionRef: media.action.view-job-status
+        candidateActionRefs:
+          - media.action.view-job-status
+          - media.action.check-job-outcome
+          - media.action.request-cancellation
+        operationRefs:
+          - media.operation.action.view-job-status
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.job.view-status]
+        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: [media.job.view-status]
+  - view: media.view.review-activity
+    legacyViewRef: M-ACTIVITY
+    screenContractRef: screen-contracts/review-activity.yaml
+    viewIntent: Jobs/notifications requiring attention; not infrastructure dashboard
+    actionRef: media.action.view-job-status
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.view-job-status
+      - media.action.check-job-outcome
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.project
+      - media.domain.artifact-version
+      - media.domain.processing-job
+    canonicalOperationRef: media.operation.action.view-job-status
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Only work allowed in the admitted disconnected mode is completed;
+        reconnect reconciles versions and jobs without remote fallback.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Entitlement expires offline, local capability is unavailable, or
+            reconnection would require unauthorized egress.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Keep eligible local work, block unavailable operations,
+        reauthenticate/revalidate at reconnect, and reconcile before submission.
+    postconditions: []
+    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Preserve offline edits, pending sync state, source refs, and the
+          identity of remote work requiring reconciliation.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/3
+      journeyRef: J-23
+      ordinal: 4
+      viewRef: media.view.review-activity
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.view-job-status
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        guards:
+          - stable-job-reference
+        effect: read-current-job-and-attempt-evidence
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only
+        failureRecovery: keep-last-known-state-labelled-stale
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.view-job-status
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: read-current-job-and-attempt-evidence
+      stepSourceFacts:
+        intent: Jobs/notifications requiring attention; not infrastructure dashboard
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Preserve offline edits, pending sync state, source refs, and the
+              identity of remote work requiring reconciliation.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/3
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.view-job-status
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: [media.job.view-status]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-23
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Only work allowed in the admitted disconnected mode is completed;
+            reconnect reconciles versions and jobs without remote fallback.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Entitlement expires offline, local capability is unavailable, or
+                reconnection would require unauthorized egress.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Keep eligible local work, block unavailable operations,
+            reauthenticate/revalidate at reconnect, and reconcile before
+            submission.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        operationRef: media.operation.action.view-job-status
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+        actionRef: media.action.view-job-status
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Only work allowed in the admitted disconnected mode is completed;
+              reconnect reconciles versions and jobs without remote fallback.
+          effect: read-current-job-and-attempt-evidence
+          finality: read-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          guards:
+            - stable-job-reference
+          failure: keep-last-known-state-labelled-stale
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
+          recovery: keep-last-known-state-labelled-stale
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.view-job-status
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Jobs/notifications requiring attention; not infrastructure dashboard
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/3
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml#purpose
+        actionRef: media.action.view-job-status
+        candidateActionRefs:
+          - media.action.view-job-status
+          - media.action.check-job-outcome
+        operationRefs:
+          - media.operation.action.view-job-status
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.job.view-status]
+        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: [media.job.view-status]
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
+terminalSuccess: Only work allowed in the admitted disconnected mode is
+  completed; reconnect reconciles versions and jobs without remote fallback.
 criticalNonhappyPaths:
-- id: phase0-critical-exception
-  condition: Entitlement expires offline, local capability is unavailable, or reconnection would require unauthorized
-    egress.
-  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-    pending.
-recovery: Keep eligible local work, block unavailable operations, reauthenticate/revalidate at reconnect, and reconcile
-  before submission.
+  - id: phase0-critical-exception
+    condition: Entitlement expires offline, local capability is unavailable, or
+      reconnection would require unauthorized egress.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Keep eligible local work, block unavailable operations,
+  reauthenticate/revalidate at reconnect, and reconcile before submission.
 contextPreserved:
-- Preserve offline edits, pending sync state, source refs, and the identity of remote work requiring reconciliation.
+  - Preserve offline edits, pending sync state, source refs, and the identity of
+    remote work requiring reconciliation.
 channelEquivalents:
-- web
-- cli
+  - web
+  - cli
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: Only work allowed in the admitted disconnected mode is completed; reconnect reconciles versions
-    and jobs without remote fallback.
-  criticalNonhappyIntent: Entitlement expires offline, local capability is unavailable, or reconnection would require
-    unauthorized egress.
+  successIntent: Only work allowed in the admitted disconnected mode is completed;
+    reconnect reconciles versions and jobs without remote fallback.
+  criticalNonhappyIntent: Entitlement expires offline, local capability is
+    unavailable, or reconnection would require unauthorized egress.
 scenarioRefs: []
 unresolvedProductDecisions:
-- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
-  transition is inferred by this proposal.
-- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
-- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
-  and preserved context.
-- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
-  review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.

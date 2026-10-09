@@ -1,3 +1,7 @@
+export { evaluateDefinitionActionChoiceSet, evaluateDefinitionOracle } from "./definition-oracles.js";
+export type { DefinitionActionChoiceDecision, DefinitionActionChoiceSet, DefinitionGuardVerdict, DefinitionOracleAction, DefinitionOracleDecision, DefinitionOracleResult } from "./definition-oracles.js";
+export { evaluateStreamRecoveryDefinition } from "./stream-recovery-definition.js";
+export type { FrameEffectEvidence, StreamConsentState, StreamLeaseState, StreamRecoveryDefinitionInput, StreamRecoveryDefinitionResult, StreamSessionState } from "./stream-recovery-definition.js";
 import { createFixtureState, mediaExperienceScenarioIds, syntheticTranscriptSegments } from "./fixtures.js";
 import type {
   AccessDisposition,

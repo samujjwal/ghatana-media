@@ -5,604 +5,2536 @@ pdp0JourneyRef: J-09
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Prompt/brief to storyboard, composition, render, review, and delivery
 status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
-  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact
+  action/state transitions, per-channel behavior, scenarios, wire bindings, and runtime commitments
+  remain unresolved.
 outcomes:
-- media.goal.finished-asset
-- media.goal.explain-or-demonstrate
-- media.goal.review-trustworthy-output
-- media.goal.deliver-approved-output
+  - media.goal.finished-asset
+  - media.goal.explain-or-demonstrate
+  - media.goal.review-trustworthy-output
+  - media.goal.deliver-approved-output
 actors:
-- media.creator
-- media.editor
-- media.reviewer
+  - media.creator
+  - media.editor
+  - media.reviewer
 channels:
-- media.channel.web
-- media.channel.product-integration
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
-  equivalence remain unbound.
+  - media.channel.web
+  - media.channel.product-integration
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and
+  accessibility equivalence remain unbound.
 preconditions:
-- Intent, source/reference rights, budget, quality/preservation choices, and required reviewers are explicit.
+  - Intent, source/reference rights, budget, quality/preservation choices, and required reviewers
+    are explicit.
 steps:
-- view: media.view.create-media
-  legacyViewRef: M-CREATE
-  screenContractRef: screen-contracts/create-media.yaml
-  viewIntent: Intent/recipe and safe outcome settings
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.choose-intent
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.review-creation-plan
-  legacyViewRef: M-PLAN
-  screenContractRef: screen-contracts/review-creation-plan.yaml
-  viewIntent: Proposed graph, estimates, material decisions and validation
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.arrange-scenes
-  legacyViewRef: M-STORYBOARD
-  screenContractRef: screen-contracts/arrange-scenes.yaml
-  viewIntent: Scenes, timing, references, versions and transitions
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.create-video
-  legacyViewRef: M-VIDEO
-  screenContractRef: screen-contracts/create-video.yaml
-  viewIntent: Generation strategy, controls, progress and alternatives
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.view-job-status
-  - media.action.check-job-outcome
-  - media.action.request-cancellation
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.create-audio
-  legacyViewRef: M-AUDIO
-  screenContractRef: screen-contracts/create-audio.yaml
-  viewIntent: Sources/stems/cleanup/mix/mastering
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.compose-media
-  legacyViewRef: M-COMPOSER
-  screenContractRef: screen-contracts/compose-media.yaml
-  viewIntent: Timeline/graphics/brand/audio/captions/transition assembly
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.prepare-render
-  legacyViewRef: M-RENDER
-  screenContractRef: screen-contracts/prepare-render.yaml
-  viewIntent: Snapshot/profile, validation, cost and submission
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.review-exact-version
-  legacyViewRef: M-REVIEW
-  screenContractRef: screen-contracts/review-exact-version.yaml
-  viewIntent: Scoped exact-version review/comment/approve/reject
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.deliver-output
-  legacyViewRef: M-DELIVERY
-  screenContractRef: screen-contracts/deliver-output.yaml
-  viewIntent: Destination/format/rights/approval and publication finality
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.integrations
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect status.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery outcome.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor plan.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
-  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
-terminalSuccess: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect
-  status.
+  - view: media.view.create-media
+    legacyViewRef: M-CREATE
+    screenContractRef: screen-contracts/create-media.yaml
+    viewIntent: Intent/recipe and safe outcome settings
+    actionRef: media.action.choose-intent
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.choose-intent
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0
+      journeyRef: J-09
+      ordinal: 1
+      viewRef: media.view.create-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.choose-intent
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - current-project-context-when-required
+          - intent-is-in-the-admitted-product-catalog
+        effect: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+        reversibilityDisposition: REVERSIBLE
+        finality: local-selection-only
+        failureRecovery: preserve-the-project-and-current-selection; explain-when-an-intent-is-unavailable
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: SINGLE_EXPLICIT_JOURNEY_STEP_CANDIDATE
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+      stepSourceFacts:
+        intent: Intent/recipe and safe outcome settings
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+        actionRef: media.action.choose-intent
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+          finality: local-selection-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+          guards:
+            - current-project-context-when-required
+            - intent-is-in-the-admitted-product-catalog
+          failure: preserve-the-project-and-current-selection; explain-when-an-intent-is-unavailable
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-intent
+          recovery: preserve-the-project-and-current-selection; explain-when-an-intent-is-unavailable
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Intent/recipe and safe outcome settings
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml#purpose
+        actionRef: media.action.choose-intent
+        candidateActionRefs:
+          - media.action.choose-intent
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.review-creation-plan
+    legacyViewRef: M-PLAN
+    screenContractRef: screen-contracts/review-creation-plan.yaml
+    viewIntent: Proposed graph, estimates, material decisions and validation
+    actionRef: media.action.review-processing-parameters
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.processing-job
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.review-processing-parameters
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/1
+      journeyRef: J-09
+      ordinal: 2
+      viewRef: media.view.review-creation-plan
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.review-processing-parameters
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-exact-source-region-or-record-before-read-or-change
+          - confirm-owner-approved-actor-and-capability-authority-before-governed-effects
+          - preserve-current-draft-and-prior-versions
+        effect: Read the exact artifact, measurement, or declared parameter context; preserve source
+          versions and distinguish missing evidence from a negative result.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only; no-write-finality
+        failureRecovery: preserve-the-source-and-current-draft;
+          report-denial-unavailable-or-incomplete-evidence-without-claiming-success
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.review-processing-parameters
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read the exact artifact, measurement, or declared parameter context; preserve
+          source versions and distinguish missing evidence from a negative result.
+      stepSourceFacts:
+        intent: Proposed graph, estimates, material decisions and validation
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.review-processing-parameters
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
+        operationRef: media.operation.action.review-processing-parameters
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
+          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.review-processing-parameters
+        actionRef: media.action.review-processing-parameters
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.review-processing-parameters
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Read the exact artifact, measurement, or declared parameter context; preserve source
+            versions and distinguish missing evidence from a negative result.
+          finality: read-only; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.review-processing-parameters
+          guards:
+            - resolve-the-exact-source-region-or-record-before-read-or-change
+            - confirm-owner-approved-actor-and-capability-authority-before-governed-effects
+            - preserve-current-draft-and-prior-versions
+          failure: preserve-the-source-and-current-draft;
+            report-denial-unavailable-or-incomplete-evidence-without-claiming-success
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.review-processing-parameters
+          recovery: preserve-the-source-and-current-draft;
+            report-denial-unavailable-or-incomplete-evidence-without-claiming-success
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.review-processing-parameters
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.review-processing-parameters
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Proposed graph, estimates, material decisions and validation
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml#purpose
+        actionRef: media.action.review-processing-parameters
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.review-processing-parameters
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: NO_SCREEN_ACTION_CONSEQUENCE_CROSSWALK
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs: []
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.arrange-scenes
+    legacyViewRef: M-STORYBOARD
+    screenContractRef: screen-contracts/arrange-scenes.yaml
+    viewIntent: Scenes, timing, references, versions and transitions
+    actionRef: media.action.edit-scene-timing-or-transition
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/2
+      journeyRef: J-09
+      ordinal: 3
+      viewRef: media.view.arrange-scenes
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.edit-scene-timing-or-transition
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Change only the current local draft or selection; keep committed source and versioned
+          objects unchanged until a separately specified commit.
+        reversibilityDisposition: REVERSIBLE
+        finality: local-draft-only; not-a-committed-result
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Change only the current local draft or selection; keep committed source and
+          versioned objects unchanged until a separately specified commit.
+      stepSourceFacts:
+        intent: Scenes, timing, references, versions and transitions
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-scene-timing-or-transition
+        actionRef: media.action.edit-scene-timing-or-transition
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-scene-timing-or-transition
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Change only the current local draft or selection; keep committed source and versioned
+            objects unchanged until a separately specified commit.
+          finality: local-draft-only; not-a-committed-result
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-scene-timing-or-transition
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-scene-timing-or-transition
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/2
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Scenes, timing, references, versions and transitions
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml#purpose
+        actionRef: media.action.edit-scene-timing-or-transition
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.create-video
+    legacyViewRef: M-VIDEO
+    screenContractRef: screen-contracts/create-video.yaml
+    viewIntent: Generation strategy, controls, progress and alternatives
+    actionRef: media.action.submit-validated-request
+    actionBindingState: Exact screen action selected for this ordered step; source-defined semantics
+      only; independent review and runtime admission separate
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#media-job
+      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+    stateBindingState: state applicability remains separately bounded
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.processing-job
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.submit-validated-request
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/3
+      journeyRef: J-09
+      ordinal: 4
+      viewRef: media.view.create-video
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.submit-validated-request
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+        selectionBasis: EXACT_STEP_INTENT_AND_SCREEN_ACTION
+        candidateActionRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Request the explicitly named operation for the exact target only after fresh actor,
+          capability, policy, and target checks.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.submit-validated-request
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: Generation strategy, controls, progress and alternatives
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/3
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        canonicalOperationRef: media.operation.action.submit-validated-request
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+        actionRef: media.action.submit-validated-request
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Request the explicitly named operation for the exact target only after fresh actor,
+            capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        transitionRef: null
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        operationRef: media.operation.action.submit-validated-request
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: OWNER_OPERATION_STATE_SCOPE_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Generation strategy, controls, progress and alternatives
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/3
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml#purpose
+        actionRef: media.action.submit-validated-request
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.submit-validated-request
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        operationRef: media.operation.action.submit-validated-request
+        operationKind: COMMAND
+        domainObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.async-job-command.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
+          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    capabilityRefs: []
+  - view: media.view.create-audio
+    legacyViewRef: M-AUDIO
+    screenContractRef: screen-contracts/create-audio.yaml
+    viewIntent: Sources/stems/cleanup/mix/mastering
+    actionRef: media.action.choose-admitted-audio-operation
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/4
+      journeyRef: J-09
+      ordinal: 5
+      viewRef: media.view.create-audio
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.choose-admitted-audio-operation
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Change only the current local draft or selection; keep committed source and versioned
+          objects unchanged until a separately specified commit.
+        reversibilityDisposition: REVERSIBLE
+        finality: local-draft-only; not-a-committed-result
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Change only the current local draft or selection; keep committed source and
+          versioned objects unchanged until a separately specified commit.
+      stepSourceFacts:
+        intent: Sources/stems/cleanup/mix/mastering
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/4
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-admitted-audio-operation
+        actionRef: media.action.choose-admitted-audio-operation
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-admitted-audio-operation
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Change only the current local draft or selection; keep committed source and versioned
+            objects unchanged until a separately specified commit.
+          finality: local-draft-only; not-a-committed-result
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-admitted-audio-operation
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-admitted-audio-operation
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/4
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/4
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Sources/stems/cleanup/mix/mastering
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/4
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/4
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml#purpose
+        actionRef: media.action.choose-admitted-audio-operation
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.compose-media
+    legacyViewRef: M-COMPOSER
+    screenContractRef: screen-contracts/compose-media.yaml
+    viewIntent: Timeline/graphics/brand/audio/captions/transition assembly
+    actionRef: null
+    actionBindingState: EXPLICIT_ACTION_SET_NO_DEFAULT
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.reorder-track
+      - media.action.trim-track
+      - media.action.edit-transition-or-caption-alignment
+      - media.action.inspect-artifact
+      - media.action.validate-composition
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/5
+      journeyRef: J-09
+      actionRef: null
+      bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
+      selectionBasis: Exact action identities are drawn from this step view screen contract; each is an
+        independent user-selected interaction, with no default or implied dispatch.
+      candidateActionRefs:
+        - media.action.reorder-track
+        - media.action.trim-track
+        - media.action.edit-transition-or-caption-alignment
+        - media.action.inspect-artifact
+        - media.action.validate-composition
+      choiceSet:
+        status: SOURCE_BOUND_ACTION_SET; USER_SELECTION_REQUIRED
+        decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+        sourceScreenRef: screen-contracts/compose-media.yaml
+        selectedActionRef: null
+        defaultActionRef: null
+        options:
+          - actionRef: media.action.reorder-track
+            semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+            operationRefs: []
+            capabilityRefs: []
+            requirementRefs: []
+            selection: EXPLICIT_USER_SELECTION_REQUIRED
+            runtimeAdmission: NOT_ADMITTED
+          - actionRef: media.action.trim-track
+            semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+            operationRefs: []
+            capabilityRefs: []
+            requirementRefs: []
+            selection: EXPLICIT_USER_SELECTION_REQUIRED
+            runtimeAdmission: NOT_ADMITTED
+          - actionRef: media.action.edit-transition-or-caption-alignment
+            semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+            operationRefs: []
+            capabilityRefs: []
+            requirementRefs: []
+            selection: EXPLICIT_USER_SELECTION_REQUIRED
+            runtimeAdmission: NOT_ADMITTED
+          - actionRef: media.action.inspect-artifact
+            semanticRole: DOMAIN_OPERATION
+            operationRefs:
+              - media.operation-slice.inspect-artifact
+            capabilityRefs: [media.artifact.inspect]
+            requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+            selection: EXPLICIT_USER_SELECTION_REQUIRED
+            runtimeAdmission: NOT_ADMITTED
+          - actionRef: media.action.validate-composition
+            semanticRole: DOMAIN_OPERATION
+            operationRefs:
+              - media.operation.action.validate-composition
+            capabilityRefs: []
+            requirementRefs: []
+            selection: EXPLICIT_USER_SELECTION_REQUIRED
+            runtimeAdmission: NOT_ADMITTED
+      runtimeAdmission: NOT_ADMITTED
+      ordinal: 6
+      viewRef: media.view.compose-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepSourceFacts:
+        intent: Timeline/graphics/brand/audio/captions/transition assembly
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+      action:
+        actionRef: null
+        bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
+        selectionBasis: Screen lists exact available user interactions; each interaction requires explicit
+          user selection and the set has no default.
+        candidateActionRefs:
+          - media.action.reorder-track
+          - media.action.trim-track
+          - media.action.edit-transition-or-caption-alignment
+          - media.action.inspect-artifact
+          - media.action.validate-composition
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        canonicalOperationRefs: []
+        authorityRef: null
+        authorityRefs: []
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        actionChoiceRefs:
+          - media.action.reorder-track
+          - media.action.trim-track
+          - media.action.edit-transition-or-caption-alignment
+          - media.action.inspect-artifact
+          - media.action.validate-composition
+        actionChoiceDisposition: EXACT_SCREEN_ACTION_SET; NO_DEFAULT; USER_SELECTION_REQUIRED
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        scenarioRefs: []
+        scenarios: []
+        executable: false
+        reason: No exact source scenario is allocated to this step; no seeded execution is inferred.
+    scenarioRefs: []
+    canonicalBindings:
+      actionChoiceRefs:
+        - media.action.reorder-track
+        - media.action.trim-track
+        - media.action.edit-transition-or-caption-alignment
+        - media.action.inspect-artifact
+        - media.action.validate-composition
+      actionChoiceDisposition: EXACT_SCREEN_ACTION_SET; NO_DEFAULT; USER_SELECTION_REQUIRED
+      actionChoiceSourceRef: screen-contracts/compose-media.yaml
+  - view: media.view.prepare-render
+    legacyViewRef: M-RENDER
+    screenContractRef: screen-contracts/prepare-render.yaml
+    viewIntent: Snapshot/profile, validation, cost and submission
+    actionRef: media.action.submit-render
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#media-job
+      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs:
+      - media.domain.processing-job
+      - media.domain.job-attempt
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.submit-render
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6
+      journeyRef: J-09
+      ordinal: 7
+      viewRef: media.view.prepare-render
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.submit-render
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Request the explicitly named operation for the exact target only after fresh actor,
+          capability, policy, and target checks.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.submit-render
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+      stepSourceFacts:
+        intent: Snapshot/profile, validation, cost and submission
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs:
+          - media.domain.processing-job
+          - media.domain.job-attempt
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        canonicalOperationRef: media.operation.action.submit-render
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
+        operationRef: media.operation.action.submit-render
+        operationKind: COMMAND
+        domainObjectRefs:
+          - media.domain.processing-job
+          - media.domain.job-attempt
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.async-job-command.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
+          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
+        actionRef: media.action.submit-render
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Request the explicitly named operation for the exact target only after fresh actor,
+            capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        transitionRef: null
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        operationRef: media.operation.action.submit-render
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: OWNER_OPERATION_STATE_SCOPE_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
+        objectRefs:
+          - media.domain.processing-job
+          - media.domain.job-attempt
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Snapshot/profile, validation, cost and submission
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/6
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml#purpose
+        actionRef: media.action.submit-render
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.submit-render
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.review-exact-version
+    legacyViewRef: M-REVIEW
+    screenContractRef: screen-contracts/review-exact-version.yaml
+    viewIntent: Scoped exact-version review/comment/approve/reject
+    actionRef: media.action.inspect-version-and-review-scope
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs:
+      - media.domain.project
+      - media.domain.artifact-version
+      - media.domain.processing-job
+    canonicalOperationRef: media.operation.action.inspect-version-and-review-scope
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
+      journeyRef: J-09
+      ordinal: 8
+      viewRef: media.view.review-exact-version
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-version-and-review-scope
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.privacy-rights-reviewer
+          - media.reviewer
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a source object or infer
+          permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-version-and-review-scope
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not mutate a source object
+          or infer permission from its presence.
+      stepSourceFacts:
+        intent: Scoped exact-version review/comment/approve/reject
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-version-and-review-scope
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-version-and-review-scope
+        operationRef: media.operation.action.inspect-version-and-review-scope
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
+          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-version-and-review-scope
+        actionRef: media.action.inspect-version-and-review-scope
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-version-and-review-scope
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Read or navigate using the exact selected context; do not mutate a source object or infer
+            permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-version-and-review-scope
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-version-and-review-scope
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-version-and-review-scope
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-version-and-review-scope
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-version-and-review-scope
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-version-and-review-scope
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-version-and-review-scope
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Scoped exact-version review/comment/approve/reject
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.reviewer
+          - media.creator
+          - media.privacy-rights-reviewer
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.privacy-rights-reviewer
+          - media.reviewer
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/7
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml#purpose
+        actionRef: media.action.inspect-version-and-review-scope
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.inspect-version-and-review-scope
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.deliver-output
+    legacyViewRef: M-DELIVERY
+    screenContractRef: screen-contracts/deliver-output.yaml
+    viewIntent: Destination/format/rights/approval and publication finality
+    actionRef: media.action.choose-named-destination
+    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.integrations
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+        external-effect status.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+          unknown delivery outcome.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+        bounded successor plan.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep brief, references, scene order, edits, review scope, output version, and delivery
+          destination.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
+        declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+      journeyRef: J-09
+      ordinal: 9
+      viewRef: media.view.deliver-output
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.choose-named-destination
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Change only the current local draft or selection; keep committed source and versioned
+          objects unchanged until a separately specified commit.
+        reversibilityDisposition: REVERSIBLE
+        finality: local-draft-only; not-a-committed-result
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Change only the current local draft or selection; keep committed source and
+          versioned objects unchanged until a separately specified commit.
+      stepSourceFacts:
+        intent: Destination/format/rights/approval and publication finality
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep brief, references, scene order, edits, review scope, output version, and delivery
+              destination.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.integrations
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-09
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+            external-effect status.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+              unknown delivery outcome.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted
+            bounded successor plan.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+        actionRef: media.action.choose-named-destination
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Exact output version is reviewed, approved as required, and delivered with an accurate
+              external-effect status.
+          effect: Change only the current local draft or selection; keep committed source and versioned
+            objects unchanged until a separately specified commit.
+          finality: local-draft-only; not-a-committed-result
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Destination/format/rights/approval and publication finality
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml#purpose
+        actionRef: media.action.choose-named-destination
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one
+  registered intent-based screen. Null actionRef and empty stateRefs are deliberate open bindings,
+  not no-op actions or completed transitions.
+terminalSuccess: Exact output version is reviewed, approved as required, and delivered with an
+  accurate external-effect status.
 criticalNonhappyPaths:
-- id: phase0-critical-exception
-  condition: Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or unknown delivery
-    outcome.
-  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-    pending.
-recovery: Preserve completed scenes and plan; reconcile unknown effects; resume only from an admitted bounded successor
-  plan.
+  - id: phase0-critical-exception
+    condition: Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
+      unknown delivery outcome.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action
+      bindings remain pending.
+recovery: Preserve completed scenes and plan; reconcile unknown effects; resume only from an
+  admitted bounded successor plan.
 contextPreserved:
-- Keep brief, references, scene order, edits, review scope, output version, and delivery destination.
+  - Keep brief, references, scene order, edits, review scope, output version, and delivery
+    destination.
 channelEquivalents:
-- web
-- product-integration
+  - web
+  - product-integration
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: Exact output version is reviewed, approved as required, and delivered with an accurate external-effect
-    status.
-  criticalNonhappyIntent: Partial scene, denied rights, budget exhaustion, AI unavailable, stale references, or
-    unknown delivery outcome.
+  successIntent: Exact output version is reviewed, approved as required, and delivered with an
+    accurate external-effect status.
+  criticalNonhappyIntent: Partial scene, denied rights, budget exhaustion, AI unavailable, stale
+    references, or unknown delivery outcome.
 scenarioRefs: []
 unresolvedProductDecisions:
-- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
-  transition is inferred by this proposal.
-- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
-- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
-  and preserved context.
-- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
-  review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality contract; no action
+    identifier or state transition is inferred by this proposal.
+  - Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed
+    channel.
+  - Author deterministic fixtures with owner-approved expected results for success, critical
+    exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner
+    and independent review before PDP-3 acceptance.
 conditionalHandoffRefs:
-- digital-marketing-creative-brief
-- action-plane-publication
-handoffCondition: Marketing handoff applies only to an approved campaign brief; Action Plane applies only to an
-  external publication effect.
+  - digital-marketing-creative-brief
+  - action-plane-publication
+handoffCondition: Marketing handoff applies only to an approved campaign brief; Action Plane applies
+  only to an external publication effect.

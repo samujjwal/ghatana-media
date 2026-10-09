@@ -33,7 +33,9 @@ test("capability review source pin changes are reconciled to the reviewed goal s
   const impact = review.sourcePinReconciliations.find(({ path }) => path === goalPath);
   assert.ok(goalPin, "goals remain an explicit capability-review source");
   assert.ok(impact, "the changed goal pin has a semantic impact record");
-  assert.equal(hash(goalsText), goalPin.sha256);
+  const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path }) => path === goalPath);
+  assert.ok(currentOwnerSource, "the current owner-definition overlay is separate from the historical source pin");
+  assert.equal(hash(goalsText), currentOwnerSource.currentSha256);
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path }) => path === goalPath);
   assert.equal(definitionDelta.previousSha256, impact.currentSha256);
   assert.equal(goalPin.sha256, definitionDelta.currentSha256);
@@ -87,7 +89,9 @@ test("operation source changes reconcile affected leaf links without promoting c
   const impact = review.sourcePinReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.ok(sourcePin, "canonical operation families remain an explicit capability-review source");
   assert.ok(impact, "the changed canonical operation source has a semantic reconciliation");
-  assert.equal(hash(sourceText), sourcePin.sha256);
+  const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
+  assert.ok(currentOwnerSource, "current operation semantics use the additive owner-definition overlay");
+  assert.equal(hash(sourceText), currentOwnerSource.currentSha256);
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, review.uploadOwnerDefinitionSourceReconciliation.currentSha256);
   const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
@@ -243,11 +247,22 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.equal(ownerDispositions.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256, historicalLeafOperationBindingsSha256);
   assert.equal(ownerDispositions.reviewedCapabilityEvidence.coverageCounts.unresolved, 383);
   assert.match(ownerDispositions.result, /capability leaf bindings and coverage unchanged/u);
-  const unchangedObligationRecords = Object.fromEntries(operations.operations
+  const currentFamilyDeltas = review.ownerDefinitionSourceReconciliation.records
+    .find(({ path }) => path === ".product-experience/pdp-1-domain-data/operations.yaml")?.currentFamilyRecordDeltas?.records;
+  assert.ok(Array.isArray(currentFamilyDeltas), "current operation-family deltas are an additive review of changed owner fields");
+  const deltaById = new Map(currentFamilyDeltas.map((record) => [record.id, record]));
+  const historicalObligationRecords = Object.fromEntries(operations.operations
     .filter(({ id }) => id in subsequent.unchangedObligationSourceRecords)
     .map((record) => [record.id, hash(JSON.stringify(record))]));
-  assert.deepEqual(unchangedObligationRecords, subsequent.unchangedObligationSourceRecords,
-    "the nine operation records referenced by obligations did not change semantically");
+  assert.deepEqual(Object.fromEntries(Object.entries(subsequent.unchangedObligationSourceRecords)
+    .map(([id, digest]) => [id, deltaById.get(id)?.previousJsonSha256])), subsequent.unchangedObligationSourceRecords,
+    "the historical nine-record obligation snapshot remains preserved separately");
+  assert.deepEqual(historicalObligationRecords, Object.fromEntries(currentFamilyDeltas.map(({ id, currentJsonSha256 }) => [id, currentJsonSha256])),
+    "current owner operation-family hashes resolve through the additive source review");
+  for (const delta of currentFamilyDeltas) {
+    assert.deepEqual(delta.changedFields, ["operationKind"], `${delta.id} changes only its explicit command/query classification`);
+    assert.notEqual(delta.previousJsonSha256, delta.currentJsonSha256, `${delta.id} retains distinct historical and current snapshots`);
+  }
   for (const binding of impact.reviewedCapabilityEvidence.changedCapabilityLeafBindings) {
     const leaf = review.leaves.find(({ id }) => id === binding.leaf);
     assert.ok(leaf, `${binding.leaf} is still in the preserved capability denominator`);
@@ -294,7 +309,9 @@ test("domain catalog identity changes reconcile to zero capability leaf referenc
   const impact = review.sourcePinReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.ok(sourcePin, "the canonical domain-object catalog remains an explicit capability-review source");
   assert.ok(impact, "the changed domain-object source pin has a semantic impact record");
-  assert.equal(hash(sourceText), sourcePin.sha256);
+  const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
+  assert.ok(currentOwnerSource, "current domain identity semantics use the additive owner-definition overlay");
+  assert.equal(hash(sourceText), currentOwnerSource.currentSha256);
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, impact.currentSha256);
   const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
@@ -386,7 +403,9 @@ test('selected action definition source change retains historical pins without p
   assert.equal(draftDelta.previousSha256, transcriptDelta.currentSha256);
   const submissionDelta = review.transcriptionSubmissionDefinitionSourceReconciliations.find(({ path }) => path === delta.path);
   assert.equal(draftDelta.currentSha256, submissionDelta.previousSha256);
-  assert.equal(submissionDelta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
+  const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path }) => path === delta.path);
+  assert.ok(currentOwnerSource, "current action semantics are compared through the additive source overlay");
+  assert.equal(currentOwnerSource.currentSha256, hash(readFileSync(resolve(root, delta.path))));
   assert.equal(sourcePin.sha256, submissionDelta.currentSha256);
   assert.equal(delta.ownerDecisionRef, '.product-experience/decision-log.md#PXD-052');
   assert.equal(delta.coverageEffect, 'no-full-leaf-admission-or-denominator-reduction');
@@ -509,8 +528,13 @@ test('transcript-version source reconciliations chain from caption pins without 
     assert.equal(record.previousSha256, expectedPreviousHashes[path], `${path} begins at the preserved caption current pin`);
     assert.equal(record.previousSha256, captionByPath.get(path)?.currentSha256, `${path} extends the caption history chain`);
     const draftDelta = draftByPath.get(path);
-    assert.equal(record.currentSha256, draftDelta?.previousSha256 ?? hash(readFileSync(resolve(root, path))),
-      `${path} transcript digest remains intact as a historical pin`);
+    const historicalPin = review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256;
+    assert.equal(record.currentSha256, draftDelta?.previousSha256 ?? historicalPin,
+      `${path} transcript digest remains intact as a historical chain tip`);
+    const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
+    assert.ok(currentOwnerSource, `${path} current semantics have an additive source overlay`);
+    assert.equal(currentOwnerSource.currentSha256, hash(readFileSync(resolve(root, path))),
+      `${path} current source hash matches the current owner overlay`);
     assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256,
       submissionByPath.get(path)?.currentSha256 ?? draftDelta?.currentSha256 ?? record.currentSha256, `${path} inventory points to the latest chain head`);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
@@ -593,7 +617,9 @@ test('transcription-submission definition reconciliation extends the draft chain
   for (const record of records) {
     assert.equal(record.previousSha256, expectedPreviousHashes[record.path]);
     assert.equal(record.previousSha256, draftByPath.get(record.path)?.currentSha256);
-    assert.equal(record.currentSha256, hash(readFileSync(resolve(root, record.path))));
+    const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path }) => path === record.path);
+    assert.ok(currentOwnerSource, `${record.path} current semantics have an additive source overlay`);
+    assert.equal(currentOwnerSource.currentSha256, hash(readFileSync(resolve(root, record.path))));
     assert.equal(review.sourceInventory.find(({ path }) => path === record.path)?.sha256, record.currentSha256);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[record.path]);
     assert.equal(record.ownerDecisionRef, record.path.endsWith('action-registry.yaml')

@@ -77,7 +77,9 @@ test('attachment definition maps only its supported immutable project-reference 
   assert.equal(semantics.reviewDecisionRef, reviewRef);
   assert.equal(semantics.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(semantics.reversibility.kind, 'NOT_REVERSIBLE');
-  assert.equal(semantics.operationBinding, 'canonical-operation-unbound');
+  assert.equal(semantics.operationBinding, 'OWNER_DEFINED_EXACT_OPERATION_REFERENCE');
+  assert.equal(semantics.operationRef, 'media.operation-slice.attach-source-asset');
+  assert.equal(semantics.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(semantics.publicEffect.reversible, false);
   assert.equal(semantics.publicFinality.confirmationRequired, true);
   assert.equal(semantics.publicFinality.undoable, false);

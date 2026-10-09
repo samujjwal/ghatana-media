@@ -17,6 +17,7 @@ componentIds:
 componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
 patternIds:
   - media.gui.pattern.version-comparison
+patternOverlayIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared

@@ -4,305 +4,2726 @@ journeyId: J-05
 pdp0JourneyRef: J-05
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Image/video analysis, geometry, and tracks
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
-  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
-- media.goal.understand-media
-- media.goal.review-trustworthy-output
+  - media.goal.understand-media
+  - media.goal.review-trustworthy-output
 actors:
-- media.creator
-- media.editor
-- media.reviewer
+  - media.creator
+  - media.editor
+  - media.reviewer
 channels:
-- media.channel.web
-- media.channel.grpc-api
-- media.channel.sdk
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
-  equivalence remain unbound.
+  - media.channel.web
+  - media.channel.grpc-api
+  - media.channel.sdk
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
-- Source and analysis purpose are authorized; technical input limits are explicit.
+  - Source and analysis purpose are authorized; technical input limits are
+    explicit.
 steps:
-- view: media.view.create-image
-  legacyViewRef: M-IMAGE
-  screenContractRef: screen-contracts/create-image.yaml
-  viewIntent: Generation/conditioning/candidate selection
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.service-grpc
-  - media.surface.sdk
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep frame/time mapping, selected track/region, and observation provenance.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.create-video
-  legacyViewRef: M-VIDEO
-  screenContractRef: screen-contracts/create-video.yaml
-  viewIntent: Generation strategy, controls, progress and alternatives
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.view-job-status
-  - media.action.check-job-outcome
-  - media.action.request-cancellation
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.service-grpc
-  - media.surface.sdk
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep frame/time mapping, selected track/region, and observation provenance.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.review-quality
-  legacyViewRef: M-QUALITY
-  screenContractRef: screen-contracts/review-quality.yaml
-  viewIntent: Applicable dimensions, abstentions, defects and repair plan
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.service-grpc
-  - media.surface.sdk
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep frame/time mapping, selected track/region, and observation provenance.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.compare-results
-  legacyViewRef: M-COMPARE
-  screenContractRef: screen-contracts/compare-results.yaml
-  viewIntent: Before/after, candidate ranking and applicable measurements
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.compare-caption-versions
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  - media.surface.service-grpc
-  - media.surface.sdk
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Keep frame/time mapping, selected track/region, and observation provenance.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
-  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
-terminalSuccess: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
+  - view: media.view.create-image
+    legacyViewRef: M-IMAGE
+    screenContractRef: screen-contracts/create-image.yaml
+    viewIntent: Generation/conditioning/candidate selection
+    actionRef: media.action.submit-validated-request
+    actionBindingState: Media owner-defined exact validated request; explicit
+      capability selection required; no default, implementation, or runtime
+      admission
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#media-job
+      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.service-grpc
+      - media.surface.sdk
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.processing-job
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.submit-validated-request
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Observations retain source artifact, timestamp/frame/region, model
+        provenance, and confidence/uncertainty.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Uncertain detections, unsupported dimensions, VFR sampling loss, model
+          unavailable, or no valid geometry.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Mark observations unavailable or partial; preserve source; allow
+        bounded manual inspection where admitted.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep frame/time mapping, selected track/region, and observation
+          provenance.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
+      journeyRef: J-05
+      ordinal: 1
+      viewRef: media.view.create-image
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.submit-validated-request
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+        selectionBasis: No source step action or exact singleton candidate exists; no
+          screen-level candidate is promoted.
+        candidateActionRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Request the explicitly named operation for the exact target only after
+          fresh actor, capability, policy, and target checks.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: external-effect-or-request; owner-acknowledgment-required;
+          unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.submit-validated-request
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: Generation/conditioning/candidate selection
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep frame/time mapping, selected track/region, and observation
+              provenance.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.service-grpc
+          - media.surface.sdk
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        canonicalOperationRef: media.operation.action.submit-validated-request
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-05
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+        actionRef: media.action.submit-validated-request
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Observations retain source artifact, timestamp/frame/region, model
+              provenance, and confidence/uncertainty.
+          effect: Request the explicitly named operation for the exact target only after
+            fresh actor, capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required;
+            unknown-is-not-failure
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        transitionRef: null
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        operationRef: media.operation.action.submit-validated-request
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: OWNER_OPERATION_STATE_SCOPE_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Generation/conditioning/candidate selection
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml#purpose
+        actionRef: media.action.submit-validated-request
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.submit-validated-request
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      capabilityBinding:
+        status: OWNER_DEFINED_CAPABILITY_OPTIONS; EXPLICIT_SELECTION_REQUIRED
+        sourceRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication.records
+        selectedCapabilityRef: null
+        selectedOperationRef: null
+        selectionRule: Select one exact capability leaf and operation from the declared
+          options using explicit user input and current
+          capability/profile/policy/license/resource/deployment admission; no
+          default and no substitution.
+        options:
+          - capabilityRef: media.generate.image.text-to-image
+            operationRefs:
+              - media.operation.capability.media-generate-image-text-to-image
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-text-to-image
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-text-to-image
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.image-to-image
+            operationRefs:
+              - media.operation.capability.media-generate-image-image-to-image
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-image-to-image
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-image-to-image
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.reference
+            operationRefs:
+              - media.operation.capability.media-generate-image-reference
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-reference
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-reference
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.multi-reference
+            operationRefs:
+              - media.operation.capability.media-generate-image-multi-reference
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-multi-reference
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-multi-reference
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.sketch-to-image
+            operationRefs:
+              - media.operation.capability.media-generate-image-sketch-to-image
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-sketch-to-image
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-sketch-to-image
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.layout-to-image
+            operationRefs:
+              - media.operation.capability.media-generate-image-layout-to-image
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-layout-to-image
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-layout-to-image
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.condition.pose
+            operationRefs:
+              - media.operation.capability.media-generate-image-condition-pose
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-condition-pose
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-condition-pose
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.condition.depth
+            operationRefs:
+              - media.operation.capability.media-generate-image-condition-depth
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-condition-depth
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-condition-depth
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.condition.edge
+            operationRefs:
+              - media.operation.capability.media-generate-image-condition-edge
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-condition-edge
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-condition-edge
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.condition.segmentation
+            operationRefs:
+              - media.operation.capability.media-generate-image-condition-segmentation
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-condition-segmentation
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-condition-segmentation
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.control.palette
+            operationRefs:
+              - media.operation.capability.media-generate-image-control-palette
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-control-palette
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-control-palette
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.control.style
+            operationRefs:
+              - media.operation.capability.media-generate-image-control-style
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-control-style
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-control-style
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.image.control.reference
+            operationRefs:
+              - media.operation.capability.media-generate-image-control-reference
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-visual-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-image-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-IMAGE]
+            profileRef: media.capability-profile.media-generate-image
+            leafBoundsRef: media.capability-bounds.media-generate-image-control-reference
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-image-control-reference
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+        independentAcceptance: P0-010-and-PDP1-independent-review-open
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        operationRef: media.operation.action.submit-validated-request
+        operationKind: COMMAND
+        domainObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.async-job-command.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    requirementBindingState: Exact PDP0 owner capability refs; exact selected option
+      required; operation/runtime admission open
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    capabilityRefs: []
+  - view: media.view.create-video
+    legacyViewRef: M-VIDEO
+    screenContractRef: screen-contracts/create-video.yaml
+    viewIntent: Generation strategy, controls, progress and alternatives
+    actionRef: media.action.submit-validated-request
+    actionBindingState: Media owner-defined exact validated request; explicit
+      capability selection required; no default, implementation, or runtime
+      admission
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#media-job
+      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.service-grpc
+      - media.surface.sdk
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.processing-job
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.submit-validated-request
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Observations retain source artifact, timestamp/frame/region, model
+        provenance, and confidence/uncertainty.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Uncertain detections, unsupported dimensions, VFR sampling loss, model
+          unavailable, or no valid geometry.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Mark observations unavailable or partial; preserve source; allow
+        bounded manual inspection where admitted.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep frame/time mapping, selected track/region, and observation
+          provenance.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/1
+      journeyRef: J-05
+      ordinal: 2
+      viewRef: media.view.create-video
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.submit-validated-request
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+        selectionBasis: No source step action or exact singleton candidate exists; no
+          screen-level candidate is promoted.
+        candidateActionRefs:
+          - media.action.view-job-status
+          - media.action.check-job-outcome
+          - media.action.request-cancellation
+        runtimeAdmission: NOT_ADMITTED
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Request the explicitly named operation for the exact target only after
+          fresh actor, capability, policy, and target checks.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: external-effect-or-request; owner-acknowledgment-required;
+          unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.submit-validated-request
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: Generation strategy, controls, progress and alternatives
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep frame/time mapping, selected track/region, and observation
+              provenance.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.service-grpc
+          - media.surface.sdk
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        canonicalOperationRef: media.operation.action.submit-validated-request
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-05
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+        actionRef: media.action.submit-validated-request
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Observations retain source artifact, timestamp/frame/region, model
+              provenance, and confidence/uncertainty.
+          effect: Request the explicitly named operation for the exact target only after
+            fresh actor, capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required;
+            unknown-is-not-failure
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        transitionRef: null
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        operationRef: media.operation.action.submit-validated-request
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: OWNER_OPERATION_STATE_SCOPE_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Generation strategy, controls, progress and alternatives
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml#purpose
+        actionRef: media.action.submit-validated-request
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.submit-validated-request
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        operationRef: media.operation.action.submit-validated-request
+        operationKind: COMMAND
+        domainObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.async-job-command.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      capabilityBinding:
+        status: OWNER_DEFINED_CAPABILITY_OPTIONS; EXPLICIT_SELECTION_REQUIRED
+        sourceRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication.records
+        selectedCapabilityRef: null
+        selectedOperationRef: null
+        selectionRule: Select one exact capability leaf and operation from the declared
+          options using explicit user input and current
+          capability/profile/policy/license/resource/deployment admission; no
+          default and no substitution.
+        options:
+          - capabilityRef: media.generate.video.text-to-video
+            operationRefs:
+              - media.operation.capability.media-generate-video-text-to-video
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-text-to-video
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-text-to-video
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.image-to-video
+            operationRefs:
+              - media.operation.capability.media-generate-video-image-to-video
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-image-to-video
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-image-to-video
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.video-to-video
+            operationRefs:
+              - media.operation.capability.media-generate-video-video-to-video
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-video-to-video
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-video-to-video
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.text-image-to-video
+            operationRefs:
+              - media.operation.capability.media-generate-video-text-image-to-video
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-text-image-to-video
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-text-image-to-video
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.keyframe.start
+            operationRefs:
+              - media.operation.capability.media-generate-video-keyframe-start
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-keyframe-start
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-keyframe-start
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.keyframe.end
+            operationRefs:
+              - media.operation.capability.media-generate-video-keyframe-end
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-keyframe-end
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-keyframe-end
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.keyframe.intermediate
+            operationRefs:
+              - media.operation.capability.media-generate-video-keyframe-intermediate
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-keyframe-intermediate
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-keyframe-intermediate
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.reference-video
+            operationRefs:
+              - media.operation.capability.media-generate-video-reference-video
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-reference-video
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-reference-video
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.drive.audio
+            operationRefs:
+              - media.operation.capability.media-generate-video-drive-audio
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-drive-audio
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-drive-audio
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+          - capabilityRef: media.generate.video.drive.speech
+            operationRefs:
+              - media.operation.capability.media-generate-video-drive-speech
+            operationKind: COMMAND
+            typedInputs:
+              - text-or-video-intent
+              - optional-authorized-reference-artifacts
+            typedOutputs:
+              - candidate-video-artifact-with-execution-provenance
+            domainObjectRefs:
+              - media.domain.artifact
+              - media.domain.artifact-version
+              - media.domain.processing-job
+              - media.domain.provenance-manifest
+            requirementRefs: [MEDIA-REQ-CAP-GENERATE-VIDEO]
+            profileRef: media.capability-profile.media-generate-video
+            leafBoundsRef: media.capability-bounds.media-generate-video-drive-speech
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationScope:
+              - operationRef: media.operation.capability.media-generate-video-drive-speech
+                guards:
+                  - Verified actor/workspace and required delegated authority.
+                  - Inputs and references are available, validated,
+                    rights/consent eligible, and within declared bounds.
+                  - Capability, profile, license, policy, resource, and
+                    deployment admission are checked at the effect boundary.
+                effect: Apply only the exact authorized operation effect; preserve original
+                  input/source and append immutable result/version records where
+                  output is produced. No external effect occurs before all
+                  guards and policy admission pass.
+                finality: A command is final only with the authoritative owner receipt and
+                  committed resulting state; dispatch, transport acknowledgement
+                  or local projection is not finality. If receipt is missing,
+                  return UNKNOWN_OUTCOME and reconcile the same request
+                  identity.
+                recovery: On timeout/crash, reconcile authoritative receipt by the same
+                  tenant/principal/requestId and request fingerprint; never
+                  blindly replay after unknown finality. Retry only a proven
+                  non-acceptance with the same key.
+                admission:
+                  definitionState: OWNER_DEFINED
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+        independentAcceptance: P0-010-and-PDP1-independent-review-open
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    requirementBindingState: Exact PDP0 owner capability refs; exact selected option
+      required; operation/runtime admission open
+    capabilityRefs: []
+  - view: media.view.review-quality
+    legacyViewRef: M-QUALITY
+    screenContractRef: screen-contracts/review-quality.yaml
+    viewIntent: Applicable dimensions, abstentions, defects and repair plan
+    actionRef: media.action.inspect-quality-evidence
+    actionBindingState: "Media owner-selected from exact screen action intent:
+      screen review-quality intent: inspect applicable dimensions/evidence;
+      source-lineage query excluded; independent review and runtime admission
+      open"
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.service-grpc
+      - media.surface.sdk
+    objectRefs:
+      - media.domain.render-outcome
+      - media.domain.artifact-version
+      - media.domain.quality-assessment
+    canonicalOperationRef: media.operation.action.inspect-quality-evidence
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Observations retain source artifact, timestamp/frame/region, model
+        provenance, and confidence/uncertainty.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Uncertain detections, unsupported dimensions, VFR sampling loss, model
+          unavailable, or no valid geometry.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Mark observations unavailable or partial; preserve source; allow
+        bounded manual inspection where admitted.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep frame/time mapping, selected track/region, and observation
+          provenance.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/2
+      journeyRef: J-05
+      ordinal: 3
+      viewRef: media.view.review-quality
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-quality-evidence
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-quality-evidence
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: SINGLE_EXPLICIT_JOURNEY_STEP_CANDIDATE
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: read-version-bound-source-and-processing-lineage
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      stepSourceFacts:
+        intent: Applicable dimensions, abstentions, defects and repair plan
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep frame/time mapping, selected track/region, and observation
+              provenance.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.service-grpc
+          - media.surface.sdk
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+          - media.domain.quality-assessment
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-quality-evidence
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+        capabilityOperationRefs:
+          - media.operation.capability.media-quality-inspect
+        capabilityRequirementRefs:
+          - MEDIA-REQ-CAP-QUALITY
+        capabilityObjectRefs:
+          - media.domain.processing-job
+          - media.domain.quality-assessment
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-05
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+        actionRef: media.action.inspect-quality-evidence
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Observations retain source artifact, timestamp/frame/region, model
+              provenance, and confidence/uncertainty.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-quality-evidence
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+          capabilityOperationRefs: EXACT_QUERY_OPERATION_COMPATIBLE_WITH_INSPECT_QUALITY_ACTION
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+          - media.domain.quality-assessment
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        operationRef: media.operation.action.inspect-quality-evidence
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+          - media.domain.quality-assessment
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Applicable dimensions, abstentions, defects and repair plan
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml#purpose
+        actionRef: media.action.inspect-quality-evidence
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.inspect-quality-evidence
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      capabilityBinding:
+        status: OWNER_DEFINED_CAPABILITY_OPTIONS; EXPLICIT_SELECTION_REQUIRED;
+          REVIEW_AND_RUNTIME_OPEN
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication.records
+          - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records
+        selectedCapabilityRef: null
+        selectedOperationRef: null
+        selectionRule: Explicitly choose the exact capability and operation matching the
+          requested analysis/comparison; no default, substitution,
+          qualification, or runtime admission is implied.
+        options:
+          - capabilityRef: media.quality.inspect
+            operationRefs:
+              - media.operation.capability.media-quality-inspect
+            operationKind: QUERY
+            typedInputs:
+              - candidate-artifacts-or-execution-observation
+              - quality-question-and-bounds
+            typedOutputs:
+              - quality-observation-or-bounded-repair-plan
+            domainObjectRefs:
+              - media.domain.processing-job
+              - media.domain.quality-assessment
+            requirementRefs: [MEDIA-REQ-CAP-QUALITY]
+            profileRef: media.capability-profile.media-quality
+            leafBoundsRef: media.capability-bounds.media-quality-inspect
+            authoritySourceRefs:
+              - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+              - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+            ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+            implementationState: UNKNOWN
+            licenseAdmissionState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            independentAcceptance: P0-010-and-independent-PDP1-review-open
+            operationContracts:
+              - operationRef: media.operation.capability.media-quality-inspect
+                operationKind: QUERY
+                requestEnvelopeRef: media.capability-contract-envelope.request.v1
+                resultEnvelopeRef: media.capability-contract-envelope.result.v1
+                requestSchema:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - parameters
+                    - input1
+                    - input2
+                  properties:
+                    input1:
+                      schemaRef: media.typed-input.candidate-artifacts-or-execution-observation
+                      cardinality: EXACTLY_ONE_OF_DECLARED_ALTERNATIVES
+                      sourceType: candidate-artifacts-or-execution-observation
+                    input2:
+                      schemaRef: media.typed-input.quality-question-and-bounds
+                      cardinality: EXACTLY_ONE
+                      sourceType: quality-question-and-bounds
+                    parameters:
+                      type: object
+                      additionalProperties: false
+                      required:
+                        - requestedDimensions
+                      properties:
+                        requestedDimensions:
+                          type: array
+                          minItems: 1
+                          maxItems: 32
+                          items:
+                            type: dimension-ref
+                        measurementProfileRef:
+                          type: optional-versioned-profile-reference
+                      emptyDisposition: NOT_EMPTY
+                  trustedContextRef: media.capability-contract-envelope.request.v1#trustedContext
+                resultSchema:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - outcome
+                    - observedAt
+                    - outputs
+                    - provenance
+                    - implementationState
+                    - qualificationState
+                    - runtimeAvailability
+                  properties:
+                    outcome:
+                      enum:
+                        - SUCCEEDED
+                        - REJECTED
+                        - UNKNOWN_OUTCOME
+                    observedAt:
+                      type: RFC3339-UTC
+                    outputs:
+                      type: array
+                      minItems: 0
+                      maxItems: 1
+                      items:
+                        oneOf:
+                          - artifactType:
+                              const: quality-observation-or-bounded-repair-plan
+                            payloadSchemaRef: media.typed-output.quality-observation-or-bounded-repair-plan
+                    provenance:
+                      type: provenance-record
+                    implementationState:
+                      const: UNKNOWN
+                    qualificationState:
+                      const: NOT_EVALUATED
+                    runtimeAvailability:
+                      const: UNKNOWN
+                  outcomeRules:
+                    SUCCEEDED: exactly 1 declared typed output(s)
+                    REJECTED: zero output claims
+                    UNKNOWN_OUTCOME: zero output claims; reconcile before retry
+                guards:
+                  preconditions:
+                    - Verified actor/workspace and required delegated authority.
+                    - Inputs and references are available, validated,
+                      rights/consent eligible, and within declared bounds.
+                    - Capability, profile, license, policy, resource, and
+                      deployment admission are checked at the effect boundary.
+                  authorityRefs:
+                    - identity-and-tenant-context
+                    - operation-specific-policy-and-rights
+                    - artifact-read-or-write-permission-as-applicable
+                    - governed-egress-or-publishing-authority-when-applicable
+                  stateModelRefs:
+                    - media-attempt
+                    - media-job
+                    - media-quality-disposition
+                  unsupportedCases:
+                    - Any unqualified language, format, size, output dimension,
+                      physical/scientific regime, identity/likeness use,
+                      provider, license, locality, or profile.
+                    - Any unsupported parameter value or combination; do not
+                      substitute silently.
+                effect:
+                  semanticOutcome: A caller can inspect quality with explicit preconditions,
+                    effect, provenance, and recovery semantics.
+                  sourceConstraints:
+                    - No product default/model/provider is inferred from names,
+                      package presence, tests, or source documentation.
+                    - Unsupported combinations remain explicit; no silent
+                      substitution.
+                    - Preserve source and report reconstruction or estimation
+                      distinctly from measured/ground-truth output.
+                  preserveSource: true
+                  noSilentFallback: true
+                  mutationBoundary: read-only observation only
+                finality: time-scoped observation; no global absence/currentness/authority
+                  implication
+                recovery: Repeat observation in same authorized scope; pagination tokens are
+                  scope-bound.
+                errors:
+                  - INVALID_REQUEST
+                  - ACCESS_DENIED
+                  - RIGHTS_OR_CONSENT_DENIED
+                  - UNSUPPORTED_PROFILE
+                  - BOUNDS_EXCEEDED
+                  - CONFLICT
+                  - UNAVAILABLE
+                  - UNKNOWN_OUTCOME
+                admission:
+                  implementationState: UNKNOWN
+                  licenseAdmissionState: UNKNOWN
+                  qualificationState: NOT_EVALUATED
+                  runtimeAvailability: UNKNOWN
+                  executionAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+        independentAcceptance: OPEN
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    capabilityRefs: []
+  - view: media.view.compare-results
+    legacyViewRef: M-COMPARE
+    screenContractRef: screen-contracts/compare-results.yaml
+    viewIntent: Before/after, candidate ranking and applicable measurements
+    actionRef: media.action.compare-candidate-on-metric
+    actionBindingState: Media owner-selected exact screen-intent/action binding;
+      definition review and runtime admission separate
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+      - media.surface.service-grpc
+      - media.surface.sdk
+    objectRefs:
+      - media.domain.quality-assessment
+      - media.domain.artifact-version
+    canonicalOperationRef: media.operation.action.compare-candidate-on-metric
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Observations retain source artifact, timestamp/frame/region, model
+        provenance, and confidence/uncertainty.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Uncertain detections, unsupported dimensions, VFR sampling loss, model
+          unavailable, or no valid geometry.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Mark observations unavailable or partial; preserve source; allow
+        bounded manual inspection where admitted.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Keep frame/time mapping, selected track/region, and observation
+          provenance.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/3
+      journeyRef: J-05
+      ordinal: 4
+      viewRef: media.view.compare-results
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.compare-candidate-on-metric
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.compare-candidate-on-metric
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      stepSourceFacts:
+        intent: Before/after, candidate ranking and applicable measurements
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Keep frame/time mapping, selected track/region, and observation
+              provenance.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/3
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.service-grpc
+          - media.surface.sdk
+        objectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.compare-candidate-on-metric
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-05
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Observations retain source artifact, timestamp/frame/region, model
+            provenance, and confidence/uncertainty.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Uncertain detections, unsupported dimensions, VFR sampling loss,
+              model unavailable, or no valid geometry.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Mark observations unavailable or partial; preserve source; allow
+            bounded manual inspection where admitted.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        operationRef: media.operation.action.compare-candidate-on-metric
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+        actionRef: media.action.compare-candidate-on-metric
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Observations retain source artifact, timestamp/frame/region, model
+              provenance, and confidence/uncertainty.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.compare-candidate-on-metric
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+          capabilityRefs: UNRESOLVED_NO_EXACT_READ_ONLY_CAPABILITY_CROSSWALK_FOR_COMPARE_ACTION
+          capabilityOperationRefs: UNRESOLVED_NO_EXACT_READ_ONLY_OPERATION;
+            COMMAND_OR_COMPUTATION_NOT_BOUND_TO_QUERY_ACTION
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        objectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Before/after, candidate ranking and applicable measurements
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/3
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml#purpose
+        actionRef: media.action.compare-candidate-on-metric
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.compare-candidate-on-metric
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
+terminalSuccess: Observations retain source artifact, timestamp/frame/region,
+  model provenance, and confidence/uncertainty.
 criticalNonhappyPaths:
-- id: phase0-critical-exception
-  condition: Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry.
-  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-    pending.
-recovery: Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted.
+  - id: phase0-critical-exception
+    condition: Uncertain detections, unsupported dimensions, VFR sampling loss,
+      model unavailable, or no valid geometry.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Mark observations unavailable or partial; preserve source; allow
+  bounded manual inspection where admitted.
 contextPreserved:
-- Keep frame/time mapping, selected track/region, and observation provenance.
+  - Keep frame/time mapping, selected track/region, and observation provenance.
 channelEquivalents:
-- web
-- grpc-api
-- sdk
+  - web
+  - grpc-api
+  - sdk
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: Observations retain source artifact, timestamp/frame/region, model provenance, and confidence/uncertainty.
-  criticalNonhappyIntent: Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or
-    no valid geometry.
+  successIntent: Observations retain source artifact, timestamp/frame/region,
+    model provenance, and confidence/uncertainty.
+  criticalNonhappyIntent: Uncertain detections, unsupported dimensions, VFR
+    sampling loss, model unavailable, or no valid geometry.
 scenarioRefs: []
 unresolvedProductDecisions:
-- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
-  transition is inferred by this proposal.
-- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
-- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
-  and preserved context.
-- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
-  review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.
 conditionalHandoffRefs:
-- ai-inference-execution
+  - ai-inference-execution
 handoffCondition: Only for a capability whose admitted provider contract uses AI Inference.

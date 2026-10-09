@@ -4,278 +4,1050 @@ journeyId: J-06
 pdp0JourneyRef: J-06
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Multimodal or document consumer request to grounded typed result
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
-  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
-- media.goal.understand-media
-- media.goal.integrate-repeatably
+  - media.goal.understand-media
+  - media.goal.integrate-repeatably
 actors:
-- media.developer-integrator
-- media.automation-client
+  - media.developer-integrator
+  - media.automation-client
 channels:
-- media.channel.http-api
-- media.channel.grpc-api
-- media.channel.product-integration
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
-  equivalence remain unbound.
+  - media.channel.http-api
+  - media.channel.grpc-api
+  - media.channel.product-integration
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
-- Consumer purpose and artifact access are authorized; Media-specific scene-text intent is distinguished from document
-  extraction.
+  - Consumer purpose and artifact access are authorized; Media-specific
+    scene-text intent is distinguished from document extraction.
 steps:
-- view: media.view.find-task-guidance
-  legacyViewRef: M-HELP
-  screenContractRef: screen-contracts/find-task-guidance.yaml
-  viewIntent: Product-specific assistance and safe diagnostic sharing
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: A typed result returns source/time/region/provenance and explicit uncertainty; generic document parsing
-      remains with Document Intelligence.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document
-        request routed as video OCR by MIME alone.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Fail closed at the correct owner boundary; preserve request identity and reconcile asynchronous work
-      before retry.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Return owner, operation/version, opaque request/job reference, status, and accepted artifact refs.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.inspect-output
-  legacyViewRef: M-OUTPUT
-  screenContractRef: screen-contracts/inspect-output.yaml
-  viewIntent: Playback/download/review/provenance and delivery action
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.inspect-artifact
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: A typed result returns source/time/region/provenance and explicit uncertainty; generic document parsing
-      remains with Document Intelligence.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document
-        request routed as video OCR by MIME alone.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Fail closed at the correct owner boundary; preserve request identity and reconcile asynchronous work
-      before retry.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Return owner, operation/version, opaque request/job reference, status, and accepted artifact refs.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.inspect-provenance
-  legacyViewRef: M-PROVENANCE
-  screenContractRef: screen-contracts/inspect-provenance.yaml
-  viewIntent: Source/edit/model/simulation lineage and disclosure limits
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: A typed result returns source/time/region/provenance and explicit uncertainty; generic document parsing
-      remains with Document Intelligence.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document
-        request routed as video OCR by MIME alone.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Fail closed at the correct owner boundary; preserve request identity and reconcile asynchronous work
-      before retry.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Return owner, operation/version, opaque request/job reference, status, and accepted artifact refs.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
-  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
-terminalSuccess: A typed result returns source/time/region/provenance and explicit uncertainty; generic document
-  parsing remains with Document Intelligence.
+  - view: media.view.find-task-guidance
+    legacyViewRef: M-HELP
+    screenContractRef: screen-contracts/find-task-guidance.yaml
+    viewIntent: Product-specific assistance and safe diagnostic sharing
+    actionRef: media.action.search-product-guidance
+    actionBindingState: Exact screen action selected for this ordered step;
+      source-defined semantics only; independent review and runtime admission
+      separate
+    stateRefs: []
+    stateBindingState: state applicability remains separately bounded
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.project
+      - media.domain.artifact-version
+      - media.domain.processing-job
+    canonicalOperationRef: media.operation.action.search-product-guidance
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A typed result returns source/time/region/provenance and explicit
+        uncertainty; generic document parsing remains with Document
+        Intelligence.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+            public API, or generic document request routed as video OCR by MIME
+            alone.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Fail closed at the correct owner boundary; preserve request identity
+        and reconcile asynchronous work before retry.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Return owner, operation/version, opaque request/job reference, status,
+          and accepted artifact refs.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+      journeyRef: J-06
+      ordinal: 1
+      viewRef: media.view.find-task-guidance
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.search-product-guidance
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+        selectionBasis: EXACT_STEP_INTENT_AND_SCREEN_ACTION
+        candidateActionRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.developer-integrator
+          - media.editor
+          - media.operator
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.search-product-guidance
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: Product-specific assistance and safe diagnostic sharing
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: A typed result returns source/time/region/provenance and explicit
+            uncertainty; generic document parsing remains with Document
+            Intelligence.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+                public API, or generic document request routed as video OCR by
+                MIME alone.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Fail closed at the correct owner boundary; preserve request identity
+            and reconcile asynchronous work before retry.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Return owner, operation/version, opaque request/job reference,
+              status, and accepted artifact refs.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.search-product-guidance
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-06
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: A typed result returns source/time/region/provenance and explicit
+            uncertainty; generic document parsing remains with Document
+            Intelligence.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+                public API, or generic document request routed as video OCR by
+                MIME alone.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Fail closed at the correct owner boundary; preserve request identity
+            and reconcile asynchronous work before retry.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+        actionRef: media.action.search-product-guidance
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: A typed result returns source/time/region/provenance and explicit
+              uncertainty; generic document parsing remains with Document
+              Intelligence.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.search-product-guidance
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        objectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Product-specific assistance and safe diagnostic sharing
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.operator
+          - media.developer-integrator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.developer-integrator
+          - media.editor
+          - media.operator
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml#purpose
+        actionRef: media.action.search-product-guidance
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.search-product-guidance
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        operationRef: media.operation.action.search-product-guidance
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.project
+          - media.domain.artifact-version
+          - media.domain.processing-job
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    capabilityRefs: []
+  - view: media.view.inspect-output
+    legacyViewRef: M-OUTPUT
+    screenContractRef: screen-contracts/inspect-output.yaml
+    viewIntent: Playback/download/review/provenance and delivery action
+    actionRef: media.action.inspect-output-preview-and-version
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.inspect-artifact
+      - media.action.inspect-provenance
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.render-outcome
+      - media.domain.artifact-version
+    canonicalOperationRef: media.operation.action.inspect-output-preview-and-version
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A typed result returns source/time/region/provenance and explicit
+        uncertainty; generic document parsing remains with Document
+        Intelligence.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+            public API, or generic document request routed as video OCR by MIME
+            alone.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Fail closed at the correct owner boundary; preserve request identity
+        and reconcile asynchronous work before retry.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Return owner, operation/version, opaque request/job reference, status,
+          and accepted artifact refs.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1
+      journeyRef: J-06
+      ordinal: 2
+      viewRef: media.view.inspect-output
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-output-preview-and-version
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-output-preview-and-version
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: Playback/download/review/provenance and delivery action
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: A typed result returns source/time/region/provenance and explicit
+            uncertainty; generic document parsing remains with Document
+            Intelligence.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+                public API, or generic document request routed as video OCR by
+                MIME alone.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Fail closed at the correct owner boundary; preserve request identity
+            and reconcile asynchronous work before retry.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Return owner, operation/version, opaque request/job reference,
+              status, and accepted artifact refs.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-output-preview-and-version
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-06
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: A typed result returns source/time/region/provenance and explicit
+            uncertainty; generic document parsing remains with Document
+            Intelligence.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+                public API, or generic document request routed as video OCR by
+                MIME alone.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Fail closed at the correct owner boundary; preserve request identity
+            and reconcile asynchronous work before retry.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        operationRef: media.operation.action.inspect-output-preview-and-version
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+        actionRef: media.action.inspect-output-preview-and-version
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: A typed result returns source/time/region/provenance and explicit
+              uncertainty; generic document parsing remains with Document
+              Intelligence.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-output-preview-and-version
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Playback/download/review/provenance and delivery action
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml#purpose
+        actionRef: media.action.inspect-output-preview-and-version
+        candidateActionRefs:
+          - media.action.inspect-artifact
+          - media.action.inspect-provenance
+        operationRefs:
+          - media.operation.action.inspect-output-preview-and-version
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.inspect-provenance
+    legacyViewRef: M-PROVENANCE
+    screenContractRef: screen-contracts/inspect-provenance.yaml
+    viewIntent: Source/edit/model/simulation lineage and disclosure limits
+    actionRef: media.action.inspect-provenance
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.inspect-provenance
+    surfaceRefs:
+      - media.surface.web
+    objectRefs: []
+    canonicalOperationRef: media.operation-slice.inspect-provenance
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: A typed result returns source/time/region/provenance and explicit
+        uncertainty; generic document parsing remains with Document
+        Intelligence.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+            public API, or generic document request routed as video OCR by MIME
+            alone.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Fail closed at the correct owner boundary; preserve request identity
+        and reconcile asynchronous work before retry.
+    postconditions: []
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Return owner, operation/version, opaque request/job reference, status,
+          and accepted artifact refs.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
+      journeyRef: J-06
+      ordinal: 3
+      viewRef: media.view.inspect-provenance
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-provenance
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+        guards:
+          - current-read-authority
+        effect: read-version-bound-source-and-processing-lineage
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only
+        failureRecovery: disclose-missing-provenance-fields
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation-slice.inspect-provenance
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: SINGLE_EXPLICIT_JOURNEY_STEP_CANDIDATE
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: read-version-bound-source-and-processing-lineage
+      stepSourceFacts:
+        intent: Source/edit/model/simulation lineage and disclosure limits
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: A typed result returns source/time/region/provenance and explicit
+            uncertainty; generic document parsing remains with Document
+            Intelligence.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+                public API, or generic document request routed as video OCR by
+                MIME alone.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Fail closed at the correct owner boundary; preserve request identity
+            and reconcile asynchronous work before retry.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Return owner, operation/version, opaque request/job reference,
+              status, and accepted artifact refs.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: media.operation-slice.inspect-provenance
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        scenarioRefs: []
+        capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-06
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: A typed result returns source/time/region/provenance and explicit
+            uncertainty; generic document parsing remains with Document
+            Intelligence.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+                public API, or generic document request routed as video OCR by
+                MIME alone.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Fail closed at the correct owner boundary; preserve request identity
+            and reconcile asynchronous work before retry.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-provenance
+        actionRef: media.action.inspect-provenance
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-provenance
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: A typed result returns source/time/region/provenance and explicit
+              uncertainty; generic document parsing remains with Document
+              Intelligence.
+          effect: read-version-bound-source-and-processing-lineage
+          finality: read-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-provenance
+          guards:
+            - current-read-authority
+          failure: disclose-missing-provenance-fields
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-provenance
+          recovery: disclose-missing-provenance-fields
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation-slice.inspect-provenance
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.inspect-provenance
+            operationKind: QUERY
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs: []
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: null
+            stateApplicability: null
+            scopeStatus: null
+            runtimeAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Source/edit/model/simulation lineage and disclosure limits
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml#purpose
+        actionRef: media.action.inspect-provenance
+        candidateActionRefs:
+          - media.action.inspect-provenance
+        operationRefs:
+          - media.operation-slice.inspect-provenance
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
+terminalSuccess: A typed result returns source/time/region/provenance and
+  explicit uncertainty; generic document parsing remains with Document
+  Intelligence.
 criticalNonhappyPaths:
-- id: phase0-critical-exception
-  condition: Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic document
-    request routed as video OCR by MIME alone.
-  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-    pending.
-recovery: Fail closed at the correct owner boundary; preserve request identity and reconcile asynchronous work before
-  retry.
+  - id: phase0-critical-exception
+    condition: Privacy denial, unqualified fallback, cancellation boundary, missing
+      public API, or generic document request routed as video OCR by MIME alone.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Fail closed at the correct owner boundary; preserve request identity
+  and reconcile asynchronous work before retry.
 contextPreserved:
-- Return owner, operation/version, opaque request/job reference, status, and accepted artifact refs.
+  - Return owner, operation/version, opaque request/job reference, status, and
+    accepted artifact refs.
 channelEquivalents:
-- http-api
-- grpc-api
-- product-integration
+  - http-api
+  - grpc-api
+  - product-integration
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: A typed result returns source/time/region/provenance and explicit uncertainty; generic document
-    parsing remains with Document Intelligence.
-  criticalNonhappyIntent: Privacy denial, unqualified fallback, cancellation boundary, missing public API, or generic
-    document request routed as video OCR by MIME alone.
+  successIntent: A typed result returns source/time/region/provenance and explicit
+    uncertainty; generic document parsing remains with Document Intelligence.
+  criticalNonhappyIntent: Privacy denial, unqualified fallback, cancellation
+    boundary, missing public API, or generic document request routed as video
+    OCR by MIME alone.
 scenarioRefs: []
 unresolvedProductDecisions:
-- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
-  transition is inferred by this proposal.
-- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
-- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
-  and preserved context.
-- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
-  review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.
 conditionalHandoffRefs:
-- document-intelligence-scene-text
-- ai-inference-execution
-handoffCondition: Call Document Intelligence only for Media temporal/scene-text use through its future public contract;
-  generic document requests go directly to Document Intelligence. Call AI Inference only for an admitted operation
+  - document-intelligence-scene-text
+  - ai-inference-execution
+handoffCondition: Call Document Intelligence only for Media temporal/scene-text
+  use through its future public contract; generic document requests go directly
+  to Document Intelligence. Call AI Inference only for an admitted operation
   bound to that public service.

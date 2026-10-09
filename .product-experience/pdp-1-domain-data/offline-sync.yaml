@@ -5,49 +5,49 @@ semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/state-models.yaml
 scopeStatus: source-observations-and-proposal-boundaries; protocol-unbound; pending-owner-review
 sourceRefs:
-  - .product-experience/pdp-0-product-truth/state-models.yaml
-  - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
-  - .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
-  - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
-  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
-  - libs/audio-video-client/src/operations.ts
-  - contracts/openapi/media.yaml
+- .product-experience/pdp-0-product-truth/state-models.yaml
+- .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
+- .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+- launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
+- runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+- libs/audio-video-client/src/operations.ts
+- contracts/openapi/media.yaml
 semantics:
   status: proposed-not-accepted
   proposals:
-    - local-draft-is-not-server-accepted-state
-    - reconnect-does-not-imply-upload-or-command-acceptance
-    - uncertain-submission-requires-authoritative-reconciliation-before-retry
-    - access-consent-retention-and-policy-must-be-rechecked-before-a-sync-effect
-    - source-and-derived-version-identity-must-not-be-inferred-from-a-job-version
+  - local-draft-is-not-server-accepted-state
+  - reconnect-does-not-imply-upload-or-command-acceptance
+  - uncertain-submission-requires-authoritative-reconciliation-before-retry
+  - access-consent-retention-and-policy-must-be-rechecked-before-a-sync-effect
+  - source-and-derived-version-identity-must-not-be-inferred-from-a-job-version
 sourceObservations:
   journey:
     source: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
     status: pdp0-grounded-proposal; not-accepted
     observations:
-      - proposed-precondition-names-admitted-local-capability-offline-mode-cached-asset-permission-and-storage-policy
-      - proposed-recovery-calls-for-reauthentication-revalidation-and-reconciliation-before-submission
-      - scenario-fixtures-and-owner-approved-expected-results-are-pending
+    - proposed-precondition-names-admitted-local-capability-offline-mode-cached-asset-permission-and-storage-policy
+    - proposed-recovery-calls-for-reauthentication-revalidation-and-reconciliation-before-submission
+    - scenario-fixtures-and-owner-approved-expected-results-are-pending
   uploadClient:
     source: libs/audio-video-client/src/operations.ts
     observations:
-      - client-exposes-begin-upload-upload-part-and-complete-upload-session-operations
-      - upload-part-sends-a-request-for-a-specified-session-and-part-and-reports-invocation-progress
-      - inspected-methods-do-not-establish-persistent-local-queue-encryption-background-sync-or-offline-admission
-      - upload-resume-authority-and-reconciliation-of-ambiguous-part-results-are-not-established-by-these-methods
+    - client-exposes-begin-upload-upload-part-and-complete-upload-session-operations
+    - upload-part-sends-a-request-for-a-specified-session-and-part-and-reports-invocation-progress
+    - inspected-methods-do-not-establish-persistent-local-queue-encryption-background-sync-or-offline-admission
+    - upload-resume-authority-and-reconciliation-of-ambiguous-part-results-are-not-established-by-these-methods
   submissionIdentity:
     sources:
-      - libs/audio-video-client/src/operations.ts
-      - contracts/openapi/media.yaml
+    - libs/audio-video-client/src/operations.ts
+    - contracts/openapi/media.yaml
     observations:
-      - some-mutations-carry-an-idempotency-key-header-or-field
-      - openapi-explicitly-marks-some-mutations-as-lacking-replay-safe-idempotency
-      - key-presence-does-not-establish-server-retention-scope-deduplication-atomicity-or-safe-replay
+    - some-mutations-carry-an-idempotency-key-header-or-field
+    - openapi-explicitly-marks-some-mutations-as-lacking-replay-safe-idempotency
+    - key-presence-does-not-establish-server-retention-scope-deduplication-atomicity-or-safe-replay
   runtimeRestart:
     source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
     observations:
-      - startup-reconciliation-selects-recoverable-jobs-and-transitions-them-to-OUTCOME_UNKNOWN-without-a-failure-code-or-completion-timestamp
-      - this-runtime-path-is-not-a-client-offline-command-queue-or-provider-outcome-reconciliation-proof
+    - startup-reconciliation-selects-recoverable-jobs-and-transitions-them-to-OUTCOME_UNKNOWN-without-a-failure-code-or-completion-timestamp
+    - this-runtime-path-is-not-a-client-offline-command-queue-or-provider-outcome-reconciliation-proof
 unboundProtocol:
   commandQueue:
     durability: not-established
@@ -78,11 +78,46 @@ sourceObservation:
   safeReplay: not-established
   runtimeJobRecovery: restart-path-marks-recoverable-job-outcome-unknown; does-not-prove-provider-reconciliation
 unresolved:
-  - owner-approved-disconnected-capability-and-platform-matrix
-  - durable-queue-and-local-data-protection-contract
-  - upload-session-resume-and-part-reconciliation-contract
-  - replay-idempotency-and-uncertain-submission-reconciliation-contract
-  - conflict-ordering-causality-and-cross-device-merge-policy
-  - consent-revocation-retention-and-erasure-effects-on-pending-local-work
-  - canonical-artifact-version-and-transcript-caption-lineage-contract
-  - deterministic-owner-approved-offline-and-reconnect-scenarios
+- owner-approved-disconnected-capability-and-platform-matrix
+- durable-queue-and-local-data-protection-contract
+- upload-session-resume-and-part-reconciliation-contract
+- replay-idempotency-and-uncertain-submission-reconciliation-contract
+- conflict-ordering-causality-and-cross-device-merge-policy
+- consent-revocation-retention-and-erasure-effects-on-pending-local-work
+- canonical-artifact-version-and-transcript-caption-lineage-contract
+- deterministic-owner-approved-offline-and-reconnect-scenarios
+ownerDefinedOfflineSemantics:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-10-OFFLINE-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+  - .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml
+  - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary
+  - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
+  - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts
+  scopeStatus: OWNER_DEFINED_PRODUCT_SEMANTICS; offline capability admission and device-security review pending
+  allowedDisconnectedWork:
+  - read-only inspection of an exact immutable version already present in an authorized local cache, subject to current local policy and expiry
+  - session-local draft editing against an exact retained source/version snapshot; the draft is not a canonical artifact or accepted project revision
+  prohibitedDisconnectedEffects:
+  - durable project revision mutation
+  - job submission, retry or cancellation command
+  - provider dispatch or stream frame send/reconnect
+  - artifact registration, export, delivery or publication
+  - consent/right grant or revocation
+  - retention or erasure finalization
+  - any operation whose current authority, rights, retention, locality or idempotency cannot be checked
+  queuePolicy: No consequential command is queued for automatic replay. A locally captured user intent is an inert draft until explicit reconnect-time review and submission.
+  reconnectProtocol:
+  - authenticate tenant, principal, delegation and workspace through trusted host context
+  - re-resolve exact artifact/project/job/session identifiers within the same tenant and current access scope
+  - recheck current consent, rights, policy, locality, retention and profile before each effect
+  - compare every expected canonical source/project revision; stale values produce CONFLICT
+  - show the local draft and remote version separately; never auto-merge or last-write-wins
+  - submit only a new explicit request with a fresh idempotency identity after user confirmation when a consequential effect is requested
+  ambiguousSubmission: Lookup/reconcile the same requestId and canonical payload digest with the authoritative operation owner before any retry; if no authoritative observer exists, retain UNKNOWN_OUTCOME and require human resolution.
+  offlineDataProtection: No local persistence, encryption-at-rest, key management, eviction, cache retention or background execution is claimed by this product definition; a deployment must qualify those controls before enabling cached/offline work.
+  nonClaims:
+  - No durable offline command queue
+  - No automatic background synchronization
+  - No cross-device merge
+  - No runtime reconnect or upload-resume guarantee

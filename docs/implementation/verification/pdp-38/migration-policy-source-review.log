@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: the fixed constitution, density, audit, and locale cohort resolves to exact owner clauses and current value pins
+ok 1 - the fixed constitution, density, audit, and locale cohort resolves to exact owner clauses and current value pins
+  ---
+  duration_ms: 8.892842
+  type: 'test'
+  ...
+# Subtest: material, source, target and acceptance mutations fail the cohort validator
+ok 2 - material, source, target and acceptance mutations fail the cohort validator
+  ---
+  duration_ms: 1.349666
+  type: 'test'
+  ...
+# Subtest: fail-closed, policy separation and audit clauses reject weakened variants
+ok 3 - fail-closed, policy separation and audit clauses reject weakened variants
+  ---
+  duration_ms: 2.002639
+  type: 'test'
+  ...
+# Subtest: the human-readable Simple/Guided/Expert density progression is not collapsed
+ok 4 - the human-readable Simple/Guided/Expert density progression is not collapsed
+  ---
+  duration_ms: 2.136824
+  type: 'test'
+  ...
+# Subtest: audit and telemetry clauses keep best-effort delivery separate from required durable effect intent
+ok 5 - audit and telemetry clauses keep best-effort delivery separate from required durable effect intent
+  ---
+  duration_ms: 1.291938
+  type: 'test'
+  ...
+# Subtest: the finite dependency migration cohort has exact owner clauses and claim-level source pins
+ok 6 - the finite dependency migration cohort has exact owner clauses and claim-level source pins
+  ---
+  duration_ms: 8.329957
+  type: 'test'
+  ...
+# Subtest: dependency claim review rejects material-clause loss, wrong target, stale hash, and forged acceptance
+ok 7 - dependency claim review rejects material-clause loss, wrong target, stale hash, and forged acceptance
+  ---
+  duration_ms: 2.199069
+  type: 'test'
+  ...
+# Subtest: the absent historical OSS inventory stays unresolved instead of being treated as a current authoritative inventory
+ok 8 - the absent historical OSS inventory stays unresolved instead of being treated as a current authoritative inventory
+  ---
+  duration_ms: 1.134718
+  type: 'test'
+  ...
+# Subtest: the shared identity handoff preserves existing auth services and public-contract dependencies
+ok 9 - the shared identity handoff preserves existing auth services and public-contract dependencies
+  ---
+  duration_ms: 0.799088
+  type: 'test'
+  ...
+# Subtest: CLI exit code 3 means authentication failure and cannot collapse into policy rejection
+ok 10 - CLI exit code 3 means authentication failure and cannot collapse into policy rejection
+  ---
+  duration_ms: 0.610979
+  type: 'test'
+  ...
+# Subtest: the finite qualification policy claim cohort binds exact Media owner rules and value digests
+ok 11 - the finite qualification policy claim cohort binds exact Media owner rules and value digests
+  ---
+  duration_ms: 7.453092
+  type: 'test'
+  ...
+# Subtest: qualification routes reject material policy weakening and cannot claim acceptance
+ok 12 - qualification routes reject material policy weakening and cannot claim acceptance
+  ---
+  duration_ms: 4.171541
+  type: 'test'
+  ...
+# Subtest: cache reuse is invalidated by authority, policy, output integrity, or context changes
+ok 13 - cache reuse is invalidated by authority, policy, output integrity, or context changes
+  ---
+  duration_ms: 0.609605
+  type: 'test'
+  ...
+# Subtest: solver bounds, patent rights, and cache profile identities are material qualification scope
+ok 14 - solver bounds, patent rights, and cache profile identities are material qualification scope
+  ---
+  duration_ms: 3.376015
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2743.750387

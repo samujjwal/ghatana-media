@@ -19,23 +19,22 @@ afterCutover:
     path: services/media
     disposition: remove-editable-implementation-and-authored-media-semantic-sources
     retainOnly:
-    - approved external-owner references
-    - bounded consumer integrations
-    - regenerated projections whose sources moved to the target
+      - approved external-owner references
+      - bounded consumer integrations
+      - regenerated projections whose sources moved to the target
 singleAuthorityInvariant: >-
-  At each migration stage exactly one editable Media semantic/runtime authority
-  exists. Registration and preparation never imply that the target is canonical.
+  At each migration stage exactly one editable Media semantic/runtime authority exists. Registration and preparation never imply that the target is canonical.
 prohibited:
-- two-editable-runtime-copies
-- two-media-contract-authorities
-- core-imports-of-media-product-implementation
-- reverse-product-to-platform-source-dependency
-- repository-cutover-implies-runtime-or-data-handover
+  - two-editable-runtime-copies
+  - two-media-contract-authorities
+  - core-imports-of-media-product-implementation
+  - reverse-product-to-platform-source-dependency
+  - repository-cutover-implies-runtime-or-data-handover
 externalOwnerTransfers:
-- source: ghatana/services/media/modules/intelligence/document-intelligence-worker
-  target: ghatana/services/document-intelligence
-  status: separate-platform-service-move
-  authority: document-intelligence-not-media
+  - source: ghatana/services/media/modules/intelligence/document-intelligence-worker
+    target: ghatana/services/document-intelligence
+    status: separate-platform-service-move
+    authority: document-intelligence-not-media
 productPolicy:
   authorityStatus: authored-proposal; pending-P0-010-independent-acceptance
   semanticOwner: media
@@ -43,15 +42,15 @@ productPolicy:
     identityAndAuthentication:
       owner: ghatana-shared-and-identity-service
       mediaRole: consume-public-principal-tenant-and-delegation-context
-      prohibited: [parallel-media-iam, local-jwt-parser, caller-selected-tenant-authority]
+      prohibited: [ parallel-media-iam, local-jwt-parser, caller-selected-tenant-authority ]
     privilegedEffects:
       owner: ghatana-action-plane
       mediaRole: declare-media-effect-intent-and-product-specific-preconditions
-      prohibited: [direct-privileged-side-effect-bypass, model-output-as-approval]
+      prohibited: [ direct-privileged-side-effect-bypass, model-output-as-approval ]
     genericModelExecution:
       owner: ghatana-ai-inference
       mediaRole: submit-approved-media-task-through-public-inference-boundary
-      prohibited: [direct-provider-credential-use-outside-approved-provider, hidden-local-model-fallback]
+      prohibited: [ direct-provider-credential-use-outside-approved-provider, hidden-local-model-fallback ]
     audit:
       owner: ghatana-shared
       mediaRole: declare-media-action-facts-and-required-durability
@@ -60,102 +59,97 @@ productPolicy:
       owner: ghatana-services-document-intelligence
       mediaRole: consume-the-public-document-intelligence-api-only-for-media-scene-or-temporal-recognition
       sharedContractOwner: ghatana-shared
-      prohibited: [copy-generic-ocr-runtime, copy-document-extraction-schema, reinterpret-document-as-media-by-mime-type]
+      prohibited: [ copy-generic-ocr-runtime, copy-document-extraction-schema, reinterpret-document-as-media-by-mime-type ]
 
   independentGovernanceAxes:
-  - axis: access-and-sharing
-    default: private-to-authorized-context
-    policyOwner: media
-  - axis: sensitivity-and-classification
-    default: source-classification-is-a-floor-for-derived-data
-    policyOwner: media-with-platform-classification-vocabulary
-  - axis: tenant-and-workspace-ownership
-    default: deny-cross-tenant-access-and-reuse
-    policyOwner: media
-  - axis: processing-locality
-    values: [local, remote, hybrid, unknown]
-    default: no-location-claim-without-binding-and-observation
-    policyOwner: media-deployment-profile
-  - axis: residency-and-egress
-    default: deny-unapproved-region-or-external-transfer
-    policyOwner: media-request-policy-and-verified-consent
-  - axis: retention-and-erasure
-    default: declared-retention-with-physical-erasure-evidence
-    policyOwner: media-with-storage-owner-mechanics
-  - axis: provider-retention
-    default: unknown-is-ineligible-when-no-retention-is-required
-    policyOwner: media-provider-admission
-  - axis: training-and-secondary-use
-    default: deny-unless-separately-authorized-by-explicit-policy
-    policyOwner: media-and-rights-owner
-  - axis: consent
-    default: verified-active-and-narrowly-scoped-for-governed-processing
-    policyOwner: media-purpose-rules-with-shared-identity-authority
-  - axis: asset-model-and-font-license
-    default: eligibility-unverified-means-not-cleared-for-distribution
-    policyOwner: media-supply-chain-and-rights-owner
-  - axis: likeness-voice-and-biometric-rights
-    default: explicit-separate-authority-required-for-biometric-operation
-    policyOwner: media-rights-policy
+    - axis: access-and-sharing
+      default: private-to-authorized-context
+      policyOwner: media
+    - axis: sensitivity-and-classification
+      default: source-classification-is-a-floor-for-derived-data
+      policyOwner: media-with-platform-classification-vocabulary
+    - axis: tenant-and-workspace-ownership
+      default: deny-cross-tenant-access-and-reuse
+      policyOwner: media
+    - axis: processing-locality
+      values: [ local, remote, hybrid, unknown ]
+      default: no-location-claim-without-binding-and-observation
+      policyOwner: media-deployment-profile
+    - axis: residency-and-egress
+      default: deny-unapproved-region-or-external-transfer
+      policyOwner: media-request-policy-and-verified-consent
+    - axis: retention-and-erasure
+      default: declared-retention-with-physical-erasure-evidence
+      policyOwner: media-with-storage-owner-mechanics
+    - axis: provider-retention
+      default: unknown-is-ineligible-when-no-retention-is-required
+      policyOwner: media-provider-admission
+    - axis: training-and-secondary-use
+      default: deny-unless-separately-authorized-by-explicit-policy
+      policyOwner: media-and-rights-owner
+    - axis: consent
+      default: verified-active-and-narrowly-scoped-for-governed-processing
+      policyOwner: media-purpose-rules-with-shared-identity-authority
+    - axis: asset-model-and-font-license
+      default: eligibility-unverified-means-not-cleared-for-distribution
+      policyOwner: media-supply-chain-and-rights-owner
+    - axis: likeness-voice-and-biometric-rights
+      default: explicit-separate-authority-required-for-biometric-operation
+      policyOwner: media-rights-policy
   invariants:
-  - private-does-not-imply-local-processing
-  - local-does-not-imply-authorized-use
-  - user-attestation-is-not-verified-consent-or-license
-  - source-classification-propagates-until-an-authorized-deidentification-promotion
-  - model-generated-content-or-assertion-cannot-authorize-itself
-  - no-training-or-cross-tenant-personalization-is-inferred-from-product-use
-  - provider-fallback-rechecks-policy-rights-consent-egress-quality-and-cost
-  - policy-revocation-stops-future-dispatch-and-restricts-outputs-at-the-next-enforcement-point
-  - observable-telemetry-may-degrade-only-with-safe-diagnostic-behavior; required-audit-intent-fails-closed
+    - private-does-not-imply-local-processing
+    - local-does-not-imply-authorized-use
+    - user-attestation-is-not-verified-consent-or-license
+    - source-classification-propagates-until-an-authorized-deidentification-promotion
+    - model-generated-content-or-assertion-cannot-authorize-itself
+    - no-training-or-cross-tenant-personalization-is-inferred-from-product-use
+    - provider-fallback-rechecks-policy-rights-consent-egress-quality-and-cost
+    - policy-revocation-stops-future-dispatch-and-restricts-outputs-at-the-next-enforcement-point
+    - observable-telemetry-may-degrade-only-with-safe-diagnostic-behavior; required-audit-intent-fails-closed
 
   enforcementPoints:
-  - point: upload-and-import-admission
-    requiredChecks: [identity, tenant-context, content-size, detected-format, source-classification, rights-assertion-disposition,
-      archive-and-decoder-safety]
-    failure: reject-or-quarantine-before-content-is-usable
-  - point: metadata-persistence-and-derivation
-    requiredChecks: [classification-floor, tenant-ownership, retention, provenance-minimization]
-    failure: do-not-persist-or-promote-unauthorized-metadata
-  - point: planning-and-profile-resolution
-    requiredChecks: [capability-availability, locality, egress, cost-budget, quality-and-fidelity-floor, rights, consent,
-      license]
-    failure: return-blocked-or-review-required-with-reason
-  - point: attempt-claim-and-provider-dispatch
-    requiredChecks: [current-delegation, current-consent, purpose, region, provider-retention, budget, audit-intent, current-fence]
-    failure: do-not-dispatch; if intent may have crossed boundary, preserve-outcome-unknown
-  - point: artifact-fetch-and-cache-reuse
-    requiredChecks: [tenant-ownership, current-access, current-rights, current-consent-where-required, retention, provenance-compatibility]
-    failure: deny-read-or-reuse-even-if-content-digest-matches
-  - point: worker-and-engine-execution
-    requiredChecks: [declared-input-set, read-only-approved-inputs, resource-bounds, egress-policy, process-isolation, execution-permission]
-    failure: stop-or-quarantine-and-record-truthful-cancellation-or-uncertainty
-  - point: output-validation-and-registration
-    requiredChecks: [result-contract, policy, classification, provenance, integrity, quality-applicability, current-fence]
-    failure: do-not-register-canonical-output
-  - point: sharing-export-or-publication
-    requiredChecks: [exact-version, recipient-or-destination, authorization, rights, consent, format-license, required-review,
-      durable-effect-intent]
-    failure: deny-before-effect; after possible-submit, report-unknown-until-reconciled
-  - point: long-running-or-streaming-boundary
-    requiredChecks: [revocation-and-expiry, tenant-and-token, lease, frame-sequence, buffer, cancellation]
-    failure: stop-new-dispatch; cancel-or-close-where-supported; retain-uncertainty-until-confirmed
+    - point: upload-and-import-admission
+      requiredChecks: [ identity, tenant-context, content-size, detected-format, source-classification, rights-assertion-disposition, archive-and-decoder-safety ]
+      failure: reject-or-quarantine-before-content-is-usable
+    - point: metadata-persistence-and-derivation
+      requiredChecks: [ classification-floor, tenant-ownership, retention, provenance-minimization ]
+      failure: do-not-persist-or-promote-unauthorized-metadata
+    - point: planning-and-profile-resolution
+      requiredChecks: [ capability-availability, locality, egress, cost-budget, quality-and-fidelity-floor, rights, consent, license ]
+      failure: return-blocked-or-review-required-with-reason
+    - point: attempt-claim-and-provider-dispatch
+      requiredChecks: [ current-delegation, current-consent, purpose, region, provider-retention, budget, audit-intent, current-fence ]
+      failure: do-not-dispatch; if intent may have crossed boundary, preserve-outcome-unknown
+    - point: artifact-fetch-and-cache-reuse
+      requiredChecks: [ tenant-ownership, current-access, current-rights, current-consent-where-required, retention, provenance-compatibility ]
+      failure: deny-read-or-reuse-even-if-content-digest-matches
+    - point: worker-and-engine-execution
+      requiredChecks: [ declared-input-set, read-only-approved-inputs, resource-bounds, egress-policy, process-isolation, execution-permission ]
+      failure: stop-or-quarantine-and-record-truthful-cancellation-or-uncertainty
+    - point: output-validation-and-registration
+      requiredChecks: [ result-contract, policy, classification, provenance, integrity, quality-applicability, current-fence ]
+      failure: do-not-register-canonical-output
+    - point: sharing-export-or-publication
+      requiredChecks: [ exact-version, recipient-or-destination, authorization, rights, consent, format-license, required-review, durable-effect-intent ]
+      failure: deny-before-effect; after possible-submit, report-unknown-until-reconciled
+    - point: long-running-or-streaming-boundary
+      requiredChecks: [ revocation-and-expiry, tenant-and-token, lease, frame-sequence, buffer, cancellation ]
+      failure: stop-new-dispatch; cancel-or-close-where-supported; retain-uncertainty-until-confirmed
 
   inputAndExecutionThreats:
-    untrustedInputs: [uploads, downloads, archives, codecs, containers, fonts, SVG, scene-files, shaders, scripts, models,
-      project-bundles, transcripts, OCR-text, media-metadata, agent-requests]
+    untrustedInputs: [ uploads, downloads, archives, codecs, containers, fonts, SVG, scene-files, shaders, scripts, models, project-bundles, transcripts, OCR-text, media-metadata, agent-requests ]
     requiredControls:
-    - validate-declared-and-detected-format
-    - bound-decompression-dimensions-duration-frame-count-samples-and-parser-complexity
-    - normalize-filenames-and-confine-archive-extraction-without-escaping-links
-    - decode-in-isolated-worker-before-promoting-to-usable-content
-    - enforce-url-scheme-destination-dns-ip-redirect-response-size-and-timeout-policy
-    - block-loopback-private-link-local-and-metadata-service-destinations-unless-explicitly-admitted
-    - never-forward-service-credentials-to-user-or-model-supplied-destinations
-    - disable-imported-scene-script-execution-by-default
-    - do-not-run-model-generated-code-on-the-host; require-admitted-restricted-sandbox-if-code-execution-is-later-approved
-    - admit-engine-plugin-model-font-and-code-by-version-digest-license-and-security-review
-    executionBounds: [cpu, ram, vram, scratch-storage, process-count, open-files, decoded-pixels, frames, samples, shader-complexity,
-      particles, solver-substeps, retries, wall-clock, monetary-budget]
+      - validate-declared-and-detected-format
+      - bound-decompression-dimensions-duration-frame-count-samples-and-parser-complexity
+      - normalize-filenames-and-confine-archive-extraction-without-escaping-links
+      - decode-in-isolated-worker-before-promoting-to-usable-content
+      - enforce-url-scheme-destination-dns-ip-redirect-response-size-and-timeout-policy
+      - block-loopback-private-link-local-and-metadata-service-destinations-unless-explicitly-admitted
+      - never-forward-service-credentials-to-user-or-model-supplied-destinations
+      - disable-imported-scene-script-execution-by-default
+      - do-not-run-model-generated-code-on-the-host; require-admitted-restricted-sandbox-if-code-execution-is-later-approved
+      - admit-engine-plugin-model-font-and-code-by-version-digest-license-and-security-review
+    executionBounds: [ cpu, ram, vram, scratch-storage, process-count, open-files, decoded-pixels, frames, samples, shader-complexity, particles, solver-substeps, retries, wall-clock, monetary-budget ]
     cancellationTruth: gpu-or-remote-work-remains-requested-until-authority-confirms-termination
 
   dataHandling:
@@ -173,34 +167,131 @@ productPolicy:
       provenance: media-derivation-and-origin-records-not-proof-of-truth-or-rights
       redactionFailure: drop-or-quarantine-unsafe-telemetry-never-fallback-to-raw-content
     deletion:
-      states: [ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
+      states: [ ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED ]
       restoreRule: replay-erasure-tombstones-before-restored-data-is-accessible
       confirmationRule: metadata-hidden-or-key-unavailable-alone-is-not-physical-erasure-confirmation
 
   adversarialAcceptanceCases:
-  - cross-tenant-deduplication-existence-is-not-disclosed
-  - expired-or-revoked-consent-blocks-new-frame-and-provider-dispatch
-  - prior-stream-consent-can-close-session-but-cannot-reconnect-or-send-frame
-  - archive-path-traversal-symlink-and-decompression-bomb-remain-confined
-  - user-or-model-url-cannot-reach-private-or-cloud-metadata-endpoints
-  - credentials-never-flow-to-user-supplied-destination
-  - imported-scene-or-generated-script-cannot-execute-outside-admitted-sandbox
-  - untrusted-transcript-or-OCR-cannot-change-policy-or-select-privileged-tool
-  - audit-intent-failure-blocks-external-effect
-  - telemetry-redaction-failure-never-emits-raw-content
-  - partial-erasure-remains-visible-through-restore-and-retry
-  - external-delete-without-provider-proof-is-reported-unconfirmed
-  - cancelled-remote-work-remains-uncertain-until-provider-confirmation
+    - cross-tenant-deduplication-existence-is-not-disclosed
+    - expired-or-revoked-consent-blocks-new-frame-and-provider-dispatch
+    - prior-stream-consent-can-close-session-but-cannot-reconnect-or-send-frame
+    - archive-path-traversal-symlink-and-decompression-bomb-remain-confined
+    - user-or-model-url-cannot-reach-private-or-cloud-metadata-endpoints
+    - credentials-never-flow-to-user-supplied-destination
+    - imported-scene-or-generated-script-cannot-execute-outside-admitted-sandbox
+    - untrusted-transcript-or-OCR-cannot-change-policy-or-select-privileged-tool
+    - audit-intent-failure-blocks-external-effect
+    - telemetry-redaction-failure-never-emits-raw-content
+    - partial-erasure-remains-visible-through-restore-and-retry
+    - external-delete-without-provider-proof-is-reported-unconfirmed
+    - cancelled-remote-work-remains-uncertain-until-provider-confirmation
 
   sourceEvidence:
     currentRuntimeArchitecture: docs/ARCHITECTURE.md
     currentPrivacyImplementationMap: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md
-    statusRule: These artifacts describe current source observations and future product requirements separately; neither text
-      alone qualifies a production deployment.
-  requirementBinding: capability-and-requirement records now authored; owner-role binding and independent semantic closure
-    remain pending-P0-010
+    statusRule: These artifacts describe current source observations and future product requirements separately; neither text alone qualifies a production deployment.
+  requirementBinding: capability-and-requirement records now authored; owner-role binding and independent semantic closure remain pending-P0-010
   adversarialFixtures:
     catalog: conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
     status: proposal-only-not-submitted-not-run
-    coverageRule: The fixture IDs correspond one-to-one with adversarialAcceptanceCases; execution does not imply qualification
-      until owner-approved.
+    coverageRule: The fixture IDs correspond one-to-one with adversarialAcceptanceCases; execution does not imply qualification until owner-approved.
+
+# Media-owned source dispositions for the migration claims. These are definition
+# boundaries only: they do not authorize source movement, runtime activity,
+# publication, qualification, legal clearance, or release.
+migrationExecutionBoundary:
+  authorityStatus: MEDIA_OWNER_AUTHORED_DEFINITION; independent-governance-review-pending
+  permissionModes:
+    PLAN_ONLY: planning-and-review-only; no repository-or-runtime-mutation
+    DEFINE_PRODUCT: author-current-PDP-0-through-PDP-3-definition-sources-only; Explorer-is-outside-the-PDP-phases
+    EXECUTE_MIGRATION: separate-cross-repository-source-and-ownership-transfer; requires-explicit-owner-approved-cutover
+    IMPLEMENT_RUNTIME: downstream-runtime-implementation-from-accepted-authority; not-authorized-by-definition-work
+    separationRule: authorization-for-one-mode-does-not-imply-another-mode-or-external-effect
+  planRequestDoesNotAuthorize:
+    - production-deployment
+    - database-mutation
+    - model-downloads
+    - paid-inference
+    - publication
+    - deletion
+    - repository-cutover
+  externalContractOwnership:
+    rule: existing-service-contracts-remain-canonical-with-the-legitimate-owner-until-explicit-owner-approved-transfer
+    mediaRole: consume-accepted-public-contract-and-retain-media-specific-semantic-ownership
+    transferRequires: versioned-owner-approved-decision-and-atomic-source-manifest-update
+  definitionDoesNotAuthorize:
+    - source-transfer
+    - runtime-mutation
+    - publication
+    - qualification
+    - release
+    - external-effect-execution
+  crossSliceProtectionRule:
+    requirement: every-migration-slice-retains-applicable-access-tenant-classification-purpose-rights-consent-retention-audit-provenance-and-resource-bound-protections
+    denyByDefault: a-slice-must-not-drop-a-protection-because-its-implementation-or-owner-changes
+    qualificationEffect: definition-only-no-runtime-or-qualification-admission
+  selectiveInvalidationRule: when-a-source-changes-recompute-only-dependent-obligations-and-evidence-by-exact-versioned-dependency-links; preserve-unaffected-proof-within-its-original-claim-scope; never-refresh-a-semantic-source-pin-without-review
+  legacyPlanAuthority:
+    rule: >-
+      The historical master plan is retained as migration/execution provenance. Its proposed product semantics are non-authoritative until decomposed into and reviewed in the exact owning PDP records; it is not a parallel semantic source. Bibliographic metadata identifies the historical document and does not itself establish product truth or completion.
+    authorityEffect: Media-owner definition; independent review and phase acceptance remain separate.
+modelAcquisitionAndFallback:
+  id: media.policy.model-acquisition-and-fallback
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/qualification-policy.yaml
+    - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary
+    - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary
+  scopeStatus: OWNER_DEFINED_POLICY; no model/provider is selected, downloaded, licensed, qualified or available by this definition
+  automaticAcquisition:
+    default: DENY
+    unavailableBehavior: return unsupported-or-unavailable; do not download a model, codec, plugin, font or asset automatically
+    explicitAdmissionRequires:
+      - exact artifact name and immutable version or digest
+      - authoritative source and integrity verification
+      - separate source-code, model-weight, dataset, patent, likeness and redistribution term review as applicable
+      - security and untrusted-input review
+      - named execution profile, locality and retention conditions
+      - independent legal/security and runtime qualification approvals
+    effect: This policy defines an eligibility gate only; it does not approve any candidate.
+  hardwareFootprintDoesNotWaiveAdmission:
+    id: media.policy.model-hardware-footprint-does-not-waive-admission
+    rule: A model or codec being small enough to fit available local RAM, disk, CPU, GPU, or an ONNX runtime package does not create an exception to artifact identity, source integrity, model-weight/license/terms review, security review, named-profile admission, privacy and locality checks, or independent runtime qualification.
+    localExecutionDisposition: DENY_UNADMITTED_MODEL; local hardware availability is a resource fact, not an admission, authority, compatibility, or qualification decision.
+    unknownDisposition: DENY; do not infer a model is safe, licensed, compatible, or approved from file size, format, or package presence.
+    scopeStatus: OWNER_DEFINED_POLICY; no model, codec, package, or runtime is admitted by this rule
+  fallback:
+    default: DENY_SILENT_FALLBACK
+    localOnly: Cloud/provider egress is always denied for a local-only request or profile.
+    otherProfiles: Fallback may be considered only when an exact owner-approved profile explicitly lists the alternate provider/version and current consent, rights, locality, residency, retention, cost, quality/fidelity floor and security checks all pass.
+    failureBehavior: Do not download, substitute, or dispatch to another provider after unavailable, timeout, unknown outcome or policy error unless an exact pre-authorized fallback branch defines reconciliation and duplicate-effect behavior.
+    userDisclosure: Before a separately authorized fallback, surface the exact alternate provider/location, changed data handling, cost and fidelity consequences; otherwise fail closed.
+  nonClaims:
+    - No default provider/model/codec selection
+    - No production-host download or cloud inference authorization
+    - No admission, license, availability, quality, performance or scientific-fidelity claim
+dataHandling:
+  minimization:
+    id: media.policy.data-minimization
+    authority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    rule: For each declared processing purpose, collect, retain, expose, and send only the minimum fields and media ranges necessary to complete that exact purpose. Exclude unrelated project assets, transcript segments, prompt context, identifiers, telemetry labels, and derived metadata unless the exact operation contract demonstrates necessity.
+    decisionProcedure:
+      - bind each input and output field or media range to one declared purpose and exact operation
+      - omit fields and ranges not required by the typed operation schema or its stated correctness guard
+      - prefer scoped identifiers, bounded excerpts, and derived measurements over raw media bytes where they satisfy the purpose
+      - apply the same minimization to logs, traces, metrics, audit, provenance, exports, provider requests, and recovery receipts while preserving required accountability evidence
+      - when necessity or purpose is unknown, do not disclose or dispatch the data; require a narrower purpose or an explicit owner contract
+    scopeStatus: OWNER_DEFINED_DATA_POLICY; per-operation enforcement, privacy review, and independent acceptance remain pending
+  purposeBoundDataAccess:
+    id: media.policy.purpose-bound-data-access
+    authority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    purposeSpecificMinimumDataRef: policy-authority-model.yaml#dataHandling.minimization
+    defaultAxesRef: policy-authority-model.yaml#dataHandling.defaults
+    defaultPolicy:
+      sharing: private
+      crossTenantReuse: deny
+      externalEgress: deny
+      secondaryTraining: deny
+    rule: A field, byte range, derived value, or identity may be used only for the exact declared Media operation and purpose, under the current tenant/principal scope. Private means no public or cross-tenant disclosure; external egress and secondary training remain denied unless an exact current owner-authorized policy decision explicitly permits them. Residency/location constraints are separately checked at the operation boundary and do not relax these defaults.
+    unknownDisposition: DENY_READ_OR_DISPATCH; fail closed when purpose, tenant scope, recipient, egress, training, or residency decision is absent, stale, or ambiguous.
+    scopeStatus: OWNER_DEFINED_POLICY_AGGREGATE; enforcement and independent privacy/security acceptance pending

@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "media.source-definition-case-candidates.v1",
+  "authority": "Authored source test declarations only; not Lifecycle-issued evidence",
+  "scope": "Required PDP1 definition dependencies only",
+  "providerId": null,
+  "observerId": null,
+  "oracleId": null,
+  "nativeReceiptRef": null,
+  "registrationStatus": "UNREGISTERED",
+  "cases": [
+    {
+      "id": "media.case.descriptor.image-video-technical-descriptor",
+      "requirementRef": "media.value.image-video-technical-descriptor",
+      "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/media.value.image-video-technical-descriptor",
+      "testIdentity": {
+        "sourcePath": "tests/media-descriptor-definition-oracles.test.mjs",
+        "testName": "technical descriptors require all slots while unknown metadata cannot satisfy a profile"
+      },
+      "candidateMethod": "Source schema/definition conformance; actual Lifecycle method selection and provider/observer/oracle registration pending",
+      "predicate": "Typed slot closure and profile-known-field completeness",
+      "negativeCases": [
+        "required slot removed",
+        "untyped/out-of-range scalar",
+        "UNKNOWN carrying invented value",
+        "invalid alpha kind",
+        "invalid LUT fingerprint"
+      ],
+      "coverage": "PARTIAL_SOURCE_ASSERTIONS_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualifiedScientificAssessment": "NOT_EVALUATED"
+    },
+    {
+      "id": "media.case.descriptor.audio-technical-descriptor",
+      "requirementRef": "media.value.audio-technical-descriptor",
+      "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/media.value.audio-technical-descriptor",
+      "testIdentity": {
+        "sourcePath": "tests/media-descriptor-definition-oracles.test.mjs",
+        "testName": "audio metadata separates sample truth, encoder delay and output-specific profiles"
+      },
+      "candidateMethod": "Source schema/definition conformance; actual Lifecycle method selection and provider/observer/oracle registration pending",
+      "predicate": "Typed independent audio metadata and explicit mastering-profile absence",
+      "negativeCases": [
+        "negative/fractional/unsafe sample count",
+        "missing sample or encoder fields"
+      ],
+      "coverage": "PARTIAL_SOURCE_ASSERTIONS_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualifiedScientificAssessment": "NOT_EVALUATED"
+    },
+    {
+      "id": "media.case.descriptor.source-frame-sample-mapping",
+      "requirementRef": "media.value.source-frame-sample-mapping",
+      "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/media.value.source-frame-sample-mapping",
+      "testIdentity": {
+        "sourcePath": "tests/media-descriptor-definition-oracles.test.mjs",
+        "testName": "VFR mapping preserves exact presentation/decode times and never guesses duration from rate"
+      },
+      "candidateMethod": "Source schema/definition conformance; actual Lifecycle method selection and provider/observer/oracle registration pending",
+      "predicate": "Exact bounded rational clock/PTS/DTS/duration and explicit discontinuity mapping",
+      "negativeCases": [
+        "missing clock",
+        "invalid or overflow timebase/ticks",
+        "numeric inexact ticks",
+        "zero duration",
+        "undeclared PTS discontinuity",
+        "out-of-range frame"
+      ],
+      "coverage": "PARTIAL_SOURCE_ASSERTIONS_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualifiedScientificAssessment": "NOT_EVALUATED"
+    },
+    {
+      "id": "media.case.descriptor.resolved-visual-geometry-plan",
+      "requirementRef": "media.value.resolved-visual-geometry-plan",
+      "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/media.value.resolved-visual-geometry-plan",
+      "testIdentity": {
+        "sourcePath": "tests/media-descriptor-definition-oracles.test.mjs",
+        "testName": "display aspect includes pixel aspect and rejects unsupported preservation or unknown permission"
+      },
+      "candidateMethod": "Source schema/definition conformance; actual Lifecycle method selection and provider/observer/oracle registration pending",
+      "predicate": "Exact display aspect including nonsquare pixels and separate change-authority declaration",
+      "negativeCases": [
+        "wrong final dimensions",
+        "unknown pixel aspect",
+        "unknown preservation disposition",
+        "unknown change-authority reference"
+      ],
+      "coverage": "PARTIAL_SOURCE_ASSERTIONS_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualifiedScientificAssessment": "NOT_EVALUATED"
+    },
+    {
+      "id": "media.case.descriptor.simulation-fidelity-definition",
+      "requirementRef": "media.value.simulation-fidelity-definition",
+      "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/media.value.simulation-fidelity-definition",
+      "testIdentity": {
+        "sourcePath": "tests/media-descriptor-definition-oracles.test.mjs",
+        "testName": "simulation and replay contracts cannot equate scene appearance with physics or scientific qualification"
+      },
+      "candidateMethod": "Source schema/definition conformance; actual Lifecycle method selection and provider/observer/oracle registration pending",
+      "predicate": "Required canonical simulation fields and separate scene/collision, solver and fidelity-tier contracts",
+      "negativeCases": [
+        "Every required simulation/solver/fidelity contract field independently removed",
+        "Fabricated runtime-admission field rejected",
+        "Scene mesh and collision reference requirements remain separate"
+      ],
+      "coverage": "PARTIAL_SOURCE_ASSERTIONS_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualifiedScientificAssessment": "NOT_EVALUATED"
+    },
+    {
+      "id": "media.case.descriptor.replay-provenance-definition",
+      "requirementRef": "media.value.replay-provenance-definition",
+      "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/media.value.replay-provenance-definition",
+      "testIdentity": {
+        "sourcePath": "tests/media-descriptor-definition-oracles.test.mjs",
+        "testName": "simulation and replay contracts cannot equate scene appearance with physics or scientific qualification"
+      },
+      "candidateMethod": "Source schema/definition conformance; actual Lifecycle method selection and provider/observer/oracle registration pending",
+      "predicate": "Replay class/provenance schema and explicit metrics/tolerances/qualified-scope declaration",
+      "negativeCases": [
+        "Every required replay/provenance field independently removed",
+        "EXACT_ENVIRONMENT/TOLERANCE_BOUND/STATISTICAL with UNKNOWN qualified evidence rejected",
+        "REPLAY_UNAVAILABLE preserves unknown qualification without advertising replay",
+        "Fabricated runtime-admission field rejected"
+      ],
+      "coverage": "PARTIAL_SOURCE_ASSERTIONS_ONLY",
+      "runtimeAdmission": "NOT_ADMITTED",
+      "qualifiedScientificAssessment": "NOT_EVALUATED"
+    }
+  ]
+}

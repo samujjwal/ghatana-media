@@ -4,217 +4,905 @@ journeyId: J-12
 pdp0JourneyRef: J-12
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Deterministic 2D/vector/procedural animation
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
-  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
-- media.goal.finished-asset
-- media.goal.explain-or-demonstrate
+  - media.goal.finished-asset
+  - media.goal.explain-or-demonstrate
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 channels:
-- media.channel.web
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
-  equivalence remain unbound.
+  - media.channel.web
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
-- Animation controls and exact timing/export subset are declared.
+  - Animation controls and exact timing/export subset are declared.
 steps:
-- view: media.view.animate-media
-  legacyViewRef: M-ANIMATION
-  screenContractRef: screen-contracts/animate-media.yaml
-  viewIntent: Timeline/keyframes/curves/rig/path/control actions
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Accessible preview and export preserve declared curve/time semantics.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Unsupported interchange feature or different timing after export.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit choice.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.compare-results
-  legacyViewRef: M-COMPARE
-  screenContractRef: screen-contracts/compare-results.yaml
-  viewIntent: Before/after, candidate ranking and applicable measurements
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.compare-caption-versions
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Accessible preview and export preserve declared curve/time semantics.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Unsupported interchange feature or different timing after export.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit choice.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-- view: media.view.inspect-output
-  legacyViewRef: M-OUTPUT
-  screenContractRef: screen-contracts/inspect-output.yaml
-  viewIntent: Playback/download/review/provenance and delivery action
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.inspect-artifact
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    sourceRef: journey.terminalSuccess
-    summary: Accessible preview and export preserve declared curve/time semantics.
-  failure:
-    status: candidate-proposal
-    sourceRef: journey.criticalNonhappyPaths
-    summary:
-    - Unsupported interchange feature or different timing after export.
-  degradedBehavior:
-    status: not-specified
-    sourceRef: null
-    reason: No distinct degraded-behavior contract is explicitly declared for this step.
-  recovery:
-    status: candidate-proposal
-    sourceRef: journey.recovery
-    summary: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only by explicit choice.
-  postconditions:
-    status: candidate-proposal
-    sourceRef: journey.contextPreserved
-    summary:
-    - Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
-  requirementRefs: []
-  verification:
-    requiredChecks: []
-    evidenceRefs: []
-    status: not-run
-    reason: Required checks are proposal requirements only; no step-level execution evidence is present.
-  bindingStatus:
-    status: pending-owner-binding
-    candidateFields:
-      - surfaceRefs
-    pendingFields:
-      - objectRefs
-      - stateRefs
-      - canonicalOperationRef
-      - authorityRef
-      - decisionRef
-      - transitionRef
-      - handoffRef
-      - requirementRefs
-    reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
-  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
+  - view: media.view.animate-media
+    legacyViewRef: M-ANIMATION
+    screenContractRef: screen-contracts/animate-media.yaml
+    viewIntent: Timeline/keyframes/curves/rig/path/control actions
+    actionRef: media.action.edit-keyframe
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Accessible preview and export preserve declared curve/time semantics.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Unsupported interchange feature or different timing after export.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Keep source graph, expose unsupported feature/loss, and allow a
+        qualified preview/export alternative only by explicit choice.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Retain timeline position, keyframe/curve edits, reduced-motion choice,
+          and export settings.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
+      journeyRef: J-12
+      ordinal: 1
+      viewRef: media.view.animate-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.edit-keyframe
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Change only the current local draft or selection; keep committed source
+          and versioned objects unchanged until a separately specified commit.
+        reversibilityDisposition: REVERSIBLE
+        finality: local-draft-only; not-a-committed-result
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Change only the current local draft or selection; keep
+          committed source and versioned objects unchanged until a separately
+          specified commit.
+      stepSourceFacts:
+        intent: Timeline/keyframes/curves/rig/path/control actions
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Accessible preview and export preserve declared curve/time semantics.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Unsupported interchange feature or different timing after export.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Keep source graph, expose unsupported feature/loss, and allow a
+            qualified preview/export alternative only by explicit choice.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Retain timeline position, keyframe/curve edits, reduced-motion
+              choice, and export settings.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-12
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Accessible preview and export preserve declared curve/time semantics.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Unsupported interchange feature or different timing after export.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Keep source graph, expose unsupported feature/loss, and allow a
+            qualified preview/export alternative only by explicit choice.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-keyframe
+        actionRef: media.action.edit-keyframe
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-keyframe
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Accessible preview and export preserve declared curve/time semantics.
+          effect: Change only the current local draft or selection; keep committed source
+            and versioned objects unchanged until a separately specified commit.
+          finality: local-draft-only; not-a-committed-result
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-keyframe
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-keyframe
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Timeline/keyframes/curves/rig/path/control actions
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml#purpose
+        actionRef: media.action.edit-keyframe
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.compare-results
+    legacyViewRef: M-COMPARE
+    screenContractRef: screen-contracts/compare-results.yaml
+    viewIntent: Before/after, candidate ranking and applicable measurements
+    actionRef: media.action.compare-candidate-on-metric
+    actionBindingState: "Media owner-selected from exact screen action intent:
+      screen compare-results intent: compare exact candidates on an explicit
+      metric with evidence; independent review and runtime admission open"
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.quality-assessment
+      - media.domain.artifact-version
+    canonicalOperationRef: media.operation.action.compare-candidate-on-metric
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Accessible preview and export preserve declared curve/time semantics.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Unsupported interchange feature or different timing after export.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Keep source graph, expose unsupported feature/loss, and allow a
+        qualified preview/export alternative only by explicit choice.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Retain timeline position, keyframe/curve edits, reduced-motion choice,
+          and export settings.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/1
+      journeyRef: J-12
+      ordinal: 2
+      viewRef: media.view.compare-results
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.compare-candidate-on-metric
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.compare-candidate-on-metric
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: Before/after, candidate ranking and applicable measurements
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Accessible preview and export preserve declared curve/time semantics.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Unsupported interchange feature or different timing after export.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Keep source graph, expose unsupported feature/loss, and allow a
+            qualified preview/export alternative only by explicit choice.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Retain timeline position, keyframe/curve edits, reduced-motion
+              choice, and export settings.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.compare-candidate-on-metric
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-12
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Accessible preview and export preserve declared curve/time semantics.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Unsupported interchange feature or different timing after export.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Keep source graph, expose unsupported feature/loss, and allow a
+            qualified preview/export alternative only by explicit choice.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        operationRef: media.operation.action.compare-candidate-on-metric
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+        actionRef: media.action.compare-candidate-on-metric
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Accessible preview and export preserve declared curve/time semantics.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.compare-candidate-on-metric
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        objectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Before/after, candidate ranking and applicable measurements
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml#purpose
+        actionRef: media.action.compare-candidate-on-metric
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.compare-candidate-on-metric
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.inspect-output
+    legacyViewRef: M-OUTPUT
+    screenContractRef: screen-contracts/inspect-output.yaml
+    viewIntent: Playback/download/review/provenance and delivery action
+    actionRef: media.action.inspect-output-preview-and-version
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs:
+      - media.action.inspect-artifact
+      - media.action.inspect-provenance
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.render-outcome
+      - media.domain.artifact-version
+    canonicalOperationRef: media.operation.action.inspect-output-preview-and-version
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      sourceRef: journey.terminalSuccess
+      summary: Accessible preview and export preserve declared curve/time semantics.
+    failure:
+      status: candidate-proposal
+      sourceRef: journey.criticalNonhappyPaths
+      summary:
+        - Unsupported interchange feature or different timing after export.
+    degradedBehavior:
+      status: not-specified
+      sourceRef: null
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
+    recovery:
+      status: candidate-proposal
+      sourceRef: journey.recovery
+      summary: Keep source graph, expose unsupported feature/loss, and allow a
+        qualified preview/export alternative only by explicit choice.
+    postconditions:
+      status: candidate-proposal
+      sourceRef: journey.contextPreserved
+      summary:
+        - Retain timeline position, keyframe/curve edits, reduced-motion choice,
+          and export settings.
+    requirementRefs: []
+    verification:
+      requiredChecks: []
+      evidenceRefs: []
+      status: not-run
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
+    bindingStatus:
+      status: pending-owner-binding
+      candidateFields:
+        - surfaceRefs
+      pendingFields:
+        - objectRefs
+        - stateRefs
+        - canonicalOperationRef
+        - authorityRef
+        - decisionRef
+        - transitionRef
+        - handoffRef
+        - requirementRefs
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/2
+      journeyRef: J-12
+      ordinal: 3
+      viewRef: media.view.inspect-output
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-output-preview-and-version
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-output-preview-and-version
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: Playback/download/review/provenance and delivery action
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Accessible preview and export preserve declared curve/time semantics.
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Unsupported interchange feature or different timing after export.
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Keep source graph, expose unsupported feature/loss, and allow a
+            qualified preview/export alternative only by explicit choice.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - Retain timeline position, keyframe/curve edits, reduced-motion
+              choice, and export settings.
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-output-preview-and-version
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks: []
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-12
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: Accessible preview and export preserve declared curve/time semantics.
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - Unsupported interchange feature or different timing after export.
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary: Keep source graph, expose unsupported feature/loss, and allow a
+            qualified preview/export alternative only by explicit choice.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        operationRef: media.operation.action.inspect-output-preview-and-version
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+        actionRef: media.action.inspect-output-preview-and-version
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: Accessible preview and export preserve declared curve/time semantics.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-output-preview-and-version
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Playback/download/review/provenance and delivery action
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml#purpose
+        actionRef: media.action.inspect-output-preview-and-version
+        candidateActionRefs:
+          - media.action.inspect-artifact
+          - media.action.inspect-provenance
+        operationRefs:
+          - media.operation.action.inspect-output-preview-and-version
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
 terminalSuccess: Accessible preview and export preserve declared curve/time semantics.
 criticalNonhappyPaths:
-- id: phase0-critical-exception
-  condition: Unsupported interchange feature or different timing after export.
-  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-    pending.
-recovery: Keep source graph, expose unsupported feature/loss, and allow a qualified preview/export alternative only
-  by explicit choice.
+  - id: phase0-critical-exception
+    condition: Unsupported interchange feature or different timing after export.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Keep source graph, expose unsupported feature/loss, and allow a
+  qualified preview/export alternative only by explicit choice.
 contextPreserved:
-- Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
+  - Retain timeline position, keyframe/curve edits, reduced-motion choice, and
+    export settings.
 channelEquivalents:
-- web
+  - web
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
@@ -222,10 +910,12 @@ requiredScenarioBehaviors:
   criticalNonhappyIntent: Unsupported interchange feature or different timing after export.
 scenarioRefs: []
 unresolvedProductDecisions:
-- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
-  transition is inferred by this proposal.
-- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
-- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
-  and preserved context.
-- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
-  review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.

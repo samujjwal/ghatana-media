@@ -1,0 +1,2786 @@
+{
+  "schemaVersion": "media.pdp38-migration-domain-review.v1",
+  "reviewStatus": "PENDING_COORDINATOR_REVIEW",
+  "authority": "Media owner semantic review of claim-to-owner-source parity only; this artifact is not a merged migration disposition, independent review, phase acceptance, runtime admission, qualification, or Lifecycle receipt.",
+  "acceptanceEffect": "none",
+  "records": [
+    {
+      "claimId": "MPSEM-0036-C002",
+      "exactSourceText": "“Private/Organization/Public” combines sharing with processing/location/classification",
+      "sourceTextSha256": "4dcd18761164b354450639cfa4287a57fdbe1600dae2d917bf1ee23a1530c19f",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes/definition",
+      "targetValueSha256": "d13405d48e410c7c2f0a1e9c2f5f1cd4b23d24fe03cb58b0ee61a363b7cdad3b",
+      "expectedOwnerValue": "Independent declarations for access/sharing, classification, processing location, consent/rights, and retention.",
+      "materialPredicates": [
+        "a single private/public label must not collapse independent axes"
+      ],
+      "negativeCases": [
+        "a single private/public label must not collapse independent axes"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0036-C003",
+      "exactSourceText": "Keep access, classification, processing location, consent/rights and retention as independent axes, with simple summaries.",
+      "sourceTextSha256": "c15d98b6507c1d962b40ba2e5fc23073f57f02379594ce84c9b3195babc786cf",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes/summaryRule",
+      "targetValueSha256": "29a51b3d8743c09a512cccba6cd956a95b4524fdabf022598c18f6d28888a483",
+      "expectedOwnerValue": "Offer a simple human-readable summary of access/sharing, classification, processing location, consent/rights, and retention when useful, while preserving each applicable axis independently in the underlying decision and record.",
+      "materialPredicates": [
+        "simple human-readable summary",
+        "access/sharing",
+        "classification",
+        "processing location",
+        "consent/rights",
+        "retention",
+        "preserving each applicable axis independently"
+      ],
+      "negativeCases": [
+        "a single private/public label must not collapse independent axes"
+      ],
+      "acceptanceEffect": "none",
+      "proposedTargetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.privacy-axes/summaryRule",
+      "reviewedPredicates": [
+        "simple human-readable summary",
+        "access/sharing",
+        "classification",
+        "processing location",
+        "consent/rights",
+        "retention",
+        "preserving each applicable axis independently"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0043-C004",
+      "exactSourceText": "track definition, implementation, technical qualification, licensing and runtime availability separately.",
+      "sourceTextSha256": "d8e9e448016e6ee73a8d3777a6e3d49320ef309d892bced38a402758be914c8b",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status/definition",
+      "targetValueSha256": "fc7cbecc4f5d0002eb646c5e5ab66e89836134a9d8250a1afc8dc8111e68cebb",
+      "expectedOwnerValue": "Separate states for product definition, implementation, qualification, license admission, and runtime availability.",
+      "materialPredicates": [
+        "source presence must not imply implementation, qualification, license, or runtime"
+      ],
+      "negativeCases": [
+        "source presence must not imply implementation, qualification, license, or runtime"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0053-C001",
+      "exactSourceText": "| Generative orchestration subsystem",
+      "sourceTextSha256": "e3ac0c12ab2c2398d8e238d7ff511402acf6ef878c52e14d0f3aad2d8be6bbf8",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.mediasynth/definition",
+      "targetValueSha256": "1038ce4fe3ec65e6954be2274bda0e973906dfab8210faac52c0c8eee0fd61d3",
+      "expectedOwnerValue": "Media's generative orchestration subsystem, composing admitted Media planning and execution capabilities under Media intent and policy.",
+      "materialPredicates": [
+        "must not redefine Media product identity"
+      ],
+      "negativeCases": [
+        "must not redefine Media product identity"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0058-C001",
+      "exactSourceText": "Stable `media.<family>.<operation>`",
+      "sourceTextSha256": "fd25de2d009e287ef68665b3e4c16166a87778e4084037db18f840144cb6b067",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/identifierNaming/capabilityId",
+      "targetValueSha256": "3a948ce56fd9ed7f1567bfed1027dd50df0d7a857105aa8aaf963959bef7080c",
+      "expectedOwnerValue": "media.<family>.<operation>",
+      "materialPredicates": [
+        "must not embed provider/model identifiers in capability IDs"
+      ],
+      "negativeCases": [
+        "must not embed provider/model identifiers in capability IDs"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0058-C003",
+      "exactSourceText": "no vendor/model names |",
+      "sourceTextSha256": "27b7a3d5c165df8e34cbac050fdce59b10735fa2723d1cd35b8e4ac7af7669a7",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/namingRules/newIdentifiers/rule",
+      "targetValueSha256": "c3e95566a8e4a28b560e3524192687d09d01770f11123b4a495f1d6dba36b956",
+      "expectedOwnerValue": "IDs are stable, lowercase, domain-owned, and omit vendor, model, provider, and implementation names.",
+      "materialPredicates": [
+        "must not include vendor/model names in stable semantic IDs"
+      ],
+      "negativeCases": [
+        "must not include vendor/model names in stable semantic IDs"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0074-C003",
+      "exactSourceText": "`DerivedArtifact` is an artifact plus derivation provenance, not a competing storage authority.",
+      "sourceTextSha256": "612e2b648d62acbac5f095eb4c26bd181cf402405df6378c551f5c468b0db189",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.derived-artifact/distinctions/0",
+      "targetValueSha256": "4ecadbb90e5baf68b1365a09e1f43a3dbbf3ffbe7eb796fb74f23b43607b45ec",
+      "expectedOwnerValue": "It remains an artifact with lineage and lifecycle; it is not a competing storage authority.",
+      "materialPredicates": [
+        "derived artifact must not become a competing byte store"
+      ],
+      "negativeCases": [
+        "derived artifact must not become a competing byte store"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0074-C005",
+      "exactSourceText": "`GenerationStrategy` describes a workflow shape, not model routing.",
+      "sourceTextSha256": "5a2a07140316b646230f5c6c6e030362beb05b8f6d41ac06f58fa3c74a1c9948",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.recipe/distinctions/0",
+      "targetValueSha256": "d473e733b1e55d97a993b8ca63cd06d35367530d4d3c91a3ffc0d2889ead3c1a",
+      "expectedOwnerValue": "A recipe describes workflow shape and does not route generic model providers or represent an execution attempt.",
+      "materialPredicates": [
+        "recipe intent must not imply generic provider routing"
+      ],
+      "negativeCases": [
+        "recipe intent must not imply generic provider routing"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0079-C001",
+      "exactSourceText": "Track five separate dimensions: `definitionState`, `implementationState`, `qualificationState`, `licenseAdmissionState`, `runtimeAvailability`.",
+      "sourceTextSha256": "c7ff2768e53303eb6efbca8db974391ddfcd3f0b7f89895831fc7a216ad5b8c6",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status/definition",
+      "targetValueSha256": "fc7cbecc4f5d0002eb646c5e5ab66e89836134a9d8250a1afc8dc8111e68cebb",
+      "expectedOwnerValue": "Separate states for product definition, implementation, qualification, license admission, and runtime availability.",
+      "materialPredicates": [
+        "these status axes must not collapse into a single availability flag"
+      ],
+      "negativeCases": [
+        "these status axes must not collapse into a single availability flag"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0217-C001",
+      "exactSourceText": "Tenant/workspace membership, title, immutable revision reference, assets, scenes/timelines, settings and access policy |",
+      "sourceTextSha256": "822afe8421335c82588f0c9b65621a590f769234b20e474ee01c7add1b7b8ea2",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProject/meaning",
+      "targetValueSha256": "6d3d0103c913073dff15fb7abe7efd28a1f8e0181f6ea276b0f38a19358d90f6",
+      "expectedOwnerValue": "Tenant/workspace membership, title, immutable revision reference, asset and scene/timeline references, settings, and access policy.",
+      "materialPredicates": [
+        "must not collapse workspace membership into tenant identity",
+        "must preserve the immutable revision reference"
+      ],
+      "negativeCases": [
+        "must preserve the immutable revision reference"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0218-C001",
+      "exactSourceText": "Immutable content identity, digest/size/type, technical descriptors, origin and owner references",
+      "sourceTextSha256": "a316b80eb8b5be270b69b2e902c5d81c3f5bf005602edc5d734a380054ff3b3d",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaArtifact-and-ArtifactVersion/meaning",
+      "targetValueSha256": "357b4a1439c49f9a87e649c41585ef8366e121cd28a98843cce892895fd2fdd3",
+      "expectedOwnerValue": "Immutable content identity, digest, byte size, media type, technical descriptors, origin, and owner references.",
+      "materialPredicates": [
+        "must not add mutable lifecycle state to immutable content identity"
+      ],
+      "negativeCases": [
+        "must not add mutable lifecycle state to immutable content identity"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0218-C002",
+      "exactSourceText": "separate lifecycle/access/retention state |",
+      "sourceTextSha256": "944207a78f1541a96b4024a540e84be5491b46adaa8ebbb18eb70377ac6983ab",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaArtifact-and-ArtifactVersion/stateBoundary",
+      "targetValueSha256": "4be2e7501ff429760626f7cfc0f172de7acf55a24d30e25567c96b1799c6d7b1",
+      "expectedOwnerValue": "Access, lifecycle, retention, and deletion/purge state are separate from immutable content identity.",
+      "materialPredicates": [
+        "immutable content must not imply indefinite retention"
+      ],
+      "negativeCases": [
+        "immutable content must not imply indefinite retention"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0219-C001",
+      "exactSourceText": "Project-specific use of an artifact/version, purpose, crop/trim and presentation bindings",
+      "sourceTextSha256": "81ed89f21a1773b0ec5e2c8130af21ab9013585f7c05b3d44c21fae8e8c7d8d1",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset/meaning",
+      "targetValueSha256": "055772f28813226fc13e33f47960d9ccddfac388e327adde78dd53131e7b52bc",
+      "expectedOwnerValue": "Project-specific use of an artifact version, purpose, crop/trim, and presentation bindings.",
+      "materialPredicates": [
+        "must not treat the project binding as the canonical byte store"
+      ],
+      "negativeCases": [
+        "must not treat the project binding as the canonical byte store"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0219-C002",
+      "exactSourceText": "does not duplicate bytes |",
+      "sourceTextSha256": "53e21290f3f8b13b9b047bcc6bf0e0557d3cfe033ef1919b232d63e2c9395388",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset/stateBoundary",
+      "targetValueSha256": "d3d3a32b7a4f46674c76ecf6154c9a1447b88f9c04070e7d15add2c8c58b4117",
+      "expectedOwnerValue": "References bytes; does not duplicate or redefine them.",
+      "materialPredicates": [
+        "project binding must not become a second byte store"
+      ],
+      "negativeCases": [
+        "project binding must not become a second byte store"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0220-C001",
+      "exactSourceText": "Versioned parameterized processing/animation/simulation intent with bounds, required ports and safe variants |",
+      "sourceTextSha256": "2fbfc26dc6867f5f42b3d86a7cd0a81d2020000954cae9ab318eb3a7043a3fe5",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaRecipe/meaning",
+      "targetValueSha256": "c860976408d1f21f1f340376e020661fec8a7cbbf53be6f2c92e258965b6944b",
+      "expectedOwnerValue": "Versioned parameterized processing, animation, or simulation intent, with typed parameters, bounds, required ports, and safe variants.",
+      "materialPredicates": [
+        "must not imply provider routing or execution"
+      ],
+      "negativeCases": [
+        "must not imply provider routing or execution"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0221-C001",
+      "exactSourceText": "Durable requested operation, immutable request/plan references, owner, state, attempts and outputs",
+      "sourceTextSha256": "ddde58716e6e72b6528073fcc53e02f3044d52d47c53907c3cedfc2386eee086",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ProcessingJob-and-RenderJob/meaning",
+      "targetValueSha256": "a550cb84ce1e64ea0c09d5d43b8a02df96fdcfa7af5948986a2e112e44ba8c89",
+      "expectedOwnerValue": "Durable requested operation with immutable request/plan references, owner, state, attempts, and outputs; RenderJob and ArtifactVerificationJob are intent-specific views.",
+      "materialPredicates": [
+        "must not introduce a separate RenderJob lifecycle"
+      ],
+      "negativeCases": [
+        "must not introduce a separate RenderJob lifecycle"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0222-C001",
+      "exactSourceText": "Attempt identity, worker claim/fencing token, deadlines, side-effect boundary, provider execution reference and reconciliation |",
+      "sourceTextSha256": "27f4bff137090ac34d3b968950d057ca1b9ec26a802b1a67bb99cf04c6eb31b3",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=JobAttempt-and-JobLease/meaning",
+      "targetValueSha256": "9760921b1af450d900c04d010eb3eb5e2d6a4be5395b756066fa90927b497a00",
+      "expectedOwnerValue": "Attempt identity, worker claim/fencing token, deadline, side-effect boundary, provider execution reference, and reconciliation state.",
+      "materialPredicates": [
+        "must not treat attempt identity as job identity"
+      ],
+      "negativeCases": [
+        "must not treat attempt identity as job identity"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0223-C001",
+      "exactSourceText": "Immutable typed nodes/edges, artifact references, required semantics and parameter schema |",
+      "sourceTextSha256": "78b2dfb8b906c4960e88eebe5746ee0b7024118d204a640ee023e88966ed9f97",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProcessingGraph/meaning",
+      "targetValueSha256": "e0994600cedca82dc4217032f5e4156966cae9c903afe10e56e609ac6102fa5c",
+      "expectedOwnerValue": "Immutable typed nodes/edges, artifact references, required semantics, and parameter contracts.",
+      "materialPredicates": [
+        "must not use an untyped map as graph semantics"
+      ],
+      "negativeCases": [
+        "must not use an untyped map as graph semantics"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0224-C001",
+      "exactSourceText": "Admitted concrete graph, chosen capability bindings, environment, bounds, policy-decision references, cost reservation and fingerprint |",
+      "sourceTextSha256": "5ec92ba1c154415fef64a164147b13e4aa1c0f107ad768a8012243bcdad3d86d",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ResolvedMediaPlan/meaning",
+      "targetValueSha256": "e09f57655f85ecfe4d2ddbc59a16f7d6281a67796d57b633b24938b1561e087f",
+      "expectedOwnerValue": "Admitted concrete graph, capability bindings, execution environment, resource bounds, policy-decision references, cost reservation, and plan fingerprint.",
+      "materialPredicates": [
+        "must not treat an unresolved proposal as an admitted plan"
+      ],
+      "negativeCases": [
+        "must not treat an unresolved proposal as an admitted plan"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0225-C001",
+      "exactSourceText": "Mutable execution progression and immutable observations",
+      "sourceTextSha256": "a57a5c9286178cc667ad59323f56a5a453d3869354d808d0e3cb831d9f67fbf0",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaRun-and-Checkpoint/meaning",
+      "targetValueSha256": "fb60248a1dab015e2a21fb854eaa03ba6c56a45d90ee5bea852eac3617e7aef9",
+      "expectedOwnerValue": "Mutable execution progression plus immutable observations and checkpoint references.",
+      "materialPredicates": [
+        "must not mutate recorded observations"
+      ],
+      "negativeCases": [
+        "must not mutate recorded observations"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0226-C001",
+      "exactSourceText": "Narrative/visual intent, shot/scene purpose, timing, references, controls, narration and transitions |",
+      "sourceTextSha256": "70978b1c7323e430307759871c84924698bd7693e3d7c74a86f42f35cb45c4f1",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ScenePlan-and-SceneBrief/meaning",
+      "targetValueSha256": "b3e82c268c5772c30e524765e7903775aafb41fb0cb7c91d34a65d869871002f",
+      "expectedOwnerValue": "Narrative/visual intent, purpose, timing, references, controls, narration, and transitions.",
+      "materialPredicates": [
+        "must not imply a validated simulation model"
+      ],
+      "negativeCases": [
+        "must not imply a validated simulation model"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0227-C001",
+      "exactSourceText": "Versioned scene entities/assets/transforms/materials/cameras/lights and typed bindings",
+      "sourceTextSha256": "9de6a22c337feb8bb2ccc30d56e35d0397d495453fdea75fdc425349ecc923e3",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=SceneGraph/meaning",
+      "targetValueSha256": "4b185fdf02104f94b4fcf8fb65c2725cc3ebd87ee8807bb644b0a4958d554197",
+      "expectedOwnerValue": "Versioned visual scene entities, assets, transforms, materials, cameras, lights, and typed bindings to model state or observables.",
+      "materialPredicates": [
+        "must not treat renderer objects as public domain identity"
+      ],
+      "negativeCases": [
+        "must not treat renderer objects as public domain identity"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0228-C001",
+      "exactSourceText": "Tracks/keyframes/curves/constraints/events/rig mappings and bindings to scene properties |",
+      "sourceTextSha256": "868ccfdf95da95cb299f58ce1421a338b76712147d17e217c06eea4a0c8aa657",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=AnimationGraph/meaning",
+      "targetValueSha256": "b5dc0204604a4cf99dc9ebc15301bd6dd5cec685583ca7d8a545c693fede1659",
+      "expectedOwnerValue": "Tracks, keyframes, curves, constraints, events, rig mappings, and bindings to scene properties.",
+      "materialPredicates": [
+        "must not interpret animation tracks as a solver"
+      ],
+      "negativeCases": [
+        "must not interpret animation tracks as a solver"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0229-C001",
+      "exactSourceText": "Initial state, physical/model quantities, units, solver/engine requirements, boundary conditions, constraints and sampled output contract |",
+      "sourceTextSha256": "f5a70c9096879e84372cc6acee6dc412bbe6d1c403ffa2465245effff0e8c5f7",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=SimulationWorld/meaning",
+      "targetValueSha256": "e36f3af8d9f5e41fb9a37de8568c9dbe4a5af87af34c214fc51dd1b194d78724",
+      "expectedOwnerValue": "Initial physical/model state, quantities and units, solver/engine requirements, boundary conditions, constraints, and sampled output contract.",
+      "materialPredicates": [
+        "must preserve declared units and boundary conditions"
+      ],
+      "negativeCases": [
+        "must preserve declared units and boundary conditions"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0230-C001",
+      "exactSourceText": "Rational-time tracks/clips/transitions, audio mix, captions, graphics, color and delivery intent |",
+      "sourceTextSha256": "215c6843552ad64d326f272fdc1711ca61e080ad38438780719e723f6a541b2e",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=Timeline-and-CompositionConfig/meaning",
+      "targetValueSha256": "204cc4e005d49797ed9230fe65a38abbdc16d6e544a6db33751b8108623f0b79",
+      "expectedOwnerValue": "Rational-time tracks and clips, transitions, audio mix, captions, graphics, color configuration, and delivery intent.",
+      "materialPredicates": [
+        "must not convert rational time into accumulating floating-point milliseconds"
+      ],
+      "negativeCases": [
+        "must not convert rational time into accumulating floating-point milliseconds"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0231-C001",
+      "exactSourceText": "Typed references, masks, depth/normals, pose, edges, segmentation, layout, palette, camera/subject trajectories and static/motion regions |",
+      "sourceTextSha256": "b6d523079510bdd82c53b144e05b520b6ea43d57bf6dbab09a7b3fa33bd861aa",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=GenerationControlBundle/meaning",
+      "targetValueSha256": "623f097ab6a510ce671476cadde55d34393d24339e25761a4ece19427c869dac",
+      "expectedOwnerValue": "Typed references for masks, depth/normals, pose, edges, segmentation, layout, palette, camera/subject trajectories, and static/motion regions.",
+      "materialPredicates": [
+        "must not claim these controls establish model truth"
+      ],
+      "negativeCases": [
+        "must not claim these controls establish model truth"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0232-C001",
+      "exactSourceText": "Scene-to-scene identity/appearance/geometry/style references and qualified comparisons",
+      "sourceTextSha256": "ea9e4ad370bfa0db16ea972a6c9ec6404b6c0928d9925d58ba7e8bf7806b25e4",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ContinuityState/meaning",
+      "targetValueSha256": "370879330510f6797fcbdb1283866d1de7666158bc2165db59acbab595c44fb0",
+      "expectedOwnerValue": "Scene-to-scene identity, appearance, geometry, and style references plus qualified comparison observations.",
+      "materialPredicates": [
+        "must not treat observations as identity proof"
+      ],
+      "negativeCases": [
+        "must not treat observations as identity proof"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0232-C002",
+      "exactSourceText": "observations are not identity proof |",
+      "sourceTextSha256": "7d692cfc523655cf16f470df2f189dba65ee9e19c21ed2dfc4848d88924f9a03",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ContinuityState/stateBoundary",
+      "targetValueSha256": "6c0535e0b13af630c275904f7651b51fc98e905f00b5ce0f19c9db9b3062c434",
+      "expectedOwnerValue": "A continuity observation is not identity proof.",
+      "materialPredicates": [
+        "must not infer identity from continuity scores"
+      ],
+      "negativeCases": [
+        "must not infer identity from continuity scores"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0233-C001",
+      "exactSourceText": "Metric versions, applicability, input/output references, scores/units, thresholds, uncertainty, failure regions and reviewer disposition |",
+      "sourceTextSha256": "ea43e22d6af8f8f69bd1d78a9cd6f88626ee3d7a8a950b6ee2cff41517e8784a",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment/meaning",
+      "targetValueSha256": "50cd21d0c2a8d1f34f52a103530ca5cc235287e901c8986752768d40cd40ee80",
+      "expectedOwnerValue": "Metric/version, applicability, input/output references, score and unit, threshold, uncertainty, failure region, and reviewer disposition.",
+      "materialPredicates": [
+        "must not reduce differently scoped quality metrics to one score"
+      ],
+      "negativeCases": [
+        "must not reduce differently scoped quality metrics to one score"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0234-C001",
+      "exactSourceText": "Registered outputs, exact technical descriptors, validation, degradation, provenance and publication certainty |",
+      "sourceTextSha256": "a60d90b105f92757cbb419705f88e585c7705035b60bd40ab3378f0d3577ec57",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=RenderOutcome-and-DeliveryOutcome/meaning",
+      "targetValueSha256": "aafdfc3518ef379dada5d0f78867297ff509db388bd146564d93519a4a83b426",
+      "expectedOwnerValue": "Registered outputs, exact technical descriptors, validation, degradation, provenance, and publication certainty.",
+      "materialPredicates": [
+        "must not equate render success with delivery acknowledgment"
+      ],
+      "negativeCases": [
+        "must not equate render success with delivery acknowledgment"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0235-C002",
+      "exactSourceText": "Separate authority references for permission, lawful/contractual permitted use and observed creation history |",
+      "sourceTextSha256": "57f1745400da259cc50380a0e45c7ab585fe311a9e7ab4c7163385454f045330",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=ConsentReference-RightsDecision-ProvenanceManifest/meaning",
+      "targetValueSha256": "23fb06a4c371448049f968027eb0bef321bf0c0b3c53eea04ca4b37ca84494ac",
+      "expectedOwnerValue": "Separate authority references for permission, lawful/contractual permitted use, and observed creation history.",
+      "materialPredicates": [
+        "provenance must not grant rights"
+      ],
+      "negativeCases": [
+        "provenance must not grant rights"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0236-C001",
+      "exactSourceText": "Use IDs and references across boundaries, not in-memory framework objects.",
+      "sourceTextSha256": "94984a65c3bd51459230f685dbe4509eb6d271d7fc4d4e0f9082839c11562949",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/identity/proposedRule",
+      "targetValueSha256": "2a74c74d57edc4759ceea3b1f2f3f515691efaa4edb80baf942f889fbfe4155d",
+      "expectedOwnerValue": "Use opaque stable IDs and explicit version/hash references across boundaries; never rely on engine object identity.",
+      "materialPredicates": [
+        "must not expose in-memory framework objects as contract identity"
+      ],
+      "negativeCases": [
+        "must not expose in-memory framework objects as contract identity"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0236-C003",
+      "exactSourceText": "Product-specific payloads are discriminated and validated",
+      "sourceTextSha256": "dfc6ae56ef2cab54e6a309464d5acc5f7f31aeef8c4a9441d4af56e3e61146e0",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/publicShape/0",
+      "targetValueSha256": "2c3ccb04fae477fecdbe1705bcab0c28b1fa4c98d33f424a408740bcc6638e92",
+      "expectedOwnerValue": "Product records use discriminated, validated payloads and typed references; arbitrary Map<String, unknown> is not an adequate new core semantic contract.",
+      "materialPredicates": [
+        "must reject unconstrained Map payload as core operation semantics"
+      ],
+      "negativeCases": [
+        "must reject unconstrained Map payload as core operation semantics"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0236-C004",
+      "exactSourceText": "arbitrary `Map<string, unknown>` is not an adequate contract for core operation semantics.",
+      "sourceTextSha256": "435d7d7d1ee091a92deb917570c5ee8b04ce6579ef2c6c51561bc18d8ba493ae",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/publicShape/0",
+      "targetValueSha256": "2c3ccb04fae477fecdbe1705bcab0c28b1fa4c98d33f424a408740bcc6638e92",
+      "expectedOwnerValue": "Product records use discriminated, validated payloads and typed references; arbitrary Map<String, unknown> is not an adequate new core semantic contract.",
+      "materialPredicates": [
+        "must reject unconstrained Map payload as core operation semantics"
+      ],
+      "negativeCases": [
+        "must reject unconstrained Map payload as core operation semantics"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0255-C001",
+      "exactSourceText": "Use integer samples/frames or rational time `{value, timescale}` and rational rates `{numerator, denominator}`.",
+      "sourceTextSha256": "0be96c32aaa1d38836582c6d0d07722fe7d886a4a2a48ed092ba8c3261930f86",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time/representation",
+      "targetValueSha256": "d90579c2030e6b8ff9548fe21a8ad623bcc3d8256e5923f8521afc115d2a5313",
+      "expectedOwnerValue": "Use integer sample/frame counts or rational time {value, timescale}; represent rates as {numerator, denominator}.",
+      "materialPredicates": [
+        "must not round-trip rational values through floating-point milliseconds"
+      ],
+      "negativeCases": [
+        "must not round-trip rational values through floating-point milliseconds"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0255-C002",
+      "exactSourceText": "Define intervals as `[start, end)` and specify rounding at each conversion.",
+      "sourceTextSha256": "a8da91ab4531eb1caf859a644ac44280b466373a0f7bd815354fb4cf2c9b919e",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time/intervalConvention",
+      "targetValueSha256": "f3a0b09500cef78f6e15a8e79ecd55a43c03d78d053063d0bae9814b8f31420a",
+      "expectedOwnerValue": "Half-open intervals [start, end).",
+      "materialPredicates": [
+        "adjacent intervals must not double-count a shared endpoint"
+      ],
+      "negativeCases": [
+        "adjacent intervals must not double-count a shared endpoint"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0255-C003",
+      "exactSourceText": "Avoid accumulating floating-point milliseconds across a long timeline.",
+      "sourceTextSha256": "ec04f27b7411175ffa76d326e49e16286cbdcfe63a6a1a103b2aac2298086889",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.rational-time/conversionRule",
+      "targetValueSha256": "689e930cf01721216363884f05f4e51285140b20cc422a119549b063564fd759",
+      "expectedOwnerValue": "Define rounding at each conversion; do not accumulate floating-point milliseconds across a long timeline.",
+      "materialPredicates": [
+        "must not accumulate floating-point milliseconds across timelines"
+      ],
+      "negativeCases": [
+        "must not accumulate floating-point milliseconds across timelines"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0256-C001",
+      "exactSourceText": "Maintain separate clocks: media presentation time",
+      "sourceTextSha256": "c1f450323846546dfeaa6124785dc2551461869770b9d7f233992ecce2311eeb",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.media-time/term",
+      "targetValueSha256": "5c8007ac6f4642145edddaadab8e6f3c4c599aa67562c748c114ff59421f7018",
+      "expectedOwnerValue": "Media presentation time",
+      "materialPredicates": [
+        "must not conflate presentation time with story or simulation time"
+      ],
+      "negativeCases": [
+        "must not conflate presentation time with story or simulation time"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0256-C004",
+      "exactSourceText": "`t_sim` simulation time",
+      "sourceTextSha256": "85002e9ade7fe1b7d698e855bb631ecf9a0f18c38db246605dea05676aa946c4",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.simulation-time/term",
+      "targetValueSha256": "ffb1a1c87162f1b2537f1ca8e551dba194bd33437fb39bef541023a992c35ea4",
+      "expectedOwnerValue": "Simulation time (t_sim)",
+      "materialPredicates": [
+        "must not advance simulation implicitly when story time is scrubbed"
+      ],
+      "negativeCases": [
+        "must not advance simulation implicitly when story time is scrubbed"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0256-C005",
+      "exactSourceText": "`t_story` explanation/animation time",
+      "sourceTextSha256": "9386ddc9e4ace2b30e301956032c96684002c2df4d8e3b13f24bfb6d0b981b3b",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.simulation-time/forbiddenConflations/2",
+      "targetValueSha256": "1557689b58172a76dc3f5ebb00c514dc48a35ad2d29ada55427ae098216ca136",
+      "expectedOwnerValue": "animation/story time",
+      "materialPredicates": [
+        "must not conflate story time with simulation time"
+      ],
+      "negativeCases": [
+        "must not conflate story time with simulation time"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0256-C006",
+      "exactSourceText": "Scrubbing or pausing story time must not unintentionally advance a scientific model.",
+      "sourceTextSha256": "53d3dffdf441fc426f26e38a39ff1dfa93d6870a4a2534fb1caa9f58493c1f39",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.simulation-time/distinctions/0",
+      "targetValueSha256": "8730d67648da507b09e1f3769056bff79f8a70e842009bae2cefba172d52ec14",
+      "expectedOwnerValue": "Pausing or scrubbing story time must not implicitly advance simulation time.",
+      "materialPredicates": [
+        "scrubbing story time must leave simulation time unchanged unless explicitly commanded"
+      ],
+      "negativeCases": [
+        "scrubbing story time must leave simulation time unchanged unless explicitly commanded"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0259-C002",
+      "exactSourceText": "Do not use the STT 16 kHz mono default as the universal mastering format.",
+      "sourceTextSha256": "c681f78b60cceca158982577b9e3f7500bd14983fdf4333deb7f726915525392",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=media-audio-video-client-types/compatibilityFacts/1",
+      "targetValueSha256": "833e8dd4690bca0da3805b790338309b9bced163c49f2fb6c73d638a05374679",
+      "expectedOwnerValue": "DEFAULT_AUDIO_FORMAT uses 16000 Hz for the client STT default; this is an input default, not a universal mastering or artifact rate.",
+      "materialPredicates": [
+        "must not apply the STT default as a mastering default"
+      ],
+      "negativeCases": [
+        "must not apply the STT default as a mastering default"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0261-C003",
+      "exactSourceText": "The initial native convention uses camera forward −Z, quaternions `[x, y, z, w]`, column vectors, local transform `T × R × S`, world transform `parentWorld × local`, and column-major serialized matrices.",
+      "sourceTextSha256": "7b588c8d71f58571acb18811f063270fcc3629506d1dd36525bb5978818dc804",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.scene-geometry/representation",
+      "targetValueSha256": "5fb8df10525a8ee5647682e46b671cd7f330fc5d6c25b1fd8fae6675e52756df",
+      "expectedOwnerValue": "Proposed initial convention is right-handed, +Y up, meters, seconds, kilograms, radians; camera forward -Z; quaternions [x, y, z, w]; column vectors; local transform T × R × S; world transform parentWorld × local; column-major serialized matrices.",
+      "materialPredicates": [
+        "must not silently change a coordinate or matrix convention"
+      ],
+      "negativeCases": [
+        "must not silently change a coordinate or matrix convention"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0261-C005",
+      "exactSourceText": "Image-space controls use a top-left origin and pixel-center coordinates",
+      "sourceTextSha256": "fc744fbefd18d837b13af5a88e9339cdeee9aa748bf3da1d90d0aa3935d24df1",
+      "targetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/canonicalConversionDefinitions/records/@id=media.value.image-pixel-center",
+      "targetValueSha256": "41c6648bae5f26ddfb7a6641b6add01b5e5a9c47605a0dd92ac58e1cfe07b948",
+      "expectedOwnerValue": {
+        "id": "media.value.image-pixel-center",
+        "representation": "Exact rational zero-based x/y center index, imageVersionId, positive integer width/height at most 2^32-1, origin top-left, axes right-down.",
+        "convention": "Index zero names the first pixel center; index width-1/height-1 names the last. Rational subpixel indices remain within this center extent. Normalized coordinates are (index+1/2)/dimension; a one-pixel axis maps its only center to 1/2.",
+        "conversion": "Exact rational normalize/denormalize under the same image version and dimensions with an explicit center convention. Center and boundary converters reject each other's serialized convention; no implicit crop, rotate, axis or image-version transformation.",
+        "failClosed": "Reject outside-center-extent values, normalized border zero/one, stale image version/dimensions and missing or incompatible coordinate conventions. No silent clipping.",
+        "qualifications": "Definition arithmetic only; legacy wire bindings, camera calibration and vision geometry remain unqualified."
+      },
+      "materialPredicates": [
+        "origin top-left",
+        "Index zero names the first pixel center",
+        "Normalized coordinates are (index+1/2)/dimension",
+        "same image version and dimensions"
+      ],
+      "negativeCases": [
+        "must not silently flip image axes"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0261-C006",
+      "exactSourceText": "normalized coordinates declare their mapping.",
+      "sourceTextSha256": "be56e8689d81c4082a510df03ecfc76c184d29f64ea4cfa74ed279c3f407a974",
+      "targetRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#/canonicalConversionDefinitions/records/@id=media.value.image-pixel-center",
+      "targetValueSha256": "41c6648bae5f26ddfb7a6641b6add01b5e5a9c47605a0dd92ac58e1cfe07b948",
+      "expectedOwnerValue": {
+        "id": "media.value.image-pixel-center",
+        "representation": "Exact rational zero-based x/y center index, imageVersionId, positive integer width/height at most 2^32-1, origin top-left, axes right-down.",
+        "convention": "Index zero names the first pixel center; index width-1/height-1 names the last. Rational subpixel indices remain within this center extent. Normalized coordinates are (index+1/2)/dimension; a one-pixel axis maps its only center to 1/2.",
+        "conversion": "Exact rational normalize/denormalize under the same image version and dimensions with an explicit center convention. Center and boundary converters reject each other's serialized convention; no implicit crop, rotate, axis or image-version transformation.",
+        "failClosed": "Reject outside-center-extent values, normalized border zero/one, stale image version/dimensions and missing or incompatible coordinate conventions. No silent clipping.",
+        "qualifications": "Definition arithmetic only; legacy wire bindings, camera calibration and vision geometry remain unqualified."
+      },
+      "materialPredicates": [
+        "Normalized coordinates are (index+1/2)/dimension",
+        "Center and boundary converters reject each other",
+        "no implicit"
+      ],
+      "negativeCases": [
+        "must not assume an undeclared normalized-coordinate mapping"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0272-C001",
+      "exactSourceText": "Scientific/domain fidelity is separate from visual quality.",
+      "sourceTextSha256": "b6a501b23f76da343fc4172813d42e88a9ee1c788b16c2be62bf1cbac563346c",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment/stateBoundary",
+      "targetValueSha256": "4cda72cd128149561033e2aa2ed5f7f6df9719102517c6791e42d726b84fce3a",
+      "expectedOwnerValue": "Visual quality is not scientific/domain fidelity.",
+      "materialPredicates": [
+        "visual plausibility must not prove scientific correctness"
+      ],
+      "negativeCases": [
+        "visual plausibility must not prove scientific correctness"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0278-C002",
+      "exactSourceText": "They are not one interchangeable score.",
+      "sourceTextSha256": "e2b9a61ffaec87e653e86c3c9292eab8ad1de996463d92c2ec8b55370015dcfe",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.quality/forbiddenConflations/2",
+      "targetValueSha256": "a766720d3c4df62770e1c379e83d04746bdc03898d9ab81a10e0677e13584b02",
+      "expectedOwnerValue": "universal quality score",
+      "materialPredicates": [
+        "different quality dimensions must not be treated as interchangeable"
+      ],
+      "negativeCases": [
+        "different quality dimensions must not be treated as interchangeable"
+      ],
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0442-C002",
+      "exactSourceText": "Switching levels preserves edits and authority",
+      "sourceTextSha256": "6d5293c349c46b5a2730014866fbc003e10a642bb43916f786a2035a6a32909f",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.disclosure-levels/distinctions/0",
+      "targetValueSha256": "d96aeba137cf019b04425045f6cec73b8e3e45bf9bf07f01f3e6cc02a04e8573",
+      "expectedOwnerValue": "Switching levels preserves authority and edits; it does not create separate workflows.",
+      "materialPredicates": [
+        "changing disclosure level must not reset edits or authority"
+      ],
+      "negativeCases": [
+        "changing disclosure level must not reset edits or authority"
+      ],
+      "acceptanceEffect": "none"
+    }
+  ],
+  "pendingRecords": [
+    {
+      "claimId": "MPSEM-0003-C001",
+      "exactSourceText": "This document is retained as a migration/execution sequence and historical provenance for the supplied consolidated Media plan.",
+      "sourceTextSha256": "1e21da75099a65b4e5bab95af0838e97a4f3bf63477542b7e1748660c9de8da2",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/migrationExecutionBoundary/legacyPlanAuthority/rule",
+      "targetValueSha256": "aac3f4eea18ff195a8e43591dbd769a15f5d43e4cd449112f04e9c2fff95d653",
+      "expectedOwnerValue": "The historical master plan is retained as migration/execution provenance. Its proposed product semantics are non-authoritative until decomposed into and reviewed in the exact owning PDP records; it is not a parallel semantic source. Bibliographic metadata identifies the historical document and does not itself establish product truth or completion.",
+      "materialPredicates": [
+        "historical master plan",
+        "migration/execution provenance",
+        "not a parallel semantic source"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0034-C003",
+      "exactSourceText": "Separate immutable specification, resolved execution plan, and run/checkpoint state",
+      "sourceTextSha256": "8b07f763b016aed52b4d3cfae1173ca1945df0d92ff519dbd7bf8cbeff5428e9",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/lifecycleSeparation",
+      "targetValueSha256": "cc0ef3e1688cd8a5570c8cfce9939b660f047e10bb28686ed8e07d05ac617b40",
+      "expectedOwnerValue": "Keep immutable user/domain specifications, immutable resolved execution plans, and mutable run/checkpoint state as distinct records. A run never mutates the source specification or admitted plan.",
+      "materialPredicates": [
+        "immutable user/domain specifications",
+        "immutable resolved execution plans",
+        "mutable run/checkpoint state"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0037-C004",
+      "exactSourceText": "Immutable content is not indefinite retention.",
+      "sourceTextSha256": "e9bcef7f1b4a27b7e0d029993a8c44813a4ae4e3dbf0944f535cfcbd31e143e0",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/artifact/retentionRule",
+      "targetValueSha256": "13a6fccb0260eba568b46330e3837fdad0e1694084d7bc4b8017058adea67967",
+      "expectedOwnerValue": "Immutable content identity does not imply indefinite retention; retention and deletion/purge follow their separate authority and lifecycle contracts.",
+      "materialPredicates": [
+        "does not imply indefinite retention",
+        "retention",
+        "deletion/purge"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0045-C004",
+      "exactSourceText": "Use interchange adapters, not claims of universal losslessness.",
+      "sourceTextSha256": "5498ee70297918dc5832bc4021cf29fa7ba536d03896868bc7b372ad36c3a876",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/irCompatibility/interchangeRule",
+      "targetValueSha256": "70f6ae949094369edfc7422fba9d14d860404675af5622606ffc38ac9c3886d7",
+      "expectedOwnerValue": "Media uses bounded interchange adapters for supported subsets and records conversion loss; it must not claim universal losslessness across frameworks or formats.",
+      "materialPredicates": [
+        "bounded interchange adapters",
+        "conversion loss",
+        "not claim universal losslessness"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0045-C004"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0046-C002",
+      "exactSourceText": "Ghatana must not import product implementation",
+      "sourceTextSha256": "8421248f5ebfd2a6e6924fc0b5e69518bf0ae57e1c11c975c89ed37578a1d00a",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#/ownerDefinedImportBoundary/ghatanaCoreConsumerRule",
+      "targetValueSha256": "7a791c5b69c427142764508665fccaa2177ac4b2c3616682eefaa7e38132b6ad",
+      "expectedOwnerValue": "Ghatana core and neutral platform consumers use only immutable published Media artifacts or supported public Media contracts; they must not import Ghatana Media source trees, product implementation packages, generated implementation internals, or private modules.",
+      "materialPredicates": [
+        "Ghatana core and neutral platform consumers",
+        "must not import Ghatana Media source trees",
+        "product implementation packages",
+        "generated implementation internals",
+        "private modules",
+        "immutable published Media artifacts or supported public Media contracts"
+      ],
+      "negativeCases": [
+        "A TutorPutor import boundary is not equivalent to the Ghatana core consumer boundary.",
+        "An owner route without the prohibition on importing Ghatana Media product implementation does not preserve this claim."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0051-C001",
+      "exactSourceText": "| Product | **Ghatana Media** |",
+      "sourceTextSha256": "ad6dae74ec53b23da2c7ab8ebbee26e2540e7646d7a137ab9a0a025c271de04a",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity/displayName",
+      "targetValueSha256": "70bda237ca9508c71ab5d92fc095bbc05214e690d9f2dddfe8e9a7c9b19cee9b",
+      "expectedOwnerValue": "Ghatana Media",
+      "materialPredicates": [
+        "Ghatana Media"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0052-C001",
+      "exactSourceText": "| Product ID / target repository",
+      "sourceTextSha256": "ed5bbc82a13aaf52d08217bc8d2c76ba529030be4b42fd843a39a295b343885c",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity",
+      "targetValueSha256": "dd5c21706b64c32626cfa6e17c85a9cfde1790131a02fb61f6dc192f84240060",
+      "expectedOwnerValue": {
+        "displayName": "Ghatana Media",
+        "canonicalProductId": "media",
+        "targetRepository": "samujjwal/ghatana-media",
+        "repositoryRole": "independently-versioned-Ghatana-product-repository",
+        "repositoryBoundary": "This is a product repository, not a runtime-platform repository or a child workspace of ghatana-products."
+      },
+      "materialPredicates": [
+        "canonicalProductId",
+        "targetRepository"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0052-C002",
+      "exactSourceText": "`media` / `samujjwal/ghatana-media` |",
+      "sourceTextSha256": "d72fb660cbe138b945ab72f9e1fdaba6af3e55e18930989bb44b5806d7688c42",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity",
+      "targetValueSha256": "dd5c21706b64c32626cfa6e17c85a9cfde1790131a02fb61f6dc192f84240060",
+      "expectedOwnerValue": {
+        "displayName": "Ghatana Media",
+        "canonicalProductId": "media",
+        "targetRepository": "samujjwal/ghatana-media",
+        "repositoryRole": "independently-versioned-Ghatana-product-repository",
+        "repositoryBoundary": "This is a product repository, not a runtime-platform repository or a child workspace of ghatana-products."
+      },
+      "materialPredicates": [
+        "media",
+        "samujjwal/ghatana-media"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0053-C002",
+      "exactSourceText": "not a second product, separate generic platform, or mandatory independently deployed service |",
+      "sourceTextSha256": "b77934f0232a7bc07feb8c5b20350342374af4f5fe3c5409214ca7e813e80a31",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.mediasynth/distinctions/1",
+      "targetValueSha256": "b05497c991cec2c57b855ea6ad24cb984de2a9bd96b5953962e59770edbf5d84",
+      "expectedOwnerValue": "It is not a second product or separate generic platform and is not required to be independently deployed.",
+      "materialPredicates": [
+        "not a second product",
+        "separate generic platform",
+        "not required to be independently deployed"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0053-C002"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0055-C002",
+      "exactSourceText": "Preserve `com.ghatana.media.*` and supported `com.ghatana.audio.video.*` during relocation",
+      "sourceTextSha256": "e4d325c09b89e37d666b34ecdc7c90ca81c3c2889237b8494def1384723485d6",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#namingRules/compatibilityNames",
+      "targetValueSha256": "88579bd530deed95f87180559006dc9fb86b003ea22966d071e6d2b1d69301f4",
+      "expectedOwnerValue": {
+        "source": "docs/migration/expert-reviewed-master-plan.md#2-1-stable-naming",
+        "allowedOnlyFor": "existing-build-coordinates-java-namespaces-and-published-package-identities",
+        "examples": [
+          "audio-video",
+          "AudioVideo",
+          "com.ghatana.audio.video",
+          "@audio-video/types",
+          "@audio-video/client",
+          "@audio-video/ui",
+          "com.ghatana.media.*",
+          "com.ghatana.audio.video.*"
+        ],
+        "rule": "Preserve during migration; do not use as new product labels, new capability names, or new package names."
+      },
+      "materialPredicates": [
+        "com.ghatana.media.*",
+        "com.ghatana.audio.video.*",
+        "Preserve during migration",
+        "do not use as new product labels"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0061-C001",
+      "exactSourceText": "`ghatana-media` is an independently versioned **Ghatana product repository**.",
+      "sourceTextSha256": "b6d96fd3d26369ec2187c6ff00da3a6b17ccb868b1fd8b299f1036f2b637cb27",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity/repositoryRole",
+      "targetValueSha256": "8da9cb4c526ed8ff4e0c23e7cd4d65721dfd69dd74769f1f21097aad786129fe",
+      "expectedOwnerValue": "independently-versioned-Ghatana-product-repository",
+      "materialPredicates": [
+        "independently-versioned-Ghatana-product-repository"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0061-C002",
+      "exactSourceText": "It is not a runtime-platform repository and it is not a child workspace of `ghatana-products`.",
+      "sourceTextSha256": "f5e6bec720da95c0a5da35af1f70ad29524f62255f9e27f7f969ff65e79d3540",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity/repositoryBoundary",
+      "targetValueSha256": "c09c113454f273204798cada3bce9ee6895e1eb7e4c6b6623377e28096646a30",
+      "expectedOwnerValue": "This is a product repository, not a runtime-platform repository or a child workspace of ghatana-products.",
+      "materialPredicates": [
+        "not a runtime-platform repository",
+        "child workspace of ghatana-products"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0067-C001",
+      "exactSourceText": "- owns Media product semantics, APIs, CLI, runtime composition, artifact/job/stream domain state, MediaSynth, animation, simulation, quality, editing, composition and delivery;",
+      "sourceTextSha256": "a13b6810067bc9c57197876200a1d6d700b2b5b1615d943aabf2f84e6228a2d5",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.ghatana-media/semanticScope",
+      "targetValueSha256": "dd5590891daaa1c655695fdf21b514760868fbe57c0e386fafa4efca3a90f588",
+      "expectedOwnerValue": "Media owns product semantics, APIs and clients, runtime composition, artifact/job/stream domain state, MediaSynth, animation, simulation, quality, editing, composition, and delivery.",
+      "materialPredicates": [
+        "APIs and clients",
+        "runtime composition",
+        "artifact/job/stream domain state",
+        "MediaSynth",
+        "animation",
+        "simulation",
+        "quality",
+        "editing",
+        "composition",
+        "delivery"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0071-C001",
+      "exactSourceText": "- must not implement a second AI Inference router, Agent Runtime, Action Plane, Event Plane, Data Cloud, generic audit framework, generic observability framework or generic product-development framework;",
+      "sourceTextSha256": "452deb51fbb1b7fccf811c8e42df4763a4485f0440d8c2ab294554b1e2a572b1",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.mediasynth/forbiddenConflations/3",
+      "targetValueSha256": "517148c76d00c55dd861259815a525aeb1823293767715d69de04e198e39fbb9",
+      "expectedOwnerValue": "a second AI Inference router, Agent Runtime, Action Plane, Event Plane, Data Cloud, generic audit, observability, or product-development framework",
+      "materialPredicates": [
+        "AI Inference router",
+        "Agent Runtime",
+        "Action Plane",
+        "Event Plane",
+        "Data Cloud",
+        "audit",
+        "observability"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0074-C002",
+      "exactSourceText": "`RenderJob` is a typed view of a `ProcessingJob` with render intent, not a separate job lifecycle.",
+      "sourceTextSha256": "e1886cfe07c1516e6611e69722556074e1c89c597dd5b965637dbaf07327f533",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.processing-job/renderJobBoundary",
+      "targetValueSha256": "723abd633128201c55d72e6b7d79315ced1557dd1739bc46f6f7a33e51d4aaf0",
+      "expectedOwnerValue": "RenderJob is a typed view of ProcessingJob with render intent, not a separate job lifecycle.",
+      "materialPredicates": [
+        "RenderJob",
+        "typed view of ProcessingJob",
+        "not a separate job lifecycle"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0074-C004",
+      "exactSourceText": "`MediaAsset` is a project’s usage/binding of an artifact, not another byte store.",
+      "sourceTextSha256": "9bfcb3ad5d4c9df41efb370bb9941db105ce528e0bd4177a1110e5157b60d575",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset",
+      "targetValueSha256": "08a5cdc6ea374828928fe6ec031f41cf06783d827ee0500b9b28f312be999a6b",
+      "expectedOwnerValue": {
+        "id": "MediaAsset",
+        "evidence": "proposed-media-contract",
+        "meaning": "Project-specific use of an artifact version, purpose, crop/trim, and presentation bindings.",
+        "stateBoundary": "References bytes; does not duplicate or redefine them.",
+        "licensePolicyBoundary": "A project asset binding does not define or override the Media product license policy; licensing and distribution rights remain separate owner-reviewed decisions."
+      },
+      "materialPredicates": [
+        "Project-specific use of an artifact version",
+        "References bytes",
+        "does not duplicate or redefine them"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0075-C004",
+      "exactSourceText": "MediaSynth orchestrates those capabilities and does not own duplicate copies of them.",
+      "sourceTextSha256": "f869ed42046733342974a7710e539489453fd432d70e4d4900047d7703ab84c1",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/subsystemProposal/rule",
+      "targetValueSha256": "0f9e0896314669810180fff2a70fb423c552a7b03d494fb58dd4f0ff58e3c292",
+      "expectedOwnerValue": "MediaSynth orchestrates admitted creation capabilities and does not own duplicate copies of rendering, synchronization, quality, or provenance mechanisms.",
+      "materialPredicates": [
+        "MediaSynth orchestrates admitted creation capabilities",
+        "does not own duplicate copies",
+        "rendering, synchronization, quality, or provenance"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0099-C001",
+      "exactSourceText": "Learning intent, pedagogy, model fidelity, domain packs, learner evidence and learning outcomes",
+      "sourceTextSha256": "f6631ee312198d23a9d9d2de8fd8c623e1d6e5945e7f73252730472bdf8e71ce",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=tutorputor-aef-irs/observedSemantics/5",
+      "targetValueSha256": "f72b1e197c1066b6605ac57ade25b815e25b9c9ca029d1e81337aa05ddbc85bd",
+      "expectedOwnerValue": "TutorPutor source assigns learning purpose and pedagogy to Experience IR, learning evidence to its evidence plan, model fidelity and domain truth to Model IR, domain-pack specifications to TutorPutor domain packs, and learning outcomes to TutorPutor learning plans.",
+      "materialPredicates": [
+        "learning purpose and pedagogy",
+        "learning evidence",
+        "model fidelity and domain truth",
+        "domain-pack specifications",
+        "learning outcomes"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0099-C003",
+      "exactSourceText": "do not copy education authority |",
+      "sourceTextSha256": "2142260a7a79b67aecf3d5986bd100891fd7957f3cf409c2568b23eafe26fda3",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=tutorputor-aef-irs/authorityRule",
+      "targetValueSha256": "10558bdba1858237d6f78ad91942a48523675bb88cef6fc1aa58e5049017ec1c",
+      "expectedOwnerValue": "TutorPutor retains education purpose, learning evidence, domain-pack, and learning-outcome authority; Media must consume reviewed public contracts and must not copy these product authorities.",
+      "materialPredicates": [
+        "TutorPutor retains education purpose",
+        "learning evidence",
+        "domain-pack",
+        "learning-outcome authority",
+        "must not copy these product authorities"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0160-C001",
+      "exactSourceText": "| Phase 3 — Experience Explorer",
+      "sourceTextSha256": "2ce92ce187f32576f95d1baecfd9c09d38e99701d5e7b576fede29feac0462ac",
+      "targetRef": "docs/implementation/EXECUTE-MEDIA-PDP-0-3-38-TASKS.md#decision-1-stop-the-71-task-headline",
+      "targetValueSha256": "a9b03ea1680557ce2bd0cd3e823f41ff9941fd96ac00326c0ecece743764c719",
+      "expectedOwnerValue": "The historical Phase 3 Explorer placement is retained as program history. The current 38-task mandate excludes standalone Explorer development while preserving Explorer as an optional read-only consumer/projection of all four PDP authorities; this changes active execution scope, not product meaning.",
+      "materialPredicates": [
+        "historical Phase 3 Explorer placement retained",
+        "standalone Experience Explorer development out of current scope",
+        "optional read-only consumer/projection of all four PDP authorities",
+        "execution scope supersession does not alter product meaning"
+      ],
+      "negativeCases": [
+        "Do not treat the old Phase 3 placement as an active PDP completion target.",
+        "Do not infer Explorer projection behavior, deterministic verification, product authority, or acceptance from read-only consumer scope."
+      ],
+      "semanticReviewStatus": "OWNER_SCOPE_SUPERSESSION_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0162-C001",
+      "exactSourceText": "Real runtime execution and measured results",
+      "sourceTextSha256": "003b96ed7e3329ef89db2c3da324268dc7dfd02b4c068594c9bc0fa94e36aca9",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.explorer-simulation/distinctions/1",
+      "targetValueSha256": "a560b0083ca57196cef7c0536be029a93c0f82c35a7d5c52ffe11cda1187fce4",
+      "expectedOwnerValue": "It does not supply real runtime execution or measured results.",
+      "materialPredicates": [
+        "real runtime execution",
+        "measured results"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0170-C002",
+      "exactSourceText": "They are not assertions that implementations or qualified models already exist.",
+      "sourceTextSha256": "c65bfeb934a00f0b15fb3386bf8b37502b9be92fb8815b82e783cab556871cba",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status/evidenceRule",
+      "targetValueSha256": "2fcee892897093e4d74b2354ee9fc969eb2b10907538a1baa5f96cbd89a2f011",
+      "expectedOwnerValue": "A definition record establishes only the definition axis; it does not assert implementation, model qualification, license admission, or runtime availability.",
+      "materialPredicates": [
+        "definition record",
+        "does not assert implementation",
+        "model qualification",
+        "license admission",
+        "runtime availability"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0193-C002",
+      "exactSourceText": "Model-specific strings such as `flux_dev`, `sdxl_turbo` and `ltx_i2v` from the original intention are **candidate bindings only**, not product defaults or evidence of license eligibility.",
+      "sourceTextSha256": "5cb633e28161cd4532ac90962e6cd3156f96a80a9493f4b0db797969ee175940",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.generative-reconstruction/modelBindingRule",
+      "targetValueSha256": "0f9bd0bdb6f765f88f564617198827926109c02d08e9464bc3f097a010c0608e",
+      "expectedOwnerValue": "Model-specific names such as flux_dev, sdxl_turbo, and ltx_i2v are candidate bindings only, not product defaults or evidence of license eligibility.",
+      "materialPredicates": [
+        "candidate bindings only",
+        "not product defaults",
+        "license eligibility"
+      ],
+      "negativeCases": [
+        "An unrelated summary or source locator without these owner semantics is not claim parity."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0210-C002",
+      "exactSourceText": "A generative model is not the authority for exact text.",
+      "sourceTextSha256": "83377ce1a718fee941457a6989fbe06b0ef035c68486efd0eadc5f1dcd2c9a81",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.deterministic-composition/distinctions/1",
+      "targetValueSha256": "b33ba2ff1dee2e7c12d15de4feb9d1bcf7685b76f09d7bfe13a483b07b73c4eb",
+      "expectedOwnerValue": "A generative model is not the authority for exact text.",
+      "materialPredicates": [
+        "A generative model is not the authority for exact text"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0210-C003",
+      "exactSourceText": "Dubbing may assist translation, but the user/domain owner retains meaning approval",
+      "sourceTextSha256": "f1ca3b8e121256e70b5c04983c572a1f02ec5a6f22d5a21c2927869a00168003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.transcript/translationMeaningRule",
+      "targetValueSha256": "1c9a22a4f82332256112ca6615e5e4885f8137bc176ea0a42bfc30f00c803412",
+      "expectedOwnerValue": "Dubbing may assist translation, but the user or domain owner retains meaning approval; duration fit does not justify mistranslation.",
+      "materialPredicates": [
+        "Dubbing may assist translation",
+        "user or domain owner retains meaning approval"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0210-C004",
+      "exactSourceText": "duration fit does not justify mistranslation.",
+      "sourceTextSha256": "e80475ad3d377dc4460647da8cf2a8c197422721a2670e7b43d39ace00ecd368",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.transcript/translationMeaningRule",
+      "targetValueSha256": "1c9a22a4f82332256112ca6615e5e4885f8137bc176ea0a42bfc30f00c803412",
+      "expectedOwnerValue": "Dubbing may assist translation, but the user or domain owner retains meaning approval; duration fit does not justify mistranslation.",
+      "materialPredicates": [
+        "duration fit does not justify mistranslation"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0213-C001",
+      "exactSourceText": "Use a modular product control plane with ports/adapters and immutable domain values.",
+      "sourceTextSha256": "c3a0a5f748d0db9b562d4bccfdc525297598746f6a6757c405f24433e4273711",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/architecturePrinciples/productControlPlane",
+      "targetValueSha256": "3204a5144a10fbdb3335148a1de0fe5d9f2dcc0ae8bee229abce8106e2846d19",
+      "expectedOwnerValue": "Keep product orchestration modular behind explicit ports and adapters. Canonical domain values and immutable specifications remain independent of SDK, engine, provider, persistence, and transport implementation objects.",
+      "materialPredicates": [
+        "modular",
+        "ports and adapters",
+        "Canonical domain values and immutable specifications"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0213-C001"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0215-C002",
+      "exactSourceText": "It is not a replacement generic agent graph, Tools development lifecycle, or Kernel lifecycle engine.",
+      "sourceTextSha256": "d0c274405ca4d940be54feba5a64f325577d59c74cab2f387752a43363ae74a7",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.ghatana-media/platformBoundary",
+      "targetValueSha256": "1d66727a99bde6085f8adc3a635d1673465347597e1084502561e0a238d4cbc2",
+      "expectedOwnerValue": "Media is a product consumer of Ghatana platform contracts; it does not replace the generic agent graph, Tools product-development lifecycle, or Kernel lifecycle engine.",
+      "materialPredicates": [
+        "does not replace the generic agent graph",
+        "Tools product-development lifecycle",
+        "Kernel lifecycle engine"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0260-C002",
+      "exactSourceText": "`720×405` is not a universal safe default",
+      "sourceTextSha256": "50df6332562dcefc2dc1b1a3a68566ed9b1402b3b7c106845ccd7b4cbd18fbcb",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/imageVideoOutputConstraints/resolutionRule",
+      "targetValueSha256": "8bf4a72d208229c5963275ac1b22b77d95841d07224d77a3b7ba07d467412536",
+      "expectedOwnerValue": "A requested display size such as 720×405 is not a universal safe default. Resolve model-native grid or latent constraints, encoder pixel-format alignment, requested display aspect, and any crop/pad/scale as separate profile-bound values; reject or explicitly transform incompatible sizes. Do not assume an odd output height is accepted by a selected 4:2:0 encoder; require that exact model/encoder profile to declare and satisfy its pixel alignment.",
+      "materialPredicates": [
+        "not a universal safe default",
+        "model-native grid or latent constraints",
+        "encoder pixel-format alignment",
+        "requested display aspect",
+        "crop/pad/scale",
+        "odd output height",
+        "selected 4:2:0 encoder",
+        "pixel alignment"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0260-C002"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0271-C001",
+      "exactSourceText": "GPU/model behavior is not guaranteed identical across platforms/releases [W03].",
+      "sourceTextSha256": "1a1f07fc3243eeb1390dda8788e0ad73ced49b6919e3c769723b940c2fa1a8b6",
+      "targetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/simulationAndFidelity/replayClasses/platformVariationRule",
+      "targetValueSha256": "07b447340b905cd1ed0788165502e5470c31ef0ba1c2f0796ad906f2c5762716",
+      "expectedOwnerValue": "GPU/model/solver behavior must not be assumed identical across platforms or releases. Solver determinism, render determinism, and encoded-byte determinism are separate claims; qualify each only for the exact declared model, engine, runtime, hardware, library versions, configuration, assets, seed, and output representation. Preserve checkpoint and ordered-input requirements for the declared class.",
+      "materialPredicates": [
+        "not be assumed identical across platforms",
+        "Solver determinism",
+        "render determinism",
+        "encoded-byte determinism"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0271-C001"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0278-C005",
+      "exactSourceText": "Learned quality models need domain/language/style qualification",
+      "sourceTextSha256": "3b798aa6b2b1481d2c56b8ce456fbd00e75a99288fbc59dd375fc8cfe5c491cf",
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#/learnedModelQualification/rule",
+      "targetValueSha256": "85589494b2d2ef256e95d2800e041ab7d5afa70cb4a2fda5c8cfb0d61cc15ebd",
+      "expectedOwnerValue": "A learned quality model is not usable as a general quality authority until it has a declared evaluation and calibration scope covering the relevant domain, language, style, task, and content distribution. Out-of-scope or shifted inputs require abstention or an explicit not-evaluated disposition.",
+      "materialPredicates": [
+        "domain, language, style",
+        "abstention",
+        "not-evaluated"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0278-C005"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0295-C002",
+      "exactSourceText": "This is an observed reconciliation requirement, not permission to choose an unrelated new API during the move.",
+      "sourceTextSha256": "ce2f5f3d75d6ed8c7c3097acaab1682d0be7baea6b7e3a12492c8611e4683444",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/reconciliationRule",
+      "targetValueSha256": "ba5f22c7210bcf3a80db12575bd40b390e1a65619679a4ba117f05ada8e8d820",
+      "expectedOwnerValue": "A migration reconciliation requirement does not authorize an unrelated API change during a source move.",
+      "materialPredicates": [
+        "does not authorize an unrelated API change",
+        "source move"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0310-C002",
+      "exactSourceText": "Event-stream disconnect does not lose job state.",
+      "sourceTextSha256": "399d67acccf44d8080abca6493a7f36877ac0893a8280ad52dd68ef9c8729373",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.processing-job/streamDisconnectRule",
+      "targetValueSha256": "23e37843ffc26e71d1a0d56058a726b377b66234466dd6f13a63144c0b76d41e",
+      "expectedOwnerValue": "An event-stream disconnect does not lose durable job state; job state remains observable through its canonical identity.",
+      "materialPredicates": [
+        "disconnect does not lose durable job state",
+        "canonical identity"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0369-C001",
+      "exactSourceText": "Telemetry can degrade without changing business outcome",
+      "sourceTextSha256": "2060d367e402ee667c1fec1bc0dae84d97503bd791c0b02ea602f8055d046875",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/run/telemetryBoundary",
+      "targetValueSha256": "12ad53e05ed8fb614c5fbc2dd0fe9dd3718ddcea66bde6e84a0b8a7a496af64d",
+      "expectedOwnerValue": "Telemetry or event-delivery lag can degrade observation, but does not by itself alter the business effect outcome or finality.",
+      "materialPredicates": [
+        "Telemetry or event-delivery lag can degrade observation",
+        "does not by itself alter the business effect outcome or finality"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0370-C003",
+      "exactSourceText": "Missing/stripped provenance is “unavailable,” not evidence that media is authentic or malicious.",
+      "sourceTextSha256": "ed9f9527c30c7d3d65e34f24b045f115e893ea4eaa1df17da2064543f89f279c",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.provenance/distinctions/1",
+      "targetValueSha256": "fc42d0406c9c7adfc59ad1c3213ff4f68b8a60d46480c8ce1ca61316983c2655",
+      "expectedOwnerValue": "Missing or stripped provenance is unavailable evidence, not proof that media is authentic or malicious.",
+      "materialPredicates": [
+        "Missing or stripped provenance is unavailable evidence",
+        "not proof that media is authentic or malicious"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0377-C002",
+      "exactSourceText": "Backoff is jittered and respects total deadlines, but the plan compiler’s deterministic meaning does not require identical wall-clock retry timing.",
+      "sourceTextSha256": "6c3a47eeb3b5d74ccbdfe45ccfa393fb9a464e7ec8aa4d66913f798b93e71146",
+      "targetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/retryTimingRule",
+      "targetValueSha256": "219d20d744e6ed13435537ae76d9c9e7c76350e5735800866ea3fa8ecc8fabc2",
+      "expectedOwnerValue": "Use jittered backoff within an explicit total deadline. A plan's deterministic meaning does not require identical wall-clock retry timing across executions.",
+      "materialPredicates": [
+        "jittered backoff",
+        "explicit total deadline",
+        "deterministic meaning does not require identical wall-clock retry timing"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0388-C003",
+      "exactSourceText": "No auto-download of models or cloud fallback without approval.",
+      "sourceTextSha256": "add0e02fcd01eff7a7a9f0c7231ceb19f70affbb77eb52bc32c21303ab903604",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback",
+      "targetValueSha256": "5a29712ad7914bd6856b6b9112e0cc13db54ae753c0b7b66c61c99ab9f465a7e",
+      "expectedOwnerValue": {
+        "id": "media.policy.model-acquisition-and-fallback",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "sourceRefs": [
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+          ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary",
+          ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary"
+        ],
+        "scopeStatus": "OWNER_DEFINED_POLICY; no model/provider is selected, downloaded, licensed, qualified or available by this definition",
+        "automaticAcquisition": {
+          "default": "DENY",
+          "unavailableBehavior": "return unsupported-or-unavailable; do not download a model, codec, plugin, font or asset automatically",
+          "explicitAdmissionRequires": [
+            "exact artifact name and immutable version or digest",
+            "authoritative source and integrity verification",
+            "separate source-code, model-weight, dataset, patent, likeness and redistribution term review as applicable",
+            "security and untrusted-input review",
+            "named execution profile, locality and retention conditions",
+            "independent legal/security and runtime qualification approvals"
+          ],
+          "effect": "This policy defines an eligibility gate only; it does not approve any candidate."
+        },
+        "fallback": {
+          "default": "DENY_SILENT_FALLBACK",
+          "localOnly": "Cloud/provider egress is always denied for a local-only request or profile.",
+          "otherProfiles": "Fallback may be considered only when an exact owner-approved profile explicitly lists the alternate provider/version and current consent, rights, locality, residency, retention, cost, quality/fidelity floor and security checks all pass.",
+          "failureBehavior": "Do not download, substitute, or dispatch to another provider after unavailable, timeout, unknown outcome or policy error unless an exact pre-authorized fallback branch defines reconciliation and duplicate-effect behavior.",
+          "userDisclosure": "Before a separately authorized fallback, surface the exact alternate provider/location, changed data handling, cost and fidelity consequences; otherwise fail closed."
+        },
+        "nonClaims": [
+          "No default provider/model/codec selection",
+          "No production-host download or cloud inference authorization",
+          "No admission, license, availability, quality, performance or scientific-fidelity claim"
+        ]
+      },
+      "materialPredicates": [
+        "do not download a model, codec, plugin, font or asset automatically",
+        "explicitAdmissionRequires",
+        "Fallback may be considered only when an exact owner-approved profile explicitly lists",
+        "independent legal/security and runtime qualification approvals"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0388-C003"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ],
+      "currentOwnerDelta": {
+        "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/hardwareFootprintDoesNotWaiveAdmission",
+        "targetValueSha256": "4f082103d73b529cefd56a95c9d649c70b68a8ef06af790cbf53ad4a5f73e37c",
+        "expectedOwnerValue": {
+          "id": "media.policy.model-hardware-footprint-does-not-waive-admission",
+          "rule": "A model or codec being small enough to fit available local RAM, disk, CPU, GPU, or an ONNX runtime package does not create an exception to artifact identity, source integrity, model-weight/license/terms review, security review, named-profile admission, privacy and locality checks, or independent runtime qualification.",
+          "localExecutionDisposition": "DENY_UNADMITTED_MODEL; local hardware availability is a resource fact, not an admission, authority, compatibility, or qualification decision.",
+          "unknownDisposition": "DENY; do not infer a model is safe, licensed, compatible, or approved from file size, format, or package presence.",
+          "scopeStatus": "OWNER_DEFINED_POLICY; no model, codec, package, or runtime is admitted by this rule"
+        },
+        "materialPredicates": [
+          "local hardware availability is a resource fact",
+          "does not create an exception to artifact identity",
+          "DENY_UNADMITTED_MODEL",
+          "no model, codec, package, or runtime is admitted"
+        ]
+      }
+    },
+    {
+      "claimId": "MPSEM-0443-C002",
+      "exactSourceText": "Keep inferential values labeled as estimated.",
+      "sourceTextSha256": "67189dbaf527ee64f741fae614f78ad8380b2caa6426848353e8c635e7aab042",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.measurement-uncertainty/estimatePresentationRule",
+      "targetValueSha256": "bce97a63ea618fdf85a5a23532e9e6d62b7a265128642eeb4441057d222164cc",
+      "expectedOwnerValue": "Label every estimated or predicted value as estimated/predicted and retain its method and applicable uncertainty; do not represent it as measured ground truth.",
+      "materialPredicates": [
+        "Label every estimated or predicted value as estimated/predicted",
+        "method and applicable uncertainty",
+        "do not represent it as measured ground truth"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0445-C002",
+      "exactSourceText": "All conversation output compiles into inspectable canonical actions/plans.",
+      "sourceTextSha256": "22636d13f0576d3410cf37ab29296dc4b28746743570af31af02d158ed58c5d3",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.intent/conversationOutputRule",
+      "targetValueSha256": "d6c4486836dde99fbb26011b0c6bbb12cdd298ad14124ea8ff315de872a9d7aa",
+      "expectedOwnerValue": "Authorized conversation-derived intent compiles into inspectable canonical actions or plans. Text or media in a conversation is not automatically an operation input or output. Bind only the exact user-authorized content, version, and fields declared by the canonical operation; conversation-wide output requires an explicit operation contract and consent.",
+      "materialPredicates": [
+        "Authorized conversation-derived intent compiles into inspectable canonical actions or plans",
+        "not automatically an operation input or output",
+        "exact user-authorized content, version, and fields",
+        "explicit operation contract and consent"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0446-C004",
+      "exactSourceText": "Branching/duplicate projects preserve source references and access.",
+      "sourceTextSha256": "bbd007db0dd9042f20d8670f9cd5e08aad022b9f344ac8702cdc6695393e9a21",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProject/stateBoundary",
+      "targetValueSha256": "47468aa9510635a799a938c28eb170c63eb58a95fb6932344b30ca4c406fb62b",
+      "expectedOwnerValue": "Project metadata is versioned; referenced artifact bytes are not embedded. Branches and duplicate projects retain exact source revision/artifact references and independently evaluated access; copying does not widen access.",
+      "materialPredicates": [
+        "source revision/artifact references",
+        "independently evaluated access",
+        "copying does not widen access"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0446-C004"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0457-C003",
+      "exactSourceText": "A permissive Python wrapper does not make its downloaded model or codec permissive.",
+      "sourceTextSha256": "02233b7675c1121ce14837ac579b5cfc8d71f069ac3a57b4d8a46a814c82b36f",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/componentLicenseBoundary/rule",
+      "targetValueSha256": "7866af4266170b6cb8e494f8ff651634a2d58aa99b1b46e296c8a08457e9ca20",
+      "expectedOwnerValue": "The wrapper or adapter license is independent from every bundled, downloaded or transitively used model weight, checkpoint, codec, encoder, decoder, plugin, font, dataset, asset and native library.",
+      "materialPredicates": [
+        "wrapper or adapter license is independent",
+        "model weight",
+        "codec"
+      ],
+      "negativeCases": [
+        "A locator without the stated material rule is not parity for MPSEM-0457-C003"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0459-C002",
+      "exactSourceText": "It does not mandate integrating them all.",
+      "sourceTextSha256": "32db45025689b4b3cc58a8ff2ba4be828da22c0fc6e25ab7d33aa6096d3a3a5d",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/externalStackSelectionRule",
+      "targetValueSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "expectedOwnerValue": {
+        "id": "media.reuse.external-stack-selection-rule",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "rule": "A candidate-library or engine selection is not an integration mandate. Integrate only when an exact admitted Media capability/profile has a demonstrated Ghatana reuse gap and the candidate closes that gap under its public contract.",
+        "scope": "Do not integrate every listed package or engine; select the smallest stack that meets the requirements of the next admitted recipe.",
+        "multiplicity": "One qualified implementation is selected for an exact capability/profile. An alternative requires a separate versioned profile and qualification; do not keep parallel adapters or silently fall back.",
+        "sourceRefs": [
+          ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.qualifiedStackRule",
+          ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.externalSelectionRequires",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml"
+        ],
+        "scopeStatus": "OWNER_DEFINED_SELECTION_POLICY; no integration, candidate qualification, or runtime admission implied"
+      },
+      "materialPredicates": [
+        "candidate-library or engine selection is not an integration mandate",
+        "Do not integrate every listed package or engine",
+        "smallest stack"
+      ],
+      "negativeCases": [
+        "integrate all listed candidates",
+        "treat candidate selection as admission"
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0475-C004",
+      "exactSourceText": "The full catalog remains definition scope, not silently reduced to these pilots.",
+      "sourceTextSha256": "b324a36143f772f4b7fb2af9b2fd4ae6fe736bbd8eb9c9d108301316127db963",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.ghatana-media/capabilityScopeRule",
+      "targetValueSha256": "2c5ef178f2915612a74b58013d87d0be23da99624e934957bc1145f88e5e7f0c",
+      "expectedOwnerValue": "The complete capability catalog remains in product-definition scope; selecting or qualifying a pilot does not reduce the catalog, and unsupported or absent capabilities remain explicit.",
+      "materialPredicates": [
+        "complete capability catalog remains in product-definition scope",
+        "pilot does not reduce the catalog",
+        "unsupported or absent capabilities remain explicit"
+      ],
+      "negativeCases": [
+        "A claim locator alone does not establish the listed semantics."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0022-C003",
+      "exactSourceText": "Accept the Phase-0 boundary, consumer compatibility, and transfer record before cutover.",
+      "sourceTextSha256": "8ae31a0b4f483acb67493823de1443afbf1b8d8fde29ceacbc27bf5e0b58d0a1",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#conformanceFixtureSpecification/cutoverPrerequisiteRule",
+      "targetValueSha256": "ca1d94e31e936631f0d030ccfb2bc15b1175baa4c145ffcd886085f42cd4d977",
+      "expectedOwnerValue": "A source cutover requires an accepted Phase-0 product boundary, verified compatibility for supported consumers, and an owner transfer record before cutover. This definition neither authorizes production deployment nor treats file relocation as acceptance of runtime behavior.",
+      "materialPredicates": [
+        "accepted Phase-0 product boundary",
+        "verified compatibility for supported consumers",
+        "owner transfer record before cutover"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0022-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0028-C002",
+      "exactSourceText": "`@tutorputor/simulation` depends on TutorPutor contracts/core as well as render libraries [R05]",
+      "sourceTextSha256": "98a11ebf79733a4a00c135f47f602e47da15725bfb41a4215be6a6c2301f74f1",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#existingContractMap/@id=tutorputor-legacy-usp/packageDependencyBoundary",
+      "targetValueSha256": "d96ae9f3c3ba535af71c333b86d27edfb76a0864325ee45188e0e55a0bd68ef4",
+      "expectedOwnerValue": {
+        "source": "products/tutorputor/libs/tutorputor-simulation/package.json",
+        "observedDependencies": [
+          "@tutorputor/contracts",
+          "@tutorputor/core",
+          "@react-three/drei",
+          "@react-three/fiber",
+          "three",
+          "pixi.js",
+          "konva",
+          "react-konva"
+        ],
+        "rule": "The simulation package dependency closure includes TutorPutor contracts/core and rendering libraries; inspecting a useful public type does not justify importing the broad package or skipping dependency-owner review."
+      },
+      "materialPredicates": [
+        "@tutorputor/contracts",
+        "@tutorputor/core",
+        "rendering libraries",
+        "dependency-owner review"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0028-C002."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0029-C001",
+      "exactSourceText": "| REV-09 — Generic workflow/outbox work could be reinvented",
+      "sourceTextSha256": "1671f7b4204fdee662c4aa7183e8f3b49a0e62127652bcbf2260017c11341371",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary/sharedWorkflow/rule",
+      "targetValueSha256": "a1834f1fad7dcd023683db11dd9e0b908f8d39acae61784a645953c83c8c3942",
+      "expectedOwnerValue": "Reuse Ghatana Shared workflow, outbox, idempotency, CAS, retry-scheduling, and reconciliation mechanics behind Media-owned adapters when the exact public contract satisfies the Media operation guard and finality requirements.",
+      "materialPredicates": [
+        "Shared workflow, outbox",
+        "Media-owned adapters",
+        "exact public contract satisfies the Media operation guard and finality requirements"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0029-C001."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0031-C001",
+      "exactSourceText": "| REV-11 — Universal provider SPI was too broad",
+      "sourceTextSha256": "376a6e4d5fc7b5cfe41ccaf910991894f63374a9e6edbf00a5431541efe0e6d0",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/typedPortRule",
+      "targetValueSha256": "a3d27240d936a9ab3db83f97b8578456d09012a3d226df97034b663290fe4c7d",
+      "expectedOwnerValue": "Use a common capability descriptor with typed batch, streaming, simulation, and inference ports. Capability absence is explicit; do not satisfy an unrelated port with a fake implementation. A port identifies a product contract and does not route or execute a generic provider.",
+      "materialPredicates": [
+        "common capability descriptor",
+        "typed batch",
+        "streaming, simulation",
+        "inference ports",
+        "fake implementation"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0031-C001."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0031-C003",
+      "exactSourceText": "Use a common descriptor plus typed batch, streaming, simulation and inference ports.",
+      "sourceTextSha256": "8460ef9f8bfb71ab2150f405a4173814444c074c9e77f20be0ea5c115ac07fba",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/typedPortRule",
+      "targetValueSha256": "a3d27240d936a9ab3db83f97b8578456d09012a3d226df97034b663290fe4c7d",
+      "expectedOwnerValue": "Use a common capability descriptor with typed batch, streaming, simulation, and inference ports. Capability absence is explicit; do not satisfy an unrelated port with a fake implementation. A port identifies a product contract and does not route or execute a generic provider.",
+      "materialPredicates": [
+        "common capability descriptor",
+        "typed batch",
+        "streaming, simulation",
+        "inference ports",
+        "fake implementation"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0031-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0031-C004",
+      "exactSourceText": "Capability absence must be explicit, not fake implementations of irrelevant methods.",
+      "sourceTextSha256": "a95e75bfc29afca2d03b2f8ae6c227040b8dca923124da0c4d3d5b3d9e00a3d4",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.disclosure-levels/capabilityAbsenceRule",
+      "targetValueSha256": "7fd85d7bd6ba36cff20e9b704dd2136c8d0f502dad4d844aac9b4c44ef6ebf9c",
+      "expectedOwnerValue": "Capability absence or inapplicability is explicit; do not invent fake implementations of unrelated methods to satisfy a shared interface.",
+      "materialPredicates": [
+        "absence or inapplicability is explicit",
+        "fake implementations of unrelated methods"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0031-C004."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0039-C002",
+      "exactSourceText": "Out-of-process is not automatically a sandbox",
+      "sourceTextSha256": "558c73cb31beab587cc00de31e364afcaf52a55b147273a04add1c9181c09df3",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/isolationRule",
+      "targetValueSha256": "76796165bc8296517ac4b3958485dc411e49f2a1e189cdac7322ef52737eb2d4",
+      "expectedOwnerValue": "Out-of-process execution is not automatically a sandbox. A future admitted runtime boundary must explicitly isolate decoders, scripts, simulations, and model artifacts, including resource, filesystem, network, subprocess, and output-registration limits. This is a definition constraint, not a runtime-isolation or security qualification claim.",
+      "materialPredicates": [
+        "Out-of-process execution is not automatically a sandbox",
+        "filesystem, network, subprocess",
+        "output-registration limits"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0039-C002."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0043-C003",
+      "exactSourceText": "Preserve full intended scope",
+      "sourceTextSha256": "5a5591a064f84f827a8d46e00961dbab07133ba91174c463076495ec7ff679ea",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.legacy-audio-video-identity/scopePreservationRule",
+      "targetValueSha256": "de41b7194b71b40f87e3753ff9b28635648bb2ef837cb991a7e29019b1f0e6f5",
+      "expectedOwnerValue": "Preserve full intended Media capability scope across behavior-preserving relocation; legacy package or namespace identity is only a compatibility label and does not narrow product meaning.",
+      "materialPredicates": [
+        "Preserve full intended Media capability scope",
+        "behavior-preserving relocation"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0043-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0075-C001",
+      "exactSourceText": "Subsystems are `ScenePlanner`, `MediaSynth`, `MediaQualityEngine`, `ContinuityEngine`, `AVSyncEngine` and `RenderComposer`.",
+      "sourceTextSha256": "95e343cb53842776941ada34c071e5e703c452cd8d5e5ddd4a04bab14d4b0294",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/subsystemProposal",
+      "targetValueSha256": "037f9cc2625c744a07ace3a87e7308a78c1884c8c39cf41b0c288c3608eb7714",
+      "expectedOwnerValue": {
+        "status": "historical-owner-proposal; runtime-selection-and-qualification-not-admitted",
+        "names": [
+          "ScenePlanner",
+          "MediaSynth",
+          "MediaQualityEngine",
+          "ContinuityEngine",
+          "AVSyncEngine",
+          "RenderComposer"
+        ],
+        "peerMechanisms": [
+          "animation",
+          "simulation"
+        ],
+        "sharedConcerns": [
+          "rendering",
+          "synchronization",
+          "quality",
+          "provenance"
+        ],
+        "rule": "MediaSynth orchestrates admitted creation capabilities and does not own duplicate copies of rendering, synchronization, quality, or provenance mechanisms."
+      },
+      "materialPredicates": [
+        "ScenePlanner",
+        "MediaSynth",
+        "MediaQualityEngine",
+        "ContinuityEngine",
+        "AVSyncEngine",
+        "RenderComposer",
+        "not-admitted"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0075-C001."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0090-C003",
+      "exactSourceText": "remain a Ghatana product consumer, not a generic platform |",
+      "sourceTextSha256": "532087f2b1ac787cff4170b63b35338686b9f96e1b2de9e2cd00146832f014d9",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.ghatana-media/platformBoundary",
+      "targetValueSha256": "1d66727a99bde6085f8adc3a635d1673465347597e1084502561e0a238d4cbc2",
+      "expectedOwnerValue": "Media is a product consumer of Ghatana platform contracts; it does not replace the generic agent graph, Tools product-development lifecycle, or Kernel lifecycle engine.",
+      "materialPredicates": [
+        "product consumer of Ghatana platform contracts",
+        "does not replace the generic agent graph"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0090-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0100-C003",
+      "exactSourceText": "avoid a second marketing authority |",
+      "sourceTextSha256": "30a6886a634a1986642ccf30d3d6d410cbff64c33c7d528f6f4bf3dfbf182537",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.media-asset/marketingAuthorityBoundary",
+      "targetValueSha256": "30b742388582795bc11eb5f703b4029d93fce048e1b864c5eaf574029ba940ad",
+      "expectedOwnerValue": "MediaAsset describes a project-specific binding and must not create a second marketing identity or product authority for the referenced artifact.",
+      "materialPredicates": [
+        "must not create a second marketing identity",
+        "project-specific binding"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0100-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0159-C002",
+      "exactSourceText": "Exact screens/views, CLI/API experience mappings, content, interactions, journeys, scenarios and product simulation semantics",
+      "sourceTextSha256": "8631d81db319416d8ed5118ca963ae589f29ef6bfbc949366e61336ae2317d93",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.media-simulation/experienceProjectionScope",
+      "targetValueSha256": "471a99702353cc6f0c1fc7db17c88565a17a7f8bd8da8c0d6c7dc1267fd8e634",
+      "expectedOwnerValue": "Exact screens and views, channel experience mappings, content, interactions, journeys, scenarios, and product simulation semantics are projections bound to PDP-0/1/2 meaning; this scope does not create a standalone Explorer completion workstream.",
+      "materialPredicates": [
+        "Exact screens and views",
+        "channel experience mappings",
+        "journeys, scenarios",
+        "PDP-0/1/2"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0159-C002."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0166-C003",
+      "exactSourceText": "`config/dependency-bindings.yaml` records deployment-specific resolved/public artifact bindings under the runtime owner, constrained by Phase-0 dependency semantics.",
+      "sourceTextSha256": "fa0dfdcda257c2f350dce788cdcea92ed1afddb228412453f435f34dfb226eae",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.document-extraction/dependencyBindingBoundary",
+      "targetValueSha256": "2f489a5a30dee84fcd1d39e0c71864d1a801dc7a2da676551e3636ff76c512cf",
+      "expectedOwnerValue": "Deployment-specific resolved or public artifact bindings belong to the runtime dependency owner and must remain constrained by PDP-0 dependency semantics; this definition does not authorize deployment or copy runtime bindings into product meaning.",
+      "materialPredicates": [
+        "Deployment-specific resolved or public artifact bindings",
+        "runtime dependency owner",
+        "PDP-0 dependency semantics"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0166-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0166-C005",
+      "exactSourceText": "it does not redefine the product’s license policy.",
+      "sourceTextSha256": "d615815268d65a91c43c34fda8719daa4392de5104f04c9f05037a304de160b0",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=MediaAsset/licensePolicyBoundary",
+      "targetValueSha256": "9aea8b3532a203b8d1b4ed603ade51f7a42a14f0c601f5f9634558c1c590ebc2",
+      "expectedOwnerValue": "A project asset binding does not define or override the Media product license policy; licensing and distribution rights remain separate owner-reviewed decisions.",
+      "materialPredicates": [
+        "does not define or override the Media product license policy",
+        "licensing and distribution rights"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0166-C005."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0171-C005",
+      "exactSourceText": "quality/fidelity contract",
+      "sourceTextSha256": "1cb411463c6f683ba1bb47af2af74306a13a461cbda39b6573ba592bba92063b",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment/qualityFidelityContract",
+      "targetValueSha256": "dec688878f7231b2ae8e1cf227fcc22781ea2632124f6e9b68e43c735e7cef4b",
+      "expectedOwnerValue": "A QualityAssessment carries metric/version, applicability, input/output references, score and unit, threshold, uncertainty, failure region, and reviewer disposition; it keeps the quality/fidelity contract explicit and domain-specific.",
+      "materialPredicates": [
+        "metric/version",
+        "threshold",
+        "uncertainty",
+        "quality/fidelity contract",
+        "domain-specific"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0171-C005."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0177-C005",
+      "exactSourceText": "no duplicate/skipped frames disguised as successful contiguous delivery |",
+      "sourceTextSha256": "77328781bae5cfe9375fa88297ea7074b8fe37baba49ea02b70809f4af945adf",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=RenderOutcome-and-DeliveryOutcome/stateBoundary",
+      "targetValueSha256": "91ad0ab36773485b65b8488f63fd70835a6a4affec7f291b1998d7131173a1b6",
+      "expectedOwnerValue": "A successful render is not a successful delivery or external publication. Contiguous-delivery claims require evidence that the declared frame sequence has no duplicate or skipped frames; otherwise report the exact gap or degradation.",
+      "materialPredicates": [
+        "no duplicate or skipped frames",
+        "exact gap or degradation"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0177-C005."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0261-C002",
+      "exactSourceText": "the initial Media-native convention is right-handed, +Y up, meters, seconds, kilograms and radians unless a domain model declares converted units.",
+      "sourceTextSha256": "83b7df41a77560bec710531696135a5b3958543bcb09f3d806bb41dacfe1f4c8",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.scene-geometry/ownerDeclaredUnitOverrideRule",
+      "targetValueSha256": "ed6ca38cb6b69ceba4115c7913b0228c04a0fc4905865d22ce9b1da2ccc8fe70",
+      "expectedOwnerValue": "The initial Media-native convention is a default only. A domain owner may declare converted units for its domain; bind the source and destination unit systems, exact conversion mapping, precision/rounding and applicable coordinate-frame changes, preserve that declaration with the value, and reject implicit or lossy conversion unless explicitly authorized by the domain contract.",
+      "materialPredicates": [
+        "initial Media-native convention is a default only",
+        "domain owner may declare converted units",
+        "bind the source and destination unit systems",
+        "exact conversion mapping, precision/rounding and applicable coordinate-frame changes",
+        "reject implicit or lossy conversion unless explicitly authorized"
+      ],
+      "negativeCases": [
+        "Do not force the initial SI convention where a domain owner declares converted units.",
+        "Do not silently convert or drop frame/precision information."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0261-C007",
+      "exactSourceText": "Phase 0 must validate these proposed conventions against the admitted existing Ghatana scene/model contracts and record any necessary conversion rather than imposing a conflicting universal schema.",
+      "sourceTextSha256": "f12dff1ffa881c3945863b31d5e1f3748fb509f00713f81c7adf465aafadb8ac",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#coordinateConventionValidationRule",
+      "targetValueSha256": "80b0d7c79eab7bfa82f382ca3cf93d45c0ec6815bff434302cf70841c06a5b48",
+      "expectedOwnerValue": "Validate a Media-native coordinate proposal against the exact admitted Ghatana scene/model contracts before treating it as a default. Record any required unit, axis, transform, or time-base conversion explicitly; do not impose a conflicting universal schema by assumption.",
+      "materialPredicates": [
+        "Validate a Media-native coordinate proposal",
+        "exact admitted Ghatana scene/model contracts",
+        "Record any required unit, axis, transform, or time-base conversion"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0261-C007."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0307-C001",
+      "exactSourceText": "Safe contract and currently eligible capability discovery, limits, unsupported combinations and qualification status |",
+      "sourceTextSha256": "14ab5da1879988f0ad3a1d853dd4a2d9a540dee8967d06129f3ba8c1aa8755ae",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.capability-status/discoverySafetyRule",
+      "targetValueSha256": "9f1db7c752565759c4ce861a4fb21695e55c3eeab80f84d691c3d42ee7a9244a",
+      "expectedOwnerValue": "Capability discovery reports the safe contract, currently eligible combinations, limits, unsupported combinations, and qualification status; a catalog listing alone cannot claim an unavailable or unqualified option is executable.",
+      "materialPredicates": [
+        "currently eligible combinations",
+        "limits, unsupported combinations",
+        "qualification status"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0307-C001."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0312-C001",
+      "exactSourceText": "Validate finite text lengths, nested object depth, array counts, source sizes, duration, pixels/frame counts, sample rates, channels, graph nodes/edges, timeline clips, generated candidates and output bytes.",
+      "sourceTextSha256": "9d32953f6e1ef2bf428f6ac7d09ca4491fe4707560d280be93ea3d7ebf406553",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#unitsAndConventions/boundedInputRule",
+      "targetValueSha256": "5668ff1a24406ecc617a2c300e1026fc6e8df9c4e895c849143d76f54e7d040f",
+      "expectedOwnerValue": "Validate finite limits for text length, nested object depth, array counts, source size, duration, pixel/frame count, sample rate, channels, graph nodes and edges, timeline clips, generated candidates, and output bytes. Define each bound in the owning capability/profile contract; this rule requires validation but does not invent universal numeric limits.",
+      "materialPredicates": [
+        "text length",
+        "nested object depth",
+        "source size",
+        "pixel/frame count",
+        "graph nodes and edges",
+        "output bytes",
+        "does not invent universal numeric limits"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0312-C001."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0315-C004",
+      "exactSourceText": "Avoid a generic thrown string that loses these distinctions.",
+      "sourceTextSha256": "e309fe004dbfe347cfe96534c717b868d7d52d739ed8d0ee941047da17dc52f9",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/errors/rule",
+      "targetValueSha256": "69c43a10ab4f3bf1039241944db4c18f763ad6fd8947928e4eadcfa0b9e1d9d7",
+      "expectedOwnerValue": "Keep machine reason and error identity stable within the owning contract; use typed error values and never collapse domain, policy, authorization, transport, retryability, or unknown-finality distinctions into a generic thrown string. Localize only human-readable explanation and never expose secrets, protected media, or internal stack details.",
+      "materialPredicates": [
+        "typed error values",
+        "unknown-finality distinctions",
+        "generic thrown string"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0315-C004."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0319-C002",
+      "exactSourceText": "plan inspection is not execution or paid inference by default |",
+      "sourceTextSha256": "5fa264d0743bc160ec07357d4f7739a5ec5796095c93c500e5b5ed7d549f557f",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.execution-plan/distinctions/1",
+      "targetValueSha256": "dd49922f493f39a9668053637a64f145dd48c2cab70552a2ccac188da02b1086",
+      "expectedOwnerValue": "Plan inspection is not execution or paid inference by default.",
+      "materialPredicates": [
+        "Plan inspection is not execution or paid inference by default"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0319-C002."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0331-C002",
+      "exactSourceText": "Completion/help comes from that registry.",
+      "sourceTextSha256": "c99f83341d1b923b39128082c79d75996039dfbaa9ef83baf482e40288de1633",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#commandNaming/completionHelpRule",
+      "targetValueSha256": "46f129e4b52fb3d52699eb37d5e25c76e0d97cf2fdd38ea2e2802903d8a347d1",
+      "expectedOwnerValue": "Generate command completion and help from the one canonical command registry; aliases resolve to the same action and cannot add independent behavior.",
+      "materialPredicates": [
+        "completion and help from the one canonical command registry",
+        "aliases resolve to the same action"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0331-C002."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0331-C003",
+      "exactSourceText": "External-engine/model names are expert diagnostics, not required positional arguments.",
+      "sourceTextSha256": "c1beffc94f047b10f4e939cdf1c16c42f4c338991fd167841934140065df6431",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#commandPrinciples/5",
+      "targetValueSha256": "835a37fa90b19761501ee2d9a8ad4c056ef58e330715a0042dcd741519dfa4b5",
+      "expectedOwnerValue": "External-engine and model names are expert diagnostics; they are not required positional arguments for product intent.",
+      "materialPredicates": [
+        "External-engine and model names are expert diagnostics",
+        "not required positional arguments"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0331-C003."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0352-C005",
+      "exactSourceText": "Do not store bearer credentials in project files, command history or exported plans.",
+      "sourceTextSha256": "10693191abd2aea8a1b741a695f2dcf10541e7bab0d0c88c9c653d35983907c8",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.artifact/credentialHandlingRule",
+      "targetValueSha256": "062ee575e5390d1702dccbad8cff1f588009f8b6dc3c02003d7bb04c28861775",
+      "expectedOwnerValue": "Never store bearer credentials in project files, command history, or exported plans; artifact references and project bindings are not credential containers.",
+      "materialPredicates": [
+        "Never store bearer credentials",
+        "project files, command history, or exported plans"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0352-C005."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0387-C004",
+      "exactSourceText": "expanding their model/provider function needs an owner decision.",
+      "sourceTextSha256": "282bbf8b9ae002bde0f537cead2935b0007926240ae6d21356204ce71a444054",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.mediasynth/scopeChangeRule",
+      "targetValueSha256": "80bb0881f58c7d8a7179cc4ffa5a11eec60b4f41322d65a465ac07e7e52993fb",
+      "expectedOwnerValue": "Expanding MediaSynth into a new model/provider execution function requires an explicit Media product-owner decision and must preserve the AI-Inference ownership boundary.",
+      "materialPredicates": [
+        "explicit Media product-owner decision",
+        "AI-Inference ownership boundary"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0387-C004."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0441-C001",
+      "exactSourceText": "The full capability catalog remains available through search, recipes and expert inspection",
+      "sourceTextSha256": "c5952f475dc97c3eb8899e2448a41a46a3525964dd940584faf38e714ee33fc8",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.ghatana-media/catalogDiscoverabilityRule",
+      "targetValueSha256": "30b3c3bf8b346cb5743771c6f9dbc6b006f8b92861cd659483d1b9ce23de4ca1",
+      "expectedOwnerValue": "The full capability catalog remains discoverable through search, reusable recipes, and expert inspection even when a capability is unsupported, unqualified, or not selected for a pilot.",
+      "materialPredicates": [
+        "full capability catalog",
+        "search, reusable recipes, and expert inspection"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0441-C001."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0450-C002",
+      "exactSourceText": "Do not toast every internal stage.",
+      "sourceTextSha256": "43d529f01652136b5f7ac137ca08284b259a8ca8ebddc481b6b6885ae03ea7aa",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#presentationRules/3",
+      "targetValueSha256": "424118b3ad4057f1ae8446da2ef867ef8dc5ec70537abc36486912af5eb2d6e7",
+      "expectedOwnerValue": "Notify only for action required, material degradation, approval, completion of long work, delivery outcome, or critical security/rights conditions; do not toast every internal processing stage.",
+      "materialPredicates": [
+        "Do not toast every internal processing stage",
+        "action required",
+        "material degradation"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0450-C002."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0455-C006",
+      "exactSourceText": "Conversely, do not block a defined Media capability indefinitely on an unrelated ecosystem-wide hardening campaign: record the exact dependency scope and a permitted alternative, or isolate the blocked feature.",
+      "sourceTextSha256": "b13c130eb96102702c4406b0512c4a04a5cd14fc9bfb9eeeb3f7e708c7e1f121",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/dependencyBlockScopeRule",
+      "targetValueSha256": "461614f2aa0d118d978da507c82d7853357ba746e01819b2e90104804817ba79",
+      "expectedOwnerValue": {
+        "id": "media.reuse.dependency-block-scope-rule",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "rule": "Scope a dependency blocker to the exact affected capability, versioned profile, channel, and deployment boundary. A defined capability is not held indefinitely by unrelated ecosystem hardening. Record the blocked dependency and criterion, select a separately qualified permitted alternative where one exists, or isolate/disable the affected feature while continuing independent work.",
+        "nonWaiver": "Narrowing a blocker never waives a required security, license, rights, consent, policy, conformance, independent review, or admission gate for the affected capability.",
+        "scopeStatus": "OWNER_DEFINED_DEPENDENCY_SCOPE_RULE; no dependency or feature admission implied"
+      },
+      "materialPredicates": [
+        "exact affected capability",
+        "not held indefinitely by unrelated ecosystem hardening",
+        "permitted alternative",
+        "isolate/disable the affected feature",
+        "never waives a required security"
+      ],
+      "negativeCases": [
+        "A locator or adjacent summary that omits any listed predicate is not semantic parity for MPSEM-0455-C006."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0098-C004",
+      "exactSourceText": "never mutate its DB or transfer Media byte/job authority accidentally |",
+      "sourceTextSha256": "438a855d5c6880dae7177f4ef8e4e74609e790936ea567f06942831fd3237727",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/mediaStateAuthorityRule",
+      "targetValueSha256": "7fdb40cea21ac597db508e0f3b9322927191cb68e85f07e09d0027ac8a161639",
+      "expectedOwnerValue": "Kernel lifecycle, shell, or provider contracts may carry an authorized opaque Media reference, but must not mutate or become the writer for Media artifact bytes, upload sessions, processing jobs, or streams. No Media database credential or direct database access crosses this handoff. Media remains the authority for those records, byte/object lifecycle, and product finality; only the deliberately selected public contract and scoped opaque references may cross the boundary.",
+      "materialPredicates": [
+        "must not mutate or become the writer for Media artifact bytes, upload sessions, processing jobs, or streams",
+        "No Media database credential or direct database access crosses this handoff",
+        "Media remains the authority for those records, byte/object lifecycle, and product finality",
+        "only the deliberately selected public contract and scoped opaque references may cross"
+      ],
+      "negativeCases": [
+        "A narrow “database authority” phrase alone is insufficient if byte/job authority crosses the handoff.",
+        "Direct Media database credentials or mutation paths are forbidden."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0102-C002",
+      "exactSourceText": "Integrate only where a published app-authoring capability is needed",
+      "sourceTextSha256": "db6b5ad375cf06524129016bca30b43a0b19782f35bd9883d1286cf391a96564",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=yappc-product-authoring/adoptionRule",
+      "targetValueSha256": "d9ca2da0bcbf9f1a35e35a3a6b6ebe8a6e8c752729dfcc8f96b48d8fab87ab87",
+      "expectedOwnerValue": "Integrate YAPPC authoring only when a published public authoring capability is needed by Media and its exact contract has been reviewed by the owning parties. Otherwise Media retains its own authoring behavior. A product or capability registry entry does not establish a callable contract, and private YAPPC packages or implementation details are not an integration surface.",
+      "materialPredicates": [
+        "published public authoring capability is needed by Media",
+        "exact contract has been reviewed by the owning parties",
+        "Media retains its own authoring behavior",
+        "registry entry does not establish a callable contract",
+        "private YAPPC packages or implementation details are not an integration surface"
+      ],
+      "negativeCases": [
+        "A dependency coordinate or ecosystem registry entry without reviewed public-contract identity does not establish adoption.",
+        "Media-owned behavior remains authoritative when the exact external public contract is not adopted."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0093-C003",
+      "exactSourceText": "do not recreate Kernel schemas or claim Kernel-native materialization from a dependency alone |",
+      "sourceTextSha256": "2198edd6228e2b4d8392f69f839c60a3ba5f777ba8c3dbda66cc1cf50e6ab95c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/kernelAdoptionRule",
+      "targetValueSha256": "1a7ca36bcf7b231ed41a55362dbc2af712c864a584db771890e565eab43cb03e",
+      "expectedOwnerValue": "Adopt a Kernel lifecycle, shell, provider, or schema contract only when Media deliberately requires that exact published contract and its owner identity, version, and public surface have been reviewed. Media must not recreate Kernel-owned schemas, infer Kernel-native materialization from a dependency coordinate or repository relocation, or treat a host reference as an adopted public operation. A dependency alone is not adoption evidence.",
+      "materialPredicates": [
+        "Media deliberately requires that exact published contract",
+        "owner identity, version, and public surface have been reviewed",
+        "must not recreate Kernel-owned schemas",
+        "infer Kernel-native materialization from a dependency coordinate or repository relocation",
+        "A dependency alone is not adoption evidence"
+      ],
+      "negativeCases": [
+        "A dependency coordinate or ecosystem registry entry without reviewed public-contract identity does not establish adoption.",
+        "Media-owned behavior remains authoritative when the exact external public contract is not adopted."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0474-C001",
+      "exactSourceText": "Every handoff records source/destination owner, operation/version, auth/delegation, data classification/purpose, expected context, timeout/cancellation, finality, retry/reconciliation, error mapping, return/continuation path and accepted artifact references.",
+      "sourceTextSha256": "e0fcb6538c90562296daa224799e88c7413f1e00b07129a7ff2ecbd77ec77967",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffEnvelope/requiredForEveryAdmittedCall",
+      "targetValueSha256": "1815dfed83145decfbb6941b4fb9c789f4a79668b9df496bc070ebd5243301e9",
+      "expectedOwnerValue": [
+        "source owner and destination owner",
+        "operation and version",
+        "authentication/delegation and the authority source",
+        "data classification and purpose",
+        "minimum expected context",
+        "deadline/timeout and supported cancellation behavior",
+        "finality and uncertainty representation",
+        "idempotency/retry/reconciliation behavior",
+        "safe error mapping",
+        "return/continuation path",
+        "accepted artifact/result references"
+      ],
+      "materialPredicates": [
+        "source owner and destination owner",
+        "operation and version",
+        "authentication/delegation and the authority source",
+        "data classification and purpose",
+        "minimum expected context",
+        "deadline/timeout and supported cancellation behavior",
+        "finality and uncertainty representation",
+        "idempotency/retry/reconciliation behavior",
+        "safe error mapping",
+        "return/continuation path",
+        "accepted artifact/result references"
+      ],
+      "negativeCases": [
+        "A list of owner labels alone does not prove that each required handoff envelope field is present.",
+        "A service boundary or successful call does not grant direct mutation rights over another owner database."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0474-C002",
+      "exactSourceText": "Calls over a service boundary do not authorize mutation of another owner’s database.",
+      "sourceTextSha256": "cb071407848ea060130617927afe22484073eec1fa9d90786474166d3221c03c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffEnvelope/invariants/0",
+      "targetValueSha256": "0e27298d0c72e8c4f691a4fcf5fe410b5d58fa9a21150210e4627a6dab69158f",
+      "expectedOwnerValue": "A service call does not authorize another owner's database mutation.",
+      "materialPredicates": [
+        "A service call does not authorize another owner's database mutation."
+      ],
+      "negativeCases": [
+        "A list of owner labels alone does not prove that each required handoff envelope field is present.",
+        "A service boundary or successful call does not grant direct mutation rights over another owner database."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0021-C003",
+      "exactSourceText": "Ghatana public library/service/product capability → owner extension or extraction of reusable mechanics → approved external OSS → justified new implementation.",
+      "sourceTextSha256": "4d026c4f7b6e17a70fae43d51898f04a1fc32aaf866ab5a379a1fb6ed51a0daa",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionSequenceRule",
+      "targetValueSha256": "cc8f66be08841bc0958bf3f4882b0a61d5dfc547a3efef6f043be0015c31d562",
+      "expectedOwnerValue": {
+        "id": "media.reuse.selection-sequence",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "orderedChoices": [
+          "inspect-Ghatana-public-library-service-and-product-owner-contracts-and-artifacts-first",
+          "request-owner-extension-or-extract-neutral-reusable-mechanics-only-after-recording-fit-gap-and-owner-boundary",
+          "consider-external-OSS-only-after-exact-reuse-license-security-isolation-and-profile-benchmark-review",
+          "implement-new-Media-mechanics-only-when-no-fitting-admitted-owner-contract-extension-or-extraction-is-available-and-the-remaining-gap-is-justified"
+        ],
+        "requiredRecord": [
+          "exact-capability-and-profile-need",
+          "candidate-fit-and-material-gap",
+          "owner-and-public-contract-identity-version-and-license-status",
+          "replacement-and-isolated-consumer-evidence",
+          "reason-the-next-priority-choice-is-required"
+        ],
+        "constraints": [
+          "A candidate list or package name is not an integration mandate or admission.",
+          "Do not duplicate generic Ghatana mechanisms inside Media to avoid an owner-contract review.",
+          "No source-workspace coupling, silent substitution, or unreviewed dependency is permitted."
+        ],
+        "scopeStatus": "OWNER_DEFINED_SELECTION_POLICY_ONLY; no owner extension, extraction, external package, or new runtime is admitted by this record."
+      },
+      "materialPredicates": [
+        "inspect-Ghatana-public-library-service-and-product-owner-contracts-and-artifacts-first",
+        "request-owner-extension-or-extract-neutral-reusable-mechanics-only-after-recording-fit-gap-and-owner-boundary",
+        "consider-external-OSS-only-after-exact-reuse-license-security-isolation-and-profile-benchmark-review",
+        "implement-new-Media-mechanics-only-when-no-fitting-admitted-owner-contract-extension-or-extraction-is-available-and-the-remaining-gap-is-justified",
+        "candidate list or package name is not an integration mandate or admission"
+      ],
+      "negativeCases": [
+        "Do not choose an external package before the Ghatana public-contract and owner-extension/extraction priorities.",
+        "Do not implement duplicate generic mechanics merely to avoid an owner-contract review.",
+        "No choice is admitted by the owner-defined selection order."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0024-C002",
+      "exactSourceText": "U1 §6.6 could be read as deleting Data Cloud Media views",
+      "sourceTextSha256": "c3a7eb95434d3dcc0d1b87ed04fc69e83747dbaa1ba3eda4affde2db39453bc8",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=datacloud-media-compatibility/retryReconciliation",
+      "targetValueSha256": "ed8c7aacf436c3b99ea9606b59e4cccc363c1f744b155f3463abdcd3416e89fd",
+      "expectedOwnerValue": "Preserve Data Cloud navigation and compatibility until consumer migration; mutations use the admitted Media request identity and reconcile uncertain jobs.",
+      "materialPredicates": [
+        "Preserve Data Cloud navigation and compatibility until consumer migration",
+        "mutations use the admitted Media request identity",
+        "reconcile uncertain jobs"
+      ],
+      "negativeCases": [
+        "A non-authoritative route label alone does not promise consumer view continuity.",
+        "Preserving a compatibility view does not make its read model canonical Media artifact or job state."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0167-C003",
+      "exactSourceText": "include public contract fingerprints and owner resolution, not copied semantics.",
+      "sourceTextSha256": "79f15918792539173ae9c57ea5217746c8e667fbeed7d3f42c491b0b72de4c62",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#publicOwnerContractFingerprintRule",
+      "targetValueSha256": "cedfc3bfe64f15a1ab45dcb84cbf46c051a34bfb64006aac98861e9a88ad84b8",
+      "expectedOwnerValue": {
+        "id": "media.handoff.public-owner-contract-fingerprint",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "mediaSemanticAuthority": "Media authors and governs Media product meaning in the current owning PDP records; an external owner controls its own public capability semantics. Bind Media to the exact published contract without copying or redefining the external owner's meaning.",
+        "requiredBinding": [
+          "canonical external owner identity and accountable contract owner",
+          "immutable published artifact or package version and content fingerprint",
+          "exact public operation, request/result schema and compatibility revision",
+          "source/publication location and owner-resolution evidence",
+          "Media-owned semantic binding that maps the exact public fields without copying or redefining external-owner meaning"
+        ],
+        "unresolvedBehavior": "If any identity, version, fingerprint, public schema, or owner resolution is missing, keep that binding pending; do not infer a callable endpoint or copy semantics from implementation source.",
+        "scopeStatus": "OWNER_DEFINED_BINDING_REQUIREMENT_ONLY; it does not assert that a current external contract is published, admitted, compatible, or accepted."
+      },
+      "materialPredicates": [
+        "canonical external owner identity and accountable contract owner",
+        "immutable published artifact or package version and content fingerprint",
+        "exact public operation, request/result schema and compatibility revision",
+        "source/publication location and owner-resolution evidence",
+        "maps the exact public fields without copying or redefining external-owner meaning",
+        "keep that binding pending"
+      ],
+      "negativeCases": [
+        "A repository or dependency coordinate alone is not publication or owner-resolution evidence.",
+        "Implementation-source semantics do not substitute for the exact public contract.",
+        "The definition does not admit or accept an external contract."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0471-C004",
+      "exactSourceText": "preserve consumer visibility and access |",
+      "sourceTextSha256": "4f1b4c932392e8d9048748be8ce01546234ecf5b993917a9fcb9050ece7d625c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=datacloud-media-compatibility/returnContinuation",
+      "targetValueSha256": "0a997c1cb1b8e571ea88c8a2d61b32e2c35935b54223c7e6403828af75bb4c41",
+      "expectedOwnerValue": "Return to Data Cloud media artifact/job views with the same scoped context and route identity, but revalidate current authorization and policy scope before revealing protected details or continuing access; if access is absent, expired, revoked, or indeterminate, preserve the consumer's navigation state while withholding protected data and require reauthorization as applicable. Route/context continuity never grants or widens access.",
+      "materialPredicates": [
+        "Return to Data Cloud media artifact/job views",
+        "same scoped context and route identity",
+        "revalidate current authorization and policy scope",
+        "access is absent, expired, revoked, or indeterminate",
+        "withholding protected data",
+        "route/context continuity never grants or widens access"
+      ],
+      "negativeCases": [
+        "Same route and context do not preserve authorization after revocation or expiry.",
+        "A denied or indeterminate access check preserves navigation only; it never reveals protected content or widens scope.",
+        "A Document Intelligence cancellation token does not establish Data Cloud consumer visibility or access."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0092-C003",
+      "exactSourceText": "Media declares its product meaning and binds to published owner contracts.",
+      "sourceTextSha256": "0788ed32cb8b99cc01f3ada05672be06ba575705d6c5f47a002c9527d2f47711",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#publicOwnerContractFingerprintRule",
+      "targetValueSha256": "cedfc3bfe64f15a1ab45dcb84cbf46c051a34bfb64006aac98861e9a88ad84b8",
+      "expectedOwnerValue": {
+        "id": "media.handoff.public-owner-contract-fingerprint",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "mediaSemanticAuthority": "Media authors and governs Media product meaning in the current owning PDP records; an external owner controls its own public capability semantics. Bind Media to the exact published contract without copying or redefining the external owner's meaning.",
+        "requiredBinding": [
+          "canonical external owner identity and accountable contract owner",
+          "immutable published artifact or package version and content fingerprint",
+          "exact public operation, request/result schema and compatibility revision",
+          "source/publication location and owner-resolution evidence",
+          "Media-owned semantic binding that maps the exact public fields without copying or redefining external-owner meaning"
+        ],
+        "unresolvedBehavior": "If any identity, version, fingerprint, public schema, or owner resolution is missing, keep that binding pending; do not infer a callable endpoint or copy semantics from implementation source.",
+        "scopeStatus": "OWNER_DEFINED_BINDING_REQUIREMENT_ONLY; it does not assert that a current external contract is published, admitted, compatible, or accepted."
+      },
+      "materialPredicates": [
+        "Media authors and governs Media product meaning",
+        "external owner controls its own public capability semantics",
+        "Bind Media to the exact published contract",
+        "without copying or redefining the external owner's meaning"
+      ],
+      "negativeCases": [
+        "A Media source owner field alone does not establish a binding to a published external contract.",
+        "A package or repository dependency is not the published owner contract."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    }
+  ],
+  "historicalDuplicateReviewEntries": [
+    {
+      "claimId": "MPSEM-0099-C003",
+      "exactSourceText": "do not copy education authority |",
+      "sourceTextSha256": "2142260a7a79b67aecf3d5986bd100891fd7957f3cf409c2568b23eafe26fda3",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=tutorputor-aef-irs/authorityRule",
+      "targetValueSha256": "10558bdba1858237d6f78ad91942a48523675bb88cef6fc1aa58e5049017ec1c",
+      "expectedOwnerValue": "TutorPutor retains education purpose, learning evidence, domain-pack, and learning-outcome authority; Media must consume reviewed public contracts and must not copy these product authorities.",
+      "materialPredicates": [
+        "TutorPutor retains education purpose",
+        "learning evidence",
+        "domain-pack",
+        "learning-outcome authority",
+        "must not copy these product authorities"
+      ],
+      "negativeCases": [
+        "MediaSynth subsystem boundaries do not preserve TutorPutor education authority; the exact TutorPutor authority record is required."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    },
+    {
+      "claimId": "MPSEM-0177-C005",
+      "exactSourceText": "no duplicate/skipped frames disguised as successful contiguous delivery |",
+      "sourceTextSha256": "77328781bae5cfe9375fa88297ea7074b8fe37baba49ea02b70809f4af945adf",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=RenderOutcome-and-DeliveryOutcome/stateBoundary",
+      "targetValueSha256": "91ad0ab36773485b65b8488f63fd70835a6a4affec7f291b1998d7131173a1b6",
+      "expectedOwnerValue": "A successful render is not a successful delivery or external publication. Contiguous-delivery claims require evidence that the declared frame sequence has no duplicate or skipped frames; otherwise report the exact gap or degradation.",
+      "materialPredicates": [
+        "Contiguous-delivery claims require evidence",
+        "no duplicate or skipped frames",
+        "report the exact gap or degradation"
+      ],
+      "negativeCases": [
+        "A generic successful-render statement does not establish contiguous delivery when any frame is duplicated or skipped."
+      ],
+      "semanticReviewStatus": "OWNER_SOURCE_AUTHORED_PENDING_COORDINATOR_REVIEW",
+      "acceptanceEffect": "none",
+      "testSources": [
+        "tests/pdp-migration-glossary-domain-claims.test.mjs"
+      ]
+    }
+  ]
+}

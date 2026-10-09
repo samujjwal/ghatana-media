@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "media.pdp38-linked-pdp-current-fingerprints.v1",
+  "authority": "Diagnostic byte observation only; historical pins and spans preserved. Does not establish migration semantic parity or acceptance.",
+  "sources": [
+    {
+      "path": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "sha256": "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
+      "historicalAddedSpan": [
+        17,
+        38
+      ],
+      "historicalObservedSha256": "74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2",
+      "addedBlockHeader": "authorityMapping:",
+      "currentHeaderLine": 17
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+      "sha256": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
+      "historicalAddedSpan": [
+        28,
+        107
+      ],
+      "historicalObservedSha256": "9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1",
+      "addedBlockHeader": "trustContexts:",
+      "currentHeaderLine": 28
+    },
+    {
+      "path": ".product-experience/pdp-0-product-truth/constitution.yaml",
+      "sha256": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
+      "historicalAddedSpan": [
+        19,
+        65
+      ],
+      "historicalObservedSha256": "fe10aaf5f79a1b48b38b1cdc1519bb7cdd9db72fdc149e11d235baa683dcce45",
+      "addedBlockHeader": "domainRules:",
+      "currentHeaderLine": 23
+    }
+  ]
+}

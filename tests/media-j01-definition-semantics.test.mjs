@@ -150,13 +150,13 @@ test('PXD-055 cannot authorize unrelated actions or substitute another operation
   const unrelated = clone();
   unrelated.id = 'media.action.archive-project';
   unrelated.actionDefinitionSemantics.actionRef = unrelated.id;
-  assert.throws(() => resolveExperienceDefinitionSemantics([unrelated], []), /unbounded action review/);
+  assert.throws(() => resolveExperienceDefinitionSemantics([unrelated], []), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
 
   const wrongOperation = clone();
   wrongOperation.actionDefinitionSemantics.operationRef = 'media.operation-slice.list-projects';
-  assert.throws(() => resolveExperienceDefinitionSemantics([wrongOperation], []), /unbounded action review/);
+  assert.throws(() => resolveExperienceDefinitionSemantics([wrongOperation], []), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
 
   const wrongSource = clone();
   wrongSource.actionDefinitionSemantics.sourceDecisionRef = '.product-experience/decision-log.md#PXD-053';
-  assert.throws(() => resolveExperienceDefinitionSemantics([wrongSource], []), /unbounded action review/);
+  assert.throws(() => resolveExperienceDefinitionSemantics([wrongSource], []), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
 });

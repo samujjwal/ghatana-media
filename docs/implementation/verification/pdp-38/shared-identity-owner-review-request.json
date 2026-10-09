@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "media.required-dependency-owner-review-request.v1",
+  "scope": "PDP0-PDP3 only",
+  "ownerRepository": "samujjwal/ghatana-shared",
+  "requestUrl": "https://github.com/samujjwal/ghatana-shared/issues/242",
+  "requestState": "REQUESTED_NOT_ACCEPTED",
+  "mediaRequestedBoundary": ".product-experience/pdp-3-product-experience/handoff-bindings.yaml#/handoffs/media.handoff.identity/mediaOwnerDefinition",
+  "actionsAwaitingExactOwnerBinding": [
+    "media.action.start-upstream-identity-handoff",
+    "media.action.select-identity-confirmed-workspace"
+  ],
+  "discovery": {
+    "productShell": "Presentation contract; explicitly leaves identity, authentication and data acquisition to host",
+    "apiAuthenticationProvider": "Transport authentication context; no identity continuation or workspace membership contract",
+    "privateJavaIdentityContext": "Not an admitted public identity handoff contract",
+    "otherProductAcceptedHandoff": "Not Media's dependency acceptance"
+  },
+  "independentDecision": null,
+  "publicArtifactAdmission": null,
+  "nativeLifecycleReceipt": null
+}

@@ -4,7 +4,183 @@ productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: proposed-domain-catalog; pending-owner-review
-sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml, modules/speech/stt-service/src/main/proto/stt_service.proto, modules/speech/tts-service/src/main/proto/tts_service.proto, modules/vision/vision-service/src/main/proto/vision_service.proto, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql]
+sourceRefs:
+  - .product-experience/pdp-0-product-truth/domain-model.yaml
+  - .product-experience/pdp-0-product-truth/state-models.yaml
+  - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+  - libs/audio-video-types/src/contracts.ts
+  - contracts/openapi/media.yaml
+  - modules/speech/stt-service/src/main/proto/stt_service.proto
+  - modules/speech/tts-service/src/main/proto/tts_service.proto
+  - modules/vision/vision-service/src/main/proto/vision_service.proto
+  - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+  - modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql
+  - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
+canonicalIdentityAdjudication:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-IDENTITY-POPULATION-01
+  authority: user-delegated-Media-product-semantic-owner-in-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml
+    - .product-experience/pdp-1-domain-data/canonical-reconciliation.yaml
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml
+  reviewState: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-and-provider-admission-not-claimed
+  populationRule: The 38 current registry identities comprise 33 Media product objects with owner-defined identity rules and 5 implementation source observations with explicit non-equivalence. Source observations never become domain authority solely from this index; the legacy Transcription record is excluded from both populations.
+  registeredObjectIdentityCount: 38
+  canonicalProductObjectCount: 33
+  noncanonicalSourceObservationCount: 5
+  registeredObjectIdentityRefs:
+    - objectId: media.domain.project
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable opaque projectId; projectId is never reused within a tenant; workspaceId is an explicit authorization scope, not part of project identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.project
+    - objectId: media.domain.project-revision
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable opaque revisionId; revisionId is not a digest; revisions are immutable snapshots.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.project-revision
+    - objectId: media.domain.artifact
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable opaque artifactId; owning principal is an access scope, not part of artifact identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact
+    - objectId: media.domain.artifact-version
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + artifactId + stable opaque versionId; content digest is an integrity attribute, never the version identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact-version
+    - objectId: media.domain.media-asset
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable opaque assetId; asset identity refers to a project membership/reference, not artifact bytes.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.media-asset
+    - objectId: media.domain.recipe
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable recipeId + semanticVersion; each semantic edit creates a new version.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.recipe
+    - objectId: media.domain.processing-graph
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable graphId + semanticVersion; graph identity is not a provider workflow or runtime implementation identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.processing-graph
+    - objectId: media.domain.resolved-plan
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable planId; fingerprint is a separate integrity/binding value and cannot replace plan identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.resolved-plan
+    - objectId: media.domain.processing-job
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable opaque jobId; owning principal is enforced by access policy; transport fields named id/jobId require explicit bindings.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.processing-job
+    - objectId: media.domain.render-job
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable opaque jobId in the ProcessingJob identity space; render intent is a typed purpose, not a second aliased job identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.render-job
+    - objectId: media.domain.artifact-verification-job
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable opaque jobId in the ProcessingJob identity space; verification target artifact/version is a reference.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact-verification-job
+    - objectId: media.domain.job-attempt
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + jobId + unique attemptId; fencing token is a monotonically increasing authority epoch and not the attempt identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.job-attempt
+    - objectId: media.domain.job-lease
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + jobId + ownerId + fencingToken; lease is a temporary claim with no standalone durable lease identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.job-lease
+    - objectId: media.domain.media-run
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable opaque runId; the exact source revision or resolved plan is a required immutable reference.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.media-run
+    - objectId: media.domain.checkpoint
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + runId + stable checkpointId; sequence is ordered checkpoint metadata, not standalone identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.checkpoint
+    - objectId: media.domain.scene-plan
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable scenePlanId + semanticVersion.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan
+    - objectId: media.domain.scene-brief
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable sceneBriefId + semanticVersion.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-brief
+    - objectId: media.domain.scene-graph
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable sceneGraphId + semanticVersion.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-graph
+    - objectId: media.domain.animation-graph
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable animationGraphId + semanticVersion.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.animation-graph
+    - objectId: media.domain.simulation-world
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable worldId + semanticVersion; world identity does not certify scientific validity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.simulation-world
+    - objectId: media.domain.timeline
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable timelineId + semanticVersion.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.timeline
+    - objectId: media.domain.composition-config
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable compositionConfigId + semanticVersion.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.composition-config
+    - objectId: media.domain.generation-control-bundle
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable controlBundleId + semanticVersion; does not identify a model, person, or truth claim.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.generation-control-bundle
+    - objectId: media.domain.continuity-state
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + projectId + stable continuityStateId + semanticVersion; exact source references remain explicit.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.continuity-state
+    - objectId: media.domain.quality-assessment
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + exact outputArtifactVersionId + assessmentId + methodVersion; a score is not the identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.quality-assessment
+    - objectId: media.domain.render-outcome
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + jobId + outcomeId; exact output artifact version is a separate immutable reference.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.render-outcome
+    - objectId: media.domain.delivery-outcome
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + deliveryRequestId + outcomeId + destinationRef; receipt identity is distinct from output version.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.delivery-outcome
+    - objectId: media.domain.consent-reference
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + authority-issued consentId + authority-issued revision/version; only the consent authority defines currentness.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.consent-reference
+    - objectId: media.domain.rights-decision
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + authority-issued decisionId + policyVersion; scope, purpose, subject, and validity are bound decision fields.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.rights-decision
+    - objectId: media.domain.provenance-manifest
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable manifestId + semanticVersion; source/output lineage references are immutable manifest content.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.provenance-manifest
+    - objectId: media.domain.upload-session
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + stable uploadId; principal ownership and client idempotency key are separately scoped context.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-session
+    - objectId: media.domain.upload-chunk
+      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk
+    - objectId: media.domain.stream-session
+      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-session
+    - objectId: media.domain.stream-frame
+      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame
+    - objectId: media.domain.consent-record
+      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.consent-record
+    - objectId: media.domain.persisted-audio-file
+      disposition: SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.persisted-audio-file
+    - objectId: media.domain.transcript-version
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + opaque transcriptVersionId; source artifact/version link is mandatory and content digest is not identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.transcript-version
+    - objectId: media.domain.caption-version
+      disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
+      ownerSelectedIdentity: tenantId + sourceArtifactId + sourceArtifactVersionId + opaque captionVersionId; content digest is not identity.
+      identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.caption-version
+  excludedHistoricalRecords:
+    - objectId: media.domain.transcription
+      disposition: LEGACY_STORAGE_AND_PROVIDER_OBSERVATION_NOT_CANONICAL_TRANSCRIPT_VERSION
+      rationale: The legacy UUID and audio-file reference do not provide canonical transcript-version identity, immutable source-version lineage, or ancestry; media.domain.transcript-version is the separate owner-defined identity.
+      sourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.transcription
 objects:
   - id: media.domain.project
     name: MediaProject
@@ -15,7 +191,10 @@ objects:
     titleSemantics: required-user-supplied-display-title; trimmed-for-blank-validation-but-the-recorded-title-is-the-submitted-Unicode-string; no-silent-title-generation
     authorityBoundary: tenant-and-workspace-context-come-from-authenticated-host; project-policy-decides-current-principal-access; actor-role-labels-do-not-grant
     scopeStatus: bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject, .product-experience/pdp-0-product-truth/state-models.yaml#media-project, docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+      - docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
   - id: media.domain.project-revision
     name: ProjectRevision
     kind: immutable-project-snapshot
@@ -23,7 +202,10 @@ objects:
     lifecycle: immutable-after-commit; every-project-has-one-current-head-reference; any later semantic edit creates a new revision
     initialRevision: unique-opaque-revisionId; COMMITTED; parentRevisionId-null; empty assets-scenes-timelines-and-settings; created atomically with project
     scopeStatus: bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject, .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version, docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+      - docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
   - id: media.domain.artifact
     name: MediaArtifact
     kind: entity
@@ -31,42 +213,50 @@ objects:
     lifecycle: immutable-content-identity; policy-and-erasure-state-separate
     observedProjection: Java MediaArtifact; TypeScript MediaArtifact; OpenAPI MediaArtifact
     scopeStatus: bounded-owner-identity-and-immutability-semantics-accepted; availability-rights-content-retrieval-and-cross-interface-type-equivalence-remain-unresolved
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml]
+    sourceRefs:
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+      - libs/audio-video-types/src/contracts.ts
+      - contracts/openapi/media.yaml
   - id: media.domain.artifact-version
     name: ArtifactVersion
     kind: immutable-versioned-entity
     identity: bounded-owner-key-(tenantId,artifactId,versionId); versionId-is-a-stable-opaque-immutable-version-identity-separate-from-content-digest; same-bytes-or-digest-do-not-alias-a-version-identity
     lifecycle: immutable
     scopeStatus: bounded-version-identity-semantics-defined-under-PXD-049; separate-runtime-record-and-wire-versionId-not-observed; runtime-NOT_ADMITTED; independent-PDP1-review-open
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion
   - id: media.domain.media-asset
     name: MediaAsset
     kind: project-reference
     identity: stable-opaque-asset-id
     lifecycle: versioned-reference-to-artifact-version
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset
   - id: media.domain.recipe
     name: MediaRecipe
     kind: immutable-specification
     identity: stable-id-and-semantic-version
     lifecycle: semantic-edits-create-new-version
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRecipe]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRecipe
   - id: media.domain.processing-graph
     name: MediaProcessingGraph
     kind: immutable-specification
     identity: stable-id-and-semantic-version
     lifecycle: semantic-edits-create-new-version
     scopeStatus: proposed; universal-runtime-IR-not-observed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProcessingGraph]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProcessingGraph
   - id: media.domain.resolved-plan
     name: ResolvedMediaPlan
     kind: immutable-admitted-plan
     identity: plan-id-and-fingerprint
     lifecycle: immutable-per-run; replanning-creates-successor
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan
   - id: media.domain.processing-job
     name: ProcessingJob
     kind: mutable-execution-aggregate
@@ -74,28 +264,36 @@ objects:
     lifecycle: PDP-0-media-job-state-model; attempts-distinct-from-logical-job
     observedProjection: Java ProcessingJob; TypeScript job union; OpenAPI jobs
     scopeStatus: PDP-0-semantics-with-observed-projections; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-job, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+      - libs/audio-video-types/src/contracts.ts
+      - contracts/openapi/media.yaml
   - id: media.domain.render-job
     name: RenderJob
     kind: intent-specific-processing-job
     identity: distinct-logical-job-id
     lifecycle: uses-processing-job-finality; output-version-is-immutable
     scopeStatus: proposed-specialization; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob-and-RenderJob]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob-and-RenderJob
   - id: media.domain.artifact-verification-job
     name: ArtifactVerificationJob
     kind: intent-specific-processing-job
     identity: distinct-stable-job-reference
     lifecycle: job-finality-does-not-decide-artifact-disposition
     scopeStatus: proposed; owner-issued-job-contract-unbound; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ArtifactVerificationJob, .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ArtifactVerificationJob
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
   - id: media.domain.job-attempt
     name: JobAttempt
     kind: mutable-fenced-execution
     identity: unique-attempt-id-and-increasing-fence
     lifecycle: PDP-0-media-attempt-state-model
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-attempt]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
   - id: media.domain.job-lease
     name: JobLease
     kind: temporary-execution-claim
@@ -103,168 +301,208 @@ objects:
     lifecycle: wall-clock-expiry; stale-fence-cannot-commit
     observedProjection: Java JobLease
     scopeStatus: PDP-0-semantics-with-observed-projection; pending-owner-review
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java, providers/aws-postgresql/src/main/resources/db/media-runtime/V005__media_job_worker_lease.sql, .product-experience/pdp-0-product-truth/domain-model.yaml#media-runtime-records]
+    sourceRefs:
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java
+      - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
+      - providers/aws-postgresql/src/main/resources/db/media-runtime/V005__media_job_worker_lease.sql
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#media-runtime-records
   - id: media.domain.media-run
     name: MediaRun
     kind: mutable-execution-aggregate
     identity: stable-run-id
     lifecycle: progression-with-append-only-observations
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint
   - id: media.domain.checkpoint
     name: Checkpoint
     kind: immutable-observation-reference
     identity: stable-checkpoint-id-and-run-sequence
     lifecycle: append-only; replay-class-required
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint
   - id: media.domain.scene-plan
     name: ScenePlan
     kind: immutable-authored-intent
     identity: stable-id-and-version
     lifecycle: semantic-edits-create-new-version
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief
   - id: media.domain.scene-brief
     name: SceneBrief
     kind: authored-narrative-and-visual-intent
     identity: stable-id-and-version
     lifecycle: intent-only; not-permission-or-model-behavior-proof
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief
   - id: media.domain.scene-graph
     name: SceneGraph
     kind: versioned-visual-representation
     identity: stable-id-and-version
     lifecycle: engine-objects-adapter-private
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph
   - id: media.domain.animation-graph
     name: AnimationGraph
     kind: versioned-presentation-specification
     identity: stable-id-and-version
     lifecycle: property-driver-ownership-explicit
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph
   - id: media.domain.simulation-world
     name: SimulationWorld
     kind: versioned-domain-model-input
     identity: stable-id-and-version
     lifecycle: model-state-distinct-from-rendered-scene
     scopeStatus: proposed; Media-owned-simulation-IR-not-observed-in-scanned-services; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld
   - id: media.domain.timeline
     name: Timeline
     kind: versioned-editorial-specification
     identity: stable-id-and-version
     lifecycle: rational-time-distinct-from-simulation-and-wall-clock
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig
+      - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
   - id: media.domain.composition-config
     name: CompositionConfig
     kind: versioned-editorial-specification
     identity: stable-id-and-version
     lifecycle: rational-time; distinct-from-simulation-and-wall-clock
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig
   - id: media.domain.generation-control-bundle
     name: GenerationControlBundle
     kind: typed-generation-intent
     identity: stable-id-and-version
     lifecycle: immutable-reference-set-per-operation
     scopeStatus: proposed; does-not-assert-model-or-identity-truth; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#GenerationControlBundle]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#GenerationControlBundle
   - id: media.domain.continuity-state
     name: ContinuityState
     kind: versioned-reference-and-observation-set
     identity: stable-id-and-version
     lifecycle: continuity-observation-is-not-identity-proof
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ContinuityState]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ContinuityState
   - id: media.domain.quality-assessment
     name: QualityAssessment
     kind: immutable-assessment-record
     identity: assessment-id-and-method-version
     lifecycle: append-only; preserves-abstention-and-scope
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/quality-policy.yaml
   - id: media.domain.render-outcome
     name: RenderOutcome
     kind: immutable-result-reference
     identity: output-artifact-version-and-job-reference
     lifecycle: immutable; source-specification-unchanged
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome
   - id: media.domain.delivery-outcome
     name: DeliveryOutcome
     kind: external-effect-result
     identity: delivery-request-and-destination-reference; exact-key-unbound
     lifecycle: recipient-acknowledgement-and-remote-finality-separate
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome
   - id: media.domain.consent-reference
     name: ConsentReference
     kind: policy-evidence-reference
     identity: consent-id-and-version-or-revision
     lifecycle: currentness-and-revocation-checked-at-use
     scopeStatus: proposed; consent-authority-remains-governed-by-PDP-0; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
   - id: media.domain.rights-decision
     name: RightsDecision
     kind: scoped-policy-decision
     identity: decision-id-and-policy-version
     lifecycle: exact-purpose-and-subject-scope
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml
   - id: media.domain.provenance-manifest
     name: ProvenanceManifest
     kind: immutable-lineage-record
     identity: manifest-id-and-version
     lifecycle: append-only-lineage
     scopeStatus: proposed; pending-owner-review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest]
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
   - id: media.domain.upload-session
     name: UploadSession
     kind: observed-upload-lifecycle-record
     identity: bounded-canonical-key-(tenantId,uploadId); owner-scope-adds-principalId; client-request-key-is-separately-scoped-by-(tenantId,principalId,idempotencyKey)
     lifecycle: mutable-upload-session-is-distinct-from-resulting-immutable-artifact; runtime-upload-status-does-not-assert-artifact-availability
     scopeStatus: bounded-owner-identity-and-lifecycle-separation-accepted; storage-durability-and-cross-interface-type-equivalence-remain-unresolved
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession, libs/audio-video-types/src/contracts.ts#UploadSession, contracts/openapi/media.yaml#/components/schemas/UploadSession, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_sessions]
+    sourceRefs:
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession
+      - libs/audio-video-types/src/contracts.ts#UploadSession
+      - contracts/openapi/media.yaml#/components/schemas/UploadSession
+      - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_sessions
   - id: media.domain.upload-chunk
     name: UploadChunk
     kind: observed-storage-record
     identity: tenantId-uploadId-chunkIndex-storage-key; domain-identity-unbound
     lifecycle: persistence-row; product-lifecycle-meaning-unreviewed
     scopeStatus: storage-observation-only; not-established-as-canonical-domain-object
-    sourceRefs: [providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_chunks]
+    sourceRefs:
+      - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_upload_chunks
   - id: media.domain.stream-session
     name: StreamSession
     kind: observed-runtime-session
     identity: Java-sessionId; persistence-tenantId-and-sessionId; canonical-identity-unbound
     lifecycle: runtime-stream-state; exact-product-boundary-pending-review
     scopeStatus: observed-implementation-projections; owner-review-pending
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession, contracts/openapi/media.yaml#/components/schemas/StreamSession, providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions]
+    sourceRefs:
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession
+      - contracts/openapi/media.yaml#/components/schemas/StreamSession
+      - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions
   - id: media.domain.stream-frame
     name: StreamFrame
     kind: observed-runtime-message
     identity: stream-session-and-sequence-in-runtime-contract; durable-record-not-observed-in-listed-migration
     lifecycle: received-frame-and-ack-projection; retention-and-replay-unbound
     scopeStatus: observed-implementation-contract-only; owner-review-pending
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame, modules/speech/stt-service/src/main/proto/stt_service.proto, modules/vision/vision-service/src/main/proto/vision_service.proto]
+    sourceRefs:
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame
+      - modules/speech/stt-service/src/main/proto/stt_service.proto
+      - modules/vision/vision-service/src/main/proto/vision_service.proto
   - id: media.domain.consent-record
     name: ConsentRecord
     kind: observed-api-and-storage-record
     identity: Java-consentId; persistence-tenantId-and-consentId; canonical-version-key-unbound
     lifecycle: grant-expiry-revocation-fields-observed; authority-meaning-remains-owner-bound
     scopeStatus: observed-projection; not-a-canonical-policy-decision
-    sourceRefs: [runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ConsentDecision, contracts/openapi/media.yaml#/components/schemas/ConsentRecord, providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql#media_consents]
+    sourceRefs:
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ConsentDecision
+      - contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+      - providers/aws-postgresql/src/main/resources/db/media-runtime/V003__media_consent_authority.sql#media_consents
   - id: media.domain.persisted-audio-file
     name: LegacyAudioFileRecord
     kind: observed-legacy-persistence-entity
     identity: legacy-UUID-id-with-tenantId; relationship-to-runtime-artifact-unbound
     lifecycle: legacy-status-soft-delete-and-row-version-fields
     scopeStatus: storage-observation-only; do-not-equate-with-MediaArtifact-without-owner-mapping
-    sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/AudioFileEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.audio_files]
+    sourceRefs:
+      - modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/AudioFileEntity.java
+      - modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.audio_files
   - id: media.domain.transcription
     name: LegacyTranscriptionRecord
     kind: observed-legacy-persistence-and-service-result
@@ -272,7 +510,11 @@ objects:
     lifecycle: legacy-status-soft-delete-row-version-and-transcript-fields
     canonicalBoundary: legacy-transcription-UUID-audioFileId-or-transcriptArtifactId-does-not-by-itself-establish-media.domain.transcript-version-or-an-exact-sourceArtifactVersion-link
     scopeStatus: legacy-storage-and-service-observation-only; not-a-canonical-transcript-version; owner-mapping-and-materialization-unqualified
-    sourceRefs: [modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.transcriptions, libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#Transcription]
+    sourceRefs:
+      - modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java
+      - modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql#audio_video.transcriptions
+      - libs/audio-video-types/src/contracts.ts#TranscriptionResult
+      - modules/speech/stt-service/src/main/proto/stt_service.proto#Transcription
   - id: media.domain.transcript-version
     name: TranscriptVersion
     kind: immutable-recognition-content-version
@@ -282,7 +524,10 @@ objects:
     language: preserve-only-a-supplied-languageTag-or-explicit-unavailable-state; never-infer-language-or-confidence-from-text
     uncertainty: preserve-only-supplied-confidence-alternatives-and-uncertainty-evidence-as-source-observations; provider-confidence-is-not-calibrated-correctness-or-review-approval
     timing:
-      availabilityValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND]
+      availabilityValues:
+        - NOT_SUPPLIED
+        - PROVIDER_TIME_UNQUALIFIED
+        - SOURCE_CLOCK_BOUND
       providerTime: preserve-supplied-time-values-and-declared-unit-exactly; provider-milliseconds-remain-provider-time-observations-unless-an-authoritative-source-clock-map-is-qualified
       sourceClock: sourceClockId-and-positive-safe-integer-ticksPerSecond-are-present-only-when-authoritatively-bound-to-the-exact-sourceArtifactVersion; sourceDurationTicks-is-preserved-only-when-supplied-as-a-nonnegative-safe-integer-and-authoritatively-bound
       rule: missing-timing-does-not-block-read; never-invent-clock-rate-duration-or-alignment; no-unit-conversion-without-an-explicit-qualified-map
@@ -293,7 +538,11 @@ objects:
     materialization: canonical-transcriptVersionId-and-exact-source-link-must-be-assigned-by-an-authoritative-version-producing-boundary; recognition-response-transcriptArtifactId-and-legacy-transcription-UUID-are-not-automatically-canonical-version-identities; no-qualified-producer-is-claimed
     reviewBoundary: transcript-inspection-is-not-caption-correction-caption-registration-review-approval-or-publication
     scopeStatus: bounded-owner-semantics-under-PXD-062; provider-and-legacy-observations-remain-source-only; materialization-and-runtime-NOT_ADMITTED
-    sourceRefs: [libs/audio-video-types/src/contracts.ts#TranscriptionResult, modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse-and-WordTiming, modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java, .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03]
+    sourceRefs:
+      - libs/audio-video-types/src/contracts.ts#TranscriptionResult
+      - modules/speech/stt-service/src/main/proto/stt_service.proto#TranscribeResponse-and-WordTiming
+      - modules/infrastructure/persistence/src/main/java/com/ghatana/audio/video/infrastructure/persistence/entity/TranscriptionEntity.java
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
   - id: media.domain.caption-version
     name: CaptionVersion
     kind: immutable-derived-content-version
@@ -306,4 +555,1187 @@ objects:
     registrationBoundary: registration-receipt-and-version-creation-do-not-mean-reviewed-approved-delivered-or-published
     observedProjection: libs/media-experience-simulation/src/model.ts#CaptionVersionRecord-and-fixtures; fixture-record-uses-untyped-parentVersionId-and-sourceArtifactVersion-only
     scopeStatus: canonical-owner-semantics-bounded-under-PXD-058; observed-fixture-shape-remains-synthetic; runtime-NOT_ADMITTED; independent-PDP1-review-open
-    sourceRefs: [libs/media-experience-simulation/src/model.ts#CaptionVersionRecord, libs/media-experience-simulation/src/model.ts#TimedTextSegment, libs/media-experience-simulation/src/model.ts#MediaSource, libs/media-experience-simulation/src/fixtures.ts, .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03]
+    sourceRefs:
+      - libs/media-experience-simulation/src/model.ts#CaptionVersionRecord
+      - libs/media-experience-simulation/src/model.ts#TimedTextSegment
+      - libs/media-experience-simulation/src/model.ts#MediaSource
+      - libs/media-experience-simulation/src/fixtures.ts
+      - .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+canonicalRelationshipAdjudication:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-RELATIONSHIPS-01
+  authority: user-delegated-Media-product-semantic-owner-in-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/domain-model.yaml
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+  recordCount: 38
+  mediaProductEntityCount: 33
+  sourceObservationCount: 5
+  rules: Relationships are typed, tenant-scoped, and distinct from identity, immutable version, digest, parent lineage, and external destination. Empty relationship lists mean no canonical edge is asserted. Source observations do not acquire product relationships by observation alone.
+  reviewState: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-and-persistence-admission-not-claimed
+  records:
+    - objectRef: media.domain.project
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.project-revision
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Every revision belongs to one project and is an immutable snapshot.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.artifact
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.artifact-version
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: artifact
+          cardinality: many-to-one
+          meaning: Every immutable version belongs to one artifact; digest is integrity evidence, not identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.media-asset
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Asset membership belongs to one project.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+        - name: sourceVersion
+          cardinality: many-to-one
+          meaning: Source reference binds one exact immutable artifact version.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.recipe
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.processing-graph
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.resolved-plan
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: recipe
+          cardinality: optional-many-to-one
+          meaning: Recipe-derived plans bind the exact recipe version; ad-hoc plans do not invent a recipe parent.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.recipe
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.processing-job
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: plan
+          cardinality: optional-many-to-one
+          meaning: A plan-based job retains the exact immutable plan identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.resolved-plan
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.render-job
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: logicalJob
+          cardinality: same-identity-space
+          meaning: Render is a typed job purpose, not an aliased second job identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.processing-job
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.artifact-verification-job
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: logicalJob
+          cardinality: same-identity-space
+          meaning: Verification is a typed job purpose, not an aliased second job identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.processing-job
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.job-attempt
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: job
+          cardinality: many-to-one
+          meaning: Each attempt belongs to one logical job; attempt ID and fence are distinct.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.processing-job
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.job-lease
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: job
+          cardinality: many-to-one
+          meaning: Lease claim is scoped to one job and owner; fencing token is an authority epoch.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.processing-job
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.media-run
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: sourceRevision
+          cardinality: optional-many-to-one
+          meaning: Project-backed runs retain the exact immutable source revision.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project-revision
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.checkpoint
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: run
+          cardinality: many-to-one
+          meaning: Each checkpoint belongs to one run; sequence orders but does not identify it.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.media-run
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.scene-plan
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Scene plan is scoped to one project and versioned independently.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.scene-brief
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Scene brief is scoped to one project and versioned independently.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.scene-graph
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Scene graph is scoped to one project; referenced scenes keep exact identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.animation-graph
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Animation graph is scoped to one project; referenced entities keep exact identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.simulation-world
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.timeline
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Timeline is project-scoped and references exact source versions and rational positions.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.composition-config
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Composition configuration is project-scoped and independently versioned.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.generation-control-bundle
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.continuity-state
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: project
+          cardinality: many-to-one
+          meaning: Continuity state is project-scoped and keeps exact source/version references.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.project
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.quality-assessment
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: subject
+          cardinality: many-to-one
+          meaning: Assessment binds an exact immutable subject version and method version.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.render-outcome
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: job
+          cardinality: many-to-one
+          meaning: Outcome belongs to one logical job.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.processing-job
+          tenantInvariant: source-and-target-tenant-ids-must-match
+        - name: output
+          cardinality: optional-many-to-one
+          meaning: Successful output references an exact immutable version.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.delivery-outcome
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: destinationRef
+          cardinality: exactly-one
+          meaning: Exact authorized external destination is retained separately from output identity and receipt.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetType: EXTERNAL_DESTINATION_REF
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.consent-reference
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.rights-decision
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.provenance-manifest
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: source
+          cardinality: zero-or-more
+          meaning: Manifest records exact source versions; digest or URI never substitutes for version identity.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+        - name: output
+          cardinality: zero-or-more
+          meaning: Manifest records exact outputs and their relation to the run/job.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.upload-session
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: completedArtifact
+          cardinality: optional-many-to-one
+          meaning: Only after verification may a session reference the registered artifact; upload receipt is not availability.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.upload-chunk
+      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.stream-session
+      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.stream-frame
+      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.consent-record
+      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.persisted-audio-file
+      disposition: SOURCE_OBSERVATION_NO_CANONICAL_RELATIONSHIP_AUTHORITY
+      relationships: []
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.transcript-version
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: sourceVersion
+          cardinality: many-to-one
+          meaning: Every transcript version is bound to one exact source version.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+        - name: parentTranscriptVersion
+          cardinality: optional-many-to-one
+          meaning: Correction lineage names the exact prior immutable transcript version.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.transcript-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    - objectRef: media.domain.caption-version
+      disposition: MEDIA_PRODUCT_RELATIONSHIPS_DEFINED
+      relationships:
+        - name: sourceVersion
+          cardinality: many-to-one
+          meaning: Caption version is bound to one exact source version.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.artifact-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+        - name: parentCaptionVersion
+          cardinality: optional-many-to-one
+          meaning: Registration names the exact immutable parent when one exists.
+          status: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-unqualified
+          targetObjectRef: media.domain.caption-version
+          tenantInvariant: source-and-target-tenant-ids-must-match
+      unlistedEdges: No cross-object relationship is implied; add only through an explicit versioned owner definition.
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/domain-model.yaml
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+ownerOutputArtifactTypeCrosswalk:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-OUTPUT-TYPE-IDENTITIES-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/outputArtifactTypes
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects
+  exactOutputTypeCount: 69
+  uniqueOutputTypeCount: 69
+  records:
+    - artifactType: versioned-project-state
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.project
+        - media.domain.project-revision
+      reason: This exact output type resolves to media.domain.project, media.domain.project-revision as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-project-state
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-project-state
+    - artifactType: governed-artifact-reference-or-lifecycle-observation
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:governed-artifact-reference-or-lifecycle-observation
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.governed-artifact-reference-or-lifecycle-observation
+    - artifactType: stable-uploadId-and-owner-acknowledged-transfer-state
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.upload-session
+      reason: This exact output type resolves to media.domain.upload-session as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:stable-uploadId-and-owner-acknowledged-transfer-state
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.stable-uploadid-and-owner-acknowledged-transfer-state
+    - artifactType: verification-job-reference-only-if-issued-by-owner-contract
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-verification-job
+      reason: This exact output type resolves to media.domain.artifact-verification-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:verification-job-reference-only-if-issued-by-owner-contract
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.verification-job-reference-only-if-issued-by-owner-contract
+    - artifactType: artifact-version-reference-only-after-owner-confirmed-registration
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:artifact-version-reference-only-after-owner-confirmed-registration
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.artifact-version-reference-only-after-owner-confirmed-registration
+    - artifactType: same-uploadId-and-authoritative-transfer-state
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.upload-session
+      reason: This exact output type resolves to media.domain.upload-session as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:same-uploadId-and-authoritative-transfer-state
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.same-uploadid-and-authoritative-transfer-state
+    - artifactType: newly-acknowledged-ranges-only
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:newly-acknowledged-ranges-only
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.newly-acknowledged-ranges-only
+    - artifactType: verification-reference-only-if-issued-by-owner-contract
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-verification-job
+      reason: This exact output type resolves to media.domain.artifact-verification-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:verification-reference-only-if-issued-by-owner-contract
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.verification-reference-only-if-issued-by-owner-contract
+    - artifactType: import-observation-and-source-resolution-evidence
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:import-observation-and-source-resolution-evidence
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.import-observation-and-source-resolution-evidence
+    - artifactType: verification-or-quarantine-state-when-issued
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-verification-job
+        - media.domain.artifact
+      reason: This exact output type resolves to media.domain.artifact-verification-job, media.domain.artifact as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:verification-or-quarantine-state-when-issued
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.verification-or-quarantine-state-when-issued
+    - artifactType: authorized-artifact-version-summary
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:authorized-artifact-version-summary
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.authorized-artifact-version-summary
+    - artifactType: integrity-and-lifecycle-disposition
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:integrity-and-lifecycle-disposition
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.integrity-and-lifecycle-disposition
+    - artifactType: rights-retention-and-provenance-references-when-authorized
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.rights-decision
+        - media.domain.provenance-manifest
+      reason: This exact output type resolves to media.domain.rights-decision, media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:rights-retention-and-provenance-references-when-authorized
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.rights-retention-and-provenance-references-when-authorized
+    - artifactType: accepted-media-job-reference-and-admission-observation
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+      reason: This exact output type resolves to media.domain.processing-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:accepted-media-job-reference-and-admission-observation
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.accepted-media-job-reference-and-admission-observation
+    - artifactType: media-job-status-snapshot
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+      reason: This exact output type resolves to media.domain.processing-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:media-job-status-snapshot
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.media-job-status-snapshot
+    - artifactType: bounded-media-job-page-and-opaque-continuation
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+      reason: This exact output type resolves to media.domain.processing-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:bounded-media-job-page-and-opaque-continuation
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.bounded-media-job-page-and-opaque-continuation
+    - artifactType: bounded-job-observation-sequence-and-terminal-observation-when-known
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+        - media.domain.job-attempt
+      reason: This exact output type resolves to media.domain.processing-job, media.domain.job-attempt as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:bounded-job-observation-sequence-and-terminal-observation-when-known
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.bounded-job-observation-sequence-and-terminal-observation-when-known
+    - artifactType: cancellation-request-observation-with-job-and-attempt-references
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+        - media.domain.job-attempt
+      reason: This exact output type resolves to media.domain.processing-job, media.domain.job-attempt as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:cancellation-request-observation-with-job-and-attempt-references
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.cancellation-request-observation-with-job-and-attempt-references
+    - artifactType: same-media-job-reference-and-new-attempt-observation
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+        - media.domain.job-attempt
+      reason: This exact output type resolves to media.domain.processing-job, media.domain.job-attempt as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:same-media-job-reference-and-new-attempt-observation
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.same-media-job-reference-and-new-attempt-observation
+    - artifactType: classified-job-and-attempt-outcome-with-evidence-references
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+        - media.domain.job-attempt
+      reason: This exact output type resolves to media.domain.processing-job, media.domain.job-attempt as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:classified-job-and-attempt-outcome-with-evidence-references
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.classified-job-and-attempt-outcome-with-evidence-references
+    - artifactType: bounded-job-output-reference-page-with-per-output-disposition
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact-version
+        - media.domain.processing-job
+      reason: This exact output type resolves to media.domain.artifact-version, media.domain.processing-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:bounded-job-output-reference-page-with-per-output-disposition
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.bounded-job-output-reference-page-with-per-output-disposition
+    - artifactType: bounded-redacted-job-command-attempt-and-transition-history
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+        - media.domain.job-attempt
+        - media.domain.job-lease
+      reason: This exact output type resolves to media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:bounded-redacted-job-command-attempt-and-transition-history
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.bounded-redacted-job-command-attempt-and-transition-history
+    - artifactType: ordered-stream-observation-or-terminal-session-state
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.stream-session
+      reason: This exact output type resolves to media.domain.stream-session as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:ordered-stream-observation-or-terminal-session-state
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.ordered-stream-observation-or-terminal-session-state
+    - artifactType: profile-description-or-validation-result
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:profile-description-or-validation-result
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.profile-description-or-validation-result
+    - artifactType: versioned-profile-validation-result
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-profile-validation-result
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-profile-validation-result
+    - artifactType: per-dimension-compatible-incompatible-or-unknown-dispositions
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:per-dimension-compatible-incompatible-or-unknown-dispositions
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.per-dimension-compatible-incompatible-or-unknown-dispositions
+    - artifactType: required-change-and-limitation-list
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:required-change-and-limitation-list
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.required-change-and-limitation-list
+    - artifactType: declared-capability-and-compatibility-result
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:declared-capability-and-compatibility-result
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.declared-capability-and-compatibility-result
+    - artifactType: capability-scoped-readiness-observation
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:capability-scoped-readiness-observation
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.capability-scoped-readiness-observation
+    - artifactType: policy-decision-reference-or-rights-observation
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.rights-decision
+        - media.domain.consent-reference
+      reason: This exact output type resolves to media.domain.rights-decision, media.domain.consent-reference as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:policy-decision-reference-or-rights-observation
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.policy-decision-reference-or-rights-observation
+    - artifactType: minimized-provenance-record-or-disclosure
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.provenance-manifest
+      reason: This exact output type resolves to media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:minimized-provenance-record-or-disclosure
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.minimized-provenance-record-or-disclosure
+    - artifactType: timestamped-scene-text-observation-with-source-reference
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:timestamped-scene-text-observation-with-source-reference
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.timestamped-scene-text-observation-with-source-reference
+    - artifactType: owner-issued-transcription-job-reference
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.processing-job
+      reason: This exact output type resolves to media.domain.processing-job as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:owner-issued-transcription-job-reference
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.owner-issued-transcription-job-reference
+    - artifactType: transcript-draft-with-source-version-and-timebase-if-produced
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:transcript-draft-with-source-version-and-timebase-if-produced
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.transcript-draft-with-source-version-and-timebase-if-produced
+    - artifactType: language-and-recognition-evidence-when-provided
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:language-and-recognition-evidence-when-provided
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.language-and-recognition-evidence-when-provided
+    - artifactType: transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.transcript-or-speech-analysis-artifact-with-timing-and-uncertainty
+    - artifactType: aligned-transcript-candidate-with-source-timebase
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:aligned-transcript-candidate-with-source-timebase
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.aligned-transcript-candidate-with-source-timebase
+    - artifactType: segment-or-word-timing-observations-when-qualified
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:segment-or-word-timing-observations-when-qualified
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.segment-or-word-timing-observations-when-qualified
+    - artifactType: alignment-limitations-and-provenance
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:alignment-limitations-and-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.alignment-limitations-and-provenance
+    - artifactType: subtitle-draft-version
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:subtitle-draft-version
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.subtitle-draft-version
+    - artifactType: segment-timing-and-alignment-disposition
+      disposition: EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE
+      domainObjectRefs: []
+      reason: This output is an observation, draft, limit list, compatibility disposition, or transient value without a canonical persisted object in the current PDP-1 object registry.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:segment-timing-and-alignment-disposition
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.segment-timing-and-alignment-disposition
+    - artifactType: source-and-operation-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.provenance-manifest
+      reason: This exact output type resolves to media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:source-and-operation-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.source-and-operation-provenance
+    - artifactType: typed-visual-analysis-result-with-applicability-and-uncertainty
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:typed-visual-analysis-result-with-applicability-and-uncertainty
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.typed-visual-analysis-result-with-applicability-and-uncertainty
+    - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+        - media.domain.provenance-manifest
+      reason: This exact output type resolves to media.domain.quality-assessment, media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:source-grounded-cross-modal-result-with-provenance-and-uncertainty
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+    - artifactType: typed-audio-measurement-or-observation-with-method-and-limits
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:typed-audio-measurement-or-observation-with-method-and-limits
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.typed-audio-measurement-or-observation-with-method-and-limits
+    - artifactType: candidate-image-artifact-with-execution-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:candidate-image-artifact-with-execution-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.candidate-image-artifact-with-execution-provenance
+    - artifactType: candidate-video-artifact-with-execution-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:candidate-video-artifact-with-execution-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.candidate-video-artifact-with-execution-provenance
+    - artifactType: candidate-audio-artifact-with-execution-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:candidate-audio-artifact-with-execution-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.candidate-audio-artifact-with-execution-provenance
+    - artifactType: speech-artifact-with-voice-rights-and-execution-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:speech-artifact-with-voice-rights-and-execution-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.speech-artifact-with-voice-rights-and-execution-provenance
+    - artifactType: spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+        - media.domain.media-run
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version, media.domain.media-run as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
+    - artifactType: versioned-animation-scene-or-edit
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.animation-graph
+        - media.domain.scene-graph
+      reason: This exact output type resolves to media.domain.animation-graph, media.domain.scene-graph as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-animation-scene-or-edit
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-animation-scene-or-edit
+    - artifactType: versioned-animation-edit-and-undo-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.animation-graph
+        - media.domain.provenance-manifest
+      reason: This exact output type resolves to media.domain.animation-graph, media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-animation-edit-and-undo-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-animation-edit-and-undo-provenance
+    - artifactType: declared-animation-output-artifact
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:declared-animation-output-artifact
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.declared-animation-output-artifact
+    - artifactType: qualified-simulation-observation-or-output
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.media-run
+      reason: The exact qualified-simulation-observation-or-output output is a MediaRun observation/pass over an input SimulationWorld; it does not return a new versioned SimulationWorld. The input model remains separately versioned and is provenance context, not an output object.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:qualified-simulation-observation-or-output
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.qualified-simulation-observation-or-output
+    - artifactType: typed-simulation-pass-with-produced-versus-estimated-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.media-run
+      reason: The exact typed-simulation-pass-with-produced-versus-estimated-provenance output is a MediaRun observation/pass over an input SimulationWorld; it does not return a new versioned SimulationWorld. The input model remains separately versioned and is provenance context, not an output object.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:typed-simulation-pass-with-produced-versus-estimated-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.typed-simulation-pass-with-produced-versus-estimated-provenance
+    - artifactType: versioned-MediaRecipe-with-content-and-schema-bindings
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.recipe
+      reason: This exact output type resolves to media.domain.recipe as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-MediaRecipe-with-content-and-schema-bindings
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-mediarecipe-with-content-and-schema-bindings
+    - artifactType: derived-image-candidate-with-source-preserved-and-measurements
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:derived-image-candidate-with-source-preserved-and-measurements
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.derived-image-candidate-with-source-preserved-and-measurements
+    - artifactType: derived-video-candidate-with-source-preserved-and-measurements
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:derived-video-candidate-with-source-preserved-and-measurements
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.derived-video-candidate-with-source-preserved-and-measurements
+    - artifactType: derived-audio-candidate-with-source-preserved-and-measurements
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:derived-audio-candidate-with-source-preserved-and-measurements
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.derived-audio-candidate-with-source-preserved-and-measurements
+    - artifactType: versioned-edited-artifact-or-project-change
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+        - media.domain.project-revision
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version, media.domain.project-revision as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-edited-artifact-or-project-change
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-edited-artifact-or-project-change
+    - artifactType: alignment-map-and-derived-synchronized-artifact
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+        - media.domain.timeline
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version, media.domain.timeline as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:alignment-map-and-derived-synchronized-artifact
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.alignment-map-and-derived-synchronized-artifact
+    - artifactType: versioned-composition-and-render-manifest
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.composition-config
+        - media.domain.render-outcome
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.composition-config, media.domain.render-outcome, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:versioned-composition-and-render-manifest
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.versioned-composition-and-render-manifest
+    - artifactType: color-managed-media-derivative-and-transform-provenance
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+        - media.domain.provenance-manifest
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version, media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:color-managed-media-derivative-and-transform-provenance
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.color-managed-media-derivative-and-transform-provenance
+    - artifactType: mastered-audio-candidate-with-measurements
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.artifact
+        - media.domain.artifact-version
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.artifact, media.domain.artifact-version, media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:mastered-audio-candidate-with-measurements
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.mastered-audio-candidate-with-measurements
+    - artifactType: quality-observation-or-bounded-repair-plan
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:quality-observation-or-bounded-repair-plan
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.quality-observation-or-bounded-repair-plan
+    - artifactType: image-quality-observations-by-applicable-dimension
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:image-quality-observations-by-applicable-dimension
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.image-quality-observations-by-applicable-dimension
+    - artifactType: video-quality-observations-by-applicable-dimension
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:video-quality-observations-by-applicable-dimension
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.video-quality-observations-by-applicable-dimension
+    - artifactType: audio-quality-observations-by-applicable-dimension
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.quality-assessment
+      reason: This exact output type resolves to media.domain.quality-assessment as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:audio-quality-observations-by-applicable-dimension
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.audio-quality-observations-by-applicable-dimension
+    - artifactType: delivery-package-or-explicit-delivery-outcome
+      disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      domainObjectRefs:
+        - media.domain.delivery-outcome
+        - media.domain.artifact-version
+      reason: This exact output type resolves to media.domain.delivery-outcome, media.domain.artifact-version as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:delivery-package-or-explicit-delivery-outcome
+      ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
+      implementationState: UNKNOWN
+      qualificationState: NOT_EVALUATED
+      id: media.output-type-definition.delivery-package-or-explicit-delivery-outcome
+  recordIdentityRule: Each record is an independently normative owner definition for one exact PDP-0 output artifact type; it is not output materialization or runtime qualification.

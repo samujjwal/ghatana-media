@@ -1,0 +1,3 @@
+# Preserve exact verification output and its recorded digest, including diagnostic
+# diff whitespace. Source files continue to use ordinary whitespace checks.
+docs/implementation/verification/pdp-38/*.log -whitespace

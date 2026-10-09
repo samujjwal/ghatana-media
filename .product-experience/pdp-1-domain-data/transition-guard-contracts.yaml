@@ -1,0 +1,5122 @@
+{
+  "schemaVersion": "media.pdp-1.transition-guard-contracts.v1",
+  "productId": "media",
+  "semanticOwner": "media",
+  "authorityStatus": "owner-defined guard predicate grammar; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+  "factsAuthority": "Caller supplies observed or asserted definition facts; this file defines predicates and does not prove their truth.",
+  "expressionGrammar": {
+    "all": "every child expression must pass",
+    "any": "at least one child expression must pass",
+    "not": "child expression must fail",
+    "fact": "exact key in supplied facts.guardFacts; only boolean true passes; missing/unknown fails closed"
+  },
+  "commonFacts": {
+    "tenant.matches": "tenant request and state subject are in same trusted tenant; source .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication"
+  },
+  "facts": {
+    "activeEffectsResolvedOrUnknown": {
+      "description": "activeEffectsResolvedOrUnknown",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "affectedWorkReconciled": {
+      "description": "affectedWorkReconciled",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "approvalDurable": {
+      "description": "approvalDurable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "assignedReviewerOrAuthority": {
+      "description": "assignedReviewerOrAuthority",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "atomicCommitAvailable": {
+      "description": "atomicCommitAvailable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "attemptOutcomeRecorded": {
+      "description": "attemptOutcomeRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "authorityCurrent": {
+      "description": "authorityCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "authorityRecordedConsentDecision": {
+      "description": "authorityRecordedConsentDecision",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "cancellationRaceEvidenceRecorded": {
+      "description": "cancellationRaceEvidenceRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "consent.activationVerified": {
+      "description": "consent.activationVerified",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "consent.expiryRecorded": {
+      "description": "consent.expiryRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "consent.replacementRecorded": {
+      "description": "consent.replacementRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "consent.revocationRecorded": {
+      "description": "consent.revocationRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "consentPerEffectCurrent": {
+      "description": "consentPerEffectCurrent",
+      "valueType": "boolean",
+      "unknown": "deny",
+      "recognizedStatuses": ["PENDING_VERIFICATION", "ACTIVE", "REVOKED", "EXPIRED", "SUPERSEDED"],
+      "statusSource": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent"
+    },
+    "consentScopeCurrent": {
+      "description": "consentScopeCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "copyInventoryComplete": {
+      "description": "copyInventoryComplete",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "currentHeadRecorded": {
+      "description": "currentHeadRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "degradationPolicyDeclared": {
+      "description": "degradationPolicyDeclared",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "delegationCurrent": {
+      "description": "delegationCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "deletionEvidenceRecorded": {
+      "description": "deletionEvidenceRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "deliveryIntentAuthorized": {
+      "description": "deliveryIntentAuthorized",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "destinationCurrent": {
+      "description": "destinationCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "destinationEffectsAccounted": {
+      "description": "destinationEffectsAccounted",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "destinationEvidenceRecorded": {
+      "description": "destinationEvidenceRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "destinationPolicyPass": {
+      "description": "destinationPolicyPass",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "destinationQueryOrReconciliationStarted": {
+      "description": "destinationQueryOrReconciliationStarted",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "dispatchIntentDurable": {
+      "description": "dispatchIntentDurable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "dispatchMayHaveCrossed": {
+      "description": "dispatchMayHaveCrossed",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "erasureIntentDurable": {
+      "description": "erasureIntentDurable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "exactOutputVersionCurrent": {
+      "description": "exactOutputVersionCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "exactVersionCurrent": {
+      "description": "exactVersionCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "expectedVersionConflicts": {
+      "description": "expectedVersionConflicts",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "expectedVersionMatches": {
+      "description": "expectedVersionMatches",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "expiryPolicyCurrent": {
+      "description": "expiryPolicyCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "explicitAbandonOrExpiryRecorded": {
+      "description": "explicitAbandonOrExpiryRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "fenceCurrent": {
+      "description": "fenceCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "formatDispositionRecorded": {
+      "description": "formatDispositionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "holdCheckPass": {
+      "description": "holdCheckPass",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "holdReleaseOrBoundaryEvidence": {
+      "description": "holdReleaseOrBoundaryEvidence",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "idempotencyIdentityRecorded": {
+      "description": "idempotencyIdentityRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "identityCurrent": {
+      "description": "identityCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "immutableVersionSelected": {
+      "description": "immutableVersionSelected",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "integrityDispositionRecorded": {
+      "description": "integrityDispositionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "inviteeAccepted": {
+      "description": "inviteeAccepted",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "inviterAuthorized": {
+      "description": "inviterAuthorized",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "leaseCurrent": {
+      "description": "leaseCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "leaseSequenceCurrent": {
+      "description": "leaseSequenceCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "measurementOrAbstentionRecorded": {
+      "description": "measurementOrAbstentionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "measurementProtocolVersionBound": {
+      "description": "measurementProtocolVersionBound",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "metricApplicabilityDeclared": {
+      "description": "metricApplicabilityDeclared",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "newEvidenceOrRevocationOrExpiryRecorded": {
+      "description": "newEvidenceOrRevocationOrExpiryRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "newHeadCommitted": {
+      "description": "newHeadCommitted",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "newReviewRequestRecorded": {
+      "description": "newReviewRequestRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "newWorkFenced": {
+      "description": "newWorkFenced",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "noPartialCommit": {
+      "description": "noPartialCommit",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outputOrMeasurementProtocolChanged": {
+      "description": "outputOrMeasurementProtocolChanged",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "policyChangeOrRevocationOrExpiryRecorded": {
+      "description": "policyChangeOrRevocationOrExpiryRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "policyCurrent": {
+      "description": "policyCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "policyEventRecorded": {
+      "description": "policyEventRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "priorRevisionImmutable": {
+      "description": "priorRevisionImmutable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "projectAccessCurrent": {
+      "description": "projectAccessCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "projectOwnerAuthorized": {
+      "description": "projectOwnerAuthorized",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "projectScopeMatches": {
+      "description": "projectScopeMatches",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "providerBindingCurrent": {
+      "description": "providerBindingCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "providerObservationRecorded": {
+      "description": "providerObservationRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reconciliationAuthorityAvailable": {
+      "description": "reconciliationAuthorityAvailable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reconciliationEvidenceDurable": {
+      "description": "reconciliationEvidenceDurable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "recoveryBudgetAvailable": {
+      "description": "recoveryBudgetAvailable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "referencedArtifactsAvailable": {
+      "description": "referencedArtifactsAvailable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "requestValid": {
+      "description": "requestValid",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "retentionPass": {
+      "description": "retentionPass",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "retryBudgetAvailable": {
+      "description": "retryBudgetAvailable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reviewOrErasureDecisionRecorded": {
+      "description": "reviewOrErasureDecisionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reviewPurposeCurrent": {
+      "description": "reviewPurposeCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reviewPurposeSelected": {
+      "description": "reviewPurposeSelected",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reviewerAuthorized": {
+      "description": "reviewerAuthorized",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "reviewerDelegationCurrent": {
+      "description": "reviewerDelegationCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "revisionCreatesNewVersion": {
+      "description": "revisionCreatesNewVersion",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "revocationDurable": {
+      "description": "revocationDurable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "revocationOrExpiryDurable": {
+      "description": "revocationOrExpiryDurable",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "rights.expiryRecorded": {
+      "description": "rights.expiryRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "rights.newEvidenceRecorded": {
+      "description": "rights.newEvidenceRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "rights.policyChangeRecorded": {
+      "description": "rights.policyChangeRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "rights.revocationRecorded": {
+      "description": "rights.revocationRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "rightsDispositionRecorded": {
+      "description": "rightsDispositionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "safeDecisionRecorded": {
+      "description": "safeDecisionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "scopeBoundEvidenceProduced": {
+      "description": "scopeBoundEvidenceProduced",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "securityDispositionRecorded": {
+      "description": "securityDispositionRecorded",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "sessionGrantCurrent": {
+      "description": "sessionGrantCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "stableSubmissionIdentity": {
+      "description": "stableSubmissionIdentity",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "tenant.matches": {
+      "description": "tenant.matches",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "tenantProjectScopeMatches": {
+      "description": "tenantProjectScopeMatches",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "tombstoneCheckPass": {
+      "description": "tombstoneCheckPass",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "trustedConsentAuthority": {
+      "description": "trustedConsentAuthority",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "uploadBoundsValid": {
+      "description": "uploadBoundsValid",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "userAssertionRecordedUnverified": {
+      "description": "userAssertionRecordedUnverified",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "validationPass": {
+      "description": "validationPass",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "versionCurrent": {
+      "description": "versionCurrent",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "versionValidityOrExpiryOrWithdrawalEvidence": {
+      "description": "versionValidityOrExpiryOrWithdrawalEvidence",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "hold.active": {
+      "description": "A current hold applies to this exact governed object and scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "hold.absent": {
+      "description": "A current hold lookup establishes no applicable hold for this exact governed object and scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "hold.unknown": {
+      "description": "Hold applicability cannot be established for this exact object/scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.running.supported": {
+      "description": "A current fenced attempt is observed executing an admitted stage.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.cancelled.supported": {
+      "description": "Authoritative no-dispatch or fenced-effects finality confirms cancellation.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.failed.supported": {
+      "description": "Failure truth is durably classified and no eligible continuation remains.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.retry.pending.supported": {
+      "description": "The prior attempt is classified retryable and bounded retry authority remains.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.outcome.unknown.supported": {
+      "description": "An external effect may have occurred and its result is still unknown.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.reconciling.supported": {
+      "description": "An authoritative provider, store, or owner reconciliation has actually started.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.completed.supported": {
+      "description": "The exact output set is validated, registered, and durably committed under the result contract.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.job.partially.succeeded.supported": {
+      "description": "Every declared sub-effect has a closed disposition and no consequential effect remains unknown.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.dispatch.intent.recorded.supported": {
+      "description": "Durable dispatch intent and idempotency identity are recorded before dispatch.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.cancel.confirmed.supported": {
+      "description": "Authoritative no-dispatch or termination evidence closes all relevant effects.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.failed.supported": {
+      "description": "Failure truth is durably classified and no eligible continuation remains.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.superseded.supported": {
+      "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.dispatched.supported": {
+      "description": "The external request may have crossed the boundary under the current durable intent.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.outcome.unknown.supported": {
+      "description": "An external effect may have occurred and its result is still unknown.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.running.supported": {
+      "description": "A current fenced attempt is observed executing an admitted stage.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.cancel.requested.supported": {
+      "description": "An authorized stop intent is recorded; cancellation finality is not claimed.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.attempt.succeeded.supported": {
+      "description": "The provider reported success; result validation and registration remain separate.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.upload.and.artifact.verifying.supported": {
+      "description": "Transfer bounds pass and exact uploaded bytes enter integrity verification.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.upload.and.artifact.rejected.supported": {
+      "description": "The assigned reviewer or rights authority records a scoped rejection decision.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.upload.and.artifact.expired.supported": {
+      "description": "The invitation or review validity window has expired under its declared policy.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.upload.and.artifact.available.supported": {
+      "description": "All required integrity, format, rights, security, and durable-registration checks pass.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.upload.and.artifact.quarantined.supported": {
+      "description": "A failed, conflicting, or inconclusive admission check blocks use pending review.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.upload.and.artifact.erasure.requested.supported": {
+      "description": "An authorized erasure intent is durably recorded for the exact governed object.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.stream.session.connected.supported": {
+      "description": "Current session grant, provider binding, lease sequence, and consent scope authorize active effects.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.stream.session.draining.supported": {
+      "description": "New work is fenced while active effects reach confirmed closure or recorded uncertainty.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.stream.session.failed.supported": {
+      "description": "Failure truth is durably classified and no eligible continuation remains.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.stream.session.degraded.supported": {
+      "description": "The session remains within a declared degradation and recovery budget with current per-effect authority.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.stream.session.closed.supported": {
+      "description": "No active work remains, and every possibly consequential effect is confirmed or recorded unknown.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.requested.supported": {
+      "description": "An exact immutable version and review purpose are bound in a durable review request.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.withdrawn.supported": {
+      "description": "An authorized withdrawal for this exact review/version is durably recorded.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.expired.supported": {
+      "description": "The invitation or review validity window has expired under its declared policy.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.in.review.supported": {
+      "description": "A delegated reviewer is current for the exact immutable version and purpose.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.superseded.supported": {
+      "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.changes.requested.supported": {
+      "description": "The authorized reviewer records scoped requested changes for the exact review target.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.approved.supported": {
+      "description": "An authorized reviewer approves the exact version and stated purpose with current evidence.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.review.rejected.supported": {
+      "description": "The assigned reviewer or rights authority records a scoped rejection decision.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.preparing.supported": {
+      "description": "An authorized delivery intent and exact destination are selected; submission has not occurred.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.revoked.supported": {
+      "description": "An authorized revocation is durably recorded for the exact consent/rights scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.ready.for.authorized.delivery.supported": {
+      "description": "Exact output identity, destination policy, current approval, and rights all pass before submission.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.failed.supported": {
+      "description": "Failure truth is durably classified and no eligible continuation remains.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.submitted.supported": {
+      "description": "Durable approval and idempotency identity precede an authorized external submission.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.acknowledged.supported": {
+      "description": "Destination evidence acknowledges the exact submitted output and destination.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.partially.delivered.supported": {
+      "description": "Some destination effects are acknowledged and all remaining effects have explicit dispositions.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.outcome.unknown.supported": {
+      "description": "An external effect may have occurred and its result is still unknown.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.delivery.reconciling.supported": {
+      "description": "An authoritative provider, store, or owner reconciliation has actually started.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.quality.disposition.assessing.supported": {
+      "description": "Applicable measurements are being produced for the exact output under the declared protocol.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.quality.disposition.review.required.supported": {
+      "description": "Evidence or qualified capability is insufficient for an automated pass/fail decision.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.quality.disposition.pass.supported": {
+      "description": "Recorded measurements satisfy the applicable declared acceptance criteria.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.quality.disposition.fail.supported": {
+      "description": "Recorded measurements fail the applicable declared acceptance criteria.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.quality.disposition.abstained.supported": {
+      "description": "Assessment abstains with a recorded reason tied to missing or inapplicable evidence.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.quality.disposition.superseded.supported": {
+      "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.project.membership.revoked.supported": {
+      "description": "An authorized revocation is durably recorded for the exact consent/rights scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.project.membership.expired.supported": {
+      "description": "The invitation or review validity window has expired under its declared policy.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.project.membership.suspended.supported": {
+      "description": "Current project authority applies a scoped suspension and affected work is reconciled.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.under.review.supported": {
+      "description": "A current review owner and evidence request are assigned; no positive rights decision is implied.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.restricted.supported": {
+      "description": "A current policy, review, or rights decision limits use and records the applicable scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.rejected.supported": {
+      "description": "The assigned reviewer or rights authority records a scoped rejection decision.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.verified.for.declared.scope.supported": {
+      "description": "A qualified authority supplies evidence for the exact declared rights scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.revoked.supported": {
+      "description": "An authorized revocation is durably recorded for the exact consent/rights scope.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.expired.supported": {
+      "description": "The invitation or review validity window has expired under its declared policy.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.active.supported": {
+      "description": "Current project authority, retention, tombstone, and referenced-artifact checks allow restore/reactivation.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "outcome.media.rights.and.consent.superseded.supported": {
+      "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "erasure.externalCopyUnconfirmed": {
+      "description": "A governed copy is outside known control or lacks current deletion evidence.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    },
+    "erasure.allControlledCopiesConfirmed": {
+      "description": "Every controlled copy has current deletion evidence or the exact accepted control boundary.",
+      "valueType": "boolean",
+      "unknown": "deny"
+    }
+  },
+  "records": [
+    {
+      "transitionId": "media-job/T01",
+      "sourceMachineId": "media-job",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T01",
+      "sourceGuard": "request-is-valid-and-current-authority-allows-admission",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "QUEUED",
+          "to": "RUNNING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "requestValid"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.job.running.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "QUEUED",
+          "to": "CANCELLED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "requestValid"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.job.cancelled.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "QUEUED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "requestValid"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.job.failed.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-job.t01"
+    },
+    {
+      "transitionId": "media-job/T02",
+      "sourceMachineId": "media-job",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T02",
+      "sourceGuard": "current-fence-and-recorded-attempt-outcome",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "RUNNING",
+          "to": "RETRY_PENDING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "attemptOutcomeRecorded"
+              },
+              {
+                "fact": "outcome.media.job.retry.pending.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "attemptOutcomeRecorded"
+              },
+              {
+                "fact": "outcome.media.job.outcome.unknown.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "RECONCILING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "attemptOutcomeRecorded"
+              },
+              {
+                "fact": "outcome.media.job.reconciling.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "COMPLETED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "attemptOutcomeRecorded"
+              },
+              {
+                "fact": "outcome.media.job.completed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "PARTIALLY_SUCCEEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "attemptOutcomeRecorded"
+              },
+              {
+                "fact": "outcome.media.job.partially.succeeded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "attemptOutcomeRecorded"
+              },
+              {
+                "fact": "outcome.media.job.failed.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-job.t02"
+    },
+    {
+      "transitionId": "media-job/T03",
+      "sourceMachineId": "media-job",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03",
+      "sourceGuard": "retry-budget-policy-and-authority-rechecked",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "RETRY_PENDING",
+          "to": "RUNNING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "retryBudgetAvailable"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.job.running.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RETRY_PENDING",
+          "to": "CANCELLED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "retryBudgetAvailable"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.job.cancelled.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RETRY_PENDING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "retryBudgetAvailable"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.job.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RETRY_PENDING",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "retryBudgetAvailable"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.job.outcome.unknown.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-job.t03"
+    },
+    {
+      "transitionId": "media-job/T04",
+      "sourceMachineId": "media-job",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T04",
+      "sourceGuard": "provider-or-owner-reconciliation-begins",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "OUTCOME_UNKNOWN",
+          "to": "RECONCILING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationAuthorityAvailable"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-job.t04"
+    },
+    {
+      "transitionId": "media-job/T05",
+      "sourceMachineId": "media-job",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T05",
+      "sourceGuard": "durable-reconciliation-evidence-and-safe-decision",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "RECONCILING",
+          "to": "RUNNING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.running.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "RETRY_PENDING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.retry.pending.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "COMPLETED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.completed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "PARTIALLY_SUCCEEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.partially.succeeded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "CANCELLED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.cancelled.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reconciliationEvidenceDurable"
+              },
+              {
+                "fact": "safeDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.job.outcome.unknown.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-job.t05"
+    },
+    {
+      "transitionId": "media-attempt/T01",
+      "sourceMachineId": "media-attempt",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-attempt/T01",
+      "sourceGuard": "current-lease-and-policy-rechecked-before-dispatch",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "CLAIMED",
+          "to": "DISPATCH_INTENT_RECORDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.dispatch.intent.recorded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CLAIMED",
+          "to": "CANCEL_CONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.cancel.confirmed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CLAIMED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CLAIMED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-attempt.t01"
+    },
+    {
+      "transitionId": "media-attempt/T02",
+      "sourceMachineId": "media-attempt",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-attempt/T02",
+      "sourceGuard": "durable-dispatch-intent-and-idempotency-identity-exist",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DISPATCH_INTENT_RECORDED",
+          "to": "DISPATCHED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchIntentDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.dispatched.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCH_INTENT_RECORDED",
+          "to": "CANCEL_CONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchIntentDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.cancel.confirmed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCH_INTENT_RECORDED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchIntentDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCH_INTENT_RECORDED",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchIntentDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.outcome.unknown.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-attempt.t02"
+    },
+    {
+      "transitionId": "media-attempt/T03",
+      "sourceMachineId": "media-attempt",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-attempt/T03",
+      "sourceGuard": "dispatch-may-have-crossed-boundary-and-current-fence-remains-valid",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DISPATCHED",
+          "to": "RUNNING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchMayHaveCrossed"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.running.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCHED",
+          "to": "CANCEL_REQUESTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchMayHaveCrossed"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.cancel.requested.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCHED",
+          "to": "SUCCEEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchMayHaveCrossed"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.succeeded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCHED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchMayHaveCrossed"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCHED",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchMayHaveCrossed"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.outcome.unknown.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DISPATCHED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "dispatchMayHaveCrossed"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-attempt.t03"
+    },
+    {
+      "transitionId": "media-attempt/T04",
+      "sourceMachineId": "media-attempt",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-attempt/T04",
+      "sourceGuard": "provider-observation-is-recorded-under-current-fence",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "RUNNING",
+          "to": "CANCEL_REQUESTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "providerObservationRecorded"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.cancel.requested.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "SUCCEEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "providerObservationRecorded"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.succeeded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "providerObservationRecorded"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "providerObservationRecorded"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.outcome.unknown.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RUNNING",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "providerObservationRecorded"
+              },
+              {
+                "fact": "fenceCurrent"
+              },
+              {
+                "fact": "outcome.media.attempt.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-attempt.t04"
+    },
+    {
+      "transitionId": "media-attempt/T05",
+      "sourceMachineId": "media-attempt",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-attempt/T05",
+      "sourceGuard": "cancellation-race-is-resolved-from-provider-or-local-authority-evidence",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "CANCEL_REQUESTED",
+          "to": "CANCEL_CONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "cancellationRaceEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.cancel.confirmed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CANCEL_REQUESTED",
+          "to": "SUCCEEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "cancellationRaceEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.succeeded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CANCEL_REQUESTED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "cancellationRaceEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CANCEL_REQUESTED",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "cancellationRaceEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.outcome.unknown.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CANCEL_REQUESTED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "cancellationRaceEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.attempt.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-attempt.t05"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T01",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01",
+      "sourceGuard": "upload-bounds-and-current-authority-remain-valid",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "RECEIVING",
+          "to": "VERIFYING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "uploadBoundsValid"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.verifying.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECEIVING",
+          "to": "REJECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "uploadBoundsValid"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.rejected.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECEIVING",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "uploadBoundsValid"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.expired.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t01"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T02",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T02",
+      "sourceGuard": "integrity-format-rights-and-security-disposition-is-recorded",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "VERIFYING",
+          "to": "AVAILABLE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "integrityDispositionRecorded"
+              },
+              {
+                "fact": "formatDispositionRecorded"
+              },
+              {
+                "fact": "rightsDispositionRecorded"
+              },
+              {
+                "fact": "securityDispositionRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.available.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "VERIFYING",
+          "to": "QUARANTINED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "integrityDispositionRecorded"
+              },
+              {
+                "fact": "formatDispositionRecorded"
+              },
+              {
+                "fact": "rightsDispositionRecorded"
+              },
+              {
+                "fact": "securityDispositionRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.quarantined.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "VERIFYING",
+          "to": "REJECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "integrityDispositionRecorded"
+              },
+              {
+                "fact": "formatDispositionRecorded"
+              },
+              {
+                "fact": "rightsDispositionRecorded"
+              },
+              {
+                "fact": "securityDispositionRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.rejected.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t02"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T03",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T03",
+      "sourceGuard": "new-policy-or-retention-or-authorized-erasure-event",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "AVAILABLE",
+          "to": "QUARANTINED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "policyEventRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.quarantined.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "AVAILABLE",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "policyEventRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.expired.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "AVAILABLE",
+          "to": "ERASURE_REQUESTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "policyEventRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.erasure.requested.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t03"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T04",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T04",
+      "sourceGuard": "explicit-review-or-erasure-decision-with-evidence",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "QUARANTINED",
+          "to": "AVAILABLE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewOrErasureDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.available.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "QUARANTINED",
+          "to": "REJECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewOrErasureDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.rejected.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "QUARANTINED",
+          "to": "ERASURE_REQUESTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewOrErasureDecisionRecorded"
+              },
+              {
+                "fact": "outcome.media.upload.and.artifact.erasure.requested.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t04"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T05",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T05",
+      "sourceGuard": "expiry-policy-and-hold-check-are-re-evaluated",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "EXPIRED",
+          "to": "PHYSICAL_ERASURE_PENDING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "expiryPolicyCurrent"
+              },
+              {
+                "fact": "hold.absent"
+              }
+            ]
+          }
+        },
+        {
+          "from": "EXPIRED",
+          "to": "BLOCKED_BY_HOLD",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "expiryPolicyCurrent"
+              },
+              {
+                "fact": "hold.active"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t05"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T06",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T06",
+      "sourceGuard": "authorized-erasure-is-durably-recorded-before-access-is-revoked",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "ERASURE_REQUESTED",
+          "to": "ACCESS_REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "erasureIntentDurable"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "hold.absent"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ERASURE_REQUESTED",
+          "to": "BLOCKED_BY_HOLD",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "erasureIntentDurable"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "hold.active"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t06"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T07",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T07",
+      "sourceGuard": "controlled-copy-inventory-and-hold-check",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "ACCESS_REVOKED",
+          "to": "PHYSICAL_ERASURE_PENDING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "copyInventoryComplete"
+              },
+              {
+                "fact": "hold.absent"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ACCESS_REVOKED",
+          "to": "BLOCKED_BY_HOLD",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "copyInventoryComplete"
+              },
+              {
+                "fact": "hold.active"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ACCESS_REVOKED",
+          "to": "EXTERNAL_ERASURE_UNCONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "copyInventoryComplete"
+              },
+              {
+                "fact": "erasure.externalCopyUnconfirmed"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t07"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T08",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T08",
+      "sourceGuard": "per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "PHYSICAL_ERASURE_PENDING",
+          "to": "ERASURE_CONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "deletionEvidenceRecorded"
+              },
+              {
+                "fact": "erasure.allControlledCopiesConfirmed"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PHYSICAL_ERASURE_PENDING",
+          "to": "BLOCKED_BY_HOLD",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "deletionEvidenceRecorded"
+              },
+              {
+                "fact": "hold.active"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PHYSICAL_ERASURE_PENDING",
+          "to": "EXTERNAL_ERASURE_UNCONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "deletionEvidenceRecorded"
+              },
+              {
+                "fact": "erasure.externalCopyUnconfirmed"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t08"
+    },
+    {
+      "transitionId": "media-upload-and-artifact/T09",
+      "sourceMachineId": "media-upload-and-artifact",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T09",
+      "sourceGuard": "hold-release-or-destination-boundary-reconciliation",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "BLOCKED_BY_HOLD",
+          "to": "PHYSICAL_ERASURE_PENDING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "holdReleaseOrBoundaryEvidence"
+              },
+              {
+                "fact": "hold.absent"
+              }
+            ]
+          }
+        },
+        {
+          "from": "BLOCKED_BY_HOLD",
+          "to": "EXTERNAL_ERASURE_UNCONFIRMED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "holdReleaseOrBoundaryEvidence"
+              },
+              {
+                "fact": "erasure.externalCopyUnconfirmed"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-upload-and-artifact.t09"
+    },
+    {
+      "transitionId": "media-stream-session/T01",
+      "sourceMachineId": "media-stream-session",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T01",
+      "sourceGuard": "session-grant-and-provider-binding-are-current",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "OPEN",
+          "to": "CONNECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "sessionGrantCurrent"
+              },
+              {
+                "fact": "providerBindingCurrent"
+              },
+              {
+                "fact": "outcome.media.stream.session.connected.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "OPEN",
+          "to": "DRAINING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "sessionGrantCurrent"
+              },
+              {
+                "fact": "providerBindingCurrent"
+              },
+              {
+                "fact": "outcome.media.stream.session.draining.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "OPEN",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "sessionGrantCurrent"
+              },
+              {
+                "fact": "providerBindingCurrent"
+              },
+              {
+                "fact": "outcome.media.stream.session.failed.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-stream-session.t01"
+    },
+    {
+      "transitionId": "media-stream-session/T02",
+      "sourceMachineId": "media-stream-session",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T02",
+      "sourceGuard": "lease-sequence-and-consent-are-rechecked-per-effect",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "CONNECTED",
+          "to": "DEGRADED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseSequenceCurrent"
+              },
+              {
+                "fact": "consentPerEffectCurrent"
+              },
+              {
+                "fact": "outcome.media.stream.session.degraded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CONNECTED",
+          "to": "DRAINING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseSequenceCurrent"
+              },
+              {
+                "fact": "consentPerEffectCurrent"
+              },
+              {
+                "fact": "outcome.media.stream.session.draining.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CONNECTED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "leaseSequenceCurrent"
+              },
+              {
+                "fact": "consentPerEffectCurrent"
+              },
+              {
+                "fact": "outcome.media.stream.session.failed.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-stream-session.t02"
+    },
+    {
+      "transitionId": "media-stream-session/T03",
+      "sourceMachineId": "media-stream-session",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T03",
+      "sourceGuard": "recovery-is-within-declared-degradation-and-budget-policy",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DEGRADED",
+          "to": "CONNECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "degradationPolicyDeclared"
+              },
+              {
+                "fact": "recoveryBudgetAvailable"
+              },
+              {
+                "fact": "outcome.media.stream.session.connected.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DEGRADED",
+          "to": "DRAINING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "degradationPolicyDeclared"
+              },
+              {
+                "fact": "recoveryBudgetAvailable"
+              },
+              {
+                "fact": "outcome.media.stream.session.draining.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DEGRADED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "degradationPolicyDeclared"
+              },
+              {
+                "fact": "recoveryBudgetAvailable"
+              },
+              {
+                "fact": "outcome.media.stream.session.failed.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-stream-session.t03"
+    },
+    {
+      "transitionId": "media-stream-session/T04",
+      "sourceMachineId": "media-stream-session",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T04",
+      "sourceGuard": "new-work-is-fenced-and-active-frame-effects-are-confirmed-or-recorded-unknown",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DRAINING",
+          "to": "CLOSED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "newWorkFenced"
+              },
+              {
+                "fact": "activeEffectsResolvedOrUnknown"
+              },
+              {
+                "fact": "outcome.media.stream.session.closed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DRAINING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "newWorkFenced"
+              },
+              {
+                "fact": "activeEffectsResolvedOrUnknown"
+              },
+              {
+                "fact": "outcome.media.stream.session.failed.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-stream-session.t04"
+    },
+    {
+      "transitionId": "media-review/T01",
+      "sourceMachineId": "media-review",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-review/T01",
+      "sourceGuard": "immutable-version-and-review-purpose-are-selected",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DRAFT",
+          "to": "REQUESTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "immutableVersionSelected"
+              },
+              {
+                "fact": "reviewPurposeSelected"
+              },
+              {
+                "fact": "outcome.media.review.requested.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DRAFT",
+          "to": "WITHDRAWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "immutableVersionSelected"
+              },
+              {
+                "fact": "reviewPurposeSelected"
+              },
+              {
+                "fact": "outcome.media.review.withdrawn.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "DRAFT",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "immutableVersionSelected"
+              },
+              {
+                "fact": "reviewPurposeSelected"
+              },
+              {
+                "fact": "outcome.media.review.expired.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-review.t01"
+    },
+    {
+      "transitionId": "media-review/T02",
+      "sourceMachineId": "media-review",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-review/T02",
+      "sourceGuard": "reviewer-delegation-and-version-remain-current",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "REQUESTED",
+          "to": "IN_REVIEW",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerDelegationCurrent"
+              },
+              {
+                "fact": "versionCurrent"
+              },
+              {
+                "fact": "outcome.media.review.in.review.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "REQUESTED",
+          "to": "WITHDRAWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerDelegationCurrent"
+              },
+              {
+                "fact": "versionCurrent"
+              },
+              {
+                "fact": "outcome.media.review.withdrawn.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "REQUESTED",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerDelegationCurrent"
+              },
+              {
+                "fact": "versionCurrent"
+              },
+              {
+                "fact": "outcome.media.review.expired.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "REQUESTED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerDelegationCurrent"
+              },
+              {
+                "fact": "versionCurrent"
+              },
+              {
+                "fact": "outcome.media.review.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-review.t02"
+    },
+    {
+      "transitionId": "media-review/T03",
+      "sourceMachineId": "media-review",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-review/T03",
+      "sourceGuard": "authorized-reviewer-decides-on-exact-version-and-purpose",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "IN_REVIEW",
+          "to": "CHANGES_REQUESTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerAuthorized"
+              },
+              {
+                "fact": "exactVersionCurrent"
+              },
+              {
+                "fact": "reviewPurposeCurrent"
+              },
+              {
+                "fact": "outcome.media.review.changes.requested.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "IN_REVIEW",
+          "to": "APPROVED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerAuthorized"
+              },
+              {
+                "fact": "exactVersionCurrent"
+              },
+              {
+                "fact": "reviewPurposeCurrent"
+              },
+              {
+                "fact": "outcome.media.review.approved.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "IN_REVIEW",
+          "to": "REJECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerAuthorized"
+              },
+              {
+                "fact": "exactVersionCurrent"
+              },
+              {
+                "fact": "reviewPurposeCurrent"
+              },
+              {
+                "fact": "outcome.media.review.rejected.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "IN_REVIEW",
+          "to": "WITHDRAWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerAuthorized"
+              },
+              {
+                "fact": "exactVersionCurrent"
+              },
+              {
+                "fact": "reviewPurposeCurrent"
+              },
+              {
+                "fact": "outcome.media.review.withdrawn.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "IN_REVIEW",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerAuthorized"
+              },
+              {
+                "fact": "exactVersionCurrent"
+              },
+              {
+                "fact": "reviewPurposeCurrent"
+              },
+              {
+                "fact": "outcome.media.review.expired.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "IN_REVIEW",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "reviewerAuthorized"
+              },
+              {
+                "fact": "exactVersionCurrent"
+              },
+              {
+                "fact": "reviewPurposeCurrent"
+              },
+              {
+                "fact": "outcome.media.review.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-review.t03"
+    },
+    {
+      "transitionId": "media-review/T04",
+      "sourceMachineId": "media-review",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-review/T04",
+      "sourceGuard": "revision-creates-new-version-and-new-review-request",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "CHANGES_REQUESTED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "revisionCreatesNewVersion"
+              },
+              {
+                "fact": "newReviewRequestRecorded"
+              },
+              {
+                "fact": "outcome.media.review.superseded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CHANGES_REQUESTED",
+          "to": "WITHDRAWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "revisionCreatesNewVersion"
+              },
+              {
+                "fact": "newReviewRequestRecorded"
+              },
+              {
+                "fact": "outcome.media.review.withdrawn.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "CHANGES_REQUESTED",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "revisionCreatesNewVersion"
+              },
+              {
+                "fact": "newReviewRequestRecorded"
+              },
+              {
+                "fact": "outcome.media.review.expired.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-review.t04"
+    },
+    {
+      "transitionId": "media-review/T05",
+      "sourceMachineId": "media-review",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-review/T05",
+      "sourceGuard": "version-change-validity-expiry-or-authorized-withdrawal",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "APPROVED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "versionValidityOrExpiryOrWithdrawalEvidence"
+              },
+              {
+                "fact": "outcome.media.review.superseded.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "APPROVED",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "versionValidityOrExpiryOrWithdrawalEvidence"
+              },
+              {
+                "fact": "outcome.media.review.expired.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "APPROVED",
+          "to": "WITHDRAWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "versionValidityOrExpiryOrWithdrawalEvidence"
+              },
+              {
+                "fact": "outcome.media.review.withdrawn.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-review.t05"
+    },
+    {
+      "transitionId": "media-delivery/T01",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T01",
+      "sourceGuard": "delivery-intent-and-destination-are-authorized",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "NOT_STARTED",
+          "to": "PREPARING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "deliveryIntentAuthorized"
+              },
+              {
+                "fact": "destinationCurrent"
+              },
+              {
+                "fact": "outcome.media.delivery.preparing.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "NOT_STARTED",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "deliveryIntentAuthorized"
+              },
+              {
+                "fact": "destinationCurrent"
+              },
+              {
+                "fact": "outcome.media.delivery.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t01"
+    },
+    {
+      "transitionId": "media-delivery/T02",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T02",
+      "sourceGuard": "exact-output-version-and-destination-policy-are-checked",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "PREPARING",
+          "to": "READY_FOR_AUTHORIZED_DELIVERY",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "exactOutputVersionCurrent"
+              },
+              {
+                "fact": "destinationPolicyPass"
+              },
+              {
+                "fact": "outcome.media.delivery.ready.for.authorized.delivery.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PREPARING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "exactOutputVersionCurrent"
+              },
+              {
+                "fact": "destinationPolicyPass"
+              },
+              {
+                "fact": "outcome.media.delivery.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PREPARING",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "exactOutputVersionCurrent"
+              },
+              {
+                "fact": "destinationPolicyPass"
+              },
+              {
+                "fact": "outcome.media.delivery.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t02"
+    },
+    {
+      "transitionId": "media-delivery/T03",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T03",
+      "sourceGuard": "approval-and-idempotency-identity-are-durable-before-external-submit",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "READY_FOR_AUTHORIZED_DELIVERY",
+          "to": "SUBMITTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "approvalDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.submitted.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "READY_FOR_AUTHORIZED_DELIVERY",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "approvalDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "READY_FOR_AUTHORIZED_DELIVERY",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "approvalDurable"
+              },
+              {
+                "fact": "idempotencyIdentityRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t03"
+    },
+    {
+      "transitionId": "media-delivery/T04",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T04",
+      "sourceGuard": "destination-evidence-is-recorded-and-uncertainty-is-preserved",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "SUBMITTED",
+          "to": "ACKNOWLEDGED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.acknowledged.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "PARTIALLY_DELIVERED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.partially.delivered.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.outcome.unknown.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "SUBMITTED",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t04"
+    },
+    {
+      "transitionId": "media-delivery/T05",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T05",
+      "sourceGuard": "destination-query-or-owner-reconciliation-starts",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "OUTCOME_UNKNOWN",
+          "to": "RECONCILING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationQueryOrReconciliationStarted"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t05"
+    },
+    {
+      "transitionId": "media-delivery/T06",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T06",
+      "sourceGuard": "stable-submission-identity-and-destination-evidence-support-classification",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "RECONCILING",
+          "to": "ACKNOWLEDGED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "stableSubmissionIdentity"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.acknowledged.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "PARTIALLY_DELIVERED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "stableSubmissionIdentity"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.partially.delivered.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "OUTCOME_UNKNOWN",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "stableSubmissionIdentity"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.outcome.unknown.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "stableSubmissionIdentity"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RECONCILING",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "stableSubmissionIdentity"
+              },
+              {
+                "fact": "destinationEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.delivery.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t06"
+    },
+    {
+      "transitionId": "media-delivery/T07",
+      "sourceMachineId": "media-delivery",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-delivery/T07",
+      "sourceGuard": "remaining-destination-effects-are-explicitly-accounted-for",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "PARTIALLY_DELIVERED",
+          "to": "RECONCILING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEffectsAccounted"
+              },
+              {
+                "fact": "outcome.media.delivery.reconciling.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PARTIALLY_DELIVERED",
+          "to": "ACKNOWLEDGED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEffectsAccounted"
+              },
+              {
+                "fact": "outcome.media.delivery.acknowledged.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PARTIALLY_DELIVERED",
+          "to": "FAILED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEffectsAccounted"
+              },
+              {
+                "fact": "outcome.media.delivery.failed.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PARTIALLY_DELIVERED",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "destinationEffectsAccounted"
+              },
+              {
+                "fact": "outcome.media.delivery.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-delivery.t07"
+    },
+    {
+      "transitionId": "media-quality-disposition/T01",
+      "sourceMachineId": "media-quality-disposition",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-quality-disposition/T01",
+      "sourceGuard": "metric-applicability-and-version-bound-protocol-are-declared",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "NOT_ASSESSED",
+          "to": "ASSESSING",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "metricApplicabilityDeclared"
+              },
+              {
+                "fact": "measurementProtocolVersionBound"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.assessing.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "NOT_ASSESSED",
+          "to": "REVIEW_REQUIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "metricApplicabilityDeclared"
+              },
+              {
+                "fact": "measurementProtocolVersionBound"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.review.required.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-quality-disposition.t01"
+    },
+    {
+      "transitionId": "media-quality-disposition/T02",
+      "sourceMachineId": "media-quality-disposition",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-quality-disposition/T02",
+      "sourceGuard": "measurements-or-abstention-reason-are-recorded-for-exact-output",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "ASSESSING",
+          "to": "PASS",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "measurementOrAbstentionRecorded"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.pass.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ASSESSING",
+          "to": "FAIL",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "measurementOrAbstentionRecorded"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.fail.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ASSESSING",
+          "to": "ABSTAINED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "measurementOrAbstentionRecorded"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.abstained.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ASSESSING",
+          "to": "REVIEW_REQUIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "measurementOrAbstentionRecorded"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.review.required.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ASSESSING",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "measurementOrAbstentionRecorded"
+              },
+              {
+                "fact": "outcome.media.quality.disposition.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-quality-disposition.t02"
+    },
+    {
+      "transitionId": "media-quality-disposition/T03",
+      "sourceMachineId": "media-quality-disposition",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-quality-disposition/T03",
+      "sourceGuard": "output-or-material-measurement-protocol-changes",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "PASS",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "outputOrMeasurementProtocolChanged"
+              }
+            ]
+          }
+        },
+        {
+          "from": "FAIL",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "outputOrMeasurementProtocolChanged"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ABSTAINED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "outputOrMeasurementProtocolChanged"
+              }
+            ]
+          }
+        },
+        {
+          "from": "REVIEW_REQUIRED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "outputOrMeasurementProtocolChanged"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-quality-disposition.t03"
+    },
+    {
+      "transitionId": "media-project/T01",
+      "sourceMachineId": "media-project",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project/T01",
+      "sourceGuard": "an authorized project owner requests archive and the current head/revision identity is recorded",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "ACTIVE",
+          "to": "ARCHIVED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "projectOwnerAuthorized"
+              },
+              {
+                "fact": "currentHeadRecorded"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project.t01"
+    },
+    {
+      "transitionId": "media-project/T02",
+      "sourceMachineId": "media-project",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project/T02",
+      "sourceGuard": "an authorized restore request revalidates project access, retention, tombstones, and referenced artifact availability; restore does not clear erasure",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "ARCHIVED",
+          "to": "ACTIVE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "projectAccessCurrent"
+              },
+              {
+                "fact": "retentionPass"
+              },
+              {
+                "fact": "tombstoneCheckPass"
+              },
+              {
+                "fact": "referencedArtifactsAvailable"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project.t02"
+    },
+    {
+      "transitionId": "media-project-version/T01",
+      "sourceMachineId": "media-project-version",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-version/T01",
+      "sourceGuard": "current authorization and policy pass; validation succeeds; expected head compare-and-swap succeeds; revision and head update commit atomically",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DRAFT",
+          "to": "COMMITTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "validationPass"
+              },
+              {
+                "fact": "expectedVersionMatches"
+              },
+              {
+                "fact": "atomicCommitAvailable"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-version.t01"
+    },
+    {
+      "transitionId": "media-project-version/T02",
+      "sourceMachineId": "media-project-version",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-version/T02",
+      "sourceGuard": "expected head or declared merge precondition no longer matches; no partial project or artifact selection is committed",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DRAFT",
+          "to": "CONFLICTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "expectedVersionConflicts"
+              },
+              {
+                "fact": "noPartialCommit"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-version.t02"
+    },
+    {
+      "transitionId": "media-project-version/T03",
+      "sourceMachineId": "media-project-version",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-version/T03",
+      "sourceGuard": "authorized explicit abandon or bounded draft-expiry policy records the disposition",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "DRAFT",
+          "to": "ABANDONED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "explicitAbandonOrExpiryRecorded"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-version.t03"
+    },
+    {
+      "transitionId": "media-project-version/T04",
+      "sourceMachineId": "media-project-version",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-version/T04",
+      "sourceGuard": "a newer revision atomically becomes the project head; prior revision content and evidence remain immutable",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "COMMITTED",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "newHeadCommitted"
+              },
+              {
+                "fact": "priorRevisionImmutable"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-version.t04"
+    },
+    {
+      "transitionId": "media-project-membership/T01",
+      "sourceMachineId": "media-project-membership",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-membership/T01",
+      "sourceGuard": "invitee acceptance, inviter authority, tenant/project scope, and current policy are verified",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "INVITED",
+          "to": "ACTIVE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "inviteeAccepted"
+              },
+              {
+                "fact": "inviterAuthorized"
+              },
+              {
+                "fact": "tenantProjectScopeMatches"
+              },
+              {
+                "fact": "policyCurrent"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-membership.t01"
+    },
+    {
+      "transitionId": "media-project-membership/T02",
+      "sourceMachineId": "media-project-membership",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-membership/T02",
+      "sourceGuard": "authorized revocation or declared invitation expiry is durably recorded",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "INVITED",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "revocationOrExpiryDurable"
+              },
+              {
+                "fact": "outcome.media.project.membership.revoked.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "INVITED",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "revocationOrExpiryDurable"
+              },
+              {
+                "fact": "outcome.media.project.membership.expired.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-membership.t02"
+    },
+    {
+      "transitionId": "media-project-membership/T03",
+      "sourceMachineId": "media-project-membership",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-membership/T03",
+      "sourceGuard": "current project authority and policy allow the membership change; affected work is reconciled",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "ACTIVE",
+          "to": "SUSPENDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "affectedWorkReconciled"
+              },
+              {
+                "fact": "outcome.media.project.membership.suspended.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ACTIVE",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "authorityCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "affectedWorkReconciled"
+              },
+              {
+                "fact": "outcome.media.project.membership.revoked.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-membership.t03"
+    },
+    {
+      "transitionId": "media-project-membership/T04",
+      "sourceMachineId": "media-project-membership",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-membership/T04",
+      "sourceGuard": "authorized reactivation rechecks identity, delegation, policy, and project scope",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "SUSPENDED",
+          "to": "ACTIVE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "identityCurrent"
+              },
+              {
+                "fact": "delegationCurrent"
+              },
+              {
+                "fact": "policyCurrent"
+              },
+              {
+                "fact": "projectScopeMatches"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-membership.t04"
+    },
+    {
+      "transitionId": "media-project-membership/T05",
+      "sourceMachineId": "media-project-membership",
+      "stateDimension": null,
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-membership/T05",
+      "sourceGuard": "authorized revocation is durably recorded",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "edgeRules": [
+        {
+          "from": "SUSPENDED",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "revocationDurable"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-project-membership.t05"
+    },
+    {
+      "transitionId": "media-rights-and-consent/rightsAssertion/T01",
+      "sourceMachineId": "media-rights-and-consent",
+      "stateDimension": "rightsAssertion",
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords/@id=media-rights-and-consent/rightsAssertion/T01",
+      "sourceGuard": "user-assertion-is-recorded-as-unverified-input",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate",
+      "edgeRules": [
+        {
+          "from": "ASSERTED",
+          "to": "UNDER_REVIEW",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "userAssertionRecordedUnverified"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.under.review.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ASSERTED",
+          "to": "RESTRICTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "userAssertionRecordedUnverified"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.restricted.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ASSERTED",
+          "to": "REJECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "userAssertionRecordedUnverified"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.rejected.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-rights-and-consent.rightsAssertion.t01"
+    },
+    {
+      "transitionId": "media-rights-and-consent/rightsAssertion/T02",
+      "sourceMachineId": "media-rights-and-consent",
+      "stateDimension": "rightsAssertion",
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords/@id=media-rights-and-consent/rightsAssertion/T02",
+      "sourceGuard": "assigned-reviewer-or-authority-produces-scope-bound-evidence",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate",
+      "edgeRules": [
+        {
+          "from": "UNDER_REVIEW",
+          "to": "VERIFIED_FOR_DECLARED_SCOPE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "assignedReviewerOrAuthority"
+              },
+              {
+                "fact": "scopeBoundEvidenceProduced"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.verified.for.declared.scope.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "UNDER_REVIEW",
+          "to": "RESTRICTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "assignedReviewerOrAuthority"
+              },
+              {
+                "fact": "scopeBoundEvidenceProduced"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.restricted.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "UNDER_REVIEW",
+          "to": "REJECTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "assignedReviewerOrAuthority"
+              },
+              {
+                "fact": "scopeBoundEvidenceProduced"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.rejected.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-rights-and-consent.rightsAssertion.t02"
+    },
+    {
+      "transitionId": "media-rights-and-consent/rightsAssertion/T03",
+      "sourceMachineId": "media-rights-and-consent",
+      "stateDimension": "rightsAssertion",
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords/@id=media-rights-and-consent/rightsAssertion/T03",
+      "sourceGuard": "policy-change-revocation-or-validity-window-event",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate",
+      "edgeRules": [
+        {
+          "from": "VERIFIED_FOR_DECLARED_SCOPE",
+          "to": "RESTRICTED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "policyChangeOrRevocationOrExpiryRecorded"
+              },
+              {
+                "any": [
+                  {
+                    "fact": "rights.policyChangeRecorded"
+                  },
+                  {
+                    "fact": "rights.revocationRecorded"
+                  },
+                  {
+                    "fact": "rights.expiryRecorded"
+                  }
+                ]
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.restricted.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "VERIFIED_FOR_DECLARED_SCOPE",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "policyChangeOrRevocationOrExpiryRecorded"
+              },
+              {
+                "any": [
+                  {
+                    "fact": "rights.policyChangeRecorded"
+                  },
+                  {
+                    "fact": "rights.revocationRecorded"
+                  },
+                  {
+                    "fact": "rights.expiryRecorded"
+                  }
+                ]
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.revoked.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "VERIFIED_FOR_DECLARED_SCOPE",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "policyChangeOrRevocationOrExpiryRecorded"
+              },
+              {
+                "any": [
+                  {
+                    "fact": "rights.policyChangeRecorded"
+                  },
+                  {
+                    "fact": "rights.revocationRecorded"
+                  },
+                  {
+                    "fact": "rights.expiryRecorded"
+                  }
+                ]
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.expired.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-rights-and-consent.rightsAssertion.t03"
+    },
+    {
+      "transitionId": "media-rights-and-consent/rightsAssertion/T04",
+      "sourceMachineId": "media-rights-and-consent",
+      "stateDimension": "rightsAssertion",
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords/@id=media-rights-and-consent/rightsAssertion/T04",
+      "sourceGuard": "new-evidence-or-revocation-or-expiry",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate",
+      "edgeRules": [
+        {
+          "from": "RESTRICTED",
+          "to": "UNDER_REVIEW",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "newEvidenceOrRevocationOrExpiryRecorded"
+              },
+              {
+                "fact": "rights.newEvidenceRecorded"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.under.review.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RESTRICTED",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "newEvidenceOrRevocationOrExpiryRecorded"
+              },
+              {
+                "any": [
+                  {
+                    "fact": "rights.revocationRecorded"
+                  },
+                  {
+                    "fact": "rights.expiryRecorded"
+                  }
+                ]
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.revoked.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "RESTRICTED",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "newEvidenceOrRevocationOrExpiryRecorded"
+              },
+              {
+                "any": [
+                  {
+                    "fact": "rights.revocationRecorded"
+                  },
+                  {
+                    "fact": "rights.expiryRecorded"
+                  }
+                ]
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.expired.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-rights-and-consent.rightsAssertion.t04"
+    },
+    {
+      "transitionId": "media-rights-and-consent/consent/T01",
+      "sourceMachineId": "media-rights-and-consent",
+      "stateDimension": "consent",
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords/@id=media-rights-and-consent/consent/T01",
+      "sourceGuard": "trusted-consent-authority-verifies-current-scope-before-activation",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate",
+      "edgeRules": [
+        {
+          "from": "PENDING_VERIFICATION",
+          "to": "ACTIVE",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "trustedConsentAuthority"
+              },
+              {
+                "fact": "consentScopeCurrent"
+              },
+              {
+                "fact": "consent.activationVerified"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.active.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PENDING_VERIFICATION",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "trustedConsentAuthority"
+              },
+              {
+                "fact": "consentScopeCurrent"
+              },
+              {
+                "any": [
+                  {
+                    "fact": "consent.revocationRecorded"
+                  },
+                  {
+                    "fact": "consent.replacementRecorded"
+                  }
+                ]
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.revoked.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PENDING_VERIFICATION",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "trustedConsentAuthority"
+              },
+              {
+                "fact": "consentScopeCurrent"
+              },
+              {
+                "fact": "consent.expiryRecorded"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.expired.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "PENDING_VERIFICATION",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "trustedConsentAuthority"
+              },
+              {
+                "fact": "consentScopeCurrent"
+              },
+              {
+                "fact": "consent.replacementRecorded"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-rights-and-consent.consent.t01"
+    },
+    {
+      "transitionId": "media-rights-and-consent/consent/T02",
+      "sourceMachineId": "media-rights-and-consent",
+      "stateDimension": "consent",
+      "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords/@id=media-rights-and-consent/consent/T02",
+      "sourceGuard": "authority-recorded-revocation-expiry-or-replacement",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate",
+      "edgeRules": [
+        {
+          "from": "ACTIVE",
+          "to": "REVOKED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "authorityRecordedConsentDecision"
+              },
+              {
+                "fact": "consent.revocationRecorded"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.revoked.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ACTIVE",
+          "to": "EXPIRED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "authorityRecordedConsentDecision"
+              },
+              {
+                "fact": "consent.expiryRecorded"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.expired.supported"
+              }
+            ]
+          }
+        },
+        {
+          "from": "ACTIVE",
+          "to": "SUPERSEDED",
+          "when": {
+            "all": [
+              {
+                "fact": "tenant.matches"
+              },
+              {
+                "fact": "authorityRecordedConsentDecision"
+              },
+              {
+                "fact": "consent.replacementRecorded"
+              },
+              {
+                "fact": "outcome.media.rights.and.consent.superseded.supported"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "media.transition-guard-contract.media-rights-and-consent.consent.t02"
+    }
+  ],
+  "exclusiveFactGroups": [
+    {
+      "id": "outcome.media-job.t01",
+      "factIds": [
+        "outcome.media.job.running.supported",
+        "outcome.media.job.cancelled.supported",
+        "outcome.media.job.failed.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-job.t02",
+      "factIds": [
+        "outcome.media.job.retry.pending.supported",
+        "outcome.media.job.outcome.unknown.supported",
+        "outcome.media.job.reconciling.supported",
+        "outcome.media.job.completed.supported",
+        "outcome.media.job.partially.succeeded.supported",
+        "outcome.media.job.failed.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-job.t03",
+      "factIds": [
+        "outcome.media.job.running.supported",
+        "outcome.media.job.cancelled.supported",
+        "outcome.media.job.failed.supported",
+        "outcome.media.job.outcome.unknown.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-job.t05",
+      "factIds": [
+        "outcome.media.job.running.supported",
+        "outcome.media.job.retry.pending.supported",
+        "outcome.media.job.completed.supported",
+        "outcome.media.job.partially.succeeded.supported",
+        "outcome.media.job.failed.supported",
+        "outcome.media.job.cancelled.supported",
+        "outcome.media.job.outcome.unknown.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-attempt.t01",
+      "factIds": [
+        "outcome.media.attempt.dispatch.intent.recorded.supported",
+        "outcome.media.attempt.cancel.confirmed.supported",
+        "outcome.media.attempt.failed.supported",
+        "outcome.media.attempt.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-attempt.t02",
+      "factIds": [
+        "outcome.media.attempt.dispatched.supported",
+        "outcome.media.attempt.cancel.confirmed.supported",
+        "outcome.media.attempt.failed.supported",
+        "outcome.media.attempt.outcome.unknown.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-attempt.t03",
+      "factIds": [
+        "outcome.media.attempt.running.supported",
+        "outcome.media.attempt.cancel.requested.supported",
+        "outcome.media.attempt.succeeded.supported",
+        "outcome.media.attempt.failed.supported",
+        "outcome.media.attempt.outcome.unknown.supported",
+        "outcome.media.attempt.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-attempt.t04",
+      "factIds": [
+        "outcome.media.attempt.cancel.requested.supported",
+        "outcome.media.attempt.succeeded.supported",
+        "outcome.media.attempt.failed.supported",
+        "outcome.media.attempt.outcome.unknown.supported",
+        "outcome.media.attempt.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-attempt.t05",
+      "factIds": [
+        "outcome.media.attempt.cancel.confirmed.supported",
+        "outcome.media.attempt.succeeded.supported",
+        "outcome.media.attempt.failed.supported",
+        "outcome.media.attempt.outcome.unknown.supported",
+        "outcome.media.attempt.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t01",
+      "factIds": [
+        "outcome.media.upload.and.artifact.verifying.supported",
+        "outcome.media.upload.and.artifact.rejected.supported",
+        "outcome.media.upload.and.artifact.expired.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t02",
+      "factIds": [
+        "outcome.media.upload.and.artifact.available.supported",
+        "outcome.media.upload.and.artifact.quarantined.supported",
+        "outcome.media.upload.and.artifact.rejected.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t03",
+      "factIds": [
+        "outcome.media.upload.and.artifact.quarantined.supported",
+        "outcome.media.upload.and.artifact.expired.supported",
+        "outcome.media.upload.and.artifact.erasure.requested.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t04",
+      "factIds": [
+        "outcome.media.upload.and.artifact.available.supported",
+        "outcome.media.upload.and.artifact.rejected.supported",
+        "outcome.media.upload.and.artifact.erasure.requested.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t05",
+      "factIds": [
+        "hold.absent",
+        "hold.active"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t06",
+      "factIds": [
+        "hold.absent",
+        "hold.active"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t07",
+      "factIds": [
+        "hold.absent",
+        "hold.active",
+        "erasure.externalCopyUnconfirmed"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t08",
+      "factIds": [
+        "erasure.allControlledCopiesConfirmed",
+        "hold.active",
+        "erasure.externalCopyUnconfirmed"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-upload-and-artifact.t09",
+      "factIds": [
+        "hold.absent",
+        "erasure.externalCopyUnconfirmed"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-stream-session.t01",
+      "factIds": [
+        "outcome.media.stream.session.connected.supported",
+        "outcome.media.stream.session.draining.supported",
+        "outcome.media.stream.session.failed.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-stream-session.t02",
+      "factIds": [
+        "outcome.media.stream.session.degraded.supported",
+        "outcome.media.stream.session.draining.supported",
+        "outcome.media.stream.session.failed.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-stream-session.t03",
+      "factIds": [
+        "outcome.media.stream.session.connected.supported",
+        "outcome.media.stream.session.draining.supported",
+        "outcome.media.stream.session.failed.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-stream-session.t04",
+      "factIds": [
+        "outcome.media.stream.session.closed.supported",
+        "outcome.media.stream.session.failed.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-review.t01",
+      "factIds": [
+        "outcome.media.review.requested.supported",
+        "outcome.media.review.withdrawn.supported",
+        "outcome.media.review.expired.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-review.t02",
+      "factIds": [
+        "outcome.media.review.in.review.supported",
+        "outcome.media.review.withdrawn.supported",
+        "outcome.media.review.expired.supported",
+        "outcome.media.review.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-review.t03",
+      "factIds": [
+        "outcome.media.review.changes.requested.supported",
+        "outcome.media.review.approved.supported",
+        "outcome.media.review.rejected.supported",
+        "outcome.media.review.withdrawn.supported",
+        "outcome.media.review.expired.supported",
+        "outcome.media.review.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-review.t04",
+      "factIds": [
+        "outcome.media.review.superseded.supported",
+        "outcome.media.review.withdrawn.supported",
+        "outcome.media.review.expired.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-review.t05",
+      "factIds": [
+        "outcome.media.review.superseded.supported",
+        "outcome.media.review.expired.supported",
+        "outcome.media.review.withdrawn.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-delivery.t01",
+      "factIds": [
+        "outcome.media.delivery.preparing.supported",
+        "outcome.media.delivery.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-delivery.t02",
+      "factIds": [
+        "outcome.media.delivery.ready.for.authorized.delivery.supported",
+        "outcome.media.delivery.failed.supported",
+        "outcome.media.delivery.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-delivery.t03",
+      "factIds": [
+        "outcome.media.delivery.submitted.supported",
+        "outcome.media.delivery.failed.supported",
+        "outcome.media.delivery.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-delivery.t04",
+      "factIds": [
+        "outcome.media.delivery.acknowledged.supported",
+        "outcome.media.delivery.partially.delivered.supported",
+        "outcome.media.delivery.outcome.unknown.supported",
+        "outcome.media.delivery.failed.supported",
+        "outcome.media.delivery.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-delivery.t06",
+      "factIds": [
+        "outcome.media.delivery.acknowledged.supported",
+        "outcome.media.delivery.partially.delivered.supported",
+        "outcome.media.delivery.outcome.unknown.supported",
+        "outcome.media.delivery.failed.supported",
+        "outcome.media.delivery.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-delivery.t07",
+      "factIds": [
+        "outcome.media.delivery.reconciling.supported",
+        "outcome.media.delivery.acknowledged.supported",
+        "outcome.media.delivery.failed.supported",
+        "outcome.media.delivery.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-quality-disposition.t01",
+      "factIds": [
+        "outcome.media.quality.disposition.assessing.supported",
+        "outcome.media.quality.disposition.review.required.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-quality-disposition.t02",
+      "factIds": [
+        "outcome.media.quality.disposition.pass.supported",
+        "outcome.media.quality.disposition.fail.supported",
+        "outcome.media.quality.disposition.abstained.supported",
+        "outcome.media.quality.disposition.review.required.supported",
+        "outcome.media.quality.disposition.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-project-membership.t02",
+      "factIds": [
+        "outcome.media.project.membership.revoked.supported",
+        "outcome.media.project.membership.expired.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-project-membership.t03",
+      "factIds": [
+        "outcome.media.project.membership.suspended.supported",
+        "outcome.media.project.membership.revoked.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-rights-and-consent.rightsAssertion.t01",
+      "factIds": [
+        "outcome.media.rights.and.consent.under.review.supported",
+        "outcome.media.rights.and.consent.restricted.supported",
+        "outcome.media.rights.and.consent.rejected.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-rights-and-consent.rightsAssertion.t02",
+      "factIds": [
+        "outcome.media.rights.and.consent.verified.for.declared.scope.supported",
+        "outcome.media.rights.and.consent.restricted.supported",
+        "outcome.media.rights.and.consent.rejected.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-rights-and-consent.rightsAssertion.t03",
+      "factIds": [
+        "outcome.media.rights.and.consent.restricted.supported",
+        "outcome.media.rights.and.consent.revoked.supported",
+        "outcome.media.rights.and.consent.expired.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-rights-and-consent.rightsAssertion.t04",
+      "factIds": [
+        "outcome.media.rights.and.consent.under.review.supported",
+        "outcome.media.rights.and.consent.revoked.supported",
+        "outcome.media.rights.and.consent.expired.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-rights-and-consent.consent.t01",
+      "factIds": [
+        "outcome.media.rights.and.consent.active.supported",
+        "outcome.media.rights.and.consent.revoked.supported",
+        "outcome.media.rights.and.consent.expired.supported",
+        "outcome.media.rights.and.consent.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    },
+    {
+      "id": "outcome.media-rights-and-consent.consent.t02",
+      "factIds": [
+        "outcome.media.rights.and.consent.revoked.supported",
+        "outcome.media.rights.and.consent.expired.supported",
+        "outcome.media.rights.and.consent.superseded.supported"
+      ],
+      "rule": "at-most-one-positive-outcome-fact"
+    }
+  ]
+}

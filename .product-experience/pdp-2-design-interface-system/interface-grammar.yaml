@@ -1,0 +1,84 @@
+schemaVersion: media.pdp-2.interface-grammar.v1
+productId: media
+authority: Media owns product meaning and cross-channel grammar; each transport/client owner owns its concrete wire projection
+status: MEDIA_OWNER_ACCEPTED_DEFINITION_GRAMMAR; exact per-identity operation bindings and external interface-owner acceptance remain separate
+sourceRefs:
+  - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/pdp-1-domain-data/states.yaml
+  - .product-experience/pdp-1-domain-data/transitions.yaml
+  - .product-experience/interface-parity/operation-parity.yaml
+  - .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
+  - .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/sdk/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+  - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+decisionAuthority:
+  kind: User-delegated Media product-semantic and design decision
+  boundary: This accepts shared product grammar only; it does not bind a source identity to an operation or accept Shared, Tools, API, CLI, SDK, Agent, event-platform, runtime, independent-specialist, or Lifecycle evidence.
+invariants:
+  identity:
+    rule: Keep tenant, principal, project, immutable version, upload session, artifact, job, attempt, operation, stream, and request identities distinct; pass only the exact identity required by the owning operation.
+    forbidden: [infer-version-from-object-id, infer-tenant-from-project, infer-artifact-from-upload-receipt, infer-attempt-from-job, infer-operation-from-method-name]
+  authority:
+    rule: The canonical operation contract and current principal/tenant/policy evidence determine authority; channel affordance, role label, provider metadata, and presentation state never grant it.
+    failure: Deny or return the owning operation's typed unknown/denied outcome without protected data disclosure.
+  mutation:
+    rule: A mutation result distinguishes request-received, request-accepted, effect-observed, and authoritative terminal finality when the operation supports those states.
+    forbidden: [accepted-implies-completed,progress-implies-success,transport-success-implies-domain-finality,observer-detached-implies-cancelled]
+  unknownOutcome:
+    rule: Preserve the original request and affected-object identities; reconcile or inspect that same operation before considering a new mutation.
+    forbidden: [blind-resubmit,automatic-retry,unknown-as-failure,unknown-as-success]
+  cancellation:
+    rule: Cancellation is a request whose completion is reported only by authoritative operation evidence; local stop-waiting affects observation only.
+    forbidden: [request-implies-cancelled,detach-implies-cancelled,cancel-response-implies-terminal-cancelled]
+  retry:
+    rule: Retry requires an exact prior attempt, explicit retryable classification, current authority/policy/budget checks, and an operation-defined idempotency policy; unknown outcome must be reconciled first.
+    forbidden: [retry-by-status-label,retry-unknown,replay-without-idempotency-contract,synthetic-retry-eligibility]
+  progress:
+    rule: Publish only source-measured progress with its scope and unit; preserve unknown or absent measurement without a percentage.
+    forbidden: [elapsed-time-as-progress,queue-position-as-percent,state-label-as-percent]
+  errors:
+    rule: Keep machine reason and error identity stable within the owning contract; use typed error values and never collapse domain, policy, authorization, transport, retryability, or unknown-finality distinctions into a generic thrown string. Localize only human-readable explanation and never expose secrets, protected media, or internal stack details.
+  eventObservation:
+    rule: An event notification is an observation with producer, object/version, ordering and delivery semantics; its name alone is not an operation binding or proof of delivery.
+channels:
+  GUI:
+    source: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml
+    rule: Render only source-bound state and actions; keyboard/focus order follows the same semantic reading order; unknown finality and safe recovery remain visible or explicitly reachable at every responsive variant.
+  HTTP:
+    source: contracts/openapi/media.yaml
+    rule: Bind one route only by exact operationId, request/response schema, authorization scope, version and error contract; HTTP status is transport outcome and cannot substitute for operation finality.
+    dispositionSource: .product-experience/interface-parity/operation-parity.yaml#typedHttpNonOperationDispositions
+  gRPC:
+    source:
+      - modules/speech/stt-service/src/main/proto/stt_service.proto
+      - modules/speech/tts-service/src/main/proto/tts_service.proto
+      - modules/vision/vision-service/src/main/proto/vision_service.proto
+      - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+    rule: Bind exact RPC request/response and service identity; provider model/profile administration and health RPCs do not become Media user operations by naming similarity.
+    dispositionSource: .product-experience/interface-parity/operation-parity.yaml#typedGrpcNonOperationDispositions
+  SDK:
+    source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+    rule: An SDK wrapper preserves the canonical request, exact object/version identities, typed outcome and error; local wait/listener helpers are client behavior and retry methods without an admitted contract fail closed.
+  CLI:
+    source: .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+    rule: TTY progress and non-TTY machine records remain separate; exit status reports invocation/observation result, while domain state and finality remain explicit fields. Fixture commands remain simulator-only.
+  events:
+    source: .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+    rule: A declared event is not a durable delivery guarantee; retain event identity, aggregate/version scope, ordering limits, replay and retention only where source contracts establish them.
+  agentTools:
+    source: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+    rule: Tool input is untrusted; exact operation schema, caller authority and consent are checked at dispatch; analysis input references do not imply upload/artifact mutation or grant access.
+  headless:
+    source: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
+    rule: A capability without a GUI receives a typed inspectable machine experience and deterministic fixture where applicable; do not create a synthetic screen to satisfy a view inventory.
+acceptance:
+  criteria:
+    - Every selected channel preserves the shared identity, authority, effect, finality, unknown-outcome, retry, cancellation, progress, error, and event-observation invariants.
+    - Every non-operation disposition cites the exact observed source identity and is disjoint from domain-operation proposals.
+    - Operation equivalence remains pending until request, result, error, authority, version, and effect/finality semantics match the canonical PDP-1 definition.
+  status: Media-owner grammar accepted; interface-owner conformance and identity-level binding review pending
+verification:
+  method: tests/pdp-design-interface-parity.test.mjs validates complete source inventory partitions and source identity; channel contract tests must evaluate semantic predicates and fail on stale or duplicated identities.
+  status: focused-source-disposition-tests-passing; full-channel-conformance-and-specialist-review-not-accepted

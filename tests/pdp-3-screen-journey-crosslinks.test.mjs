@@ -27,10 +27,17 @@ function assertActorsWithinSource(contractActors, sourceActors, label) {
   }
 }
 
-function assertOperationRequiresAction(step, label, journeyId, operationById) {
+function assertOperationRequiresAction(step, label, journeyId, operationById, ownerActionById = new Map()) {
   if (!step.action && !step.actionRef) {
     const operationRef = step.canonicalOperationRef ?? null;
     if (operationRef === null) return;
+    if (step.ownerActionRef) {
+      const ownerAction = ownerActionById.get(step.ownerActionRef);
+      assert.ok(ownerAction, `${label} owner action is an exact registered action`);
+      assert.equal(ownerAction.operationRef, operationRef, `${label} owner action and operation identity agree`);
+      assert.equal(ownerAction.runtimeAdmission, "NOT_ADMITTED", `${label} owner action remains definition-only`);
+      return;
+    }
     const allowedJ01Queries = {
       "J01-2": { view: "media.view.resume-work", operationRef: "media.operation-slice.list-projects" },
       "J01-4": { view: "media.view.work-in-project", operationRef: "media.operation-slice.inspect-project" },
@@ -59,9 +66,17 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   const views = [...registry.screens, ...registry.laneViews];
   const viewIds = uniqueIds(views, "screen registry");
   const journeyIds = new Set(journeys.journeys.map((journey) => journey.id));
-  const actionIds = new Set(actions.actions.map((action) => action.id));
-  const operationIds = new Set([...operations.operations.map((operation) => operation.id), ...(operations.individualOperationContracts?.records ?? []).map((operation) => operation.id)]);
-  const operationById = new Map((operations.individualOperationContracts?.records ?? []).map((operation) => [operation.id, operation]));
+  const ownerActions = actions.ownerDefinedActions ?? [];
+  const actionIds = new Set([...actions.actions, ...ownerActions].map((action) => action.id));
+  const operationRecords = [
+    ...(operations.operations ?? []),
+    ...(operations.individualOperationContracts?.records ?? []),
+    ...(operations.ownerDefinedOperationContracts?.records ?? []),
+    ...(operations.capabilityOperationContracts?.records ?? []),
+  ];
+  const operationIds = new Set(operationRecords.map((operation) => operation.id));
+  const operationById = new Map(operationRecords.map((operation) => [operation.id, operation]));
+  const ownerActionById = new Map(ownerActions.map((action) => [action.id, action]));
   const requirementIds = new Set(requirements.requirements.map((item) => item.id));
   const capabilityIds = new Set(capabilities.capabilities.map((item) => item.id));
   const goalIds = new Set(goals.outcomes.map((item) => item.id));
@@ -152,7 +167,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
         operationLinks++;
       }
       assertUniqueKnownRefs(step.requiredOperationRefs ?? [], operationIds, `${journey.id}.requiredOperationRefs`);
-      assertOperationRequiresAction(step, `${journey.id} step ${step.view}`, journey.id, operationById);
+      assertOperationRequiresAction(step, `${journey.id} step ${step.view}`, journey.id, operationById, ownerActionById);
     }
   }
   assert.equal(stepCount, 130);
@@ -162,13 +177,17 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   assert.equal(journeys.coverageObservation.stepBindings.screenContractRef.blocker.startsWith("none;"), true);
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
-    actionLinks: 18, requirementLinks: 19, capabilityLinks: 20, outcomeLinks: 72, operationLinks: 19,
+    // `step.action` is the retained historical screen-consequence subset. The
+    // current 120 action/actionRef bindings and one owner action are asserted
+    // separately against currentStepBindingObservation below.
+    actionLinks: 18, requirementLinks: 38, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 93,
   });
 });
 
-test("PDP-3 coverage observation counts authored per-step action bindings by occurrence", () => {
+test("PDP-3 coverage preserves historical action counts and exposes current per-step dispositions", () => {
   const journeys = readYaml(`${experience}/journey-registry.yaml`);
-  const observation = journeys.coverageObservation;
+  const historical = journeys.coverageObservation;
+  const observation = journeys.currentStepBindingObservation;
   assert.equal(journeys.journeys.length, 30, "enumerate every registered journey contract");
 
   let stepCount = 0;
@@ -190,15 +209,40 @@ test("PDP-3 coverage observation counts authored per-step action bindings by occ
 
   assert.equal(stepCount, 130);
   assert.equal(screenContractRefCount, 130);
-  assert.equal(actionBindings.length, 18, "18 exact step-level binding occurrences are authored");
-  assert.equal(new Set(actionBindings.map(({ ref }) => ref)).size, 15, "the 18 occurrences use 15 distinct action IDs");
+  assert.equal(actionBindings.length, 120, "current exact source action refs are counted by occurrence");
+  let ownerActionBindings = 0;
+  let explicitChoiceSets = 0;
+  let passiveQueries = 0;
+  let noDispatchGates = 0;
+  for (const journey of journeys.journeys) {
+    const contract = readYaml(`${experience}/${journey.contract}`);
+    for (const step of contract.steps ?? []) {
+      const semantics = step.stepDefinitionSemantics;
+      if (step.ownerActionRef) ownerActionBindings++;
+      if (semantics?.action?.choiceSet || semantics?.choiceSet) explicitChoiceSets++;
+      if (semantics?.bindingStatus === "PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH") passiveQueries++;
+      if (semantics?.action?.semanticRole === "NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE") noDispatchGates++;
+    }
+  }
+  assert.equal(ownerActionBindings, 1);
+  assert.equal(explicitChoiceSets, 5);
+  assert.equal(passiveQueries, 1);
+  assert.equal(noDispatchGates, 3);
+  assert.equal(historical.status, "HISTORICAL_SOURCE_INVENTORY_SUPERSEDED_BY_CURRENT_STEP_BINDING_OBSERVATION; NOT_CURRENT");
+  assert.equal(historical.historicalObservationDisposition.priorStepActionBindingCount, 18);
+  assert.equal(historical.historicalObservationDisposition.priorUnresolvedStepActionBindingCount, 112);
   assert.equal(observation.orderedStepCount, stepCount);
-  assert.equal(observation.stepBindings.screenContractRef.linked, screenContractRefCount);
-  assert.equal(observation.stepBindings.screenContractRef.unresolved, stepCount - screenContractRefCount);
-  assert.equal(observation.stepBindings.action.linked, actionBindings.length);
-  assert.equal(observation.stepBindings.action.unresolved, stepCount - actionBindings.length);
-  assert.equal(observation.stepBindings.action.blocker,
-    "remaining-steps-have-no-exact-step-level-action-allocation; screen-action-candidates-are-not-equivalent-to-journey-step-actions");
+  assert.deepEqual(observation.actionDispositionCounts, {
+    exactSourceActionRef: actionBindings.length,
+    ownerDefinedActionRef: ownerActionBindings,
+    explicitUnselectedChoiceSet: explicitChoiceSets,
+    passiveCanonicalQueryWithoutActionDispatch: passiveQueries,
+    explicitNoDispatchObservationOrGate: noDispatchGates,
+    unresolvedStepActionBinding: 0,
+  });
+  assert.equal(observation.acceptanceBoundary.includes("do not establish independent PDP-3 acceptance"), true);
+  assert.equal(historical.stepBindings.screenContractRef.linked, screenContractRefCount);
+  assert.equal(historical.stepBindings.screenContractRef.unresolved, stepCount - screenContractRefCount);
 });
 
 test("PDP-3 cross-link assertions reject stale, orphan, and duplicate references", () => {
@@ -258,14 +302,41 @@ test("PDP-3 J-29/J-30 step views use exact owner-selected source contracts and p
         expectedViews[journeyId][index],
         `${journeyId}/${step.stepId} uses the selected exact source view and intent`,
       );
-      assert.equal(step.action, undefined, `${journeyId}/${step.stepId} has no exact step-level action source`);
-      assert.equal(step.actionRef, undefined, `${journeyId}/${step.stepId} has no exact step-level action source`);
+      const semanticAction = step.action ?? step.actionRef ?? null;
+      const semantics = step.stepDefinitionSemantics;
+      if (journeyId === "J-29" && index < 3) {
+        assert.equal(semanticAction, null, `${journeyId}/${step.stepId} remains an explicit observation/gate without dispatch`);
+        assert.equal(step.ownerActionRef, undefined);
+        assert.equal(semantics.bindingStatus, "OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN");
+        assert.equal(semantics.action.semanticRole, "NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE");
+        assert.equal(semantics.canonicalBindings.canonicalOperationRef, null);
+      } else if (journeyId === "J-29") {
+        assert.equal(step.ownerActionRef, "media.action.request-live-session-reconnect");
+        assert.equal(semantics.canonicalBindings.canonicalOperationRef, "media.operation.capability.media-stream-session-reconnect");
+        assert.equal(semantics.action.runtimeAdmission, "NOT_ADMITTED");
+        assert.match(semantics.bindingStatus, /PXD_077; INDEPENDENT_ACCEPTANCE_AND_RUNTIME_OPEN/u);
+      } else {
+        const expectedAction = index < 3
+          ? "media.action.inspect-effective-processing-constraints"
+          : "media.action.select-eligible-processing-profile";
+        assert.equal(semanticAction, expectedAction, `${journeyId}/${step.stepId} preserves its current exact action source`);
+        assert.equal(semantics.action.actionRef, expectedAction);
+        assert.equal(semantics.action.runtimeAdmission, "NOT_ADMITTED");
+        if (index < 3) {
+          assert.equal(semantics.canonicalBindings.canonicalOperationRef, "media.operation.action.inspect-effective-processing-constraints");
+        } else {
+          assert.equal(semantics.canonicalBindings.canonicalOperationRef, null,
+            "local profile selection does not inherit a domain operation by label");
+        }
+      }
     }
   }
   assert.equal(journeyRegistry.coverageObservation.stepBindings.screenContractRef.linked, 130);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.screenContractRef.unresolved, 0);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.screenContractRef.acceptance,
     undefined, "source mapping does not imply screen admission or behavior acceptance");
+  assert.equal(journeyRegistry.currentStepBindingObservation.status,
+    "CURRENT_SOURCE_INVENTORY_ONLY; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN");
 });
 
 test("J-02 upload workflow binds exact slices and preserves verification authority", () => {
@@ -320,16 +391,43 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
   const explicit = operations.sourceDenominators.uiProductActions.explicitOperationIds;
   const exact = operations.sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings;
   const selectedCandidateActions = new Set(Object.keys(explicit));
+  const operationRecords = [
+    ...(operations.operations ?? []),
+    ...(operations.individualOperationContracts?.records ?? []),
+    ...(operations.ownerDefinedOperationContracts?.records ?? []),
+    ...(operations.capabilityOperationContracts?.records ?? []),
+  ];
+  const operationIds = new Set(operationRecords.map(({ id }) => id));
+  const actionById = new Map(actions.actions.map((action) => [action.id, action]));
   let mappedOccurrences = 0;
   const mappedActionIds = new Set();
   for (const journey of journeys.journeys) {
     const contract = readYaml(`${experience}/${journey.contract}`);
     for (const step of contract.steps ?? []) {
-      if (!selectedCandidateActions.has(step.action)) continue;
-      const exactCandidate = journey.id === "J-02" ? exact[step.action] : undefined;
-      assert.equal(step.canonicalOperationRef, exactCandidate ?? explicit[step.action], `${journey.id}/${step.action} must match the exact PDP-1 crosswalk`);
+      const actionRef = step.action ?? step.actionRef;
+      if (!selectedCandidateActions.has(actionRef)) continue;
+      const action = actionById.get(actionRef);
+      assert.ok(action, `${actionRef} resolves to an authored action`);
+      assert.equal(action.actionDefinitionSemantics.typedDefinition.runtimeAdmission, "NOT_ADMITTED",
+        `${journey.id}/${actionRef} source candidate remains unadmitted`);
+      const typedRefs = action.actionDefinitionSemantics.typedDefinition.exactOperationRefs;
+      assert.deepEqual(step.stepDefinitionSemantics.action.exactOperationRefs, typedRefs,
+        `${journey.id}/${actionRef} step uses its exact current action operation set`);
+      assert.ok(typedRefs.every((ref) => operationIds.has(ref)), `${journey.id}/${actionRef} operation refs resolve`);
+      assert.ok(operationIds.has(explicit[actionRef]), `${journey.id}/${actionRef} retains its family-level source candidate`);
+      if (step.canonicalOperationRef != null) {
+        assert.ok(typedRefs.includes(step.canonicalOperationRef), `${journey.id}/${actionRef} canonical binding is an exact operation`);
+      }
+      for (const ref of step.requiredOperationRefs ?? []) {
+        assert.ok(operationIds.has(ref), `${journey.id}/${actionRef} required operation ${ref} resolves`);
+      }
+      if (exact[actionRef]) {
+        const exactRefs = actionRef === "media.action.resume-artifact-upload"
+          ? exact.resumeWorkflow
+          : [exact[actionRef]];
+        assert.deepEqual(typedRefs, exactRefs, `${journey.id}/${actionRef} matches the exact owner-reviewed PDP-1 slice`);
+      }
       if (journey.id === "J-03" && step.stepId === "J03-2") {
-        const action = actions.actions.find(({ id }) => id === "media.action.request-transcription");
         assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-072");
         assert.equal(step.sourceDecisionRef, ".product-experience/decision-log.md#PXD-070");
         assert.equal(step.grammarDecisionRef, ".product-experience/decision-log.md#PXD-071");
@@ -353,8 +451,7 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
       } else if (journey.id === "J-03" && ["J03-5", "J03-6"].includes(step.stepId)) {
         const expectedAction = step.stepId === "J03-5" ? "media.action.correct-caption" : "media.action.align-caption-timing";
         const expectedKind = step.stepId === "J03-5" ? "TEXT_CORRECTION" : "TIMING_ALIGNMENT";
-        const action = actions.actions.find(({ id }) => id === expectedAction);
-        assert.equal(step.action, expectedAction);
+        assert.equal(actionRef, expectedAction);
         assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-068");
         assert.equal(step.sourceDecisionRef, ".product-experience/decision-log.md#PXD-066");
         assert.equal(step.grammarDecisionRef, ".product-experience/decision-log.md#PXD-067");
@@ -370,14 +467,12 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
         assert.equal(action.actionDefinitionSemantics.publicEffect, undefined);
         assert.equal(action.actionDefinitionSemantics.publicFinality, undefined);
         assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /draft-write-bound/u);
-      } else {
-        assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /pending/u, `${journey.id}/${step.action} remains runtime-admission pending`);
       }
       mappedOccurrences++;
-      mappedActionIds.add(step.action);
+      mappedActionIds.add(actionRef);
     }
   }
-  assert.equal(mappedActionIds.size, 13);
-  assert.equal(mappedOccurrences, 16);
+  assert.equal(mappedActionIds.size, 13, "13 of the 14 family-level candidates occur in current journey steps");
+  assert.equal(mappedOccurrences, 31, "count current mapped action occurrences, including actionRef-bound steps");
   assert.match(operations.scopeStatus, /proposal-only/u);
 });

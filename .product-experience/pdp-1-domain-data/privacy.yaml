@@ -4,186 +4,259 @@ productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
 scopeStatus: PDP-0-policy-projection; pending-owner-review
-sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/constitution.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaExternalDisclosureSanitizer.java]
+sourceRefs: [ .product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/constitution.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaExternalDisclosureSanitizer.java ]
 proposalStatus: proposal-only; source-observed mechanisms do not constitute owner-approved policy or production qualification
 axes:
-  - id: media.privacy.access
-    owner: media
-    default: private-to-authorized-context
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.classification
-    owner: media-with-platform-vocabulary
-    rule: source-classification-is-floor-for-derived-data-until-authorized-deidentification
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.tenant-scope
-    owner: media
-    default: deny-cross-tenant-access-and-reuse
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.locality-egress
-    owner: media-deployment-profile-and-request-policy
-    rule: unknown-location-is-not-locality-claim; deny-unapproved-egress
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.consent
-    owner: media-purpose-rules-with-trusted-identity-authority
-    rule: active-verified-purpose-scoped-consent-where-required
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.retention-erasure
-    owner: media-with-storage-owner-mechanics
-    rule: request-access-revocation-physical-erasure-and-confirmation-are-distinct
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.secondary-use
-    owner: media-and-rights-owner
-    default: deny-training-or-secondary-use-without-separate-explicit-authority
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
-  - id: media.privacy.provider-retention
-    owner: media-provider-admission
-    rule: unknown-retention-is-ineligible-when-no-retention-is-required
-    scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.access
+  owner: media
+  default: private-to-authorized-context
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.classification
+  owner: media-with-platform-vocabulary
+  rule: source-classification-is-floor-for-derived-data-until-authorized-deidentification
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.tenant-scope
+  owner: media
+  default: deny-cross-tenant-access-and-reuse
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.locality-egress
+  owner: media-deployment-profile-and-request-policy
+  rule: unknown-location-is-not-locality-claim; deny-unapproved-egress
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.consent
+  owner: media-purpose-rules-with-trusted-identity-authority
+  rule: active-verified-purpose-scoped-consent-where-required
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.retention-erasure
+  owner: media-with-storage-owner-mechanics
+  rule: request-access-revocation-physical-erasure-and-confirmation-are-distinct
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.secondary-use
+  owner: media-and-rights-owner
+  default: deny-training-or-secondary-use-without-separate-explicit-authority
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
+- id: media.privacy.provider-retention
+  owner: media-provider-admission
+  rule: unknown-retention-is-ineligible-when-no-retention-is-required
+  scopeStatus: PDP-0-policy-projection; pending-owner-review
 invariants:
-  - private-does-not-imply-local-processing
-  - local-does-not-imply-authorized-use
-  - user-attestation-is-not-verified-consent-or-license
-  - model-output-cannot-authorize-itself
-  - revocation-blocks-future-dispatch-and-restricts-outputs-at-next-enforcement-point
-  - telemetry-is-minimized-and-required-audit-intent-fails-closed
+- private-does-not-imply-local-processing
+- local-does-not-imply-authorized-use
+- user-attestation-is-not-verified-consent-or-license
+- model-output-cannot-authorize-itself
+- revocation-blocks-future-dispatch-and-restricts-outputs-at-next-enforcement-point
+- telemetry-is-minimized-and-required-audit-intent-fails-closed
 consentModel:
   status: proposal-only; pending-media-policy-owner-and-identity-authority-review
   sourceContract: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaConsentAdministration.java
-  observedRecordFields: [tenantId, principalId, consentId, purposes, allowedRegions, externalProcessingAllowed,
-    biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
+  observedRecordFields: [ tenantId, principalId, consentId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version ]
   observedIdentityBoundary: tenant-and-principal-are-supplied-by-authenticated-transport-to-administration-contract
   observedGrantBehavior: contract-validates-required-tenant-principal-correlation-purpose-and-region-shape; implementation-owns-consent-id-version-and-timestamps
   observedRevocationBehavior: administration-contract-exposes-principal-scoped-revoke; runtime-consent-decision-exposes-active-and-expiry-check
   notEstablished:
-    - production-transport-authentication-or-proof-that-requested-principal-matches-caller
-    - deployed-consent-provider-identity-durability-or-production-eligibility
-    - atomic-revocation-propagation-to-in-flight-jobs-stream-frames-caches-and-delegated-provider-work
-    - race-free-check-and-effect-between-consent-verification-and-external-side-effect
-    - retroactive-erasure-or-recall-of-already-disclosed-provider-data
+  - production-transport-authentication-or-proof-that-requested-principal-matches-caller
+  - deployed-consent-provider-identity-durability-or-production-eligibility
+  - atomic-revocation-propagation-to-in-flight-jobs-stream-frames-caches-and-delegated-provider-work
+  - race-free-check-and-effect-between-consent-verification-and-external-side-effect
+  - retroactive-erasure-or-recall-of-already-disclosed-provider-data
   proposalRules:
-    - require-verified-tenant-principal-purpose-region-and-operation-scope-before-governed-external-effects
-    - deny-new-external-dispatch-when-authority-is-unavailable-or-consent-is-expired-revoked-or-mismatched
-    - after-revocation-stop-new-effects-and-reconcile-in-flight-effects-with-explicit-uncertainty
+  - require-verified-tenant-principal-purpose-region-and-operation-scope-before-governed-external-effects
+  - deny-new-external-dispatch-when-authority-is-unavailable-or-consent-is-expired-revoked-or-mismatched
+  - after-revocation-stop-new-effects-and-reconcile-in-flight-effects-with-explicit-uncertainty
 retentionAndErasure:
   status: proposal-only; policy-and-storage-owner-approval-pending
   contract: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java
   observedMaintenance:
-    - bounded-purge-cycle-accepts-a-clock-instant-and-returns-deletion-counts
-    - production-like-launcher-requires-one-ready-production-eligible-maintenance-provider-and-runs-a-startup-cycle
-    - observed-postgresql-s3-provider-deletes-expired-artifacts-and-upload-objects-and-purges-terminal-job-and-stream-rows
-    - later-scheduled-failures-are-logged-and-next-cycle-retries-without-claiming-erasure
+  - bounded-purge-cycle-accepts-a-clock-instant-and-returns-deletion-counts
+  - production-like-launcher-requires-one-ready-production-eligible-maintenance-provider-and-runs-a-startup-cycle
+  - observed-postgresql-s3-provider-deletes-expired-artifacts-and-upload-objects-and-purges-terminal-job-and-stream-rows
+  - later-scheduled-failures-are-logged-and-next-cycle-retries-without-claiming-erasure
   notEstablished:
-    - complete-inventory-of-primary-replica-backup-cache-export-and-provider-held-copies
-    - deletion-from-provider-systems-or-proof-of-provider-side-erasure
-    - restore-time-tombstone-replay-or-independently-verifiable-erasure-receipt
-    - coverage-of-every-retention-class-and-all-derived-transcript-caption_or_other_outputs
-    - policy-approved-retention-periods-for-artifacts-jobs-streams-and-upload-material
+  - complete-inventory-of-primary-replica-backup-cache-export-and-provider-held-copies
+  - deletion-from-provider-systems-or-proof-of-provider-side-erasure
+  - restore-time-tombstone-replay-or-independently-verifiable-erasure-receipt
+  - coverage-of-every-retention-class-and-all-derived-transcript-caption_or_other_outputs
+  - policy-approved-retention-periods-for-artifacts-jobs-streams-and-upload-material
   proposalRules:
-    - distinguish-access-revocation-logical-hiding-deletion-request-physical-deletion-and-confirmed-erasure
-    - represent-partial-or-unconfirmed-deletion-as-pending-or-blocked-not-erasure-confirmed
-    - require-storage-and-provider-owner-defined-scope-retry-restore-hold-and-evidence-contracts
+  - distinguish-access-revocation-logical-hiding-deletion-request-physical-deletion-and-confirmed-erasure
+  - represent-partial-or-unconfirmed-deletion-as-pending-or-blocked-not-erasure-confirmed
+  - require-storage-and-provider-owner-defined-scope-retry-restore-hold-and-evidence-contracts
   knownStorageEvidence: providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java
   knownStorageLimits: implementation-observation-does-not-establish-all-deployment-stores-or-downstream-provider-deletion
 erasureStatesRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
 observedImplementation:
-  sanitizers: [MediaExternalDisclosureSanitizer, MediaMetadataSanitizer, MediaJobResultSanitizer]
+  sanitizers: [ MediaExternalDisclosureSanitizer, MediaMetadataSanitizer, MediaJobResultSanitizer ]
   maintenance: MediaPrivacyMaintenance
   limit: interfaces-and-one-provider-implementation-do-not-prove-deployment-coverage-policy-meaning-or-erasure-completeness
 sourceIndexedAudit:
   status: source-observation-only; security-and-privacy-owner-approval-and-independent-review-pending
   sources:
-    - id: media.privacy.observation.tenant-scope
-      authorityRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#independentGovernanceAxes, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity]
-      implementationRefs:
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#appendChunk
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#completeUpload
-        - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#ArtifactStore.append
-        - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#ArtifactStore.complete
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java
-        - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
-      verificationRefs:
-        - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
-        - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3TenantIsolationTest.java
-        - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java
-      observed: PostgreSQL store lookups and updates include tenant_id predicates; upload append and finalization also compare the supplied principal with the locked session owner before mutation; local upload mutations enforce the same tenant-and-principal match; tests prove cross-tenant and same-tenant wrong-principal append/finalization leave upload progress unchanged
-      doesNotEstablish: authenticated-transport-tenant-integrity; every-deployment-store-or-cache-isolation; cross-tenant-deduplication-nondisclosure-outside-the-tested-provider
-      status: bounded-implementation-and-test-observation
-    - id: media.privacy.observation.request-deduplication-scope
-      authorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity, .product-experience/pdp-1-domain-data/offline-sync.yaml#sourceObservations]
-      implementationRefs:
-        - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#JobStore.create
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
-        - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
-        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java
-        - providers/aws-postgresql/src/main/resources/db/media-runtime/V008__media_job_request_fingerprint.sql
-      verificationRefs:
-        - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
-        - launcher/src/test/java/com/ghatana/media/launcher/LocalMediaJobStoreGovernanceTest.java
-        - runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaJobRequestFingerprintTest.java
-        - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
-      observed: local request index and PostgreSQL uniqueness scope requestId by tenant; both stores compare an immutable media.job-request-fingerprint.v1 SHA-256 covering request identity, parameters, governance and ordered provider plan; exact same-scope payload replay returns the existing job; mismatched payload and legacy rows without a digest fail closed; provider-effect replay remains unadmitted
-      doesNotEstablish: authenticated-tenant-or-principal-integrity; cross-tenant-nondisclosure-for-all-stores; provider-effect-safe-replay-or-deduplication-contract
-      status: bounded-versioned-request-payload-idempotency-observation; legacy-replay-fails-closed; PostgreSQL-constraint-observed
-    - id: media.privacy.observation.consent-revocation
-      authorityRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#invariants, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity]
-      implementationRefs:
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#consentFor
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#connectStream
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#acceptFrameLocked
-      verificationRef: launcher/src/test/java/com/ghatana/media/launcher/MediaConsentRevocationTest.java
-      observed: external stream open/connect/frame paths verify active consent and matching consentId; test revokes authority after one accepted frame and verifies next frame and reconnect reject before another provider frame; close remains possible using prior verified context
-      doesNotEstablish: atomic-revocation-propagation-to-in-flight-effects-or-other-deployments; consent-provider-identity-durability-or-production-qualification; recall-of-already-disclosed-data
-      status: bounded-stream-path-behavior-tested
-    - id: media.privacy.observation.retention-and-legal-hold
-      authorityRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#independentGovernanceAxes, .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact]
-      implementationRefs:
-        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java
-        - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
-      verificationRef: providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
-      observed: one PostgreSQL/S3 implementation selects expired artifacts/uploads and purges terminal jobs/streams in bounded batches; artifact/upload blob deletion precedes metadata deletion; this tested provider has no legal-hold field or hold predicate
-      doesNotEstablish: policy-approved-retention-periods-across-all-data-classes; legal-hold-enforcement; deletion-coverage-for-backups-caches-exports-derived-or-provider-copies
-      legalHoldStatus: not-implemented-or-proven-by-inspected-runtime-schema-and-provider
-      status: one-provider-retention-path-tested; hold-behavior-unavailable
-    - id: media.privacy.observation.stale-revision
-      authorityRefs: [.product-experience/pdp-1-domain-data/versioning.yaml#rules]
-      implementationRefs:
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#update
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java#update
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#startJob
-      verificationRef: providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
-      observed: PostgreSQL job/session updates use tenant-and-identity-scoped compare-and-set version predicates; worker lease has a fencing token; the provider test rejects a stale job version
-      doesNotEstablish: append-only-history; artifact-version-identity; all-provider-parity-or-global-linearizability
-      status: bounded-provider-revision-and-fence-observation
-    - id: media.privacy.observation.physical-erasure
-      authorityRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact, .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure]
-      implementationRefs:
-        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java
-        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java
-      verificationRef: providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
-      observed: bounded purge returns per-category deletion counts; the tested provider deletes expired S3 objects before associated rows and removes expired uploads/chunks and old terminal job/stream rows
-      doesNotEstablish: copy-complete-erasure-receipt; hold-aware-deletion; restore-tombstone-replay; primary-replica-backup-cache-export-or-provider-copy-completeness
-      status: bounded-provider-delete-path-tested; erasure-confirmation-unavailable
-    - id: media.privacy.observation.uncertain-effect-replay
-      authorityRefs: [.product-experience/pdp-1-domain-data/offline-sync.yaml#sourceObservations, .product-experience/pdp-1-domain-data/evidence.yaml#evidenceClasses]
-      implementationRefs:
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#reconcileJobsAfterRestart
-        - libs/audio-video-client/src/operations.ts#retryOperation
-        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java
-        - contracts/openapi/media.yaml#x-ghatana-idempotency
-      verificationRefs:
-        - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
-        - libs/audio-video-client/src/operations.test.ts
-        - tests/media-runtime-openapi-job-status.test.mjs
-      observed: startup changes recoverable jobs to OUTCOME_UNKNOWN without a failure code or completion timestamp; local and PostgreSQL job stores refuse to lease unknown-outcome jobs for replay; versioned request payload idempotency binds exact submission replays, but provider effect reconciliation remains unproved; the legacy client retry method fails before transport because no server-owned retry contract or route is admitted; selected OpenAPI mutations explicitly disclaim replay-safe idempotency
-      doesNotEstablish: provider-outcome-reconciliation; provider-effect-safe-replay-or-deduplication-contract; universal-automatic-retry-prohibition; offline-command-queue-or-cross-client-replay-safety
-      status: restart-unknown-outcome-path-tested; legacy-retry-fails-before-dispatch; provider-effect-replay-contract-unbound
+  - id: media.privacy.observation.tenant-scope
+    authorityRefs: [ .product-experience/pdp-0-product-truth/policy-authority-model.yaml#independentGovernanceAxes, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity ]
+    implementationRefs:
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#appendChunk
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#completeUpload
+    - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#ArtifactStore.append
+    - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#ArtifactStore.complete
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/S3PostgresqlMediaArtifactStore.java
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
+    verificationRefs:
+    - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+    - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaPostgresqlS3TenantIsolationTest.java
+    - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeActiveTest.java
+    observed: PostgreSQL store lookups and updates include tenant_id predicates; upload append and finalization also compare the supplied principal with the locked session owner before mutation; local upload mutations enforce the same tenant-and-principal match; tests prove cross-tenant and same-tenant wrong-principal append/finalization leave upload progress unchanged
+    doesNotEstablish: authenticated-transport-tenant-integrity; every-deployment-store-or-cache-isolation; cross-tenant-deduplication-nondisclosure-outside-the-tested-provider
+    status: bounded-implementation-and-test-observation
+  - id: media.privacy.observation.request-deduplication-scope
+    authorityRefs: [ .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity, .product-experience/pdp-1-domain-data/offline-sync.yaml#sourceObservations ]
+    implementationRefs:
+    - launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#JobStore.create
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V008__media_job_request_fingerprint.sql
+    verificationRefs:
+    - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
+    - launcher/src/test/java/com/ghatana/media/launcher/LocalMediaJobStoreGovernanceTest.java
+    - runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaJobRequestFingerprintTest.java
+    - providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+    observed: local request index and PostgreSQL uniqueness scope requestId by tenant; both stores compare an immutable media.job-request-fingerprint.v1 SHA-256 covering request identity, parameters, governance and ordered provider plan; exact same-scope payload replay returns the existing job; mismatched payload and legacy rows without a digest fail closed; provider-effect replay remains unadmitted
+    doesNotEstablish: authenticated-tenant-or-principal-integrity; cross-tenant-nondisclosure-for-all-stores; provider-effect-safe-replay-or-deduplication-contract
+    status: bounded-versioned-request-payload-idempotency-observation; legacy-replay-fails-closed; PostgreSQL-constraint-observed
+  - id: media.privacy.observation.consent-revocation
+    authorityRefs: [ .product-experience/pdp-0-product-truth/policy-authority-model.yaml#invariants, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity ]
+    implementationRefs:
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#consentFor
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#connectStream
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#acceptFrameLocked
+    verificationRef: launcher/src/test/java/com/ghatana/media/launcher/MediaConsentRevocationTest.java
+    observed: external stream open/connect/frame paths verify active consent and matching consentId; test revokes authority after one accepted frame and verifies next frame and reconnect reject before another provider frame; close remains possible using prior verified context
+    doesNotEstablish: atomic-revocation-propagation-to-in-flight-effects-or-other-deployments; consent-provider-identity-durability-or-production-qualification; recall-of-already-disclosed-data
+    status: bounded-stream-path-behavior-tested
+  - id: media.privacy.observation.retention-and-legal-hold
+    authorityRefs: [ .product-experience/pdp-0-product-truth/policy-authority-model.yaml#independentGovernanceAxes, .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact ]
+    implementationRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java
+    - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql
+    verificationRef: providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+    observed: one PostgreSQL/S3 implementation selects expired artifacts/uploads and purges terminal jobs/streams in bounded batches; artifact/upload blob deletion precedes metadata deletion; this tested provider has no legal-hold field or hold predicate
+    doesNotEstablish: policy-approved-retention-periods-across-all-data-classes; legal-hold-enforcement; deletion-coverage-for-backups-caches-exports-derived-or-provider-copies
+    legalHoldStatus: not-implemented-or-proven-by-inspected-runtime-schema-and-provider
+    status: one-provider-retention-path-tested; hold-behavior-unavailable
+  - id: media.privacy.observation.stale-revision
+    authorityRefs: [ .product-experience/pdp-1-domain-data/versioning.yaml#rules ]
+    implementationRefs:
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#update
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java#update
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#startJob
+    verificationRef: providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+    observed: PostgreSQL job/session updates use tenant-and-identity-scoped compare-and-set version predicates; worker lease has a fencing token; the provider test rejects a stale job version
+    doesNotEstablish: append-only-history; artifact-version-identity; all-provider-parity-or-global-linearizability
+    status: bounded-provider-revision-and-fence-observation
+  - id: media.privacy.observation.physical-erasure
+    authorityRefs: [ .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact, .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure ]
+    implementationRefs:
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaPrivacyMaintenance.java
+    - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaPrivacyMaintenance.java
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaPrivacyMaintenanceRuntime.java
+    verificationRef: providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/MediaAwsPostgresqlRuntimeStateTest.java
+    observed: bounded purge returns per-category deletion counts; the tested provider deletes expired S3 objects before associated rows and removes expired uploads/chunks and old terminal job/stream rows
+    doesNotEstablish: copy-complete-erasure-receipt; hold-aware-deletion; restore-tombstone-replay; primary-replica-backup-cache-export-or-provider-copy-completeness
+    status: bounded-provider-delete-path-tested; erasure-confirmation-unavailable
+  - id: media.privacy.observation.uncertain-effect-replay
+    authorityRefs: [ .product-experience/pdp-1-domain-data/offline-sync.yaml#sourceObservations, .product-experience/pdp-1-domain-data/evidence.yaml#evidenceClasses ]
+    implementationRefs:
+    - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#reconcileJobsAfterRestart
+    - libs/audio-video-client/src/operations.ts#retryOperation
+    - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaJobRequestFingerprint.java
+    - contracts/openapi/media.yaml#x-ghatana-idempotency
+    verificationRefs:
+    - launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java
+    - libs/audio-video-client/src/operations.test.ts
+    - tests/media-runtime-openapi-job-status.test.mjs
+    observed: startup changes recoverable jobs to OUTCOME_UNKNOWN without a failure code or completion timestamp; local and PostgreSQL job stores refuse to lease unknown-outcome jobs for replay; versioned request payload idempotency binds exact submission replays, but provider effect reconciliation remains unproved; the legacy client retry method fails before transport because no server-owned retry contract or route is admitted; selected OpenAPI mutations explicitly disclaim replay-safe idempotency
+    doesNotEstablish: provider-outcome-reconciliation; provider-effect-safe-replay-or-deduplication-contract; universal-automatic-retry-prohibition; offline-command-queue-or-cross-client-replay-safety
+    status: restart-unknown-outcome-path-tested; legacy-retry-fails-before-dispatch; provider-effect-replay-contract-unbound
   policyAndReviewBoundary:
     pdp0PolicyAuthority: authored-proposal; pending-P0-010-independent-acceptance
     pdp1Privacy: source-observations-do-not-accept-policy-meaning
     securityAndPrivacyOwnerApproval: pending
     independentReview: pending
     platformStorageOrIdentityOwnerAcceptance: not-established
+ownerDefinedPdp10Boundary:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-10-PRIVACY-BOUNDARY-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+  - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+  scopeStatus: OWNER_DEFINED_SOURCE_POLICY; enforcement, provider and security review remain pending
+  identity:
+    requiredTrustedContext:
+    - tenantRef
+    - principalRef
+    - delegationRef
+    - workspaceRef
+    - identityEpoch
+    - issuedAt
+    - expiresAt
+    callerControlledIdentityFields:
+    - tenantId
+    - principalId
+    - delegation
+    - workspaceAuthority
+    disposition: Reject caller-supplied identity authority; resolve resource only within host-attested tenant/workspace and exact owner principal scope; unknown or mismatch is DENY.
+  effectBoundary:
+    recheckBefore:
+    - provider dispatch
+    - durable artifact registration
+    - external disclosure
+    - delivery or publication
+    - consent/right restriction changes
+    - erasure finalization
+    required:
+      identityEpoch: must match current trusted host epoch
+      policyDecision: current and scoped to exact operation, resource version, purpose and destination
+      rights: source rights and derived-use scope permit exact operation
+      consent: verified ACTIVE and matching subject, purpose, region and operation when required by the leaf
+      profile: exact versioned profile and provider retention/locality constraints known
+      audit: required audit intent durably accepted before external effect
+    unknownRule: DENY new effect or return UNKNOWN_OUTCOME only after a dispatch boundary was crossed; never treat an unavailable authority as approval
+  tenantIsolation:
+    lookupKey: tenantRef plus exact domain object identity; owner principal additionally required for owner-private drafts and sessions
+    crossTenantRead: DENY without an explicit source-defined shared grant from current trusted authority
+    crossTenantWrite: DENY; no global fallback; do not reveal whether another tenant owns the identifier
+  classificationAndDisclosure:
+    inheritance: Derived observations and artifacts retain the source sensitivity floor unless an authorized, evidenced declassification decision applies.
+    logs: Exclude raw media, prompt, transcript, biometric and credentials; record minimized opaque refs, outcome class and policy decision reference.
+    providerRetention: Unknown provider retention is ineligible when the selected policy requires bounded/no retention.
+    locality: Private does not imply local; unknown locality cannot satisfy a local-only or residency restriction.
+  consentRevocation:
+    futureDispatch: Block new governed dispatch at the next effect boundary after revocation.
+    inFlight: Record affected exact job/session/effect identities and reconcile; cancellation, provider stop, recall and deletion are separate outcomes.
+    unknownProviderOutcome: Keep effect finality UNKNOWN until an authoritative observer resolves it; never claim revocation recalled already disclosed data.
+  retentionAndErasure:
+    accessRevocation: Immediately deny new reads/uses under revoked authority; this is not physical deletion.
+    erasureStates:
+    - REQUESTED
+    - ACCESS_RESTRICTED
+    - DELETION_PENDING
+    - PARTIALLY_ERASED
+    - ERASURE_CONFIRMED
+    - ERASURE_BLOCKED_BY_HOLD
+    - ERASURE_OUTCOME_UNKNOWN
+    confirmRule: ERASURE_CONFIRMED requires all declared primary, replica, backup, cache, export and provider scopes to return owner-authoritative deletion evidence; absent scope evidence keeps result partial or unknown.
+    legalHold: A current legal hold blocks physical purge for its exact scope and duration but grants no processing or disclosure authority; expose a hold-blocked disposition.
+    partialErasure: Retain per-copy completion and unresolved scope; do not collapse partial deletion to confirmed erasure.
+  duplicateEffectPrevention:
+    identity: tenantRef + principalRef + canonical operationRef + caller requestId + server-computed canonical request digest
+    sameRequest: Return the same durable receipt or perform no second effect.
+    sameKeyDifferentDigest: Reject with IDEMPOTENCY_CONFLICT.
+    ambiguousOutcome: Reconcile the same request identity with authoritative effect owner before retry; no blind replay.
+    providerWithoutReplayProtection: Do not automatically repeat a consequential external effect.
+  nonClaims:
+  - This definition does not assert implementation, provider-side deletion, authorization integration, storage-wide inventory, qualified policy enforcement, or independent review.

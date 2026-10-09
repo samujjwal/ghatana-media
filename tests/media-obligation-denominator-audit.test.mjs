@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { auditMediaObligationDenominator } from '../scripts/lib/media-obligation-denominator-audit.mjs';
+import { auditMediaObligationDenominator, enumerateExpectedMediaObligations } from '../scripts/lib/media-obligation-denominator-audit.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const requireTools = createRequire(path.resolve(root, '../ghatana-tools/package.json'));
@@ -21,15 +22,19 @@ const input = () => ({
   parseYaml: parse,
 });
 
-test('audits exact 348 obligation denominator, four phase counts, memberships, and resolvable source records', () => {
+test('audits the exact current source denominator, four phase counts, memberships, and resolvable source records', () => {
+  const enumeration = enumerateExpectedMediaObligations({root, parseYaml:parse});
+  assert.deepEqual(enumeration.issues, []);
+  const total = enumeration.records.length;
+  const phaseCounts = Object.fromEntries([0,1,2,3].map(p=>[`PDP-${p}`,enumeration.records.filter(r=>r.phase===`PDP-${p}`).length]));
   const report = auditMediaObligationDenominator(input());
-  assert.equal(report.total, 348);
-  assert.equal(report.uniqueIds, 348);
-  assert.deepEqual(report.phaseCounts, { 'PDP-0': 38, 'PDP-1': 150, 'PDP-2': 83, 'PDP-3': 77 });
-  assert.equal(report.dispositionRecords, 348);
-  assert.deepEqual(report.sourceReferences, { total: 348, resolved: 348, unresolved: 0 });
+  assert.equal(report.total, total);
+  assert.equal(report.uniqueIds, total);
+  assert.deepEqual(report.phaseCounts, phaseCounts);
+  assert.equal(report.dispositionRecords, total);
+  assert.deepEqual(report.sourceReferences, { total, resolved: total, unresolved: 0 });
   assert.ok(Object.keys(report.sourceFingerprints.files).length > 0);
-  assert.deepEqual(report.sourceFingerprints.comparison, { present: 348, matching: 348, stale: 0, absent: 0 });
+  assert.deepEqual(report.sourceFingerprints.comparison, { present: total, matching: total, stale: 0, absent: 0 });
   assert.equal(report.authoritativeObserverAssignments, 0);
   assert.equal(report.authoritativeOracleAssignments, 0);
   assert.equal(report.status, 'DENOMINATOR_AND_MEMBERSHIP_CHECKED_SOURCE_SEMANTIC_ACCEPTANCE_PENDING');
@@ -50,13 +55,15 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   assert.equal(finalDelta.currentSha256, reconciliation.currentSha256);
 
   const sourced = obligations.filter(({ extensions }) => extensions?.['media-source']?.sourceRef?.startsWith('.product-experience/pdp-1-domain-data/operations.yaml#'));
-  assert.equal(sourced.length, 27);
+  const expectedSources = enumerateExpectedMediaObligations({ root, parseYaml: parse }).records.filter(record => record.sourceRef.startsWith('.product-experience/pdp-1-domain-data/operations.yaml#'));
+  assert.equal(sourced.length, expectedSources.length);
   const digests = new Set(sourced.map(({ extensions }) => extensions['media-source'].sourceDigest));
   const currentSourceDigest = createHash('sha256')
     .update(fs.readFileSync(path.join(root, '.product-experience/pdp-1-domain-data/operations.yaml'))).digest('hex');
   assert.deepEqual([...digests], [`sha256:${currentSourceDigest}`]);
-  assert.equal(currentSourceDigest, reviewedSourcePin.sha256,
-    'source pin tracks the current SDK denominator metadata');
+  const currentReview = review.ownerDefinitionSourceReconciliation.records.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml');
+  assert.equal(currentSourceDigest, currentReview.currentSha256, 'the additive impact record describes the live source cut');
+  assert.equal(reviewedSourcePin.sha256, review.transcriptionSubmissionDefinitionSourceReconciliations.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml').currentSha256, 'the historical SDK source pin remains immutable');
   assert.notEqual(currentSourceDigest, finalDelta.currentSha256,
     'new SDK adapter denominator metadata postdates the bounded capability operation review');
   assert.match(operations.individualOperationContracts.status, /pending/u);
@@ -67,7 +74,9 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   const previouslyReviewed = sourced.filter(({ extensions }) => previouslyReviewedIds.has(extensions['media-source'].recordId));
   assert.equal(previouslyReviewed.length, 9);
   const newlyEnumerated = sourced.filter(({ extensions }) => !previouslyReviewedIds.has(extensions['media-source'].recordId));
-  assert.equal(newlyEnumerated.length, 18);
+  assert.equal(newlyEnumerated.length, expectedSources.length - 9);
+  const deltas = new Map(currentReview.currentFamilyRecordDeltas.records.map(record => [record.id, record]));
+  assert.equal(deltas.size, 9);
   for (const obligation of previouslyReviewed) {
     const source = obligation.extensions['media-source'];
     const recordId = source.recordId;
@@ -75,7 +84,13 @@ test('refreshes the nine operation-source fingerprints only after their semantic
     assert.ok(record, `${obligation.id} still resolves to ${recordId}`);
     assert.equal(source.sourceRef, `.product-experience/pdp-1-domain-data/operations.yaml#/operations/${recordId}`);
     const semanticHash = createHash('sha256').update(JSON.stringify(record)).digest('hex');
-    assert.equal(semanticHash, expectedRecordHashes[recordId], `${recordId} matches its reviewed source-record semantics`);
+    const delta = deltas.get(recordId);
+    assert.ok(delta);
+    assert.equal(delta.previousJsonSha256, expectedRecordHashes[recordId]);
+    assert.equal(semanticHash, delta.currentJsonSha256);
+    assert.deepEqual(delta.changedFields, ['operationKind']);
+    const original = structuredClone(record); delete original.operationKind;
+    assert.equal(createHash('sha256').update(JSON.stringify(original)).digest('hex'), expectedRecordHashes[recordId], `${recordId} preserves every historical semantic field beyond the explicitly reviewed additive kind`);
   }
   assert.match(finalDelta.reviewedCapabilityEvidence.impact, /no capability-leaf operation binding/u);
 });
@@ -124,9 +139,24 @@ test('PDP-2 obligation fingerprints change only after exact source-record impact
     assert.ok(impact, `${sourcePath} has a bounded impact review`);
     const sourceText = fs.readFileSync(path.resolve(root, sourcePath), 'utf8');
     const digest = `sha256:${createHash('sha256').update(sourceText).digest('hex')}`;
-    assert.equal(`sha256:${impact.currentSha256}`, digest);
+    if (sourcePath.endsWith('/component-contracts.yaml')) {
+      const currentReview = readJson('docs/implementation/verification/pdp-38/component-source-review.json');
+      assert.equal(currentReview.decisionRef, '.product-experience/decision-log.md#PXD-083');
+      assert.equal(`sha256:${currentReview.sourceFingerprints[sourcePath]}`, digest);
+      assert.equal(currentReview.wholeTaskCriterionEstablished, false);
+      assert.equal(currentReview.nativeLifecycleReceipt, null);
+    } else {
+      const currentImpact = readJson('docs/implementation/verification/pdp-38/media-token-aliases-current-impact.json');
+      assert.equal(currentImpact.historicalSourcePin, impact.currentSha256);
+      assert.equal(`sha256:${currentImpact.currentSourceSha256}`, digest);
+      assert.equal(currentImpact.unchangedSemanticRecords.aliasCount, 9);
+      assert.equal(currentImpact.unchangedSemanticRecords.semanticAliasValuesChanged, false);
+      assert.equal(currentImpact.coordinatorReview.wholeTaskCriterionEstablished, false);
+      assert.equal(currentImpact.coordinatorReview.nativeLifecycleReceipt, null);
+    }
     const refs = obligations.filter(({ extensions }) => extensions?.['media-source']?.sourceRef?.startsWith(`${sourcePath}#`));
-    assert.equal(refs.length, impact.obligationCount);
+    const expected = enumerateExpectedMediaObligations({root, parseYaml:parse}).records.filter(record => record.sourceRef.startsWith(`${sourcePath}#`));
+    assert.equal(refs.length, expected.length);
     assert.ok(refs.every(({ extensions }) => extensions['media-source'].sourceDigest === digest));
     assert.equal(impact.acceptanceEffect.startsWith('none;'), true);
   }
@@ -196,6 +226,29 @@ test('flags a missing persisted source digest', () => {
   const data = input();
   delete data.obligations[0].extensions['media-source'].sourceDigest;
   const report = auditMediaObligationDenominator(data);
-  assert.deepEqual(report.sourceFingerprints.comparison, { present: 347, matching: 347, stale: 0, absent: 1 });
+  assert.equal(report.sourceFingerprints.comparison.absent, 1);
+  assert.equal(report.sourceFingerprints.comparison.present, data.obligations.length - 1);
+  assert.equal(report.sourceFingerprints.comparison.matching + report.sourceFingerprints.comparison.stale, data.obligations.length - 1);
   assert.ok(report.issues.some((issue) => issue.code === 'MISSING_SOURCE_FINGERPRINT'));
+});
+
+test('same-process source audits cannot reuse a removed or changed normative record', () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'media-source-audit-freshness-'));
+  const relative = '.product-experience/pdp-3-product-experience/view-observation-predicates.yaml';
+  const file = path.join(temporaryRoot, relative);
+  fs.mkdirSync(path.dirname(file), {recursive:true});
+  try {
+    fs.writeFileSync(file, 'predicates:\n  - id: media.predicate.original\n');
+    const first = enumerateExpectedMediaObligations({root:temporaryRoot, parseYaml:parse});
+    assert.ok(first.records.some(record => record.recordId === 'media.predicate.original'));
+    fs.writeFileSync(file, 'predicates:\n  - id: media.predicate.replacement\n');
+    const second = enumerateExpectedMediaObligations({root:temporaryRoot, parseYaml:parse});
+    assert.ok(second.records.some(record => record.recordId === 'media.predicate.replacement'));
+    assert.ok(!second.records.some(record => record.recordId === 'media.predicate.original'));
+    assert.notEqual(first.sourceDigests[relative], second.sourceDigests[relative]);
+    fs.unlinkSync(file);
+    const third = enumerateExpectedMediaObligations({root:temporaryRoot, parseYaml:parse});
+    assert.ok(!third.records.some(record => record.recordId === 'media.predicate.replacement'));
+    assert.ok(third.issues.some(issue => issue.code === 'SOURCE_ENUMERATION_MISSING' && issue.detail.includes(relative)));
+  } finally { fs.rmSync(temporaryRoot, {recursive:true, force:true}); }
 });

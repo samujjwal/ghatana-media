@@ -115,7 +115,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.gui.template.workbench
+  templateRef: media.gui.template.project-overview
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

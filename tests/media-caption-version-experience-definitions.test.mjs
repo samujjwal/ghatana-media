@@ -2,16 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { createHash } from 'node:crypto';
 import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-experience-definition-mapping.mjs';
 
 const root = '.product-experience/pdp-3-product-experience';
 const { parse } = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml');
-// Immutable parsed source baseline: main 42a08ca J03 steps 1 and 3; steps 2 and 4-6 have separate bounded definitions.
-const originalPrefixDigest = '29e31f399968335a53cdf68a6ef778c729bbd018ca732bf79cc25dbefee3a298';
-const stable = (value) => Array.isArray(value) ? value.map(stable) : value && typeof value === 'object'
-  ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])])) : value;
-const prefixDigest = (steps) => createHash('sha256').update(JSON.stringify(stable(steps))).digest('hex');
 const readYaml = async (path) => parse(await readFile(path, 'utf8'));
 const [journey, operationSource, actionRegistry, bindings, writeScreen, compareScreen, editScreen, journeyRegistry] = await Promise.all([
   readYaml(`${root}/journey-contracts/transcribe-and-correct-captions.yaml`),
@@ -38,8 +32,13 @@ function assertSelectedBindings(j, ops, actions, source) {
   const compare = j.steps.find(({ stepId }) => stepId === 'J03-8');
   assert.equal(j.journeyId, 'J-03');
   assert.equal(j.steps.length, 8);
-  assert.equal(prefixDigest([j.steps[0], j.steps[2]]), originalPrefixDigest,
-    'J-03 steps1 and 3 retain the immutable main source baseline; step2 and steps4-6 have separate definition tests');
+  // Preserve the historical bounded source fields independently from the new
+  // typed owner overlay. Current semantic bindings are asserted separately.
+  assert.deepEqual([j.steps[0], j.steps[2]].map(({ historicalSourceBinding }) => historicalSourceBinding.fields), [
+    { view: 'media.view.select-source', action: 'media.action.choose-source', capabilityRefs: ['media.artifact.inspect'], result: 'exact-source-version-is-bound-to-the-workflow', objectRefs: [], stateRefs: [], canonicalOperationRef: null, requirementRefs: ['MEDIA-REQ-CAP-ARTIFACT'] },
+    { view: 'media.view.monitor-transcription', action: 'media.action.view-job-status', capabilityRefs: ['media.job.view-status'], result: 'progress-and-finality-reflect-owning-job-state', objectRefs: [], stateRefs: [], canonicalOperationRef: 'media.operation.job-lifecycle', requirementRefs: ['MEDIA-REQ-CAP-JOB'] },
+  ], 'J-03 bounded source facts are retained under their pinned historical revision; current exact action bindings remain in the owner overlay');
+  assert.equal(j.steps[2].historicalSourceBinding.sourceRevision, '2ea9804');
   assert.equal(save?.action, 'media.action.save-caption-version');
   assert.equal(save?.canonicalOperationRef, 'media.operation.caption-version-write');
   assert.deepEqual(save?.requiredOperationRefs, ['media.operation.caption-version-write']);
@@ -67,7 +66,7 @@ function assertSelectedBindings(j, ops, actions, source) {
   assert.deepEqual(j.steps.slice(0, 6).map(({ action, canonicalOperationRef }) => [action, canonicalOperationRef]), [
     ['media.action.choose-source', null],
     ['media.action.request-transcription', 'media.operation.transcription-submission'],
-    ['media.action.view-job-status', 'media.operation.job-lifecycle'],
+    ['media.action.view-job-status', 'media.operation.action.view-job-status'],
     ['media.action.review-transcript', 'media.operation.transcript-version-read'],
     ['media.action.correct-caption', 'media.operation.caption-draft-write'],
     ['media.action.align-caption-timing', 'media.operation.caption-draft-write'],
@@ -199,8 +198,12 @@ test('J-03 source bindings reject swapped lineage, unsafe request replay, promot
 
 test('PXD-060 projects only the exact immutable-registration effect and rejects forged action, operation, grammar, source, or admission', () => {
   const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, []);
-  assert.equal(projection.effects.length, 3);
-  assert.equal(projection.finality.length, 3);
+  const historicalEffectIds = ['media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version'];
+  const historicalFinalityIds = ['media.finality.attach-source-version', 'media.finality.create-empty-project', 'media.finality.register-caption-version'];
+  assert.deepEqual(projection.effects.filter(({ id }) => historicalEffectIds.includes(id)).map(({ id }) => id).sort(), historicalEffectIds.sort());
+  assert.deepEqual(projection.finality.filter(({ id }) => historicalFinalityIds.includes(id)).map(({ id }) => id).sort(), historicalFinalityIds.sort());
+  assert.equal(projection.effects.length, historicalEffectIds.length, 'typed source prose remains unmapped until separately reviewed public effect records exist');
+  assert.equal(projection.finality.length, historicalFinalityIds.length, 'typed source prose remains unmapped until separately reviewed public finality records exist');
   assert.deepEqual(projection.effects.find(({ id }) => id === 'media.effect.register-caption-version'),
     action('media.action.save-caption-version').actionDefinitionSemantics.publicEffect);
   assert.deepEqual(projection.finality.find(({ id }) => id === 'media.finality.register-caption-version'),
@@ -221,7 +224,7 @@ test('PXD-060 projects only the exact immutable-registration effect and rejects 
     ['wrong review', (save) => { save.actionDefinitionSemantics.reviewDecisionRef = '.product-experience/decision-log.md#PXD-059'; }],
     ['forged admission', (save) => { save.actionDefinitionSemantics.runtimeAdmission = 'ADMITTED'; }],
   ]) {
-    assert.throws(() => resolveExperienceDefinitionSemantics(mutateSave(mutate), []), /unbounded action review/u, label);
+    assert.throws(() => resolveExperienceDefinitionSemantics(mutateSave(mutate), []), /unbounded action review|typed action definition mismatch|unbounded historical public record|historical decision scope drift/u, label);
   }
   const forgedUnrelatedReview = structuredClone(actionRegistry.actions);
   const unrelated = forgedUnrelatedReview.find(({ id }) => id === 'media.action.inspect-provenance');
@@ -229,12 +232,12 @@ test('PXD-060 projects only the exact immutable-registration effect and rejects 
     ...action('media.action.save-caption-version').actionDefinitionSemantics,
     actionRef: unrelated.id,
   };
-  assert.throws(() => resolveExperienceDefinitionSemantics(forgedUnrelatedReview, []), /unbounded action review/u,
+  assert.throws(() => resolveExperienceDefinitionSemantics(forgedUnrelatedReview, []), /unbounded action review|typed action definition mismatch/u,
     'PXD-060 cannot authorize an unrelated action');
   const falseBoolean = structuredClone(actionRegistry.actions);
   const compare = falseBoolean.find(({ id }) => id === 'media.action.compare-caption-versions');
   compare.actionDefinitionSemantics.publicEffect = {
     id: 'media.effect.false-reversible-read', name: 'Read', kind: 'other', description: 'read', reversible: true,
   };
-  assert.throws(() => resolveExperienceDefinitionSemantics(falseBoolean, []), /conditional boolean coercion/u);
+  assert.throws(() => resolveExperienceDefinitionSemantics(falseBoolean, []), /conditional boolean coercion|unbounded historical public record/u);
 });

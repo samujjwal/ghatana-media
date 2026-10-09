@@ -48,7 +48,21 @@ test("linked PDP source changes remain stale until their migration item claims a
     const currentHash = hashFile(path);
     assert.ok(pin, `${path} has an existing linked pin`);
     assert.equal(record.pinnedSha256, pin, `${path} pin is not silently refreshed`);
-    assert.equal(record.observedCurrentSha256, currentHash, `${path} current source fingerprint is accurate`);
+    if (path.endsWith('/goals-jtbd.yaml')) {
+      const current = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8'));
+      assert.equal(record.observedCurrentSha256, '74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2', 'preserve prior impact observation');
+      assert.equal(current.currentSha256, currentHash, 'current reviewed measure observation binds exact bytes');
+    } else {
+      const historicalHashes = {
+        '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml': '9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1',
+        '.product-experience/pdp-0-product-truth/constitution.yaml': 'fe10aaf5f79a1b48b38b1cdc1519bb7cdd9db72fdc149e11d235baa683dcce45',
+      };
+      if (historicalHashes[path]) assert.equal(record.observedCurrentSha256, historicalHashes[path], 'retain prior source-impact observation');
+      else assert.equal(record.observedCurrentSha256, currentHash);
+    }
+    const currentObservation = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/linked-pdp-current-fingerprints.json'), 'utf8'));
+    assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash);
+    assert.match(currentObservation.authority, /Does not establish migration semantic parity/);
     assert.notEqual(pin, currentHash, `${path} remains stale pending reconciliation`);
     assert.equal(record.disposition, "keep-stale-needs-claim-level-reconciliation");
     assert.ok(record.changedClaims?.length, `${path} describes its added claims`);
@@ -56,7 +70,10 @@ test("linked PDP source changes remain stale until their migration item claims a
     const spans = record.addedCurrentLineSpan;
     assert.equal(spans[1] - spans[0] + 1, record.addedLines, `${path} records the exact added source line count`);
     const lines = readFileSync(resolve(root, path), "utf8").split("\n");
-    assert.equal(lines[spans[0] - 1].trim(), record.addedBlockHeader, `${path} begins its changed block at the recorded source line`);
+    const currentSource = currentObservation.sources.find(source => source.path === path);
+    assert.deepEqual(currentSource.historicalAddedSpan, spans);
+    assert.equal(currentSource.historicalObservedSha256, record.observedCurrentSha256);
+    assert.equal(lines[currentSource.currentHeaderLine - 1].trim(), record.addedBlockHeader, `${path} current block header has an exact current location`);
     for (let line = spans[0]; line <= spans[1]; line += 1) assert.ok(lines[line - 1]?.trim(), `${path}:${line} exists`);
 
     const citation = record.citedMigrationItems;
@@ -116,7 +133,20 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   assert.deepEqual(goalImpact.additionalCurrentBlocks[0].previousReviewedSpan, [477, 539]);
   assert.equal(goalImpact.additionalCurrentBlocks[0].header, "successMeasureContracts:");
   const goalLines = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"), "utf8").split("\n");
-  assert.equal(goalLines[476], "successMeasureContracts:");
+  // The old span records a prior observation, not the later PXD-081 population.
+  const currentImpact=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/goal-measure-current-impact.json"),"utf8"));
+  assert.equal(currentImpact.decisionRef,".product-experience/decision-log.md#PXD-081");
+  assert.equal(currentImpact.currentSha256,hashFile(currentImpact.source));
+  assert.deepEqual(currentImpact.historicalSuccessMeasureBlock.span,goalImpact.additionalCurrentBlocks[0].span);
+  const [first,last]=currentImpact.currentSuccessMeasureBlock.span;
+  assert.equal(goalLines[first-1],"successMeasureContracts:");
+  assert.equal(last-first+1,currentImpact.currentSuccessMeasureBlock.lineCount);
+  assert.equal(createHash("sha256").update(goalLines.slice(first-1,last).join("\n")+"\n").digest("hex"),currentImpact.currentSuccessMeasureBlock.sha256);
+  const currentMeasures=readYaml(currentImpact.source).successMeasureContracts;
+  assert.equal(currentMeasures.records.length,currentImpact.measurementContracts);
+  assert.equal(currentMeasures.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records.length,currentImpact.normativeApplicabilityDispositions);
+  assert.equal(currentImpact.measurementContracts,4);
+  assert.equal(currentImpact.normativeApplicabilityDispositions,1848);
   assert.equal(goalImpact.additionalCurrentBlocks[0].lineCount, 150);
   assert.equal(goalImpact.additionalCurrentBlocks[0].previousReviewedLineCount, 63);
   assert.match(goalImpact.changedClaims, /NOT_EVALUATED baseline\/qualification/u);

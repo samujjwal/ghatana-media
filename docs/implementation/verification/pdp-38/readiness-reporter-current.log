@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: fixed 38-task scope rejects extras, duplicates and missing tasks
+ok 1 - fixed 38-task scope rejects extras, duplicates and missing tasks
+  ---
+  duration_ms: 2.297345
+  type: 'test'
+  ...
+# Subtest: P0-04 source completion never implies dependency completion or original ledger completion
+ok 2 - P0-04 source completion never implies dependency completion or original ledger completion
+  ---
+  duration_ms: 1.052583
+  type: 'test'
+  ...
+# Subtest: historical complete or failed verification cannot manufacture a current source pass
+ok 3 - historical complete or failed verification cannot manufacture a current source pass
+  ---
+  duration_ms: 0.530206
+  type: 'test'
+  ...
+# Subtest: a successful test on a changing source cut cannot establish current completion
+ok 4 - a successful test on a changing source cut cannot establish current completion
+  ---
+  duration_ms: 1.145629
+  type: 'test'
+  ...
+# Subtest: live counters preserve receipt uncertainty and dynamic source denominator
+ok 5 - live counters preserve receipt uncertainty and dynamic source denominator
+  ---
+  duration_ms: 0.532569
+  type: 'test'
+  ...
+# Subtest: new source obligations remain distinct from the persisted evidence population
+ok 6 - new source obligations remain distinct from the persisted evidence population
+  ---
+  duration_ms: 0.303372
+  type: 'test'
+  ...
+# Subtest: passing a bounded implementation suite never establishes a whole task or specialist acceptance
+ok 7 - passing a bounded implementation suite never establishes a whole task or specialist acceptance
+  ---
+  duration_ms: 0.38233
+  type: 'test'
+  ...
+# Subtest: a reviewed current direct definition criterion remains separate from original task and external acceptance
+ok 8 - a reviewed current direct definition criterion remains separate from original task and external acceptance
+  ---
+  duration_ms: 1.04732
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4231.725644

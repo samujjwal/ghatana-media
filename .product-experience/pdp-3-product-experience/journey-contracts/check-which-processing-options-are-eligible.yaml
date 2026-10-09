@@ -30,25 +30,34 @@ orderedViews:
   - media.view.choose-eligible-processing-option
   - media.view.review-activity
 preconditions:
-  known: Identity, tenant/workspace scope, and diagnostic permissions are verified; profile, capability, provider, license, qualification, and runtime dimensions are distinct.
-  ownerReview: Permission names, capability freshness windows, and dimension authorities require owner review.
+  known: Identity, tenant/workspace scope, and diagnostic permissions are
+    verified; profile, capability, provider, license, qualification, and runtime
+    dimensions are distinct.
+  ownerReview: Permission names, capability freshness windows, and dimension
+    authorities require owner review.
 completion:
-  known: Return a bounded current observation with provenance and explicit unknown or unsupported dimensions; observation does not promise future availability.
-  ownerReview: Response schema, freshness guarantees, and stable reason codes require API and service owner review.
+  known: Return a bounded current observation with provenance and explicit unknown
+    or unsupported dimensions; observation does not promise future availability.
+  ownerReview: Response schema, freshness guarantees, and stable reason codes
+    require API and service owner review.
 terminalSuccess: bounded-current-eligibility-observation-returned
 steps:
-  - stepId: "establish-scope-and-permissions"
+  - stepId: establish-scope-and-permissions
     view: media.view.check-processing-options
+    actionRef: media.action.inspect-effective-processing-constraints
     screenContractRef: screen-contracts/check-processing-options.yaml
     intent: media.intent.check-processing-options
-    label: "establish-scope-and-permissions"
+    label: establish-scope-and-permissions
     stateRefs: []
     surfaceRefs:
-    - media.surface.web
-    - media.surface.public-http
-    - media.surface.cli
-    objectRefs: []
-    canonicalOperationRef: null
+      - media.surface.web
+      - media.surface.public-http
+      - media.surface.cli
+    objectRefs:
+      - media.domain.recipe
+      - media.domain.processing-graph
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.inspect-effective-processing-constraints
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -61,43 +70,46 @@ steps:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-      - stale-capability-data
-      - unavailable-provider
-      - unknown-license-or-qualification
-      - expired-authority
-      - cross-tenant-or-private-content-disclosure-risk
+        - stale-capability-data
+        - unavailable-provider
+        - unknown-license-or-qualification
+        - expired-authority
+        - cross-tenant-or-private-content-disclosure-risk
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
       summary:
         steps:
-        - report-unknown-or-unavailable-dimensions-without-inference
-        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
-        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+          - report-unknown-or-unavailable-dimensions-without-inference
+          - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require
+          policy and service owner review.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-      - requested-profile-and-capability-version
-      - observation-time
-      - deployment-scope
-      - safe-reason-codes
+        - requested-profile-and-capability-version
+        - observation-time
+        - deployment-scope
+        - safe-reason-codes
     requirementRefs: []
     verification:
       requiredChecks:
-      - stale-capability
-      - provider-unavailable
-      - unknown-license
-      - unknown-qualification
-      - expired-authority
-      - tenant-isolation
+        - stale-capability
+        - provider-unavailable
+        - unknown-license
+        - unknown-qualification
+        - expired-authority
+        - tenant-isolation
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -111,19 +123,284 @@ steps:
         - transitionRef
         - handoffRef
         - requirementRefs
-      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-  - stepId: "inspect-profile-and-provider-dimensions"
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0
+      journeyRef: J-30
+      ordinal: 1
+      viewRef: media.view.check-processing-options
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-effective-processing-constraints
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-effective-processing-constraints
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: media.intent.check-processing-options
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - requested-profile-and-capability-version
+            - observation-time
+            - deployment-scope
+            - safe-reason-codes
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.public-http
+          - media.surface.cli
+        objectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-effective-processing-constraints
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks:
+          - stale-capability
+          - provider-unavailable
+          - unknown-license
+          - unknown-qualification
+          - expired-authority
+          - tenant-isolation
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-30
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        operationRef: media.operation.action.inspect-effective-processing-constraints
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+        actionRef: media.action.inspect-effective-processing-constraints
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: bounded-current-eligibility-observation-returned
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-effective-processing-constraints
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        objectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: media.intent.check-processing-options
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.developer-integrator
+          - media.operator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml#purpose
+        actionRef: media.action.inspect-effective-processing-constraints
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.inspect-effective-processing-constraints
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - stepId: inspect-profile-and-provider-dimensions
     view: media.view.check-processing-options
+    actionRef: media.action.inspect-effective-processing-constraints
     screenContractRef: screen-contracts/check-processing-options.yaml
     intent: media.intent.check-processing-options
-    label: "inspect-profile-and-provider-dimensions"
+    label: inspect-profile-and-provider-dimensions
     stateRefs: []
     surfaceRefs:
-    - media.surface.web
-    - media.surface.public-http
-    - media.surface.cli
-    objectRefs: []
-    canonicalOperationRef: null
+      - media.surface.web
+      - media.surface.public-http
+      - media.surface.cli
+    objectRefs:
+      - media.domain.recipe
+      - media.domain.processing-graph
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.inspect-effective-processing-constraints
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -136,43 +413,46 @@ steps:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-      - stale-capability-data
-      - unavailable-provider
-      - unknown-license-or-qualification
-      - expired-authority
-      - cross-tenant-or-private-content-disclosure-risk
+        - stale-capability-data
+        - unavailable-provider
+        - unknown-license-or-qualification
+        - expired-authority
+        - cross-tenant-or-private-content-disclosure-risk
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
       summary:
         steps:
-        - report-unknown-or-unavailable-dimensions-without-inference
-        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
-        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+          - report-unknown-or-unavailable-dimensions-without-inference
+          - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require
+          policy and service owner review.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-      - requested-profile-and-capability-version
-      - observation-time
-      - deployment-scope
-      - safe-reason-codes
+        - requested-profile-and-capability-version
+        - observation-time
+        - deployment-scope
+        - safe-reason-codes
     requirementRefs: []
     verification:
       requiredChecks:
-      - stale-capability
-      - provider-unavailable
-      - unknown-license
-      - unknown-qualification
-      - expired-authority
-      - tenant-isolation
+        - stale-capability
+        - provider-unavailable
+        - unknown-license
+        - unknown-qualification
+        - expired-authority
+        - tenant-isolation
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -186,19 +466,284 @@ steps:
         - transitionRef
         - handoffRef
         - requirementRefs
-      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-  - stepId: "preserve-unknown-or-unavailable-reasons"
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1
+      journeyRef: J-30
+      ordinal: 2
+      viewRef: media.view.check-processing-options
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-effective-processing-constraints
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-effective-processing-constraints
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: media.intent.check-processing-options
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - requested-profile-and-capability-version
+            - observation-time
+            - deployment-scope
+            - safe-reason-codes
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.public-http
+          - media.surface.cli
+        objectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-effective-processing-constraints
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks:
+          - stale-capability
+          - provider-unavailable
+          - unknown-license
+          - unknown-qualification
+          - expired-authority
+          - tenant-isolation
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-30
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        operationRef: media.operation.action.inspect-effective-processing-constraints
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+        actionRef: media.action.inspect-effective-processing-constraints
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: bounded-current-eligibility-observation-returned
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-effective-processing-constraints
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        objectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: media.intent.check-processing-options
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.developer-integrator
+          - media.operator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml#purpose
+        actionRef: media.action.inspect-effective-processing-constraints
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.inspect-effective-processing-constraints
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - stepId: preserve-unknown-or-unavailable-reasons
     view: media.view.check-processing-readiness
+    actionRef: media.action.inspect-effective-processing-constraints
     screenContractRef: screen-contracts/check-processing-readiness.yaml
     intent: media.intent.check-processing-readiness
-    label: "preserve-unknown-or-unavailable-reasons"
+    label: preserve-unknown-or-unavailable-reasons
     stateRefs: []
     surfaceRefs:
-    - media.surface.web
-    - media.surface.public-http
-    - media.surface.cli
-    objectRefs: []
-    canonicalOperationRef: null
+      - media.surface.web
+      - media.surface.public-http
+      - media.surface.cli
+    objectRefs:
+      - media.domain.recipe
+      - media.domain.processing-graph
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.inspect-effective-processing-constraints
     authorityRef: null
     decisionRef: null
     transitionRef: null
@@ -211,43 +756,46 @@ steps:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-      - stale-capability-data
-      - unavailable-provider
-      - unknown-license-or-qualification
-      - expired-authority
-      - cross-tenant-or-private-content-disclosure-risk
+        - stale-capability-data
+        - unavailable-provider
+        - unknown-license-or-qualification
+        - expired-authority
+        - cross-tenant-or-private-content-disclosure-risk
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
       summary:
         steps:
-        - report-unknown-or-unavailable-dimensions-without-inference
-        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
-        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+          - report-unknown-or-unavailable-dimensions-without-inference
+          - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require
+          policy and service owner review.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-      - requested-profile-and-capability-version
-      - observation-time
-      - deployment-scope
-      - safe-reason-codes
+        - requested-profile-and-capability-version
+        - observation-time
+        - deployment-scope
+        - safe-reason-codes
     requirementRefs: []
     verification:
       requiredChecks:
-      - stale-capability
-      - provider-unavailable
-      - unknown-license
-      - unknown-qualification
-      - expired-authority
-      - tenant-isolation
+        - stale-capability
+        - provider-unavailable
+        - unknown-license
+        - unknown-qualification
+        - expired-authority
+        - tenant-isolation
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -261,17 +809,279 @@ steps:
         - transitionRef
         - handoffRef
         - requirementRefs
-      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
-  - stepId: "return-eligible-options-with-provenance"
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2
+      journeyRef: J-30
+      ordinal: 3
+      viewRef: media.view.check-processing-readiness
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-effective-processing-constraints
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-effective-processing-constraints
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: media.intent.check-processing-readiness
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - requested-profile-and-capability-version
+            - observation-time
+            - deployment-scope
+            - safe-reason-codes
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.public-http
+          - media.surface.cli
+        objectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-effective-processing-constraints
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        requiredChecks:
+          - stale-capability
+          - provider-unavailable
+          - unknown-license
+          - unknown-qualification
+          - expired-authority
+          - tenant-isolation
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-30
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        operationRef: media.operation.action.inspect-effective-processing-constraints
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+        actionRef: media.action.inspect-effective-processing-constraints
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: bounded-current-eligibility-observation-returned
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-effective-processing-constraints
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-effective-processing-constraints
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        objectRefs:
+          - media.domain.recipe
+          - media.domain.processing-graph
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-effective-processing-constraints
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: media.intent.check-processing-readiness
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.operator
+          - media.administrator
+          - media.developer-integrator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml#purpose
+        actionRef: media.action.inspect-effective-processing-constraints
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.inspect-effective-processing-constraints
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - stepId: return-eligible-options-with-provenance
     view: media.view.choose-eligible-processing-option
+    actionRef: media.action.select-eligible-processing-profile
     screenContractRef: screen-contracts/choose-eligible-processing-option.yaml
     intent: media.intent.choose-eligible-processing-option
-    label: "return-eligible-options-with-provenance"
+    label: return-eligible-options-with-provenance
     stateRefs: []
     surfaceRefs:
-    - media.surface.web
-    - media.surface.public-http
-    - media.surface.cli
+      - media.surface.web
+      - media.surface.public-http
+      - media.surface.cli
     objectRefs: []
     canonicalOperationRef: null
     authorityRef: null
@@ -286,43 +1096,46 @@ steps:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-      - stale-capability-data
-      - unavailable-provider
-      - unknown-license-or-qualification
-      - expired-authority
-      - cross-tenant-or-private-content-disclosure-risk
+        - stale-capability-data
+        - unavailable-provider
+        - unknown-license-or-qualification
+        - expired-authority
+        - cross-tenant-or-private-content-disclosure-risk
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
       summary:
         steps:
-        - report-unknown-or-unavailable-dimensions-without-inference
-        - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
-        ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+          - report-unknown-or-unavailable-dimensions-without-inference
+          - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+        ownerReview: Fallback decision ownership and exact recheck sequence require
+          policy and service owner review.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-      - requested-profile-and-capability-version
-      - observation-time
-      - deployment-scope
-      - safe-reason-codes
+        - requested-profile-and-capability-version
+        - observation-time
+        - deployment-scope
+        - safe-reason-codes
     requirementRefs: []
     verification:
       requiredChecks:
-      - stale-capability
-      - provider-unavailable
-      - unknown-license
-      - unknown-qualification
-      - expired-authority
-      - tenant-isolation
+        - stale-capability
+        - provider-unavailable
+        - unknown-license
+        - unknown-qualification
+        - expired-authority
+        - tenant-isolation
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -336,7 +1149,234 @@ steps:
         - transitionRef
         - handoffRef
         - requirementRefs
-      reason: Journey-level channels are candidate surface refs only; step-level object/state/operation/authority/decision/transition/handoff/requirement bindings are not declared.
+      reason: Journey-level channels are candidate surface refs only; step-level
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3
+      journeyRef: J-30
+      ordinal: 4
+      viewRef: media.view.choose-eligible-processing-option
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.select-eligible-processing-profile
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Change only the current local draft or selection; keep committed source
+          and versioned objects unchanged until a separately specified commit.
+        reversibilityDisposition: REVERSIBLE
+        finality: local-draft-only; not-a-committed-result
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Change only the current local draft or selection; keep
+          committed source and versioned objects unchanged until a separately
+          specified commit.
+      stepSourceFacts:
+        intent: media.intent.choose-eligible-processing-option
+        result: null
+        success:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        failure:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        degradedBehavior:
+          status: not-specified
+          sourceRef: null
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
+        recovery:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        postconditions:
+          status: candidate-proposal
+          sourceRef: journey.contextPreserved
+          summary:
+            - requested-profile-and-capability-version
+            - observation-time
+            - deployment-scope
+            - safe-reason-codes
+        contextPreservation: null
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+          - media.surface.public-http
+          - media.surface.cli
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        requiredChecks:
+          - stale-capability
+          - provider-unavailable
+          - unknown-license
+          - unknown-qualification
+          - expired-authority
+          - tenant-isolation
+        evidenceRefs: []
+        status: not-run
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-30
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          sourceRef: journey.terminalSuccess
+          summary: bounded-current-eligibility-observation-returned
+        nonhappyBranch:
+          status: candidate-proposal
+          sourceRef: journey.criticalNonhappyPaths
+          summary:
+            - stale-capability-data
+            - unavailable-provider
+            - unknown-license-or-qualification
+            - expired-authority
+            - cross-tenant-or-private-content-disclosure-risk
+        recoveryBranch:
+          status: candidate-proposal
+          sourceRef: journey.recovery
+          summary:
+            steps:
+              - report-unknown-or-unavailable-dimensions-without-inference
+              - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
+            ownerReview: Fallback decision ownership and exact recheck sequence require
+              policy and service owner review.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-eligible-processing-profile
+        actionRef: media.action.select-eligible-processing-profile
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-eligible-processing-profile
+          intendedResult:
+            status: candidate-proposal
+            sourceRef: journey.terminalSuccess
+            summary: bounded-current-eligibility-observation-returned
+          effect: Change only the current local draft or selection; keep committed source
+            and versioned objects unchanged until a separately specified commit.
+          finality: local-draft-only; not-a-committed-result
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-eligible-processing-profile
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-eligible-processing-profile
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: media.intent.choose-eligible-processing-option
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml#purpose
+        actionRef: media.action.select-eligible-processing-profile
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
 criticalNonhappy:
   - stale-capability-data
   - unavailable-provider
@@ -353,7 +1393,8 @@ recovery:
   steps:
     - report-unknown-or-unavailable-dimensions-without-inference
     - allow-fallback-only-after-current-policy-rights-cost-quality-and-locality-checks
-  ownerReview: Fallback decision ownership and exact recheck sequence require policy and service owner review.
+  ownerReview: Fallback decision ownership and exact recheck sequence require
+    policy and service owner review.
 contextAndReturn:
   preserve:
     - requested-profile-and-capability-version
@@ -361,13 +1402,27 @@ contextAndReturn:
     - deployment-scope
     - safe-reason-codes
   additionalFields: pending-owner-review
-contextPreserved: [requested-profile-and-capability-version, observation-time, deployment-scope, safe-reason-codes]
-channelEquivalents: [media.channel.web, media.channel.http-api, media.channel.cli]
+contextPreserved:
+  - requested-profile-and-capability-version
+  - observation-time
+  - deployment-scope
+  - safe-reason-codes
+channelEquivalents:
+  - media.channel.web
+  - media.channel.http-api
+  - media.channel.cli
 operationRefs: []
-operationDisposition: No current OpenAPI operation declares eligibility evaluation; exact API and CLI bindings require owner review.
+operationDisposition: No current OpenAPI operation declares eligibility
+  evaluation; exact API and CLI bindings require owner review.
 fixtureRefs: []
 fixtures: pending-owner-fixture-review
 verification:
-  required: [stale-capability, provider-unavailable, unknown-license, unknown-qualification, expired-authority, tenant-isolation]
+  required:
+    - stale-capability
+    - provider-unavailable
+    - unknown-license
+    - unknown-qualification
+    - expired-authority
+    - tenant-isolation
   ownerReview: capability-policy-and-api-owner-review-pending
 accessibilityRef: media.a11y.baseline

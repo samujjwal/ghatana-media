@@ -16,11 +16,17 @@ const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, re
 const writeJson = (relativePath, value) => fs.writeFileSync(
   path.join(root, relativePath), `${JSON.stringify(value, null, 2)}\n`);
 const stableJson = (value) => `${JSON.stringify(value, null, 2)}\n`;
-const digest = (relativePath) => `sha256:${crypto.createHash('sha256')
+const sourceDigests = new Map();
+const observedDigest = (relativePath) => `sha256:${crypto.createHash('sha256')
   .update(fs.readFileSync(path.join(root, relativePath))).digest('hex')}`;
+const digest = (relativePath) => {
+  if (!sourceDigests.has(relativePath)) sourceDigests.set(relativePath, observedDigest(relativePath));
+  return sourceDigests.get(relativePath);
+};
 const fileAtRef = (reference) => reference.split('#')[0];
 
 const enumeration = enumerateExpectedMediaObligations({ root, parseYaml: parse });
+for (const [sourcePath, fingerprint] of Object.entries(enumeration.sourceDigests)) sourceDigests.set(sourcePath, fingerprint);
 if (enumeration.issues.length) {
   throw new Error(`Cannot enumerate closure source inputs: ${JSON.stringify(enumeration.issues)}`);
 }
@@ -141,6 +147,11 @@ const outputs = new Map([
 ]);
 const drift = [...outputs].filter(([relativePath, value]) =>
   fs.readFileSync(path.join(root, relativePath), 'utf8') !== stableJson(value));
+// Every identity and fingerprint must describe the same source cut. Refuse all
+// writes when a concurrent edit invalidates that cut; never publish mixed inputs.
+for (const [sourcePath, fingerprint] of sourceDigests) {
+  if (observedDigest(sourcePath) !== fingerprint) throw new Error(`Source changed during generation: ${sourcePath}; rerun against a stable cut`);
+}
 if (process.argv.includes('--check')) {
   if (drift.length) {
     console.error(`Lifecycle source-input drift: ${drift.map(([relativePath]) => relativePath).join(', ')}`);

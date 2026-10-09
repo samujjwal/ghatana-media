@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: PDP-3 screen and journey contracts preserve exact registry cross-links
+ok 1 - PDP-3 screen and journey contracts preserve exact registry cross-links
+  ---
+  duration_ms: 13843.979321
+  type: 'test'
+  ...
+# Subtest: PDP-3 coverage preserves historical action counts and exposes current per-step dispositions
+ok 2 - PDP-3 coverage preserves historical action counts and exposes current per-step dispositions
+  ---
+  duration_ms: 1618.042705
+  type: 'test'
+  ...
+# Subtest: PDP-3 cross-link assertions reject stale, orphan, and duplicate references
+ok 3 - PDP-3 cross-link assertions reject stale, orphan, and duplicate references
+  ---
+  duration_ms: 2.297632
+  type: 'test'
+  ...
+# Subtest: PDP-3 actor projection rejects inferred initiators and invented actors
+ok 4 - PDP-3 actor projection rejects inferred initiators and invented actors
+  ---
+  duration_ms: 0.400476
+  type: 'test'
+  ...
+# Subtest: PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
+ok 5 - PDP-3 J-29/J-30 step views use exact owner-selected source contracts and preserve proposal status
+  ---
+  duration_ms: 73.76535
+  type: 'test'
+  ...
+# Subtest: J-02 upload workflow binds exact slices and preserves verification authority
+ok 6 - J-02 upload workflow binds exact slices and preserves verification authority
+  ---
+  duration_ms: 7632.859829
+  type: 'test'
+  ...
+# Subtest: PDP-3 navigation-only steps reject operation placeholders
+ok 7 - PDP-3 navigation-only steps reject operation placeholders
+  ---
+  duration_ms: 0.713873
+  type: 'test'
+  ...
+# Subtest: J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY
+ok 8 - J-01 passive project reads admit only their exact source identity, view, and unadmitted QUERY
+  ---
+  duration_ms: 1.632871
+  type: 'test'
+  ...
+# Subtest: PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
+ok 9 - PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals
+  ---
+  duration_ms: 9060.449142
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 32596.745601

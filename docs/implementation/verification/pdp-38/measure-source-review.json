@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "media.pdp38-measure-source-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-081",
+  "authority": "User-delegated Media semantic definition ownership; coordinator source review",
+  "scope": "1848exact leaf-by-measure applicability records and462nonnormative bindings; original four measure meanings preserved",
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "415e3f3955adf6b6335372e3075a37eb736f81adea4af48c2611674480532789",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "6f68d3a91531c9159390ef3681434e6a239040844b32054d5b955abedf16d90e",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "f789cd21ba06a67ae13aad51e33449d69adcbfbd90e563dcbb1a330f93212e75",
+    "scripts/lib/product-definition-domain-rule-mapping.mjs": "57ddac923609875ea35cd7f36fa8e6e21662b26f907719ac9d3674c1f2fa2b80",
+    "tests/media-measure-applicability-crosswalk.test.mjs": "fae5d535aa0c7aaedaada1aa6d22d3284f61e8e46b3dbe93f46fc3471a8b9051",
+    "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "723605d1b836cd64d6d3387e12ab190723b6408266837d6552fdfe1860a5ee4e"
+  },
+  "candidateCounts": {
+    "media.business.trustworthy-versioned-outputs.measure": 430,
+    "media.business.safe-recoverable-operations.measure": 445,
+    "media.business.bounded-provider-execution.measure": 394,
+    "media.business.reuse-media-capabilities.measure": 462
+  },
+  "actualSourceValidatedPairs": 1848,
+  "verification": {
+    "command": "node --test tests/media-measure-applicability-crosswalk.test.mjs tests/pdp-truth-domain-output-producer-applicability.test.mjs",
+    "passed": 8,
+    "failed": 0,
+    "outputSha256": "65d8f7990ab908965c96baf3b22d16d7f43da85d497d7229a5f6a116994f39b4"
+  },
+  "wholeTaskCriterionEstablished": false,
+  "qualifiedMeasurements": "NOT_EVALUATED",
+  "targets": "NOT_SET",
+  "independentAcceptance": "NOT_EVALUATED",
+  "nativeLifecycleReceipt": null
+}

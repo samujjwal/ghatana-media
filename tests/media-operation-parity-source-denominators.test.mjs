@@ -55,7 +55,12 @@ function candidateIds(surfaceText) {
 function grpcUnresolvedIds(surfaceText) {
   const block = surfaceText.match(/\n    unresolved:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
   return [...block.matchAll(/^      (\w+): \[([^\]]*)\]$/gmu)]
-    .flatMap(([, serviceName, values]) => values.split(",").map((method) => `${serviceName}.${method.trim()}`));
+    .flatMap(([, serviceName, values]) => values.split(",").filter((method) => method.trim()).map((method) => `${serviceName}.${method.trim()}`));
+}
+
+function grpcNonOperationIds(surfaceText) {
+  const block = surfaceText.match(/\n    sourceBackedNonOperationDispositions:\n([\s\S]*?)(?=\n    dispositionCounts:)/u)?.[1] ?? "";
+  return [...block.matchAll(/^        - ([^\n]+)$/gmu)].map(([, id]) => id);
 }
 
 function assertExactPartition(sourceIds, partitionIds, label) {
@@ -68,17 +73,19 @@ test("HTTP and gRPC proposal/unresolved crosswalks partition exact current sourc
   const http = surface("HTTP", "gRPC");
   const httpSource = httpSourceIds(openApi);
   const boundedHttpIds = [...http.matchAll(/^        (\w+): media\.operation-slice\.[^\n]+$/gmu)].map(([, identity]) => identity);
-  const httpCrosswalk = [...candidateIds(http), ...boundedHttpIds, ...inlineList(http, "unresolved")];
+  const httpTransportOnlyIds = [...http.matchAll(/^        - (\w+)$/gmu)].map(([, identity]) => identity);
+  const httpCrosswalk = [...candidateIds(http), ...boundedHttpIds, ...inlineList(http, "unresolved"), ...httpTransportOnlyIds];
   assert.equal(httpSource.length, 27);
   assertExactPartition(httpSource, httpCrosswalk, "HTTP");
 
   const grpc = surface("gRPC", "CLI fixture commands");
   const grpcSource = protoSourceIds(protos);
-  const grpcCrosswalk = [...candidateIds(grpc), ...grpcUnresolvedIds(grpc)];
+  const grpcCrosswalk = [...candidateIds(grpc), ...grpcUnresolvedIds(grpc), ...grpcNonOperationIds(grpc)];
   assert.equal(grpcSource.length, 43);
   assertExactPartition(grpcSource, grpcCrosswalk, "gRPC");
   assert.equal(candidateIds(grpc).length, 17, "the recorded gRPC candidate count remains source-inventory-only");
-  assert.equal(grpcUnresolvedIds(grpc).length, 26, "the recorded gRPC unresolved count remains source-inventory-only");
+  assert.equal(grpcUnresolvedIds(grpc).length, 8, "only profile-adaptation and feedback identities remain semantically unresolved");
+  assert.equal(grpcNonOperationIds(grpc).length, 18, "health/metrics and provider administration retain explicit non-domain role dispositions");
 });
 
 test("HTTP and gRPC source partitions reject stale, missing, and duplicate crosswalk identities", () => {
@@ -86,15 +93,18 @@ test("HTTP and gRPC source partitions reject stale, missing, and duplicate cross
   const sourceIds = protoSourceIds(protos);
   const candidates = candidateIds(grpc);
   const unresolved = grpcUnresolvedIds(grpc);
+  const nonOperation = grpcNonOperationIds(grpc);
   const expectRejected = (ids, reason) => assert.throws(() => assertExactPartition(sourceIds, ids, "gRPC"), reason);
 
-  expectRejected([...candidates, ...unresolved.slice(1)], /covers exactly the source identities/u);
-  expectRejected([...candidates, ...unresolved, "VisionService.StaleMethod"], /covers exactly the source identities/u);
-  expectRejected([...candidates, ...unresolved, candidates[0]], /crosswalk identities are unique/u);
+  expectRejected([...candidates, ...unresolved.slice(1), ...nonOperation], /covers exactly the source identities/u);
+  expectRejected([...candidates, ...unresolved, ...nonOperation, "VisionService.StaleMethod"], /covers exactly the source identities/u);
+  expectRejected([...candidates, ...unresolved, ...nonOperation, candidates[0]], /crosswalk identities are unique/u);
 
   const http = surface("HTTP", "gRPC");
   const httpIds = httpSourceIds(openApi);
-  const httpCrosswalk = [...candidateIds(http), ...inlineList(http, "unresolved")];
+  const boundedHttpIds = [...http.matchAll(/^        (\w+): media\.operation-slice\.[^\n]+$/gmu)].map(([, identity]) => identity);
+  const httpTransportOnlyIds = [...http.matchAll(/^        - (\w+)$/gmu)].map(([, identity]) => identity);
+  const httpCrosswalk = [...candidateIds(http), ...boundedHttpIds, ...inlineList(http, "unresolved"), ...httpTransportOnlyIds];
   assert.throws(() => assertExactPartition(httpIds, httpCrosswalk.slice(1), "HTTP"), /covers exactly the source identities/u);
   assert.throws(() => assertExactPartition(httpIds, [...httpCrosswalk, "staleHttpOperation"], "HTTP"), /covers exactly the source identities/u);
   assert.throws(() => assertExactPartition(httpIds, [...httpCrosswalk, httpCrosswalk[0]], "HTTP"), /crosswalk identities are unique/u);

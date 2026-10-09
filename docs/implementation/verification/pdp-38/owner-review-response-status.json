@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "media.pdp-owner-review-response-observation.v1",
+  "scope": "PDP-0 through PDP-3 only",
+  "method": "Read issue comments; coordinator requests are not independent decisions",
+  "requests": [
+    {
+      "repository": "samujjwal/ghatana-media",
+      "issue": 4,
+      "url": "https://github.com/samujjwal/ghatana-media/issues/4",
+      "commentAuthors": [
+        "samujjwal"
+      ],
+      "independentApproval": null,
+      "phaseReceipt": null,
+      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+    },
+    {
+      "repository": "samujjwal/ghatana-shared",
+      "issue": 242,
+      "url": "https://github.com/samujjwal/ghatana-shared/issues/242",
+      "commentAuthors": [],
+      "independentApproval": null,
+      "phaseReceipt": null,
+      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+    },
+    {
+      "repository": "samujjwal/ghatana-tools",
+      "issue": 31,
+      "url": "https://github.com/samujjwal/ghatana-tools/issues/31",
+      "commentAuthors": [],
+      "independentApproval": null,
+      "phaseReceipt": null,
+      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+    },
+    {
+      "repository": "samujjwal/ghatana-lifecycle",
+      "issue": 1,
+      "url": "https://github.com/samujjwal/ghatana-lifecycle/issues/1",
+      "commentAuthors": [
+        "samujjwal"
+      ],
+      "independentApproval": null,
+      "phaseReceipt": null,
+      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+    },
+    {
+      "repository": "samujjwal/ghatana-shared",
+      "issue": 234,
+      "url": "https://github.com/samujjwal/ghatana-shared/issues/234",
+      "commentAuthors": [
+        "samujjwal"
+      ],
+      "independentApproval": null,
+      "phaseReceipt": null,
+      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+    }
+  ],
+  "nonClaims": [
+    "No reviewer competence or independence inferred from an issue account",
+    "No qualified review approval",
+    "No public artifact owner admission",
+    "No native Lifecycle phase receipt"
+  ],
+  "observedAt": "2026-10-09T07:10:19.128883+00:00"
+}

@@ -191,7 +191,7 @@ journeys:
 coverageRule: Every-required-journey-needs-a-complete-channel-contract; the J-03 lane
   contract does not pass full PDP-3 acceptance.
 coverageObservation:
-  status: source-inventory-only; semantic-acceptance-pending
+  status: HISTORICAL_SOURCE_INVENTORY_SUPERSEDED_BY_CURRENT_STEP_BINDING_OBSERVATION; NOT_CURRENT
   journeyContractCount: 30
   orderedStepCount: 130
   stepBindings:
@@ -247,6 +247,45 @@ coverageObservation:
       registry; J-01 and J-03 have bounded source-defined steps linked to existing
       operations, while runtime admission, independent review, behavioral evidence
       and currentness remain pending.
+  historicalObservationDisposition:
+    priorStepActionBindingCount: 18
+    priorUnresolvedStepActionBindingCount: 112
+    supersededBy: currentStepBindingObservation
+    meaning: This is a preserved earlier source snapshot, not a claim about the current 130-step contract population.
+currentStepBindingObservation:
+  status: CURRENT_SOURCE_INVENTORY_ONLY; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
+  sourceRefs:
+    journeyContracts: .product-experience/pdp-3-product-experience/journey-contracts
+    stepSemanticDefinitions: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml
+  journeyContractCount: 30
+  orderedStepCount: 130
+  actionDispositionCounts:
+    exactSourceActionRef: 120
+    ownerDefinedActionRef: 1
+    explicitUnselectedChoiceSet: 5
+    passiveCanonicalQueryWithoutActionDispatch: 1
+    explicitNoDispatchObservationOrGate: 3
+    unresolvedStepActionBinding: 0
+  canonicalBindingPopulation:
+    surfaceRefsNonempty: 123
+    objectRefsNonempty: 89
+    stateRefsNonempty: 23
+    primaryCanonicalOperationRefNonNull: 93
+    primaryCanonicalOperationRefNull: 37
+    authorityRefsNonempty: 79
+    singularAuthorityRefNonNull: 11
+    transitionRefNonNull: 2
+    requirementRefsNonempty: 37
+    scenarioRefsNonempty: 19
+  actionSemanticRoleCounts:
+    DOMAIN_OPERATION: 92
+    LOCAL_SELECTION_OR_SESSION_DRAFT: 27
+    EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION: 1
+    NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE: 3
+    ORDERED_DOMAIN_WORKFLOW: 1
+    EXPLICIT_ACTION_CHOICE: 5
+    PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH: 1
+  acceptanceBoundary: Source counts describe authored bindings only. They do not establish independent PDP-3 acceptance, runtime operation admission, current authority evidence, successful execution, or Lifecycle receipt.
   scenarioReferences:
     journeysWithRefs: 3
     journeysWithoutRefs: 27

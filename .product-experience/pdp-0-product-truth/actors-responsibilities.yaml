@@ -105,6 +105,17 @@ ownershipRules:
       contractOwner: { repository: samujjwal/ghatana-media, path: .product-experience/pdp-1-domain-data }
       bindingStatus: PDP-1-records-are-proposal-only; owner-review-pending
       sourceRefs: [.product-experience/pdp-1-domain-data/states.yaml#/authorityStatus, .product-experience/pdp-1-domain-data/transitions.yaml#/authorityStatus]
+wireCompatibilityPreservationRule:
+  id: media.actor.wire-compatibility-preservation
+  rule: >-
+    During behavior-preserving relocation, retain only wire contracts shown by source evidence to be currently supported.
+    An exact compatibility binding accounts for request and result field identity, type, presence and bounds; enum and error
+    behavior; units and time bases; authority and delegation; idempotency, cancellation and finality; and the supported
+    route and version. Reconcile each canonical operation through an explicit adapter and compatibility tests before
+    admitting a new public contract or replacing a supported path.
+    Any field, unit, authority or outcome that cannot be preserved is an explicit compatibility gap with a declared loss or
+    versioned adapter; do not silently redesign the wire contract or infer support from a similar name.
+  scopeStatus: OWNER_DEFINED_RELOCATION_RULE; no current external wire contract, adapter, or compatibility test is admitted here.
 principals:
 - id: media.principal.human-user
   kind: human

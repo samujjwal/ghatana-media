@@ -16,6 +16,10 @@ acceptancePolicy:
   allRequirementsRequireHumanReview: true
   missingRoleAssignmentMeans: review-required
   evidenceOfSourcePresenceIsNotAcceptance: true
+productMission:
+  source: docs/migration/expert-reviewed-master-plan.md#2.2-product-mission
+  statement: Ghatana Media combines deterministic DSP/computer vision, procedural graphics, simulation and specialized AI/ML while preserving user intent, rights, privacy and predictable costs.
+  interpretation: These are complementary Media mechanisms and policy constraints; no mechanism is mandatory for every capability, and no statement here grants runtime, provider, or qualification admission.
 domainRules:
   status: bounded-media-owner-rules-mapped-under-PXD-035; P0-010-independent-review-pending
   rule: >-
@@ -108,6 +112,7 @@ invariants:
       sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/3, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/0, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/1]
     - id: MEDIA-INV-002
       statement: User attestation is not verified consent or license.
+      separateEligibilityEvaluation: Evaluate consent evidence and license eligibility separately; neither implies the other and both are checked against the exact operation, purpose, profile, and effect scope.
       violation: Do not admit governed processing or distribution when required consent or license evidence is absent, expired, revoked, or unverified; return blocked or review-required with the reason.
       sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/8, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/9, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/2]
     - id: MEDIA-INV-003
@@ -116,10 +121,14 @@ invariants:
       sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/independentGovernanceAxes/1, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/3, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/1]
     - id: MEDIA-INV-004
       statement: Model-generated content or assertions cannot authorize themselves.
+      untrustedContentBoundary: Untrusted user or model content cannot modify system policy, select privileged tools, or exfiltrate other assets; privileged effects require separately authorized host policy and a current effect-boundary decision.
       violation: Reject model output as approval or privileged authority; require current policy and a separately authorized decision at the effect boundary.
       sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/4, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/privilegedEffects]
     - id: MEDIA-INV-005
       statement: Required audit intent must be recorded before crossing an external effect boundary.
+      auditDurabilityDistinction: Required durable audit intent is an effect precondition; optional debug telemetry and observability are distinct and may degrade only where the exact operation policy permits. A telemetry record cannot substitute for required audit intent.
+      diagnosticDeliveryGuaranteeRule: An ambient or best-effort label specifies no delivery, ordering, persistence, or durability guarantee. State the exact guarantee and sink for any required audit/effect intent; remote sink lag is a diagnostic delivery condition and does not determine the business outcome.
+      diagnosticFailureRule: Best-effort bounded diagnostics may be delayed, dropped, or unavailable without changing the business outcome. Diagnostic failure cannot replace, satisfy, or weaken required durable audit intent; if that required intent cannot be recorded before the effect, block the effect.
       violation: Do not dispatch or publish when required audit intent cannot be recorded; if an effect may already have occurred, preserve outcome uncertainty and do not replay to repair the audit record.
       sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/platformMechanics/audit, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/invariants/8, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/adversarialAcceptanceCases/8]
     - id: MEDIA-INV-006
@@ -155,6 +164,11 @@ normativeRecordContract:
     - qualification
     - runtimeAvailability
     - licenseAdmission
+contractRealizationRule:
+  id: media.constitution.contract-realization
+  rule: Generate types and transport mappings from the accepted owner contract where the ecosystem supports generation, and preserve runtime response validation at every consumer boundary.
+  boundary: Code generation does not replace runtime response validation, canonical contract ownership, or transport compatibility review.
+  scopeStatus: definition-only; generator support and consumer enforcement remain unverified
   knownGaps:
     - >-
       The constitutional entries below currently provide a statement, role
@@ -358,3 +372,20 @@ requirements:
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-5"]
+
+ownerDefinedExperienceRules:
+  authorityStatus: Media-owner authored PDP-0 definitions; independent review and phase acceptance remain pending.
+  nativeProtectionAndQuality:
+    requirement: >-
+      Every normal product path applies the protections required by policy and
+      verifies applicable media structure and quality before reporting success.
+      User complexity settings cannot disable or weaken these protections or
+      quality checks.
+    sourceBasis: master-plan:section-4; exact source claim MPSEM-0002-C004
+  progressiveComplexity:
+    requirement: >-
+      A person can act on intent and outcome without choosing models, queues,
+      engines, or infrastructure. Simple, Guided, and Expert expose progressively
+      deeper controls over one semantic model and the same actions and state;
+      ordinary product outcomes do not require Expert controls.
+    sourceBasis: master-plan:section-4; exact source claim MPSEM-0002-C004

@@ -2,6 +2,11 @@ schemaVersion: media.accessibility-language.v1
 productId: media
 authority: Media-specific accessibility contracts over Shared primitives
 status: authored-proposal; accessibility-specialist-and-P0-010-review-pending
+mediaOwnerDefinitionDecision:
+  status: MEDIA_OWNER_ACCEPTED_REQUIREMENTS_ONLY
+  authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate
+  scope: WCAG 2.2 AA as the graphical review target and the keyboard, focus, non-color, reflow, reduced-motion, forced-color, and nonvisual-equivalent requirements below
+  excludes: [independent-conformance-finding, screen-reader-acceptance, Shared-component-accessibility-approval, phase-acceptance]
 reviewTarget: WCAG-2.2-AA-for-graphical-and-web-experiences; EN-301-549-where-applicable
 selectedPolicy:
   decision: delegated-Media-product-owner-standard-selection
@@ -45,6 +50,8 @@ requirements:
   - Captions and transcripts remain readable at 200-percent text and supported reflow sizes.
   - Reduced-motion preferences remove decorative movement without hiding state or progress.
   - Forced-colors mode preserves source/derived distinctions, selection, focus, and error meaning.
+  - System color keywords and native semantic controls remain the fallback when Shared theme colors are unavailable or overridden; forced-color-adjust must not suppress user-selected system colors without a reviewed reason.
+  - Motion preferences remove decorative component transitions and movement while preserving explicit state, progress, and focus indication.
   - Localized labels and caption content remain separate from stable reason codes and machine fields.
 verificationEvidenceRequired:
   - keyboard-only-observation

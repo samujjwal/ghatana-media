@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: PDP-2 reuse audit counts match the executable UI inventory
+ok 1 - PDP-2 reuse audit counts match the executable UI inventory
+  ---
+  duration_ms: 91.662398
+  type: 'test'
+  ...
+# Subtest: PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
+ok 2 - PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
+  ---
+  duration_ms: 61.438006
+  type: 'test'
+  ...
+# Subtest: PDP-2 family crosswalk binds only source-exact public component exports and consumers
+ok 3 - PDP-2 family crosswalk binds only source-exact public component exports and consumers
+  ---
+  duration_ms: 258.144976
+  type: 'test'
+  ...
+# Subtest: PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
+ok 4 - PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
+  ---
+  duration_ms: 23.527404
+  type: 'test'
+  ...
+# Subtest: all 31 Media component families have an exact export or an explicit contract-only disposition
+ok 5 - all 31 Media component families have an exact export or an explicit contract-only disposition
+  ---
+  duration_ms: 3.717461
+  type: 'test'
+  ...
+# Subtest: screen candidates, partial Shared reuse, and similar component exports never become family equivalence
+ok 6 - screen candidates, partial Shared reuse, and similar component exports never become family equivalence
+  ---
+  duration_ms: 2.44488
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 554.052505

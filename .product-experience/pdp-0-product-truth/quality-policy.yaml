@@ -63,6 +63,66 @@ assessmentContract:
       objective/weights, missing-value behavior, uncertainty handling, and
       owner review. It cannot convert an abstention or hard-gate failure into
       an eligible candidate.
+learnedModelQualification:
+  rule: >-
+    A learned quality model is not usable as a general quality authority until
+    it has a declared evaluation and calibration scope covering the relevant
+    domain, language, style, task, and content distribution. Out-of-scope or
+    shifted inputs require abstention or an explicit not-evaluated disposition.
+  nonOverride: >-
+    A learned or aesthetic score cannot override identity, speech meaning,
+    physics/domain validity, rights, safety, source preservation, or delivery
+    hard constraints.
+  evidenceRequired: [method-and-model-version, evaluation-protocol, domain-language-style-strata, uncertainty, abstention-analysis]
+  status: definition-only; specialist-review-and-qualification-pending
+preservationSensitiveEnhancementRule:
+  id: media.quality.preservation-sensitive-enhancement
+  rule: >-
+    Face restoration and generative super-resolution may reconstruct or alter identity-bearing detail; increased sharpness
+    or pixel dimensions do not establish recovery of the original person's identity or historical detail. Preserve the
+    source as an immutable version and disclose that generated or reconstructed detail is uncertain, including the
+    operation, model/version, affected region, reference and known preservation limits where available. Compare the result
+    against its exact source/reference and never replace or represent the source as recovered truth without applicable
+    evidence and authorized review.
+  scopeStatus: DEFINITION_ONLY; preservation policy and specialist evidence review remain open; no model is qualified.
+personAndIdentityInferenceRule:
+  id: media.quality.person-identity-inference
+  rule: >-
+    An estimator's identity, emotion, demographic, gaze, or other person-related label is an inference, not an established
+    fact about a person. Report the method/model identity and version, evidence/reference, applicable scope, uncertainty,
+    and known limitations; abstain when the evidence is ambiguous, out of scope, or lacks required authority. Anonymous
+    track identity does not identify a person, and diarization alone does not establish speaker identity. Do not assert
+    ground truth from a model label or promote it to a person record without separate authorization and evidence.
+  scopeStatus: DEFINITION_ONLY; identity/biometric applicability, specialist review, and qualification remain open.
+qualificationScopeIdentity:
+  id: media.quality.qualification-scope-identity
+  status: owner-definition-only; specialist-review-and-qualification-pending; qualification-not-evaluated
+  exactTuple:
+    requiredFields:
+      - metricRef
+      - metricVersion
+      - domainRef
+      - providerRef
+      - methodRef
+      - methodVersion
+      - modelRef
+      - modelVersion
+      - applicabilityScopeRef
+      - calibrationScopeRef
+      - calibrationVersion
+  semantics:
+    - A qualification statement is scoped to the full exact tuple; a metric or provider label alone does not transfer qualification.
+    - Any changed or missing tuple member makes the prior qualification inapplicable to the new assessment and requires NOT_EVALUATED or an explicit abstention until reviewed evidence covers the exact tuple.
+    - Applicability scope includes the declared modality, task, domain/content distribution, language or style where relevant, input range, preprocessing/color/time pipeline, and intended use.
+    - Method and model identity include immutable version or digest; mutable aliases and an unversioned provider name are insufficient.
+    - Calibration and benchmark evidence must identify its exact versions, protocol, population and uncertainty; this definition does not assert that evidence exists or that any tuple is qualified.
+  nonClaims:
+    - no-measured-qualification
+    - no-provider-or-model-admission
+    - no-runtime-availability
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/quality-policy.yaml#assessmentContract
+    - .product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions
 qualityDimensions:
   - id: QUALITY-DIM-STRUCTURAL-VALIDITY
     name: structural-validity
@@ -326,6 +386,31 @@ continuityPolicy:
     - Selective frame/region repair is inapplicable unless the admitted provider and temporal compositor support it for the exact context window.
   capabilityRefs: []
   capabilityRefState: pending-P0-003-integration
+deliveryCompatibilityPolicy:
+  id: media.quality.delivery-compatibility
+  authority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  scope: Definition-only contract for evaluating a requested delivery target and selecting an explicitly allowed fallback.
+  targetBinding:
+    required: [versionedProfileRef, codec, container, playerOrConsumerContract, deliveryMode, declaredConstraints]
+    unknownTarget: abstain-and-report-compatibility-unknown
+    noImplicitSupport: Codec, container, player, color, caption, timing, and device names do not establish compatibility or qualification.
+  evaluation:
+    require: [profile-bound-validator-or-qualified-consumer-evidence, exact-output-constraints, applicable-rights-and-policy]
+    result: report-compatible-incompatible-or-unknown-per-declared-target-dimension-with-evidence-and-limitations
+    noSilentDowngrade: true
+  fallback:
+    order: explicit-versioned-profile-order-only
+    require: [declared-allowed-change, preserved-semantic-properties, minimum-quality-floor, current-policy, explicit-confirmation-when-required]
+    prohibit: [unlisted-codec-or-container-substitution, automatic-change-to-protected-delivery-property, claim-of-compatible-player-without-consumer-evidence]
+    unknownDisposition: do-not-select-fallback-and-report-which-target-facts-are-missing
+  negativeCases:
+    - profile-name-matches-codec-but-container-or-player-contract-is-unknown
+    - fallback-would-violate-declared-caption-timing-or-quality-floor
+    - validator-does-not-cover-target-device-or-delivery-mode
+    - automatic-resolution-reduction-without-profile-permission-and-required-confirmation
+  qualificationStatus: NOT_EVALUATED
+  runtimeAdmission: NOT_ADMITTED
+  acceptanceEffect: none
 automaticOperationAdmission:
   id: QUALITY-AUTO-OP-ADMISSION
   defaultMode: recommend-or-plan-only
@@ -347,6 +432,16 @@ optimizationPolicy:
   id: QUALITY-OPT-BOUNDED-001
   status: definition-only-not-executable
   purpose: Propose and compare bounded repair or regeneration candidates without changing user-selected source/revision or effect authority.
+  defaultEnhancerApplicationRule:
+    disposition: never-apply-every-enhancer-by-default
+    candidateSelection: Analyze the exact input and requested outcome; include only individually applicable, authorized, profile-bounded operations whose required evidence and quality floor are available.
+    planning: Generate a bounded candidate plan and its expected changes before any application when the requested action is an optimization or repair plan.
+    execution: Applying a candidate remains a separate explicit operation subject to the existing policy, rights, resource, fidelity, and confirmation gates.
+    negativeCases:
+      - An enhancer is not selected merely because it exists in the pipeline or capability inventory.
+      - Missing applicability evidence, qualification, or a required floor excludes the candidate; do not substitute an automatic default.
+      - A plan or ranking does not mutate the selected source/revision or authorize execution.
+    sourceClaimRef: MPSEM-0204-C001
   permittedModes: [plan-only, apply-after-explicit-policy-and-user-authorization]
   concreteLimits:
     maximumCandidateCount: null

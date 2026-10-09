@@ -17,6 +17,8 @@ import { fileURLToPath } from "node:url";
 import { validateBusinessMeasureDefinitions, resolveAcceptedDomainRuleRecords } from "./lib/product-definition-domain-rule-mapping.mjs";
 
 import { resolveExperienceDefinitionSemantics } from "./lib/media-experience-definition-mapping.mjs";
+import { validateMediaPublicTaxonomyCandidates } from "./lib/media-public-taxonomy-candidates.mjs";
+import { validateTypedComponentContracts } from "./lib/pdp-design-composition-validator.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const toolsRequire = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -38,10 +40,13 @@ async function loadContract(packageName, sourcePackage, entrypoint) {
     };
   }
 }
-const [experienceLanguageContract, experienceSpecificationContract] = await Promise.all([
+const [experienceLanguageContract] = await Promise.all([
   loadContract("@ghatana/experience-language", "experience-language", "src/index.ts"),
-  loadContract("@ghatana/experience-specification", "experience-specification", "src/index.ts"),
 ]);
+const experienceSpecificationContract = {
+  module: await import(new URL(`file://${resolve(contractSourceRoot, "experience-specification", "src/index.ts")}`)),
+  binding: "sibling public source entrypoint; installed snapshot may predate enum source contract",
+};
 // ProductDefinition's local public source includes X-01's optional timestamps
 // and plural journey actors. The installed package can lag this source until
 // publication, so validate the source API and retain installed-artifact
@@ -52,6 +57,8 @@ const productDefinitionContract = {
 };
 const checkOnly = process.argv.includes("--check");
 const strict = process.argv.includes("--strict");
+const onlyDefinitionArg = process.argv.find((argument) => argument.startsWith("--only="));
+const onlyDefinition = onlyDefinitionArg?.slice("--only=".length);
 const businessIntentMeasureId = (businessIntentId) => `${businessIntentId}.measure`;
 
 const definitions = [
@@ -397,6 +404,8 @@ const definitions = [
       const recipeChainReview = content(".product-experience/pdp-2-design-interface-system/gui/recipe-chain-review.yaml");
       const componentBindings = content(".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml");
       const componentContracts = content(".product-experience/pdp-2-design-interface-system/component-contracts.yaml");
+      const componentErrors = validateTypedComponentContracts(root, componentContracts.components);
+      if (componentErrors.length) throw new Error(`Typed Media component contract validation failed: ${componentErrors.join("; ")}`);
       const navigation = content(".product-experience/pdp-3-product-experience/navigation-contracts.yaml");
       const templateIds = new Set((templates.templates ?? []).map((template) => template.id));
       const patternIds = new Set((patterns.patterns ?? []).map((pattern) => pattern.id));
@@ -645,6 +654,8 @@ const definitions = [
       ".product-experience/pdp-3-product-experience/screen-registry.yaml",
       ".product-experience/pdp-3-product-experience/journey-registry.yaml",
       ".product-experience/pdp-3-product-experience/action-registry.yaml",
+      ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
+      ".product-experience/pdp-1-domain-data/operations.yaml",
       ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
       ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
       ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
@@ -669,6 +680,10 @@ const definitions = [
       const screenRegistry = content(".product-experience/pdp-3-product-experience/screen-registry.yaml");
       const journeys = content(".product-experience/pdp-3-product-experience/journey-registry.yaml");
       const actions = content(".product-experience/pdp-3-product-experience/action-registry.yaml");
+      const publicTaxonomy = content(".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml");
+      const domainOperations = content(".product-experience/pdp-1-domain-data/operations.yaml");
+      const actionRecords = [...(actions.actions ?? []), ...(actions.ownerDefinedActions ?? [])];
+      if (new Set(actionRecords.map(action => action.id)).size !== actionRecords.length) throw new Error("Duplicate action identity across observed and owner-defined action collections");
       const interactions = content(".product-experience/pdp-3-product-experience/interaction-registry.yaml");
       const channels = content(".product-experience/pdp-3-product-experience/application-channel-registry.yaml");
       const recovery = content(".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml");
@@ -799,8 +814,9 @@ const definitions = [
           stateRefs: [],
         })),
       ];
-      const definedSemantics = resolveExperienceDefinitionSemantics(actions.actions ?? [], recovery.contracts ?? []);
-      const candidateActions = (actions.actions ?? []).map((action) => ({
+      validateMediaPublicTaxonomyCandidates({ taxonomy: publicTaxonomy, actions, operations: domainOperations });
+      const definedSemantics = resolveExperienceDefinitionSemantics(actionRecords, recovery.contracts ?? [], publicTaxonomy);
+      const candidateActions = actionRecords.map((action) => ({
         id: action.id,
         name: action.label,
         kind: "user",
@@ -820,7 +836,7 @@ const definitions = [
       const stateIds = new Set(allStates.map((state) => state.id));
       const linkedScenarioIds = new Set([
         ...journeyContracts.flatMap((journey) => journey.scenarioRefs ?? []),
-        ...(actions.actions ?? []).flatMap((action) => action.scenarioRefs ?? []),
+        ...actionRecords.flatMap((action) => action.scenarioRefs ?? []),
       ]);
       const fixtureByScenarioId = new Map((scenarioFixtures.fixtures ?? []).map((fixture) => [fixture.id, fixture]));
       const bindingsByScenarioId = new Map((experienceBindings.scenarioStartingStateBindings ?? []).map((binding) => [binding.scenarioRef, binding]));
@@ -857,7 +873,7 @@ const definitions = [
         allowedProposal: contract.allowed,
         blockedProposal: contract.blocked,
       }));
-      const legacyFinalityMappings = (actions.actions ?? [])
+      const legacyFinalityMappings = actionRecords
         .filter((action) => typeof action.finality === "string" && typeof action.reversible === "boolean"
           && typeof action.confirmation === "string"
           && /require a separate explicit confirmation before dispatch/iu.test(action.confirmation))
@@ -893,15 +909,20 @@ const definitions = [
           id: component.id,
           name: component.id,
           semanticPurpose: component.purpose,
-          requiredProps: component.requiredProps ?? [],
+          // PXD-083 approves candidate required-prop mapping for the exact
+          // 28-family Media-owned formal-schema population. This is source
+          // projection only; public implementation and admission remain open.
+          requiredProps: component.typedDefinition
+            ? component.typedDefinition.props.filter((prop) => prop.required === true).map((prop) => prop.name)
+            : component.requiredProps ?? [],
         })),
         views: screens,
         journeys: projectedJourneys,
-        interactions: (interactions.interactions ?? []).filter((interaction) => actions.actions?.some((action) => action.id === interaction.effectRef)).map((interaction) => ({
+        interactions: (interactions.interactions ?? []).filter((interaction) => actionRecords.some((action) => action.id === interaction.effectRef)).map((interaction) => ({
           id: interaction.id,
           name: interaction.id,
           trigger: interaction.input,
-          preconditions: actions.actions.find((action) => action.id === interaction.effectRef)?.preconditions ?? [],
+          preconditions: actionRecords.find((action) => action.id === interaction.effectRef)?.preconditions ?? [],
           actionRef: interaction.effectRef,
         })),
         states: allStates,
@@ -927,22 +948,22 @@ const definitions = [
         updatedAt: generatedAt,
         _mappingReview: {
           generationTimestampSemantics: "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
-            mappedFields: ["id", "subjectId", "schemaVersion", "contextDimensions", "renderTargets", "componentContracts", "views", "journeys", "interactions", "states", "actions", "recovery", "scenarios", "fixtures", "search", "inspections", "createdAt", "updatedAt"],
+            mappedFields: ["id", "subjectId", "schemaVersion", "contextDimensions", "renderTargets", "componentContracts", "views", "journeys", "interactions", "states", "actions", "effects", "finality", "recovery", "scenarios", "fixtures", "search", "inspections", "createdAt", "updatedAt"],
           fieldDispositions: {
             id: { status: "DETERMINISTIC_CANDIDATE_IDENTIFIER", source: "projection generator" },
             subjectId: { status: "DIRECT_SOURCE_COPY", source: "screen-registry.yaml#productId" },
             schemaVersion: { status: "PUBLIC_CONTRACT_CONSTANT", source: "@ghatana/experience-specification" },
             contextDimensions: { status: "DIRECT_PROPOSAL_MAPPING", source: "application-channel-registry.yaml#channels" },
             renderTargets: { status: "DIRECT_PROPOSAL_MAPPING", source: "application-channel-registry.yaml#channels" },
-            componentContracts: { status: "PARTIAL_DIRECT_MAPPING; EXACT_PROPS_FOR_SOURCE_BOUND_SUBSET", source: "component-contracts.yaml#components[].requiredProps; components[].propsSourceRef" },
+            componentContracts: { status: "PXD-083-BOUNDED-MEDIA-SOURCE-REQUIRED-PROP-CANDIDATES; PUBLIC-IMPLEMENTATION-AND-ADMISSION-SEPARATE", source: "component-contracts.yaml#components[].typedDefinition.props; component-value-types.yaml#/$defs; exact 28-family denominator enforced by validateTypedComponentContracts" },
       views: { status: "DIRECT_IDENTITY_PURPOSE_COMPONENT_AND_JOURNEY_REF_MAPPING; PDP1_STATE_REFS_PENDING", source: "screen-registry.yaml#screens,laneViews,journeyRefs; screen-contracts/*.yaml#componentIds" },
             journeys: { status: `PARTIAL_SOURCE_PROJECTION_${projectedJourneys.length}_OF_${(journeys.journeys ?? []).length}_JOURNEYS_${projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0)}_OF_${p3Steps}_STEPS; OWNER_REVIEW_PENDING`, source: "journey-registry.yaml#journeys; journey-contracts/*.yaml#steps; pdp-0-product-truth/journey-actor-resolutions.yaml#journeys; journey-catalog.yaml#journeys; goals-jtbd.yaml#outcomes; screen-registry.yaml#screens,laneViews" },
             interactions: { status: "DIRECT_INTERACTION_AND_ACTION_PRECONDITION_MAPPING", source: "interaction-registry.yaml#interactions; action-registry.yaml#actions[].preconditions" },
             states: { status: "DIRECT_PDP-0_STATE_PROPOSAL_MAPPING; PDP-1_RECONCILIATION_AND_OWNER_ACCEPTANCE_PENDING", source: "state-models.yaml#models[].states; pdp-1-domain-data/states.yaml#stateMachines" },
             transitions: { status: "BLOCKED_CANONICAL_ACTION_AND_GUARD_BINDINGS", source: "state-models.yaml#models[].transitions" },
-            actions: { status: "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED", source: "action-registry.yaml#actions" },
-            effects: { status: "DIRECT_EXPLICIT_UNCONDITIONAL_DEFINITION_SUBSET; REMAINDER_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED", source: "action-registry.yaml#actions[].actionDefinitionSemantics.publicEffect" },
-            finality: { status: "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED", source: "action-registry.yaml#actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible" },
+            actions: { status: "DIRECT_UI_PROPOSAL_MAPPING; 144 BOUNDED PUBLIC TAXONOMY CANDIDATES; THREE HISTORICAL PUBLIC IDS PRESERVED; TWO SHARED HANDOFFS AND RECONNECT UNMAPPED", source: "action-registry.yaml#actions and #ownerDefinedActions; public-effect-finality-taxonomy.yaml#records" },
+            effects: { status: "144 BOUNDED ENUM CANDIDATES PLUS THREE HISTORICAL RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING", source: "public-effect-finality-taxonomy.yaml#records[].publicEffectCandidate" },
+            finality: { status: "144 BOUNDED ENUM CANDIDATES PLUS THREE HISTORICAL RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING", source: "public-effect-finality-taxonomy.yaml#records[].publicFinalityCandidate" },
             recovery: { status: recoveryMappingComplete ? "OWNER_ACCEPTED_DEFINITION_RECORDS; RUNTIME_AND_INDEPENDENT_ACCEPTANCE_NOT_ADMITTED" : "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED", source: "recovery-finality-contracts.yaml#contracts[].definitionSemantics.publicRecovery; experience-source-bindings.yaml#recoveryCrossReferences" },
             scenarios: { status: "DIRECT_LINKED_FIXTURE_AND_CANONICAL_START_STATE_SUBSET; CONTEXT_AND_REMAINDER_UNRESOLVED", source: "scenario-fixture-registry.yaml#fixtures; experience-source-bindings.yaml#scenarioStartingStateBindings; journey-contracts/*.yaml#scenarioRefs; state-models.yaml#models[].states" },
             fixtures: { status: "DIRECT_SCENARIO_AND_SOURCE_SEED_REFERENCE_SUBSET; INLINE_PAYLOAD_AND_REMAINDER_UNRESOLVED", source: "scenario-fixture-registry.yaml#fixtures; libs/media-experience-simulation/src/fixtures.ts" },
@@ -998,7 +1019,7 @@ const definitions = [
             remainingGap: journeyProjectionBlocker,
           },
           ownerDecisionStatus: "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
-          definitionSemantics: { projectedEffects: definedSemantics.effects.length, projectedExplicitFinality: definedSemantics.finality.length, conditionalOrUnknownActions: definedSemantics.conditionalActions, projectedRecoveries: definedSemantics.recoveries.length, recoverySourceCount: (recovery.contracts ?? []).length, recoveryMappingComplete, admission: "NOT_ADMITTED; DEFINITION_ONLY" },
+          definitionSemantics: { projectedEffects: definedSemantics.effects.length, projectedExplicitFinality: definedSemantics.finality.length, conditionalOrUnknownActions: definedSemantics.conditionalActions, unmappedPublicActions: definedSemantics.unmappedPublicActions, projectedRecoveries: definedSemantics.recoveries.length, recoverySourceCount: (recovery.contracts ?? []).length, recoveryMappingComplete, mappingDecisionRef: ".product-experience/decision-log.md#PXD-078", admission: "NOT_ADMITTED; DEFINITION_ONLY" },
           recoverySourceProposals,
           recoverySourceCrossReferences: experienceBindings.recoveryCrossReferences ?? [],
         },
@@ -1017,15 +1038,15 @@ const definitions = [
       schemaVersion: { sourceRef: "@ghatana/experience-specification public export", sourcePath: "EXPERIENCE_SPECIFICATION_SCHEMA_VERSION", mapping: "public contract constant" },
       contextDimensions: { sourceRef: ".product-experience/pdp-3-product-experience/application-channel-registry.yaml", sourcePath: "channels[].channelRef", mapping: "one typed enum context dimension over the exact selected-lane channel IDs" },
       renderTargets: { sourceRef: ".product-experience/pdp-3-product-experience/application-channel-registry.yaml", sourcePath: "channels", mapping: "direct channel target records; support disposition remains proposal" },
-      componentContracts: { sourceRef: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml", sourcePath: "components[].id, purpose, requiredProps, and propsSourceRef", mapping: "direct identity and purpose; required prop names are copied only when explicitly bound to a typed public component interface; all other component records remain unresolved" },
+      componentContracts: { sourceRef: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml", sourcePath: "components[].id, purpose, requiredProps, typedDefinition.props[].{name,required}", decisionRef: ".product-experience/decision-log.md#PXD-083", mapping: "direct identity and purpose; derive required prop names only from the exact validated typedDefinition schema for the 28-family Media-owned population, preserve three existing public-source-bound prop inventories; no public implementation, package consumption, or runtime admission is inferred" },
       views: { sourceRef: ".product-experience/pdp-3-product-experience/screen-registry.yaml", sourcePath: "screens and laneViews with exact journeyRefs; screen-contracts/*.yaml#componentIds", mapping: "all 47 exact view identities, names, purposes, resolvable component refs, and 132 journeyRefs are projected directly; only PDP-1 stateRefs remain unbound" },
       journeys: { sourceRef: ".product-experience/pdp-3-product-experience/journey-registry.yaml", sourcePath: "journeys; journey-contracts/*.yaml#steps; P0 journey-actor-resolutions.yaml; journey-catalog.yaml; goals-jtbd.yaml; screen-registry view purposes", mapping: "project source-grounded journey IDs/names and bounded representative actor refs; preserve unique authored step IDs, otherwise derive ordinal projection IDs; use explicit intent or exact linked view purpose as a proposal-only intent; map only matching singleton desired outcomes; preserve null transitions as unresolved review metadata and schema-required empty-array placeholders; withhold steps lacking exact intent" },
       interactions: { sourceRef: ".product-experience/pdp-3-product-experience/interaction-registry.yaml", sourcePath: "interactions[].effectRef; action-registry.yaml#actions[].preconditions", mapping: "direct exact action linkage and the referenced action's authored preconditions" },
       states: { sourceRef: ".product-experience/pdp-0-product-truth/state-models.yaml", sourcePath: "models[].states; PDP-1 states.yaml stateMachines", mapping: "direct proposed state IDs, meaning, terminality, and invariants; identity extraction does not accept PDP-1 semantics" },
       transitions: { sourceRef: ".product-experience/pdp-0-product-truth/state-models.yaml", sourcePath: "models[].transitions", mapping: "not projected because legal PDP-1 actionRef and guard bindings remain unresolved" },
-      actions: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions", mapping: "direct UI action identity, label, effect prose, and preconditions; user kind is a proposal classification" },
-      effects: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].actionDefinitionSemantics.publicEffect", mapping: "only explicit owner-reviewed unconditional public effect definitions; conditional or unknown reversibility is retained as unmappable review metadata" },
-      finality: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible", mapping: "direct explicit reviewed public finality definitions and legacy subset with explicit confirmation and source boolean reversibility; conditional and unknown mappings remain unresolved" },
+      actions: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions; ownerDefinedActions", mapping: "direct authored action identity, label, effect prose, and preconditions; user kind is a proposal classification" },
+      effects: { sourceRef: ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml", sourcePath: "records[].publicEffectCandidate", mapping: "project 144 original actions under bounded PXD-078 plus the exact reconnect action under bounded PXD-077 using enum fields; preserve three historical public IDs; two Shared identity handoffs remain unmapped pending external-owner evidence" },
+      finality: { sourceRef: ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml", sourcePath: "records[].publicFinalityCandidate", mapping: "project bounded PXD-078 and PXD-077 confirmation and undoability enum dispositions; preserve three historical public IDs; acceptance remains separate" },
       recovery: { sourceRef: ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml", sourcePath: "contracts[].definitionSemantics.publicRecovery plus experience-source-bindings.yaml#recoveryCrossReferences", mapping: "exact owner-reviewed public recovery definitions with authored booleans; source applicability and blocked behavior remain in review metadata, not runtime or evidence admission" },
       scenarios: { sourceRef: ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml", sourcePath: "scenarioStartingStateBindings plus exact journey/action scenarioRefs", mapping: "project only scenario IDs with an exact source fixture seed and a resolvable canonical startingStateRef; leave contextDimensions empty when none are asserted" },
       fixtures: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures plus libs/media-experience-simulation/src/fixtures.ts", mapping: "linked fixture descriptor references exact scenario, fixture key, source path and authored conditions; source payload is not copied or treated as runtime evidence" },
@@ -1035,15 +1056,15 @@ const definitions = [
       updatedAt: { sourceRef: null, sourcePath: "candidate generation event", mapping: "projection build timestamp, not a product-authority timestamp" },
     },
     fieldMappingBlockers: {
-      componentContracts: ["Required props are directly mapped only for component contracts with exact typed public-interface source refs; the remaining component families have no source-bound typed prop contract and retain empty candidate arrays."],
+      componentContracts: ["PXD-083 approves the bounded 28-family Media source mapping only; public component implementation, Shared binding, renderer behavior, and runtime admission remain separate."],
       views: ["View identity, purpose, exact resolvable component refs, and all 132 source journeyRefs are directly projected; only PDP-1 stateRefs remain unbound."],
       journeys: ["PDP-3 journey mappings remain unresolved per the generated journey binding audit."],
       interactions: [],
       states: [],
       transitions: ["PDP-0 transition proposals lack resolved PDP-1 actionRefs and guard references; the P1 state/operation owners have not accepted a legal source-to-target binding."],
-      actions: ["The 146 UI action records supply exact labels, prose, and preconditions, but do not select canonical PDP-1 operationRefs or exact action-to-effect bindings for producesEffectRefs."],
-      effects: ["The action source does not classify each effect into the public effect-kind enum; six reversible values are conditional prose while the schema requires a boolean, so those cannot be narrowed without owner decisions."],
-      finality: ["Only actions whose confirmation prose explicitly requires confirmation and whose reversible field is a boolean have a candidate finality record; other confirmation wording and conditional reversibility remain unresolved."],
+      actions: ["Two Shared identity handoffs remain unmapped pending exact Shared role binding. Reconnect's action definition is bounded under PXD-077; candidate mapping does not prove dispatch or success."],
+      effects: ["Two Shared identity handoffs remain unmapped pending exact Shared public contract evidence; reconnect candidate mapping is bounded by PXD-077. Runtime admission and independent PDP-3 acceptance remain separate."],
+      finality: ["Two Shared identity handoffs remain unmapped pending exact Shared public contract evidence; reconnect candidate mapping is bounded by PXD-077. Runtime admission and independent PDP-3 acceptance remain separate."],
       recovery: ["Five recovery narratives and exact action/scenario cross-references are retained in source review metadata; the source does not provide the public automaticRecovery/userActionRequired booleans or all canonical state/finality references."],
       scenarios: ["Scenario residual counts are derived from exact projected records and the registered fixture denominator; context dimensions are not asserted."],
       fixtures: ["Only fixtures with a projected linked scenario and an exact fixture key in the local simulation source are emitted; records carry source descriptors, not an inlined executable payload."],
@@ -1212,7 +1233,8 @@ function candidateFieldCoverageDiagnostics(inventory, candidateModel, candidateF
 
 const outputs = [];
 const generationTimestamp = new Date().toISOString();
-for (const definition of definitions) {
+if (onlyDefinition && !definitions.some((definition) => definition.name === onlyDefinition)) throw new Error(`Unknown --only definition ${onlyDefinition}`);
+for (const definition of definitions.filter((entry) => !onlyDefinition || entry.name === onlyDefinition)) {
   const sources = await Promise.all(definition.sources.map(loadSource));
   const candidateModel = definition.candidate(sources, generationTimestamp);
   const fieldMappingBlockersForProjection = { ...definition.fieldMappingBlockers };
@@ -1249,8 +1271,9 @@ for (const definition of definitions) {
     const definitionReview = candidateModel._mappingReview.definitionSemantics;
     if (definitionReview.recoveryMappingComplete) delete fieldMappingBlockersForProjection.recovery;
     else fieldMappingBlockersForProjection.recovery = [`${definitionReview.recoverySourceCount - definitionReview.projectedRecoveries} existing recovery records lack reviewed typed definition mappings; no booleans inferred from prose.`];
-    fieldMappingBlockersForProjection.actions = [`Only ${candidateModel.actions.filter((action) => action.producesEffectRefs.length).length} of ${candidateModel.actions.length} existing actions have directly mapped effect references; remaining canonical operation/effect relationships stay open.`];
-    fieldMappingBlockersForProjection.effects = [`${definitionReview.projectedEffects} exact unconditional effect definitions are projected; conditional or unknown reversibility remains unrepresentable as a public boolean, and the remaining action population is unresolved.`];
+    fieldMappingBlockersForProjection.actions = [`${candidateModel.actions.filter((action) => action.producesEffectRefs.length).length} of ${candidateModel.actions.length} action candidates have bounded effect mappings; the two Shared identity handoffs remain unmapped pending external-owner evidence; reconnect uses its exact PXD-077 mapping.`];
+    fieldMappingBlockersForProjection.effects = [`${definitionReview.projectedEffects} reviewed enum effect candidates are projected without boolean coercion; ${definitionReview.unmappedPublicActions.length} actions remain unmapped, and runtime/phase acceptance remain separate.`];
+    fieldMappingBlockersForProjection.finality = [`${definitionReview.projectedExplicitFinality} reviewed enum finality candidates are projected without boolean coercion; ${definitionReview.unmappedPublicActions.length} actions remain unmapped, and runtime/phase acceptance remain separate.`];
     fieldMappingBlockersForProjection.scenarios = [
       `Only ${projectedScenarioCount} of ${registeredScenarioCount} registry records have an exact source-fixture state that maps to a canonical PDP-0 state; ${Math.max(0, registeredScenarioCount - projectedScenarioCount)} remain unresolved, and context dimensions are not asserted.`,
     ];

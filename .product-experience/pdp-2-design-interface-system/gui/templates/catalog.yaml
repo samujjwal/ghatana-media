@@ -10,6 +10,7 @@ acceptance:
   criteria:
     - Each template validates against screen-composition-schema.yaml.
     - Templates reference canonical views, state, actions, and patterns without redefining them.
+    - A screen pattern is part of its template's primary chain or an explicitly compatible pattern overlay; overlays add a bounded semantic concern and do not replace the template's primary information hierarchy.
     - Templates include loading, empty, error, access-limited, and recovery behavior where applicable.
   status: governed-by-design-governance.json#template-catalog-admission
 verification:
@@ -17,54 +18,96 @@ verification:
   status: not-run
 templates:
   - id: media.gui.template.collection
+    recipeRefs: [media.gui.recipe.collection]
+    compatibleLayoutRefs: [media.gui.layout.collection]
     useFor: Searchable project, artifact, or version collections.
     regions: [context, heading, filters, results, pagination, empty-or-error, primary-action]
     patterns: [media.gui.pattern.project-browser]
+    patternOverlays:
+      media.gui.pattern.safe-confirmation-and-unknown-outcome: Applies when a collection exposes a consequential action; preserve exact target, current authority, pending/unknown result, and same-identity reconciliation.
+      media.gui.pattern.activity-attention: Applies to an activity/recovery collection where records need an explicit state/finality and safe follow-up.
   - id: media.gui.template.workbench
+    recipeRefs: [media.gui.recipe.workbench]
+    compatibleLayoutRefs: [media.gui.layout.media-workbench]
     useFor: Time-based media review and editing.
     regions: [project-context, source-player, synchronized-work-area, selection-details, validation, save-action]
     patterns: [media.gui.pattern.transcript-and-playback, media.gui.pattern.caption-editor]
+    patternOverlays:
+      media.gui.pattern.safe-confirmation-and-unknown-outcome: Applies to consequential edits or submissions; source version, affected range, effect, and unknown outcome stay explicit.
+      media.gui.pattern.creation-plan-review: Applies when the workbench composes a plan that must be inspected before separately authorized submission.
   - id: media.gui.template.job-observation
+    recipeRefs: [media.gui.recipe.job-observation]
+    compatibleLayoutRefs: [media.gui.layout.job-observation]
     useFor: Durable asynchronous job observation and safe recovery.
     regions: [job-identity, state-and-finality, progress, outputs, cancellation-or-recovery, provenance]
     patterns: [media.gui.pattern.job-status-and-recovery, media.gui.pattern.activity-attention, media.gui.pattern.safe-confirmation-and-unknown-outcome]
   - id: media.gui.template.review-and-compare
+    recipeRefs: [media.gui.recipe.review-and-compare]
+    compatibleLayoutRefs: [media.gui.layout.review]
     useFor: Review, compare, and accept or reject versioned outputs.
     regions: [source-context, compared-identities, comparison-content, quality-and-uncertainty, provenance, decision-actions]
     patterns: [media.gui.pattern.version-comparison, media.gui.pattern.review-approval, media.gui.pattern.quality-and-uncertainty, media.gui.pattern.provenance-and-lineage]
+    patternOverlays:
+      media.gui.pattern.safe-confirmation-and-unknown-outcome: Applies when accepting, rejecting, or otherwise recording a consequential review decision.
+      media.gui.pattern.transcript-and-playback: Applies when the compared versions are time-aligned transcript or caption content.
   - id: media.gui.template.consent-gate
+    recipeRefs: [media.gui.recipe.consent-gate]
+    compatibleLayoutRefs: [media.gui.layout.consent]
     useFor: Resolve required rights, consent, or access before affected work.
     regions: [requested-outcome, affected-material, scope-and-validity, decision, next-safe-action]
     patterns: [media.gui.pattern.rights-and-consent-review]
+    patternOverlays:
+      media.gui.pattern.safe-confirmation-and-unknown-outcome: For any consequential consent, rights, or access change, keep the exact effect, confirmation, pending/unknown result, and same-identity recovery visible.
   - id: media.gui.template.render-preparation-and-review
+    recipeRefs: [media.gui.recipe.render-preparation-and-review]
+    compatibleLayoutRefs: [media.gui.layout.render]
     useFor: Prepare one exact composition snapshot for rendering, then inspect and review outputs before separately bound delivery.
     regions: [composition-snapshot, profile-and-validation, rights-and-estimates, submission-and-job-finality, output-verification, review-decision, delivery-status]
     patterns: [media.gui.pattern.rendering, media.gui.pattern.review-approval, media.gui.pattern.provenance-and-lineage]
+    patternOverlays:
+      media.gui.pattern.safe-confirmation-and-unknown-outcome: Applies to explicit render or delivery submissions; request receipt and resulting job/output finality remain distinct.
+      media.gui.pattern.creation-plan-review: Applies while preparing and validating an exact composition snapshot before submission.
   - id: media.gui.template.lifecycle-confirmation
+    recipeRefs: [media.gui.recipe.lifecycle-confirmation]
+    compatibleLayoutRefs: []
     useFor: Present a proposed consequential lifecycle request with exact scope, authority, impact, uncertainty, and safe follow-up.
     regions: [exact-target-and-version, authority-and-preconditions, impact-and-retention, explicit-confirmation, pending-or-unknown-finality, safe-verification-and-recovery]
     patterns: [media.gui.pattern.destructive-lifecycle-action, media.gui.pattern.safe-confirmation-and-unknown-outcome]
   - id: media.gui.template.media-composition
+    recipeRefs: [media.gui.recipe.media-composition]
+    compatibleLayoutRefs: [media.gui.layout.media-workbench]
     useFor: Edit a versioned multitrack composition with explicit timing, alignment, brand, and validation context.
     regions: [project-context, composition-version, multitrack-timeline, track-and-clip-list, transition-and-caption-alignment, brand-and-typography-references, safe-area-and-output-profile, validation-state, save-action]
     patterns: [media.gui.pattern.multitrack-composition]
   - id: media.gui.template.operational-readiness
+    recipeRefs: [media.gui.recipe.operational-readiness]
+    compatibleLayoutRefs: [media.gui.layout.operational-readiness]
     useFor: Inspect a scoped readiness observation, freshness, capacity or dependency limits, and safe recovery guidance without dispatching work.
     regions: [readiness-scope, observation-time-and-freshness, check-results, capacity-and-dependency-disposition, safe-recovery-guidance, audit-reference]
     patterns: [media.gui.pattern.quality-and-uncertainty, media.gui.pattern.provenance-and-lineage]
   - id: media.gui.template.record-detail
+    recipeRefs: [media.gui.recipe.record-detail]
+    compatibleLayoutRefs: [media.gui.layout.record-detail]
     useFor: Inspect one exact artifact, version, provenance chain, or governed record with explicit unknowns and scoped actions.
     regions: [workspace-and-project-context, exact-record-identity, observed-state, detail-and-provenance, uncertainty-and-limitations, governed-actions]
     patterns: [media.gui.pattern.provenance-and-lineage, media.gui.pattern.quality-and-uncertainty]
+    patternOverlays:
+      media.gui.pattern.safe-confirmation-and-unknown-outcome: For a governed consequential action on the inspected record, show the exact effect, current preconditions, confirmation, and pending/unknown recovery state.
   - id: media.gui.template.workspace-settings
+    recipeRefs: [media.gui.recipe.workspace-settings]
+    compatibleLayoutRefs: [media.gui.layout.workspace-settings]
     useFor: Review inherited and local user or workspace policy values, affected workflows, and authorized save or reset actions.
     regions: [workspace-identity, settings-scope, category-navigation, current-and-inherited-values, policy-owner, affected-workflows, unsaved-changes, save-and-reset-actions]
     patterns: [media.gui.pattern.project-context-header, media.gui.pattern.safe-confirmation-and-unknown-outcome]
   - id: media.gui.template.project-overview
+    recipeRefs: [media.gui.recipe.project-overview]
+    compatibleLayoutRefs: [media.gui.layout.project-overview]
     useFor: Understand one selected project's identity, source and output summary, pending work, and safe next action.
     regions: [project-identity-and-version, source-and-output-summary, pending-work-summary, intent-launcher, recovery-and-navigation]
     patterns: [media.gui.pattern.project-context-header, media.gui.pattern.intent-launcher, media.gui.pattern.activity-attention]
   - id: media.gui.template.task-setup
+    recipeRefs: [media.gui.recipe.task-setup]
+    compatibleLayoutRefs: [media.gui.layout.task-setup]
     useFor: Select a source or intent, inspect eligibility and constraints, and review a plan before submission.
     regions: [project-context, requested-outcome, selected-inputs, capability-and-policy-disposition, validation, next-safe-action]
     patterns: [media.gui.pattern.intent-launcher, media.gui.pattern.creation-plan-review, media.gui.pattern.source-picker, media.gui.pattern.safe-confirmation-and-unknown-outcome, media.gui.pattern.upload-and-verification]

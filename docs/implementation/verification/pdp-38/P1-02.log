@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
+ok 1 - PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
+  ---
+  duration_ms: 367.380868
+  type: 'test'
+  ...
+# Subtest: PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
+ok 2 - PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
+  ---
+  duration_ms: 407.257948
+  type: 'test'
+  ...
+# Subtest: PDP-1 adapter observations point to live methods and remain unresolved projections
+ok 3 - PDP-1 adapter observations point to live methods and remain unresolved projections
+  ---
+  duration_ms: 133.260943
+  type: 'test'
+  ...
+# Subtest: PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
+ok 4 - PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
+  ---
+  duration_ms: 214.456013
+  type: 'test'
+  ...
+# Subtest: PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
+ok 5 - PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
+  ---
+  duration_ms: 420.510681
+  type: 'test'
+  ...
+# Subtest: PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
+ok 6 - PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
+  ---
+  duration_ms: 501.758147
+  type: 'test'
+  ...
+# Subtest: all 146 action identities have a source-backed operation or non-operation disposition
+ok 7 - all 146 action identities have a source-backed operation or non-operation disposition
+  ---
+  duration_ms: 23489.151293
+  type: 'test'
+  ...
+# Subtest: P0 exact capability-to-operation decisions resolve only fully classified action slices
+ok 8 - P0 exact capability-to-operation decisions resolve only fully classified action slices
+  ---
+  duration_ms: 27962.730135
+  type: 'test'
+  ...
+# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 9 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+  ---
+  duration_ms: 41826.43491
+  type: 'test'
+  ...
+# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+ok 10 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+  ---
+  duration_ms: 16546.80198
+  type: 'test'
+  ...
+# Subtest: P1-08 distinguishes nine durable event definitions from fifteen local notifications
+ok 11 - P1-08 distinguishes nine durable event definitions from fifteen local notifications
+  ---
+  duration_ms: 362.873538
+  type: 'test'
+  ...
+# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
+ok 12 - P0-06 enumerates exact capability applicability without inventing a measured population
+  ---
+  duration_ms: 39872.118774
+  type: 'test'
+  ...
+# Subtest: P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
+ok 13 - P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
+  ---
+  duration_ms: 24310.093004
+  type: 'test'
+  ...
+# Subtest: P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
+ok 14 - P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
+  ---
+  duration_ms: 25832.173556
+  type: 'test'
+  ...
+# Subtest: P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
+ok 15 - P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
+  ---
+  duration_ms: 109.335379
+  type: 'test'
+  ...
+# Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
+ok 16 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
+  ---
+  duration_ms: 173.698243
+  type: 'test'
+  ...
+# Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
+ok 17 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
+  ---
+  duration_ms: 135.333326
+  type: 'test'
+  ...
+# Subtest: all 55 transition identities bind typed, source-current, explicit edge contracts
+ok 18 - all 55 transition identities bind typed, source-current, explicit edge contracts
+  ---
+  duration_ms: 137.337849
+  type: 'test'
+  ...
+# Subtest: each edge fails when its material positive predicate is missing or false
+ok 19 - each edge fails when its material positive predicate is missing or false
+  ---
+  duration_ms: 219.04759
+  type: 'test'
+  ...
+# Subtest: tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
+ok 20 - tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
+  ---
+  duration_ms: 4.317371
+  type: 'test'
+  ...
+# Subtest: competing multi-target outcomes require distinct evidence and contradictory classifications fail
+ok 21 - competing multi-target outcomes require distinct evidence and contradictory classifications fail
+  ---
+  duration_ms: 1.026776
+  type: 'test'
+  ...
+# Subtest: unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
+ok 22 - unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
+  ---
+  duration_ms: 22.660414
+  type: 'test'
+  ...
+# Subtest: three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
+ok 23 - three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
+  ---
+  duration_ms: 64.428384
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 202649.307114

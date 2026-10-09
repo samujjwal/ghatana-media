@@ -69,7 +69,19 @@ test("P0-04 records delegated journey initiators without changing collaborators 
     assert.ok(decision.rationale.includes("owner selects"), `${id} explains the delegated owner choice`);
     assert.deepEqual(decision.collaboratorActorRefs, source.actors, `${id} preserves the source actor list`);
     assert.ok(contract.steps.length > 0, `${id} has an ordered contract step`);
-    assert.equal(contract.steps[0].actionRef ?? null, null, `${id} action binding remains independently unresolved`);
-    assert.equal(contract.steps[0].canonicalOperationRef ?? null, null, `${id} first operation remains unbound`);
+    const step = contract.steps[0];
+    const semantics = step.stepDefinitionSemantics;
+    assert.ok(semantics, `${id} keeps its independent PDP-3 step definition`);
+    assert.equal(step.actionRef ?? step.action ?? null, semantics.action.actionRef ?? null,
+      `${id} initiator resolution does not replace the separately authored action binding`);
+    assert.equal(step.canonicalOperationRef ?? null, semantics.canonicalBindings.canonicalOperationRef ?? null,
+      `${id} initiator resolution does not widen or replace the exact operation binding`);
+    assert.deepEqual(step.ownerActionRef ?? null, semantics.ownerActionRef ?? null,
+      `${id} owner-defined action identity remains separately bound`);
+    if (semantics.ownerActionRef) {
+      assert.equal(semantics.operationContractBinding.operationRef, step.canonicalOperationRef,
+        `${id} owner action keeps its exact operation contract`);
+      assert.equal(semantics.operationContractBinding.runtimeAdmission, "NOT_ADMITTED");
+    }
   }
 });

@@ -1,0 +1,470 @@
+{
+  "schemaVersion": "media.pdp38-migration-policy-source-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-085",
+  "authority": "User-delegated Media semantic definition ownership; coordinator source review",
+  "recordCount": 46,
+  "records": [
+    {
+      "claimId": "MPSEM-0002-C001",
+      "sourceTextSha256": "90408c7501bb50efb1706227410d0beb55c91a0e281b275ab1df7c9441118ee7",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#requirements/@id=MEDIA-CONST-014/statement",
+      "targetValueSha256": "50e4fe0d0b6fd99a8b01a5d182bc1bed1a513285f9f8860c9235ca672800dc07",
+      "expectedOwnerValue": "Evaluate suitable Ghatana reuse first, then approved permissively licensed external software, before implementing replacement mechanics.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0024-C003",
+      "sourceTextSha256": "2d69c8afe6d62f7ac5c1344c7d5c17947c7e3b1b391085ce692f9770e15bfd05",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencyContracts/8/ownerBoundaryRule",
+      "targetValueSha256": "8e448f7586e8f7fe20b215cc9b0af1736ba23d47afb2acff4ca71a0a64c5d65d",
+      "expectedOwnerValue": "Data Cloud may retain governed generic read models and existing integration behavior; Media remains authoritative for artifact, upload, job, stream, consent, and processing lifecycle. A Data Cloud read-model or compatibility outage does not alter canonical Media state.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0026-C002",
+      "sourceTextSha256": "3ab1d5479db1d21e505823491bd9423beadf8b29cbacf15880c1593a80f44dfe",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/documentExtractionWorkerRule",
+      "targetValueSha256": "779d63fe63ca33e167e24acbb08065c51ed988507c8608d63ded7b50c273e767",
+      "expectedOwnerValue": "The document-intelligence worker consumes frozen Shared document-extraction contracts. The worker owner retains cancellation/admission behavior; Media supplies media-specific recognition intent, exact frame/time/scene association, and Media authorization before invocation. Shared data types do not supply worker execution semantics.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0029-C002",
+      "sourceTextSha256": "ae9941c760677ff3dcce0c48aa71a419abb1846026d7caa641e726f6d2f79ea0",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/platformMechanicsBoundary",
+      "targetValueSha256": "14c9bcd296d8b064a881a8e73cbc1e5722ad2d718ed7c6ddee26089085029951",
+      "expectedOwnerValue": "The observed Shared Workflow source contract supplies candidate neutral command, state compare-and-set, idempotency, and lease-fencing mechanics; the observed Shared messaging contract supplies candidate claim-aware outbox publication mechanics. Their exact public package versions and Media consumer adoption remain unverified. Media owns domain states/guards, event meaning and payload, durable outbox intent, cadence, retry policy, and publication finality.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0032-C003",
+      "sourceTextSha256": "7d7945f7ce8e4380edb0fc9d27866beb290c85af0ecb2d58ad3be08755f8cdc0",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#ownerDefinedMigrationQualificationRules/reproducibilityClassification",
+      "targetValueSha256": "5616799232ea99c3424b34ce9f5ada87f6302a9ffed95d875409d3a35c95e768",
+      "expectedOwnerValue": {
+        "id": "media.qualification.reproducibility-classification",
+        "canonicalSolverFidelityDescriptorRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.simulation-fidelity-definition",
+        "exactEnvironment": "Identical declared output representation is asserted only for the exact frozen operation, engine/model and weight digests, solver identity/version and configuration, declared numerical/precision/time-step bounds where applicable (or an explicit NOT_APPLICABLE disposition), runtime and hardware class, configuration, source assets, seed, and relevant policy/profile values covered by evidence. A changed or missing member invalidates the exact-environment claim until re-evaluated.",
+        "toleranceBound": "A tolerance-bound result names each numeric, geometric, perceptual, or timing measure, units, comparator, tolerance, input scope, measurement method/version, solver identity/version/configuration, and declared numerical/precision/ time-step bounds where applicable (or an explicit NOT_APPLICABLE disposition). No unspecified tolerance or metric can be inferred.",
+        "statistical": "A statistical class states its sample population, distributional and quality protocol, confidence/uncertainty, applicability scope, solver identity/version/configuration and applicable numeric bounds (or NOT_APPLICABLE), and abstention conditions. A seed is recorded as an input but does not promise identical output.",
+        "replayUnavailable": "Preserve inputs, outputs, and execution provenance, label replay unavailable, and do not offer exact reproduction for an unsupported engine or profile.",
+        "separation": "Solver determinism, rendered-output determinism, and encoded-byte determinism are distinct claims; one does not establish another.",
+        "scopeStatus": "DEFINITION_ONLY; qualification evidence is not supplied here."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0038-C002",
+      "sourceTextSha256": "ed422fb80cd57948ebe444ceecfb273140e1e4ea33856a6d9c4306111afa396a",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/@id=MEDIA-INV-005/diagnosticDeliveryGuaranteeRule",
+      "targetValueSha256": "c0bf923d56ac3fde7b13e5b5f327acb1153906bf81f64777dcb20f510e385160",
+      "expectedOwnerValue": "An ambient or best-effort label specifies no delivery, ordering, persistence, or durability guarantee. State the exact guarantee and sink for any required audit/effect intent; remote sink lag is a diagnostic delivery condition and does not determine the business outcome.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0038-C003",
+      "sourceTextSha256": "ae160c6f7063f47b122ef660d8ecec8cb429cf60d758f42b337072395ea65f7e",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#/invariants/records/@id=MEDIA-INV-005/diagnosticFailureRule",
+      "targetValueSha256": "b5b1c2541049243f3ab668a5b925912e4bb3c06902a0783d52ef4adad4b31eaa",
+      "expectedOwnerValue": "Best-effort bounded diagnostics may be delayed, dropped, or unavailable without changing the business outcome. Diagnostic failure cannot replace, satisfy, or weaken required durable audit intent; if that required intent cannot be recorded before the effect, block the effect.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0040-C004",
+      "sourceTextSha256": "156f054fac3cb09d0f4798216884b6e5326dd909d15dcd9df30a5dfce7e0edaa",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#ownerDefinedMigrationQualificationRules/licenseEvidenceRule",
+      "targetValueSha256": "747701d0516d773e38aafa68a368b0027e88f84c8047f15307000638176a1479",
+      "expectedOwnerValue": {
+        "id": "media.qualification.exact-license-evidence",
+        "rule": "Evaluate the exact selected release/build, source and binary digests, license expression and included files, notices, modifications and distribution mode, transitive/native dependencies and build flags, codecs/plugins, model weights, datasets, fonts, assets, adapters, copyright and patent grants/encumbrances, and intended execution/serving profile. Unknown or incompatible scope is not admitted; package-level license labels alone do not establish rights for the complete selected artifact set.",
+        "scopeStatus": "DEFINITION_ONLY; legal review and license admission remain open."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0046-C004",
+      "sourceTextSha256": "fb4b4380000a111394f1365b550d83c0cea7cc1d80242714ec68ba9f548bfe55",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/replacementRule",
+      "targetValueSha256": "ee183ac67a5ee6120c7950e73d01a6dd5ac0a6d2cb61b72a70de6ed4b8c74818",
+      "expectedOwnerValue": "Replace forbidden source imports only with neutral versioned capability contracts, generated wire clients produced from their single registered authored owner, or an explicitly approved public integration provider; package/name similarity is not approval.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0056-C001",
+      "sourceTextSha256": "4f6446b8b423e3a3cc0d56301fdabbbc3f5eed4df498d93ba6d86cf76582aa6c",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/observedLegacyPublicCoordinates",
+      "targetValueSha256": "166ffc01988caaf9417b3bac74b946a64993ebfc13cafc0bf77eeea95675c080",
+      "expectedOwnerValue": {
+        "source": "package.json names in the current Media checkout",
+        "coordinates": [
+          "@audio-video/types",
+          "@audio-video/client",
+          "@audio-video/ui",
+          "@audio-video/desktop-app"
+        ],
+        "disposition": "existing-compatibility-identities-only; package-presence-does-not-prove-public-publication-or-admission"
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0057-C002",
+      "sourceTextSha256": "63ef1d34ea046d3024291cec281b488ef7d01799cfa1768db5ae40c4ee7ad9eb",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/newPublicNameRule",
+      "targetValueSha256": "b831938bceeff75590679d01aeb3b41dc6907c30367f88e9eb9b1bf9b43ae4d1",
+      "expectedOwnerValue": "A new public package name must be allowed by the product registry export policy before the package is created; preserve a supported old coordinate as a compatibility identity without creating parallel duplicate behavior.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0070-C001",
+      "sourceTextSha256": "9c88be281419e6fbeebce1587b4ec66281f20d6ccd24c42adc75186b89831439",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/exactImportProhibitions",
+      "targetValueSha256": "f364e9199f0f88d60fbe2a165a9e6d2312040fc9fa003c50f9fb1e5f027decb2",
+      "expectedOwnerValue": [
+        "ghatana/services/**",
+        "ghatana/services/agents/**",
+        "ghatana-kernel implementation internals",
+        "another product's internal packages",
+        "Ghatana Tools implementation internals"
+      ],
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0073-C001",
+      "sourceTextSha256": "f9d1c47b0e49c48d42b515254b8b1cea087bdc7f2ad05febff974e116d9aa67f",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/portfolioRegistryBoundary",
+      "targetValueSha256": "ecdc806ebd1489852004935d6f316236327ae445e2295985c778bd62630ded17",
+      "expectedOwnerValue": "Ghatana Products records portfolio and extraction identity and may consume product projections when its registry requires them; it is not a runtime or source dependency of the Media product.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0076-C002",
+      "sourceTextSha256": "e96f6318c78abe57b1e02026ce84b420b36438b5f2dde5688975ca5f6126bbe7",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#productMission/statement",
+      "targetValueSha256": "4cbdd91798bf7705702e76f41286770367420df0cd2f12d5f382195fcd51faae",
+      "expectedOwnerValue": "Ghatana Media combines deterministic DSP/computer vision, procedural graphics, simulation and specialized AI/ML while preserving user intent, rights, privacy and predictable costs.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0092-C001",
+      "sourceTextSha256": "ba90797dea557b1ec112d103ccb88503d8653dce50aa5b17b5960aeef51ebbcf",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencies/4/surfaces/0",
+      "targetValueSha256": "4c7a0153e550089e0ae8e205caa563ee178f8e6d97592167df2abf39aab58360",
+      "expectedOwnerValue": "reusable Product Definition and Experience mechanics",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0092-C002",
+      "sourceTextSha256": "8b43be3b0f7cabf205c608027db47a185a49c2a5018dc54d058bbac5530852c9",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencies/4/surfaces/1",
+      "targetValueSha256": "8b43be3b0f7cabf205c608027db47a185a49c2a5018dc54d058bbac5530852c9",
+      "expectedOwnerValue": "generic Experience Explorer host and package mechanics",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0092-C004",
+      "sourceTextSha256": "c5d9222a570272c848e887510acb6688dab38e627dbdbd019b41046babadb6aa",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/toolsLifecycleNonAuthorityRule",
+      "targetValueSha256": "54c097e30dd9f0bbe28ddbfda7b10f0c492d71ce53835c7059bf51b2fc836b8e",
+      "expectedOwnerValue": "Tools supplies reusable product-definition and experience contract mechanics but does not decide Media meaning or issue cross-repository evidence closure/currentness. Lifecycle owns evidence admission, closure and receipts; Media supplies product facts and applicability inputs.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0093-C001",
+      "sourceTextSha256": "cb2a4ef31857f23b208e3efdd8306d6b0fde854d58d75b924e58fa286a45982d",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencyContracts/14/ownerBoundaryRule",
+      "targetValueSha256": "ed7a6bab0e2339caa4810174a744f35c0ec3fd3a957c3878f4d9adab2f489b03",
+      "expectedOwnerValue": "Kernel-specific lifecycle, composition, UI/page/resource/action contracts, and extension runtime are consumed only under an explicit reviewed public-contract adoption; standalone Media function does not imply Kernel adoption.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0095-C001",
+      "sourceTextSha256": "4ff194e20081e83391677b8b158b46665cc6ae209e52e87008814329da22fd5a",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/exactImportProhibitions/1",
+      "targetValueSha256": "652aa64890b210ded344682348410565290005fdbdf56c8dd7e248aa743f9886",
+      "expectedOwnerValue": "ghatana/services/agents/**",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0097-C004",
+      "sourceTextSha256": "cf25fa1637e6bbaf98f83d8336095ed758523950dc3a935925fadf0d5482adf3",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencyContracts/1/ownerBoundaryRule",
+      "targetValueSha256": "165fe8a411d341c546161738e643dfee21b83906523cf5db6cdfaafa45dc019f",
+      "expectedOwnerValue": "The observed Shared messaging source contract supplies candidate claim-aware publication mechanics; exact public package version and Media consumer adoption are unverified. Media owns the durable outbox intent, event vocabulary, permitted payload, retry cadence, and truthful publication-finality disposition.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0165-C003",
+      "sourceTextSha256": "ddca8dd530b561e8efc1a84b79e768bbe7e3c2d3c1b2c6763a58c0356ba23b47",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/portfolioProjectionRule",
+      "targetValueSha256": "652fb1bfd962ec697d6189a994751b86201589ad55ce50f715f819221fa23fe5",
+      "expectedOwnerValue": "Top-level product capabilities.yaml and dependencies.yaml are registry projections of corresponding accepted Phase-0 records only when the portfolio registry requires them; the projections do not become a runtime or source dependency of Media.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0271-C004",
+      "sourceTextSha256": "3263ab7e500637aedd44e965a3049edeaf51dc7b5dbd3a667b91e295244cb1c2",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/ownerDefinedMigrationQualificationRules/failureRecoveryQualificationRule",
+      "targetValueSha256": "6fb779cb741e6edd71b26a9273a8713d634c2ecaea1c7d41a19e5bebfe4e8cf1",
+      "expectedOwnerValue": {
+        "id": "media.qualification.failure-recovery",
+        "rule": "A recovery claim identifies the durable checkpoint state/version, source and intermediate artifact digests, ordered input-event sequence, acknowledged effects, and the declared reproducibility class. Evidence exercises interruption before and after each consequential boundary, restart, duplicate observation, stale checkpoint, missing event, and unknown effect outcome. Resume only from a compatible authoritative checkpoint under the operation contract; reconcile uncertain effects before replay, and classify missing ordering or evidence as recovery-unavailable rather than success.",
+        "scopeStatus": "DEFINITION_ONLY; failure/recovery qualification has not been run or admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0291-C004",
+      "sourceTextSha256": "3f717ceb4bf551463f286df331533685f0d5e9d96021a99f032e545a242a049a",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/ownerDefinedMigrationQualificationRules/substitutionAdmissionRule",
+      "targetValueSha256": "3ec1fd0027db3c6f2f4b3196000303349be98cc2ef7319c3eeff646d2228f014",
+      "expectedOwnerValue": {
+        "id": "media.qualification.substitution-admission",
+        "rule": "A different model, engine, runtime, provider, codec, or material configuration is not a silent substitute. The exact candidate must have an explicit reuse-decision record before entering a critical path, a registered capability/profile binding, compatible typed inputs and outputs, current license and policy admission, qualification for the requested scope, and preservation of every requested quality, fidelity, rights, locality, delivery, and cost floor. Missing or unknown evidence denies substitution; a user confirmation cannot replace policy or license authorization.",
+        "decision": "Explicit deny by default; any allowed substitution records requested and effective identities, evidence refs, reason, bounds, and required confirmation.",
+        "scopeStatus": "DEFINITION_ONLY; no candidate is admitted or qualified by this rule."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0314-C004",
+      "sourceTextSha256": "466b490721c4378fc0ab99660fb24a1a0c1e23ca335d26f331ec36928379e4fa",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#contractRealizationRule/rule",
+      "targetValueSha256": "01546483d42ed3c2e37f5ebce033be03236a1460d1fb203f9628e4c74af20166",
+      "expectedOwnerValue": "Generate types and transport mappings from the accepted owner contract where the ecosystem supports generation, and preserve runtime response validation at every consumer boundary.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0340-C001",
+      "sourceTextSha256": "42f73ffacabe53132504b7537957b4f2f80bef5d1df4e3d2f2631421110673b4",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput/productExitCodeTaxonomy/codes/@id=media.cli.exit.authentication-failure",
+      "targetValueSha256": "7f916e8d2060cf42ff977cef55792359864140c380d217e9f1e4cedc0630b6ce",
+      "expectedOwnerValue": {
+        "id": "media.cli.exit.authentication-failure",
+        "code": 3,
+        "result": "authentication-failure"
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0347-C001",
+      "sourceTextSha256": "86b7f2db938f34b1650e4c20f1f525000d3b43e4020d84f0495b2fbdd5ba3de4",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-003/failClosed",
+      "targetValueSha256": "4b65676305ed7e687a9a2a8e7aa683993f372db31176dc06cd144e6a09cf838e",
+      "expectedOwnerValue": "Retain OUTCOME_UNKNOWN and require authoritative reconciliation before retry or finality claims.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0354-C005",
+      "sourceTextSha256": "8cf9e428ddd65fce19fde8ccaceb0aa1df4259af41a52a73c4b3566e87c77c01",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-001/statement",
+      "targetValueSha256": "5edfdd2993fc633a4e7d5a082a53667f02e2ae0869024ba43da606cf9d2ca965",
+      "expectedOwnerValue": "A private context does not imply local processing, and local processing does not imply authorized use.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0355-C002",
+      "sourceTextSha256": "2bdd9491528ce67aaf24101a4fdbcc4c37af6a7ae3db92556019e3654c28c286",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-003/statement",
+      "targetValueSha256": "f37324466cc3f45dd2f7c0f1e824d0ef57cf74669bff1a654c49ecbc7a468f15",
+      "expectedOwnerValue": "Source classification is a floor for derived data until an authorized deidentification promotion.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0355-C004",
+      "sourceTextSha256": "c58b7ddb2381dbd797dcb03505aad36ca38e87796ba117cd73582848203be44c",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-002/separateEligibilityEvaluation",
+      "targetValueSha256": "9a55d7d9f7e9d0db37372654749e5bc49728e8a015b00e13c9dcd39cabe16f68",
+      "expectedOwnerValue": "Evaluate consent evidence and license eligibility separately; neither implies the other and both are checked against the exact operation, purpose, profile, and effect scope.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0355-C005",
+      "sourceTextSha256": "bab43e0f9238d6154f18053401680ecd4deb3704cabc1a91b9bdf8cea62d0c4b",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-004/statement",
+      "targetValueSha256": "196e3cac6c3bd6f35fe12ad1a5d789f4310a9825fcf31ec8166e8071fd7e4086",
+      "expectedOwnerValue": "Model-generated content or assertions cannot authorize themselves.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0356-C001",
+      "sourceTextSha256": "5bcaf1fc73c6b6a20c9428eed3b8f8d6c9ec026ba2eca1aa3bfc9f557bf058ff",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/sharedIdentitySecurityAndGovernanceReuseRule",
+      "targetValueSha256": "41f147efa053b804086d109468a5016f6eb128319cbc28e1b87f82326fcd45d1",
+      "expectedOwnerValue": "Reuse existing authentication services and Shared identity, security, and governance contracts only through their exact reviewed public boundaries. Shared-owned mechanisms establish issuer-controlled identity, delegation, security, and governance facts; Media separately decides operation-specific purpose, rights, consent, resource, and effect authority. Do not replace those services with Media-local parallel identity, cryptography, token parsing, or governance frameworks. Missing public contract/version or consumer binding remains an owner dependency and does not authorize a source import, inferred endpoint, or cutover.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0356-C002",
+      "sourceTextSha256": "4e7667213ce10454ebfa89edc0eba89e804670f4f1a21044abdd0105142c08e7",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/ownerDefinedMigrationQualificationRules/identityAndConsentImplementationBoundary",
+      "targetValueSha256": "06af97091db0f1350711db269aa50cd6e0d55dd42de9969c5165fdabd0aceb81",
+      "expectedOwnerValue": {
+        "id": "media.qualification.no-parallel-identity-or-consent-framework",
+        "rule": "Media consumes the authenticated identity, delegation, cryptographic, and consent public contracts owned by their designated platform/domain providers. Media must not create a parallel IAM service, JWT parser, cryptographic implementation, or generic consent framework. Media defines operation-specific authorization and consent applicability and supplies those preconditions to the owning mechanism; caller-supplied role labels or interface presence do not authenticate a principal or establish a production trust binding.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no production trust binding or enforcement is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0357-C004",
+      "sourceTextSha256": "4c62bc816149a1c84492453c1b0ef3ab4ab0147a4886793e3c160984fa426870",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-006/violation",
+      "targetValueSha256": "e0910c8afc40f8aa21dd39a4d13dc6d98845dea46474e778fc9936ca11d5002d",
+      "expectedOwnerValue": "Re-check current authority at effect boundaries; stop future dispatch and restrict outputs when policy has been revoked, without claiming an in-flight effect was terminated.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0368-C004",
+      "sourceTextSha256": "4dfb55d30dcd77cfa65988052f5d0f90c9b1c93b6d9f0b95e4cbecb0a7b677fc",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-005/statement",
+      "targetValueSha256": "ba3232cd52fcc33c5145727bda73667c3f9f0ecfcb3f5c1b8da5b7a8c9a72c0d",
+      "expectedOwnerValue": "Required audit intent must be recorded before crossing an external effect boundary.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0369-C002",
+      "sourceTextSha256": "7c77c4111b74c34e7ad326637e84790051a7871cd6fa9e9327c4c1b0d3c4e680",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-005/auditDurabilityDistinction",
+      "targetValueSha256": "57c572bb3e73ffecc7fe1ac2d8ba85c5c3b728a7b5213b3be37498ad91524f3e",
+      "expectedOwnerValue": "Required durable audit intent is an effect precondition; optional debug telemetry and observability are distinct and may degrade only where the exact operation policy permits. A telemetry record cannot substitute for required audit intent.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0371-C002",
+      "sourceTextSha256": "a37d43836a8a1ddc80c731917c3da940545880495deba014ed82bf2038db3ab3",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-004/untrustedContentBoundary",
+      "targetValueSha256": "c1d163e10cf7031814cce18283978c644711592be847ad117ef2eaaeb31200ed",
+      "expectedOwnerValue": "Untrusted user or model content cannot modify system policy, select privileged tools, or exfiltrate other assets; privileged effects require separately authorized host policy and a current effect-boundary decision.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0374-C001",
+      "sourceTextSha256": "d86d308c60c077881cf11734e504e63049771f11f1a398b7ab7128d05db503cb",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencyContracts/0/ownerBoundaryRule",
+      "targetValueSha256": "556b00a8013f818ce5c335d7eee4df8659c124fb22dfcfb77b1aead9020331c3",
+      "expectedOwnerValue": "Shared supplies neutral command/state/CAS/idempotency/lease mechanics; Media defines legal state transitions, guards, retry eligibility, durable job meaning, effect finality, and the reconciliation decision.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0374-C003",
+      "sourceTextSha256": "86414637ee2b12c018bffe319165fa1a5fc8a71a6abd833288d4c18a4bcc1fe1",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencyContracts/1/ownerBoundaryRule",
+      "targetValueSha256": "165fe8a411d341c546161738e643dfee21b83906523cf5db6cdfaafa45dc019f",
+      "expectedOwnerValue": "The observed Shared messaging source contract supplies candidate claim-aware publication mechanics; exact public package version and Media consumer adoption are unverified. Media owns the durable outbox intent, event vocabulary, permitted payload, retry cadence, and truthful publication-finality disposition.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0374-C004",
+      "sourceTextSha256": "c8dfcc84467d79d54f153809d8fe4c55ee6f4020969a794eb7e65cd27fad38b1",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#dependencyContracts/1/ownerBoundaryRule",
+      "targetValueSha256": "165fe8a411d341c546161738e643dfee21b83906523cf5db6cdfaafa45dc019f",
+      "expectedOwnerValue": "The observed Shared messaging source contract supplies candidate claim-aware publication mechanics; exact public package version and Media consumer adoption are unverified. Media owns the durable outbox intent, event vocabulary, permitted payload, retry cadence, and truthful publication-finality disposition.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0375-C005",
+      "sourceTextSha256": "ebbd42bbbd39fa503a20dad662ec2415d79bb59e0c9851e76b37c319f19939df",
+      "targetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-003/failClosed",
+      "targetValueSha256": "4b65676305ed7e687a9a2a8e7aa683993f372db31176dc06cd144e6a09cf838e",
+      "expectedOwnerValue": "Retain OUTCOME_UNKNOWN and require authoritative reconciliation before retry or finality claims.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0379-C001",
+      "sourceTextSha256": "83763192eb8965ac0f1c07fc10a8253d7ba61aa2bc6e366ae8c544ab943c9fa3",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#ownerDefinedMigrationQualificationRules/cacheReuseValidityRule",
+      "targetValueSha256": "f72aba91cda5cb83a73b20f9eaf439db116be90023efb07af6d4d1c4fab01414",
+      "expectedOwnerValue": {
+        "id": "media.qualification.cache-reuse-validity",
+        "rule": "A reusable output key binds source artifact digests, exact operation and schema versions, parameters, and the exact quality-profile and delivery-profile identities and versions, engine/model/runtime/hardware and weight/configuration digests, seed and reproducibility class, temporal, color, audio, layout, and font configuration, plus the relevant policy and license decision versions. Reuse requires exact key equality, intact output integrity, current authorization and retention checks, and evidence still valid for the requested scope. Missing fields, changed policy, expired authority, or unknown impact invalidates reuse and requires a fresh decision; a cache hit never supplies authorization or proves current availability.",
+        "scopeStatus": "DEFINITION_ONLY; this does not establish an implementation or cache admission."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0442-C001",
+      "sourceTextSha256": "5caf9ac39ea9c140fea20e68f31c8967f3da82e93c80ba0cd0e748200554ec14",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#density",
+      "targetValueSha256": "9712c4a562c2a7f34ea0afed7434d3baf85994ca0f7a0477da1f15590fc39802",
+      "expectedOwnerValue": {
+        "simple": "intent and safe defaults for one primary task, essential source/version context, and the next safe action over the same state and actions",
+        "guided": "quality, style, duration, reference, output, and privacy choices plus timing, rights status, decision inputs, and review evidence over the same state and actions",
+        "expert": "typed graph, curves, solver limits, generation, color, audio, and encoding controls plus measurements and provenance over the same state and actions; no hidden change to action meaning or authority"
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0453-C006",
+      "sourceTextSha256": "3175c932fd20d5edfff8e8d8fe6ecba25e9bf13a85894a696a2044448a12c550",
+      "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/localeAdmission/requiredResilienceTestRule",
+      "targetValueSha256": "8a740004a1e28e7973c92f949539c812818341f0b7dada310955134edf2576fa",
+      "expectedOwnerValue": {
+        "id": "media.locale.required-resilience-test-rule",
+        "rule": "Where locale behavior is claimed, exercise at least Latin and Devanagari fixtures plus RTL or pseudo-localization. Verify bidi direction, licensed font fallback, script shaping, long-label expansion, translated-caption wrapping, and date/number/time formatting independently for each admitted capability. A fixture passing is test evidence for that exact capability and configuration only; it does not admit a locale, establish launch support, or certify localization generally.",
+        "testOnlyFixtures": [
+          "en-Latin",
+          "hi-IN-Devanagari",
+          "ar-Arabic-RTL",
+          "qps-ploc-pseudo-localization"
+        ],
+        "scopeStatus": "DEFINITION_ONLY; no locale set or runtime is admitted here."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0454-C001",
+      "sourceTextSha256": "485b3299907490de789554b2bbf1fd97e3a73e0601d1c6e2466edfa83aff038e",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/ownerDefinedMigrationQualificationRules/substitutionAdmissionRule",
+      "targetValueSha256": "3ec1fd0027db3c6f2f4b3196000303349be98cc2ef7319c3eeff646d2228f014",
+      "expectedOwnerValue": {
+        "id": "media.qualification.substitution-admission",
+        "rule": "A different model, engine, runtime, provider, codec, or material configuration is not a silent substitute. The exact candidate must have an explicit reuse-decision record before entering a critical path, a registered capability/profile binding, compatible typed inputs and outputs, current license and policy admission, qualification for the requested scope, and preservation of every requested quality, fidelity, rights, locality, delivery, and cost floor. Missing or unknown evidence denies substitution; a user confirmation cannot replace policy or license authorization.",
+        "decision": "Explicit deny by default; any allowed substitution records requested and effective identities, evidence refs, reason, bounds, and required confirmation.",
+        "scopeStatus": "DEFINITION_ONLY; no candidate is admitted or qualified by this rule."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0455-C002",
+      "sourceTextSha256": "b9b510a2e8d06081e06019593656b3fd1819ed216b4068f189ea513159556a4c",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary",
+      "targetValueSha256": "9a8d07cba462cbafd9153beef209439630cfea8d7f2dc3d2c04f24a565fc44a4",
+      "expectedOwnerValue": {
+        "id": "media.reuse.generic-mechanics-boundary",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "sharedWorkflow": {
+          "rule": "Reuse Ghatana Shared workflow, outbox, idempotency, CAS, retry-scheduling, and reconciliation mechanics behind Media-owned adapters when the exact public contract satisfies the Media operation guard and finality requirements.",
+          "boundary": "Media retains authoritative domain state, policy, rights/consent, persistence schema, attempt/effect classification, and product finality. Shared mechanics cannot assign Media state semantics or bypass Media policy.",
+          "rejection": "Do not fork generic workflow/outbox mechanics in Media when the Shared contract is suitable; do not use an unsuitable Shared contract merely to avoid a Media adapter."
+        },
+        "tools": {
+          "rule": "Tools authoring or development workflows do not constitute production Media execution, durable provider dispatch, or product finality.",
+          "admission": "Any production invocation needs an exact admitted Media operation, trusted delegation, current policy, and authoritative receipt."
+        },
+        "scopeStatus": "OWNER_DEFINED_REUSE_BOUNDARY; Shared/Tools contract qualification and deployment acceptance remain pending"
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0469-C002",
+      "sourceTextSha256": "2940dcfa56d7110bf0bc9cae74c26b8e94d6fb48393c198a9d806fa6db8c03a6",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#ownerDefinedImportBoundary/documentExtractionWorkerRule",
+      "targetValueSha256": "779d63fe63ca33e167e24acbb08065c51ed988507c8608d63ded7b50c273e767",
+      "expectedOwnerValue": "The document-intelligence worker consumes frozen Shared document-extraction contracts. The worker owner retains cancellation/admission behavior; Media supplies media-specific recognition intent, exact frame/time/scene association, and Media authorization before invocation. Shared data types do not supply worker execution semantics.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    }
+  ],
+  "explicitExclusion": {
+    "claimId": "MPSEM-0166-C004",
+    "reason": "Historical OSS inventory file absent; remains unresolved"
+  },
+  "verification": {
+    "command": "node --test tests/pdp-migration-dependency-contracts.test.mjs tests/pdp-migration-constitution-claims.test.mjs tests/pdp-migration-qualification-policy-claims.test.mjs",
+    "passed": 14,
+    "failed": 0,
+    "outputSha256": "fe623a83405bee527b8fff1b1f1bae206bccdc0a0dba0d71b106e8ce3d077c05"
+  },
+  "wholeTaskCriterionEstablished": false,
+  "independentAcceptance": "NOT_EVALUATED",
+  "nativeLifecycleReceipt": null
+}

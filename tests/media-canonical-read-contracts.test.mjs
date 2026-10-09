@@ -7,12 +7,15 @@ import { validateCanonicalMediaReads } from '../scripts/lib/media-canonical-read
 const root = resolve(new URL('..', import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, '../ghatana-tools/package.json'))('yaml');
 const read = path => readFileSync(resolve(root, path), 'utf8');
-const fixture = () => ({
+const sourceFixture = {
   operations: parse(read('.product-experience/pdp-1-domain-data/operations.yaml')),
   openapi: parse(read('contracts/openapi/media.yaml')),
   runtimeSource: read('launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java'),
   handlerSource: read('launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java'),
-});
+};
+// Every mutation starts from the same source cut without reparsing the full
+// capability schema population for each adverse case.
+const fixture = () => structuredClone(sourceFixture);
 test('exact upload/artifact/job queries retain owner-scoped authority and actual handler guards', () => {
   assert.deepEqual(validateCanonicalMediaReads(fixture()), []);
 });

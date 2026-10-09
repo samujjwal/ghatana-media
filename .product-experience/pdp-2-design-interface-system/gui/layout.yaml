@@ -27,46 +27,57 @@ layoutRules:
   forbidden: [horizontal-only access to essential content, color-only state, layout implying authorization, hidden unknown-finality warning]
 layouts:
   - id: media.gui.layout.collection
+    compatibleTemplateRefs: [media.gui.template.collection]
     purpose: Search, filter, and navigate an authorized collection with identity, count, empty state, and paging context.
     order: [workspace-and-project-context, collection-heading, filters, result-count, results, pagination, next-safe-action]
     responsiveRule: Keep filters and result identity in reading order; do not rely on horizontal scrolling.
   - id: media.gui.layout.task-setup
+    compatibleTemplateRefs: [media.gui.template.task-setup]
     purpose: Choose inputs and outcome constraints before any separately confirmed submission.
     order: [workspace-and-project-context, requested-outcome, selected-inputs, capability-and-policy-disposition, validation, next-safe-action]
     responsiveRule: Keep the requested outcome, selected source identity, eligibility, and next action together.
   - id: media.gui.layout.media-workbench
+    compatibleTemplateRefs: [media.gui.template.media-composition, media.gui.template.workbench]
     purpose: Coordinate source media, time-aligned work, selection details, and validation.
     order: [workspace-and-project-context, source-player, synchronized-work-area, selection-details, validation, save-action]
     responsiveRule: Reflow media and transcript regions into one keyboard reading order while retaining their time relationship.
   - id: media.gui.layout.job-observation
+    compatibleTemplateRefs: [media.gui.template.job-observation]
     purpose: Preserve job, attempt, progress, finality, outputs, and safe recovery as separate facts.
     order: [job-identity, source-version, observed-state-and-finality, measured-progress, outputs, safe-next-action, provenance]
     responsiveRule: Never hide identity or unknown-finality messaging on narrow screens.
   - id: media.gui.layout.review
+    compatibleTemplateRefs: [media.gui.template.review-and-compare]
     purpose: Compare exact identities and scoped evidence before recording a review decision.
     order: [source-context, compared-identities, comparison-content, quality-and-uncertainty, provenance, decision-actions]
     responsiveRule: Keep compared version identities adjacent to comparison content at every width.
   - id: media.gui.layout.consent
+    compatibleTemplateRefs: [media.gui.template.consent-gate]
     purpose: Resolve rights, consent, access, and scope before affected work is performed.
     order: [requested-outcome, affected-material, scope-and-validity, decision, next-safe-action]
     responsiveRule: Keep affected material, scope, expiry, revocation, and decision controls in one reading sequence.
   - id: media.gui.layout.render
+    compatibleTemplateRefs: [media.gui.template.render-preparation-and-review]
     purpose: Prepare a precise composition snapshot, submit it separately, and review verified outputs before delivery.
     order: [composition-snapshot, profile-and-validation, rights-and-estimates, submission-and-job-finality, output-verification, review-decision, delivery-status]
     responsiveRule: Preserve the boundary between render submission, output review, and delivery.
   - id: media.gui.layout.operational-readiness
+    compatibleTemplateRefs: [media.gui.template.operational-readiness]
     purpose: Inspect one scoped readiness observation, its freshness, limits, safe recovery guidance, and audit reference.
     order: [readiness-scope, observation-time-and-freshness, check-results, capacity-and-dependency-disposition, safe-recovery-guidance, audit-reference]
     responsiveRule: Keep scope, freshness, unknown dimensions, and safe next action together; never imply that observed readiness guarantees future availability.
   - id: media.gui.layout.workspace-settings
+    compatibleTemplateRefs: [media.gui.template.workspace-settings]
     purpose: Review inherited and local workspace policy values and save an authorized change with visible affected workflows.
     order: [workspace-context, settings-scope, category-navigation, current-and-inherited-values, policy-owner, affected-workflows, unsaved-changes, save-and-reset-actions]
     responsiveRule: Keep scope, current value, inheritance, affected workflow, and save/reset outcome in one reading order.
   - id: media.gui.layout.project-overview
+    compatibleTemplateRefs: [media.gui.template.project-overview]
     purpose: Understand one selected project's exact identity, contents, pending work, and safe next action.
     order: [workspace-context, project-identity-and-version, source-and-output-summary, pending-work-summary, intent-launcher, recovery-and-navigation]
     responsiveRule: Preserve project identity and pending-work finality before available next actions at every width.
   - id: media.gui.layout.record-detail
+    compatibleTemplateRefs: [media.gui.template.record-detail]
     purpose: Inspect one identified artifact, version, provenance chain, or settings record.
     order: [workspace-and-project-context, exact-record-identity, observed-state, detail-and-provenance, next-safe-action]
     responsiveRule: Keep record identity and provenance visible when the detail body reflows.

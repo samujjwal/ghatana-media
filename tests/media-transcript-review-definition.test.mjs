@@ -164,7 +164,7 @@ test('read action stays UNKNOWN for reversibility and cannot project or forge an
   review.actionDefinitionSemantics.publicEffect = {
     id: 'media.effect.reversible-transcript-read', name: 'Read transcript', kind: 'query', description: 'Read', reversible: true,
   };
-  assert.throws(() => resolveExperienceDefinitionSemantics(forged, []), /conditional boolean coercion|unbounded action review/u);
+  assert.throws(() => resolveExperienceDefinitionSemantics(forged, []), /conditional boolean coercion|unbounded historical public record|unbounded action review|historical decision scope drift/u);
 });
 
 test('PXD-064 cannot be reused for a different action, operation, authority, decision, or admission', () => {
@@ -178,7 +178,7 @@ test('PXD-064 cannot be reused for a different action, operation, authority, dec
   ]) {
     const forged = structuredClone(actionRegistry.actions);
     mutate(forged.find(({ id }) => id === 'media.action.review-transcript').actionDefinitionSemantics);
-    assert.throws(() => resolveExperienceDefinitionSemantics(forged, []), /unbounded action review/u, label);
+    assert.throws(() => resolveExperienceDefinitionSemantics(forged, []), /unbounded historical public record|unbounded action review|typed action definition mismatch|unlinked exact operation|historical decision scope drift/u, label);
   }
 
   const wrongJourney = structuredClone(journey);

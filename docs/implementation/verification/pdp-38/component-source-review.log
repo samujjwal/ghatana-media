@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
+ok 1 - all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
+  ---
+  duration_ms: 267.871355
+  type: 'test'
+  ...
+# Subtest: the reusable composition validator is part of actual source validation and enforces reciprocal catalogs
+ok 2 - the reusable composition validator is part of actual source validation and enforces reciprocal catalogs
+  ---
+  duration_ms: 2964.715463
+  type: 'test'
+  ...
+# Subtest: owner-defined PDP-3 actions participate in actual composition reference resolution
+ok 3 - owner-defined PDP-3 actions participate in actual composition reference resolution
+  ---
+  duration_ms: 693.167165
+  type: 'test'
+  ...
+# Subtest: composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
+ok 4 - composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
+  ---
+  duration_ms: 82.832277
+  type: 'test'
+  ...
+# Subtest: every uncertain action retains a template-level unknown-finality recovery pattern
+ok 5 - every uncertain action retains a template-level unknown-finality recovery pattern
+  ---
+  duration_ms: 199.408258
+  type: 'test'
+  ...
+# Subtest: central layout and accessibility rules retain critical facts at every density and color mode
+ok 6 - central layout and accessibility rules retain critical facts at every density and color mode
+  ---
+  duration_ms: 9.208824
+  type: 'test'
+  ...
+# Subtest: all 28 contract-only component families have typed, meaningful Media source definitions
+ok 7 - all 28 contract-only component families have typed, meaningful Media source definitions
+  ---
+  duration_ms: 2992.214821
+  type: 'test'
+  ...
+# Subtest: every family rejects a missing material field, an untyped field, and a missing semantic invariant
+ok 8 - every family rejects a missing material field, an untyped field, and a missing semantic invariant
+  ---
+  duration_ms: 4229.544555
+  type: 'test'
+  ...
+# Subtest: all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
+ok 9 - all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
+  ---
+  duration_ms: 503.133861
+  type: 'test'
+  ...
+# Subtest: identity readiness requires an exact resolved upstream context tuple
+ok 10 - identity readiness requires an exact resolved upstream context tuple
+  ---
+  duration_ms: 185.187136
+  type: 'test'
+  ...
+# Subtest: typed schema validators refresh when the current source bytes change
+ok 11 - typed schema validators refresh when the current source bytes change
+  ---
+  duration_ms: 895.717892
+  type: 'test'
+  ...
+# Subtest: rational clock values and half-open intervals enforce exact bounded semantics
+ok 12 - rational clock values and half-open intervals enforce exact bounded semantics
+  ---
+  duration_ms: 68.787774
+  type: 'test'
+  ...
+# Subtest: public-source dispositions remain distinct and are not mislabeled as typed Media contracts
+ok 13 - public-source dispositions remain distinct and are not mislabeled as typed Media contracts
+  ---
+  duration_ms: 0.282522
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9562.937446

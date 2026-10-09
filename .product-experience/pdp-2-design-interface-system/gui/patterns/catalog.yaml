@@ -1,13 +1,17 @@
 schemaVersion: media.gui-patterns.v1
 owner: ghatana-media-product-experience
 authority: Media owns domain-specific composition and behavior; Shared owns reusable primitive implementation
+compositionOwnerDecision:
+  authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate
+  scope: Pattern identities, bounded component-role crosswalks, and explicit template-overlay compatibility
+  excludes: [Shared implementation admission, screen rendering/admission, independent accessibility review, phase acceptance]
 sourceRefs:
   - ../primitives.yaml
   - .product-experience/pdp-2-design-interface-system/component-contracts.yaml
   - .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
   - .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
   - .product-experience/pdp-0-product-truth/state-models.yaml
-scopeStatus: proposal; pattern behavior and component bindings require product and accessibility review
+scopeStatus: MEDIA_OWNER_ACCEPTED_DEFINITION_PATTERNS; independent accessibility review and screen admission remain pending
 acceptance:
   criteria:
     - Each pattern composes Shared primitives and references canonical Media state and action contracts.
@@ -23,93 +27,114 @@ patterns:
     anatomy: [workspace-context, search, result-list, empty-or-error-state, create-action]
     states: [loading, populated, empty, no-results, stale, access-denied]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-browser
+    componentRefs: [media.component.project-browser]
   - id: media.gui.pattern.project-context-header
     intent: Keep workspace, project identity, and exact revision visible.
     anatomy: [workspace, project-identity, revision, access-state, safe-next-action]
     states: [loading, ready, stale-revision, access-limited]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-context-summary
+    componentRefs: [media.component.project-context-summary]
   - id: media.gui.pattern.intent-launcher
     intent: Choose an outcome without selecting an implementation provider.
     anatomy: [intent-name, outcome, availability, reason, choose-action]
     states: [available, unavailable, selected, loading]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.intent-launcher
+    componentRefs: [media.component.intent-launcher]
   - id: media.gui.pattern.creation-plan-review
     intent: Review proposed outcome, material choices, support, and consequences before execution.
     anatomy: [outcome, inputs, choices, limits, consent-and-rights, effect-summary, confirm-or-edit]
     states: [draft, needs-input, blocked, ready, submitting, outcome-unknown]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.creation-plan-summary
+    componentRefs: [media.component.creation-plan-summary]
   - id: media.gui.pattern.source-picker
     intent: Propose selection of an eligible source artifact and version, subject to owner-authorized access; selection does not establish authority.
     anatomy: [source-context, searchable-artifacts, version, eligibility, selection]
     states: [loading, available, unavailable, access-denied, stale]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-picker
+    componentRefs: [media.component.source-picker]
   - id: media.gui.pattern.upload-and-verification
     intent: Show transfer and artifact-verification lifecycles as related but distinct.
     anatomy: [upload-id, transfer-progress, verification-job-id, verification-stage, artifact-availability, recovery]
     states: [queued, transferring, interrupted, verifying, verified, rejected, unknown]
     sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
+    componentRefs: [media.component.artifact-transfer-status, media.component.artifact-integrity-summary]
   - id: media.gui.pattern.job-status-and-recovery
     intent: Observe one job record and offer only contract-authorized state-appropriate recovery; durability is not established by this proposal.
     anatomy: [job-identity, state, finality, progress, outputs, next-safe-action]
     states: [queued, running, cancel-pending, completed, failed, cancelled, outcome-unknown]
     sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+    componentRefs: [media.component.job-status-card, media.component.activity-recovery-feed]
   - id: media.gui.pattern.activity-attention
     intent: Find a recorded job that needs status review, an outcome check, or follow-up, then open that exact job.
     anatomy: [activity-heading, job-identity-and-purpose, recorded-state-and-finality, supported-age-or-urgency, safe-next-action, empty-or-unavailable-state]
     states: [loading, populated, empty, partial, stale, access-denied, offline, job-outcome-unknown, evidence-unavailable]
     sourceRef: .product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#media.gui.pattern.activity-attention
+    componentRefs: [media.component.activity-recovery-feed]
   - id: media.gui.pattern.multitrack-composition
     intent: Arrange versioned audio, video, caption, and graphics tracks with exact timing and explicit unresolved approvals.
     anatomy: [composition-version, multitrack-timeline, track-and-clip-list, transition-and-caption-alignment, brand-and-typography-references, safe-area-and-output-profile, validation-state]
     states: [loading, draft, editing, invalid, needs-review, validated, outcome-unknown]
     sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
+    componentRefs: [media.component.storyboard, media.component.timeline-keyframe-editor, media.component.audio-mixer]
   - id: media.gui.pattern.transcript-and-playback
     intent: Keep playback position, transcript selection, and source time aligned.
     anatomy: [player, transport-controls, source-time, transcript-region, selection]
     states: [loading, playable, seeking, unavailable, failed]
     sourceRef: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml
+    componentRefs: [media.component.source-player, media.component.transcript-review]
   - id: media.gui.pattern.caption-editor
     intent: Edit text and timing while keeping source and proposed caption-revision context distinct; immutability is not established by this proposal.
     anatomy: [source-context, selected-cue, text-editor, timing, validation, save-as-new-version]
     states: [clean, dirty, invalid, saving, saved, outcome-unknown]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.caption-track-editor
+    componentRefs: [media.component.caption-track-editor]
   - id: media.gui.pattern.version-comparison
     intent: Compare exact version identifiers and identify differences and proposed lineage; immutable-byte guarantees remain unverified.
     anatomy: [version-identities, comparison-basis, aligned-content, difference-summary, provenance]
     states: [ready, loading, incomparable, unavailable]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.result-comparison
+    componentRefs: [media.component.result-comparison]
   - id: media.gui.pattern.review-approval
     intent: Review evidence for an exact output version and record a scoped decision only when authorized; distinct from pre-execution plan review.
     anatomy: [exact-output-version-identity, review-scope-and-current-decision-state, content-and-quality-evidence, rights-and-policy-status, reviewer-authority, decision-outcome-and-follow-up]
     states: [review-pending, evidence-incomplete, authorized-to-review, decision-recorded, approval-expired, new-version-requires-review, access-denied, outcome-unknown]
     sourceRef: .product-experience/pdp-2-design-interface-system/gui/patterns/review-approval.yaml#media.gui.pattern.review-approval
+    componentRefs: [media.component.result-comparison, media.component.quality-inspector]
   - id: media.gui.pattern.quality-and-uncertainty
     intent: Present scoped measurements, review requirements, uncertainty, and acceptance separately.
     anatomy: [observation, scope, method, value-or-uncertainty, threshold, reviewer-state]
     states: [measured, inferred, unresolved, not-evaluated, accepted, rejected]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.quality-inspector
+    componentRefs: [media.component.quality-inspector]
   - id: media.gui.pattern.rights-and-consent-review
     intent: Make rights, consent scope, expiry, and policy decision visible before affected work.
     anatomy: [material, right-or-consent, scope, source, validity, decision, next-action]
     states: [required, valid, expired, revoked, denied, unresolved]
     sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
+    componentRefs: [media.component.rights-retention-review]
   - id: media.gui.pattern.rendering
     intent: Keep exact-snapshot render preparation, submission, asynchronous execution, verification, review, and delivery distinct.
     anatomy: [exact-composition-snapshot, profile-and-validation, rights-and-estimates, explicit-submission, job-state, output-verification-and-review, separate-delivery]
     states: [preparation-draft, validation-required, ready-to-submit, submission-pending, submission-outcome-unknown, execution-queued-or-running, execution-outcome-unknown, output-awaiting-verification, output-available-for-review, delivery-pending, delivery-outcome-unknown, delivery-acknowledged]
     sourceRef: .product-experience/pdp-2-design-interface-system/gui/patterns/rendering.yaml#media.gui.pattern.rendering
+    componentRefs: [media.component.creation-plan-summary, media.component.delivery-profile-picker, media.component.job-status-card, media.component.artifact-integrity-summary, media.component.result-comparison]
   - id: media.gui.pattern.provenance-and-lineage
     intent: Explain source, derivation, transformations, and unresolved provenance.
     anatomy: [artifact-identity, source-links, derivation-steps, methods, timestamps, unknowns]
     states: [complete, partial, unresolved, unavailable]
     sourceRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.provenance-summary
+    componentRefs: [media.component.provenance-summary]
   - id: media.gui.pattern.safe-confirmation-and-unknown-outcome
     intent: Confirm consequential intent and recover safely when the effect is uncertain.
     anatomy: [effect-summary, preconditions, confirmation, pending-state, outcome-check, safe-recovery]
     states: [ready, submitting, confirmed, rejected, unknown]
     sourceRef: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
+    componentDisposition: SHARED_PRIMITIVES_ONLY
+    noMediaComponentRationale: This is a cross-template semantic overlay that composes exact Shared Button/Dialog primitives around the existing action contract; a Media generic component would duplicate shared interaction behavior.
   - id: media.gui.pattern.destructive-lifecycle-action
     intent: Propose exact-scope, authority-checked confirmation and safe reconciliation for consequential lifecycle requests; artifact deletion remains unbound.
     anatomy: [exact-target-and-version-scope, authority-and-preconditions, impact-retention-and-reversibility, explicit-confirmation, pending-or-unknown-outcome, safe-verification-and-recovery]
     states: [target-or-version-unresolved, authority-unresolved, retention-or-hold-blocked, ready-for-explicit-confirmation, request-pending, outcome-unknown, effect-confirmed-within-reported-scope, recovery-requires-owner]
     sourceRef: .product-experience/pdp-2-design-interface-system/gui/patterns/destructive-lifecycle-action.yaml#media.gui.pattern.destructive-lifecycle-action
+    componentDisposition: SHARED_PRIMITIVES_ONLY
+    noMediaComponentRationale: The pattern documents exact-scope confirmation and unknown-outcome constraints; no artifact-delete operation is admitted, and Shared dialog/button primitives own generic interaction.

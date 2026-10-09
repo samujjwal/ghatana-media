@@ -4,328 +4,1337 @@ journeyId: J-08
 pdp0JourneyRef: J-08
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Low-quality video repair with measured comparison
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact action/state transitions,
-  per-channel behavior, scenarios, wire bindings, and runtime commitments remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
-- media.goal.improve-with-disclosure
-- media.goal.preserve-source
-- media.goal.finished-asset
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  - media.goal.finished-asset
 actors:
-- media.creator
-- media.editor
-- media.reviewer
+  - media.creator
+  - media.editor
+  - media.reviewer
 channels:
-- media.channel.web
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and accessibility
-  equivalence remain unbound.
+  - media.channel.web
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
-- Repair operation, input envelope, and budget are admitted by P0-003/P0-007.
+  - Repair operation, input envelope, and budget are admitted by P0-003/P0-007.
 steps:
-- view: media.view.create-video
-  legacyViewRef: M-VIDEO
-  screenContractRef: screen-contracts/create-video.yaml
-  viewIntent: Generation strategy, controls, progress and alternatives
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.view-job-status
-  - media.action.check-job-outcome
-  - media.action.request-cancellation
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Retain source, candidate, time ranges, metrics, quality profile, and bounded-work status.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.improve-media
-  legacyViewRef: M-ENHANCE
-  screenContractRef: screen-contracts/improve-media.yaml
-  viewIntent: Preserve/enhance/creative choice, measured defects, safe plan
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs: []
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Retain source, candidate, time ranges, metrics, quality profile, and bounded-work status.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.compare-results
-  legacyViewRef: M-COMPARE
-  screenContractRef: screen-contracts/compare-results.yaml
-  viewIntent: Before/after, candidate ranking and applicable measurements
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.compare-caption-versions
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Retain source, candidate, time ranges, metrics, quality profile, and bounded-work status.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-- view: media.view.review-quality
-  legacyViewRef: M-QUALITY
-  screenContractRef: screen-contracts/review-quality.yaml
-  viewIntent: Applicable dimensions, abstentions, defects and repair plan
-  actionRef: null
-  actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
-  stateRefs: []
-  stateBindingState: pending-owner-bound-state-reference-and-transition
-  candidateActionRefs:
-  - media.action.inspect-provenance
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  canonicalOperationRef: null
-  authorityRef: null
-  decisionRef: null
-  transitionRef: null
-  handoffRef: null
-  success:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.terminalSuccess
-    proposal: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible.
-  failure:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.criticalNonhappyPaths
-    proposal:
-    - id: phase0-critical-exception
-      condition: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
-      responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-        pending.
-  degradedBehavior: null
-  recovery:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.recovery
-    proposal: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
-  postconditions: []
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: candidate-proposal
-    scope: journey-level-not-allocated-to-this-step
-    sourceRef: journey.contextPreserved
-    proposal:
-    - Retain source, candidate, time ranges, metrics, quality profile, and bounded-work status.
-  bindingStatus:
-    surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-    objectRefs: pending-explicit-step-domain-object-reference
-    stateRefs: pending-owner-bound-state-reference-and-transition
-    canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-    authorityRef: pending-explicit-step-authority-binding
-    decisionRef: pending-explicit-owner-decision-binding
-    transitionRef: pending-explicit-legal-transition-binding
-    handoffRef: pending-explicit-step-handoff-allocation
-    success: candidate-proposal-only; journey-level outcome not allocated to this step
-    failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-    degradedBehavior: pending-explicit-step-degraded-behavior
-    recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-    postconditions: pending-explicit-step-postconditions
-    requirementRefs: pending-explicit-step-requirement-crosswalk
-    verification: not-run; no evidence refs recorded
-    contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one registered intent-based
-  screen. Null actionRef and empty stateRefs are deliberate open bindings, not no-op actions or completed transitions.
-terminalSuccess: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations
-  visible.
+  - view: media.view.create-video
+    legacyViewRef: M-VIDEO
+    screenContractRef: screen-contracts/create-video.yaml
+    viewIntent: Generation strategy, controls, progress and alternatives
+    actionRef: media.action.submit-validated-request
+    actionBindingState: Exact screen action selected for this ordered step;
+      source-defined semantics only; independent review and runtime admission
+      separate
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#media-job
+      - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+    stateBindingState: state applicability remains separately bounded
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.artifact-version
+      - media.domain.processing-job
+      - media.domain.resolved-plan
+    canonicalOperationRef: media.operation.action.submit-validated-request
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Eligible stabilized/upscaled/repaired output is compared under
+        applicable metrics with limitations visible.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+            or exhausted budget.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Stop bounded work, keep completed safe outputs and source, and report
+        metric abstention/failure.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Retain source, candidate, time ranges, metrics, quality profile, and
+          bounded-work status.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+      journeyRef: J-08
+      ordinal: 1
+      viewRef: media.view.create-video
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.submit-validated-request
+        bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+        selectionBasis: EXACT_STEP_INTENT_AND_SCREEN_ACTION
+        candidateActionRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Request the explicitly named operation for the exact target only after
+          fresh actor, capability, policy, and target checks.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: external-effect-or-request; owner-acknowledgment-required;
+          unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.submit-validated-request
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: Generation strategy, controls, progress and alternatives
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Retain source, candidate, time ranges, metrics, quality profile,
+              and bounded-work status.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        canonicalOperationRef: media.operation.action.submit-validated-request
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-08
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+        actionRef: media.action.submit-validated-request
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Eligible stabilized/upscaled/repaired output is compared under
+              applicable metrics with limitations visible.
+          effect: Request the explicitly named operation for the exact target only after
+            fresh actor, capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required;
+            unknown-is-not-failure
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        transitionRef: null
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        operationRef: media.operation.action.submit-validated-request
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: OWNER_OPERATION_STATE_SCOPE_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        objectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Generation strategy, controls, progress and alternatives
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml#purpose
+        actionRef: media.action.submit-validated-request
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.submit-validated-request
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
+        operationRef: media.operation.action.submit-validated-request
+        operationKind: COMMAND
+        domainObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.resolved-plan
+        stateRefs:
+          - .product-experience/pdp-1-domain-data/states.yaml#media-job
+          - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.async-job-command.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    capabilityRefs: []
+  - view: media.view.improve-media
+    legacyViewRef: M-ENHANCE
+    screenContractRef: screen-contracts/improve-media.yaml
+    viewIntent: Preserve/enhance/creative choice, measured defects, safe plan
+    actionRef: media.action.choose-media-improvement-intent
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs: []
+    canonicalOperationRef: null
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Eligible stabilized/upscaled/repaired output is compared under
+        applicable metrics with limitations visible.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+            or exhausted budget.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Stop bounded work, keep completed safe outputs and source, and report
+        metric abstention/failure.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Retain source, candidate, time ranges, metrics, quality profile, and
+          bounded-work status.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      journeyRef: J-08
+      ordinal: 2
+      viewRef: media.view.improve-media
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.choose-media-improvement-intent
+        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Change only the current local draft or selection; keep committed source
+          and versioned objects unchanged until a separately specified commit.
+        reversibilityDisposition: REVERSIBLE
+        finality: local-draft-only; not-a-committed-result
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Change only the current local draft or selection; keep
+          committed source and versioned objects unchanged until a separately
+          specified commit.
+      stepSourceFacts:
+        intent: Preserve/enhance/creative choice, measured defects, safe plan
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Retain source, candidate, time ranges, metrics, quality profile,
+              and bounded-work status.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-08
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-media-improvement-intent
+        actionRef: media.action.choose-media-improvement-intent
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-media-improvement-intent
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Eligible stabilized/upscaled/repaired output is compared under
+              applicable metrics with limitations visible.
+          effect: Change only the current local draft or selection; keep committed source
+            and versioned objects unchanged until a separately specified commit.
+          finality: local-draft-only; not-a-committed-result
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-media-improvement-intent
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-media-improvement-intent
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: AUTHORITY_BINDING_UNRESOLVED
+          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Preserve/enhance/creative choice, measured defects, safe plan
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml#purpose
+        actionRef: media.action.choose-media-improvement-intent
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.compare-results
+    legacyViewRef: M-COMPARE
+    screenContractRef: screen-contracts/compare-results.yaml
+    viewIntent: Before/after, candidate ranking and applicable measurements
+    actionRef: media.action.compare-candidate-on-metric
+    actionBindingState: "Media owner-selected from exact screen action intent:
+      screen compare-results intent: compare exact candidates on an explicit
+      metric with evidence; independent review and runtime admission open"
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.quality-assessment
+      - media.domain.artifact-version
+    canonicalOperationRef: media.operation.action.compare-candidate-on-metric
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Eligible stabilized/upscaled/repaired output is compared under
+        applicable metrics with limitations visible.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+            or exhausted budget.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Stop bounded work, keep completed safe outputs and source, and report
+        metric abstention/failure.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Retain source, candidate, time ranges, metrics, quality profile, and
+          bounded-work status.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+      journeyRef: J-08
+      ordinal: 3
+      viewRef: media.view.compare-results
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.compare-candidate-on-metric
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.compare-candidate-on-metric
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
+      stepSourceFacts:
+        intent: Before/after, candidate ranking and applicable measurements
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Retain source, candidate, time ranges, metrics, quality profile,
+              and bounded-work status.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.compare-candidate-on-metric
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-08
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        operationRef: media.operation.action.compare-candidate-on-metric
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+        actionRef: media.action.compare-candidate-on-metric
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Eligible stabilized/upscaled/repaired output is compared under
+              applicable metrics with limitations visible.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.compare-candidate-on-metric
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        objectRefs:
+          - media.domain.quality-assessment
+          - media.domain.artifact-version
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Before/after, candidate ranking and applicable measurements
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml#purpose
+        actionRef: media.action.compare-candidate-on-metric
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.compare-candidate-on-metric
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    scenarioRefs: []
+    capabilityRefs: []
+  - view: media.view.review-quality
+    legacyViewRef: M-QUALITY
+    screenContractRef: screen-contracts/review-quality.yaml
+    viewIntent: Applicable dimensions, abstentions, defects and repair plan
+    actionRef: media.action.inspect-quality-evidence
+    actionBindingState: "Media owner-selected from exact screen action intent:
+      screen review-quality intent: inspect applicable dimensions/evidence;
+      source-lineage query excluded; independent review and runtime admission
+      open"
+    stateRefs: []
+    stateBindingState: pending-owner-bound-state-reference-and-transition
+    candidateActionRefs: []
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.render-outcome
+      - media.domain.artifact-version
+      - media.domain.quality-assessment
+    canonicalOperationRef: media.operation.action.inspect-quality-evidence
+    authorityRef: null
+    decisionRef: null
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.terminalSuccess
+      proposal: Eligible stabilized/upscaled/repaired output is compared under
+        applicable metrics with limitations visible.
+    failure:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.criticalNonhappyPaths
+      proposal:
+        - id: phase0-critical-exception
+          condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+            or exhausted budget.
+          responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+            copy, and action bindings remain pending.
+    degradedBehavior: null
+    recovery:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.recovery
+      proposal: Stop bounded work, keep completed safe outputs and source, and report
+        metric abstention/failure.
+    postconditions: []
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: candidate-proposal
+      scope: journey-level-not-allocated-to-this-step
+      sourceRef: journey.contextPreserved
+      proposal:
+        - Retain source, candidate, time ranges, metrics, quality profile, and
+          bounded-work status.
+    bindingStatus:
+      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
+      objectRefs: pending-explicit-step-domain-object-reference
+      stateRefs: pending-owner-bound-state-reference-and-transition
+      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
+      authorityRef: pending-explicit-step-authority-binding
+      decisionRef: pending-explicit-owner-decision-binding
+      transitionRef: pending-explicit-legal-transition-binding
+      handoffRef: pending-explicit-step-handoff-allocation
+      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      failure: candidate-proposal-only; journey-level exceptions not allocated to this
+        step
+      degradedBehavior: pending-explicit-step-degraded-behavior
+      recovery: candidate-proposal-only; journey-level recovery not allocated to this
+        step
+      postconditions: pending-explicit-step-postconditions
+      requirementRefs: pending-explicit-step-requirement-crosswalk
+      verification: not-run; no evidence refs recorded
+      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+      journeyRef: J-08
+      ordinal: 4
+      viewRef: media.view.review-quality
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.inspect-quality-evidence
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only-or-navigation; no-write-finality
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation.action.inspect-quality-evidence
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: SINGLE_EXPLICIT_JOURNEY_STEP_CANDIDATE
+        transitionDisposition: NOT_APPLICABLE_WITH_REASON
+        noMutationReason: read-version-bound-source-and-processing-lineage
+      stepSourceFacts:
+        intent: Applicable dimensions, abstentions, defects and repair plan
+        result: null
+        success:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        failure:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        degradedBehavior: null
+        recovery:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        postconditions: []
+        contextPreservation:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.contextPreserved
+          proposal:
+            - Retain source, candidate, time ranges, metrics, quality profile,
+              and bounded-work status.
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+          - media.domain.quality-assessment
+        stateRefs: []
+        canonicalOperationRef: media.operation.action.inspect-quality-evidence
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-08
+        scenarioRefs: []
+        scenarios: []
+        positiveBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.terminalSuccess
+          proposal: Eligible stabilized/upscaled/repaired output is compared under
+            applicable metrics with limitations visible.
+        nonhappyBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.criticalNonhappyPaths
+          proposal:
+            - id: phase0-critical-exception
+              condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+                or exhausted budget.
+              responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+                copy, and action bindings remain pending.
+        recoveryBranch:
+          status: candidate-proposal
+          scope: journey-level-not-allocated-to-this-step
+          sourceRef: journey.recovery
+          proposal: Stop bounded work, keep completed safe outputs and source, and report
+            metric abstention/failure.
+        executable: false
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+        actionRef: media.action.inspect-quality-evidence
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+          intendedResult:
+            status: candidate-proposal
+            scope: journey-level-not-allocated-to-this-step
+            sourceRef: journey.terminalSuccess
+            proposal: Eligible stabilized/upscaled/repaired output is compared under
+              applicable metrics with limitations visible.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
+          finality: read-only-or-navigation; no-write-finality
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
+        transitionRef: null
+        stateRefs: []
+        operationRef: media.operation.action.inspect-quality-evidence
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OWNER_OPERATION_ALLOWED_OBJECT_SET
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: NO_STEP_SCENARIO_FIXTURE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
+      versionedObjectObservation:
+        status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        objectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+          - media.domain.quality-assessment
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        observation: null
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-quality-evidence
+        operationRef: media.operation.action.inspect-quality-evidence
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.render-outcome
+          - media.domain.artifact-version
+          - media.domain.quality-assessment
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        profileRef: media.operation-profile.scoped-query.v1
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: STEP_INTENT_SOURCE
+        intent: Applicable dimensions, abstentions, defects and repair plan
+        intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml#purpose
+        actionRef: media.action.inspect-quality-evidence
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation.action.inspect-quality-evidence
+        effectClaim: see-stepOutcomeSemantics
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml
+          - .product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs: []
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+    capabilityRefs: []
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
+terminalSuccess: Eligible stabilized/upscaled/repaired output is compared under
+  applicable metrics with limitations visible.
 criticalNonhappyPaths:
-- id: phase0-critical-exception
-  condition: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
-  responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action bindings remain
-    pending.
-recovery: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
+  - id: phase0-critical-exception
+    condition: Insufficient recoverable detail, failed metric, temporal artifacts,
+      or exhausted budget.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Stop bounded work, keep completed safe outputs and source, and report
+  metric abstention/failure.
 contextPreserved:
-- Retain source, candidate, time ranges, metrics, quality profile, and bounded-work status.
+  - Retain source, candidate, time ranges, metrics, quality profile, and
+    bounded-work status.
 channelEquivalents:
-- web
+  - web
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations
-    visible.
-  criticalNonhappyIntent: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
+  successIntent: Eligible stabilized/upscaled/repaired output is compared under
+    applicable metrics with limitations visible.
+  criticalNonhappyIntent: Insufficient recoverable detail, failed metric, temporal
+    artifacts, or exhausted budget.
 scenarioRefs: []
 unresolvedProductDecisions:
-- Bind each view transition to an owner-approved action, state, and finality contract; no action identifier or state
-  transition is inferred by this proposal.
-- Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed channel.
-- Author deterministic fixtures with owner-approved expected results for success, critical exceptions, recovery,
-  and preserved context.
-- Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner and independent
-  review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.

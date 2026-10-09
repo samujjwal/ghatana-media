@@ -2,6 +2,12 @@ schemaVersion: media.responsive-adaptive.v1
 productId: media
 authority: Media responsive composition and task capability at each viewport
 status: authored-proposal; P0-010-and-human-viewport-review-pending
+mediaOwnerDefinitionDecision:
+  status: MEDIA_OWNER_ACCEPTED_DEFINITION_ONLY
+  authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate
+  scope: The four responsive modes and safety invariants in this file; listed viewport sizes remain proposed review fixtures.
+  rules: [reflow-to-one-reading-order, preserve-exact-selection-and-pending-edits, keep-identity-consent-finality-and-recovery-reachable, provide-nondrag-timeline-and-waveform-controls]
+  exclusions: [supported-device-claim, human-comprehension-finding, browser-rendering-acceptance, independent-accessibility-review]
 source: .product-experience/pdp-2-design-interface-system/typography-layout.yaml
 variants:
   wide-desktop:

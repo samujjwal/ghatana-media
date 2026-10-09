@@ -1,0 +1,44 @@
+{
+  "status": "PASS_DEFINITION_CONTROL_ASSET_BEHAVIOR",
+  "command": "node scripts/check-media-shared-control-motion.mjs",
+  "browser": "153.0.8010.12",
+  "publicExport": "@ghatana/design-system/strict-csp-controls.css",
+  "cssSha256": "de77f125eb3e1aa8263b36fafd5eae400731d085e72d8bc542cd793f503a2b71",
+  "normal": [
+    {
+      "className": "gh-button",
+      "duration": "0.15s, 0.15s, 0.15s"
+    },
+    {
+      "className": "gh-select__control",
+      "duration": "0.15s, 0.15s"
+    },
+    {
+      "className": "gh-text-area__input",
+      "duration": "0.15s, 0.15s"
+    },
+    {
+      "className": "gh-text-field__control",
+      "duration": "0.15s, 0.15s"
+    }
+  ],
+  "reduced": [
+    {
+      "className": "gh-button",
+      "duration": "0s"
+    },
+    {
+      "className": "gh-select__control",
+      "duration": "0s"
+    },
+    {
+      "className": "gh-text-area__input",
+      "duration": "0s"
+    },
+    {
+      "className": "gh-text-field__control",
+      "duration": "0s"
+    }
+  ],
+  "independentReview": "NOT_CLAIMED"
+}

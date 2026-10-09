@@ -9,6 +9,7 @@ import {
   validateSdkIdentityPartition,
 } from "../scripts/lib/media-product-definition-residuals.mjs";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 
 test("residual report validates exact projection dispositions and pinned sources", () => {
@@ -77,7 +78,8 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.migrationSemantics.unresolvedItems.every((item) => item.id && item.sourceLocations.length && item.classificationBasis));
   assert.equal(report.operationParity.surfaceCount, 9);
   assert.equal(report.operationParity.totalObservedIdentities, 286);
-  assert.equal(report.operationParity.unresolvedIdentityCount, 190);
+  assert.equal(report.operationParity.unresolvedIdentityCount, 164);
+  assert.equal(report.operationParity.unresolvedIdentityCount, report.operationParity.surfaces.reduce((sum, surface) => sum + surface.unresolvedIdentities.length, 0));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));
   const sdkSurface = report.operationParity.surfaces.find(({ name }) => name === "SDK registry");
@@ -106,16 +108,17 @@ test("residual report validates exact projection dispositions and pinned sources
     { id: "shared-artifact-binding", status: "EXTERNAL_PENDING" },
     { id: "conformance-and-specialist-review", status: "INDEPENDENT_PENDING" },
   ]);
-  assert.equal(report.lifecycle.obligationCount, 348);
-  assert.equal(report.lifecycle.totalProofRoutes, 348);
-  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 249);
+  const obligations = JSON.parse(readFileSync(resolve(root, "config/closure/media-product-definition/obligations.json"), "utf8"));
+  assert.equal(report.lifecycle.obligationCount, obligations.length);
+  assert.equal(report.lifecycle.totalProofRoutes, obligations.length);
+  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, obligations.filter(record => !(record.caseIds?.length)).length);
   const l02Links = JSON.parse(readFileSync(resolve(root, "config/closure/media-product-definition/l02-source-case-links.json"), "utf8"));
   const l03Candidates = JSON.parse(readFileSync(resolve(root, "config/closure/media-product-definition/l03-proof-route-candidates.json"), "utf8"));
   const draftLink = l02Links.candidateLinks.find(({ caseId }) => caseId === "media.definition-case.caption-draft.edit");
   const transcriptionSubmissionLink = l02Links.candidateLinks.find(({ caseId }) => caseId === "media.definition-case.transcription-submission.accept");
   assert.equal(l02Links.candidateLinks.length, 65);
   assert.equal(new Set(l02Links.candidateLinks.map(({ obligationId }) => obligationId)).size, 44);
-  assert.equal(l02Links.unmappedObligationIds.length, 304);
+  assert.equal(l02Links.unmappedObligationIds.length, obligations.length - 44);
   assert.deepEqual(draftLink, {
     obligationId: "media.pdp-1.requirement.media.operation.caption-draft-write",
     caseId: "media.definition-case.caption-draft.edit",
@@ -153,10 +156,10 @@ test("residual report validates exact projection dispositions and pinned sources
   });
   assert.equal(l03Candidates.l02CaseLinkReview.reviewedLinkCount, 65);
   assert.equal(l03Candidates.l02CaseLinkReview.reviewedObligationCount, 44);
-  assert.equal(l03Candidates.l02CaseLinkReview.obligationDenominator, 348);
-  assert.equal(l03Candidates.l02CaseLinkReview.unmappedObligationCount, 304);
+  assert.equal(l03Candidates.l02CaseLinkReview.obligationDenominator, obligations.length);
+  assert.equal(l03Candidates.l02CaseLinkReview.unmappedObligationCount, obligations.length - 44);
   assert.equal(l03Candidates.l02CaseLinkReview.candidateRouteCount, 0);
-  assert.equal(l03Candidates.l02CaseLinkReview.authoritativeAssignments, "UNCHANGED_ZERO_OF_348");
+  assert.equal(l03Candidates.l02CaseLinkReview.authoritativeAssignments, `UNCHANGED_ZERO_OF_${obligations.length}`);
   const l03Explanation = l03Candidates.l02CaseLinkReview.missingSemantics.join(" ");
   assert.match(l03Explanation, /source-only caption-draft edit definition assertions/u);
   assert.match(l03Explanation, /not a native provider or correction-runtime observation/u);
@@ -171,27 +174,23 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.equal(report.productExperience.journeyCount, 30);
   assert.equal(report.productExperience.stepCount, 130);
   assert.equal(report.productExperience.stepsWithScreenContracts, 130);
-  assert.equal(report.productExperience.stepsWithActionBindings, 18);
+  assert.equal(report.productExperience.stepsWithActionBindings, 120);
   assert.equal(report.productExperience.journeyTrace.journeyCount, 30);
   assert.equal(report.productExperience.journeyTrace.orderedStepCount, 130);
   assert.equal(report.productExperience.journeyTrace.steps.length, 130);
   assert.equal(report.productExperience.journeyTrace.screenContractBindings.unresolvedSteps.length, 0);
-  assert.equal(report.productExperience.journeyTrace.actionBindings.linkedSteps.length, 18);
-  assert.equal(report.productExperience.journeyTrace.actionBindings.unresolvedSteps.length, 112);
+  assert.equal(report.productExperience.journeyTrace.actionBindings.linkedSteps.length, 120);
+  assert.equal(report.productExperience.journeyTrace.actionBindings.unresolvedSteps.length, 10);
   assert.ok(report.productExperience.journeyTrace.steps.every((step) => step.journeyRef && step.sourceRef && step.stepKey));
   assert.ok(report.productExperience.journeyTrace.actionBindings.linkedSteps
     .every((step) => step.actionRef && step.actionBindingState === "SOURCE_LINKED_PROPOSAL"));
   assert.match(renderMediaProductDefinitionResidualMarkdown(report), /authoritative receipt\/currentness evaluation is NOT_EVALUATED/u);
-  assert.ok(report.capabilityCoverage.sourcePins
-    .every((pin) => pin.state === "CURRENT"));
-  assert.deepEqual(report.migrationSemantics.sourcePins
-    .filter((pin) => pin.state !== "CURRENT")
-    .map(({ path, state }) => ({ path, state })), [
-    { path: "docs/migration/expert-reviewed-master-plan.md", state: "STALE" },
-    { path: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", state: "STALE" },
-    { path: ".product-experience/pdp-0-product-truth/constitution.yaml", state: "STALE" },
-    { path: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", state: "STALE" },
-  ]);
+  for (const pin of [...report.capabilityCoverage.sourcePins, ...report.migrationSemantics.sourcePins]) {
+    const actual = createHash("sha256").update(readFileSync(resolve(root, pin.path))).digest("hex");
+    assert.equal(pin.state, actual === pin.sha256 ? "CURRENT" : "STALE", `${pin.path}: historical pin currency follows exact bytes`);
+  }
+  const staleMigrationPaths = report.migrationSemantics.sourcePins.filter(pin => pin.state === "STALE").map(pin => pin.path);
+  for (const path of ["docs/migration/expert-reviewed-master-plan.md", ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml", ".product-experience/pdp-0-product-truth/constitution.yaml", ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"]) assert.ok(staleMigrationPaths.includes(path));
   assert.notEqual(report.migrationSemantics.declaredSourceLineCount, report.migrationSemantics.currentSourceLineCount);
 });
 

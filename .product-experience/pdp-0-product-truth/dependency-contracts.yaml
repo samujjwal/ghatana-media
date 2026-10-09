@@ -7,6 +7,42 @@ rules:
   networkConsumption: supported-owner-api-or-bounded-integration-provider
   reverseImplementationImport: forbidden
   generatedContracts: regenerate-from-single-registered-authored-owner
+ownerDefinedImportBoundary:
+  id: media.dependency.product-implementation-import-boundary
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  ghatanaCoreConsumerRule: Ghatana core and neutral platform consumers use only immutable published Media artifacts or supported public Media contracts; they must not import Ghatana Media source trees, product implementation packages, generated implementation internals, or private modules.
+  mediaConsumerRule: Media consumes other owners through immutable published public artifacts or supported owner APIs; it does not import another product's implementation internals.
+  allowedBoundaries: [immutable-published-artifact, versioned-public-contract, supported-owner-api]
+  forbiddenBoundaries: [cross-repository-source-coupling, product-implementation-import, generated-private-internal-import]
+  exactImportProhibitions:
+    - ghatana/services/**
+    - ghatana/services/agents/**
+    - ghatana-kernel implementation internals
+    - another product's internal packages
+    - Ghatana Tools implementation internals
+  sharedIdentitySecurityAndGovernanceReuseRule: >-
+    Reuse existing authentication services and Shared identity, security, and governance contracts only through their exact
+    reviewed public boundaries. Shared-owned mechanisms establish issuer-controlled identity, delegation, security, and
+    governance facts; Media separately decides operation-specific purpose, rights, consent, resource, and effect authority.
+    Do not replace those services with Media-local parallel identity, cryptography, token parsing, or governance frameworks.
+    Missing public contract/version or consumer binding remains an owner dependency and does not authorize a source import,
+    inferred endpoint, or cutover.
+  sharedIdentitySecurityAndGovernanceReuseScope: OWNER_DEFINED_REUSE_BOUNDARY; public contract/version and Media consumer binding remain unverified.
+  replacementRule: Replace forbidden source imports only with neutral versioned capability contracts, generated wire clients produced from their single registered authored owner, or an explicitly approved public integration provider; package/name similarity is not approval.
+  legacyPublicCoordinatesRule: Preserve only existing supported public coordinates during behavior-preserving relocation; select new product names from the product registry's allowed export policy and do not create a duplicate new-name implementation beside the compatibility package.
+  observedLegacyPublicCoordinates:
+    source: package.json names in the current Media checkout
+    coordinates: ['@audio-video/types', '@audio-video/client', '@audio-video/ui', '@audio-video/desktop-app']
+    disposition: existing-compatibility-identities-only; package-presence-does-not-prove-public-publication-or-admission
+  newPublicNameRule: A new public package name must be allowed by the product registry export policy before the package is created; preserve a supported old coordinate as a compatibility identity without creating parallel duplicate behavior.
+  portfolioRegistryBoundary: Ghatana Products records portfolio and extraction identity and may consume product projections when its registry requires them; it is not a runtime or source dependency of the Media product.
+  portfolioProjectionRule: Top-level product capabilities.yaml and dependencies.yaml are registry projections of corresponding accepted Phase-0 records only when the portfolio registry requires them; the projections do not become a runtime or source dependency of Media.
+  platformMechanicsBoundary: The observed Shared Workflow source contract supplies candidate neutral command, state compare-and-set, idempotency, and lease-fencing mechanics; the observed Shared messaging contract supplies candidate claim-aware outbox publication mechanics. Their exact public package versions and Media consumer adoption remain unverified. Media owns domain states/guards, event meaning and payload, durable outbox intent, cadence, retry policy, and publication finality.
+  documentExtractionWorkerRule: The document-intelligence worker consumes frozen Shared document-extraction contracts. The worker owner retains cancellation/admission behavior; Media supplies media-specific recognition intent, exact frame/time/scene association, and Media authorization before invocation. Shared data types do not supply worker execution semantics.
+  toolsLifecycleNonAuthorityRule: Tools supplies reusable product-definition and experience contract mechanics but does not decide Media meaning or issue cross-repository evidence closure/currentness. Lifecycle owns evidence admission, closure and receipts; Media supplies product facts and applicability inputs.
+  ecosystemPublicEvidenceBoundary: OSS component inventories are technical supply-chain inputs; they do not by themselves grant component license admission, public export policy, or a runtime integration.
+  historicalOssInventoryClaim: docs/migration/expert-reviewed-master-plan.md#16-oss-dependency-register names config/oss-components.yaml as a technical inventory/admission evidence source; that path is absent from the current checkout and this historical claim remains unresolved until a current authoritative inventory is identified.
+  scopeStatus: OWNER_DEFINED_DEPENDENCY_BOUNDARY; no package publication, runtime reachability, or integration admission implied
 dependencies:
   - owner: ghatana-shared
     surfaces:
@@ -62,6 +98,7 @@ dependencyContracts:
     surface: platform/java/workflow
     usedFor: [media-job-command-identity, compare-and-set-state-mechanics, idempotency, lease-fencing-mechanics]
     mediaAuthority: job-and-attempt-state-meaning-transition-guards-retry-policy-finality
+    ownerBoundaryRule: Shared supplies neutral command/state/CAS/idempotency/lease mechanics; Media defines legal state transitions, guards, retry eligibility, durable job meaning, effect finality, and the reconciliation decision.
     bindingStatus: source-interface-observed-public-version-and-isolated-consumer-unverified
     version: not-verified
     failureAndFinality: unknown-after-dispatch-remains-unknown; shared-mechanics-do-not-authorize-blind-replay
@@ -72,6 +109,7 @@ dependencyContracts:
     surface: platform/java/messaging
     usedFor: [claim-aware-publication-ordering-and-acknowledgement-mechanics]
     mediaAuthority: event-vocabulary-outbox-storage-retry-cadence-and-publication-finality
+    ownerBoundaryRule: The observed Shared messaging source contract supplies candidate claim-aware publication mechanics; exact public package version and Media consumer adoption are unverified. Media owns the durable outbox intent, event vocabulary, permitted payload, retry cadence, and truthful publication-finality disposition.
     bindingStatus: owner-contract-source-observed-public-version-and-isolated-consumer-unverified
     version: not-verified
     failureAndFinality: failed-publication-is-not-assumed-delivered; publish-failure-after-effect-is-unconfirmed
@@ -91,6 +129,7 @@ dependencyContracts:
     surface: identity-and-authentication-public-contracts
     usedFor: [verified-principal-tenant-delegation-audience-and-expiry]
     mediaAuthority: media-operation-purpose-rights-and-resource-scope
+    ownerBoundaryRule: Shared authentication verifies issuer-owned principal, tenant, delegation, audience, and expiry facts; Media separately authorizes each operation's purpose, rights, consent, resource, and effect scope. Authentication alone is not permission.
     bindingStatus: owner-contract-and-cutover-consumer-binding-unverified
     failureAndFinality: missing-expired-or-conflicting-authority-fails-closed
     sourceCouplingAllowed: false
@@ -100,6 +139,7 @@ dependencyContracts:
     surface: ['@ghatana/documents', '@ghatana/document-extraction']
     usedFor: [neutral-document-identity-and-extraction-contracts]
     mediaAuthority: no-document-schema-or-worker-ownership
+    ownerBoundaryRule: Media consumes the frozen public document-extraction types and does not define a competing generic extraction schema; a document worker's cancellation/admission policy remains with the worker owner and is not supplied by the shared type package.
     bindingStatus: frozen-source-contracts-observed; public-package-publication-and-isolated-consumption-unverified
     failureAndFinality: unsupported-contract-version-blocks-consumption-without-local-clone
     sourceCouplingAllowed: false
@@ -118,6 +158,7 @@ dependencyContracts:
     surface: services/document-intelligence-public-api-and-client
     usedFor: [media-specific-scene-text-and-temporal-recognition-intent]
     mediaAuthority: frame-timestamp-scene-association-tracking-and-overlay-intent
+    ownerBoundaryRule: Media-specific recognition requests and frame/timestamp/scene association remain Media-owned; the worker owns its cancellation and admission mechanics, while recognition admission still requires Media policy and exact worker contract/version evidence.
     sharedContractOwner: ghatana-shared
     bindingStatus: MDI-001-owner-boundary-accepted; public-client-artifact-version-and-consumer-rebinding-pending
     failureAndFinality: unavailable-or-unbound-client-blocks-recognition-admission; no-local-OCR-fallback
@@ -138,6 +179,7 @@ dependencyContracts:
     surface: governed-media-metadata-read-model-and-compatibility-API
     usedFor: [optional-customer-metadata-and-read-only-compatibility-surface]
     mediaAuthority: artifact-upload-job-stream-consent-and-processing-lifecycle
+    ownerBoundaryRule: Data Cloud may retain governed generic read models and existing integration behavior; Media remains authoritative for artifact, upload, job, stream, consent, and processing lifecycle. A Data Cloud read-model or compatibility outage does not alter canonical Media state.
     bindingStatus: existing-consumer-observed-public-version-and-parity-unverified
     failureAndFinality: optional-read-model-outage-does-not-change-media-canonical-state
     sourceCouplingAllowed: false
@@ -165,6 +207,7 @@ dependencyContracts:
     surface: ['@ghatana/product-definition', '@ghatana/experience-language', '@ghatana/experience-specification']
     usedFor: [phase0-normative-product-shape, phase1-experience-language-shape, phase2-experience-definition-shape]
     mediaAuthority: product-specific-meaning-and-owner-reference-resolution
+    ownerBoundaryRule: Tools supplies reusable product-definition/experience contract mechanics; Media authors and owns product meanings, exact references, source evidence, and phase completeness. A Tools schema validator does not decide Media semantics or issue independent phase acceptance.
     bindingStatus: local-source-schemas-mapped-in-schema-bindings.yaml; public-publication-and-isolated-consumption-unverified
     failureAndFinality: package-structural-validation-is-not-runtime-enforcement-or-phase-acceptance
     sourceCouplingAllowed: false
@@ -174,6 +217,7 @@ dependencyContracts:
     surface: ['@ghatana/experience-package', '@ghatana/experience-explorer-contracts', '@ghatana/product-dev-explorer']
     usedFor: [phase3-product-package-contract-and-generic-explorer-host]
     mediaAuthority: Media-product-state-action-effects-domain-renderers-and-synthetic-fixtures
+    ownerBoundaryRule: Any generic Explorer host is Tools-owned reusable package/host mechanics; Media owns synthetic fixtures and its state/action/effect/rendering definitions. Missing host capability is an external Tools dependency request, not permission to fork a parallel generic host.
     bindingStatus: local-source-contracts-observed-host-is-headless-publication-and-built-browser-review-unverified
     failureAndFinality: missing-host-capability-is-requested-from-Tools-not-implemented-as-a-parallel-generic-host
     sourceCouplingAllowed: false
@@ -183,6 +227,7 @@ dependencyContracts:
     surface: cross-repository-evidence-closure-currentness-and-receipts
     usedFor: [owner-generated-evidence-admission-currentness-receipts-and-convergence]
     mediaAuthority: product-facts-scope-applicability-and-source-evidence-inputs
+    ownerBoundaryRule: Lifecycle owns cross-repository evidence admission, closure/currentness computation, and authoritative receipts; Media supplies source facts and applicability. Media-local validation cannot claim a Lifecycle receipt or convergence result.
     bindingStatus: lifecycle-output-contract-and-Media-consumer-binding-not-yet-completed
     failureAndFinality: local-structure-or-applicability-audit-does-not-imply-CLOSED-CURRENT-READY-receipt-or-convergence
     sourceCouplingAllowed: false
@@ -192,6 +237,7 @@ dependencyContracts:
     surface: product-lifecycle-and-shell-integration-contracts
     usedFor: [optional-product-navigation-and-lifecycle-integration]
     mediaAuthority: media-product-function-and-supported-screen-journeys
+    ownerBoundaryRule: Kernel-specific lifecycle, composition, UI/page/resource/action contracts, and extension runtime are consumed only under an explicit reviewed public-contract adoption; standalone Media function does not imply Kernel adoption.
     bindingStatus: consumer-boundary-and-public-version-unverified
     failureAndFinality: standalone-Media-experience-does-not-claim-Kernel-adoption
     sourceCouplingAllowed: false

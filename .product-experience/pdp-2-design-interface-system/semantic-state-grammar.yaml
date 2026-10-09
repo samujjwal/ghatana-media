@@ -7,6 +7,7 @@ presentationRules:
   - Render the exact owning state plus a short explanation; do not create a second UI-only lifecycle.
   - Keep job status, attempt status, consent, transcript alignment, review status, and effect finality as separate fields.
   - A state with no safe user action shows the responsible boundary and an explanation.
+  - Notify only for action required, material degradation, approval, completion of long work, delivery outcome, or critical security/rights conditions; do not toast every internal processing stage.
 states:
   - stateRef: media-job.QUEUED
     label: Waiting to start

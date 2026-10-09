@@ -3,53 +3,53 @@ artifactId: media.pdp-1.events
 productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/state-models.yaml
-scopeStatus: envelope-observed; canonical-taxonomy-pending-owner-review
-sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, libs/audio-video-client/src/index.ts, .product-experience/pdp-3-product-experience/events/event-registry.yaml, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto]
+scopeStatus: owner-defined-event-and-notification-contracts; independent-review-and-event-plane-qualification-open
+sourceRefs: [ .product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, libs/audio-video-client/src/index.ts, .product-experience/pdp-3-product-experience/events/event-registry.yaml, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto ]
 observedEnvelope:
   id: media.event-envelope.observed-v1
-  fields: [eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes]
-  constraints: [positive-aggregateVersion, occurredAt-Instant-defaulted-by-record, sanitized-attributes]
-  publisherMethods: [publisherId, ready, productionEligible, publish]
+  fields: [ eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes ]
+  constraints: [ positive-aggregateVersion, occurredAt-Instant-defaulted-by-record, sanitized-attributes ]
+  publisherMethods: [ publisherId, ready, productionEligible, publish ]
   scopeStatus: observed-implementation-contract; not-canonical-event-catalog
   fieldObservations:
-    eventId: {status: runtime-formula-observed, formula: "media:<eventType>:<aggregateId>:<aggregateVersion>", sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle}
-    eventType: {status: "source-spelling-observed; canonical-taxonomy: not-established"}
-    correlationId: {status: "required-by-runtime-record; lifecycle-source-value-is-callsite-specific"}
-    causationId: {status: "optional-by-runtime-record; absent-value-is-empty; causality-contract: unresolved"}
-    producer: {status: wire-source-observed, value: media, eventSpecificProducerAuthority: unresolved}
-    objectAndVersion: {status: aggregate-type-id-version-fields-observed, canonicalDomainObjectAndVersionCrosswalk: unresolved}
-    occurredAt: {status: null-defaulted-to-Instant.now, orderingGuarantee: unresolved}
-    classification: {status: required-field-observed, semanticRedactionPolicy: unresolved}
-    attributes: {status: MediaMetadataSanitizer-applied, semanticPiiRedactionAndEventSpecificMinimization: unresolved}
+    eventId: { status: runtime-formula-observed, formula: "media:<eventType>:<aggregateId>:<aggregateVersion>", sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle }
+    eventType: { status: "source-spelling-observed; canonical-taxonomy: not-established" }
+    correlationId: { status: "required-by-runtime-record; lifecycle-source-value-is-callsite-specific" }
+    causationId: { status: "optional-by-runtime-record; absent-value-is-empty; causality-contract: unresolved" }
+    producer: { status: wire-source-observed, value: media, eventSpecificProducerAuthority: unresolved }
+    objectAndVersion: { status: aggregate-type-id-version-fields-observed, canonicalDomainObjectAndVersionCrosswalk: unresolved }
+    occurredAt: { status: null-defaulted-to-Instant.now, orderingGuarantee: unresolved }
+    classification: { status: required-field-observed, semanticRedactionPolicy: unresolved }
+    attributes: { status: MediaMetadataSanitizer-applied, semanticPiiRedactionAndEventSpecificMinimization: unresolved }
   wireObservations:
     transportProjection:
       status: publisher-source-mapping-observed; transport-contract-and-consumer-interpretation-unresolved
       headers:
-        - {name: X-Tenant-Id, value: event.tenantId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L112}
-        - {name: X-Principal-Id, value: event.principalId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L113}
-        - {name: X-Correlation-Id, value: event.correlationId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L114}
-        - {name: Idempotency-Key, value: event.eventId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L115}
+      - { name: X-Tenant-Id, value: event.tenantId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L112 }
+      - { name: X-Principal-Id, value: event.principalId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L113 }
+      - { name: X-Correlation-Id, value: event.correlationId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L114 }
+      - { name: Idempotency-Key, value: event.eventId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L115 }
       body:
-        - {name: eventId, value: event.eventId()}
-        - {name: eventType, value: event.eventType()}
-        - {name: eventVersion, value: literal-1.0}
-        - {name: timestamp, value: event.occurredAt().toString()}
-        - {name: correlationId, value: event.correlationId()}
-        - {name: causationId, value: event.causationId(), condition: nonblank}
-        - {name: source, value: literal-media}
-        - {name: userId, value: event.principalId()}
-        - {name: contentType, value: literal-application/json}
-        - {name: payload, value: nested-payload-map}
+      - { name: eventId, value: event.eventId() }
+      - { name: eventType, value: event.eventType() }
+      - { name: eventVersion, value: literal-1.0 }
+      - { name: timestamp, value: event.occurredAt().toString() }
+      - { name: correlationId, value: event.correlationId() }
+      - { name: causationId, value: event.causationId(), condition: nonblank }
+      - { name: source, value: literal-media }
+      - { name: userId, value: event.principalId() }
+      - { name: contentType, value: literal-application/json }
+      - { name: payload, value: nested-payload-map }
       nestedPayload:
-        - {name: aggregateType, value: event.aggregateType()}
-        - {name: aggregateId, value: event.aggregateId()}
-        - {name: aggregateVersion, value: event.aggregateVersion()}
-        - {name: classification, value: event.classification()}
-        - {name: attributes, value: event.attributes()}
+      - { name: aggregateType, value: event.aggregateType() }
+      - { name: aggregateId, value: event.aggregateId() }
+      - { name: aggregateVersion, value: event.aggregateVersion() }
+      - { name: classification, value: event.classification() }
+      - { name: attributes, value: event.attributes() }
       sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publish
       interpretation: source-level mapping only; no schema authority, consumer behavior, or delivery guarantee implied
-    eventVersion: {value: "1.0", status: "publisher-implementation-observed; compatibility-schema-and-evolution-policy: unresolved"}
-    idempotencyHeader: {name: Idempotency-Key, value: eventId, status: "request-header-observed; durable-deduplication-guarantee: unresolved"}
+    eventVersion: { value: "1.0", status: "publisher-implementation-observed; compatibility-schema-and-evolution-policy: unresolved" }
+    idempotencyHeader: { name: Idempotency-Key, value: eventId, status: "request-header-observed; durable-deduplication-guarantee: unresolved" }
     acceptedHttpStatuses: [201]
     platformContractCrosswalk:
       status: source-observed-operation-match; Media event semantics and lifecycle ownership remain unapproved
@@ -57,9 +57,9 @@ observedEnvelope:
       operationId: appendStreamEvent
       request:
         methodAndPath: POST /api/v1/streams/{streamId}/events
-        requiredHeaders: [X-Tenant-Id, Idempotency-Key]
-        mediaBodyFields: [eventId, eventType, eventVersion, timestamp, correlationId, causationId, source, userId, contentType, payload]
-        schemaRequiredFields: [eventId, eventType]
+        requiredHeaders: [ X-Tenant-Id, Idempotency-Key ]
+        mediaBodyFields: [ eventId, eventType, eventVersion, timestamp, correlationId, causationId, source, userId, contentType, payload ]
+        schemaRequiredFields: [ eventId, eventType ]
         additionalProperties: false
         fieldLimits:
           eventId: 255
@@ -73,10 +73,10 @@ observedEnvelope:
       response:
         acceptedStatus: 201
         bodySchema: AppendEventResponse
-      limits: [event plane contract does not establish Media event taxonomy or producer ownership, stream creation/retirement ownership unresolved, durable delivery/replay/retention/ordering semantics unresolved, caller consumer conformance and runtime deployment not observed]
+      limits: [ event plane contract does not establish Media event taxonomy or producer ownership, stream creation/retirement ownership unresolved, durable delivery/replay/retention/ordering semantics unresolved, caller consumer conformance and runtime deployment not observed ]
       sourceRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml
-    otherHttpStatus: {behavior: publisher-throws}
-    publicationFailure: {behavior: "runtime-logs-unconfirmed-and-continues; outbox-retry-replay-and-recovery-contract: not-established"}
+    otherHttpStatus: { behavior: publisher-throws }
+    publicationFailure: { behavior: "runtime-logs-unconfirmed-and-continues; outbox-retry-replay-and-recovery-contract: not-established" }
     replayRetentionOrdering: unresolved
   lifecyclePublisherInventory:
     source: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java
@@ -84,10 +84,10 @@ observedEnvelope:
     concreteEventTypes: 9
     classification: source-observed-implementation-inventory; not-canonical-taxonomy
     publisherIdentity: MediaRuntime#publishLifecycle -> MediaLifecycleEventPublisher#publish; concrete publisherId is runtime-selected (disabled or event-plane-http)
-    observedEnvelopePayloadFields: [eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes]
-    observedWireBodyFields: [eventId, eventType, eventVersion, timestamp, correlationId, causationId-when-nonblank, source, userId, contentType, payload]
-    observedWirePayloadFields: [aggregateType, aggregateId, aggregateVersion, classification, attributes]
-    publisherSourcePaths: [launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java]
+    observedEnvelopePayloadFields: [ eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes ]
+    observedWireBodyFields: [ eventId, eventType, eventVersion, timestamp, correlationId, causationId-when-nonblank, source, userId, contentType, payload ]
+    observedWirePayloadFields: [ aggregateType, aggregateId, aggregateVersion, classification, attributes ]
+    publisherSourcePaths: [ launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java ]
     records:
       - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: atomic-store-disposition-reports-new-upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
       - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: atomic-store-disposition-reports-first-completion-transition, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
@@ -104,71 +104,71 @@ observedEnvelope:
     eventSpecificEvidenceBindings: proposal-bindings-present; semantic-and-owner-review-pending
     evidenceProvenanceProposals:
       status: source-observation-candidates-only; not-committed-event-evidence
-      unavailable: [authoritative-finality-evidence, durable-delivery-receipt, committed-event-evidence, replay-or-deduplication-receipt]
+      unavailable: [ authoritative-finality-evidence, durable-delivery-receipt, committed-event-evidence, replay-or-deduplication-receipt ]
       records:
-        - eventType: media.upload.started
-          callSite: MediaRuntime#beginUpload
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280, candidate: upload-session-returned-with-atomic-new-session-disposition}
-          aggregateProposal: {type: upload, identity: session.uploadId, version: literal-1; no-upload-version-record-observed}
-          provenanceCandidates: [tenantId, principalId, classification, contentType, expectedSizeBytes]
-          evidenceStatus: source-observation-candidate-only; committed-or-delivery-evidence-unavailable
-          policySemantics: pending-owner-review
-        - eventType: media.artifact.completed
-          callSite: MediaRuntime#completeUpload
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328, candidate: artifact-returned-with-atomic-first-completion-disposition}
-          aggregateProposal: {type: artifact, identity: artifact.artifactId, version: literal-1; no-artifact-version-record-observed}
-          provenanceCandidates: [tenantId, principalId, classification, contentType, sizeBytes, sourceUploadId, sha256]
-          evidenceStatus: source-observation-candidate-only; completion-is-not-independent-verification-or-committed-event-evidence
-          policySemantics: pending-owner-review
-        - eventType: media.job.accepted
-          callSite: MediaRuntime#submitJob
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410, candidate: accepted-ProcessingJob-after-jobStore.create}
-          aggregateProposal: {type: job, identity: accepted.jobId, version: accepted.version}
-          provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, request.artifactId, accepted.jobType, accepted.providerId, accepted.status, artifact.classification]
-          evidenceStatus: source-observation-candidate-only; accepted-record-does-not-prove-processing-finality
-          policySemantics: pending-owner-review
-        - eventType: media.job.cancelled
-          callSite: MediaRuntime#cancel
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506, candidate: provider-confirmed-cancellation-and-stored-job}
-          aggregateProposal: {type: job, identity: current.jobId, version: stored.version}
-          provenanceCandidates: [tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome]
-          evidenceStatus: source-observation-candidate-only; provider-confirmation-is-not-an-independent-delivery-receipt
-          policySemantics: pending-owner-review
-        - eventType: media.job.cancel_requested
-          callSite: MediaRuntime#cancel
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
-          aggregateProposal: {type: job, identity: current.jobId, version: stored.version}
-          provenanceCandidates: [tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome]
-          evidenceStatus: source-observation-candidate-only; explicitly-not-cancellation-finality
-          policySemantics: pending-owner-review
-        - eventType: media.stream.opened
-          callSite: MediaRuntime#openStream
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536, candidate: created-StreamSession}
-          aggregateProposal: {type: stream, identity: sessionId, version: session.version}
-          provenanceCandidates: [tenantId, principalId, request.correlationId, session.streamKind, session.providerId, session.version, governanceContext.classification]
-          evidenceStatus: source-observation-candidate-only; session-creation-is-not-provider-delivery-or-stream-success-evidence
-          policySemantics: pending-owner-review
-        - eventType: media.stream.closed
-          callSite: MediaRuntime#closeStream
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678, candidate: transitioned-StreamSession}
-          aggregateProposal: {type: stream, identity: sessionId, version: closed.version}
-          provenanceCandidates: [tenantId, principalId, sessionId, closed.streamKind, closed.providerId, closed.lastSequence, closed.state, closed.version]
-          evidenceStatus: source-observation-candidate-only; closed-state-observation-is-not-independent-consumer-or-delivery-acknowledgement
-          policySemantics: pending-owner-review
-        - eventType: media.job.completed
-          callSite: MediaRuntime#startJob-terminal-publication
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
-          aggregateProposal: {type: job, identity: value.jobId, version: terminal.version}
-          provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification]
-          evidenceStatus: source-observation-candidate-only; terminal-record-is-not-independent-quality-or-delivery-evidence
-          policySemantics: pending-owner-review
-        - eventType: media.job.failed
-          callSite: MediaRuntime#startJob-terminal-publication
-          sourceObservation: {sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
-          aggregateProposal: {type: job, identity: value.jobId, version: terminal.version}
-          provenanceCandidates: [tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification]
-          evidenceStatus: source-observation-candidate-only; failure-record-is-not-independent-delivery-or-recovery-evidence
-          policySemantics: pending-owner-review
+      - eventType: media.upload.started
+        callSite: MediaRuntime#beginUpload
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280, candidate: upload-session-returned-with-atomic-new-session-disposition}
+        aggregateProposal: { type: upload, identity: session.uploadId, version: literal-1; no-upload-version-record-observed}
+        provenanceCandidates: [ tenantId, principalId, classification, contentType, expectedSizeBytes ]
+        evidenceStatus: source-observation-candidate-only; committed-or-delivery-evidence-unavailable
+        policySemantics: pending-owner-review
+      - eventType: media.artifact.completed
+        callSite: MediaRuntime#completeUpload
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328, candidate: artifact-returned-with-atomic-first-completion-disposition}
+        aggregateProposal: { type: artifact, identity: artifact.artifactId, version: literal-1; no-artifact-version-record-observed}
+        provenanceCandidates: [ tenantId, principalId, classification, contentType, sizeBytes, sourceUploadId, sha256 ]
+        evidenceStatus: source-observation-candidate-only; completion-is-not-independent-verification-or-committed-event-evidence
+        policySemantics: pending-owner-review
+      - eventType: media.job.accepted
+        callSite: MediaRuntime#submitJob
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410, candidate: accepted-ProcessingJob-after-jobStore.create}
+        aggregateProposal: { type: job, identity: accepted.jobId, version: accepted.version}
+        provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, request.artifactId, accepted.jobType, accepted.providerId, accepted.status, artifact.classification ]
+        evidenceStatus: source-observation-candidate-only; accepted-record-does-not-prove-processing-finality
+        policySemantics: pending-owner-review
+      - eventType: media.job.cancelled
+        callSite: MediaRuntime#cancel
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506, candidate: provider-confirmed-cancellation-and-stored-job}
+        aggregateProposal: { type: job, identity: current.jobId, version: stored.version}
+        provenanceCandidates: [ tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome ]
+        evidenceStatus: source-observation-candidate-only; provider-confirmation-is-not-an-independent-delivery-receipt
+        policySemantics: pending-owner-review
+      - eventType: media.job.cancel_requested
+        callSite: MediaRuntime#cancel
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
+        aggregateProposal: { type: job, identity: current.jobId, version: stored.version}
+        provenanceCandidates: [ tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome ]
+        evidenceStatus: source-observation-candidate-only; explicitly-not-cancellation-finality
+        policySemantics: pending-owner-review
+      - eventType: media.stream.opened
+        callSite: MediaRuntime#openStream
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536, candidate: created-StreamSession}
+        aggregateProposal: { type: stream, identity: sessionId, version: session.version}
+        provenanceCandidates: [ tenantId, principalId, request.correlationId, session.streamKind, session.providerId, session.version, governanceContext.classification ]
+        evidenceStatus: source-observation-candidate-only; session-creation-is-not-provider-delivery-or-stream-success-evidence
+        policySemantics: pending-owner-review
+      - eventType: media.stream.closed
+        callSite: MediaRuntime#closeStream
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678, candidate: transitioned-StreamSession}
+        aggregateProposal: { type: stream, identity: sessionId, version: closed.version}
+        provenanceCandidates: [ tenantId, principalId, sessionId, closed.streamKind, closed.providerId, closed.lastSequence, closed.state, closed.version ]
+        evidenceStatus: source-observation-candidate-only; closed-state-observation-is-not-independent-consumer-or-delivery-acknowledgement
+        policySemantics: pending-owner-review
+      - eventType: media.job.completed
+        callSite: MediaRuntime#startJob-terminal-publication
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
+        aggregateProposal: { type: job, identity: value.jobId, version: terminal.version}
+        provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification ]
+        evidenceStatus: source-observation-candidate-only; terminal-record-is-not-independent-quality-or-delivery-evidence
+        policySemantics: pending-owner-review
+      - eventType: media.job.failed
+        callSite: MediaRuntime#startJob-terminal-publication
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
+        aggregateProposal: { type: job, identity: value.jobId, version: terminal.version}
+        provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification ]
+        evidenceStatus: source-observation-candidate-only; failure-record-is-not-independent-delivery-or-recovery-evidence
+        policySemantics: pending-owner-review
   clientNotificationInventory:
     source: libs/audio-video-client/src/index.ts#AudioVideoClient
     registrySource: .product-experience/pdp-3-product-experience/events/event-registry.yaml
@@ -203,36 +203,2309 @@ observedEnvelope:
       - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L297"}
       - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L301"}
     families:
-      - {family: stt:transcription, eventNames: ["stt:transcription:start", "stt:transcription:complete", "stt:transcription:error"]}
-      - {family: tts:synthesis, eventNames: ["tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error"]}
-      - {family: ai-voice:process, eventNames: ["ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error"]}
-      - {family: vision:process, eventNames: ["vision:process:start", "vision:process:complete", "vision:process:error"]}
-      - {family: multimodal:process, eventNames: ["multimodal:process:start", "multimodal:process:complete", "multimodal:process:error"]}
+    - { family: stt:transcription, eventNames: [ "stt:transcription:start", "stt:transcription:complete", "stt:transcription:error" ]}
+    - { family: tts:synthesis, eventNames: [ "tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error" ]}
+    - { family: ai-voice:process, eventNames: [ "ai-voice:process:start", "ai-voice:process:complete", "ai-voice:process:error" ]}
+    - { family: vision:process, eventNames: [ "vision:process:start", "vision:process:complete", "vision:process:error" ]}
+    - { family: multimodal:process, eventNames: [ "multimodal:process:start", "multimodal:process:complete", "multimodal:process:error" ]}
     semanticEquivalenceToLifecycleTypes: not-established
   excludedEventShapedSources:
-    - {sourceRef: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto#CrossModalEvent.event_type, examples: [sync, mismatch, emphasis], classification: message-content-examples-not-lifecycle-publication}
-    - {sourceRef: functional-test-fixtures, classification: test-payload-strings-not-production-publication}
+  - { sourceRef: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto#CrossModalEvent.event_type, examples: [ sync, mismatch, emphasis ], classification: message-content-examples-not-lifecycle-publication }
+  - { sourceRef: functional-test-fixtures, classification: test-payload-strings-not-production-publication }
 eventFamilies:
-  - id: media.event-family.job
-    scope: job-attempt-status-and-finality-facts
-    canonicalEventTypes: not-established
-    requiredSemantics: [aggregate-version, causation-correlation, effect-boundary, finality-evidence, classification]
-    scopeStatus: proposed-family-only; pending-owner-review
-  - id: media.event-family.artifact
-    scope: upload-verification-availability-quarantine-retention-erasure-facts
-    canonicalEventTypes: not-established
-    scopeStatus: proposed-family-only; pending-owner-review
-  - id: media.event-family.consent
-    scope: consent-grant-change-expiry-revocation-facts
-    canonicalEventTypes: not-established
-    scopeStatus: proposed-family-only; pending-owner-review
-  - id: media.event-family.stream
-    scope: stream-session-and-sequence-lifecycle-facts
-    canonicalEventTypes: not-established
-    scopeStatus: proposed-family-only; pending-owner-review
+- id: media.event-family.job
+  scope: job-attempt-status-and-finality-facts
+  canonicalEventTypes: not-established
+  requiredSemantics: [ aggregate-version, causation-correlation, effect-boundary, finality-evidence, classification ]
+  scopeStatus: proposed-family-only; pending-owner-review
+- id: media.event-family.artifact
+  scope: upload-verification-availability-quarantine-retention-erasure-facts
+  canonicalEventTypes: not-established
+  scopeStatus: proposed-family-only; pending-owner-review
+- id: media.event-family.consent
+  scope: consent-grant-change-expiry-revocation-facts
+  canonicalEventTypes: not-established
+  scopeStatus: proposed-family-only; pending-owner-review
+- id: media.event-family.stream
+  scope: stream-session-and-sequence-lifecycle-facts
+  canonicalEventTypes: not-established
+  scopeStatus: proposed-family-only; pending-owner-review
 rules:
-  - publication-does-not-authorize-or-commit-underlying-domain-transition
-  - delivery-order-replay-and-retention-guarantees-unverified
-  - unknown-outcome-and-cancellation-request-are-not-confirmed-finality
-  - attributes-obey-data-minimization-classification-and-sanitization
-  - consumer-contract-and-schema-evolution-require-owner-review
+- publication-does-not-authorize-or-commit-underlying-domain-transition
+- delivery-order-replay-and-retention-guarantees-unverified
+- unknown-outcome-and-cancellation-request-are-not-confirmed-finality
+- attributes-obey-data-minimization-classification-and-sanitization
+- consumer-contract-and-schema-evolution-require-owner-review
+ownerEventContracts:
+  decisionId: MEDIA-OWNER-2026-10-08-P1-08-EVENT-CONTRACTS-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+  - .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory
+  - .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+  - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts
+  runtimeEventCount: 9
+  notificationCount: 15
+  records:
+  - id: media.event-contract.media-upload-started
+    eventType: media.upload.started
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#beginUpload
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: upload
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.upload.started
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: upload
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - uploadId
+          - expectedByteLength
+          properties:
+            uploadId:
+              type: opaque-id
+            expectedByteLength:
+              type: integer
+              minimum: 0
+              maximum: 2147483648
+            declaredMediaType:
+              type: optional-iana-media-type
+    observedPayloadFields:
+    - contentType
+    - expectedSizeBytes
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.0
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-artifact-completed
+    eventType: media.artifact.completed
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#completeUpload
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: artifact
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.artifact.completed
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: artifact
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - artifactId
+          - artifactVersionId
+          - byteLength
+          properties:
+            artifactId:
+              type: opaque-id
+            artifactVersionId:
+              type: opaque-version-id
+            byteLength:
+              type: integer
+              minimum: 0
+              maximum: 2147483648
+            contentDigest:
+              type: optional-integrity-digest
+              purpose: integrity-only-not-identity-or-rights
+    observedPayloadFields:
+    - contentType
+    - sizeBytes
+    - sourceUploadId
+    - sha256
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.1
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-job-accepted
+    eventType: media.job.accepted
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#submitJob
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: processing-job
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.job.accepted
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: processing-job
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - jobId
+          - operationRef
+          - admissionState
+          properties:
+            jobId:
+              type: opaque-id
+            operationRef:
+              type: canonical-operation-id
+            admissionState:
+              const: ACCEPTED
+    observedPayloadFields:
+    - artifactId
+    - jobType
+    - providerId
+    - status
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.2
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-job-cancelled
+    eventType: media.job.cancelled
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#cancel
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: processing-job
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.job.cancelled
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: processing-job
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - jobId
+          - attemptId
+          - cancellationDisposition
+          properties:
+            jobId:
+              type: opaque-id
+            attemptId:
+              type: opaque-id
+            cancellationDisposition:
+              const: CONFIRMED_CANCELLED
+    observedPayloadFields:
+    - artifactId
+    - jobType
+    - providerId
+    - status
+    - cancellationOutcome
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.3
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-job-cancel-requested
+    eventType: media.job.cancel_requested
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#cancel
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: processing-job
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.job.cancel_requested
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: processing-job
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - jobId
+          - cancellationRequestId
+          - cancellationDisposition
+          properties:
+            jobId:
+              type: opaque-id
+            cancellationRequestId:
+              type: opaque-id
+            cancellationDisposition:
+              const: REQUESTED_NOT_FINAL
+    observedPayloadFields:
+    - artifactId
+    - jobType
+    - providerId
+    - status
+    - cancellationOutcome
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.4
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-stream-opened
+    eventType: media.stream.opened
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#openStream
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: stream-session
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.stream.opened
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: stream-session
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - streamSessionId
+          - streamKind
+          - streamState
+          properties:
+            streamSessionId:
+              type: opaque-id
+            streamKind:
+              type: registered-stream-kind
+            streamState:
+              const: OPEN
+    observedPayloadFields:
+    - streamKind
+    - providerId
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.5
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-stream-closed
+    eventType: media.stream.closed
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#closeStream
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: stream-session
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.stream.closed
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: stream-session
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - streamSessionId
+          - lastAcceptedSequence
+          - streamState
+          properties:
+            streamSessionId:
+              type: opaque-id
+            lastAcceptedSequence:
+              type: integer
+              minimum: 0
+            streamState:
+              const: CLOSED
+    observedPayloadFields:
+    - streamKind
+    - providerId
+    - lastSequence
+    - state
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.6
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-job-completed
+    eventType: media.job.completed
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#startJob terminal publication
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: processing-job
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.job.completed
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: processing-job
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - jobId
+          - attemptId
+          - jobState
+          - outputVersionRefs
+          properties:
+            jobId:
+              type: opaque-id
+            attemptId:
+              type: opaque-id
+            jobState:
+              const: COMPLETED
+            outputVersionRefs:
+              type: array
+              maxItems: 64
+              items:
+                type: opaque-versioned-reference
+    observedPayloadFields:
+    - artifactId
+    - jobType
+    - providerId
+    - status
+    - failureCode
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.7
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  - id: media.event-contract.media-job-failed
+    eventType: media.job.failed
+    eventVersion: 1.0.0
+    producer:
+      identity: MediaRuntime#startJob terminal publication
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218
+      ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    aggregate:
+      aggregateType: processing-job
+      aggregateId: exact opaque identity from the committed aggregate
+      aggregateVersion: positive monotonically increasing version within one aggregate
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - tenantId
+      - aggregateType
+      - aggregateId
+      - aggregateVersion
+      - occurredAt
+      - dataClassification
+      - payload
+      properties:
+        eventId:
+          type: opaque-stable-id
+          minLength: 1
+          maxLength: 255
+        eventType:
+          const: media.job.failed
+        eventVersion:
+          const: 1.0.0
+        tenantId:
+          type: trusted-tenant-identity
+        principalRef:
+          type: optional-pseudonymous-principal-reference
+        correlationId:
+          type: optional-opaque-correlation-id
+        causationId:
+          type: optional-opaque-causation-id
+        aggregateType:
+          const: processing-job
+        aggregateId:
+          type: opaque-id
+          minLength: 1
+          maxLength: 255
+        aggregateVersion:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: RFC3339-UTC-commit-time
+        dataClassification:
+          enum:
+          - INTERNAL
+          - CONFIDENTIAL
+          - RESTRICTED
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - jobId
+          - attemptId
+          - jobState
+          - failureCode
+          properties:
+            jobId:
+              type: opaque-id
+            attemptId:
+              type: opaque-id
+            jobState:
+              const: FAILED
+            failureCode:
+              type: registered-stable-problem-code
+    observedPayloadFields:
+    - artifactId
+    - jobType
+    - providerId
+    - status
+    - failureCode
+    ownerDisposition: Observed event spelling and publisher call site retained; payload is a minimized normative owner schema and does not copy raw observed fields blindly.
+    ordering:
+      scope: aggregate-local
+      key:
+      - tenantId
+      - aggregateType
+      - aggregateId
+      rule: strictly-increasing aggregateVersion; consumers reject stale or conflicting versions and may buffer gaps; no global order
+    deduplication:
+      key:
+      - tenantId
+      - eventId
+      persistBeforeDispatch: true
+      sameIdSamePayload: duplicate delivery is a no-op
+      sameIdDifferentPayload: reject as EVENT_ID_CONFLICT
+      eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
+    durability:
+      requiredPattern: transactional-outbox-or-equivalent-atomic-commit
+      delivery: at-least-once; consumer must deduplicate
+      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
+      acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
+    privacy:
+      classification: per-event schema classification; principal identity pseudonymous and access-restricted
+      forbidden:
+      - raw-media-bytes
+      - prompt-or-full-user-intent
+      - transcript-or-caption-body
+      - voice-or-biometric-template
+      - credentials-or-provider-tokens
+      - rights-document-content
+      minimize: publish only opaque references, committed version, state disposition and fields explicitly present in payload schema
+    finality: An event reports a committed state transition only. It is not provider completion, delivery acknowledgement, rights clearance, or user consent unless the exact payload and canonical receipt represent that fact.
+    negativeCases:
+    - same-eventId-different-payload
+    - duplicate-redelivery
+    - lower-aggregateVersion-after-higher-version
+    - version-gap-without-reconciliation
+    - tenant-mismatch
+    - unredacted-sensitive-field
+    - publish-before-aggregate-commit
+    - platform-timeout-without-outbox-retry
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.lifecyclePublisherInventory.records.8
+    definitionState: OWNER_DEFINED_DEFINITION_ONLY
+    implementationState: UNKNOWN
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+    externalGate: Event-plane publisher/consumer, outbox implementation, retention policy, and delivery qualification remain unverified.
+  notificationRecords:
+  - id: media.local-notification.stt-transcription-start
+    eventName: stt:transcription:start
+    family: stt:transcription
+    phase: START
+    producer:
+      identity: AudioVideoClient#transcribe
+      sourceRef: libs/audio-video-client/src/index.ts#L177
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - startedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        operationRef:
+          type: optional-canonical-operation-id
+        inputVersionRefs:
+          type: array
+          maxItems: 16
+          items:
+            type: opaque-versioned-reference
+        startedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 1
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.0
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.stt-transcription-complete
+    eventName: stt:transcription:complete
+    family: stt:transcription
+    phase: COMPLETE
+    producer:
+      identity: AudioVideoClient#transcribe
+      sourceRef: libs/audio-video-client/src/index.ts#L187
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - result
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - resultVersionRefs
+      - completedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        resultVersionRefs:
+          type: array
+          maxItems: 64
+          items:
+            type: opaque-versioned-reference
+        finalityRef:
+          type: optional-owner-receipt-ref
+        completedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.1
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.stt-transcription-error
+    eventName: stt:transcription:error
+    family: stt:transcription
+    phase: ERROR
+    producer:
+      identity: AudioVideoClient#transcribe
+      sourceRef: libs/audio-video-client/src/index.ts#L191
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - error
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - problemCode
+      - problemClass
+      - failedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        problemCode:
+          type: stable-safe-problem-code
+        problemClass:
+          enum:
+          - INVALID_REQUEST
+          - DENIED
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        failedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.2
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.tts-synthesis-start
+    eventName: tts:synthesis:start
+    family: tts:synthesis
+    phase: START
+    producer:
+      identity: AudioVideoClient#synthesize
+      sourceRef: libs/audio-video-client/src/index.ts#L205
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - startedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        operationRef:
+          type: optional-canonical-operation-id
+        inputVersionRefs:
+          type: array
+          maxItems: 16
+          items:
+            type: opaque-versioned-reference
+        startedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 1
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.3
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.tts-synthesis-complete
+    eventName: tts:synthesis:complete
+    family: tts:synthesis
+    phase: COMPLETE
+    producer:
+      identity: AudioVideoClient#synthesize
+      sourceRef: libs/audio-video-client/src/index.ts#L214
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - result
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - resultVersionRefs
+      - completedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        resultVersionRefs:
+          type: array
+          maxItems: 64
+          items:
+            type: opaque-versioned-reference
+        finalityRef:
+          type: optional-owner-receipt-ref
+        completedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.4
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.tts-synthesis-error
+    eventName: tts:synthesis:error
+    family: tts:synthesis
+    phase: ERROR
+    producer:
+      identity: AudioVideoClient#synthesize
+      sourceRef: libs/audio-video-client/src/index.ts#L218
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - error
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - problemCode
+      - problemClass
+      - failedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        problemCode:
+          type: stable-safe-problem-code
+        problemClass:
+          enum:
+          - INVALID_REQUEST
+          - DENIED
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        failedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.5
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.ai-voice-process-start
+    eventName: ai-voice:process:start
+    family: ai-voice:process
+    phase: START
+    producer:
+      identity: AudioVideoClient#processAIVoice
+      sourceRef: libs/audio-video-client/src/index.ts#L232
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - startedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        operationRef:
+          type: optional-canonical-operation-id
+        inputVersionRefs:
+          type: array
+          maxItems: 16
+          items:
+            type: opaque-versioned-reference
+        startedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 1
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.6
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.ai-voice-process-complete
+    eventName: ai-voice:process:complete
+    family: ai-voice:process
+    phase: COMPLETE
+    producer:
+      identity: AudioVideoClient#processAIVoice
+      sourceRef: libs/audio-video-client/src/index.ts#L241
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - result
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - resultVersionRefs
+      - completedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        resultVersionRefs:
+          type: array
+          maxItems: 64
+          items:
+            type: opaque-versioned-reference
+        finalityRef:
+          type: optional-owner-receipt-ref
+        completedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.7
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.ai-voice-process-error
+    eventName: ai-voice:process:error
+    family: ai-voice:process
+    phase: ERROR
+    producer:
+      identity: AudioVideoClient#processAIVoice
+      sourceRef: libs/audio-video-client/src/index.ts#L245
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - error
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - problemCode
+      - problemClass
+      - failedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        problemCode:
+          type: stable-safe-problem-code
+        problemClass:
+          enum:
+          - INVALID_REQUEST
+          - DENIED
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        failedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.8
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.vision-process-start
+    eventName: vision:process:start
+    family: vision:process
+    phase: START
+    producer:
+      identity: AudioVideoClient#processVision
+      sourceRef: libs/audio-video-client/src/index.ts#L259
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - startedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        operationRef:
+          type: optional-canonical-operation-id
+        inputVersionRefs:
+          type: array
+          maxItems: 16
+          items:
+            type: opaque-versioned-reference
+        startedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 1
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.9
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.vision-process-complete
+    eventName: vision:process:complete
+    family: vision:process
+    phase: COMPLETE
+    producer:
+      identity: AudioVideoClient#processVision
+      sourceRef: libs/audio-video-client/src/index.ts#L269
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - result
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - resultVersionRefs
+      - completedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        resultVersionRefs:
+          type: array
+          maxItems: 64
+          items:
+            type: opaque-versioned-reference
+        finalityRef:
+          type: optional-owner-receipt-ref
+        completedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.10
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.vision-process-error
+    eventName: vision:process:error
+    family: vision:process
+    phase: ERROR
+    producer:
+      identity: AudioVideoClient#processVision
+      sourceRef: libs/audio-video-client/src/index.ts#L273
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - error
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - problemCode
+      - problemClass
+      - failedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        problemCode:
+          type: stable-safe-problem-code
+        problemClass:
+          enum:
+          - INVALID_REQUEST
+          - DENIED
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        failedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.11
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.multimodal-process-start
+    eventName: multimodal:process:start
+    family: multimodal:process
+    phase: START
+    producer:
+      identity: AudioVideoClient#processMultimodal
+      sourceRef: libs/audio-video-client/src/index.ts#L287
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - startedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        operationRef:
+          type: optional-canonical-operation-id
+        inputVersionRefs:
+          type: array
+          maxItems: 16
+          items:
+            type: opaque-versioned-reference
+        startedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 1
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.12
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.multimodal-process-complete
+    eventName: multimodal:process:complete
+    family: multimodal:process
+    phase: COMPLETE
+    producer:
+      identity: AudioVideoClient#processMultimodal
+      sourceRef: libs/audio-video-client/src/index.ts#L297
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - result
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - resultVersionRefs
+      - completedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        resultVersionRefs:
+          type: array
+          maxItems: 64
+          items:
+            type: opaque-versioned-reference
+        finalityRef:
+          type: optional-owner-receipt-ref
+        completedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.13
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  - id: media.local-notification.multimodal-process-error
+    eventName: multimodal:process:error
+    family: multimodal:process
+    phase: ERROR
+    producer:
+      identity: AudioVideoClient#processMultimodal
+      sourceRef: libs/audio-video-client/src/index.ts#L301
+      delivery: in-process-listener-bus-only
+    sourceObservedPayloadFields:
+    - request
+    - error
+    payloadSchema:
+      type: object
+      additionalProperties: false
+      required:
+      - invocationId
+      - problemCode
+      - problemClass
+      - failedAt
+      properties:
+        invocationId:
+          type: opaque-client-invocation-id
+        problemCode:
+          type: stable-safe-problem-code
+        problemClass:
+          enum:
+          - INVALID_REQUEST
+          - DENIED
+          - UNAVAILABLE
+          - UNKNOWN_OUTCOME
+        failedAt:
+          type: RFC3339-UTC
+    notificationIdentity:
+      key:
+      - clientInstanceId
+      - invocationId
+      - eventName
+      sequence: 2
+    ordering:
+      scope: single-invocation
+      rule: start precedes exactly one terminal complete-or-error notification in normal completion; independent invocations may interleave
+    deduplication:
+      clientBus: no durable deduplication guarantee
+      consumerRule: deduplicate repeated eventName for the same clientInstanceId and invocationId; start is not terminal
+    privacy:
+      allow:
+      - opaque invocation and version references
+      - stable safe problem code
+      - timestamps
+      forbid:
+      - raw-media-bytes
+      - full request or response object
+      - prompt or transcript text
+      - credentials
+      - raw provider error or stack trace
+      classification: CONFIDENTIAL
+    durability:
+      delivery: best-effort-process-local
+      persisted: false
+      replay: none
+      restartSurvival: false
+    finality: Notification is not a domain event or authoritative provider/finality receipt. COMPLETE means only the local client method returned its result; bind a separate owner receipt for domain completion.
+    negativeCases:
+    - duplicate-terminal-notification
+    - complete-and-error-for-same-invocation
+    - missing-start-correlation
+    - raw-request-or-result-object-in-payload
+    - consumer-infers-provider-finality
+    - process-restart-loss-treated-as-replay
+    semanticEquivalenceToLifecycleType: NONE
+    sourceObservationRef: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope.clientNotificationInventory.records.14
+    definitionState: OWNER_DEFINED_LOCAL_NOTIFICATION_SCHEMA
+    implementationState: observed-local-bus-only; revised-safe-payload-implementation-not-verified
+    qualificationState: NOT_EVALUATED
+    runtimeAvailability: UNKNOWN
+    executionAdmission: NOT_ADMITTED
+  scopeBoundary: Definition schema/producer/order/dedup/privacy/durability requirements. No source implementation, event-plane delivery, legal retention, or independent acceptance claim.

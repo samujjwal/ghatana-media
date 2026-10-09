@@ -8,10 +8,22 @@ commandPrinciples:
   - Human labels can localize; JSON keys, reason codes, and stable IDs do not.
   - TTY progress is concise; non-TTY output is stable and line-oriented.
   - JSON output contains state, finality, source/result references, and the next safe action.
+  - External-engine and model names are expert diagnostics; they are not required positional arguments for product intent.
+finiteOperationAliasRule:
+  id: media.cli.finite-operation-aliases
+  rule: >-
+    Command aliases are a finite, explicitly enumerated set that resolves to an
+    existing canonical creation or composition command/action. An alias cannot
+    create a new operation, change the canonical action, widen its accepted
+    inputs or outputs, bypass validation/authority, or add duplicated behavior.
+    Aliases are registered with the canonical command and have exact parity tests;
+    unknown aliases fail as unsupported.
+  scopeStatus: OWNER_DEFINED_COMMAND_LANGUAGE_RULE; command/runtime admission remains separate.
 commandNaming:
   rootCommand: ghatana-media
   rule: Prefer a user-intent verb and a concrete object; stable IDs, exact options, aliases, and effects are owned by the PDP-3 command registry.
   commandRegistry: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+  completionHelpRule: Generate command completion and help from the one canonical command registry; aliases resolve to the same action and cannot add independent behavior.
   jobCommands:
     viewStatus: ghatana-media job status --job <job-id>
     checkUncertainOutcome: ghatana-media job check-outcome --job <job-id>
@@ -22,6 +34,27 @@ machineOutput:
   stableExitCodesRequired: true
   unknownOutcome: represent-explicitly-and-disable-blind-retry
   exitCodeMapping: local-simulator-mapping-is-defined-in-the-PDP-3-registry; production-runtime-mapping-awaits-owner-review
+  productExitCodeTaxonomy:
+    source: docs/migration/expert-reviewed-master-plan.md#17-command-line-interface
+    ownerRuleId: media.cli.exit-code-taxonomy
+    scope: Media product command result taxonomy; definition does not assert installed-runtime behavior or production owner acceptance
+    codes:
+      - {id: media.cli.exit.request-succeeded, code: 0, result: requested-action-succeeded-or-durable-submission-accepted}
+      - {id: media.cli.exit.invalid-request, code: 2, result: invalid-arguments-or-input-validation}
+      - {id: media.cli.exit.authentication-failure, code: 3, result: authentication-failure}
+      - {id: media.cli.exit.authorization-rejection, code: 4, result: authorization-privacy-rights-or-policy-rejection}
+      - {id: media.cli.exit.capability-unavailable, code: 5, result: required-capability-unavailable-or-unqualified}
+      - {id: media.cli.exit.admission-rejection, code: 6, result: capacity-quota-or-dependency-admission-rejection}
+      - {id: media.cli.exit.job-failed, code: 7, result: job-failed}
+      - {id: media.cli.exit.cancelled, code: 8, result: remote-job-confirmed-cancelled}
+      - {id: media.cli.exit.client-timeout, code: 9, result: client-wait-timeout-remote-job-may-still-run}
+      - {id: media.cli.exit.outcome-unknown, code: 10, result: outcome-unknown-reconciliation-required}
+      - {id: media.cli.exit.version-conflict, code: 11, result: version-or-idempotency-conflict}
+    distinctions:
+      - authentication-failure-is-not-authorization-or-rights-rejection
+      - client-wait-timeout-does-not-prove-remote-job-failure
+      - cancellation-request-does-not-prove-confirmed-cancellation
+      - production-runtime-exit-code-mapping-remains-owner-review-pending
   sigintSemantics: distinguish-stop-watching-from-request-cancellation-and-confirmed-cancellation
 identityAndFinality:
   bindingRef: .product-experience/pdp-3-product-experience/cli-command-registry.yaml

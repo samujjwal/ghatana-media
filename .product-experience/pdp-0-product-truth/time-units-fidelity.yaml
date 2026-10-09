@@ -152,6 +152,9 @@ conversionRequirements:
   - Preserve sample count, encoder priming/padding, stream discontinuities, and measured drift where available.
   - Drop-frame timecode support, interpretation, and round-trip behavior are unverified; timecode is never inferred from elapsed duration.
   - Distinguish frameCount/rate duration from (frameCount - 1)/rate last-frame presentation timestamp; use the admitted container/model contract to interpret endpoints.
+retryTimingRule: >-
+  Use jittered backoff within an explicit total deadline. A plan's deterministic
+  meaning does not require identical wall-clock retry timing across executions.
 
 unitAndCoordinateProposal:
   status: proposed-by-master-plan; validation-against-admitted-scene-model-contracts-pending
@@ -226,6 +229,13 @@ simulationAndFidelity:
     ownerRule: Preserve domain-owner tier identifiers and semantics through a reviewed mapping; do not mint a Media alias for TutorPutor F0-F4.
     tutorputorBoundary: TutorPutor owns AEF F0-F4; mapping and adapter acceptance are pending with that owner.
   replayClasses:
+    platformVariationRule: >-
+      GPU/model/solver behavior must not be assumed identical across platforms
+      or releases. Solver determinism, render determinism, and encoded-byte
+      determinism are separate claims; qualify each only for the exact declared
+      model, engine, runtime, hardware, library versions, configuration, assets,
+      seed, and output representation. Preserve checkpoint and ordered-input
+      requirements for the declared class.
     classes:
       - class: EXACT_ENVIRONMENT
         permittedClaim: Same declared engine/model/runtime/hardware/configuration/assets/seed yields identical declared output representation within the explicitly qualified envelope.
@@ -276,3 +286,35 @@ fixtureSpecification:
   path: conformance/domain-contracts/p0-004-golden-fixtures.yaml
   status: examples-and-expected-rules-only
   executionStatus: not-executed-against-runtime-adapters
+
+ownerDefinitionHandoff:
+  decisionRef: .product-experience/decision-log.md#PXD-074
+  authority: user-delegated Media product-semantic owner; PDP-1 retains canonical value and conversion ownership
+  status: SELECTED_DEFINITION_PROFILES_ONLY; scientific-expert-and-wire-adapter-acceptance-pending
+  canonicalSource: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+  profiles:
+    - id: media.value.rational-media-time
+      selection: Explicit clock kind/ID/stream, signed-64-bit ticks and positive rational seconds-per-tick; exact arithmetic, selected rounding and signed loss.
+      oldProposalDisposition: The timescale ticks-per-second proposal above is historical input; reciprocal conversion requires explicit positive rational metadata, never a Number fps alias.
+    - id: media.value.sample-boundary-index
+      selection: Explicit integer rate/count, half-open boundaries and no implicit encoder delay/padding correction.
+      oldProposalDisposition: Audio sample and frame index observations still require their own source-origin and alignment metadata.
+    - id: media.value.image-pixel-boundary
+      selection: Exact image version/dimensions, top-left/right-down pixel boundaries with exact normalized rational conversion.
+      oldProposalDisposition: Pixel centers are a distinct selected definition below. The boundary converter rejects center representations; neither profile reinterprets existing unspecified BoundingBox fields.
+    - id: media.value.image-pixel-center
+      selection: Exact rational zero-based center index in the same identified image version, top-left/right-down axes and declared dimensions; normalized (index+1/2)/dimension with exact inverse.
+      oldProposalDisposition: This makes the historical center proposal precise as a separate canonical definition; no legacy coordinate field is silently assigned this convention.
+    - id: media.value.dimensioned-scalar
+      selection: Exact rational SI decimal length/time conversions for the declared vocabulary; incompatible dimensions fail closed.
+      oldProposalDisposition: Proposed mass, angle, world frame, matrix order and scientific model validity remain separate owner contracts; this scalar converter does not imply their qualification.
+  definitionEvidence: tests/media-temporal-spatial-definition-model.test.mjs
+  policy: A selected arithmetic definition is not a calibrated clock, qualified decoder/model/codec, world-frame alignment, rendering fidelity, or scientific accuracy claim. Unspecified source units and absent alignment remain unresolved and cannot be inferred from matching field names.
+
+ownerDescriptorDefinitionHandoff:
+  authority: Media canonical descriptor meanings belong to PDP-1 value objects; earlier proposal/evidence remains historical.
+  canonicalSource: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions
+  definitionState: OWNER_DEFINED_SOURCE_CONTRACTS
+  independentAcceptance: OPEN
+  runtimeAdmission: NOT_ADMITTED
+  scientificQualification: NOT_EVALUATED

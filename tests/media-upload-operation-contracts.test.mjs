@@ -8,11 +8,12 @@ const root = resolve(new URL('..', import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, '../ghatana-tools/package.json'))('yaml');
 const read = path => readFileSync(resolve(root, path), 'utf8');
 
-function fixture() {
+function readSourceFixture() {
   const operations = parse(read('.product-experience/pdp-1-domain-data/operations.yaml'));
   const openapi = parse(read('contracts/openapi/media.yaml'));
   return {
     operations: operations.individualOperationContracts.records,
+    sourceDenominators: operations.sourceDenominators,
     actionBindings: parse(read('.product-experience/pdp-1-domain-data/action-contracts.yaml')).operationSliceBindings,
     transition: parse(read('.product-experience/pdp-1-domain-data/transitions.yaml')).transitionRecords.find(item => item.id === 'media-upload-and-artifact/T01'),
     verificationTransition: parse(read('.product-experience/pdp-1-domain-data/transitions.yaml')).transitionRecords.find(item => item.id === 'media-upload-and-artifact/T02'),
@@ -26,6 +27,8 @@ function fixture() {
     sdk: read('libs/audio-video-client/src/operations.ts'),
   };
 }
+const sourceFixture = readSourceFixture();
+const fixture = () => structuredClone(sourceFixture);
 
 function validate(f) {
   const errors = [];
@@ -79,11 +82,11 @@ function validate(f) {
   if (!begin.actionIntentRefs?.includes('media.action.begin-artifact-upload')
     || !append.actionIntentRefs?.includes('media.action.begin-artifact-upload')
     || !complete.actionIntentRefs?.includes('media.action.begin-artifact-upload')) errors.push('upload command intent must remain tied to the existing begin-upload action');
-  const actionSlices = parse(read('.product-experience/pdp-1-domain-data/operations.yaml')).sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings;
+  const actionSlices = f.sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings;
   if (actionSlices?.resumeWorkflow?.join('|') !== [
     'media.operation-slice.inspect-upload', 'media.operation-slice.append-upload-chunk', 'media.operation-slice.complete-upload',
   ].join('|') || !actionSlices.boundary.includes('explicit-user-confirmation-before-append')) errors.push('resume action must be the exact guarded ordered workflow, without a new server operation');
-  if (parse(read('.product-experience/pdp-1-domain-data/operations.yaml')).sourceDenominators.uiProductActions.explicitOperationIds['media.action.resume-artifact-upload'] !== 'media.operation.artifact-ingest') errors.push('PXD-029 family-level intent association must not be silently widened to wire equivalence');
+  if (f.sourceDenominators.uiProductActions.explicitOperationIds['media.action.resume-artifact-upload'] !== 'media.operation.artifact-ingest') errors.push('PXD-029 family-level intent association must not be silently widened to wire equivalence');
   if (begin.stateBinding?.uploadSession?.startsWith('new-identity-enters-OPEN') !== true
     || append.stateBinding?.productLifecycle !== 'remains-RECEIVING; chunk-acknowledgement-does-not-enter-VERIFYING-or-AVAILABLE') errors.push('begin and append must not collapse upload-session progress into artifact availability');
   if (!complete.stateBinding?.transitionRefs?.includes('media-upload-and-artifact/T01')

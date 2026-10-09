@@ -8,6 +8,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { validateAllScreenCompositionSources } from "./lib/pdp-design-composition-validator.mjs";
 
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { parse: parseYaml } = createRequire(resolve(DEFAULT_ROOT, "../ghatana-tools/package.json"))("yaml");
@@ -323,6 +324,7 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   }
 
   const templateIds = new Set(listIds(templateCatalog, "id"));
+  for (const error of validateAllScreenCompositionSources(root)) block(`screen composition definition invalid: ${error}`);
   const screenDir = join(root, PATHS.screens);
   const screenFiles = existsSync(screenDir) ? readdirSync(screenDir).filter((name) => name.endsWith(".yaml") && name !== "artifact-verification-job-family.yaml") : [];
   if (screenFiles.length === 0) block(`screen-contract inventory is missing or empty: ${PATHS.screens}`);

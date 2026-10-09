@@ -29,6 +29,8 @@ requiredFields:
 fieldRules:
   viewId: Must resolve to a canonical media.view identifier in the PDP-3 screen registry.
   templateRef: Must resolve to a media.gui.template identifier.
+  patternIds: Ordered primary pattern identifiers; each must be a primary pattern declared by the selected template.
+  patternOverlayIds: Optional explicitly selected pattern overlays; every entry must be approved by the selected template. Consequential actions with unknown finality require an overlay whose required states and regions cover unknown outcome and safe recovery.
   sourceRefs: Must identify the authoritative contracts for all displayed data and state.
   regions: Ordered list; every item has id, patternRef, contentRefs, stateRefs, and accessibilityOrder.
   actions: Each actionRef resolves to media.action; declare preconditions and finalityRef; presentation is not authorization.

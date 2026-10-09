@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "media.pdp38-current-source-impact.v1",
+  "source": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+  "historicalSourcePin": "4c06c5ad25fbba4cddea43b83f2f39ad4295eb3e2f898a9b50ab5b8cff8c6dbc",
+  "impactKind": "additive-current-evidence-and-binding-overlay",
+  "changes": [
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.sourceRevision",
+      "oldValue": "ABSENT",
+      "newValue": "c6d182af472c8954438f219c08d0202d1faa63a3",
+      "scope": "Current selected Shared source snapshot and local Media consumer evidence; it does not establish immutable package publication, downstream adoption, or acceptance."
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.previousReviewedSourceRevision",
+      "oldValue": "ABSENT",
+      "newValue": "f651aaebf20b09d44bda96e4082ecf700c2bbfcc",
+      "scope": "Comparison baseline for this additive current source pin."
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.result",
+      "oldValue": "ABSENT",
+      "newValue": "PASS_LOCAL_PACKED_PUBLIC_SOURCE_SNAPSHOT",
+      "scope": "Local packed public source snapshot evidence only."
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.limitations",
+      "oldValue": "ABSENT",
+      "newValue": [
+        "no-registry-publication",
+        "no-immutable-release",
+        "no-Shared-owner-acceptance",
+        "no-independent-visual-or-AT-review"
+      ],
+      "scope": "Explicitly bounds what this local check establishes."
+    },
+    {
+      "path": "sharedPublicContract.sourceLicenseClassification.observed",
+      "oldValue": "ABSENT",
+      "newValue": "MIT; direct-token-theme-and-design-system-manifests-mark-private-false",
+      "scope": "Observed package metadata at the pinned source snapshot only."
+    },
+    {
+      "path": "sharedPublicContract.sourceLicenseClassification.meaning",
+      "oldValue": "ABSENT",
+      "newValue": "package-metadata-classification-only",
+      "scope": "No legal or distribution determination."
+    },
+    {
+      "path": "sharedPublicContract.profileCoverage.reducedMotion",
+      "oldValue": "ABSENT",
+      "newValue": "Media structural stylesheet defines no animation. The clean Shared source pin c6d182af472c8954438f219c08d0202d1faa63a3 includes the strict-CSP Button, Select, TextArea, and TextField reduced-motion fix. Four Shared component tests, the build, Media isolated installed-artifact consumption, and Chromium computed-style checks pass; transitions are 0.15s normally and 0s with prefers-reduced-motion. This is selected-control behavior evidence; Shared owner acceptance and composed assistive review remain pending",
+      "scope": "Reduced-motion behavior for the four selected Shared controls and Media isolated consumer only; composed assistive conformance remains open."
+    },
+    {
+      "path": "sharedPublicContract.profileCoverage.forcedColors",
+      "oldValue": "ABSENT",
+      "newValue": "Media structural stylesheet uses system colors Canvas, CanvasText, GrayText, Highlight, ButtonFace, LinkText, Mark, and MarkText; composed Shared component behavior still requires Shared owner review and assistive conformance",
+      "scope": "Structural stylesheet token use; composed Shared behavior and assistive conformance remain open."
+    }
+  ],
+  "unchangedSemanticRecords": {
+    "aliasCount": 9,
+    "semanticAliasValuesChanged": false,
+    "historicalTokenPinRewritten": false
+  },
+  "acceptanceEffect": "none",
+  "phaseAcceptance": "OPEN",
+  "independentAcceptance": "OPEN",
+  "notes": "This overlay records current source deltas and their bounded impact. It does not rewrite the historical token source pin or convert a local candidate/source snapshot into a verified public package API.",
+  "currentSourceSha256": "acaf3c0674ff542c77346fb7651a7e5193ac94738cf6be8bbae897d9f2a55637",
+  "completeScalarDeltaRecords": [
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.sourceManifest",
+      "oldValue": "ABSENT",
+      "newValue": ".product-experience/source-manifest.yaml#externalOwnerObservations/ghatana-shared"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.sourceRevision",
+      "oldValue": "ABSENT",
+      "newValue": "c6d182af472c8954438f219c08d0202d1faa63a3"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.sourceWorkingTreeAtPin",
+      "oldValue": "ABSENT",
+      "newValue": "CLEAN"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.previousReviewedSourceRevision",
+      "oldValue": "ABSENT",
+      "newValue": "f651aaebf20b09d44bda96e4082ecf700c2bbfcc"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.consumerCheck",
+      "oldValue": "ABSENT",
+      "newValue": "scripts/verify-media-shared-artifact-consumer.mjs"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.consumerEvidence",
+      "oldValue": "ABSENT",
+      "newValue": "docs/implementation/verification/pdp-38/shared-artifact-consumer.txt"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.canonicalDesignSystemContentSha256",
+      "oldValue": "ABSENT",
+      "newValue": "b71b392573d9bca5797197d60abe6018d31f1e415c8da60f369ddf9cee329389"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.reducedMotionEvidence",
+      "oldValue": "ABSENT",
+      "newValue": "docs/implementation/verification/pdp-38/shared-control-motion.json"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.result",
+      "oldValue": "ABSENT",
+      "newValue": "PASS_LOCAL_PACKED_PUBLIC_SOURCE_SNAPSHOT"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.observedAt",
+      "oldValue": "ABSENT",
+      "newValue": "2026-10-08"
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.installedTransitiveSharedPackages",
+      "oldValue": "ABSENT",
+      "newValue": 9
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.directlyDeclaredSharedPackages",
+      "oldValue": "ABSENT",
+      "newValue": [
+        "@ghatana/tokens",
+        "@ghatana/theme",
+        "@ghatana/design-system"
+      ]
+    },
+    {
+      "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.limitations",
+      "oldValue": "ABSENT",
+      "newValue": [
+        "no-registry-publication",
+        "no-immutable-release",
+        "no-Shared-owner-acceptance",
+        "no-independent-visual-or-AT-review"
+      ]
+    },
+    {
+      "path": "sharedPublicContract.sourceLicenseClassification.basis",
+      "oldValue": "ABSENT",
+      "newValue": "exact-package-manifest-license-and-private-fields-at-the-pinned-source-revision"
+    },
+    {
+      "path": "sharedPublicContract.sourceLicenseClassification.observed",
+      "oldValue": "ABSENT",
+      "newValue": "MIT; direct-token-theme-and-design-system-manifests-mark-private-false"
+    },
+    {
+      "path": "sharedPublicContract.sourceLicenseClassification.meaning",
+      "oldValue": "ABSENT",
+      "newValue": "package-metadata-classification-only"
+    },
+    {
+      "path": "sharedPublicContract.sourceLicenseClassification.limitations",
+      "oldValue": "ABSENT",
+      "newValue": [
+        "no-legal-review",
+        "no-publication-or-distribution-approval",
+        "downstream-license-obligations-not-assessed"
+      ]
+    },
+    {
+      "path": "sharedPublicContract.profileCoverage.semanticColorRoles",
+      "oldValue": "ABSENT",
+      "newValue": [
+        "light",
+        "dark"
+      ]
+    },
+    {
+      "path": "sharedPublicContract.profileCoverage.forcedColors",
+      "oldValue": "ABSENT",
+      "newValue": "Media structural stylesheet uses system colors Canvas, CanvasText, GrayText, Highlight, ButtonFace, LinkText, Mark, and MarkText; composed Shared component behavior still requires Shared owner review and assistive conformance"
+    },
+    {
+      "path": "sharedPublicContract.profileCoverage.reducedMotion",
+      "oldValue": "ABSENT",
+      "newValue": "Media structural stylesheet defines no animation. The clean Shared source pin c6d182af472c8954438f219c08d0202d1faa63a3 includes the strict-CSP Button, Select, TextArea, and TextField reduced-motion fix. Four Shared component tests, the build, Media isolated installed-artifact consumption, and Chromium computed-style checks pass; transitions are 0.15s normally and 0s with prefers-reduced-motion. This is selected-control behavior evidence; Shared owner acceptance and composed assistive review remain pending"
+    },
+    {
+      "path": "sharedPublicContract.profileCoverage.status",
+      "oldValue": "ABSENT",
+      "newValue": "light-dark-alias-resolution-proven; forced-colors-and-reduced-motion-conformance-not-accepted"
+    }
+  ],
+  "semanticAliasesSha256": "c78875ff33729a5030dbac081c8cccd16a3dbabef06f13773da9e19eb03fb1af",
+  "coordinatorReview": {
+    "authority": "User-delegated Media definition ownership; coordinator source review",
+    "decisionRef": ".product-experience/decision-log.md#PXD-076",
+    "scope": "Additive pinned public-source-snapshot and selected-control local evidence metadata; nine exact semantic alias values unchanged",
+    "wholeTaskCriterionEstablished": false,
+    "independentAcceptance": "NOT_EVALUATED",
+    "nativeLifecycleReceipt": null
+  }
+}

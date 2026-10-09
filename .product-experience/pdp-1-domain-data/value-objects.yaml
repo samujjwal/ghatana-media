@@ -160,7 +160,1918 @@ observedTemporalSpatialFields:
     - legacy VideoData.fps, Vision VideoFileRequest.sample_fps, and Multimodal VideoAudioRequest.frame_sample_rate remain separate fields with source-specific declarations
     - Vision and Multimodal BoundingBox numeric x/y/width/height fields do not establish equal coordinate spaces or a shared origin
   canonicalization:
-    rational-timebase: unresolved; PDP-0 values remain proposals pending owner and source-contract review
-    coordinate-system: unresolved; no handedness, axis, origin, units, transform order, or normalization rule accepted
-    profiles-and-conversion: unresolved; no mastering profile, adapter, rounding rule, or runtime qualification established
+    rational-timebase: unresolved legacy-wire binding; explicit owner definition is canonicalConversionDefinitions, scientific and source-contract qualification remain pending
+    coordinate-system: unresolved legacy-wire and world-frame binding; owner-selected exact image pixel-boundary convention is canonicalConversionDefinitions
+    profiles-and-conversion: unresolved mastering profile and runtime adapter qualification; owner-selected arithmetic and rounding are canonicalConversionDefinitions
     external-owner-acceptance: not-established
+
+canonicalConversionDefinitions:
+  schemaVersion: media.definition.temporal-spatial-conversion.v1
+  status: MEDIA_OWNER_DEFINED; independent-scientific-review-pending
+  decisionRef: .product-experience/decision-log.md#PXD-074
+  authority: user-delegated Media definition owner; no legacy-wire-unit or runtime-adapter equivalence inferred
+  executableModel: scripts/lib/media-temporal-spatial-definition-model.mjs
+  verification: tests/media-temporal-spatial-definition-model.test.mjs
+  machineContract:
+    version: media.definition.temporal-spatial-conversion.v1
+    clockKinds: [media, simulation, story]
+    tickBits: 64
+    timeBaseBits: 64
+    sampleRateBits: 32
+    sampleCountBits: 64
+    imageDimensionBits: 32
+    rounding: [exact, floor, ceil, nearest-ties-even]
+    pixelConvention: 'pixel-boundary; top-left; right-down'
+    pixelCenterConvention: 'pixel-center-index; top-left; right-down; normalized=(index+1/2)/dimension'
+    units: [m, cm, mm, km, s, ms, us, ns]
+    qualification: NOT_EVALUATED
+  profileApplicability:
+    exact-rational-media: identified media/source stream PTS with explicit positive rational seconds per tick
+    exact-rational-simulation-story: explicit identified simulation or story clock; never implicitly aligned to media or wall clock
+    audio-sample-boundary: identified stream with explicit integer sample rate and sample count; priming/padding mapping is a separate qualified contract
+    image-pixel-boundary: exact image version and dimensions; top-left origin, right/down axes; coordinates name pixel boundaries, not pixel centers
+    image-pixel-center: exact image version and dimensions; top-left origin, right/down axes; zero-based rational center index maps to normalized (index+1/2)/dimension; never silently substitute a boundary coordinate
+    scalar-SI-length-time: declared m/cm/mm/km or s/ms/us/ns dimension; other units require an explicit owner extension
+  records:
+    - id: media.value.rational-media-time
+      representation: clockKind(media|simulation|story), clockId, streamId, signed-64-bit integer ticks, positive signed-64-bit numerator/denominator seconds-per-tick
+      convention: Reduced rational arithmetic with exact BigInt intermediates; destination ticks checked against signed-64-bit range before exposure.
+      conversionPreconditions: Source and target clock kind, clock ID and stream ID match; cross-clock or cross-stream mapping requires an explicit alignment contract.
+      rounding: Caller selects exact, floor, ceil or nearest-ties-even; missing method denied even for exact values.
+      loss: Exact signed discardedTicks and discardedSeconds; lossless only if discardedTicks is zero. Negative timestamps use mathematical floor/ceil.
+      failClosed: Reject unknown units/clocks, Number scalar inputs, zero/negative time bases, cross-clock inference, unspecified rounding and destination overflow.
+      qualifications: Unit arithmetic is definition-level; clock accuracy, drift, alignment, decoder/provider timing and scientific fidelity remain NOT_EVALUATED.
+    - id: media.value.sample-boundary-index
+      representation: Nonnegative integer boundary in [0,sampleCount], explicit sampleRate in [1,2^32-1], sampleCount at most 2^63-1.
+      convention: Intervals are half-open. sampleCount is the end boundary, not an addressable sample; sample indices are [0,sampleCount).
+      conversion: Convert the same identified clock/stream using timeBase 1/sampleRate and explicit rounding; no hidden encoder priming or padding correction.
+      loss: Preserve the rational-time loss record; reject negative/out-of-range boundary or implicit numeric sample rate.
+    - id: media.value.image-pixel-boundary
+      representation: Exact rational x/y boundaries, imageVersionId, positive integer width/height at most 2^32-1, origin top-left, axes right-down.
+      convention: x in [0,width], y in [0,height]; normalized x/width and y/height in [0,1]. Half-open rectangle end boundaries may equal width/height.
+      conversion: Exact rational normalize/denormalize under the same image version and dimensions; no implicit rotate, crop, pixel-aspect, center/boundary or origin conversion.
+      failClosed: Reject stale image version, missing origin/axes/dimensions and outside-image coordinates. Transformations require a separate explicit image-version mapping.
+      qualifications: Exact coordinate arithmetic does not establish a camera calibration, spatial world frame or qualified vision geometry.
+    - id: media.value.dimensioned-scalar
+      representation: Exact rational magnitude plus selected unit and dimension.
+      conversion: SI decimal length/time scaling is exact; target must have same dimension. Missing/unknown units and dimension mismatches are denied.
+      exclusions: degrees/radians, arbitrary physical units, vector frames and simulation validity are not silently inferred by the scalar converter.
+    - id: media.value.image-pixel-center
+      representation: Exact rational zero-based x/y center index, imageVersionId, positive integer width/height at most 2^32-1, origin top-left, axes right-down.
+      convention: Index zero names the first pixel center; index width-1/height-1 names the last. Rational subpixel indices remain within this center extent. Normalized coordinates are (index+1/2)/dimension; a one-pixel axis maps its only center to 1/2.
+      conversion: Exact rational normalize/denormalize under the same image version and dimensions with an explicit center convention. Center and boundary converters reject each other's serialized convention; no implicit crop, rotate, axis or image-version transformation.
+      failClosed: Reject outside-center-extent values, normalized border zero/one, stale image version/dimensions and missing or incompatible coordinate conventions. No silent clipping.
+      qualifications: Definition arithmetic only; legacy wire bindings, camera calibration and vision geometry remain unqualified.
+  proofBoundary:
+    definitionOracles: rational cadence, long-duration round trip, inexact signed loss, ties-even, overflow, ambiguous clock, stale geometry, bounds and dimension-denial cases
+    independentReview: P1-09-qualified-domain-expert-pending
+    runtimeAdapterAdmission: NOT_EVALUATED
+    scientificQualification: NOT_EVALUATED
+
+ownerDescriptorDefinitions:
+  schemaVersion: media.pdp1.descriptor-definitions.v1
+  authority: user-delegated-Media-semantic-owner; canonical definition requirements only
+  status: OWNER_DEFINED_SOURCE_CONTRACTS; independent-domain-review-open
+  schemaAdmission: Structural schema validation is not metadata truth, profile
+    eligibility, runtime admission or scientific qualification.
+  records:
+    - id: media.value.image-video-technical-descriptor
+      meaning: Total typed metadata slots for one exact immutable image/video version;
+        UNKNOWN preserves absence and does not satisfy a processing profile.
+      schema:
+        type: object
+        additionalProperties: false
+        required:
+          - artifactVersionId
+          - metadata
+          - colorConfigurationFingerprint
+          - colorProcessingDomain
+          - alphaConversion
+          - preserveAlphaRequired
+        properties:
+          artifactVersionId: &a3
+            type: string
+            minLength: 1
+            maxLength: 384
+            pattern: \S
+          metadata:
+            type: object
+            additionalProperties: false
+            required:
+              - width
+              - height
+              - pixelAspectRatio
+              - orientation
+              - cleanAperture
+              - frameTimeMapRef
+              - bitDepth
+              - chromaSubsampling
+              - range
+              - primaries
+              - transferFunction
+              - matrixCoefficients
+              - alphaMode
+              - hdrMetadataRef
+              - colorConfigurationVersionRef
+              - lutVersionRef
+            properties:
+              width:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: &a1
+                        type: integer
+                        minimum: 1
+                        maximum: 4294967295
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              height:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a1
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              pixelAspectRatio:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: &a4
+                        type: object
+                        additionalProperties: false
+                        required:
+                          - numerator
+                          - denominator
+                        properties:
+                          numerator: *a1
+                          denominator: *a1
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              orientation:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        enum:
+                          - identity
+                          - rotate-90
+                          - rotate-180
+                          - rotate-270
+                          - mirror-horizontal
+                          - mirror-vertical
+                          - transpose
+                          - transverse
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              cleanAperture:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        type: object
+                        additionalProperties: false
+                        required:
+                          - x
+                          - y
+                          - width
+                          - height
+                        properties:
+                          x: &a2
+                            type: integer
+                            minimum: 0
+                            maximum: 9007199254740991
+                          y: *a2
+                          width: *a1
+                          height: *a1
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              frameTimeMapRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              bitDepth:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        type: integer
+                        minimum: 1
+                        maximum: 64
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              chromaSubsampling:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        enum:
+                          - "400"
+                          - "420"
+                          - "422"
+                          - "444"
+                          - RGB
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              range:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        enum:
+                          - FULL
+                          - LIMITED
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              primaries:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              transferFunction:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              matrixCoefficients:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              alphaMode:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        enum:
+                          - NONE
+                          - STRAIGHT
+                          - PREMULTIPLIED
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              hdrMetadataRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              colorConfigurationVersionRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              lutVersionRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+          colorConfigurationFingerprint:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value:
+                    type: string
+                    pattern: ^sha256:[a-f0-9]{64}$
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          colorProcessingDomain:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value:
+                    enum:
+                      - DISPLAY_REFERRED
+                      - SCENE_REFERRED
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          alphaConversion:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value:
+                    enum:
+                      - NONE
+                      - PREMULTIPLY
+                      - UNPREMULTIPLY
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          preserveAlphaRequired:
+            type: boolean
+      rules:
+        - Every image/video artifact declares every listed slot; unavailable
+          metadata is explicitly UNKNOWN, conditionally irrelevant fields
+          NOT_APPLICABLE with reason.
+        - Color configuration and every applied LUT use immutable version
+          references and a configuration fingerprint. No default
+          primaries/range/transfer/alpha is invented.
+        - Display-referred and scene-referred processing remain distinct;
+          premultiply/unpremultiply is an explicit step. Required alpha
+          preservation forbids flattening or discarding alpha.
+        - A profile declares its required known fields; incomplete metadata cannot
+          be treated as evidence that its profile is eligible.
+    - id: media.value.audio-technical-descriptor
+      meaning: Total typed audio technical metadata independent of STT defaults and
+        mastering profile admission.
+      schema:
+        type: object
+        additionalProperties: false
+        required:
+          - artifactVersionId
+          - metadata
+          - masteringDeliveryProfileVersionRef
+        properties:
+          artifactVersionId: *a3
+          metadata:
+            type: object
+            additionalProperties: false
+            required:
+              - codec
+              - container
+              - sampleFormat
+              - sampleRate
+              - channelCount
+              - channelLayout
+              - durationTimeRef
+              - sampleCount
+              - loudnessMeasurementRef
+              - truePeakMeasurementRef
+              - encoderDelaySamples
+              - encoderPaddingSamples
+            properties:
+              codec:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              container:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              sampleFormat:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              sampleRate:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a1
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              channelCount:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value:
+                        type: integer
+                        minimum: 1
+                        maximum: 1024
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              channelLayout:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              durationTimeRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              sampleCount:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a2
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              loudnessMeasurementRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              truePeakMeasurementRef:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a3
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              encoderDelaySamples:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a2
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+              encoderPaddingSamples:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - value
+                    properties:
+                      status:
+                        const: KNOWN
+                      value: *a2
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: UNKNOWN
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+                  - type: object
+                    additionalProperties: false
+                    required:
+                      - status
+                      - reason
+                    properties:
+                      status:
+                        const: NOT_APPLICABLE
+                      reason:
+                        type: string
+                        minLength: 1
+                        maxLength: 512
+                        pattern: \S
+          masteringDeliveryProfileVersionRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+      rules:
+        - Duration, sample count, rate, sample format and layout are independent
+          exact metadata. Preserve encoder delay/priming and padding; do not
+          subtract them without an explicit source/output mapping.
+        - Loudness and true peak are supplied versioned measurement references
+          when available; UNKNOWN cannot assert compliance. Output-specific
+          targets come only from an exact separately admitted mastering/delivery
+          profile. A 16 kHz mono STT input profile does not define universal
+          output mastering.
+    - id: media.value.source-frame-sample-mapping
+      meaning: Source decode/presentation timestamps and audio sample clocks preserve
+        explicit source mapping, discontinuities and conversion loss.
+      rules:
+        - Keep signed source PTS/DTS in the original positive rational time base,
+          stream and immutable artifact version. VFR presentation index resolves
+          through the retained explicit frame map, not numeric fps.
+        - Audio sample time names the identified stream, exact sample rate, sample
+          count, origin and encoder priming/padding. A source recording timestamp
+          is not its duration. Last-frame PTS and total duration must follow the
+          explicit container/model contract; never guess frameCount/rate or
+          (frameCount-1)/rate.
+        - Frame indices are zero-based; intervals half-open. Drop-frame timecode
+          is UNSUPPORTED unless a versioned adapter specifies supported rates,
+          numbering, conversion and round-trip cases. It is not frame dropping or
+          inferred from elapsed time.
+        - Frame-rate/sample-rate conversion and drift/discontinuity correction
+          require a versioned mapping with source/target clocks, selected
+          rounding, priming/padding, loss and retained provenance. No implicit
+          drift correction or sample insertion/removal.
+        - A 24000/1001 source cannot silently become 24 fps. VFR normalization or
+          a changed rate creates a new immutable artifact with the original source
+          map and explicit conversion report.
+      oracle: scripts/lib/media-descriptor-definition-oracles.mjs#inspectSourceFrameTime
+      conversionRefs:
+        - media.value.rational-media-time
+        - media.value.sample-boundary-index
+    - id: media.value.resolved-visual-geometry-plan
+      meaning: Requested display aspect, model-native dimensions and final
+        crop/pad/scale are separate disclosed resolved-plan fields.
+      schema:
+        type: object
+        additionalProperties: false
+        required:
+          - planVersionRef
+          - requestedDisplayAspect
+          - modelDimensions
+          - finalDimensions
+          - transformPlanVersionRef
+          - profileVersionRef
+          - aspectPreservationDisposition
+          - finalPixelAspectRatio
+          - aspectChangeAuthorityRef
+        properties:
+          planVersionRef: *a3
+          requestedDisplayAspect: *a4
+          modelDimensions:
+            type: object
+            additionalProperties: false
+            required:
+              - width
+              - height
+            properties:
+              width: *a1
+              height: *a1
+          finalDimensions:
+            type: object
+            additionalProperties: false
+            required:
+              - width
+              - height
+            properties:
+              width: *a1
+              height: *a1
+          transformPlanVersionRef: *a3
+          profileVersionRef: *a3
+          aspectPreservationDisposition:
+            enum:
+              - PRESERVED
+              - EXPLICIT_OWNER_AUTHORIZED_CHANGE
+              - UNKNOWN
+          finalPixelAspectRatio: *a4
+          aspectChangeAuthorityRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value:
+                    type: string
+                    minLength: 1
+                    maxLength: 384
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    enum:
+                      - UNKNOWN
+                      - NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+      rules:
+        - A fallback permission preserves requested display aspect unless a
+          separately authorized exact change is recorded. UNKNOWN is not
+          preservation.
+        - A transform plan explicitly orders crop, pad and scale, exact
+          source/output dimensions, filter/rounding and loss; no hidden
+          model/encoder dimension correction.
+        - Pixel-format/grid/alignment constraints come from the exact
+          model/encoder profile; no 720x405 universal default or implicit
+          compatibility guarantee.
+      oracle: scripts/lib/media-descriptor-definition-oracles.mjs#inspectResolvedDisplayAspect
+    - id: media.value.simulation-fidelity-definition
+      meaning: Domain model/solver fidelity and geometry remain distinct from scene
+        appearance and visual level of detail.
+      schema:
+        type: object
+        additionalProperties: false
+        required:
+          - modelVersionRef
+          - equationsOrConstraintsVersionRef
+          - initialConditionsVersionRef
+          - boundaryConditionsVersionRef
+          - solverVersionRef
+          - stepPolicy
+          - stepAndToleranceContractRef
+          - integrationPolicyVersionRef
+          - collisionRepresentationVersionRef
+          - massInertiaContractRef
+          - materialParametersVersionRef
+          - sceneMeshVersionRef
+          - samplingContractVersionRef
+          - domainOwnerFidelityTierRef
+          - ownerReviewedTierMappingRef
+          - validityDomainVersionRef
+        properties:
+          modelVersionRef: *a3
+          equationsOrConstraintsVersionRef: *a3
+          initialConditionsVersionRef: *a3
+          boundaryConditionsVersionRef: *a3
+          solverVersionRef: *a3
+          stepPolicy:
+            enum:
+              - FIXED
+              - ADAPTIVE
+          stepAndToleranceContractRef: *a3
+          integrationPolicyVersionRef: *a3
+          collisionRepresentationVersionRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          massInertiaContractRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          materialParametersVersionRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          sceneMeshVersionRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          samplingContractVersionRef: *a3
+          domainOwnerFidelityTierRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          ownerReviewedTierMappingRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+          validityDomainVersionRef: *a3
+      rules:
+        - Model authority specifies equations/constraints or its authoritative
+          model reference, initial/boundary conditions, solver type/version,
+          fixed/adaptive step, tolerances and integration policy; collision,
+          mass/inertia and materials declare exact typed contracts or explicit
+          non-applicability.
+        - Scene/render mesh and collision mesh may differ and are separately
+          referenced; appearance is not evidence of collision geometry. Pivot
+          operations are explicit transforms, never hidden engine defaults.
+        - Keep declared unit dimensions, frame identity, handedness/up/camera
+          axes, transform order, quaternion order and serialization explicit.
+          Unknown or mismatched conventions deny conversion; silent axis flips or
+          degree/radian mixing fail validation.
+        - Preserve the domain owner fidelity-tier identity and meaning through an
+          owner-reviewed mapping. TutorPutor illustrative through empirically
+          calibrated tiers are its authority; a photorealistic render cannot
+          become scientifically validated. Visual LOD changes cannot lower the
+          model fidelity.
+    - id: media.value.replay-provenance-definition
+      meaning: Every replay claim names source/output and exact execution provenance,
+        class, qualified envelope and bounded predicate.
+      schema:
+        type: object
+        additionalProperties: false
+        required:
+          - sourceVersionRefs
+          - outputVersionRefs
+          - executionProvenanceVersionRef
+          - replayClass
+          - methodAndScopeVersionRef
+          - qualifiedEvidenceRef
+        properties:
+          sourceVersionRefs:
+            type: array
+            minItems: 1
+            maxItems: 1024
+            uniqueItems: true
+            items: *a3
+          outputVersionRefs:
+            type: array
+            maxItems: 1024
+            uniqueItems: true
+            items: *a3
+          executionProvenanceVersionRef: *a3
+          replayClass:
+            enum:
+              - EXACT_ENVIRONMENT
+              - TOLERANCE_BOUND
+              - STATISTICAL
+              - REPLAY_UNAVAILABLE
+          methodAndScopeVersionRef: *a3
+          qualifiedEvidenceRef:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - value
+                properties:
+                  status:
+                    const: KNOWN
+                  value: *a3
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: UNKNOWN
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+              - type: object
+                additionalProperties: false
+                required:
+                  - status
+                  - reason
+                properties:
+                  status:
+                    const: NOT_APPLICABLE
+                  reason:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                    pattern: \S
+        allOf:
+          - if:
+              properties:
+                replayClass:
+                  enum:
+                    - EXACT_ENVIRONMENT
+                    - TOLERANCE_BOUND
+                    - STATISTICAL
+              required:
+                - replayClass
+            then:
+              properties:
+                qualifiedEvidenceRef:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - status
+                    - value
+                  properties:
+                    status:
+                      const: KNOWN
+                    value:
+                      type: string
+                      minLength: 1
+                      maxLength: 384
+                      pattern: \S
+      rules:
+        - Capture source/output versions and exact execution environment,
+          engine/model/runtime/hardware/library versions, configuration, assets,
+          seed and output representation. A seed alone is not replay evidence.
+        - TOLERANCE_BOUND names numeric/geometric/perceptual/timing metrics,
+          metric versions, units, tolerances, scope and measurement methods. A
+          deviation is acceptable only within that exact named bound.
+        - EXACT_ENVIRONMENT, solver-state replay, render replay and encoded-byte
+          identity are distinct claims with separately qualified scope.
+          Statistical replay requires its repeated-sample protocol and acceptance
+          bounds.
+        - If qualified evidence is missing or unknown, report REPLAY_UNAVAILABLE
+          or unresolved fidelity; retain provenance without advertising
+          deterministic replay.
+  verification: tests/media-descriptor-definition-oracles.test.mjs

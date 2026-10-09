@@ -7,6 +7,7 @@ layoutIds: [media.gui.layout.record-detail]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds: [media.component.provenance-summary, media.component.artifact-integrity-summary, media.component.scene-inspector]
 patternIds: [media.gui.pattern.provenance-and-lineage]
+patternOverlayIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
 tokenDependencies: []
 domainObjectRefs: []
 operationRefs: []
@@ -111,7 +112,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.gui.template.review-and-compare
+  templateRef: media.gui.template.record-detail
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

@@ -5,7 +5,7 @@ semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
 scopeStatus: PDP-0-authority-projection; pending-owner-review
 proposalStatus: proposal-only; ownership labels and rules below require owner review and do not establish deployed bindings
-sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/actors-responsibilities.yaml, .product-experience/pdp-0-product-truth/dependency-contracts.yaml]
+sourceRefs: [ .product-experience/pdp-0-product-truth/policy-authority-model.yaml, .product-experience/pdp-0-product-truth/actors-responsibilities.yaml, .product-experience/pdp-0-product-truth/dependency-contracts.yaml ]
 ownership:
   mediaProductSemantics: media
   identityAuthenticationAndDelegation: ghatana-shared-and-identity-service
@@ -16,13 +16,13 @@ ownership:
   storageMechanics: platform-storage-owner; Media-owns-artifact-lifecycle-policy
   documentIntelligence: ghatana-services-document-intelligence; Shared-owns-neutral-contracts
 rules:
-  - actors-and-responsibility-labels-are-not-authenticated-identities-or-grants
-  - Media-owns-job-artifact-consent-quality-fidelity-and-lifecycle-meaning
-  - Shared-Workflow-may-provide-neutral-command-idempotency-and-CAS-mechanics
-  - provider-success-does-not-grant-rights-quality-or-publication-authority
-  - current-authority-is-checked-at-effect-boundary-and-after-policy-change
-  - stale-fencing-token-cannot-commit-or-publish-finality
-  - semantic-owner-review-and-independent-P0-010-acceptance-remain-pending
+- actors-and-responsibility-labels-are-not-authenticated-identities-or-grants
+- Media-owns-job-artifact-consent-quality-fidelity-and-lifecycle-meaning
+- Shared-Workflow-may-provide-neutral-command-idempotency-and-CAS-mechanics
+- provider-success-does-not-grant-rights-quality-or-publication-authority
+- current-authority-is-checked-at-effect-boundary-and-after-policy-change
+- stale-fencing-token-cannot-commit-or-publish-finality
+- semantic-owner-review-and-independent-P0-010-acceptance-remain-pending
 consentAndIdentity:
   status: proposal-only; identity-and-consent-provider-bindings-unverified
   sourceContracts:
@@ -30,27 +30,57 @@ consentAndIdentity:
     verification: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaConsentAuthority
     runtimeCheck: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#consentFor
   observedContractFacts:
-    - administration-contract-takes-tenant-and-principal-from-authenticated-transport-but-does-not-prove-transport-identity
-    - consent-record-contract-contains-purpose-region-grant-expiry-revocation-and-version-fields
-    - external-runtime-check-requires-ready-authority-and-active-decision-with-matching-consent-id
-    - consent-authority-provider-is-an-spi-and-runtime-composition-checks-readiness-and-production-eligibility
+  - administration-contract-takes-tenant-and-principal-from-authenticated-transport-but-does-not-prove-transport-identity
+  - consent-record-contract-contains-purpose-region-grant-expiry-revocation-and-version-fields
+  - external-runtime-check-requires-ready-authority-and-active-decision-with-matching-consent-id
+  - consent-authority-provider-is-an-spi-and-runtime-composition-checks-readiness-and-production-eligibility
   unresolvedOwners:
     identityAuthenticationAndDelegation: deployed-identity-and-delegation-provider-binding-not-established
     consentAuthority: deployed-consent-authority-implementation-and-durable-record-owner-not-established
     storageMechanics: deployment-wide-storage-inventory-and-backup-replica-owners-not-established
     externalProviderDeletion: provider-specific-retention-and-erasure-owners-and-confirmation-contracts-not-established
   proposalRules:
-    - trusted-identity-owner-authenticates-tenant-principal-and-delegation-before-consent-administration
-    - media-policy-owner-defines-purpose-and-governed-processing-meaning; consent-authority-owner-supplies-current-scoped-decision
-    - recheck-current-authority-at-effect-boundaries-and-reconcile-revocation-races-without-claiming-in-flight-termination
-    - storage-and-provider-owners-own-deletion-mechanics-and-evidence; media-owns-retention-and-erasure-policy-meaning
+  - trusted-identity-owner-authenticates-tenant-principal-and-delegation-before-consent-administration
+  - media-policy-owner-defines-purpose-and-governed-processing-meaning; consent-authority-owner-supplies-current-scoped-decision
+  - recheck-current-authority-at-effect-boundaries-and-reconcile-revocation-races-without-claiming-in-flight-termination
+  - storage-and-provider-owners-own-deletion-mechanics-and-evidence; media-owns-retention-and-erasure-policy-meaning
   exclusions:
-    - service-interface-presence-is-not-proof-of-a-production-provider-or-authenticated-identity-binding
-    - purge-counts-or-runtime-readiness-are-not-proof-of-storage-wide-or-provider-side-erasure
-    - consent-revocation-does-not-by-itself-prove-cancellation-recall-or-deletion-of-prior-effects
+  - service-interface-presence-is-not-proof-of-a-production-provider-or-authenticated-identity-binding
+  - purge-counts-or-runtime-readiness-are-not-proof-of-storage-wide-or-provider-side-erasure
+  - consent-revocation-does-not-by-itself-prove-cancellation-recall-or-deletion-of-prior-effects
 ownershipDecisions:
-  - id: media.decision.document-intelligence-boundary
-    sourceRef: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
-    status: recorded-owner-decision
-    effect: Media-owns-temporal-and-scene-text-semantics; generic-OCR-and-document-workflow-remain-external
-    scopeStatus: source-decision; applicability-follows-current-authority-map-and-cutover-state
+- id: media.decision.document-intelligence-boundary
+  sourceRef: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+  status: recorded-owner-decision
+  effect: Media-owns-temporal-and-scene-text-semantics; generic-OCR-and-document-workflow-remain-external
+  scopeStatus: source-decision; applicability-follows-current-authority-map-and-cutover-state
+ownerDefinedPdp10AuthorityScopes:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-10-AUTHORITY-SCOPES-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+  - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary
+  - .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics
+  - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
+  identityScope:
+    tenantRef: host-attested tenant identity; never caller body
+    principalRef: host-attested principal identity; never caller body
+    delegationRef: host-attested, current delegation; caller role labels are not grants
+    workspaceRef: host-authorized workspace context; caller selector cannot widen scope
+    unknownOrMismatched: DENY before lookup or effect; do not fall back to global scope
+  effectAuthority:
+    mediaOwns:
+    - product operation meaning
+    - artifact and job finality
+    - rights and consent applicability
+    - retention/erasure policy
+    - version-conflict resolution semantics
+    externalOwners:
+    - identity authentication and delegation
+    - generic privileged action mechanics
+    - storage and replica deletion mechanics
+    - provider-side retention and deletion confirmation
+    - event transport durability
+    rule: Media preconditions are mandatory inputs to external privileged mechanics; mechanism acceptance does not make a Media outcome successful.
+  scopeStatus: OWNER_DEFINED_SOURCE_POLICY; no production trust binding or enforcement claim
+  independentSecurityReview: PENDING

@@ -9,7 +9,13 @@ import { validateScopeStatuses } from "../scripts/normalize-media-scope-status.m
 const root = resolve(new URL("..", import.meta.url).pathname);
 const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse: parseYaml } = requireTools("yaml");
-const readYaml = (path) => parseYaml(readFileSync(resolve(root, path), "utf8"));
+const sourceCache = new Map();
+const readYaml = (path) => {
+  const text = readFileSync(resolve(root, path), "utf8");
+  const cached = sourceCache.get(path);
+  if (!cached || cached.text !== text) sourceCache.set(path, { text, value: parseYaml(text) });
+  return structuredClone(sourceCache.get(path).value);
+};
 
 function validateBoundedJ01ProjectDefinitions(journey) {
   assert.equal(journey.journeyId, "J-01");
@@ -383,6 +389,80 @@ function validateBoundedJ03TranscriptReviewDefinition(journey) {
   assert.equal(action.actionDefinitionSemantics.publicFinality, undefined);
 }
 
+function validateBoundedJ29ReconnectDefinition(journey) {
+  const decision = ".product-experience/decision-log.md#PXD-077";
+  const operationRef = "media.operation.capability.media-stream-session-reconnect";
+  const actionRef = "media.action.request-live-session-reconnect";
+  const expectedGuards = [
+    "media.guard.stream.reconnect.same-session-scope",
+    "media.guard.stream.reconnect.degraded-session",
+    "media.guard.stream.reconnect.current-consent",
+    "media.guard.stream.reconnect.current-fence",
+    "media.guard.stream.reconnect.prior-effects-resolved",
+    "media.guard.stream.reconnect.budget-available",
+    "media.guard.stream.reconnect.next-sequence-contiguous",
+  ];
+  assert.equal(journey.journeyId, "J-29");
+  assert.equal(journey.steps.length, 4);
+  const step = journey.steps[3];
+  assert.equal(step.stepId, "present-bounded-return-state");
+  assert.equal(step.decisionRef, decision);
+  assert.equal(step.canonicalOperationRef, operationRef);
+  assert.equal(step.ownerActionRef, actionRef);
+  assert.equal(step.bindingStatus.status.split(";")[0], "BOUNDED_MEDIA_OWNER_DEFINITION_PXD_077");
+  assert.deepEqual(step.guardRefs, expectedGuards);
+  assert.deepEqual(step.canonicalOperationRefs, [operationRef]);
+  assert.deepEqual(step.capabilityRefs, ["media.stream.session.reconnect"]);
+  assert.deepEqual(step.requirementRefs, ["MEDIA-REQ-CAP-STREAM"]);
+  const semantics = step.stepDefinitionSemantics;
+  const operationBinding = semantics?.operationContractBinding;
+  assert.equal(semantics?.ownerDefinitionDecisionRef, decision);
+  assert.equal(semantics?.action?.actionRef, actionRef);
+  assert.equal(semantics?.action?.semanticRole, "DOMAIN_OPERATION");
+  assert.equal(semantics?.action?.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(semantics?.action?.guards, expectedGuards);
+  assert.match(semantics?.action?.effect ?? "", /fenced reconnect handshake/u);
+  assert.doesNotMatch(semantics?.action?.effect ?? "", /session restored|frame sent/u);
+  assert.equal(operationBinding?.operationRef, operationRef);
+  assert.equal(operationBinding?.operationKind, "COMMAND");
+  assert.equal(operationBinding?.scopeStatus, "OWNER_DEFINED_DEFINITION_ONLY");
+  assert.equal(operationBinding?.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(operationBinding?.guardRefs, expectedGuards);
+  assert.ok(operationBinding?.sourceRef.endsWith(operationRef));
+  assert.deepEqual(step.objectRefs, ["media.domain.stream-session"]);
+  assert.deepEqual(step.stateRefs, [".product-experience/pdp-1-domain-data/states.yaml#media-stream-session"]);
+  assert.deepEqual(step.authorityRefs, [
+    ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.consentRevocation",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention",
+  ]);
+  assert.match(semantics?.action?.finality ?? "", /UNKNOWN_OUTCOME/u);
+
+  const ownerAction = readYaml(".product-experience/pdp-3-product-experience/action-registry.yaml").ownerDefinedActions
+    .find(({ id }) => id === actionRef);
+  assert.ok(ownerAction);
+  assert.equal(ownerAction.sourceDefinitionDecisionRef, decision);
+  assert.equal(ownerAction.operationRef, operationRef);
+  assert.equal(ownerAction.operationKind, "COMMAND");
+  assert.deepEqual(ownerAction.guardRefs, expectedGuards);
+  assert.equal(ownerAction.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(ownerAction.requestSemantics.requiredInputs.serverDerived, [{
+    field: "requestFingerprint",
+    source: "SERVER_COMPUTED_FROM_TRUSTED_IDENTITY_AND_CANONICAL_REQUEST_BODY",
+    callerMaySupply: false,
+  }]);
+
+  const operation = readYaml(".product-experience/pdp-1-domain-data/operations.yaml").capabilityOperationContracts.records
+    .find(({ id }) => id === operationRef);
+  assert.ok(operation);
+  assert.equal(operation.operationKind, "COMMAND");
+  assert.equal(operation.admission?.executionAdmission, "NOT_ADMITTED");
+  assert.deepEqual(operation.domainObjectRefs, ["media.domain.stream-session"]);
+  assert.deepEqual(operation.stateRefs, [".product-experience/pdp-1-domain-data/states.yaml#media-stream-session"]);
+  assert.deepEqual(operation.requirementRefs, ["MEDIA-REQ-CAP-STREAM"]);
+  assert.ok(operation.requestSchema && operation.resultSchema, "the exact operation schema must resolve");
+}
+
 test("canonical Media product-definition authority is structurally closed locally", () => {
   const output = execFileSync(process.execPath, ["scripts/check-product-definition-authority.mjs"], { cwd: root, encoding: "utf8" });
   assert.match(output, /authority check passed/u);
@@ -640,8 +720,9 @@ test("active authority and experience metadata use canonical PDP labels without 
   assert.doesNotMatch(fixtures, /phase3PayloadState|content-payload-owned-by-Phase-3/u);
 
   const journey = readFileSync(resolve(root, ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml"), "utf8");
-  assert.match(journey, /PDP-0 outcome[\s\S]*PDP-3 screen registry/u);
-  assert.match(journey, /pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted/u);
+  const journeyDefinition = parseYaml(journey);
+  assert.match(journeyDefinition.scope, /PDP-0 outcome[\s\S]*PDP-3 screen registry/u);
+  assert.match(journeyDefinition.status, /pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted/u);
 });
 
 test("active cross-phase metadata uses canonical PDP labels while stable exception identities remain intact", () => {
@@ -664,7 +745,7 @@ test("active cross-phase metadata uses canonical PDP labels while stable excepti
       assert.match(content, /^pdp0JourneyRef: J-\d{2}$/mu, path);
     }
     if (content.includes("phase0-critical-exception")) {
-      assert.match(content, /^- id: phase0-critical-exception$/mu, path);
+      assert.ok(parseYaml(content).criticalNonhappyPaths?.some(({ id }) => id === "phase0-critical-exception"), path);
     }
   }
 
@@ -717,6 +798,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   let boundedJ03DraftValidated = false;
   let boundedJ03TranscriptReviewValidated = false;
   let boundedJ03SubmissionValidated = false;
+  let boundedJ29ReconnectValidated = false;
   for (const path of files) {
     const content = readFileSync(path, "utf8");
     const journeyId = content.match(/^journeyId: (J-\d{2})$/mu)?.[1];
@@ -739,6 +821,11 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
       boundedJ03TranscriptReviewValidated = true;
       validateBoundedJ03TranscriptionSubmissionDefinition(parsedJourney);
       boundedJ03SubmissionValidated = true;
+    }
+    const sourceDefinedJ29 = journeyId === "J-29";
+    if (sourceDefinedJ29) {
+      validateBoundedJ29ReconnectDefinition(parsedJourney);
+      boundedJ29ReconnectValidated = true;
     }
     const lines = content.split(/\r?\n/u);
     const stepsKey = lines.findIndex((line) => /^steps:\s*$/u.test(line));
@@ -806,6 +893,9 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
             && /runtimeAdmission: NOT_ADMITTED/u.test(block))
           || (sourceDefinedJ03 && boundedJ03Validated && [6, 7].includes(itemIndex)
             && content.includes(".product-experience/decision-log.md#PXD-060")
+            && content.includes("runtimeAdmission: NOT_ADMITTED"))
+          || (sourceDefinedJ29 && boundedJ29ReconnectValidated && itemIndex === 3
+            && content.includes(".product-experience/decision-log.md#PXD-077")
             && content.includes("runtimeAdmission: NOT_ADMITTED"));
         const externalIdentityHandoffReason = sourceDefinedJ01 && itemIndex === 0 && field === "handoffRef"
           && content.includes("runtimeAdmission: NOT_ADMITTED") && /external Shared identity contract only/iu.test(reason ?? "");
@@ -851,6 +941,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   assert.equal(boundedJ01Validated, true, "J-01 source-defined bindings require their bounded source checks");
   assert.equal(boundedJ03Validated, true, "only J-03 steps 7 and 8 use their exact bounded caption-version source checks");
   assert.equal(boundedJ03SubmissionValidated, true, "only J-03 step 2 uses the exact bounded submission definition check");
+  assert.equal(boundedJ29ReconnectValidated, true, "only J-29 reconnect step uses the exact bounded PXD-077 definition check");
   assert.equal(boundedJ03DraftValidated, true, "only J-03 steps 5 and 6 use the exact bounded caption-draft definition check");
   assert.deepEqual(journeys.get("J-29"), [
     "detect-loss-or-consent-change", "fence-new-frame-submission", "reconcile-dispatched-frame-effects", "present-bounded-return-state",
@@ -861,13 +952,15 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
 });
 
 test("gRPC source inventory status matches the active proto census without changing pending bindings", () => {
-  const registry = readFileSync(resolve(root, ".product-experience/pdp-3-product-experience/grpc/service-registry.yaml"), "utf8");
-  const operations = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8");
-  assert.match(registry, /^status: active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending$/mu);
-  assert.match(registry, /^observedRpcCount: 43$/mu);
-  assert.match(registry, /^requestedRpcCount: 43\nunresolvedRpcCount: 0$/mu);
-  assert.match(operations, /all 43 identities accounted for; 17 domain-operation family refs remain proposals; 26 identities are unresolved including transport-only\/provider-admin roles/u);
-  assert.equal([...registry.matchAll(/^    experienceBinding: pending-owner-review$/gmu)].length, 43);
+  const registry = readYaml(".product-experience/pdp-3-product-experience/grpc/service-registry.yaml");
+  assert.equal(registry.status, "active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending");
+  assert.equal(registry.observedRpcCount, 43);
+  assert.equal(registry.requestedRpcCount, 43);
+  assert.equal(registry.unresolvedRpcCount, 0);
+  assert.equal(registry.rpcs.length, 43);
+  assert.equal(new Set(registry.rpcs.map(record => record.id)).size, 43);
+  assert.ok(registry.rpcs.every(record => record.experienceBinding === "pending-owner-review"));
+
 });
 
 test("PDP1 operation proposal preserves source denominators and the complete proposal field shape", () => {
@@ -877,7 +970,8 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
     "affectedObjects", "transition", "events", "risk", "reversibility", "commitFinality", "downstreamEffects",
     "failure", "partialSuccess", "unknownOutcome", "retry", "idempotency", "recovery", "evidenceAudit", "nextSafeAction",
   ];
-  const records = [...registry.matchAll(/^  - id: (media\.operation\.[^\n]+)\n([\s\S]*?)(?=^  - id: media\.operation\.|^channelFamilies:)/gmu)];
+  const parsed = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const records = parsed.operations.map(record => [null, record.id, record]);
   assert.equal(records.length, 14, "nine organizational families include five source-specific operations");
   assert.equal(new Set(records.map(([, id]) => id)).size, 14);
   const sourceSpecificIds = new Set([
@@ -892,22 +986,23 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
   ];
   for (const [, id, body] of records) {
     const fields = sourceSpecificIds.has(id) ? sourceSpecificFields : requiredFields;
-    for (const field of fields) assert.match(body, new RegExp(`^    ${field}:`, "mu"), `${id} missing ${field}`);
+    for (const field of fields) assert.ok(Object.hasOwn(body, field), `${id} missing ${field}`);
   }
 
-  assert.match(registry, /^  uiProductActions:\n    count: 146$/mu);
-  assert.match(registry, /14 source actions have exact proposed operation refs; remaining 132 lack direct canonical bindings/u);
-  assert.match(registry, /media\.action\.request-transcription: media\.operation\.transcription-submission/u);
-  assert.match(registry, /^  httpOperations:\n    count: 27$/mu);
-  assert.match(registry, /all 27 exact OpenAPI operationIds accounted for; exact route-to-logical-operation links remain unresolved/u);
-  assert.match(registry, /^  grpcRpcs:\n    count: 43$/mu);
-  assert.match(registry, /all 43 identities accounted for; 17 domain-operation family refs remain proposals; 26 identities are unresolved including transport-only\/provider-admin roles/u);
-  assert.match(registry, /^  cliSimulationCommands:\n    planDenominator: 11\n    currentFixtureRegistryRecords: 11$/mu);
-  assert.match(registry, /^      count: 12$/mu);
-  assert.match(registry, /^  sdkMethods:\n    registryRecords: 32$/mu);
-  assert.match(registry, /^  agentToolHandlers:\n    count: 4$/mu);
-  assert.match(registry, /^  lifecycleEventNames:\n    count: 15$/mu);
-  assert.match(registry, /^ownerReview: pending-owner-review$/mu);
+  const denominators = parsed.sourceDenominators;
+  assert.equal(denominators.uiProductActions.count, 146);
+  assert.equal(Object.keys(denominators.uiProductActions.explicitOperationIds).length, 14);
+  assert.equal(denominators.uiProductActions.unresolvedActionIds.length, 132);
+  assert.equal(denominators.uiProductActions.explicitOperationIds["media.action.request-transcription"], "media.operation.transcription-submission");
+  assert.equal(denominators.httpOperations.count, 27);
+  assert.equal(denominators.grpcRpcs.count, 43);
+  assert.equal(denominators.cliSimulationCommands.planDenominator, 11);
+  assert.equal(denominators.cliSimulationCommands.currentFixtureRegistryRecords, 11);
+  assert.equal(denominators.sdkMethods.registryRecords, 32);
+  assert.equal(denominators.agentToolHandlers.count, 4);
+  assert.equal(denominators.lifecycleEventNames.count, 15);
+  assert.equal(parsed.ownerReview, "pending-owner-review");
+
 });
 
 test("active G-05 mirrors match current proposal counts without implying acceptance", () => {
@@ -934,61 +1029,48 @@ test("active G-05 mirrors match current proposal counts without implying accepta
 });
 
 test("PDP1 event inventory preserves lifecycle and local-client populations without inventing contracts", () => {
-  const events = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/events.yaml"), "utf8");
-  const evidence = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/evidence.yaml"), "utf8");
-  const provenance = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/provenance.yaml"), "utf8");
-  const operations = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8");
+  const eventData = readYaml(".product-experience/pdp-1-domain-data/events.yaml");
+  const evidenceData = readYaml(".product-experience/pdp-1-domain-data/evidence.yaml");
+  const provenanceData = readYaml(".product-experience/pdp-1-domain-data/provenance.yaml");
+  const operationsData = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const lifecycle = eventData.observedEnvelope.lifecyclePublisherInventory;
+  const client = eventData.observedEnvelope.clientNotificationInventory;
+  const proposals = lifecycle.evidenceProvenanceProposals;
+  const evidenceBindings = evidenceData.eventEvidenceBindings.eventBindings;
+  const provenanceBindings = provenanceData.eventProvenanceObservations.eventBindings;
   const runtimeSource = readFileSync(resolve(root, "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java"), "utf8");
   const clientSource = readFileSync(resolve(root, "libs/audio-video-client/src/index.ts"), "utf8");
-  const clientRegistry = readFileSync(resolve(root, ".product-experience/pdp-3-product-experience/events/event-registry.yaml"), "utf8");
+  const clientRegistry = readYaml(".product-experience/pdp-3-product-experience/events/event-registry.yaml");
   const lifecycleTypes = [
     "media.upload.started", "media.artifact.completed", "media.job.accepted", "media.job.cancelled",
     "media.job.cancel_requested", "media.stream.opened", "media.stream.closed", "media.job.completed", "media.job.failed",
   ];
-  assert.match(events, /^    publisherCallSites: 7\n    concreteEventTypes: 9$/mu);
-  assert.match(events, /classification: source-observed-implementation-inventory; not-canonical-taxonomy/u);
-  for (const eventType of lifecycleTypes) assert.ok(events.includes(`eventType: ${eventType}`), `missing lifecycle type ${eventType}`);
-  assert.equal([...runtimeSource.matchAll(/publishLifecycle\(/gu)].length - 1, 7, "runtime must retain seven call sites plus the method declaration");
+  assert.equal(lifecycle.publisherCallSites, 7);
+  assert.equal(lifecycle.concreteEventTypes, 9);
+  assert.equal(lifecycle.classification, "source-observed-implementation-inventory; not-canonical-taxonomy");
+  assert.deepEqual(lifecycle.records.map(({ eventType }) => eventType), lifecycleTypes);
+  assert.equal([...runtimeSource.matchAll(/publishLifecycle\(/gu)].length - 1, 7, "runtime retains seven publisher call sites plus method declaration");
   assert.match(runtimeSource, /"media\.job\." \+ terminal\.status\(\)\.name\(\)\.toLowerCase/u);
   assert.match(runtimeSource, /JobStatus\.COMPLETED/u);
   assert.match(runtimeSource, /JobStatus\.FAILED/u);
-  assert.match(events, /MediaRuntime#publishLifecycle constructs dynamic media\.job\.<status>/u);
-  assert.match(events, /canonicalTaxonomy: unresolved/u);
+  assert.match(lifecycle.sharedPublisher, /dynamic media\.job\.<status>/u);
+  assert.equal(lifecycle.canonicalTaxonomy, "unresolved");
+  assert.equal(lifecycle.perEventProducerAuthority, "unresolved");
 
-  const clientNames = [...clientRegistry.matchAll(/^    eventName: "([^"]+)"$/gmu)].map(([, name]) => name);
-  assert.equal(clientNames.length, 15);
+  const clientEvents = readYaml(".product-experience/pdp-3-product-experience/events/event-registry.yaml").events;
+  const clientNames = clientEvents.map(({ eventName }) => eventName);
+  assert.equal(client.count, 15);
+  assert.equal(client.records.length, 15);
   assert.equal(new Set(clientNames).size, 15);
   for (const name of clientNames) {
-    assert.ok(events.includes(`"${name}"`), `missing distinct client notification ${name}`);
+    assert.ok(client.records.some(({ eventName }) => eventName === name), `event inventory missing ${name}`);
     assert.ok(clientSource.includes(`'${name}'`), `client source no longer emits ${name}`);
   }
-  assert.match(events, /^    count: 15$/mu);
-  assert.match(events, /delivery: local-client-listener-bus; durable-Event-Plane-publication-not-established/u);
-  assert.match(events, /relationToLifecyclePublisher: separate-population; not-equivalent/u);
-  assert.match(operations, /15 separate local client-listener notifications[\s\S]*7 runtime publisher call sites\/9 concrete event types; populations are not equivalent/u);
+  assert.equal(client.delivery, "local-client-listener-bus; durable-Event-Plane-publication-not-established");
+  assert.equal(client.relationToLifecyclePublisher, "separate-population; not-equivalent");
+  assert.ok(operationsData.channelFamilies.event.includes("15 separate local client-listener notifications"));
+  assert.ok(operationsData.channelFamilies.event.includes("7 runtime publisher call sites/9 concrete event types; populations are not equivalent"));
 
-  assert.match(events, /orderingGuarantee: unresolved/u);
-  assert.match(events, /replayRetentionOrdering: unresolved/u);
-  assert.match(events, /durable-deduplication-guarantee: unresolved/u);
-  assert.match(provenance, /orderingAndClockAuthority: unresolved/u);
-  assert.match(provenance, /durable-deduplication-unverified/u);
-  const eventTypesFrom = (text, sectionStart, sectionEnd) => {
-    const start = text.indexOf(sectionStart);
-    assert.notEqual(start, -1, `missing section ${sectionStart}`);
-    const end = sectionEnd ? text.indexOf(sectionEnd, start) : text.length;
-    assert.notEqual(end, -1, `missing section boundary ${sectionEnd}`);
-    return [...text.slice(start, end).matchAll(/^\s*- (?:eventType: (media\.[^\s]+)|\{eventType: (media\.[^,}]+),)/gmu)]
-      .map(([, blockType, inlineType]) => blockType ?? inlineType);
-  };
-  const evidenceEventTypes = eventTypesFrom(evidence, "  eventBindings:\n", "evidenceClasses:");
-  const provenanceEventTypes = eventTypesFrom(provenance, "  eventBindings:\n");
-  const proposalEventTypes = eventTypesFrom(events, "    evidenceProvenanceProposals:\n", "  clientNotificationInventory:");
-  assert.deepEqual(evidenceEventTypes, lifecycleTypes, "evidence proposals must cover each observed lifecycle type exactly once, in source inventory order");
-  assert.deepEqual(provenanceEventTypes, lifecycleTypes, "provenance proposals must cover each observed lifecycle type exactly once, in source inventory order");
-  assert.deepEqual(proposalEventTypes, lifecycleTypes, "event-level proposals must cover each observed lifecycle type exactly once");
-  assert.equal(new Set(evidenceEventTypes).size, 9);
-  assert.equal(new Set(provenanceEventTypes).size, 9);
-  assert.equal(new Set(proposalEventTypes).size, 9);
   const expectedSourceRefs = [
     ["media.upload.started", "MediaRuntime.java#L275-L280", "UploadSession", "session.uploadId", "literal-1"],
     ["media.artifact.completed", "MediaRuntime.java#L321-L328", "MediaArtifact", "artifact.artifactId", "literal-1"],
@@ -1000,41 +1082,38 @@ test("PDP1 event inventory preserves lifecycle and local-client populations with
     ["media.job.completed", "MediaRuntime.java#L1211-L1218", "ProcessingJob", "value.jobId", "terminal.version"],
     ["media.job.failed", "MediaRuntime.java#L1211-L1218", "ProcessingJob", "value.jobId", "terminal.version"],
   ];
-  const proposalStart = events.indexOf("    evidenceProvenanceProposals:\n");
-  const proposalEnd = events.indexOf("  clientNotificationInventory:\n", proposalStart);
-  const proposalSection = events.slice(proposalStart, proposalEnd);
-  for (const [type, sourceRef, domainRecord, aggregateIdentity, aggregateVersion] of expectedSourceRefs) {
-    const rowStart = proposalSection.indexOf(`eventType: ${type}`);
-    assert.notEqual(rowStart, -1, `missing event proposal ${type}`);
-    const nextRow = proposalSection.indexOf("\n        - eventType:", rowStart + 1);
-    const row = proposalSection.slice(rowStart, nextRow === -1 ? undefined : nextRow);
-    assert.ok(row.includes(sourceRef), `${type} proposal lacks its exact runtime call-site`);
-    assert.ok(row.includes(aggregateIdentity), `${type} proposal lacks aggregate identity mapping`);
-    assert.ok(row.includes(aggregateVersion), `${type} proposal lacks aggregate version mapping`);
-    assert.ok(row.includes("evidenceStatus:"), `${type} proposal lacks evidence status`);
-    const evidenceRow = evidence.slice(evidence.indexOf(`eventType: ${type}`));
-    assert.ok(evidenceRow.slice(0, evidenceRow.indexOf("\n") < 0 ? undefined : evidenceRow.indexOf("\n")).includes(sourceRef));
-    assert.ok(evidenceRow.includes(domainRecord), `${type} evidence candidate must link the source-domain record`);
-    const provenanceRow = provenance.slice(provenance.indexOf(`eventType: ${type}`));
-    assert.ok(provenanceRow.slice(0, provenanceRow.indexOf("\n") < 0 ? undefined : provenanceRow.indexOf("\n")).includes(sourceRef));
-    assert.ok(provenanceRow.includes(domainRecord), `${type} provenance candidate must link the source-domain record`);
+  assert.deepEqual(proposals.records.map(({ eventType }) => eventType), lifecycleTypes);
+  assert.deepEqual(evidenceBindings.records.map(({ eventType }) => eventType), lifecycleTypes);
+  assert.deepEqual(provenanceBindings.records.map(({ eventType }) => eventType), lifecycleTypes);
+  for (const [type, sourceSuffix, domainType, aggregateIdentity, aggregateVersion] of expectedSourceRefs) {
+    const proposal = proposals.records.find((row) => row.eventType === type);
+    const evidence = evidenceBindings.records.find((row) => row.eventType === type);
+    const provenance = provenanceBindings.records.find((row) => row.eventType === type);
+    assert.ok(proposal, `missing event proposal ${type}`);
+    assert.ok(proposal.sourceObservation.sourceRef.endsWith(sourceSuffix), `${type} proposal must cite its exact source call site`);
+    assert.equal(proposal.aggregateProposal.identity, aggregateIdentity, `${type} aggregate identity mapping`);
+    assert.ok(String(proposal.aggregateProposal.version).startsWith(aggregateVersion), `${type} aggregate version mapping`);
+    assert.match(proposal.evidenceStatus, /^source-observation-candidate-only; .+/u);
+    assert.equal(proposal.policySemantics, "pending-owner-review");
+    assert.ok(evidence.sourceObservationCandidate.endsWith(sourceSuffix));
+    assert.ok(evidence.sourceDomainRecordCandidate.includes(domainType));
+    assert.equal(evidence.finalityAndDelivery, "unavailable");
+    assert.ok(provenance.sourceRef.endsWith(sourceSuffix));
+    assert.ok(provenance.aggregate.type.includes(domainType.replace("ProcessingJob", "job").replace("MediaArtifact", "artifact").replace("UploadSession", "upload").replace("StreamSession", "stream")));
+    assert.equal(provenance.policyStatus, "pending-owner-review");
   }
-  for (const type of lifecycleTypes) {
-    for (const [registry, label] of [[events, "events"], [evidence, "evidence"], [provenance, "provenance"]]) {
-      assert.ok(registry.includes(type), `${label} missing ${type}`);
-      assert.match(registry, /source-observation-candidate-only|source-observation-only|source observation, not committed evidence/u, `${label} must classify ${type} as candidate evidence`);
-      assert.match(registry, /pending-owner-review/u, `${label} must keep policy semantics pending`);
-    }
-  }
-  assert.match(events, /authoritative-finality-evidence, durable-delivery-receipt, committed-event-evidence/u);
-  assert.match(evidence, /authoritative-finality, durable-delivery-receipt, committed-event-record/u);
-  assert.match(provenance, /canonical-domain-identity, immutable-version-identity/u);
-  assert.match(provenance, /eventIdentity: \{observed: "media:<eventType>:<aggregateId>:<aggregateVersion>"/u);
-  assert.match(events, /semanticPiiRedactionAndEventSpecificMinimization: unresolved/u);
-  assert.match(events, /compatibility-schema-and-evolution-policy: unresolved/u);
-  assert.match(events, /outbox-retry-replay-and-recovery-contract: not-established/u);
-  assert.match(events, /CrossModalEvent\.event_type[\s\S]*message-content-examples-not-lifecycle-publication/u);
-  assert.match(events, /test-payload-strings-not-production-publication/u);
+
+  assert.equal(proposals.status, "source-observation-candidates-only; not-committed-event-evidence");
+  assert.equal(evidenceBindings.status, "proposal-only; pending-owner-review");
+  assert.equal(provenanceBindings.status, "proposal-only; pending-owner-review");
+  assert.ok(evidenceBindings.commonUnavailableEvidence.includes("authoritative-finality"));
+  assert.ok(evidenceBindings.commonUnavailableEvidence.includes("durable-delivery-receipt"));
+  assert.ok(provenanceBindings.commonUnknowns.includes("immutable-version-identity"));
+  assert.equal(eventData.observedEnvelope.fieldObservations.attributes.semanticPiiRedactionAndEventSpecificMinimization, "unresolved");
+  assert.equal(eventData.observedEnvelope.wireObservations.eventVersion.status, "publisher-implementation-observed; compatibility-schema-and-evolution-policy: unresolved");
+  assert.equal(eventData.observedEnvelope.wireObservations.publicationFailure.behavior, "runtime-logs-unconfirmed-and-continues; outbox-retry-replay-and-recovery-contract: not-established");
+  assert.ok(eventData.observedEnvelope.excludedEventShapedSources.some(({ sourceRef, classification }) => sourceRef.includes("CrossModalEvent.event_type") && classification === "message-content-examples-not-lifecycle-publication"));
+  assert.ok(eventData.observedEnvelope.excludedEventShapedSources.some(({ classification }) => classification === "test-payload-strings-not-production-publication"));
 });
 
 test("PDP1-005 registries preserve observed facts, proposal boundaries, and owner gates", () => {
@@ -1097,41 +1176,45 @@ test("PDP1 state and transition extraction remains proposal-only and preserves u
   const source = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/state-models.yaml"), "utf8");
   const domainModel = readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md"), "utf8");
 
-  assert.match(states, /^authorityStatus: proposal-only; owner-review-pending; P0-010-independent-acceptance-pending$/mu);
-  assert.match(states, /^  sourceMachineRecords: 11\n  extractedMachineRecords: 11\n  sourceStateRecords: 75\n  extractedStateRecords: 75$/mu);
-  assert.equal([...states.matchAll(/^  - machineId: /gmu)].length, 11);
-  assert.equal([...source.matchAll(/^- modelId: /gmu)].length, 11);
-  assert.match(states, /machineId: media-rights-and-consent[\s\S]*?stateIds: \[\]\n    stateCount: 0/u);
-
-  for (const id of ["RETRY_PENDING", "RETRYING", "CANCEL_REQUESTED", "CANCELLING", "OUTCOME_UNKNOWN", "RECONCILING", "PARTIALLY_SUCCEEDED"]) {
-    assert.ok(states.includes(id), `missing unresolved state spelling ${id}`);
-  }
-  for (const conflictId of [
-    "state-conflict.retry-pending-vs-retrying",
-    "state-conflict.cancel-requested-vs-cancelling",
-    "state-conflict.unknown-reconciling-partial-outcomes",
-  ]) assert.ok(states.includes(conflictId), `missing conflict record ${conflictId}`);
+  const parsedStates = readYaml(".product-experience/pdp-1-domain-data/states.yaml");
+  const parsedTransitions = readYaml(".product-experience/pdp-1-domain-data/transitions.yaml");
+  assert.equal(parsedStates.authorityStatus, "proposal-only; owner-review-pending; P0-010-independent-acceptance-pending");
+  assert.equal(parsedTransitions.authorityStatus, parsedStates.authorityStatus);
+  assert.equal(parsedStates.inventory.sourceMachineRecords, 11);
+  assert.equal(parsedStates.inventory.extractedMachineRecords, 11);
+  assert.equal(parsedStates.inventory.sourceStateRecords, 75);
+  assert.equal(parsedStates.inventory.extractedStateRecords, 75);
+  assert.equal(parsedStates.stateMachines.length, 11);
+  assert.equal(parsedStates.stateMachines.reduce((sum, machine) => sum + machine.stateIds.length, 0), 75);
+  const rights = parsedStates.stateMachines.find(machine => machine.machineId === "media-rights-and-consent");
+  assert.deepEqual(rights.stateIds, []);
+  assert.equal(rights.stateCount, 0);
+  assert.equal(Object.values(rights.stateDefinitionsByDimension).flat().length, 12, "new rights definitions remain separate from historical extraction");
+  assert.match(rights.ownerSemanticDisposition, /no-legal-licensor-authority-claimed; independent-review-open; runtime-not-admitted/u);
+  for (const id of ["RETRY_PENDING", "RETRYING", "CANCEL_REQUESTED", "CANCELLING", "OUTCOME_UNKNOWN", "RECONCILING", "PARTIALLY_SUCCEEDED"]) assert.ok(states.includes(id));
+  for (const id of ["state-conflict.retry-pending-vs-retrying", "state-conflict.cancel-requested-vs-cancelling", "state-conflict.unknown-reconciling-partial-outcomes"]) assert.ok(states.includes(id));
   assert.match(states, /mappingDisposition: unresolved/u);
   assert.match(states, /lossy-implementation-observed/u);
-  assert.match(states, /^    proposals: \[\]$/mu);
-  assert.match(states, /values: \[CREATED, QUEUED, PROCESSING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, FAILED, CANCELLED, RETRYING\]/u);
-  assert.match(states, /values: \[QUEUED, RUNNING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED\]/u);
-  assert.match(states, /values: \[ACCEPTED, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED\]/u);
-  assert.match(states, /no matching job-lifecycle state enum was found in the four inspected active Media service proto files/u);
-  assert.match(states, /^  projectionRule: React, TypeScript, OpenAPI, protobuf, Java, and runtime projections do not independently define product state$/mu);
-
-  assert.match(transitions, /^authorityStatus: proposal-only; owner-review-pending; P0-010-independent-acceptance-pending$/mu);
-  assert.match(transitions, /^  sourceMachineRecords: 11\n  transitionRecords: 49$/mu);
-  assert.equal([...transitions.matchAll(/^  - id: [^\n]+\/T\d+$/gmu)].length, 49);
-  assert.match(transitions, /media\.operation\.job-lifecycle/u);
-  assert.match(transitions, /operationBinding: proposed-unresolved/u);
-  assert.match(transitions, /eventTriggers: pending-PDP1-004/u);
-  assert.match(transitions, /permissions: pending-owner-contracts/u);
-  assert.match(transitions, /executionEffects: pending-runtime-and-platform-owner-contracts/u);
-  assert.match(transitions, /id: media-job\/T03\n    sourceMachineId: media-job\n    sourceTransitionIndex: 3\n    from: \[RETRY_PENDING\]\n    to: \[RUNNING, CANCELLED, FAILED, OUTCOME_UNKNOWN\]/u);
-  assert.match(transitions, /id: media-attempt\/T05\n    sourceMachineId: media-attempt\n    sourceTransitionIndex: 5\n    from: \[CANCEL_REQUESTED\]\n    to: \[CANCEL_CONFIRMED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED\]/u);
+  assert.equal(parsedStates.authorityBoundary.projectionRule, "React, TypeScript, OpenAPI, protobuf, Java, and runtime projections do not independently define product state");
+  assert.match(states.replace(/\s+/gu, " "), /no matching job-lifecycle state enum was found in the four inspected active Media service proto files/u);
+  assert.equal(parsedTransitions.inventory.sourceMachineRecords, 11);
+  assert.equal(parsedTransitions.inventory.transitionRecords, 49);
+  assert.equal(parsedTransitions.transitionRecords.length, 49);
+  assert.equal(new Set(parsedTransitions.transitionRecords.map(record => record.id)).size, 49);
+  for (const record of parsedTransitions.transitionRecords) {
+    assert.equal(record.eventTriggers, "pending-PDP1-004");
+    assert.equal(record.permissions, "pending-owner-contracts");
+    assert.equal(record.executionEffects, "pending-runtime-and-platform-owner-contracts");
+  }
+  const job = parsedTransitions.transitionRecords.find(record => record.id === "media-job/T03");
+  assert.deepEqual(job.from, ["RETRY_PENDING"]);
+  assert.deepEqual(job.to, ["RUNNING", "CANCELLED", "FAILED", "OUTCOME_UNKNOWN"]);
+  const attempt = parsedTransitions.transitionRecords.find(record => record.id === "media-attempt/T05");
+  assert.deepEqual(attempt.from, ["CANCEL_REQUESTED"]);
+  assert.deepEqual(attempt.to, ["CANCEL_CONFIRMED", "SUCCEEDED", "FAILED", "OUTCOME_UNKNOWN", "SUPERSEDED"]);
   assert.match(domainModel, /PDP1-003 state\/transition extraction verification/u);
   assert.match(domainModel.replace(/\s+/gu, " "), /it does not verify runtime behavior, select a canonical projection, accept meanings, or establish phase completion/u);
+
 });
 
 test("PDP-1 negative state cases encode owner-approved non-equivalences without claiming runtime proof", () => {
@@ -1155,8 +1238,8 @@ test("PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR di
   const capabilities = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8");
   const requirements = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/requirements.yaml"), "utf8");
   const ocr = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/ocr-ownership.yaml"), "utf8");
-  assert.match(capabilities, /^families:\n- id: media\.project\n  scopeStatus: TARGET$/mu);
-  assert.match(requirements, /^requirements:\n- id: MEDIA-REQ-CAP-PROJECT\n  scopeStatus: TARGET$/mu);
+  assert.equal(readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml").families.find(record => record.id === "media.project").scopeStatus, "TARGET");
+  assert.equal(readYaml(".product-experience/pdp-0-product-truth/requirements.yaml").requirements.find(record => record.id === "MEDIA-REQ-CAP-PROJECT").scopeStatus, "TARGET");
 
   for (const [recordId, method, excludedMethods] of [
     ["media.ocr.vision-model-engine", "VisionModelEngine.extractText", [
@@ -1170,15 +1253,12 @@ test("PDP-0 YAML source preserves corrected indentation and symbol-scoped OCR di
       "VisionDetector.detectFaces",
     ]],
   ]) {
-    const start = ocr.indexOf(`  - id: ${recordId}\n`);
-    assert.notEqual(start, -1, `missing OCR classification ${recordId}`);
-    const tail = ocr.slice(start);
-    const nextRecord = tail.slice(1).search(/^  - id: /mu);
-    const record = nextRecord < 0 ? tail : tail.slice(0, nextRecord + 1);
-    assert.match(record, /^    scope: symbol$/mu);
-    assert.ok(record.includes(`    symbol: ${method}\n`));
-    assert.match(record, /outside this OCR disposition and remain governed by their owning vision definitions/u);
-    for (const excludedMethod of excludedMethods) assert.ok(record.includes(`      - ${excludedMethod}\n`));
+    const record = readYaml(".product-experience/pdp-0-product-truth/ocr-ownership.yaml").classifications.find(record => record.id === recordId);
+    assert.ok(record, `missing OCR classification ${recordId}`);
+    assert.equal(record.scope, "symbol");
+    assert.equal(record.symbol, method);
+    assert.match(record.exclusionStatement, /outside this OCR disposition and remain governed by their owning vision definitions/u);
+    assert.deepEqual(record.excludedSymbols, excludedMethods);
   }
 });
 
@@ -1226,7 +1306,7 @@ test("generated Explorer index covers every current source-manifest artifact exa
   assert.equal(byPath.size, indexedSourceRecords.length, "each canonical source path must occur once");
   assert.deepEqual([...byPath.keys()].sort(), sourceRecords.map(({ path }) => path).sort(), "index paths must exactly match generated source-manifest paths");
   assert.equal(index.length, sourceRecords.length + 1, "Explorer index must include each source artifact plus its manifest projection");
-  assert.ok(gaps.includes(`${sourceRecords.length} source-derived records plus the manifest projection (${index.length} total)`),
+  assert.ok(gaps.includes(`Current generated source index: ${sourceRecords.length} source-derived records plus the manifest projection (${index.length} total)`),
     "active Explorer gap mirrors must report the current source and index denominators");
   for (const record of sourceRecords) {
     assert.deepEqual(

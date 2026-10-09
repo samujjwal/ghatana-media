@@ -651,7 +651,11 @@ test("MSC-07 routes scene validation, budgets, boundary, and locale claims only 
     ".product-experience/pdp-1-domain-data/value-objects.yaml#/observedTemporalSpatialFields/canonicalization/coordinate-system",
   ]);
   assert.equal(timeUnits.unitAndCoordinateProposal.status, "proposed-by-master-plan; validation-against-admitted-scene-model-contracts-pending");
-  assert.equal(values.observedTemporalSpatialFields.canonicalization["coordinate-system"], "unresolved; no handedness, axis, origin, units, transform order, or normalization rule accepted");
+  assert.equal(values.observedTemporalSpatialFields.canonicalization["coordinate-system"], "unresolved legacy-wire and world-frame binding; owner-selected exact image pixel-boundary convention is canonicalConversionDefinitions");
+  assert.match(values.observedTemporalSpatialFields.canonicalization["coordinate-system"], /unresolved legacy-wire and world-frame binding/u);
+  const pixelBoundary = values.canonicalConversionDefinitions.records.find(({ id }) => id === "media.value.image-pixel-boundary");
+  assert.match(pixelBoundary.convention, /x in \[0,width\], y in \[0,height\]/u);
+  assert.match(pixelBoundary.qualifications, /does not establish a camera calibration, spatial world frame/u);
 
   const budgets = expectClaim("MPSEM-0389-C01", 884, 891);
   assert.equal(budgets.mappingStatus, "TARGET_RECORD_CROSSWALKED_PENDING_QUALIFICATION");

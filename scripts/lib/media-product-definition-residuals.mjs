@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
+const parseYaml=createRequire(new URL("../../../ghatana-tools/package.json",import.meta.url))("yaml").parse;
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
@@ -411,8 +413,8 @@ function projectionReport(root, source, diagnostics) {
 function capabilityCoverageReport(root, diagnostics) {
   const path = ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml";
   const source = readText(root, path);
-  const leafSection = source.split(/^leaves:\s*$/mu)[1] ?? "";
-  const leafBlocks = leafSection.split(/(?=^- id: media\.)/mu).filter((block) => block.startsWith("- id:"));
+  const parsed = parseYaml(source);
+  const leafBlocks = parsed.leaves ?? [];
   const dispositions = {};
   const unresolvedLeafIds = [];
   const unresolvedLeaves = [];
@@ -420,18 +422,11 @@ function capabilityCoverageReport(root, diagnostics) {
   const excludedLeaves = [];
 
   for (const block of leafBlocks) {
-    const id = block.match(/^- id: ([^\n]+)/mu)?.[1];
-    const decision = block.match(/^  coverageDecision:\n([\s\S]*?)(?=^  [A-Za-z][A-Za-z0-9]*:|$)/mu)?.[1] ?? "";
-    const disposition = decision.match(/^    disposition: ([A-Z_]+)/mu)?.[1] ?? "UNRESOLVED";
-    const rationale = decision.match(/^    rationale: ([^\n]+)/mu)?.[1]?.trim() ?? "No coverage rationale is authored.";
-    const record = {
-      id: id ?? null,
-      disposition,
-      status: decision.match(/^    status: ([^\n]+)/mu)?.[1]?.trim() ?? "UNRESOLVED",
-      sourceRef: block.match(/^  sourceRef: ([^\n]+)/mu)?.[1]?.trim() ?? null,
-      rationale,
-      missingDecision: block.match(/^    missingDecision: ([^\n]*(?:\n      [^\n]*)?)/mu)?.[1]?.replace(/\n\s+/gu, " ").trim() ?? null,
-    };
+    const id = block.id;
+    const decision = block.coverageDecision ?? {};
+    const disposition = decision.disposition ?? "UNRESOLVED";
+    const rationale = decision.rationale ?? "No coverage rationale is authored.";
+    const record = {id:id ?? null, disposition, status:decision.status ?? "UNRESOLVED", sourceRef:block.sourceRef ?? null, rationale, missingDecision:decision.missingDecision ?? null};
     dispositions[disposition] = (dispositions[disposition] ?? 0) + 1;
     if (disposition === "UNRESOLVED" && id) {
       unresolvedLeafIds.push(id);
@@ -444,9 +439,9 @@ function capabilityCoverageReport(root, diagnostics) {
     if (!id) diagnostics.push(`${path} contains a leaf without an ID`);
   }
 
-  const declared = topLevelSection(source, "denominatorReconciliation");
-  const declaredLeafCount = numericField(declared, "capabilityLeaves");
-  const declaredUnresolved = numericField(declared, "unresolvedCoverageDispositions");
+  const declared = parsed.denominatorReconciliation;
+  const declaredLeafCount = declared.capabilityLeaves;
+  const declaredUnresolved = declared.unresolvedCoverageDispositions;
   if (leafBlocks.length !== declaredLeafCount) diagnostics.push(`${path} parsed ${leafBlocks.length} leaves; declared ${declaredLeafCount}`);
   if ((dispositions.UNRESOLVED ?? 0) !== declaredUnresolved) diagnostics.push(`${path} unresolved dispositions do not match its denominator reconciliation`);
   const declaredDispositionFields = {
@@ -455,12 +450,12 @@ function capabilityCoverageReport(root, diagnostics) {
     PLATFORM_DEPENDENCY: "platformDependencyDispositions",
   };
   for (const [disposition, field] of Object.entries(declaredDispositionFields)) {
-    const declaredCount = numericField(declared, field);
+    const declaredCount = declared[field] ?? null;
     const actualCount = dispositions[disposition] ?? 0;
     if (declaredCount !== null && declaredCount !== actualCount) diagnostics.push(`${path} ${disposition} dispositions do not match its denominator reconciliation`);
   }
 
-  const pins = listPins(topLevelSection(source, "sourceInventory"));
+  const pins = parsed.sourceInventory ?? [];
   if (!pins.length) diagnostics.push(`${path} has no source inventory pins`);
   return {
     source: path,
@@ -664,7 +659,10 @@ function operationParityReport(root, diagnostics) {
     } else if (name === "HTTP") {
       observedIdentities = identities;
     } else if (name === "gRPC") {
-      observedIdentities = [...proposedIdentities, ...unresolvedIdentities].sort();
+      const dispositionBlock = indentedSection(block, "sourceBackedNonOperationDispositions", 4);
+      const disposedIdentities = [...dispositionBlock.matchAll(/^        - ([^\n]+)\s*$/gmu)].map(match => match[1].trim());
+      observedIdentities = [...proposedIdentities, ...unresolvedIdentities, ...disposedIdentities].sort();
+      if (new Set(observedIdentities).size !== observedIdentities.length) diagnostics.push(`${path} gRPC identity dispositions overlap`);
     } else if (name === "CLI fixture commands") {
       observedIdentities = identities;
     } else if (name === "CLI host-configured runtime consumers") {
@@ -691,7 +689,10 @@ function operationParityReport(root, diagnostics) {
     } else if (name === "Agent Tool handlers") {
       observedIdentities = identities;
     } else if (name === "lifecycle event names") {
-      observedIdentities = [...proposedIdentities, ...unresolvedIdentities].sort();
+      const dispositionBlock = indentedSection(block, "sourceBackedNonOperationDispositions", 4);
+      const disposedIdentities = [...dispositionBlock.matchAll(/^        - ([^\n]+)\s*$/gmu)].map(match => match[1].trim());
+      observedIdentities = [...proposedIdentities, ...unresolvedIdentities, ...disposedIdentities].sort();
+      if (new Set(observedIdentities).size !== observedIdentities.length) diagnostics.push(`${path} gRPC identity dispositions overlap`);
     } else if (name === "internal runtime events") {
       const explicitEventTypes = declaredInlineArray(block, "explicitEventTypes", 4);
       const dynamicPattern = block.match(/^    dynamicEventPattern: ([^\n]+)/mu)?.[1]?.trim() ?? null;
@@ -811,6 +812,7 @@ function journeyStepReport(root, source, diagnostics) {
   const journeySection = topLevelSection(registry, "journeys");
   const journeyBlocks = journeySection.split(/(?=^- id: J-\d+)/mu).filter((block) => block.startsWith("- id: J-"));
   const coverageObservation = topLevelSection(registry, "coverageObservation");
+  const currentStepObservation = parseYaml(registry).currentStepBindingObservation;
   const stepBindings = indentedSection(coverageObservation, "stepBindings", 2);
   const rows = [];
   const journeyRefs = [];
@@ -869,8 +871,9 @@ function journeyStepReport(root, source, diagnostics) {
   const actionCoverage = indentedSection(stepBindings, "action", 4);
   const declaredScreenLinked = numericField(screenCoverage, "linked", 6);
   const declaredScreenUnresolved = numericField(screenCoverage, "unresolved", 6);
-  const declaredActionLinked = numericField(actionCoverage, "linked", 6);
-  const declaredActionUnresolved = numericField(actionCoverage, "unresolved", 6);
+  const declaredActionLinked = currentStepObservation?.actionDispositionCounts?.exactSourceActionRef ?? numericField(actionCoverage, "linked", 6);
+  const declaredActionUnresolved = currentStepObservation ? Object.entries(currentStepObservation.actionDispositionCounts)
+    .filter(([key]) => key !== "exactSourceActionRef").reduce((sum,[,count])=>sum+count,0) : numericField(actionCoverage, "unresolved", 6);
   const linkedScreenRows = rows.filter((row) => row.screenBindingState === "SOURCE_LINKED");
   const linkedActionRows = rows.filter((row) => row.actionBindingState === "SOURCE_LINKED_PROPOSAL");
   const unresolvedScreenRows = rows.filter((row) => row.screenBindingState === "UNRESOLVED");
@@ -885,6 +888,7 @@ function journeyStepReport(root, source, diagnostics) {
 
   return {
     source: path,
+    currentStepBindingObservation:currentStepObservation ?? null,
     journeyCount: journeyRefs.length,
     journeyRefs: journeyRefs.sort((left, right) => left.id.localeCompare(right.id)),
     orderedStepCount: rows.length,

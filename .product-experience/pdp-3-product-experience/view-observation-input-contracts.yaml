@@ -1,0 +1,449 @@
+schemaVersion: media.pdp-3-view-observation-input-contracts.v1
+status: MEDIA_OWNER_DEFINITION; INDEPENDENT_PDP3_REVIEW_OPEN
+decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+factBoundary: These are proposed typed UI observation facts. They do not assert actual authority evaluation, backend status
+  fields, runtime behavior, or phase acceptance.
+factSchemas:
+- id: media.view-observation-schema.local-inflight.v1
+  factKind: LOCAL_INFLIGHT
+  description: Request-local activity observation only; does not establish dispatch, remote state, or finality.
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required:
+    - viewRef
+    - actionRef
+    - operationRef
+    - requestId
+    - activityState
+    - localStartedAt
+    properties:
+      viewRef:
+        type: string
+        minLength: 1
+      actionRef:
+        oneOf:
+        - type: string
+          minLength: 1
+        - type: 'null'
+      operationRef:
+        type: string
+        pattern: ^media\.operation(?:-|\.)[a-z0-9.-]+$
+      requestId:
+        type: string
+        minLength: 1
+      activityState:
+        type: string
+        enum:
+        - REQUEST_PENDING
+        - SETTLED
+        - UNKNOWN
+      localStartedAt:
+        type: string
+        format: date-time
+  trustBoundary:
+    operationActionAndRequestIdentity: Must exactly match out-of-band caller context and the view's source operation set.
+    currentness: Derived by comparing localStartedAt to trusted now and maxAgeMs; the fact cannot self-assert currentness.
+    pendingMeaning: REQUEST_PENDING means only that this exact local request tracker has not settled; it is not a server receipt.
+    settledMeaning: SETTLED means the local tracker is no longer pending; it does not establish remote success or failure.
+  semanticOutcomes:
+    REQUEST_PENDING: TRUE only for the exact fresh local request tuple.
+    SETTLED: FALSE for the in-flight predicate; remote finality remains unasserted.
+    UNKNOWN: UNKNOWN; missing, stale, mismatched, or malformed evidence never clears a blocker.
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateLocalRequestActivity
+  runtimeAdmission: NOT_ADMITTED
+  schemaId: media.view-observation-schema.local-inflight.v1
+- id: media.view-observation-schema.local-query.v1
+  factKind: LOCAL_QUERY
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required:
+    - viewRef
+    - operationRef
+    - query
+    properties:
+      viewRef:
+        type: string
+        minLength: 1
+      operationRef:
+        type: string
+        const: media.operation-slice.list-projects
+      query:
+        type: object
+        additionalProperties: false
+        required:
+        - tenantId
+        - principalId
+        - workspaceId
+        - queryId
+        - rows
+        - nextPageToken
+        - observedAt
+        - readVersion
+        - readAuthorityRef
+        properties:
+          tenantId:
+            type: string
+            minLength: 1
+          principalId:
+            type: string
+            minLength: 1
+          workspaceId:
+            type: string
+            minLength: 1
+          queryId:
+            type: string
+            minLength: 1
+          rows:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required:
+              - projectId
+              - workspaceId
+              - title
+              - headRevisionId
+              - projectState
+              properties:
+                projectId:
+                  type: string
+                  minLength: 1
+                workspaceId:
+                  type: string
+                  minLength: 1
+                title:
+                  type: string
+                  minLength: 1
+                headRevisionId:
+                  type: string
+                  minLength: 1
+                projectState:
+                  enum:
+                  - ACTIVE
+                  - ARCHIVED
+          nextPageToken:
+            oneOf:
+            - type: string
+              minLength: 1
+            - type: 'null'
+          observedAt:
+            type: string
+            format: date-time
+          readVersion:
+            type: string
+            minLength: 1
+          readAuthorityRef:
+            type: string
+            minLength: 1
+  trustBoundary:
+    exactSource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.list-projects
+    completeResult: A null nextPageToken means the owner query returned its final page; an empty partial page is not global
+      absence.
+    authority: The result readAuthorityRef and readVersion must exactly match separately supplied trusted expected context.
+    runtimeAdmission: NOT_ADMITTED
+  description: Exact current list-projects query page and trusted scope; labels are derived from typed rows and pagination.
+  schemaId: media.view-observation-schema.local-query.v1
+- id: media.view-observation-schema.local-query-empty.v1
+  factKind: LOCAL_QUERY_EMPTY
+  sameRawSchemaAs: LOCAL_QUERY
+  description: Empty result means only the explicitly selected query scope; complete absence requires a null nextPageToken.
+  schemaId: media.view-observation-schema.local-query-empty.v1
+- id: media.view-observation-schema.local-staleness.v1
+  factKind: LOCAL_STALENESS
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required:
+    - viewRef
+    - operationRef
+    - objectRef
+    - snapshotVersionRef
+    - observedAt
+    properties:
+      viewRef:
+        type: string
+        minLength: 1
+      operationRef:
+        type: string
+        minLength: 1
+      objectRef:
+        type: string
+        minLength: 1
+      snapshotVersionRef:
+        type: string
+        minLength: 1
+      observedAt:
+        type: string
+        format: date-time
+  trustedContext:
+    required:
+    - viewRef
+    - operationRef
+    - objectRef
+    - currentVersionRef
+    - now
+    - maxAgeMs
+    freshness: Compare observedAt to trusted now and maxAgeMs; never accept a fact-supplied CURRENT flag.
+    supersession: Compare the exact snapshotVersionRef with currentVersionRef for the same object and operation.
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateScopedStaleness
+  description: Freshness is derived by exact version equality and trusted max-age policy, never by a self-asserted label.
+  runtimeAdmission: NOT_ADMITTED
+  schemaId: media.view-observation-schema.local-staleness.v1
+- id: media.view-observation-schema.owner-job-state.v1
+  factKind: OWNER_JOB_STATE
+  description: Exact tenant/principal/job-scoped read of the owner-defined ProcessingJob projection; only OUTCOME_UNKNOWN has a canonical PDP-1 state mapping.
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required:
+    - viewRef
+    - queryResult
+    properties:
+      viewRef:
+        type: string
+        minLength: 1
+      queryResult:
+        $ref: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema.resultSchema
+  trustBoundary:
+    exactSource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+    trustedContext: Bind tenantId, principalId, jobId, operationRef, readVersion, readAuthorityRef, now, and maxAgeMs from the caller/host context, not the returned result.
+    canonicalMapping: Only exact OUTCOME_UNKNOWN maps to PDP-1 media-job/OUTCOME_UNKNOWN. Other wire statuses remain UNKNOWN as PDP-1 states.
+    observationLimit: The stored projection does not reconcile provider effects or prove safe replay, completion, failure, or cancellation finality.
+    runtimeAdmission: NOT_ADMITTED
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateStoredJobStatus
+  runtimeAdmission: NOT_ADMITTED
+  schemaId: media.view-observation-schema.owner-job-state.v2
+- id: media.view-observation-schema.local-identity.v1
+  factKind: LOCAL_IDENTITY
+  description: Host adapter disposition bound to its nonce, return route and exact host context.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.local-identity.v1
+- id: media.view-observation-schema.local-access.v1
+  factKind: LOCAL_ACCESS
+  description: A scoped authority/policy observation; Media does not infer principal membership or permissions.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.local-access.v1
+- id: media.view-observation-schema.local-connectivity.v1
+  factKind: LOCAL_CONNECTIVITY
+  description: Client-local connectivity observation only; does not indicate server job state.
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required: [viewRef, clientInstanceRef, observationId, reportedState, observedAt]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      clientInstanceRef: {type: string, minLength: 1}
+      observationId: {type: string, minLength: 1}
+      reportedState: {type: string, enum: [CLIENT_NETWORK_AVAILABLE, CLIENT_NETWORK_UNAVAILABLE, UNKNOWN]}
+      observedAt: {type: string, format: date-time}
+  trustBoundary:
+    clientAvailabilityOnly: This is a client-local availability signal; CLIENT_NETWORK_UNAVAILABLE does not prove server, provider, or job state.
+    currentness: Derive from observedAt and separately trusted now/maxAgeMs; the fact cannot self-assert currentness.
+    unknownHandling: Missing, stale, malformed, mismatched, or UNKNOWN signals produce UNKNOWN.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: MEDIA_OWNER_TYPED_LOCAL_CONNECTIVITY_FACT; labels derive only from client signal
+  schemaId: media.view-observation-schema.local-connectivity.v1
+- id: media.view-observation-schema.local-presentation.v1
+  factKind: LOCAL_PRESENTATION
+  description: A screen-local rendering condition; it cannot stand for a persisted domain fact.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.local-presentation.v1
+- id: media.view-observation-schema.local-unknown.v1
+  factKind: LOCAL_UNKNOWN
+  description: Exact local sent-request observation with a lost/unknown response; it does not prove server receipt or effect.
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required: [viewRef, actionRef, operationRef, requestId, requestFingerprint, sendObservationRef, sendDisposition, waitDisposition, sendObservedAt, waitObservedAt]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      actionRef: {type: string, pattern: '^media\.action\.[a-z0-9.-]+$'}
+      operationRef: {type: string, pattern: '^media\.operation(?:-|\.)[a-z0-9.-]+$'}
+      requestId: {type: string, minLength: 1}
+      requestFingerprint: {type: string, pattern: '^sha256:[a-f0-9]{64}$'}
+      sendObservationRef: {type: string, minLength: 1}
+      sendDisposition: {type: string, enum: [TRANSPORT_WRITE_CONFIRMED, NOT_SENT, UNKNOWN]}
+      waitDisposition: {type: string, enum: [TIMEOUT, CONNECTION_LOST, INTERRUPTED, RESPONSE_RECEIVED, NOT_WAITED, UNKNOWN]}
+      sendObservedAt: {type: string, format: date-time}
+      waitObservedAt: {type: string, format: date-time}
+  trustedContextSchema:
+    type: object
+    additionalProperties: false
+    required: [viewRef, actionRef, operationRef, requestId, requestFingerprint, sendObservationRef, now, maxAgeMs]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      actionRef: {type: string, pattern: '^media\.action\.[a-z0-9.-]+$'}
+      operationRef: {type: string, pattern: '^media\.operation(?:-|\.)[a-z0-9.-]+$'}
+      requestId: {type: string, minLength: 1}
+      requestFingerprint: {type: string, pattern: '^sha256:[a-f0-9]{64}$'}
+      sendObservationRef: {type: string, minLength: 1}
+      now: {type: string, format: date-time}
+      maxAgeMs: {type: integer, minimum: 0}
+  trustBoundary:
+    sentRequestOnly: A local transport-write observation cannot establish server acceptance, provider crossing, or domain effect.
+    unknownMeaning: Only exact confirmed write plus timeout, connection loss, or interruption yields UNKNOWN; no response is synthesized.
+    retryBoundary: This fact authorizes no retry, cancellation, or replay; reconciliation requires its separately defined owner query.
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateLocalUnknownOutcome
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: MEDIA_OWNER_LOCAL_REQUEST_UNCERTAINTY; SERVER_OUTCOME_NOT_ASSERTED
+  schemaId: media.view-observation-schema.local-unknown.v1
+- id: media.view-observation-schema.owner-artifact-state.v1
+  factKind: OWNER_ARTIFACT_STATE
+  description: Proposed typed artifact/version lifecycle observation; UNKNOWN remains explicit and runtime observation stays pending.
+  closedSchema:
+    type: object
+    additionalProperties: false
+    required:
+    - viewRef
+    - queryResult
+    properties:
+      viewRef:
+        type: string
+        minLength: 1
+      queryResult:
+        $ref: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema.resultSchema
+  trustBoundary:
+    exactSource: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+    trustedContext: Tenant, principal, artifact, immutable version, current state/read revisions, current authority, evidence reference, now, and max age come from separately established context.
+    stateMapping: Exact owner state identity and meaning-source references are required; no label, metadata, or status-name inference.
+    runtimeLimit: No existing endpoint or runtime binding is asserted; missing backend observation remains UNKNOWN.
+    observationLimit: An observed state is time-scoped and does not prove rights eligibility or future currentness.
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateArtifactLifecycleObservation
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: MEDIA_OWNER_QUERY_DEFINITION_ONLY; RUNTIME_OBSERVATION_UNKNOWN_UNTIL_IMPLEMENTED
+  schemaId: media.view-observation-schema.owner-artifact-state.v1
+- id: media.view-observation-schema.local-validation.v1
+  factKind: LOCAL_VALIDATION
+  description: Named validator result for exact current input/version and bounded parameters.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.local-validation.v1
+- id: media.view-observation-schema.local-validation-invalid.v1
+  factKind: LOCAL_VALIDATION_INVALID
+  description: Named validator result with exact error references for current input/version.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.local-validation-invalid.v1
+- id: media.view-observation-schema.owner-rights-state.v1
+  factKind: OWNER_RIGHTS_STATE
+  description: Current scoped rights/consent evidence for the exact subject, purpose, version and authority.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.owner-rights-state.v1
+- id: media.view-observation-schema.owner-job-state-pending.v1
+  factKind: OWNER_JOB_STATE_PENDING
+  description: Owner-issued job snapshot for exact job and attempt identity; requires observedAt and source query identity.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.owner-job-state-pending.v1
+- id: media.view-observation-schema.owner-quality-state.v1
+  factKind: OWNER_QUALITY_STATE
+  description: Applicable typed quality evidence with method, scope, uncertainty and evidence reference.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.owner-quality-state.v1
+- id: media.view-observation-schema.owner-profile-state.v1
+  factKind: OWNER_PROFILE_STATE
+  description: Versioned profile validation/qualification evidence for the exact operation and target.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.owner-profile-state.v1
+- id: media.view-observation-schema.owner-provenance-state.v1
+  factKind: OWNER_PROVENANCE_STATE
+  description: Exact-version lineage observation with explicit completeness and access scope.
+  runtimeAdmission: NOT_ADMITTED
+  schemaDisposition: RAW_SOURCE_FACT_SCHEMA_NOT_YET_AUTHORED; labels remain UNKNOWN
+  schemaId: media.view-observation-schema.owner-provenance-state.v1
+- id: media.view-observation-schema.local-draft.v1
+  factKind: LOCAL_DRAFT
+  description: Closed local editor snapshot compared structurally with the exact base snapshot; does not imply persistence.
+  closedSchema:
+    $id: https://media.gatana/schemas/local-draft-v1
+    type: object
+    additionalProperties: false
+    required: [viewRef, sessionId, draftId, draftRevision, baseVersionRef, draftValue, baseValue, observedAt]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      sessionId: {type: string, minLength: 1}
+      draftId: {type: string, minLength: 1}
+      draftRevision: {type: integer, minimum: 1}
+      baseVersionRef: {type: string, minLength: 1}
+      draftValue: {$ref: '#/$defs/jsonValue'}
+      baseValue: {$ref: '#/$defs/jsonValue'}
+      observedAt: {type: string, format: date-time}
+    $defs:
+      jsonValue:
+        anyOf:
+        - {type: 'null'}
+        - {type: string}
+        - {type: boolean}
+        - {type: number}
+        - {type: array, items: {$ref: '#/$defs/jsonValue'}}
+        - {type: object, additionalProperties: {$ref: '#/$defs/jsonValue'}}
+  trustedContextSchema:
+    type: object
+    additionalProperties: false
+    required: [viewRef, sessionId, draftId, baseVersionRef, now, maxAgeMs]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      sessionId: {type: string, minLength: 1}
+      draftId: {type: string, minLength: 1}
+      baseVersionRef: {type: string, minLength: 1}
+      now: {type: string, format: date-time}
+      maxAgeMs: {type: integer, minimum: 0}
+  semanticBoundary:
+    equality: Structural equality after canonical JSON object-key ordering; array order is significant.
+    nonClaim: A clean local draft is not proof that a save occurred; persisted state requires an exact owner receipt/read.
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateLocalDraftSnapshot
+  runtimeAdmission: NOT_ADMITTED
+  schemaId: media.view-observation-schema.local-draft.v1
+- id: media.view-observation-schema.local-draft-clean.v1
+  factKind: LOCAL_DRAFT_CLEAN
+  description: Closed local editor snapshot equal to the exact base snapshot; does not imply that a save occurred.
+  closedSchema:
+    $id: https://media.gatana/schemas/local-draft-clean-v1
+    type: object
+    additionalProperties: false
+    required: [viewRef, sessionId, draftId, draftRevision, baseVersionRef, draftValue, baseValue, observedAt]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      sessionId: {type: string, minLength: 1}
+      draftId: {type: string, minLength: 1}
+      draftRevision: {type: integer, minimum: 1}
+      baseVersionRef: {type: string, minLength: 1}
+      draftValue: {$ref: '#/$defs/jsonValue'}
+      baseValue: {$ref: '#/$defs/jsonValue'}
+      observedAt: {type: string, format: date-time}
+    $defs:
+      jsonValue:
+        anyOf:
+        - {type: 'null'}
+        - {type: string}
+        - {type: boolean}
+        - {type: number}
+        - {type: array, items: {$ref: '#/$defs/jsonValue'}}
+        - {type: object, additionalProperties: {$ref: '#/$defs/jsonValue'}}
+  trustedContextSchema:
+    type: object
+    additionalProperties: false
+    required: [viewRef, sessionId, draftId, baseVersionRef, now, maxAgeMs]
+    properties:
+      viewRef: {type: string, minLength: 1}
+      sessionId: {type: string, minLength: 1}
+      draftId: {type: string, minLength: 1}
+      baseVersionRef: {type: string, minLength: 1}
+      now: {type: string, format: date-time}
+      maxAgeMs: {type: integer, minimum: 0}
+  semanticBoundary:
+    equality: Structural equality after canonical JSON object-key ordering; array order is significant.
+    nonClaim: A clean local draft is not proof that a save occurred; persisted state requires an exact owner receipt/read.
+  evaluator: scripts/lib/media-view-observation-definition.mjs#evaluateLocalDraftSnapshot
+  runtimeAdmission: NOT_ADMITTED
+  schemaId: media.view-observation-schema.local-draft-clean.v1
+schemaBoundary: No display-label enumerations are normative input facts. Only closedSchema records are executable; other family
+  rows are pending and must evaluate UNKNOWN until a source-backed raw schema and predicate are authored.

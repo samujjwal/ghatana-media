@@ -1,0 +1,106 @@
+TAP version 13
+# Subtest: 13 previously mismatched capability claims now target exact owner semantics with pinned source values
+ok 1 - 13 previously mismatched capability claims now target exact owner semantics with pinned source values
+  ---
+  duration_ms: 2.778147
+  type: 'test'
+  ...
+# Subtest: privacy and erasure capability claims target exact policy/state sources and preserve open implementation limits
+ok 2 - privacy and erasure capability claims target exact policy/state sources and preserve open implementation limits
+  ---
+  duration_ms: 0.47499
+  type: 'test'
+  ...
+# Subtest: best-effort diagnostics do not decide business outcome or replace required audit intent
+ok 3 - best-effort diagnostics do not decide business outcome or replace required audit intent
+  ---
+  duration_ms: 0.282092
+  type: 'test'
+  ...
+# Subtest: model, worker, recipe, and isolation claims target exact owner boundaries without admission promotion
+ok 4 - model, worker, recipe, and isolation claims target exact owner boundaries without admission promotion
+  ---
+  duration_ms: 0.409257
+  type: 'test'
+  ...
+# Subtest: 48 glossary/domain-model claims retain exact claim text and exact owner-source semantics
+ok 5 - 48 glossary/domain-model claims retain exact claim text and exact owner-source semantics
+  ---
+  duration_ms: 7.400336
+  type: 'test'
+  ...
+# Subtest: resolution claim preserves model, encoder, and display constraints and rejects false universals
+ok 6 - resolution claim preserves model, encoder, and display constraints and rejects false universals
+  ---
+  duration_ms: 0.611825
+  type: 'test'
+  ...
+# Subtest: authored owner semantics for source-authored high-risk claims preserve exact material predicates
+ok 7 - authored owner semantics for source-authored high-risk claims preserve exact material predicates
+  ---
+  duration_ms: 7.816146
+  type: 'test'
+  ...
+# Subtest: scene geometry keeps owner-declared unit conversion as an explicit bounded exception
+ok 8 - scene geometry keeps owner-declared unit conversion as an explicit bounded exception
+  ---
+  duration_ms: 0.554983
+  type: 'test'
+  ...
+# Subtest: external authoring and Kernel handoff claims require exact published owner contracts
+ok 9 - external authoring and Kernel handoff claims require exact published owner contracts
+  ---
+  duration_ms: 1.004061
+  type: 'test'
+  ...
+# Subtest: handoff envelope binds every admitted call to required fields and service-call authority boundary
+ok 10 - handoff envelope binds every admitted call to required fields and service-call authority boundary
+  ---
+  duration_ms: 0.841894
+  type: 'test'
+  ...
+# Subtest: reuse priority requires Ghatana-first evidence and justifies any later implementation choice
+ok 11 - reuse priority requires Ghatana-first evidence and justifies any later implementation choice
+  ---
+  duration_ms: 0.373212
+  type: 'test'
+  ...
+# Subtest: Data Cloud compatibility continuity is explicit while Media mutations stay owner-bound
+ok 12 - Data Cloud compatibility continuity is explicit while Media mutations stay owner-bound
+  ---
+  duration_ms: 0.478794
+  type: 'test'
+  ...
+# Subtest: external owner binding requires immutable public identity and fails closed when fingerprint evidence is absent
+ok 13 - external owner binding requires immutable public identity and fails closed when fingerprint evidence is absent
+  ---
+  duration_ms: 0.890103
+  type: 'test'
+  ...
+# Subtest: Media meaning remains Media-owned while external capability meaning stays owner-controlled
+ok 14 - Media meaning remains Media-owned while external capability meaning stays owner-controlled
+  ---
+  duration_ms: 0.825826
+  type: 'test'
+  ...
+# Subtest: Data Cloud consumer visibility uses its own scoped continuation rather than DI cancellation state
+ok 15 - Data Cloud consumer visibility uses its own scoped continuation rather than DI cancellation state
+  ---
+  duration_ms: 0.845969
+  type: 'test'
+  ...
+# Subtest: wrong owner locators and semantic mutations fail the reviewed bindings
+ok 16 - wrong owner locators and semantic mutations fail the reviewed bindings
+  ---
+  duration_ms: 6.534353
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11515.115746

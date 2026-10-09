@@ -30,7 +30,7 @@ const bindings = [
     finalityMarkers: ["A new caption version is saved; it has not been delivered or published."],
     actionContractMarkers: ["effect: append-a-new-immutable-caption-version-with-exact-parent-and-required-registration-provenance-metadata; no-provenance-export", "finality: internal-version-registration-only; no-delivery-or-publication"],
     authorityMarkers: ["state.access.registerDerivedVersion", "rights-and-retention-rechecked"],
-    idempotencyMarker: "no-idempotency-key-or-deduplication; each repeated permitted fixture action appends a distinct generated version",
+    idempotencyMarkers: ["same-key-same-fingerprint-returns-original-captionVersionId-and-registrationReceiptId-without-a-second-version", "simulationIdempotency: no-idempotency-key-or-deduplication"],
     errorCodes: ["VERSION_REGISTRATION_NOT_ALLOWED", "SOURCE_NOT_READY", "CAPTION_DRAFT_EMPTY", "CAPTION_VERSION_CONFLICT", "CAPTION_ALIGNMENT_REQUIRED"],
   },
   {
@@ -47,44 +47,47 @@ const bindings = [
     finalityMarkers: ["The selected caption versions share the same source recording version.", "The selected caption versions use different source recording versions; differences may not be comparable."],
     actionContractMarkers: ["effect: show-text-timing-provenance-and-source-version-differences-without-changing-either-version", "finality: read-only"],
     authorityMarkers: ["state.access.readSource", "left.versionId === right.versionId"],
-    idempotencyMarker: "read-only-fixture-repeat-does-not-mutate-versions; no-transport-or-production-retry-guarantee-established",
+    idempotencyMarkers: ["read-only-fixture-repeat-does-not-mutate-versions", "no-transport-or-production-retry-guarantee-established"],
     errorCodes: ["SOURCE_READ_NOT_ALLOWED", "CAPTION_VERSIONS_NOT_COMPARABLE"],
   },
 ];
 
 const blockById = (text, indent, id, idField = "id") => {
-  const starts = [...text.matchAll(new RegExp(`^${indent}- ${idField}: ([^\\n]+)\\n`, "gmu"))];
-  const index = starts.findIndex((match) => match[1] === id);
+  const starts = [...text.matchAll(new RegExp(`^(\\s*)- ${idField}: ([^\\n]+)\\n`, "gmu"))];
+  const index = starts.findIndex((match) => match[2] === id);
   if (index < 0) return null;
   const from = starts[index].index + starts[index][0].length;
-  const to = starts[index + 1]?.index ?? text.length;
+  const nextAtSameIndent = starts.slice(index + 1).find((match) => match[1] === starts[index][1]);
+  const to = nextAtSameIndent?.index ?? text.length;
   return text.slice(from, to);
 };
+
+const normalized = (text) => text.replace(/\s+/gu, " ").trim();
 
 function validate({ operations, parity, canonicalCli, cliSource, uiSource, modelSource, reducerSource, actionRegistry, sdkSource }) {
   const errors = [];
   for (const item of bindings) {
-    const operation = blockById(operations, "  ", item.operation);
+    const operation = blockById(operations, "", item.operation);
     const cli = blockById(canonicalCli, "  ", item.cliId);
     if (!operation) errors.push(`missing canonical operation ${item.operation}`);
     if (!cli) errors.push(`missing canonical CLI identity ${item.cliId}`);
-    if (operation && !operation.includes(`actionRefs: [${item.action}]`)) errors.push(`${item.operation}: exact actionRef missing`);
-    if (operation && !operation.includes(`family: [${item.actionType === "DOMAIN_COMMAND" ? "save-caption-version" : "compare-caption-versions"}]`)) errors.push(`${item.operation}: command/query identity is not exact`);
+    if (operation && !normalized(operation).includes(`actionRefs: - ${item.action}`)) errors.push(`${item.operation}: exact actionRef missing`);
+    if (operation && !operation.includes(`- ${item.actionType === "DOMAIN_COMMAND" ? "save-caption-version" : "compare-caption-versions"}`)) errors.push(`${item.operation}: command/query identity is not exact`);
     if (operation && !operation.includes(`identity: ${item.action}`)) errors.push(`${item.operation}: UI action identity missing`);
     if (operation && !operation.includes(`identity: ${item.cliId}`)) errors.push(`${item.operation}: source-observed CLI identity missing`);
     if (operation && !operation.includes(`identity: ${item.fixtureId}`)) errors.push(`${item.operation}: unbound fixture registry identity must remain visible`);
-    if (operation && !operation.includes("SDK: {value: null, status: no-dedicated-source-method; remains-unresolved}")) errors.push(`${item.operation}: SDK identity must remain unresolved`);
-    if (operation && !operation.includes("HTTP: unresolved") || operation && !operation.includes("gRPC: unresolved")) errors.push(`${item.operation}: unsupported transport binding promoted`);
+    if (operation && !/SDK:\s*\n\s*value: null\s*\n\s*status: no-dedicated-source-method; remains-unresolved/u.test(operation)) errors.push(`${item.operation}: SDK identity must remain unresolved`);
+    if (operation && !/HTTP: unresolved/u.test(operation) || operation && !/gRPC: unresolved/u.test(operation)) errors.push(`${item.operation}: unsupported transport binding promoted`);
     if (operation && !operation.includes("canonicalAcceptance: pending-media-owner-and-runtime-conformance-review")) errors.push(`${item.operation}: local observations must not mark external operation acceptance complete`);
     if (operation && !operation.includes("scopeStatus: proposal-only")) errors.push(`${item.operation}: proposal-only status must remain explicit`);
-    if (operation && !operation.includes(item.idempotencyMarker)) errors.push(`${item.operation}: source-supported idempotency limits must remain explicit`);
+    if (operation && item.idempotencyMarkers.some((marker) => !normalized(operation).includes(normalized(marker)))) errors.push(`${item.operation}: source-supported idempotency limits must remain explicit`);
     if (operation && !operation.includes("authorization: unresolved")) errors.push(`${item.operation}: production authority must remain unresolved`);
     if (cli && !cli.includes(`actionRef: ${item.action}`)) errors.push(`${item.cliId}: CLI actionRef mismatch`);
     if (cli && !cli.includes(`operationRef: ${item.operation}`)) errors.push(`${item.cliId}: CLI operationRef mismatch`);
     if (cli && !cli.includes("production-cli-runtime-not-connected")) errors.push(`${item.cliId}: production CLI scope must remain explicit`);
     const actionBlock = blockById(actionRegistry, "", item.action);
     if (!actionBlock) errors.push(`${item.operation}: source action record missing`);
-    else for (const marker of item.actionContractMarkers) if (!actionBlock.includes(marker)) errors.push(`${item.operation}: action semantics drift at ${marker}`);
+    else for (const marker of item.actionContractMarkers) if (!normalized(actionBlock).includes(normalized(marker))) errors.push(`${item.operation}: action semantics drift at ${marker}`);
     const typedActionBlock = blockById(parity, "  ", item.action, "identity");
     if (!typedActionBlock) errors.push(`${item.operation}: typed UI action disposition missing`);
     else if (!typedActionBlock.includes(`type: ${item.actionType}`)) errors.push(`${item.operation}: typed UI action no longer classifies as ${item.actionType}`);
@@ -139,7 +142,7 @@ test("source parity rejects mismatched command/action dispatch and stale error s
 
 test("source parity rejects fixture-namespace and unsupported SDK/transport promotion", () => {
   assert.match(validate({ ...base, parity: base.parity.replace("semanticOperationBinding: unresolved-for-all-11-fixture-identities", "semanticOperationBinding: proposed") }).join("\n"), /fixture CLI namespace must remain unbound/u);
-  assert.match(validate({ ...base, operations: base.operations.replace("SDK: {value: null, status: no-dedicated-source-method; remains-unresolved}", "SDK: media.sdk.saveCaptionVersion") }).join("\n"), /SDK identity must remain unresolved/u);
+  assert.match(validate({ ...base, operations: base.operations.replaceAll("status: no-dedicated-source-method; remains-unresolved", "status: source-method-found") }).join("\n"), /SDK identity must remain unresolved/u);
   assert.match(validate({ ...base, operations: base.operations.replace("pending-media-owner-and-runtime-conformance-review", "accepted") }).join("\n"), /must not mark external operation acceptance complete/u);
   assert.match(validate({ ...base, operations: base.operations.replace("no-idempotency-key-or-deduplication", "idempotent-with-production-deduplication") }).join("\n"), /source-supported idempotency limits must remain explicit/u);
   assert.match(validate({ ...base, sdkSource: `${base.sdkSource}\npublic saveCaptionVersion() {}` }).join("\n"), /SDK must not claim a caption-version method/u);

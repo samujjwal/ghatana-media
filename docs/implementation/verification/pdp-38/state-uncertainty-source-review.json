@@ -1,0 +1,642 @@
+{
+  "schemaVersion": "media.pdp38-state-uncertainty-source-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-087",
+  "authority": "User-delegated Media semantic definition ownership; coordinator source review",
+  "stateRecordCount": 22,
+  "stateRecords": [
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED/ownerCurrentMeaning",
+      "meaning": "A durable job acceptance and request identity exist, but no executing attempt is currently observed; a claimed fenced lease before dispatch may coexist with QUEUED.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "51a84911ea877fbb8bf1794c6f4af0da9eee9fb138e8c87b66b6f89f4dc11a4b"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED/ownerCurrentMeaning",
+      "meaning": "One fenced worker lease owns this attempt before dispatch intent; expiry or fence loss prevents later writes from this attempt.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "e9ecffb8e5f16cee3c6871b70834dc62015d52069d4506b42917d8be9dd4b383"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING/ownerCurrentMeaning",
+      "meaning": "An authorized upload session accepts only contiguous, bounded chunks for its exact upload identity; partial bytes are not a registered or available artifact version.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "aaf13e79fdba28610a4efd1681c665ff9ad40a65f29b089a6a343cadbabd4f40"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-stream-session/stateDefinitions/OPEN/ownerCurrentMeaning",
+      "meaning": "A tenant-scoped session record and protected reconnect-token reference exist; no live provider connection or accepted frame is implied.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "442edb43581bc49355da7b0d8de9bc2d6768f9695aa009dfb41ad630dea0b49c"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/ASSERTED/ownerCurrentMeaning",
+      "meaning": "The claimant supplied an assertion only; it is not a verified license or permission and cannot authorize a protected use.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "978496729f80891c1ef24fe1d6f822c69ea4196e4513748388a102801182cbbc"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/UNDER_REVIEW/ownerCurrentMeaning",
+      "meaning": "A named authority is evaluating exact declared scope; rights-dependent effects remain blocked until a scoped decision is recorded.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "daedb0b27d9d6c7b45f2a6e15f327ea3d249677faca622ce33735e7acdb25899"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/VERIFIED_FOR_DECLARED_SCOPE/ownerCurrentMeaning",
+      "meaning": "An authorized source verified only the identified scope, evidence, territory, and validity; the decision does not authorize unlisted uses.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "1a32e2ae4e82b0f2774d9538c5ab3949a2f7f01a0d58eedda5b6bee8fda2a9ec"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/RESTRICTED/ownerCurrentMeaning",
+      "meaning": "Current evidence or policy permits a narrower scope; prohibited use remains blocked and the restriction reason is retained.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "fc02db03175e8bd13d29da987d733d1de72137f6bf87181214a2aa7679c231a1"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/REJECTED/ownerCurrentMeaning",
+      "meaning": "The authority rejected the asserted scope; the rejected assertion cannot authorize use, while new evidence requires a new review.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "b1cf599aa671238571688720256d163f2242ec83a2bfa01abb1556eb4cda1a81"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/REVOKED/ownerCurrentMeaning",
+      "meaning": "A prior scoped verification was revoked; new work is blocked and in-flight effects require the relevant authority\u2019s reconciliation.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "16429033be47195b23a0d04cd82c6ad0418512bc01f7475879b80ab867203008"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion/EXPIRED/ownerCurrentMeaning",
+      "meaning": "The declared verification validity elapsed; new rights-dependent work is blocked until current evidence is reviewed.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "95a02ef69633552c71ee3239149520e0379d42b6471fdd4114ace31bec6992bc"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent/PENDING_VERIFICATION/ownerCurrentMeaning",
+      "meaning": "Consent is only a recorded request and has no processing authority before trusted verification.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "a75f85bb7830987654e7635ec9654dffb8ca6ffb73ff193b45c97c4c46f2aea2"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent/ACTIVE/ownerCurrentMeaning",
+      "meaning": "Trusted authority verified consent for the exact tenant, principal, purpose, region, and validity; recheck those dimensions at each effect boundary.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "d8cd3f30433b833df1d3cbce7302a3d57e628b96adba18b69dc32860c3ce6889"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent/REVOKED/ownerCurrentMeaning",
+      "meaning": "Trusted consent authority recorded revocation; new work is blocked at the next enforcement boundary and in-flight effects require separate reconciliation, without implying automatic termination.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "43c7bdc1a3a13884449cb26b617e00f334b422e7ac2ba9204f9c29db9b43133b"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent/EXPIRED/ownerCurrentMeaning",
+      "meaning": "Consent validity elapsed; new consent-dependent work is blocked until a current trusted authority decision is recorded.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "fb70321bf4d822f7f0414290abd2f4c9ac0aa7ac29d9dfaccdf78ef42062251f"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent/SUPERSEDED/ownerCurrentMeaning",
+      "meaning": "A newer authoritative consent replaces this record; the superseded record cannot be reactivated or used for new work.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "1e77bd78769e4eaf644fcd1d0a0443178aa9fe65ba685108a17ff946f7192d11"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-review/stateDefinitions/DRAFT/ownerCurrentMeaning",
+      "meaning": "The requester is preparing a review for one exact immutable version and purpose; no reviewer assignment or decision exists.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "a24766460bb0f52352bfd070c83d8edfd5e3637f174487310d65d43bfe1e3296"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-delivery/stateDefinitions/NOT_STARTED/ownerCurrentMeaning",
+      "meaning": "A delivery intent exists without preparation, dispatch, or external destination effect.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "22f51699c239e91b9383651bc53fd84d9e5f4b70bef1d98b36ece96d28408da9"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-quality-disposition/stateDefinitions/NOT_ASSESSED/ownerCurrentMeaning",
+      "meaning": "No version-bound assessment result or explicit abstention has been recorded.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "4745f7992431f39ba0a923e5961fa0e887b79e142346feb0c4b9d7c3f5b9d9f5"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE/ownerCurrentMeaning",
+      "meaning": "The project container is open for current-authority reads and versioned changes; this status does not itself grant membership or imply an empty or populated revision.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "704399d6d7a1658041eb20e7bb229cc2f00b056ebbc9af49250b6fad758421f6"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project-version/stateDefinitions/DRAFT/ownerCurrentMeaning",
+      "meaning": "A mutable candidate revision is bound to its exact parent head and remains noncanonical until a guarded compare-and-set commit succeeds.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "6563fa33bcaa9d73fae0d5696be92950e22247d91ba16e9110dbbc19c58e0abb"
+    },
+    {
+      "subjectRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project-membership/stateDefinitions/INVITED/ownerCurrentMeaning",
+      "meaning": "An invitation is pending acceptance and confers no project access before the membership authority activates it.",
+      "status": "OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN",
+      "meaningSha256": "11ea965c41153043ec38c7f26b522b2dc0d09b3a0e52bdd021ee808f5c2fab97"
+    }
+  ],
+  "uncertaintyPredicateCount": 18,
+  "uncertaintyPredicates": [
+    {
+      "id": "media.view-observation.find-projects.create-outcome-unknown.v1",
+      "recordSha256": "d9ff74bc8ef556d20c379a86079f0fd8926e2ac4697aac0473ad7dcc41e45e71",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.create-project",
+            "operationRef": "media.operation-slice.create-project",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-project-create"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-project-create",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.import-media.outcome-unknown.v1",
+      "recordSha256": "d7af63a648dae86d0dad561c7e4024f6bb0616f32f01a5e655009dfc455edcf4",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.begin-artifact-upload",
+            "operationRef": "media.operation-slice.begin-upload",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-artifact-upload"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-artifact-upload",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.create-image.outcome-unknown.v1",
+      "recordSha256": "0fdac0f8d68310ffc1eec78dba7a1ad11003e2f7229b321063cad17434027b8d",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.submit-validated-request",
+            "operationRef": "media.operation.action.submit-validated-request",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.create-video.outcome-unknown.v1",
+      "recordSha256": "64019ecf1fec7534a1e89079b1ee8e004418f7edb74b45dfc20207b5983afc0d",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.request-cancellation",
+            "operationRef": "media.operation-slice.cancel-job",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel"
+          },
+          {
+            "actionRef": "media.action.submit-validated-request",
+            "operationRef": "media.operation.action.submit-validated-request",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel",
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.create-audio.outcome-unknown.v1",
+      "recordSha256": "730368ceb093a47eb117bfdaddc00b285ccdfbd4ce99f51baeba0e099a18e1ac",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.submit-validated-request",
+            "operationRef": "media.operation.action.submit-validated-request",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.work-with-speech.outcome-unknown.v1",
+      "recordSha256": "187dd25feee8a44bee27f1b9ec84ec84060d2b624f0e328c928168d3f3f687df",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.request-admitted-speech-operation",
+            "operationRef": "media.operation.action.request-admitted-speech-operation",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-admitted-speech-operation",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.request-admitted-speech-operation"
+          },
+          {
+            "actionRef": "media.action.request-transcription",
+            "operationRef": "media.operation.transcription-submission",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file",
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.request-admitted-speech-operation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-admitted-speech-operation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.explore-simulation.outcome-unknown.v1",
+      "recordSha256": "9fdd574b9b0cbfdcabe3fbde303cb6467f671fb68b8f2cc3ef142e870a4abdd8",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.submit-simulation",
+            "operationRef": "media.operation.action.submit-simulation",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-simulation",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-simulation"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-simulation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-simulation"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.prepare-render.outcome-unknown.v1",
+      "recordSha256": "5735dd76a6a6d8724dcef5e251f6c5ef5a2fce860f0cc30b03386eb809be85e5",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.submit-render",
+            "operationRef": "media.operation.action.submit-render",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-render"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-render",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.review-activity.job-outcome-unknown.v1",
+      "recordSha256": "59be5f92de6004df513823ef984b3f443d858672e577976d29748927ff895430",
+      "definition": {
+        "allowedActionOperationPairs": [],
+        "unsupportedQueryFinality": {
+          "operationRef": "media.operation-slice.inspect-job",
+          "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job",
+          "reason": "This exact read query can observe only its typed status mapping; a missing or ambiguous query result does not prove the remote effect outcome.",
+          "outcome": "UNKNOWN_UNTIL_EXACT_TYPED_QUERY_RESULT"
+        },
+        "positiveCondition": "none; local query transport facts cannot establish a remote job/evidence state",
+        "negativeCondition": "none; even a query not sent does not prove remote absence or finality",
+        "unknownCondition": "until a separate exact typed query result supports the selected label, evaluate UNKNOWN",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.review-activity.evidence-unavailable.v1",
+      "recordSha256": "81e9166ca6997b873f3a1310143eee4614b3418251a92c89a491c0d36d6c5d75",
+      "definition": {
+        "allowedActionOperationPairs": [],
+        "unsupportedQueryFinality": {
+          "operationRef": "media.operation.capability.media-job-outputs-inspect",
+          "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect",
+          "reason": "This exact read query can observe only its typed status mapping; a missing or ambiguous query result does not prove the remote effect outcome.",
+          "outcome": "UNKNOWN_UNTIL_EXACT_TYPED_QUERY_RESULT"
+        },
+        "positiveCondition": "none; local query transport facts cannot establish a remote job/evidence state",
+        "negativeCondition": "none; even a query not sent does not prove remote absence or finality",
+        "unknownCondition": "until a separate exact typed query result supports the selected label, evaluate UNKNOWN",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.job-status.reconciling.v1",
+      "recordSha256": "aee35185e2084c5ff7ebe6a8e2be496a1aff08d25fc7fef3c7b358f063ef84fe",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.request-cancellation",
+            "operationRef": "media.operation-slice.cancel-job",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel"
+          },
+          {
+            "actionRef": "media.action.retry-job",
+            "operationRef": "media.operation-slice.retry-job",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.retry-job",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-retry"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel",
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-retry",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.retry-job"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.review-outputs.outcome-unknown.v1",
+      "recordSha256": "49c114cc5875c68f5b8245d0c9bfc0197b79feabeafca6e28203b9fa74687b48",
+      "definition": {
+        "allowedActionOperationPairs": [],
+        "unsupportedQueryFinality": {
+          "operationRef": "media.operation-slice.inspect-job",
+          "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job",
+          "reason": "This exact read query can observe only its typed status mapping; a missing or ambiguous query result does not prove the remote effect outcome.",
+          "outcome": "UNKNOWN_UNTIL_EXACT_TYPED_QUERY_RESULT"
+        },
+        "positiveCondition": "none; local query transport facts cannot establish a remote job/evidence state",
+        "negativeCondition": "none; even a query not sent does not prove remote absence or finality",
+        "unknownCondition": "until a separate exact typed query result supports the selected label, evaluate UNKNOWN",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.deliver-output.outcome-unknown.v1",
+      "recordSha256": "6a68fd5409433f6a973c818fc85c7d6dc59250ff0b531b428f11cd9410f5ac28",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.deliver-exact-version",
+            "operationRef": "media.operation.action.deliver-exact-version",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.deliver-exact-version"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.deliver-exact-version",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.monitor-transcription.outcome-unknown.v1",
+      "recordSha256": "c2da9231dd99a374087adc5d07d964fededcd082daf5ac4ddb91e514a40cf7b6",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.request-cancellation",
+            "operationRef": "media.operation-slice.cancel-job",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel"
+          },
+          {
+            "actionRef": "media.action.request-transcription",
+            "operationRef": "media.operation.transcription-submission",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel",
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.monitor-transcription.reconciling.v1",
+      "recordSha256": "421bf7e1758b1da40cd24d52b5d1f689f7f14eb25a5d1ba5117562cb5964fe9b",
+      "definition": {
+        "allowedActionOperationPairs": [
+          {
+            "actionRef": "media.action.request-cancellation",
+            "operationRef": "media.operation-slice.cancel-job",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel"
+          },
+          {
+            "actionRef": "media.action.request-transcription",
+            "operationRef": "media.operation.transcription-submission",
+            "operationKind": "COMMAND",
+            "actionSourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription",
+            "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file"
+          }
+        ],
+        "positiveCondition": "exact host-bound local request tuple has a confirmed transport write and a timeout, connection loss, or local interruption before a response is observed",
+        "negativeCondition": "only an exact fresh local tracker result of NOT_SENT together with NOT_WAITED makes this local transport-uncertainty predicate FALSE; server outcome remains unasserted",
+        "unknownCondition": "any response received but not validated by the exact operation result schema, explicit pending/unknown acknowledgement, in-progress or uncertain write, contradictory, missing, stale, out-of-order, mismatched, or unsupported local observations",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel",
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.check-job-outcome.outcome-unknown.v1",
+      "recordSha256": "cbb5ea3f000b0628d4e98e7f763e0e482a15d59dcfeb257488fb6d886f168c4d",
+      "definition": {
+        "allowedActionOperationPairs": [],
+        "unsupportedQueryFinality": {
+          "operationRef": "media.operation.action.check-job-outcome",
+          "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome",
+          "reason": "This exact read query can observe only its typed status mapping; a missing or ambiguous query result does not prove the remote effect outcome.",
+          "outcome": "UNKNOWN_UNTIL_EXACT_TYPED_QUERY_RESULT"
+        },
+        "positiveCondition": "none; local query transport facts cannot establish a remote job/evidence state",
+        "negativeCondition": "none; even a query not sent does not prove remote absence or finality",
+        "unknownCondition": "until a separate exact typed query result supports the selected label, evaluate UNKNOWN",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.check-job-outcome.reconciling.v1",
+      "recordSha256": "b8458ff89b897c3c68d8a8d149714357beeb84e3703c18d6acea694d88bb691d",
+      "definition": {
+        "allowedActionOperationPairs": [],
+        "unsupportedQueryFinality": {
+          "operationRef": "media.operation.action.check-job-outcome",
+          "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome",
+          "reason": "This exact read query can observe only its typed status mapping; a missing or ambiguous query result does not prove the remote effect outcome.",
+          "outcome": "UNKNOWN_UNTIL_EXACT_TYPED_QUERY_RESULT"
+        },
+        "positiveCondition": "none; local query transport facts cannot establish a remote job/evidence state",
+        "negativeCondition": "none; even a query not sent does not prove remote absence or finality",
+        "unknownCondition": "until a separate exact typed query result supports the selected label, evaluate UNKNOWN",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome"
+        ]
+      }
+    },
+    {
+      "id": "media.view-observation.check-job-outcome.evidence-unavailable.v1",
+      "recordSha256": "c430ac7d87767df607a68c30e9c6f2d47c76bfba85e08dffcc3d314c8857fb5c",
+      "definition": {
+        "allowedActionOperationPairs": [],
+        "unsupportedQueryFinality": {
+          "operationRef": "media.operation.capability.media-job-outputs-inspect",
+          "operationSourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect",
+          "reason": "This exact read query can observe only its typed status mapping; a missing or ambiguous query result does not prove the remote effect outcome.",
+          "outcome": "UNKNOWN_UNTIL_EXACT_TYPED_QUERY_RESULT"
+        },
+        "positiveCondition": "none; local query transport facts cannot establish a remote job/evidence state",
+        "negativeCondition": "none; even a query not sent does not prove remote absence or finality",
+        "unknownCondition": "until a separate exact typed query result supports the selected label, evaluate UNKNOWN",
+        "serverAcceptance": "NOT_ASSERTED",
+        "retryAuthorization": "NONE",
+        "runtimeAdmission": "NOT_ADMITTED",
+        "sourceRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect"
+        ]
+      }
+    }
+  ],
+  "sourceFingerprints": {
+    ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+    ".product-experience/pdp-3-product-experience/view-observation-predicates.yaml": "48691cd6f411dd2ebf18cec5fd65e315cdaf5df7e08090d8f59044d96ef728a8",
+    "scripts/lib/media-view-observation-definition.mjs": "1b98629f5e03861dfeb3a5008ccf7238e9ee0df0e563d06ede79a8cd84671589",
+    "tests/pdp-truth-domain-owner-state-meanings.test.mjs": "88cab037dfca95b2d829975ccfab52c4e27ffe8a4aee10cab6ccdff90b99992c",
+    "tests/pdp-experience-view-observation-predicates.test.mjs": "e2d9f36e7de046a7fdaee37a94464236c8fb9d087cffa3edf307423368e09d4f"
+  },
+  "verification": {
+    "passedTests": 14,
+    "log": "docs/implementation/verification/pdp-38/state-uncertainty-source-review.log",
+    "outputSha256": "ff70c9bebd9b1b7a8bc4cab9e13e23f52455f1c56672fb7c5c4317442d18a870"
+  },
+  "acceptanceEffect": "none",
+  "nonClaims": [
+    "Every other view predicate",
+    "Runtime authority verification",
+    "Retry or dispatch authorization",
+    "Legal/consent authority decisions",
+    "Whole-task completion",
+    "Qualified independent acceptance",
+    "Lifecycle phase receipts"
+  ]
+}

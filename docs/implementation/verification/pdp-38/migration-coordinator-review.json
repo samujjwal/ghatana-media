@@ -1,0 +1,587 @@
+{
+  "schemaVersion": "media.pdp38-coordinator-semantic-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-084",
+  "authority": "User-delegated Media semantic definition ownership; coordinator review",
+  "reviewArtifactRef": "docs/implementation/verification/pdp-38/migration-domain-review.json",
+  "reviewedRecordCount": 81,
+  "reviewedRecordSetSha256": "1132cdea011c7a3be6e0a9ff996a02718bd8220d73d85b49abc1a131cc95fbff",
+  "records": [
+    {
+      "claimId": "MPSEM-0003-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/migrationExecutionBoundary/legacyPlanAuthority/rule",
+      "sourceTextSha256": "1e21da75099a65b4e5bab95af0838e97a4f3bf63477542b7e1748660c9de8da2",
+      "targetValueSha256": "aac3f4eea18ff195a8e43591dbd769a15f5d43e4cd449112f04e9c2fff95d653",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0034-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/lifecycleSeparation",
+      "sourceTextSha256": "8b07f763b016aed52b4d3cfae1173ca1945df0d92ff519dbd7bf8cbeff5428e9",
+      "targetValueSha256": "cc0ef3e1688cd8a5570c8cfce9939b660f047e10bb28686ed8e07d05ac617b40",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0037-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/artifact/retentionRule",
+      "sourceTextSha256": "e9bcef7f1b4a27b7e0d029993a8c44813a4ae4e3dbf0944f535cfcbd31e143e0",
+      "targetValueSha256": "13a6fccb0260eba568b46330e3837fdad0e1694084d7bc4b8017058adea67967",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0045-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/irCompatibility/interchangeRule",
+      "sourceTextSha256": "5498ee70297918dc5832bc4021cf29fa7ba536d03896868bc7b372ad36c3a876",
+      "targetValueSha256": "70f6ae949094369edfc7422fba9d14d860404675af5622606ffc38ac9c3886d7",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0046-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#/ownerDefinedImportBoundary/ghatanaCoreConsumerRule",
+      "sourceTextSha256": "8421248f5ebfd2a6e6924fc0b5e69518bf0ae57e1c11c975c89ed37578a1d00a",
+      "targetValueSha256": "7a791c5b69c427142764508665fccaa2177ac4b2c3616682eefaa7e38132b6ad",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0051-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity/displayName",
+      "sourceTextSha256": "ad6dae74ec53b23da2c7ab8ebbee26e2540e7646d7a137ab9a0a025c271de04a",
+      "targetValueSha256": "70bda237ca9508c71ab5d92fc095bbc05214e690d9f2dddfe8e9a7c9b19cee9b",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0052-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity",
+      "sourceTextSha256": "ed5bbc82a13aaf52d08217bc8d2c76ba529030be4b42fd843a39a295b343885c",
+      "targetValueSha256": "dd5c21706b64c32626cfa6e17c85a9cfde1790131a02fb61f6dc192f84240060",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0052-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity",
+      "sourceTextSha256": "d72fb660cbe138b945ab72f9e1fdaba6af3e55e18930989bb44b5806d7688c42",
+      "targetValueSha256": "dd5c21706b64c32626cfa6e17c85a9cfde1790131a02fb61f6dc192f84240060",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0053-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.mediasynth/distinctions/1",
+      "sourceTextSha256": "b77934f0232a7bc07feb8c5b20350342374af4f5fe3c5409214ca7e813e80a31",
+      "targetValueSha256": "b05497c991cec2c57b855ea6ad24cb984de2a9bd96b5953962e59770edbf5d84",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0055-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#namingRules/compatibilityNames",
+      "sourceTextSha256": "e4d325c09b89e37d666b34ecdc7c90ca81c3c2889237b8494def1384723485d6",
+      "targetValueSha256": "88579bd530deed95f87180559006dc9fb86b003ea22966d071e6d2b1d69301f4",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0061-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity/repositoryRole",
+      "sourceTextSha256": "b6d96fd3d26369ec2187c6ff00da3a6b17ccb868b1fd8b299f1036f2b637cb27",
+      "targetValueSha256": "8da9cb4c526ed8ff4e0c23e7cd4d65721dfd69dd74769f1f21097aad786129fe",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0061-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/productIdentity/repositoryBoundary",
+      "sourceTextSha256": "f5e6bec720da95c0a5da35af1f70ad29524f62255f9e27f7f969ff65e79d3540",
+      "targetValueSha256": "c09c113454f273204798cada3bce9ee6895e1eb7e4c6b6623377e28096646a30",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0067-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.ghatana-media/semanticScope",
+      "sourceTextSha256": "a13b6810067bc9c57197876200a1d6d700b2b5b1615d943aabf2f84e6228a2d5",
+      "targetValueSha256": "dd5590891daaa1c655695fdf21b514760868fbe57c0e386fafa4efca3a90f588",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0071-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.mediasynth/forbiddenConflations/3",
+      "sourceTextSha256": "452deb51fbb1b7fccf811c8e42df4763a4485f0440d8c2ab294554b1e2a572b1",
+      "targetValueSha256": "517148c76d00c55dd861259815a525aeb1823293767715d69de04e198e39fbb9",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0074-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.processing-job/renderJobBoundary",
+      "sourceTextSha256": "e1886cfe07c1516e6611e69722556074e1c89c597dd5b965637dbaf07327f533",
+      "targetValueSha256": "723abd633128201c55d72e6b7d79315ced1557dd1739bc46f6f7a33e51d4aaf0",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0074-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaAsset",
+      "sourceTextSha256": "9bfcb3ad5d4c9df41efb370bb9941db105ce528e0bd4177a1110e5157b60d575",
+      "targetValueSha256": "08a5cdc6ea374828928fe6ec031f41cf06783d827ee0500b9b28f312be999a6b",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0075-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/subsystemProposal/rule",
+      "sourceTextSha256": "f869ed42046733342974a7710e539489453fd432d70e4d4900047d7703ab84c1",
+      "targetValueSha256": "0f9e0896314669810180fff2a70fb423c552a7b03d494fb58dd4f0ff58e3c292",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0099-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=tutorputor-aef-irs/observedSemantics/5",
+      "sourceTextSha256": "f6631ee312198d23a9d9d2de8fd8c623e1d6e5945e7f73252730472bdf8e71ce",
+      "targetValueSha256": "f72b1e197c1066b6605ac57ade25b815e25b9c9ca029d1e81337aa05ddbc85bd",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0099-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/existingContractMap/@id=tutorputor-aef-irs/authorityRule",
+      "sourceTextSha256": "2142260a7a79b67aecf3d5986bd100891fd7957f3cf409c2568b23eafe26fda3",
+      "targetValueSha256": "10558bdba1858237d6f78ad91942a48523675bb88cef6fc1aa58e5049017ec1c",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0162-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.explorer-simulation/distinctions/1",
+      "sourceTextSha256": "003b96ed7e3329ef89db2c3da324268dc7dfd02b4c068594c9bc0fa94e36aca9",
+      "targetValueSha256": "a560b0083ca57196cef7c0536be029a93c0f82c35a7d5c52ffe11cda1187fce4",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0170-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.capability-status/evidenceRule",
+      "sourceTextSha256": "c65bfeb934a00f0b15fb3386bf8b37502b9be92fb8815b82e783cab556871cba",
+      "targetValueSha256": "2fcee892897093e4d74b2354ee9fc969eb2b10907538a1baa5f96cbd89a2f011",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0193-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.generative-reconstruction/modelBindingRule",
+      "sourceTextSha256": "5cb633e28161cd4532ac90962e6cd3156f96a80a9493f4b0db797969ee175940",
+      "targetValueSha256": "0f9bd0bdb6f765f88f564617198827926109c02d08e9464bc3f097a010c0608e",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0210-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.deterministic-composition/distinctions/1",
+      "sourceTextSha256": "83377ce1a718fee941457a6989fbe06b0ef035c68486efd0eadc5f1dcd2c9a81",
+      "targetValueSha256": "b33ba2ff1dee2e7c12d15de4feb9d1bcf7685b76f09d7bfe13a483b07b73c4eb",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0210-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.transcript/translationMeaningRule",
+      "sourceTextSha256": "f1ca3b8e121256e70b5c04983c572a1f02ec5a6f22d5a21c2927869a00168003",
+      "targetValueSha256": "1c9a22a4f82332256112ca6615e5e4885f8137bc176ea0a42bfc30f00c803412",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0210-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.transcript/translationMeaningRule",
+      "sourceTextSha256": "e80475ad3d377dc4460647da8cf2a8c197422721a2670e7b43d39ace00ecd368",
+      "targetValueSha256": "1c9a22a4f82332256112ca6615e5e4885f8137bc176ea0a42bfc30f00c803412",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0213-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/architecturePrinciples/productControlPlane",
+      "sourceTextSha256": "c3a0a5f748d0db9b562d4bccfdc525297598746f6a6757c405f24433e4273711",
+      "targetValueSha256": "3204a5144a10fbdb3335148a1de0fe5d9f2dcc0ae8bee229abce8106e2846d19",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0215-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.ghatana-media/platformBoundary",
+      "sourceTextSha256": "d0c274405ca4d940be54feba5a64f325577d59c74cab2f387752a43363ae74a7",
+      "targetValueSha256": "1d66727a99bde6085f8adc3a635d1673465347597e1084502561e0a238d4cbc2",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0260-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/imageVideoOutputConstraints/resolutionRule",
+      "sourceTextSha256": "50df6332562dcefc2dc1b1a3a68566ed9b1402b3b7c106845ccd7b4cbd18fbcb",
+      "targetValueSha256": "8bf4a72d208229c5963275ac1b22b77d95841d07224d77a3b7ba07d467412536",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0271-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/simulationAndFidelity/replayClasses/platformVariationRule",
+      "sourceTextSha256": "1a1f07fc3243eeb1390dda8788e0ad73ced49b6919e3c769723b940c2fa1a8b6",
+      "targetValueSha256": "07b447340b905cd1ed0788165502e5470c31ef0ba1c2f0796ad906f2c5762716",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0278-C005",
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#/learnedModelQualification/rule",
+      "sourceTextSha256": "3b798aa6b2b1481d2c56b8ce456fbd00e75a99288fbc59dd375fc8cfe5c491cf",
+      "targetValueSha256": "85589494b2d2ef256e95d2800e041ab7d5afa70cb4a2fda5c8cfb0d61cc15ebd",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0295-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/separationAndCompatibility/reconciliationRule",
+      "sourceTextSha256": "ce2f5f3d75d6ed8c7c3097acaab1682d0be7baea6b7e3a12492c8611e4683444",
+      "targetValueSha256": "ba5f22c7210bcf3a80db12575bd40b390e1a65619679a4ba117f05ada8e8d820",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0310-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.processing-job/streamDisconnectRule",
+      "sourceTextSha256": "399d67acccf44d8080abca6493a7f36877ac0893a8280ad52dd68ef9c8729373",
+      "targetValueSha256": "23e37843ffc26e71d1a0d56058a726b377b66234466dd6f13a63144c0b76d41e",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0369-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/recordLifecycleRules/run/telemetryBoundary",
+      "sourceTextSha256": "2060d367e402ee667c1fec1bc0dae84d97503bd791c0b02ea602f8055d046875",
+      "targetValueSha256": "12ad53e05ed8fb614c5fbc2dd0fe9dd3718ddcea66bde6e84a0b8a7a496af64d",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0370-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.provenance/distinctions/1",
+      "sourceTextSha256": "ed9f9527c30c7d3d65e34f24b045f115e893ea4eaa1df17da2064543f89f279c",
+      "targetValueSha256": "fc42d0406c9c7adfc59ad1c3213ff4f68b8a60d46480c8ce1ca61316983c2655",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0377-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml#/retryTimingRule",
+      "sourceTextSha256": "6c3a47eeb3b5d74ccbdfe45ccfa393fb9a464e7ec8aa4d66913f798b93e71146",
+      "targetValueSha256": "219d20d744e6ed13435537ae76d9c9e7c76350e5735800866ea3fa8ecc8fabc2",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0388-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback",
+      "sourceTextSha256": "add0e02fcd01eff7a7a9f0c7231ceb19f70affbb77eb52bc32c21303ab903604",
+      "targetValueSha256": "5a29712ad7914bd6856b6b9112e0cc13db54ae753c0b7b66c61c99ab9f465a7e",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0443-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.measurement-uncertainty/estimatePresentationRule",
+      "sourceTextSha256": "67189dbaf527ee64f741fae614f78ad8380b2caa6426848353e8c635e7aab042",
+      "targetValueSha256": "bce97a63ea618fdf85a5a23532e9e6d62b7a265128642eeb4441057d222164cc",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0445-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.intent/conversationOutputRule",
+      "sourceTextSha256": "22636d13f0576d3410cf37ab29296dc4b28746743570af31af02d158ed58c5d3",
+      "targetValueSha256": "d6c4486836dde99fbb26011b0c6bbb12cdd298ad14124ea8ff315de872a9d7aa",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0446-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=MediaProject/stateBoundary",
+      "sourceTextSha256": "bbd007db0dd9042f20d8670f9cd5e08aad022b9f344ac8702cdc6695393e9a21",
+      "targetValueSha256": "47468aa9510635a799a938c28eb170c63eb58a95fb6932344b30ca4c406fb62b",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0457-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/componentLicenseBoundary/rule",
+      "sourceTextSha256": "02233b7675c1121ce14837ac579b5cfc8d71f069ac3a57b4d8a46a814c82b36f",
+      "targetValueSha256": "7866af4266170b6cb8e494f8ff651634a2d58aa99b1b46e296c8a08457e9ca20",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0459-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/externalStackSelectionRule",
+      "sourceTextSha256": "32db45025689b4b3cc58a8ff2ba4be828da22c0fc6e25ab7d33aa6096d3a3a5d",
+      "targetValueSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0475-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.ghatana-media/capabilityScopeRule",
+      "sourceTextSha256": "b324a36143f772f4b7fb2af9b2fd4ae6fe736bbd8eb9c9d108301316127db963",
+      "targetValueSha256": "2c5ef178f2915612a74b58013d87d0be23da99624e934957bc1145f88e5e7f0c",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0022-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#conformanceFixtureSpecification/cutoverPrerequisiteRule",
+      "sourceTextSha256": "8ae31a0b4f483acb67493823de1443afbf1b8d8fde29ceacbc27bf5e0b58d0a1",
+      "targetValueSha256": "ca1d94e31e936631f0d030ccfb2bc15b1175baa4c145ffcd886085f42cd4d977",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0028-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#existingContractMap/@id=tutorputor-legacy-usp/packageDependencyBoundary",
+      "sourceTextSha256": "98a11ebf79733a4a00c135f47f602e47da15725bfb41a4215be6a6c2301f74f1",
+      "targetValueSha256": "d96ae9f3c3ba535af71c333b86d27edfb76a0864325ee45188e0e55a0bd68ef4",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0029-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary/sharedWorkflow/rule",
+      "sourceTextSha256": "1671f7b4204fdee662c4aa7183e8f3b49a0e62127652bcbf2260017c11341371",
+      "targetValueSha256": "a1834f1fad7dcd023683db11dd9e0b908f8d39acae61784a645953c83c8c3942",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0031-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/typedPortRule",
+      "sourceTextSha256": "376a6e4d5fc7b5cfe41ccaf910991894f63374a9e6edbf00a5431541efe0e6d0",
+      "targetValueSha256": "a3d27240d936a9ab3db83f97b8578456d09012a3d226df97034b663290fe4c7d",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0031-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/typedPortRule",
+      "sourceTextSha256": "8460ef9f8bfb71ab2150f405a4173814444c074c9e77f20be0ea5c115ac07fba",
+      "targetValueSha256": "a3d27240d936a9ab3db83f97b8578456d09012a3d226df97034b663290fe4c7d",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0031-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.disclosure-levels/capabilityAbsenceRule",
+      "sourceTextSha256": "a95e75bfc29afca2d03b2f8ae6c227040b8dca923124da0c4d3d5b3d9e00a3d4",
+      "targetValueSha256": "7fd85d7bd6ba36cff20e9b704dd2136c8d0f502dad4d844aac9b4c44ef6ebf9c",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0039-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/isolationRule",
+      "sourceTextSha256": "558c73cb31beab587cc00de31e364afcaf52a55b147273a04add1c9181c09df3",
+      "targetValueSha256": "76796165bc8296517ac4b3958485dc411e49f2a1e189cdac7322ef52737eb2d4",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0043-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.legacy-audio-video-identity/scopePreservationRule",
+      "sourceTextSha256": "5a5591a064f84f827a8d46e00961dbab07133ba91174c463076495ec7ff679ea",
+      "targetValueSha256": "de41b7194b71b40f87e3753ff9b28635648bb2ef837cb991a7e29019b1f0e6f5",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0075-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#architecturePrinciples/subsystemProposal",
+      "sourceTextSha256": "95e343cb53842776941ada34c071e5e703c452cd8d5e5ddd4a04bab14d4b0294",
+      "targetValueSha256": "037f9cc2625c744a07ace3a87e7308a78c1884c8c39cf41b0c288c3608eb7714",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0090-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.ghatana-media/platformBoundary",
+      "sourceTextSha256": "532087f2b1ac787cff4170b63b35338686b9f96e1b2de9e2cd00146832f014d9",
+      "targetValueSha256": "1d66727a99bde6085f8adc3a635d1673465347597e1084502561e0a238d4cbc2",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0100-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.media-asset/marketingAuthorityBoundary",
+      "sourceTextSha256": "30a6886a634a1986642ccf30d3d6d410cbff64c33c7d528f6f4bf3dfbf182537",
+      "targetValueSha256": "30b742388582795bc11eb5f703b4029d93fce048e1b864c5eaf574029ba940ad",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0159-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.media-simulation/experienceProjectionScope",
+      "sourceTextSha256": "8631d81db319416d8ed5118ca963ae589f29ef6bfbc949366e61336ae2317d93",
+      "targetValueSha256": "471a99702353cc6f0c1fc7db17c88565a17a7f8bd8da8c0d6c7dc1267fd8e634",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0166-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.document-extraction/dependencyBindingBoundary",
+      "sourceTextSha256": "fa0dfdcda257c2f350dce788cdcea92ed1afddb228412453f435f34dfb226eae",
+      "targetValueSha256": "2f489a5a30dee84fcd1d39e0c71864d1a801dc7a2da676551e3636ff76c512cf",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0166-C005",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=MediaAsset/licensePolicyBoundary",
+      "sourceTextSha256": "d615815268d65a91c43c34fda8719daa4392de5104f04c9f05037a304de160b0",
+      "targetValueSha256": "9aea8b3532a203b8d1b4ed603ade51f7a42a14f0c601f5f9634558c1c590ebc2",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0171-C005",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#/proposedRecordCatalog/@id=QualityAssessment/qualityFidelityContract",
+      "sourceTextSha256": "1cb411463c6f683ba1bb47af2af74306a13a461cbda39b6573ba592bba92063b",
+      "targetValueSha256": "dec688878f7231b2ae8e1cf227fcc22781ea2632124f6e9b68e43c735e7cef4b",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0177-C005",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=RenderOutcome-and-DeliveryOutcome/stateBoundary",
+      "sourceTextSha256": "77328781bae5cfe9375fa88297ea7074b8fe37baba49ea02b70809f4af945adf",
+      "targetValueSha256": "91ad0ab36773485b65b8488f63fd70835a6a4affec7f291b1998d7131173a1b6",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0261-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.scene-geometry/ownerDeclaredUnitOverrideRule",
+      "sourceTextSha256": "83b7df41a77560bec710531696135a5b3958543bcb09f3d806bb41dacfe1f4c8",
+      "targetValueSha256": "ed6ca38cb6b69ceba4115c7913b0228c04a0fc4905865d22ce9b1da2ccc8fe70",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0261-C007",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#coordinateConventionValidationRule",
+      "sourceTextSha256": "f12dff1ffa881c3945863b31d5e1f3748fb509f00713f81c7adf465aafadb8ac",
+      "targetValueSha256": "80b0d7c79eab7bfa82f382ca3cf93d45c0ec6815bff434302cf70841c06a5b48",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0307-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.capability-status/discoverySafetyRule",
+      "sourceTextSha256": "14ab5da1879988f0ad3a1d853dd4a2d9a540dee8967d06129f3ba8c1aa8755ae",
+      "targetValueSha256": "9f1db7c752565759c4ce861a4fb21695e55c3eeab80f84d691c3d42ee7a9244a",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0312-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#unitsAndConventions/boundedInputRule",
+      "sourceTextSha256": "9d32953f6e1ef2bf428f6ac7d09ca4491fe4707560d280be93ea3d7ebf406553",
+      "targetValueSha256": "5668ff1a24406ecc617a2c300e1026fc6e8df9c4e895c849143d76f54e7d040f",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0315-C004",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants/errors/rule",
+      "sourceTextSha256": "e309fe004dbfe347cfe96534c717b868d7d52d739ed8d0ee941047da17dc52f9",
+      "targetValueSha256": "69c43a10ab4f3bf1039241944db4c18f763ad6fd8947928e4eadcfa0b9e1d9d7",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0319-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.execution-plan/distinctions/1",
+      "sourceTextSha256": "5fa264d0743bc160ec07357d4f7739a5ec5796095c93c500e5b5ed7d549f557f",
+      "targetValueSha256": "dd49922f493f39a9668053637a64f145dd48c2cab70552a2ccac188da02b1086",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0331-C002",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#commandNaming/completionHelpRule",
+      "sourceTextSha256": "c99f83341d1b923b39128082c79d75996039dfbaa9ef83baf482e40288de1633",
+      "targetValueSha256": "46f129e4b52fb3d52699eb37d5e25c76e0d97cf2fdd38ea2e2802903d8a347d1",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0331-C003",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#commandPrinciples/5",
+      "sourceTextSha256": "c1beffc94f047b10f4e939cdf1c16c42f4c338991fd167841934140065df6431",
+      "targetValueSha256": "835a37fa90b19761501ee2d9a8ad4c056ef58e330715a0042dcd741519dfa4b5",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0352-C005",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.artifact/credentialHandlingRule",
+      "sourceTextSha256": "10693191abd2aea8a1b741a695f2dcf10541e7bab0d0c88c9c653d35983907c8",
+      "targetValueSha256": "062ee575e5390d1702dccbad8cff1f588009f8b6dc3c02003d7bb04c28861775",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0387-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.mediasynth/scopeChangeRule",
+      "sourceTextSha256": "282bbf8b9ae002bde0f537cead2935b0007926240ae6d21356204ce71a444054",
+      "targetValueSha256": "80bb0881f58c7d8a7179cc4ffa5a11eec60b4f41322d65a465ac07e7e52993fb",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0441-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/glossary.yaml#terms/@id=media.term.ghatana-media/catalogDiscoverabilityRule",
+      "sourceTextSha256": "c5952f475dc97c3eb8899e2448a41a46a3525964dd940584faf38e714ee33fc8",
+      "targetValueSha256": "30b3c3bf8b346cb5743771c6f9dbc6b006f8b92861cd659483d1b9ce23de4ca1",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0450-C002",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#presentationRules/3",
+      "sourceTextSha256": "43d529f01652136b5f7ac137ca08284b259a8ca8ebddc481b6b6885ae03ea7aa",
+      "targetValueSha256": "424118b3ad4057f1ae8446da2ef867ef8dc5ec70537abc36486912af5eb2d6e7",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0455-C006",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/dependencyBlockScopeRule",
+      "sourceTextSha256": "b13c130eb96102702c4406b0512c4a04a5cd14fc9bfb9eeeb3f7e708c7e1f121",
+      "targetValueSha256": "461614f2aa0d118d978da507c82d7853357ba746e01819b2e90104804817ba79",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0098-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/mediaStateAuthorityRule",
+      "sourceTextSha256": "438a855d5c6880dae7177f4ef8e4e74609e790936ea567f06942831fd3237727",
+      "targetValueSha256": "7fdb40cea21ac597db508e0f3b9322927191cb68e85f07e09d0027ac8a161639",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0102-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=yappc-product-authoring/adoptionRule",
+      "sourceTextSha256": "db6b5ad375cf06524129016bca30b43a0b19782f35bd9883d1286cf391a96564",
+      "targetValueSha256": "d9ca2da0bcbf9f1a35e35a3a6b6ebe8a6e8c752729dfcc8f96b48d8fab87ab87",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0093-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/kernelAdoptionRule",
+      "sourceTextSha256": "2198edd6228e2b4d8392f69f839c60a3ba5f777ba8c3dbda66cc1cf50e6ab95c",
+      "targetValueSha256": "1a7ca36bcf7b231ed41a55362dbc2af712c864a584db771890e565eab43cb03e",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0474-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffEnvelope/requiredForEveryAdmittedCall",
+      "sourceTextSha256": "e0fcb6538c90562296daa224799e88c7413f1e00b07129a7ff2ecbd77ec77967",
+      "targetValueSha256": "1815dfed83145decfbb6941b4fb9c789f4a79668b9df496bc070ebd5243301e9",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0474-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffEnvelope/invariants/0",
+      "sourceTextSha256": "cb071407848ea060130617927afe22484073eec1fa9d90786474166d3221c03c",
+      "targetValueSha256": "0e27298d0c72e8c4f691a4fcf5fe410b5d58fa9a21150210e4627a6dab69158f",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0021-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionSequenceRule",
+      "sourceTextSha256": "4d026c4f7b6e17a70fae43d51898f04a1fc32aaf866ab5a379a1fb6ed51a0daa",
+      "targetValueSha256": "cc8f66be08841bc0958bf3f4882b0a61d5dfc547a3efef6f043be0015c31d562",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0024-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=datacloud-media-compatibility/retryReconciliation",
+      "sourceTextSha256": "c3a7eb95434d3dcc0d1b87ed04fc69e83747dbaa1ba3eda4affde2db39453bc8",
+      "targetValueSha256": "ed8c7aacf436c3b99ea9606b59e4cccc363c1f744b155f3463abdcd3416e89fd",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0167-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#publicOwnerContractFingerprintRule",
+      "sourceTextSha256": "79f15918792539173ae9c57ea5217746c8e667fbeed7d3f42c491b0b72de4c62",
+      "targetValueSha256": "cedfc3bfe64f15a1ab45dcb84cbf46c051a34bfb64006aac98861e9a88ad84b8",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0471-C004",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=datacloud-media-compatibility/returnContinuation",
+      "sourceTextSha256": "4f1b4c932392e8d9048748be8ce01546234ecf5b993917a9fcb9050ece7d625c",
+      "targetValueSha256": "0a997c1cb1b8e571ea88c8a2d61b32e2c35935b54223c7e6403828af75bb4c41",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0092-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#publicOwnerContractFingerprintRule",
+      "sourceTextSha256": "0788ed32cb8b99cc01f3ada05672be06ba575705d6c5f47a002c9527d2f47711",
+      "targetValueSha256": "cedfc3bfe64f15a1ab45dcb84cbf46c051a34bfb64006aac98861e9a88ad84b8",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    }
+  ],
+  "historicalScopeSupersession": {
+    "claimId": "MPSEM-0160-C001",
+    "disposition": "CURRENT_EXECUTION_SCOPE_SUPERSEDED_ONLY",
+    "reason": "Historical Phase3 Explorer program remains program truth; current execution mandate limits completion work to38 PDP tasks. This does not assert semantic parity."
+  },
+  "scope": "The 81 exact per-claim target meanings reviewed and corrected in the Media owner source cohort; excludes every other claim and all remaining migration fragments.",
+  "independentAcceptance": "NOT_EVALUATED",
+  "wholeTaskCriterionEstablished": false,
+  "runtimeAdmission": "NOT_ADMITTED",
+  "nativeLifecycleReceipt": null
+}

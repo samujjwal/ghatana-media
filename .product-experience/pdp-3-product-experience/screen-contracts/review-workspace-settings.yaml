@@ -159,7 +159,7 @@ surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
 templateContract:
-  templateRef: media.gui.template.consent-gate
+  templateRef: media.gui.template.workspace-settings
   kind: owner-defined-template-pending-review
 layoutContract:
   primaryRegion: intent-and-context

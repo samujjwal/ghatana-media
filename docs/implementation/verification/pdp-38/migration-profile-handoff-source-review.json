@@ -1,0 +1,601 @@
+{
+  "schemaVersion": "media.pdp38-migration-profile-handoff-source-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-086",
+  "authority": "User-delegated Media definition ownership; coordinator exact claim/source/target review",
+  "recordCount": 57,
+  "records": [
+    {
+      "claimId": "MPSEM-0027-C004",
+      "sourceTextSha256": "e5a29f4c2e335aff0c201ed12695ecd32df02c57432412922163a1c2d9a571f9",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=tutorputor-governed-media-artifact/ownerBoundary/0",
+      "targetValueSha256": "c40b4a2ba3ef9a777e39cb22d3094026168b320a4596556bd4221dd81d29c319",
+      "expectedOwnerValue": "TutorPutor owns Experience IR, Model IR, Scene IR, pedagogy, scientific meaning, learning evidence, and assessment.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0028-C003",
+      "sourceTextSha256": "aae5a6e2cfdac80cb0b6d3ab9141c96c3a1fe4c2b1387fcfee12d7dea86d252a",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=tutorputor-domain-scene/prohibition",
+      "targetValueSha256": "0813729b1bb89ba9cdc1501473374cfa53e85c41755d700395dfc46bc816d2f7",
+      "expectedOwnerValue": "Do not import @tutorputor/simulation broad internals or copy/fork TutorPutor IRs into Media.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0030-C003",
+      "sourceTextSha256": "733e9fd2d2c9e344fb8f007ab88d79b6c80904ac03f15466d88e77450088f541",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/genericInferenceOwnershipBoundary",
+      "targetValueSha256": "03f8fb73f1619701105906afa14959c81c8afbad27375689ac10f929e52634d6",
+      "expectedOwnerValue": {
+        "id": "media.handoff.generic-inference-ownership",
+        "rule": "AI Inference owns generic inference public contracts, model/provider eligibility, routing and selection, local deployment eligibility and placement, credential handling, quota, health, and failover policy. Media owns product intent, media artifacts and lifecycle, capability-specific bounds, rights/consent/purpose gates, and validation of returned media results. Media submits only through an exact admitted AI Inference public operation and does not duplicate its generic contracts or policy. Missing public identity/version or owner evidence remains a dependency; implementation symbols and similar names do not establish a callable contract.",
+        "scopeStatus": "OWNER_DEFINED_CROSS_PRODUCT_BOUNDARY; external contract acceptance remains pending."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0078-C004",
+      "sourceTextSha256": "b2aceec224d7a8751bca8d1d3d93eaa810c40a30f64d13aea610c13f0a6a492a",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#supportedIOContract",
+      "targetValueSha256": "fb2a34e615f8cab16c9f0bb74859a03de82218bec6f116616872b7c365c571ec",
+      "expectedOwnerValue": {
+        "id": "media.profile.supported-io-contract",
+        "rule": "Each capability leaf declares its accepted input kinds and exact constraints, required context and authority, output kinds and schemas, cardinality and size/duration bounds, and any preservation or transformation behavior. Declare unsupported combinations and typed failure behavior. A profile or reproducibility record may reference only an IO contract that is exact for its capability and version; it cannot imply support from a file extension, MIME label, example, or neighboring profile.",
+        "scopeStatus": "OWNER_DEFINED_IO_CONTRACT_REQUIREMENT; capability-specific registrations remain separately required."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0093-C002",
+      "sourceTextSha256": "752d6f91b164bb90b8741b993d4b2dae5fae7f6cf2cf51f3beb5dce8670e428f",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/direction",
+      "targetValueSha256": "55a4ea92346af6bd8ac5f3d0936fddbc75bb7268cb7491f5b5116959af1793f9",
+      "expectedOwnerValue": "Media to a published Kernel lifecycle/shell/provider contract only when deliberately adopted",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0094-C002",
+      "sourceTextSha256": "91a06e935039368800b05ee35e40477ac4f230a3a22f8eba699b3a7246e44e70",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/genericInferenceOwnershipBoundary",
+      "targetValueSha256": "03f8fb73f1619701105906afa14959c81c8afbad27375689ac10f929e52634d6",
+      "expectedOwnerValue": {
+        "id": "media.handoff.generic-inference-ownership",
+        "rule": "AI Inference owns generic inference public contracts, model/provider eligibility, routing and selection, local deployment eligibility and placement, credential handling, quota, health, and failover policy. Media owns product intent, media artifacts and lifecycle, capability-specific bounds, rights/consent/purpose gates, and validation of returned media results. Media submits only through an exact admitted AI Inference public operation and does not duplicate its generic contracts or policy. Missing public identity/version or owner evidence remains a dependency; implementation symbols and similar names do not establish a callable contract.",
+        "scopeStatus": "OWNER_DEFINED_CROSS_PRODUCT_BOUNDARY; external contract acceptance remains pending."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0094-C003",
+      "sourceTextSha256": "ee5ad9dce6d82e0d4ffd707a0cd43250522f6ec14d7a919ade99cb5832f9b41c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=document-intelligence-scene-text/operationAndVersion/authority",
+      "targetValueSha256": "e9acf0f73f1d5dec926f73fef8cb38e7816f38d984da2592db0d76c0b8db5362",
+      "expectedOwnerValue": "Shared retains @ghatana/document-extraction; Media must call an admitted public Document Intelligence boundary.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0096-C002",
+      "sourceTextSha256": "f797172d97b6579906dbcde10505a8dc1da4a07f28d7840cec7df2fb92015f6c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=action-plane-publication/destinationOwner",
+      "targetValueSha256": "0de631f3e6e72dada1f5f13f6e3e05273b082c3eb53bd1d77faacadcfef29135",
+      "expectedOwnerValue": "Ghatana Action Plane for privileged effect authority, approval, idempotency, execution, and reconciliation",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0100-C001",
+      "sourceTextSha256": "f2f38caade5ccd117007bb65998573bfe81a629916e3a933268f3b028583752c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=digital-marketing-creative-brief/campaignPublicationWorkflowBoundary",
+      "targetValueSha256": "337325f487d2616ccd7d9bc5529b9b7e04009e4f39d869a45f299f2c9ea34ffc",
+      "expectedOwnerValue": {
+        "id": "media.handoff.marketing-campaign-publication-workflow",
+        "rule": "Digital Marketing owns campaign, brand, offer, claim approval, and the campaign publication policy and workflow. Media owns only the admitted composition and exact media output transformation; it does not recreate a campaign or brand-policy engine, approve claims, run the campaign publication workflow, or treat an approved creative brief as permission to publish externally. Consequential publication uses the separately admitted Action Plane authority and effect contract.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no Marketing policy contract or publication operation is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0103-C001",
+      "sourceTextSha256": "13b05b16fdbbc523160b41a607329bdfd66860bd9efb9f0ba6ef0b7f0724b653",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=tutorputor-domain-scene/destinationOwner",
+      "targetValueSha256": "e4c44ec7a7a2e8e6ee90d0b1eaeee81e5dc415847643b992e804905b992e1bf7",
+      "expectedOwnerValue": "Media for an explicitly accepted render/animation boundary; TutorPutor for lesson/experience artifact use",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0160-C003",
+      "sourceTextSha256": "1897cb66f7c33b43133c12edbd7b885e7bd0c528d8eca74a86203e3f87fd10f7",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=kernel-product-lifecycle/batchAndProofBoundary",
+      "targetValueSha256": "829fb2aa66e36c69a9aadb63167f995325a543244ebb09f4e17f6613096cb3ea",
+      "expectedOwnerValue": {
+        "id": "media.handoff.kernel-batch-and-proof-boundary",
+        "rule": "Media authors product meaning in the current owner records. Media batch operations compose over the existing Media job and operation contracts; they do not establish a new generic workflow engine or transfer Media state authority to Kernel. Workbench, simulation, fixtures, or migration artifacts are not production proof, and migration alone does not activate a feature or establish runtime availability. Preserve the exact admitted Kernel public contract and owner proof boundary if selected.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no Kernel materialization, runtime proof, or feature activation is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0166-C001",
+      "sourceTextSha256": "815045441d11c53978cf12657153b817820029f9e9002f864c08cc2cdc0b9b35",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/candidateDeliveryProfiles/@id=media.delivery-profile.webm-opus-av1-permissive/sourceAuthority",
+      "targetValueSha256": "e8f758dcc196723285113819042bf19c633efb83905995999ac4e3c4758bf6e3",
+      "expectedOwnerValue": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0171-C001",
+      "sourceTextSha256": "f26027be3bfdf1253753c5e122eeb18acbfbb4c583ed42f9c8ca8ac28a35bc1b",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/acceptedArtifactReferenceContract",
+      "targetValueSha256": "ce1a90db26c7fa87e81ad1a770a42db4dc7448e6d779ead489e2c813c55dbfb7",
+      "expectedOwnerValue": {
+        "id": "media.handoff.ai-inference-artifact-reference-contract",
+        "requiredFields": [
+          "exact artifact kind and schema identity/version",
+          "immutable artifact/version reference and content identity where applicable",
+          "input/output role and cardinality",
+          "declared size, duration, shape, and format bounds for the selected operation",
+          "owning authority, access scope, purpose, and current policy decision",
+          "origin/provenance binding for each returned output"
+        ],
+        "rule": "An opaque reference alone is not a type or proof of access. Each exact admitted operation binds its accepted input and output artifact kinds, schema versions, cardinality, bounds, role, and owner authority. Unknown, mutable, expired, or out-of-scope references fail closed. No reference shape or artifact kind is inferred from a route, filename, or operation name.",
+        "scopeStatus": "OWNER_DEFINED_BINDING_REQUIREMENT; no AI Inference operation or artifact transport is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0171-C006",
+      "sourceTextSha256": "f1c8d196e28b8c345a75981554d30d57250257fa72ee64c993cf2fc45bde68fc",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#cancellationRetryReconciliationRule",
+      "targetValueSha256": "d0ec67923c5e3b501fa3908c56f4ae56efa4a49268a2e790daf119d70d9ba4c4",
+      "expectedOwnerValue": {
+        "id": "media.handoff.cancellation-retry-reconciliation",
+        "rule": "Every admitted long-running call declares cancellation request semantics, whether cancellation is supported at each execution stage, the authoritative cancellation result/finality, retry eligibility, stable request/effect identity, and reconciliation steps for timeout or unknown outcome. A client stop-waiting event is not remote cancellation; retry never duplicates a possibly accepted effect and requires the exact owner contract.",
+        "scopeStatus": "OWNER_DEFINED_ENVELOPE_REQUIREMENT; no generic runtime behavior is asserted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0181-C003",
+      "sourceTextSha256": "3fd31b7b7725bcea2482f8019cecd83d1e56a87c714876e9779e7e2c7178fdf2",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#streamProfileRule",
+      "targetValueSha256": "2aceab878221b36f2cc39ac4890aabb2ca0fe950045e1151bcd2261eff973fd5",
+      "expectedOwnerValue": {
+        "id": "media.profile.stream-profile-support",
+        "rule": "A real-time or recorded stream profile binds codec, transport, recording behavior, reconnect and resumption semantics, and latency bounds together for the exact profile version. State supported directions, media tracks, timing units, buffering and loss behavior, cancellation/finality, and compatibility evidence. An unbound or unqualified dimension is unsupported; support on one profile cannot be inferred for another.",
+        "requiredProfileBindings": [
+          "profileIdentityAndVersion",
+          "codecAndContainerOrWireFormat",
+          "transportAndDirection",
+          "trackAndRecordingSemantics",
+          "reconnectAndResumeSemantics",
+          "latencyAndBufferBoundsWithUnits",
+          "compatibilityEvidenceAndQualificationScope"
+        ],
+        "scopeStatus": "OWNER_DEFINED_PROFILE_REQUIREMENT; no stream profile is qualified by this rule."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0215-C003",
+      "sourceTextSha256": "dd6a12bb15854ed0c9aa1289f71ec3ea48cb1da3231ca19bdcd72ff82fc386b1",
+      "targetRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=MediaRecipe/agentRuntimeBoundary/rule",
+      "targetValueSha256": "ea2d1f185c36ee39cea4680efdd29d46d637eae50a14b29b375dfa9445aa4ffa",
+      "expectedOwnerValue": "An ordinary MediaRecipe is a versioned processing or simulation specification, not an agent-runtime graph. Workflow-like shape, branching, or ordered steps does not grant agent, tool, model, or privileged execution authority and does not itself dispatch work.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0215-C004",
+      "sourceTextSha256": "fffe0e55209886c1a797d4493a6a6eddf20af257d1623a9c78f6feffcf08351c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=action-plane-publication/direction",
+      "targetValueSha256": "80d1850b41c8e131be8026b91acdb22fb4562d40a61f82d7cc53fc25711f2fc0",
+      "expectedOwnerValue": "Media requests an authorized external publication effect through Action Plane",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0267-C001",
+      "sourceTextSha256": "086f72e32f6b115b21c29f42b5fee600f3f6c42b779981cc5ea6906ae1f04d96",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-REPRODUCIBILITY/meanings/EXACT_ENVIRONMENT",
+      "targetValueSha256": "56522e7a155fb91b6d761d146b77a504b4a08dd46943a3d035d164c75228bcb3",
+      "expectedOwnerValue": "Identical declared output representation only within an evidence-backed engine/model/runtime/hardware/configuration/assets/seed envelope.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0269-C001",
+      "sourceTextSha256": "f51a90204abf0edd6c7e3a3cbf33bddd4afcdbf9a116d682d9ec31e7263dc53d",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-REPRODUCIBILITY/meanings/STATISTICAL",
+      "targetValueSha256": "a537a6fbaef328d890cda2db6f0fffadc3c91bc87a788c7853e4fb94640cefaf",
+      "expectedOwnerValue": "Repeated outputs satisfy a named distribution/quality protocol; a seed does not promise identical output.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0270-C002",
+      "sourceTextSha256": "ad15600865f5d6475a61a2b75c5119178157b4319aa88c7c2344d4e17b6ada76",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-REPRODUCIBILITY/meanings/REPLAY_UNAVAILABLE",
+      "targetValueSha256": "a7ce86c2240dac8a69a6f7d3a4be35619fcec91d1e3aacfbcc9db6078b1d06d7",
+      "expectedOwnerValue": "Preserve inputs, outputs, and execution provenance; do not offer unsupported reproduction.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0271-C002",
+      "sourceTextSha256": "a136c1503b9b4b80604ea9917af54d190eb4aaa85481beaf174f77f142c2c089",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-REPRODUCIBILITY/axisRule",
+      "targetValueSha256": "f1b707511a88d366645691bd68e507c1a22dfeabf528eb89328edbaad4bcbc44",
+      "expectedOwnerValue": "Render determinism, solver determinism, and encoded-byte determinism are separate claims.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0285-C001",
+      "sourceTextSha256": "a7bd04afe8cd2be70b831985d09a372125fa7913ad5aa3db81375dcdb50e0ec9",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/fallbackSemantics/permissionFields/qualityIntentChange/rule",
+      "targetValueSha256": "8d47691ead6cae0c99182709fcef87e656acdf79d11f7795eba7e0a612b06965",
+      "expectedOwnerValue": "OOM or capacity pressure alone does not authorize lowering master/high-quality to preview/balanced.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0285-C002",
+      "sourceTextSha256": "b07acacc60968f2a98f58729285758ec908d2d5cf014f8a4e18c543cce59697b",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/orthogonalityRules/@id=PROFILE-RULE-CINEMATIC-ALIAS/rule",
+      "targetValueSha256": "37669e18dad27b145a1e7202455553bb54608cc2070142ef8741be1881004c65",
+      "expectedOwnerValue": "“Cinematic” may be a presentation/template alias resolving to an explicit quality-intent plus delivery-profile combination. It is not a new independent quality or execution policy.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0286-C002",
+      "sourceTextSha256": "90863ba0fad5a636a6ce129fe05f0896810f4a3b7af7e5ce05f6abd15eda07ae",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-RESOURCE/axisRule",
+      "targetValueSha256": "8a858acf0212de21a0473b806d18443545527ea8364b7e36ff92ae7f0b06fb18",
+      "expectedOwnerValue": "Resource savings alone do not authorize lower fidelity, quality, resolution, duration, or frame rate.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0287-C003",
+      "sourceTextSha256": "6a4a24b5ae27bd7086f1e83c15dd040a3a5894c645671725f2d5bc201921ad1e",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/fallbackSemantics/permissionFields/executionLocationChange/localOnlyRule",
+      "targetValueSha256": "4eb50e25018d71bb059b97fec00533c36d34771256010d263991f823e6d59c8f",
+      "expectedOwnerValue": "Remote or cloud execution is never an implicit fallback for local-only intent.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0288-C002",
+      "sourceTextSha256": "bd31efc940e2ce00d1dfdf27de989ce15e6fdc649725e40cabddb60bc553a255",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#preserveModeSemanticRule",
+      "targetValueSha256": "463e2dba07d2e0e36a9b653c63568b2ccc14f3b0635892268281d77740c6bae9",
+      "expectedOwnerValue": {
+        "id": "media.profile.preserve-mode-semantic-boundary",
+        "rule": "Preserve mode does not invent or infer semantic detail absent from its source. A generated or reconstructed detail cannot be represented as source-preserved truth, even when it is disclosed as generated. Enhancement and creative modes are distinct explicit intents that may permit bounded reconstruction or edits subject to their own authorization, disclosure, and preservation limits; they never retroactively redefine a preserve-mode result.",
+        "scopeStatus": "OWNER_DEFINED_PRESERVATION_SEMANTICS; no enhancement or runtime capability is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0288-C003",
+      "sourceTextSha256": "effe32951529fbf263124d4237d755d327b270c716ce4485345cc92e98c095e1",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-PRESERVATION/values/@id=PRESERVATION-MODE-ENHANCE/meaning",
+      "targetValueSha256": "17b1c5728304eccb8b8d624dad00e2d30550e6feb2d9c5288b628c73535e25e4",
+      "expectedOwnerValue": "Permit only bounded, authorized perceptual reconstruction under declared preservation and quality constraints.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0288-C004",
+      "sourceTextSha256": "7a042766f586b1c015e8729beed9f8ec3d92a92fec93303a95eeef6fc266b226",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-PRESERVATION/values/@id=PRESERVATION-MODE-CREATIVE/meaning",
+      "targetValueSha256": "5053af5de323d4ffa6625ffb8e81f995348b42229ae6116b27cea3a1fe6bd7f6",
+      "expectedOwnerValue": "Permit admitted generative edits within current rights, privacy, safety, and effect authority.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0289-C002",
+      "sourceTextSha256": "0ff4c7a96578073639e0aace4eb2b54ebbdc679d66fca7baff1ee8aac37a1a05",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/profileAxes/@id=PROFILE-AXIS-DELIVERY/axisRule",
+      "targetValueSha256": "e3f79fc4398e74af19572963ceca779684d0d4fc9e23663d896946f5534531e0",
+      "expectedOwnerValue": "A delivery profile must bind exact codec/container, color/audio/caption, target, and compatibility constraints before execution. These names do not imply format support or qualification.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0290-C001",
+      "sourceTextSha256": "b9008183762c383077392e0a69595d25bcf72bb0597305b333864bd5bb92400f",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/orthogonalityRules/@id=PROFILE-RULE-TEST-ONLY/rule",
+      "targetValueSha256": "b58d2ebc353817b6c7817adf0aede020a2740e4197d2edc6a50a7912f8f850e7",
+      "expectedOwnerValue": "deterministic-test is a fixture/test binding label only and never a production provider or runtime profile.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0291-C008",
+      "sourceTextSha256": "37f4bc7e292f0dc0e057d4ffa099adc32d295a34c78bf5f8317157365a1e68a0",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#/fallbackSemantics/permissionFields/qualityIntentChange/rule",
+      "targetValueSha256": "8d47691ead6cae0c99182709fcef87e656acdf79d11f7795eba7e0a612b06965",
+      "expectedOwnerValue": "OOM or capacity pressure alone does not authorize lowering master/high-quality to preview/balanced.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0291-C009",
+      "sourceTextSha256": "32de743d7f8b86094cd7190068343702b44709544de9ff1645ea7e2a9d75871e",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#bindingProfileRule",
+      "targetValueSha256": "22517b43debb68fa84ad63522a03cc14c32ed8c52b2ea7ae574a187c47c312bb",
+      "expectedOwnerValue": {
+        "id": "media.profile.binding-profile-rule",
+        "rule": "Model-native parameters such as steps, guidance, offload, and quantization belong in an exact qualified binding profile. They are not ordinary user requirements or portable guarantees of a quality-intent label.",
+        "requestedAndEffectiveProfileRule": "Record requested and effective profile identities, versions, and quality dimensions separately, including unchanged and changed values and the authority and reason for every change. Unknown or unbound values block execution or use only an explicit policy-permitted fallback; they are never reported as available. A fallback never overwrites the requested profile.",
+        "scopeStatus": "OWNER_DEFINED_PROFILE_SEMANTICS; no binding or runtime qualification is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0296-C002",
+      "sourceTextSha256": "e54478f28bda7bf668cc0f637d0dbb8ed013bddd6bef8d52fa8ea6b27b321805",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#ownerDefinedInventoryRule",
+      "targetValueSha256": "479bae89be0fb96bb593f57074843b26d978c3ba08d6cbd0fd461867eff34364",
+      "expectedOwnerValue": {
+        "id": "media.handoff.inventory-completeness",
+        "rule": "For each proposed or observed cross-product handoff, inventory the actual route, client operation, transport/proto fields, and external consumer when source evidence exists. A bounded scan that finds no path records that absence with its scan scope; it does not prove no consumer or callable contract exists. Do not derive an operation or wire mapping from a similar name, route family, package coordinate, or implementation-only symbol.",
+        "scopeStatus": "OWNER_DEFINED_INVENTORY_RULE; inventory presence does not establish public admission or runtime behavior."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0299-C005",
+      "sourceTextSha256": "d17bfc5533d8c2937500204e67b37facf6289462d5af9bfbd26733c15d1e9dcb",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=kernel-product-lifecycle/batchAndProofBoundary",
+      "targetValueSha256": "829fb2aa66e36c69a9aadb63167f995325a543244ebb09f4e17f6613096cb3ea",
+      "expectedOwnerValue": {
+        "id": "media.handoff.kernel-batch-and-proof-boundary",
+        "rule": "Media authors product meaning in the current owner records. Media batch operations compose over the existing Media job and operation contracts; they do not establish a new generic workflow engine or transfer Media state authority to Kernel. Workbench, simulation, fixtures, or migration artifacts are not production proof, and migration alone does not activate a feature or establish runtime availability. Preserve the exact admitted Kernel public contract and owner proof boundary if selected.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no Kernel materialization, runtime proof, or feature activation is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0320-C003",
+      "sourceTextSha256": "3283dd966ede456365658e0ed019a161b5ee569d185fc0a5ede5a411da6369a8",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=ai-inference-execution/requestInputBoundary",
+      "targetValueSha256": "6f9b345d2fc13a46adcb26255a939b350acd271c9f25b7ca99ee72133bf1069e",
+      "expectedOwnerValue": {
+        "id": "media.handoff.ai-inference-input-boundary",
+        "rule": "An admitted Media request supplies either validated bounded input bytes or immutable authorized artifact references, plus explicit capability-specific intent options and required profile/policy context. A receipt, filename, MIME label, or opaque reference alone is not meaningful intent or authorization. Exact accepted fields, bounds, and output references come only from the selected public AI Inference operation; absent contract details remain unresolved.",
+        "scopeStatus": "OWNER_DEFINED_REQUEST_REQUIREMENT; no AI Inference operation/version is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0322-C002",
+      "sourceTextSha256": "3863a0602a6e216c768288ddd274d49134ad07f4d3ca2b48486b103195b9342d",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=action-plane-publication/actionSelectionRule",
+      "targetValueSha256": "a96c8001d14acb7ee67009ebb355903b500c7008a2fac733936050dbe60742f4",
+      "expectedOwnerValue": {
+        "id": "media.handoff.action-plane-admitted-actions",
+        "rule": "Version, branch, and other consequential publication actions are available only when the exact Action Plane public operation/version, request/result fields, authorization/delegation, idempotency, and finality contract is admitted. Do not infer an action from a similarly named Media method or a generic publication boundary; unsupported actions stay unavailable with an explicit reason.",
+        "scopeStatus": "OWNER_DEFINED_ACTION_REQUIREMENT; no Action Plane operation is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0324-C002",
+      "sourceTextSha256": "2f0532dcdc5b3e2fc2325e7bc34ea3476811128c250c45a5a0c70e2fa053421f",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#finiteOperationAliasRule",
+      "targetValueSha256": "6514c3f0c344bf3d932cb85c2375adfcf69d5d3b4968aadf29d48de98db1e4fc",
+      "expectedOwnerValue": {
+        "id": "media.cli.finite-operation-aliases",
+        "rule": "Command aliases are a finite, explicitly enumerated set that resolves to an existing canonical creation or composition command/action. An alias cannot create a new operation, change the canonical action, widen its accepted inputs or outputs, bypass validation/authority, or add duplicated behavior. Aliases are registered with the canonical command and have exact parity tests; unknown aliases fail as unsupported.",
+        "scopeStatus": "OWNER_DEFINED_COMMAND_LANGUAGE_RULE; command/runtime admission remains separate."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0352-C007",
+      "sourceTextSha256": "e02d255a1b8c6b1d8de68968fc08039dd6ca789159f8d10b2b00dc08d9df3136",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=phr-document-client-references/clinicalFeatureBoundary",
+      "targetValueSha256": "207199e6ec491e5ca17ba3e6c262eb9d34e9c468acef22aa70eeb1e53d50f718",
+      "expectedOwnerValue": {
+        "id": "media.handoff.phr-clinical-feature-boundary",
+        "rule": "Documentation-only PHR package references do not establish an active Media call, clinical or financial interpretation, protected-data transfer, or feature activation. PHR owner identity, authentication/delegation, purpose, retention, and a published Media consumer contract must be confirmed before any such integration. Missing device/PKCE or identity flows remain owner dependencies; do not invent an endpoint or credential flow.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; current consumer activation is not established."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0447-C002",
+      "sourceTextSha256": "63e8d5faa645a287ea6217c27c16db350a24967518d089b2f78069d5fa032ba4",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=tutorputor-governed-media-artifact/reuseSelectionRule",
+      "targetValueSha256": "dabc9839281dd7265bac93d66b26ca9101d225faf4c2818ccac367b443e2c73a",
+      "expectedOwnerValue": {
+        "id": "media.handoff.tutorputor-reuse-selection",
+        "rule": "Before adding a collaboration service, CRDT, or duplicate persistence mechanism, inspect the existing Ghatana and TutorPutor collaboration components and their exact public contracts. Reuse only a published, owner-approved contract whose identity, version, data model, consistency, authorization, and recovery semantics satisfy the Media operation. If the contract is missing or incompatible, retain the dependency gap; do not infer reuse from repository presence or invent a replacement integration.",
+        "scopeStatus": "OWNER_DEFINED_SELECTION_RULE; no existing contract adoption is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0467-C001",
+      "sourceTextSha256": "f4f033fddcc29f519ecd0071131cc88ab220b08995d99b7b86a3d3a78bd925ed",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=tutorputor-domain-scene/destinationOwner",
+      "targetValueSha256": "e4c44ec7a7a2e8e6ee90d0b1eaeee81e5dc415847643b992e804905b992e1bf7",
+      "expectedOwnerValue": "Media for an explicitly accepted render/animation boundary; TutorPutor for lesson/experience artifact use",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0467-C003",
+      "sourceTextSha256": "df49172aa8a6aa0d61fb69adf3adeea2f6f731e2601781789e18fbfc8b35e74a",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=tutorputor-governed-media-artifact/learningFidelityBoundary",
+      "targetValueSha256": "8b4b14a74dba99869f231cbe3f4bfe379198221fc3dfecb24bca1d138bcfdd7a",
+      "expectedOwnerValue": {
+        "id": "media.handoff.tutorputor-learning-fidelity",
+        "rule": "TutorPutor remains authoritative for pedagogy, scientific/domain meaning, units, measurements, learner evidence, accessibility requirements, and assessment. Media may transform an explicitly supported scene subset only when the exact unit/fidelity mapping is declared; unsupported or lossy conversion is disclosed to TutorPutor and cannot be represented as preserved scientific meaning or a validated learning result.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no TutorPutor scene adapter or scientific validation is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0468-C001",
+      "sourceTextSha256": "b08aa1686e04296300a2d56bd925e01c04191a8418393c7898b5d3a2279c6f6d",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=digital-marketing-creative-brief/direction",
+      "targetValueSha256": "fdd8822c18d1e3408bd7a4f27cce7ceb74328df03f49275b7302ebb4ad41e171",
+      "expectedOwnerValue": "Digital Marketing sends approved brief/brand/claim/copy/asset references to Media; Media returns reviewed output refs",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0468-C003",
+      "sourceTextSha256": "96fc26cb80a96e48aa65e12b898bf48f3bf2511cc356335062084f81a7eb218c",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=digital-marketing-creative-brief/sourceOwner",
+      "targetValueSha256": "eeb671e992fa25e3809603f1f6efdce947f7ce5ff79f58717e9f29ba00a881f7",
+      "expectedOwnerValue": "Digital Marketing for brand, campaign, offer, claims, and campaign approval",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0468-C004",
+      "sourceTextSha256": "f22f56c29ead3f94e779fb2da9aa287365f33d95d521a6e31339c665ff1ca4b4",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=digital-marketing-creative-brief/acceptedArtifactReferences",
+      "targetValueSha256": "e772416c8aefb90fe5e9e980b77d26aca0d86c4a4052598aef656aca0ce7600e",
+      "expectedOwnerValue": "Authorized versioned brand/claim refs and exact Media output refs only.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0468-C005",
+      "sourceTextSha256": "eab97617f00cde8e807e46dad246cb61b0daa2869d6666adfcba284748671a83",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=action-plane-publication/direction",
+      "targetValueSha256": "80d1850b41c8e131be8026b91acdb22fb4562d40a61f82d7cc53fc25711f2fc0",
+      "expectedOwnerValue": "Media requests an authorized external publication effect through Action Plane",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0468-C006",
+      "sourceTextSha256": "eccc4ee58c532a41eac8636ef59aa4b23569dfd311c11fd158e88f671f88d0b1",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=digital-marketing-creative-brief/campaignPolicyBoundary",
+      "targetValueSha256": "fc740527f9dc4ed768dc5e3548ba7afa7536343fecfc2935c92440a75b42344c",
+      "expectedOwnerValue": {
+        "id": "media.handoff.marketing-policy-ownership",
+        "rule": "Digital Marketing owns campaign, brand, offer, claim approval, and campaign publication policy. Media owns only the admitted composition and exact media output transformation; it does not recreate a campaign or brand-policy engine, approve claims, or treat an approved creative brief as permission to publish externally.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no Marketing policy contract or publication operation is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0469-C004",
+      "sourceTextSha256": "008b173064cba893f9fbcd69d68c44c29e1d3a46cb685ad9a5c3fdbcb124ca9d",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=gharbatai-direct-document-intelligence/consumerPreservationBoundary",
+      "targetValueSha256": "7cb45009cc601e48453dd92f3070168706eafa4d0c8c27d341ab10d1557c5bbc",
+      "expectedOwnerValue": {
+        "id": "media.handoff.gharbatai-consumer-preservation",
+        "rule": "A Media migration or source relocation preserves the existing consumer's owner-qualified operation identity, authentication/delegation, cancellation/finality, retention, and qualification restrictions. It does not create a Media intermediary, activate the feature, broaden clinical/financial interpretation, or establish runtime availability. Missing identity or owner evidence remains an explicit dependency.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; no new consumer feature or runtime qualification is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0469-C005",
+      "sourceTextSha256": "f3e15fbde086785c6816dfe92bce10dbd899b3a499acfcf8577d9b92557cb89a",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=phr-document-client-references/clinicalFeatureBoundary",
+      "targetValueSha256": "207199e6ec491e5ca17ba3e6c262eb9d34e9c468acef22aa70eeb1e53d50f718",
+      "expectedOwnerValue": {
+        "id": "media.handoff.phr-clinical-feature-boundary",
+        "rule": "Documentation-only PHR package references do not establish an active Media call, clinical or financial interpretation, protected-data transfer, or feature activation. PHR owner identity, authentication/delegation, purpose, retention, and a published Media consumer contract must be confirmed before any such integration. Missing device/PKCE or identity flows remain owner dependencies; do not invent an endpoint or credential flow.",
+        "scopeStatus": "OWNER_DEFINED_BOUNDARY; current consumer activation is not established."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0470-C001",
+      "sourceTextSha256": "305626d8da9f1212fcf66ff7e31d61c1c4d98241c8d19385d204b4add4365a86",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=yappc-product-authoring/direction",
+      "targetValueSha256": "ebb140b0dbdba903a4d4f1c3478f6d8cbf5defdf4db592a29dd6943a44489aed",
+      "expectedOwnerValue": "YAPPC public product/capability authoring facility to Media authoring/integration only if separately admitted",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0470-C002",
+      "sourceTextSha256": "82a7675cb9f0a553c975e07d13a50d652064dfde5e5cc2ec064e68b24ac55cb3",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=yappc-product-authoring/sourceOwner",
+      "targetValueSha256": "629e8fc50c1d24e96419eb8bba5e99ebef0374a832ede12441023765f1ce704e",
+      "expectedOwnerValue": "YAPPC for its product metadata/authoring contracts",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0470-C003",
+      "sourceTextSha256": "a5796187483593cbd943035dc4a3dab86bd3ddc6f9f7d1e154abb67b6d38aa90",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#handoffs/@id=yappc-product-authoring/implementationImportProhibition",
+      "targetValueSha256": "2446ccf8d3365ac0ec37e910c6d3eda4ade199651b875549063e243a325c2771",
+      "expectedOwnerValue": {
+        "id": "media.handoff.yappc-implementation-import-prohibition",
+        "rule": "Media and generic Tools consumers do not import YAPPC private packages, internal schemas, or implementation modules; only a deliberately selected exact public authoring contract can cross the boundary.",
+        "scopeStatus": "OWNER_DEFINED_PROHIBITION; no YAPPC public operation or adoption is claimed."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0471-C001",
+      "sourceTextSha256": "0710d9fa24fb31b37249b58ae4e23062670d575d674efc1c6e4795adc030b707",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=datacloud-media-compatibility/classificationAndPurpose",
+      "targetValueSha256": "f4e8d2b3733f533418693a29d7122362abbd8240a27aeec84ef583ceb891b557",
+      "expectedOwnerValue": "Governed metadata/read-model projection and scoped search/reference access; use current owner policy and purpose.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0471-C003",
+      "sourceTextSha256": "982f02fc7681244d2267402361978f201414ca6bef7063056ad1e2a50c83ad9f",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=datacloud-media-compatibility/destinationOwner",
+      "targetValueSha256": "364c32c2e28d774263e9ab0f6f31cb6ce5738d96954e4e341f7cfb5dfa6ae744",
+      "expectedOwnerValue": "Ghatana Data Cloud for read-model/compatibility routes; Media remains artifact/job/stream semantic owner",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0472-C001",
+      "sourceTextSha256": "6ddccdaefd828e9a805002d80a20353e09922f5ea130f1bdd2871760a61efcdc",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=agent-runtime-media-action/direction",
+      "targetValueSha256": "a84e70b644b9808ae699790471f957eb9125373bc488cd75619d2f68f39018ea",
+      "expectedOwnerValue": "Agent Runtime sends bounded intent/action to Media and receives job/result references",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0472-C003",
+      "sourceTextSha256": "6ee0b59e08e7cbb5fc438fb81371b1e54bed66170f8c236d7c5db62c0ef6f3b4",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=agent-runtime-media-action/mediaActionOwnershipBoundary",
+      "targetValueSha256": "be99440c626dc723953ac0770524ab93d6c4c63ab399924b5cfa97c74f8f81cb",
+      "expectedOwnerValue": {
+        "id": "media.handoff.agent-media-action-ownership",
+        "rule": "Media defines its public media actions and owns media-object, job, and artifact state. Action Plane owns privileged external effects, including authorization, approval, dispatch, idempotency, and reconciliation. Agent Runtime owns agent reasoning/execution. An agent request to Media is not itself authority for a privileged effect, and Media public actions do not replace Action Plane controls.",
+        "scopeStatus": "OWNER_DEFINED_OWNERSHIP_BOUNDARY; no Action Plane operation or agent binding is admitted."
+      },
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0473-C001",
+      "sourceTextSha256": "8c0aafede9639f26d346a4fd7ed8b76b971d95fb6dd6e628fc47ca2a30bc9137",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/direction",
+      "targetValueSha256": "55a4ea92346af6bd8ac5f3d0936fddbc75bb7268cb7491f5b5116959af1793f9",
+      "expectedOwnerValue": "Media to a published Kernel lifecycle/shell/provider contract only when deliberately adopted",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    },
+    {
+      "claimId": "MPSEM-0473-C003",
+      "sourceTextSha256": "41d5a0ac2eefc3529fa31b8a7f6095274db4fc4f475b736ab69c7ee993930ecd",
+      "targetRef": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=kernel-product-lifecycle/operationAndVersion",
+      "targetValueSha256": "19984c56238ba74dac50d061a2682dcc56c5f851e5bd961b78b6be9747f32a0b",
+      "expectedOwnerValue": "No adopted Kernel operation/version is established; repository relocation does not imply Kernel-native materialization.",
+      "disposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+    }
+  ],
+  "nonNormativeMetadataReview": {
+    "claimId": "MPSEM-0469-C001",
+    "exactSourceText": "| PHR / Gharbatai and document consumers",
+    "sourceTextSha256": "e5f3753668189dfa5d890f627486692816986c969313afc6b26953a08659bcba",
+    "source": "docs/migration/expert-reviewed-master-plan.md:1155",
+    "meaning": "First table cell is a row label; contract and ownership requirements remain separate normative cells/claims."
+  },
+  "verification": {
+    "log": "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.log",
+    "outputSha256": "a826c62426c334abc9e8fff4fa96d7d360d96df29eaab2e794ff0a4b696f0a8f",
+    "passedTests": 22
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/handoff-contracts.yaml": "274f4112c12d8542d2fbb7109b200aa8e64c5c06897b1f624b84b8321cb224c5",
+    ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+    ".product-experience/pdp-0-product-truth/domain-model.yaml": "2199b455ffbb5bb666bd5e084adc7a2a6faed06097a6ae21567d39444d316528",
+    ".product-experience/pdp-2-design-interface-system/cli-language.yaml": "8a774014d7c515e3140ca1b619532d22da9c91f387014db0219d05a7a9843c46"
+  },
+  "acceptanceEffect": "none",
+  "nonClaims": [
+    "Every other migration claim",
+    "Whole task completion",
+    "Qualified independent acceptance",
+    "Publisher or legal approval",
+    "Runtime admission",
+    "Lifecycle phase receipt"
+  ]
+}

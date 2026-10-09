@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: the finite cross-product handoff cohort binds exact owner clauses and claim-level hashes
+ok 1 - the finite cross-product handoff cohort binds exact owner clauses and claim-level hashes
+  ---
+  duration_ms: 6.166227
+  type: 'test'
+  ...
+# Subtest: handoff owner clauses reject invented contracts, missing authority and lossy fidelity
+ok 2 - handoff owner clauses reject invented contracts, missing authority and lossy fidelity
+  ---
+  duration_ms: 4.843553
+  type: 'test'
+  ...
+# Subtest: remaining source-backed handoff roles preserve exact owners and admitted public boundaries
+ok 3 - remaining source-backed handoff roles preserve exact owners and admitted public boundaries
+  ---
+  duration_ms: 2.554091
+  type: 'test'
+  ...
+# Subtest: cross-product owner and boundary clauses reject role substitution and implicit admission
+ok 4 - cross-product owner and boundary clauses reject role substitution and implicit admission
+  ---
+  duration_ms: 4.913112
+  type: 'test'
+  ...
+# Subtest: privacy, preservation, person-inference and wire-compatibility claims bind exact current owner rules
+ok 5 - privacy, preservation, person-inference and wire-compatibility claims bind exact current owner rules
+  ---
+  duration_ms: 5.322508
+  type: 'test'
+  ...
+# Subtest: material mutations cannot erase privacy axes, uncertainty, preservation limits or exact wire compatibility
+ok 6 - material mutations cannot erase privacy axes, uncertainty, preservation limits or exact wire compatibility
+  ---
+  duration_ms: 2.437697
+  type: 'test'
+  ...
+# Subtest: profile and cross-product claims bind the exact complete Media owner rules
+ok 7 - profile and cross-product claims bind the exact complete Media owner rules
+  ---
+  duration_ms: 5.533382
+  type: 'test'
+  ...
+# Subtest: owner mappings reject loss of material clauses even when the target remains present
+ok 8 - owner mappings reject loss of material clauses even when the target remains present
+  ---
+  duration_ms: 5.15976
+  type: 'test'
+  ...
+# Subtest: finite alias rule is sourced from the command-language policy and not a product-owner label
+ok 9 - finite alias rule is sourced from the command-language policy and not a product-owner label
+  ---
+  duration_ms: 0.39608
+  type: 'test'
+  ...
+# Subtest: the Gharbatai/PHR consumer phrase is only a table label, not an ownership rule
+ok 10 - the Gharbatai/PHR consumer phrase is only a table label, not an ownership rule
+  ---
+  duration_ms: 3.438065
+  type: 'test'
+  ...
+# Subtest: the fixed profile-semantics migration cohort preserves per-axis material meaning
+ok 11 - the fixed profile-semantics migration cohort preserves per-axis material meaning
+  ---
+  duration_ms: 10.26579
+  type: 'test'
+  ...
+# Subtest: profile material mutations cannot erase independent constraints or turn fallback into permission
+ok 12 - profile material mutations cannot erase independent constraints or turn fallback into permission
+  ---
+  duration_ms: 8.432342
+  type: 'test'
+  ...
+# Subtest: PDP-38 migration overlay exactly partitions all 260 historical unresolved blocks
+ok 13 - PDP-38 migration overlay exactly partitions all 260 historical unresolved blocks
+  ---
+  duration_ms: 19657.103762
+  type: 'test'
+  ...
+# Subtest: the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure
+ok 14 - the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure
+  ---
+  duration_ms: 2.027532
+  type: 'test'
+  ...
+# Subtest: the REV-03 table label is metadata while its problem and required resolution stay separate claims
+ok 15 - the REV-03 table label is metadata while its problem and required resolution stay separate claims
+  ---
+  duration_ms: 2.800958
+  type: 'test'
+  ...
+# Subtest: high-risk cover, identity, phase, and one-owner mappings reject unrelated stable targets
+ok 16 - high-risk cover, identity, phase, and one-owner mappings reject unrelated stable targets
+  ---
+  duration_ms: 5.918018
+  type: 'test'
+  ...
+# Subtest: model-acquisition review preserves the pinned snapshot and records the new owner policy delta
+ok 17 - model-acquisition review preserves the pinned snapshot and records the new owner policy delta
+  ---
+  duration_ms: 1.092999
+  type: 'test'
+  ...
+# Subtest: known migration target corrections preserve the full claim clauses at exact owner sources
+ok 18 - known migration target corrections preserve the full claim clauses at exact owner sources
+  ---
+  duration_ms: 1.155183
+  type: 'test'
+  ...
+# Subtest: mixed four-phase summary is decomposed into exact current owner sources
+ok 19 - mixed four-phase summary is decomposed into exact current owner sources
+  ---
+  duration_ms: 0.42523
+  type: 'test'
+  ...
+# Subtest: erasure negative boundary maps to the actual metadata-only confirmation rule
+ok 20 - erasure negative boundary maps to the actual metadata-only confirmation rule
+  ---
+  duration_ms: 0.511223
+  type: 'test'
+  ...
+# Subtest: license and adapter-sequencing claims preserve their exact owner-defined rules
+ok 21 - license and adapter-sequencing claims preserve their exact owner-defined rules
+  ---
+  duration_ms: 1.334609
+  type: 'test'
+  ...
+# Subtest: semantic assertions reject a stable but unrelated candidate target
+ok 22 - semantic assertions reject a stable but unrelated candidate target
+  ---
+  duration_ms: 1.929956
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19899.325539

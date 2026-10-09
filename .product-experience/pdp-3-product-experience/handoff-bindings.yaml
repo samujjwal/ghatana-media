@@ -7,6 +7,103 @@ handoffs:
     contract: Shared identity and current principal/tenant context
     use: resolve-user-and-workspace-before-source-access-or-edit
     status: source-boundary-known; published-consumer-binding-pending-GAP-02
+    mediaOwnerDefinition:
+      id: media.handoff.identity-context.v1
+      scope: Media-owned request/response boundary definition for Shared identity; Shared owns authentication, principal identity, tenant membership, delegation, and authorization decisions.
+      initiatingActions:
+        - media.action.start-upstream-identity-handoff
+        - media.action.select-identity-confirmed-workspace
+        - media.action.return-to-requested-destination-after-identity-confirmation
+      adapterEnvelopeDefinition:
+        authority: Media-owned proposal for the typed boundary presented to an approved host adapter; it is not Shared's public wire schema.
+        sharedWireSchemaStatus: PENDING_SHARED_OWNER_EVIDENCE
+        hostContextSource: host-established context only; never caller/body-provided.
+        request:
+          requiredFields: [action, mediaRequest, hostContext]
+          action:
+            enum: [INITIATE_IDENTITY_HANDOFF, SELECT_CONFIRMED_WORKSPACE]
+            rules:
+              INITIATE_IDENTITY_HANDOFF: requestedWorkspaceId must be absent; this starts upstream navigation only.
+              SELECT_CONFIRMED_WORKSPACE: requestedWorkspaceId must be a user-selected opaque reference; selection is not successful until Shared returns current membership evidence.
+          mediaRequest:
+            requiredFields: [registeredReturnRouteId, correlationId]
+            optionalFields: [requestedWorkspaceId]
+            additionalProperties: false
+            registeredReturnRouteId: opaque ID resolved only against the Media host's allowlist; never accept arbitrary return URLs.
+            correlationId: non-secret diagnostic identifier with no authority.
+          hostContext:
+            requiredFields: [interactionNonce, identityStatus, principalContextRef, tenantContextRef, adapterVerificationStatus]
+            identityStatusEnum: [ANONYMOUS, AUTHENTICATED, UNKNOWN]
+            adapterVerificationStatusEnum: [HOST_ADAPTER_READY, MISSING, INVALID]
+            origin: out-of-band host context; Media request body cannot set or override these values.
+            anonymousContext: identityStatus ANONYMOUS requires principalContextRef and tenantContextRef to be null and is allowed only for INITIATE_IDENTITY_HANDOFF.
+            authenticatedContext: identityStatus AUTHENTICATED requires nonempty host-established principalContextRef and tenantContextRef; SELECT_CONFIRMED_WORKSPACE requires this context.
+            interactionNonce: host-generated single-interaction binding; the result must echo the exact value.
+          additionalProperties: false
+        result:
+          authority: Media adapter-normalized evidence envelope; field names and wire mapping require Shared owner confirmation.
+          requiredFields: [externalOwner, externalContractRef, externalRevision, externalFingerprint, interactionNonce, outcome, principalContextRef, tenantContextRef, requestedWorkspaceId, membershipDisposition, workspaceSelectionEvidenceRef, observedAt, validUntil, registeredReturnRouteId, hostAdapterVerificationStatus]
+          outcomeEnum: [AUTHORIZED, DENIED, UNAVAILABLE, UNKNOWN, EXPIRED_OR_REVOKED]
+          hostAdapterVerificationStatusEnum: [HOST_VERIFIED, MISSING, INVALID]
+          membershipDispositionEnum: [CURRENT_MEMBER, NOT_MEMBER, UNKNOWN]
+          timestampFormat: strict-utc-iso-milliseconds; exact form YYYY-MM-DDTHH:mm:ss.sssZ and normalized calendar values only
+          authorizationAcceptance:
+            - outcome must equal AUTHORIZED.
+            - membershipDisposition must equal CURRENT_MEMBER for the exact requestedWorkspaceId.
+            - interactionNonce and registeredReturnRouteId must exactly match the initiating host context and request for every outcome, including DENIED, UNAVAILABLE, UNKNOWN, and EXPIRED_OR_REVOKED.
+            - For workspace selection, principalContextRef and tenantContextRef must exactly match the authenticated host context. For anonymous initiation, a newly established principal/tenant context is accepted only on AUTHORIZED after host adapter verification; non-success results cannot change identity context.
+            - externalOwner, externalContractRef, immutable revision, and fingerprint must exactly equal the host-configured trusted owner pin; a result cannot supply its own expected pin.
+            - observedAt and validUntil must be canonical UTC ISO timestamps with millisecond precision and valid calendar values, with observedAt <= now < validUntil; host clock and Shared clock rules await Shared contract binding.
+            - For an upstream-selected workspace during anonymous initiation, require a nonempty owner-issued workspaceSelectionEvidenceRef plus CURRENT_MEMBER; if no workspace was selected, workspaceSelectionEvidenceRef is null and no workspace access is claimed.
+            - Verify host adapter status, exact host-pinned owner/contract/revision/fingerprint, interaction nonce, registered return route, result identity binding, and fresh timestamps before honoring any outcome, including denial or revocation.
+            - absent, mismatched, expired, stale, or unknown evidence never establishes access.
+          trustedOwnerPinRequirement: evaluation is HOLD_UNKNOWN unless the host supplies a separately configured exact owner, contractRef, revision, and sha256 fingerprint; the Shared public owner contract remains pending.
+          sharedWireMapping: all normalized fields above remain unbound to Shared wire names until Shared owner publishes the exact request/result schema and verification mechanism.
+      request:
+        mediaMayProvide:
+          - opaque requestedReturnRouteId from a Media-registered allowlist
+          - opaque requestedWorkspaceId only when already selected by the user and accepted by the Shared public contract
+          - non-secret correlationId
+        mediaMustNotProvide:
+          - credentials, bearer tokens, refresh tokens, passwords, or session cookies
+          - Media asset bytes, prompts, transcript text, or unrelated project metadata
+          - caller-supplied claims that a principal belongs to a tenant or workspace
+        trustedContext: authenticated principal and tenant context are established by Shared/host; Media accepts neither as caller-authored authority.
+      response:
+        requiredOwnerEvidence:
+          - exact Shared public contract identity, immutable revision/fingerprint, and schema
+          - explicit authenticated-or-denied result
+          - exact principalRef and tenantRef issued by Shared/host, scoped to this interaction
+          - workspace membership/access result for the requested workspace, with observedAt and expiry/currentness where defined by Shared
+          - opaque continuation state bound to the original registered returnRouteId
+        acceptanceRules:
+          - Media treats only a validated, current Shared owner response as identity evidence.
+          - A remembered workspace, local selection, route return, or successful handoff initiation is not authentication or authorization.
+          - Media does not infer tenant membership, workspace membership, principal identity, or delegated roles from display labels or local cache.
+      outcomes:
+        DENIED: retain intended route without protected data; expose only a safe access-denied state.
+        UNAVAILABLE: keep protected reads/writes blocked and preserve the intended route for explicit retry.
+        UNKNOWN: do not accept an identity or workspace result; reconcile only with Shared using the same interaction identity and current owner contract.
+        EXPIRED_OR_REVOKED: clear protected view state and require a new Shared decision before access.
+      effects:
+        - Starting the handoff changes Media navigation context only.
+        - Accepting a validated response updates the current client identity/workspace context only; it does not create or mutate a Media domain object.
+        - Any protected Media operation separately rechecks its exact current authority at its own effect boundary.
+      retryAndRecovery:
+        - Do not blind-retry an identity mutation or widen requested tenant/workspace scope.
+        - A repeated observation must be bound to the same opaque interaction identity and exact Shared contract.
+        - If Shared cannot identify a stable interaction/reconciliation contract, preserve UNKNOWN and require a new user-initiated handoff.
+      ownershipStatus:
+        mediaDefinition: OWNER_DEFINED_DEFINITION_ONLY
+        sharedPublicContractBinding: PENDING_SHARED_OWNER_EVIDENCE
+        runtimeAdmission: NOT_ADMITTED
+        phaseAcceptance: NOT_CLAIMED
+      sourceDecisionRef: .product-experience/decision-log.md#PXD-082
+      unresolvedExternalRequirements:
+        - exact published Shared identity contract and immutable revision/fingerprint
+        - Shared-defined request/result fields and signed/host-context verification mechanism
+        - currentness, expiry, revocation, denial, and unknown-outcome reconciliation semantics
+        - explicit Shared owner confirmation of the Media continuation binding
   - id: media.handoff.rights-consent
     owner: Media rights authority plus applicable platform owner
     contract: scope-bound rights and consent decisions

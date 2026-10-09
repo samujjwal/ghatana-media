@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "media.pdp38-local-browser-source-check.v1",
+  "sourceBuild": "Built PDP consumer snapshot; later source edits are not covered by this run",
+  "buildFingerprints": {
+    "apps/media-experience-explorer/dist/specification/source-manifest.yaml": "25605ad573fe7b160f96b0fae20ba604f95987c24babfaa02c8ecb9f3d787210",
+    "apps/media-experience-explorer/dist/specification/pdp-3-product-experience/generated/experience-specification.candidate.json": "e9a07ce489c1746263ccb41c6b9bcab83f68dcf82d41cc46d5457aefff26533d",
+    "apps/media-experience-explorer/dist/assets/index-ElVrdQRQ.css": "3681be4d96776131c6e9c083b533ad684eecf94adefbba39e3582ca656d282d7",
+    "apps/media-experience-explorer/dist/assets/index-OmE3EI69.js": "ea86be423799b944b290b465fdbf011c15f940acb1f4b60eb3f34b117c4db35b"
+  },
+  "checkerRef": "scripts/check-experience-browser.mjs",
+  "checkerSha256": "2e15a02afdd43e848427b5b8de58c2ef11c8000e8dac4cb98b01c94188beb4f3",
+  "reportRef": "docs/implementation/verification/pdp-38/browser-source-check.json",
+  "reportSha256": "d093e4e77fa91d1bc36dbc771c3671df400e87e8d383d49fe937ebe3d0f66128",
+  "command": "node scripts/check-experience-browser.mjs",
+  "canonicalProductRoutes": 47,
+  "viewports": 6,
+  "routeViewportObservations": 282,
+  "specificationRecordsExercised": 326,
+  "failures": 0,
+  "consoleErrors": 0,
+  "pageErrors": 0,
+  "independentVisualAndATReview": "NOT_EVALUATED",
+  "wholeTaskCriterionEstablished": false,
+  "nativeLifecycleReceipt": null
+}

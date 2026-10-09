@@ -4,35 +4,35 @@ productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: proposed-boundaries-with-observed-compatibility; pending-owner-review
-sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql]
+sourceRefs: [ .product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java, libs/audio-video-types/src/contracts.ts, contracts/openapi/media.yaml, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql ]
 rules:
-  - id: authored-specification-versioning
-    proposal: authored-specification-edits-create-a-new-semantic-version
-    status: proposed; pending-owner-review
-  - id: resolved-plan-versioning
-    proposal: a-resolved-plan-is-fixed-for-one-run-and-replanning-creates-a-successor-plan
-    status: proposed; runtime-persistence-and-owner-semantics-unverified
-  - id: run-and-attempt-history
-    proposal: preserve-run-and-attempt-history-with-explicit-fencing
-    status: unresolved; do-not-claim-durable-attempt-history
-  - id: source-artifact-immutability
-    proposal: source-bytes-are-immutable; replacement-or-correction-is-a-distinct-version
-    status: unresolved; no-canonical-artifact-version-record-or-key-observed
-  - id: derived-artifact-identity
-    proposal: derived-artifacts-have-stable-identity-and-explicit-source-ancestry
-    status: unresolved; canonical-derived-version-identity-and-ancestry-unbound
-  - id: transcript-caption-ancestry
-    proposal: transcript-and-caption-outputs-retain-source-and-transformation-ancestry
-    status: unresolved; source-lineage-and-version-contract-unbound
-  - id: output-finality-and-reconciliation
-    proposal: represent-finality-and-reconciliation-without-erasing-prior-observations
-    status: unresolved; append-only-history-not-established-by-runtime-evidence
-  - id: cross-boundary-references
-    proposal: use-stable-opaque-identifiers-and-explicit-version-or-hash-references
-    status: proposed; canonical-version-reference-and-consumer-contract-pending
-  - id: wire-compatibility
-    proposal: wire-compatible-evolution-does-not-authorize-semantic-reinterpretation
-    status: proposed; pending-owner-review
+- id: authored-specification-versioning
+  proposal: authored-specification-edits-create-a-new-semantic-version
+  status: proposed; pending-owner-review
+- id: resolved-plan-versioning
+  proposal: a-resolved-plan-is-fixed-for-one-run-and-replanning-creates-a-successor-plan
+  status: proposed; runtime-persistence-and-owner-semantics-unverified
+- id: run-and-attempt-history
+  proposal: preserve-run-and-attempt-history-with-explicit-fencing
+  status: unresolved; do-not-claim-durable-attempt-history
+- id: source-artifact-immutability
+  proposal: source-bytes-are-immutable; replacement-or-correction-is-a-distinct-version
+  status: unresolved; no-canonical-artifact-version-record-or-key-observed
+- id: derived-artifact-identity
+  proposal: derived-artifacts-have-stable-identity-and-explicit-source-ancestry
+  status: unresolved; canonical-derived-version-identity-and-ancestry-unbound
+- id: transcript-caption-ancestry
+  proposal: transcript-and-caption-outputs-retain-source-and-transformation-ancestry
+  status: unresolved; source-lineage-and-version-contract-unbound
+- id: output-finality-and-reconciliation
+  proposal: represent-finality-and-reconciliation-without-erasing-prior-observations
+  status: unresolved; append-only-history-not-established-by-runtime-evidence
+- id: cross-boundary-references
+  proposal: use-stable-opaque-identifiers-and-explicit-version-or-hash-references
+  status: proposed; canonical-version-reference-and-consumer-contract-pending
+- id: wire-compatibility
+  proposal: wire-compatible-evolution-does-not-authorize-semantic-reinterpretation
+  status: proposed; pending-owner-review
 observed:
   runtimeJob: ProcessingJob-has-a-version-field-and-lifecycle-instants-in-MediaRuntimeContracts; runtime-updates-increment-version
   lease: JobLease-has-expiry-and-fencingToken; runtime-rejects-stale-worker-results
@@ -43,13 +43,49 @@ observed:
   openapi: version-1.3.0-and-backward-compatible-within-major-policy
   database: modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql-is-implementation-evidence-only
 gaps:
-  - artifact-version-record-and-canonical-version-key-not-observed-in-runtime-contracts
-  - job-version-and-lease-fencing-do-not-establish-durable-attempt-history
-  - source-byte-immutability-and-derived-artifact-identity-not-established
-  - transcript-caption-ancestry-and-cross-product-version-reference-contract-unbound
-  - cancellation-uncertainty-is-represented-but-resolution-and-finality-semantics-remain-unaccepted
-  - retention-erasure-completeness-and-provider-or-backup-deletion-not-established-by-contracts
-  - disconnected-operation-and-conflict-resolution-authority-unbound
-  - restart-reconciliation-exists-but-durability-completeness-and-no-blind-replay-guarantees-unverified
-  - lifecycle-event-attribute-schema-and-consumer-evolution-unbound
-  - consumer-inventory-and-owner-approved-deprecation-window-required
+- artifact-version-record-and-canonical-version-key-not-observed-in-runtime-contracts
+- job-version-and-lease-fencing-do-not-establish-durable-attempt-history
+- source-byte-immutability-and-derived-artifact-identity-not-established
+- transcript-caption-ancestry-and-cross-product-version-reference-contract-unbound
+- cancellation-uncertainty-is-represented-but-resolution-and-finality-semantics-remain-unaccepted
+- retention-erasure-completeness-and-provider-or-backup-deletion-not-established-by-contracts
+- disconnected-operation-and-conflict-resolution-authority-unbound
+- restart-reconciliation-exists-but-durability-completeness-and-no-blind-replay-guarantees-unverified
+- lifecycle-event-attribute-schema-and-consumer-evolution-unbound
+- consumer-inventory-and-owner-approved-deprecation-window-required
+ownerDefinedRevisionSemantics:
+  decisionId: MEDIA-OWNER-2026-10-08-PDP1-10-REVISION-01
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+  - .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+  - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts
+  - .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics
+  scopeStatus: OWNER_DEFINED_SOURCE_SEMANTICS; storage/runtime enforcement and independent review pending
+  artifactVersion:
+    identity:
+    - tenantRef
+    - artifactId
+    - artifactVersionId
+    content: A registered artifact version is immutable; corrections, transformations and regeneration create a distinct version with an exact parent/source ancestry edge.
+    digest: Content digest is computed over canonical bytes; a caller-declared digest is untrusted until verified.
+    jobSeparation: jobVersion, attemptId and lease/fencing token are not artifactVersionId and cannot substitute for it.
+  projectRevision:
+    commandPrecondition: Every project mutation carries expectedHeadRevisionId and compares it atomically against the current project head.
+    success: A successful mutation creates exactly one successor revision and returns its exact revision ID.
+    stale: Mismatch returns CONFLICT with the current head reference when disclosure is authorized; no mutation, automatic merge or overwrite occurs.
+    recovery: Re-read the exact current head, present the diff, and require a new explicit command with a new idempotency identity.
+  drafts:
+    scope: Session-local draft edits are distinct from canonical project revisions and immutable artifact versions.
+    staleParent: A changed source or parent version requires explicit rebase/review; never reinterpret time, geometry, rights or content during rebase.
+  idempotency:
+    key:
+    - tenantRef
+    - principalRef
+    - canonicalOperationRef
+    - requestId
+    fingerprint: Server-computed canonical payload digest is bound to the key.
+    duplicate: Same key and digest returns the original receipt without a second effect.
+    conflict: Same key with different digest is rejected.
+    unknown: Unknown outcome is reconciled before retry; transport retries do not create new semantic requests.
+  eventHistory: A state receipt or event observation is append-only evidence only when its canonical owner contract explicitly guarantees durable ordering and retention; this source definition does not claim runtime durability.

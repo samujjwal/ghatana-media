@@ -6,486 +6,1348 @@ status: proposal; upstream-acceptance-and-role-review-pending
 scope: resolve-identity-and-authorized-workspace-through-external-Shared-contract;
   observe-only-authorized-projects; create-one-empty-versioned-project; inspect-exact-project-head;
   processing-intent-selection-remains-outside-J-01
-outcomes: [media.goal.finished-asset, media.goal.resolve-safely, media.goal.preserve-source]
-actors: [media.creator, media.administrator, media.editor, media.operator]
+outcomes:
+  - media.goal.finished-asset
+  - media.goal.resolve-safely
+  - media.goal.preserve-source
+actors:
+  - media.creator
+  - media.administrator
+  - media.editor
+  - media.operator
 intent: media.intent.restore-project
-channels: [media.channel.web]
+channels:
+  - media.channel.web
 preconditions:
-- Resolve an authenticated principal and authorized tenant/workspace through the admitted
-  Shared identity contract before showing protected project data.
-- Project creation requires current project-scoped authority; actor and responsibility-role
-  labels do not grant permission.
-- No source media, provider, model, engine, or processing request is required to create
-  an empty project.
+  - Resolve an authenticated principal and authorized tenant/workspace through the admitted Shared
+    identity contract before showing protected project data.
+  - Project creation requires current project-scoped authority; actor and responsibility-role labels
+    do not grant permission.
+  - No source media, provider, model, engine, or processing request is required to create an empty
+    project.
 steps:
-- view: media.view.authenticate-and-select-context
-  screenContractRef: screen-contracts/authenticate-and-select-context.yaml
-  handoff: media.handoff.identity
-  result: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
-  surfaceRefs:
-  - media.surface.web
-  objectRefs: []
-  stateRefs: []
-  canonicalOperationRef:
-  authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
-  decisionRef: .product-experience/decision-log.md#PXD-055
-  transitionRef:
-  handoffRef: media.handoff.identity
-  success:
-    status: source-defined; runtime-admission-pending
-    scope: external-identity-handoff
-    sourceRef: media.handoff.identity
-    proposal: The admitted Shared identity consumer contract establishes the current
-      principal and an authorized tenant/workspace, or returns a recoverable identity/access
-      state.
-  failure:
-    status: source-defined; runtime-admission-pending
-    scope: step-specific-fail-closed
-    sourceRef: media.handoff.identity
-    proposal: If identity or workspace authority is absent, denied, stale, or unavailable,
-      preserve the return destination and do not query protected project data; Media
-      does not collect credentials or infer a principal from actor labels.
-  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
-    hidden when identity or authorization cannot be confirmed.
-  recovery:
-    status: source-defined; runtime-admission-pending
-    scope: same-identity-and-current-authority
-    sourceRef: media.handoff.identity
-    proposal: Continue only through the external Shared identity contract; after return,
-      recheck the selected workspace before any Media project query.
-  postconditions:
-  - No credential is collected by Media.
-  - No principal, tenant, or workspace authority is synthesized from actor or role
-    labels.
-  - No project query occurs before trusted identity and workspace context are established.
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: source-defined; runtime-admission-pending
-    fields:
-    - return-destination
-    - selected-workspace
-    - selected-project-identity-and-revision-when-known
-    - same-create-requestId-while-outcome-is-unknown
-    sensitivity: Never persist or expose credentials; preserve only context permitted
-      by the Shared identity contract.
-  bindingStatus:
-    surfaceRefs: screen contract source-linked; host admission pending
-    objectRefs: exact PDP-1 project identities bound where applicable
-    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
-      labels promoted
-    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
-      identity handoff has no Media operation
-    authorityRef: identity/policy authority source identified; runtime enforcement
-      not admitted
-    decisionRef: PXD-055 Media definition; independent review pending
-    transitionRef: no transition applies to these query/handoff steps or atomic initial
-      aggregate creation
-    handoffRef: external Shared identity contract only; not Media self-authentication
-    success: step-specific semantics source-defined; runtime evidence pending
-    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
-      evidence pending
-    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
-      pending
-    recovery: same-identity recovery defined; runtime evidence pending
-    postconditions: exact source-defined boundaries recorded
-    requirementRefs: existing requirement refs retained; satisfaction not claimed
-    verification: source contract tests required; runtime verification not run
-    contextPreservation: bounded context fields defined; host binding pending
-  stepId: J01-1
-  actorRefs:
-  - media.creator
-  - media.editor
-  - media.administrator
-  actorBindingReason: Actor references describe the interaction participant only;
-    trusted tenant/principal identity and current policy authorization come from the
-    owning identity/policy authorities.
-  requiredOperationRefs: []
-  transitionDisposition:
-    status: NOT_APPLICABLE_WITH_REASON
-    transitionRef:
+  - view: media.view.authenticate-and-select-context
+    actionRef: media.action.select-identity-confirmed-workspace
+    screenContractRef: screen-contracts/authenticate-and-select-context.yaml
+    handoff: media.handoff.identity
+    result: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+    surfaceRefs:
+      - media.surface.web
+    objectRefs: []
+    stateRefs: []
+    canonicalOperationRef: null
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
     decisionRef: .product-experience/decision-log.md#PXD-055
-    reason: 'No Media domain transition applies: this step is an external identity/context
-      handoff.'
-  definitionVerification:
-    status: source-contract-checked
-    evidence:
-    - tests/media-j01-definition-semantics.test.mjs
-    - tests/product-definition-authority.test.mjs
-    - scripts/check-product-experience-local.mjs
-    runtimeAdmission: NOT_ADMITTED
-    runtimeVerification: not-run
-- view: media.view.resume-work
-  screenContractRef: screen-contracts/resume-work.yaml
-  result: authorized-projects-or-a-purposeful-first-use-state-are-shown; no-cross-tenant-project-data-is-visible
-  surfaceRefs:
-  - media.surface.web
-  objectRefs:
-  - media.domain.project
-  stateRefs:
-  - media-project/ACTIVE
-  - media-project/ARCHIVED
-  canonicalOperationRef: media.operation-slice.list-projects
-  authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.list-projects
-  decisionRef: .product-experience/decision-log.md#PXD-055
-  transitionRef:
-  handoffRef:
-  success:
-    status: source-defined; runtime-admission-pending
-    scope: authorized-project-collection-observation
-    sourceRef: media.operation-slice.list-projects
-    proposal: Return only project summaries currently visible to this trusted principal
-      in the selected authorized workspace, with observation freshness explicit.
-  failure:
-    status: source-defined; runtime-admission-pending
-    scope: step-specific-fail-closed
-    sourceRef: media.operation-slice.list-projects
-    proposal: Denied, stale, unavailable, or empty results are scoped to the current
-      principal/workspace/query. An empty page never means global absence; do not
-      expose cross-workspace or unauthorized project metadata.
-  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
-    hidden when identity or authorization cannot be confirmed.
-  recovery:
-    status: source-defined; runtime-admission-pending
-    scope: same-identity-and-current-authority
-    sourceRef: media.operation-slice.list-projects
-    proposal: Re-observe only within the same tenant, principal, selected workspace,
-      and query scope after authority is current; use an opaque page token only with
-      its original scope.
-  postconditions:
-  - The query changes no project or revision state.
-  - Only currently authorized project summaries are visible.
-  - Empty results describe this query scope and observation time only.
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: source-defined; runtime-admission-pending
-    fields:
-    - return-destination
-    - selected-workspace
-    - selected-project-identity-and-revision-when-known
-    - same-create-requestId-while-outcome-is-unknown
-    sensitivity: Never persist or expose credentials; preserve only context permitted
-      by the Shared identity contract.
-  bindingStatus:
-    surfaceRefs: screen contract source-linked; host admission pending
-    objectRefs: exact PDP-1 project identities bound where applicable
-    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
-      labels promoted
-    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
-      identity handoff has no Media operation
-    authorityRef: identity/policy authority source identified; runtime enforcement
-      not admitted
-    decisionRef: PXD-055 Media definition; independent review pending
-    transitionRef: no transition applies to these query/handoff steps or atomic initial
-      aggregate creation
-    handoffRef: external Shared identity contract only; not Media self-authentication
-    success: step-specific semantics source-defined; runtime evidence pending
-    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
-      evidence pending
-    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
-      pending
-    recovery: same-identity recovery defined; runtime evidence pending
-    postconditions: exact source-defined boundaries recorded
-    requirementRefs: existing requirement refs retained; satisfaction not claimed
-    verification: source contract tests required; runtime verification not run
-    contextPreservation: bounded context fields defined; host binding pending
-  stepId: J01-2
-  actorRefs:
-  - media.creator
-  - media.editor
-  actorBindingReason: Actor references describe the interaction participant only;
-    trusted tenant/principal identity and current policy authorization come from the
-    owning identity/policy authorities.
-  requiredOperationRefs:
-  - media.operation-slice.list-projects
-  transitionDisposition:
-    status: NOT_APPLICABLE_WITH_REASON
-    transitionRef:
+    transitionRef: null
+    handoffRef: media.handoff.identity
+    success:
+      status: source-defined; runtime-admission-pending
+      scope: external-identity-handoff
+      sourceRef: media.handoff.identity
+      proposal: The admitted Shared identity consumer contract establishes the current principal and an
+        authorized tenant/workspace, or returns a recoverable identity/access state.
+    failure:
+      status: source-defined; runtime-admission-pending
+      scope: step-specific-fail-closed
+      sourceRef: media.handoff.identity
+      proposal: If identity or workspace authority is absent, denied, stale, or unavailable, preserve the
+        return destination and do not query protected project data; Media does not collect
+        credentials or infer a principal from actor labels.
+    degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+      identity or authorization cannot be confirmed.
+    recovery:
+      status: source-defined; runtime-admission-pending
+      scope: same-identity-and-current-authority
+      sourceRef: media.handoff.identity
+      proposal: Continue only through the external Shared identity contract; after return, recheck the
+        selected workspace before any Media project query.
+    postconditions:
+      - No credential is collected by Media.
+      - No principal, tenant, or workspace authority is synthesized from actor or role labels.
+      - No project query occurs before trusted identity and workspace context are established.
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: source-defined; runtime-admission-pending
+      fields:
+        - return-destination
+        - selected-workspace
+        - selected-project-identity-and-revision-when-known
+        - same-create-requestId-while-outcome-is-unknown
+      sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+        identity contract.
+    bindingStatus:
+      surfaceRefs: screen contract source-linked; host admission pending
+      objectRefs: exact PDP-1 project identities bound where applicable
+      stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI labels promoted
+      canonicalOperationRef: exact PDP-1 project operation bound where applicable; external identity
+        handoff has no Media operation
+      authorityRef: identity/policy authority source identified; runtime enforcement not admitted
+      decisionRef: PXD-055 Media definition; independent review pending
+      transitionRef: no transition applies to these query/handoff steps or atomic initial aggregate creation
+      handoffRef: external Shared identity contract only; not Media self-authentication
+      success: step-specific semantics source-defined; runtime evidence pending
+      failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime evidence pending
+      degradedBehavior: stale/unavailable/unknown distinction defined; host behavior pending
+      recovery: same-identity recovery defined; runtime evidence pending
+      postconditions: exact source-defined boundaries recorded
+      requirementRefs: existing requirement refs retained; satisfaction not claimed
+      verification: source contract tests required; runtime verification not run
+      contextPreservation: bounded context fields defined; host binding pending
+    stepId: J01-1
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.administrator
+    actorBindingReason: Actor references describe the interaction participant only; trusted
+      tenant/principal identity and current policy authorization come from the owning
+      identity/policy authorities.
+    requiredOperationRefs: []
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-055
+      reason: "No Media domain transition applies: this step is an external identity/context handoff."
+    definitionVerification:
+      status: source-contract-checked
+      evidence:
+        - tests/media-j01-definition-semantics.test.mjs
+        - tests/product-definition-authority.test.mjs
+        - scripts/check-product-experience-local.mjs
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+      journeyRef: J-01
+      ordinal: 1
+      viewRef: media.view.authenticate-and-select-context
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.select-identity-confirmed-workspace
+        semanticRole: EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION
+        actorRefs:
+          - media.administrator
+          - media.creator
+          - media.editor
+        guards:
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Delegate workspace selection to the configured Shared identity service; Media accepts a
+          workspace only after the upstream service confirms current access.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: upstream-workspace-authorization-confirmation-required;
+          remembered-selection-is-not-authority
+        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION; NO_MEDIA_DOMAIN_MUTATION
+        exactOperationRefs: []
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+      stepSourceFacts:
+        intent: resolve the current identity and authorized workspace before showing protected Media project
+          data
+        result: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: external-identity-handoff
+          sourceRef: media.handoff.identity
+          proposal: The admitted Shared identity consumer contract establishes the current principal and an
+            authorized tenant/workspace, or returns a recoverable identity/access state.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.handoff.identity
+          proposal: If identity or workspace authority is absent, denied, stale, or unavailable, preserve the
+            return destination and do not query protected project data; Media does not collect
+            credentials or infer a principal from actor labels.
+        degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+          identity or authorization cannot be confirmed.
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.handoff.identity
+          proposal: Continue only through the external Shared identity contract; after return, recheck the
+            selected workspace before any Media project query.
+        postconditions:
+          - No credential is collected by Media.
+          - No principal, tenant, or workspace authority is synthesized from actor or role labels.
+          - No project query occurs before trusted identity and workspace context are established.
+        contextPreservation:
+          status: source-defined; runtime-admission-pending
+          fields:
+            - return-destination
+            - selected-workspace
+            - selected-project-identity-and-revision-when-known
+            - same-create-requestId-while-outcome-is-unknown
+          sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+            identity contract.
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs: []
+        stateRefs: []
+        canonicalOperationRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs:
+          - media.scenario.identity-required
+          - media.scenario.workspace-access-denied
+        capabilityRefs: []
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-01
+        scenarioRefs:
+          - media.scenario.identity-required
+          - media.scenario.workspace-access-denied
+        scenarios:
+          - scenarioRef: media.scenario.identity-required
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.identity-required
+            initialConditions: identity-expired-with-a-preserved-return-destination
+            expected: hide-protected-project-data-and-return-to-the-same-destination-after-identity-resolution
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.workspace-access-denied
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.workspace-access-denied
+            initialConditions: authenticated-creator-lacks-access-to-the-requested-workspace
+            expected: expose-no-protected-project-data-and-explain-the-authorized-access-recovery
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: external-identity-handoff
+          sourceRef: media.handoff.identity
+          proposal: The admitted Shared identity consumer contract establishes the current principal and an
+            authorized tenant/workspace, or returns a recoverable identity/access state.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.handoff.identity
+          proposal: If identity or workspace authority is absent, denied, stale, or unavailable, preserve the
+            return destination and do not query protected project data; Media does not collect
+            credentials or infer a principal from actor labels.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.handoff.identity
+          proposal: Continue only through the external Shared identity contract; after return, recheck the
+            selected workspace before any Media project query.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-identity-confirmed-workspace
+        actionRef: media.action.select-identity-confirmed-workspace
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-identity-confirmed-workspace
+          intendedResult: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+          effect: Delegate workspace selection to the configured Shared identity service; Media accepts a
+            workspace only after the upstream service confirms current access.
+          finality: upstream-workspace-authorization-confirmation-required;
+            remembered-selection-is-not-authority
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-identity-confirmed-workspace
+          guards:
+            - resolve-the-current-workspace-and-exact-target-before-access-or-change
+            - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+            - preserve-the-requested-context-and-exact-version-across-recovery
+          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-identity-confirmed-workspace
+          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+            never-claim-success-from-local-state
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        transitionRef: null
+        stateRefs: []
+        operationRef: null
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: OBJECT_BINDING_UNRESOLVED
+          stateRefs: STATE_BINDING_UNRESOLVED
+          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
+          authorityRef: EXACT_AUTHORITY_REF
+          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: null
+        authorityRefs: []
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: null
+        objectRefs: []
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
+        observation: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: resolve the current identity and authorized workspace before showing protected Media project
+          data
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.administrator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml#actors
+        actionActorRefs:
+          - media.administrator
+          - media.creator
+          - media.editor
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml#purpose
+        actionRef: media.action.select-identity-confirmed-workspace
+        candidateActionRefs: []
+        operationRefs: []
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: []
+        requirementRefs: []
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.identity-required
+      - media.scenario.workspace-access-denied
+    capabilityRefs: []
+  - view: media.view.resume-work
+    screenContractRef: screen-contracts/resume-work.yaml
+    result: authorized-projects-or-a-purposeful-first-use-state-are-shown;
+      no-cross-tenant-project-data-is-visible
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.project
+    stateRefs:
+      - media-project/ACTIVE
+      - media-project/ARCHIVED
+    canonicalOperationRef: media.operation-slice.list-projects
+    authorityRef: null
     decisionRef: .product-experience/decision-log.md#PXD-055
-    reason: 'No Media domain transition applies: project collection observation is
-      read-only.'
-  definitionVerification:
-    status: source-contract-checked
-    evidence:
-    - tests/media-j01-definition-semantics.test.mjs
-    - tests/product-definition-authority.test.mjs
-    - scripts/check-product-experience-local.mjs
-    runtimeAdmission: NOT_ADMITTED
-    runtimeVerification: not-run
-- view: media.view.find-projects
-  screenContractRef: screen-contracts/find-projects.yaml
-  action: media.action.create-project
-  actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-  capabilityRefs: [media.project.create]
-  result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
-  surfaceRefs:
-  - media.surface.web
-  objectRefs:
-  - media.domain.project
-  - media.domain.project-revision
-  stateRefs:
-  - media-project/ACTIVE
-  - media-project-version/COMMITTED
-  canonicalOperationRef: media.operation-slice.create-project
-  authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.create-project
-  decisionRef: .product-experience/decision-log.md#PXD-055
-  transitionRef:
-  handoffRef:
-  success:
-    status: source-defined; runtime-admission-pending
-    scope: atomic-project-and-initial-revision-commit
-    sourceRef: media.operation-slice.create-project
-    proposal: After an authoritative durable commit receipt, return the same opaque
-      projectId and initial revisionId for one ACTIVE project with an empty immutable
-      COMMITTED revision and matching headRevisionId.
-  failure:
-    status: source-defined; runtime-admission-pending
-    scope: step-specific-fail-closed
-    sourceRef: media.operation-slice.create-project
-    proposal: Reject missing trusted identity, unauthorized workspace/policy, blank
-      title, or mismatched idempotency replay without mutation. After dispatch ambiguity
-      preserve UNKNOWN_OUTCOME and the same requestId; never infer no effect from
-      absence/unavailability or blindly resubmit.
-  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
-    hidden when identity or authorization cannot be confirmed.
-  recovery:
-    status: source-defined; runtime-admission-pending
-    scope: same-identity-and-current-authority
-    sourceRef: media.operation-slice.create-project
-    proposal: Reconcile with inspect-project using the same creationRequestId, tenant,
-      principal, and workspace. Resubmit only after an authoritative safe disposition;
-      never create a second request identity to bypass unknown.
-  postconditions:
-  - Project, initial revision, and head reference commit atomically.
-  - The initial revision has no media assets, scenes, timelines, or settings.
-  - No provider, model, engine, processing job, source media, artifact rights, or
-    artifact availability is implied.
-  requirementRefs: [MEDIA-REQ-CAP-PROJECT]
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: source-defined; runtime-admission-pending
-    fields:
-    - return-destination
-    - selected-workspace
-    - selected-project-identity-and-revision-when-known
-    - same-create-requestId-while-outcome-is-unknown
-    sensitivity: Never persist or expose credentials; preserve only context permitted
-      by the Shared identity contract.
-  bindingStatus:
-    surfaceRefs: screen contract source-linked; host admission pending
-    objectRefs: exact PDP-1 project identities bound where applicable
-    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
-      labels promoted
-    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
-      identity handoff has no Media operation
-    authorityRef: identity/policy authority source identified; runtime enforcement
-      not admitted
-    decisionRef: PXD-055 Media definition; independent review pending
-    transitionRef: no transition applies to these query/handoff steps or atomic initial
-      aggregate creation
-    handoffRef: external Shared identity contract only; not Media self-authentication
-    success: step-specific semantics source-defined; runtime evidence pending
-    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
-      evidence pending
-    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
-      pending
-    recovery: same-identity recovery defined; runtime evidence pending
-    postconditions: exact source-defined boundaries recorded
-    requirementRefs: existing requirement refs retained; satisfaction not claimed
-    verification: source contract tests required; runtime verification not run
-    contextPreservation: bounded context fields defined; host binding pending
-  stepId: J01-3
-  actorRefs:
-  - media.creator
-  - media.editor
-  - media.administrator
-  actorBindingReason: Actor references describe the interaction participant only;
-    trusted tenant/principal identity and current policy authorization come from the
-    owning identity/policy authorities.
-  requiredOperationRefs:
-  - media.operation-slice.create-project
-  transitionDisposition:
-    status: NOT_APPLICABLE_WITH_REASON
-    transitionRef:
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: source-defined; runtime-admission-pending
+      scope: authorized-project-collection-observation
+      sourceRef: media.operation-slice.list-projects
+      proposal: Return only project summaries currently visible to this trusted principal in the selected
+        authorized workspace, with observation freshness explicit.
+    failure:
+      status: source-defined; runtime-admission-pending
+      scope: step-specific-fail-closed
+      sourceRef: media.operation-slice.list-projects
+      proposal: Denied, stale, unavailable, or empty results are scoped to the current
+        principal/workspace/query. An empty page never means global absence; do not expose
+        cross-workspace or unauthorized project metadata.
+    degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+      identity or authorization cannot be confirmed.
+    recovery:
+      status: source-defined; runtime-admission-pending
+      scope: same-identity-and-current-authority
+      sourceRef: media.operation-slice.list-projects
+      proposal: Re-observe only within the same tenant, principal, selected workspace, and query scope
+        after authority is current; use an opaque page token only with its original scope.
+    postconditions:
+      - The query changes no project or revision state.
+      - Only currently authorized project summaries are visible.
+      - Empty results describe this query scope and observation time only.
+    requirementRefs: []
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: source-defined; runtime-admission-pending
+      fields:
+        - return-destination
+        - selected-workspace
+        - selected-project-identity-and-revision-when-known
+        - same-create-requestId-while-outcome-is-unknown
+      sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+        identity contract.
+    bindingStatus:
+      surfaceRefs: screen contract source-linked; host admission pending
+      objectRefs: exact PDP-1 project identities bound where applicable
+      stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI labels promoted
+      canonicalOperationRef: exact PDP-1 project operation bound where applicable; external identity
+        handoff has no Media operation
+      authorityRef: identity/policy authority source identified; runtime enforcement not admitted
+      decisionRef: PXD-055 Media definition; independent review pending
+      transitionRef: no transition applies to these query/handoff steps or atomic initial aggregate creation
+      handoffRef: external Shared identity contract only; not Media self-authentication
+      success: step-specific semantics source-defined; runtime evidence pending
+      failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime evidence pending
+      degradedBehavior: stale/unavailable/unknown distinction defined; host behavior pending
+      recovery: same-identity recovery defined; runtime evidence pending
+      postconditions: exact source-defined boundaries recorded
+      requirementRefs: existing requirement refs retained; satisfaction not claimed
+      verification: source contract tests required; runtime verification not run
+      contextPreservation: bounded context fields defined; host binding pending
+    stepId: J01-2
+    actorRefs:
+      - media.creator
+      - media.editor
+    actorBindingReason: Actor references describe the interaction participant only; trusted
+      tenant/principal identity and current policy authorization come from the owning
+      identity/policy authorities.
+    requiredOperationRefs:
+      - media.operation-slice.list-projects
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-055
+      reason: "No Media domain transition applies: project collection observation is read-only."
+    definitionVerification:
+      status: source-contract-checked
+      evidence:
+        - tests/media-j01-definition-semantics.test.mjs
+        - tests/product-definition-authority.test.mjs
+        - scripts/check-product-experience-local.mjs
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/1
+      journeyRef: J-01
+      actionRef: null
+      bindingStatus: PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH
+      selectionBasis: The step is a read-only authorized project collection observation; no separate Media
+        interaction action is needed to bind its query semantics.
+      candidateActionRefs: []
+      operationRef: media.operation-slice.list-projects
+      operationKind: QUERY
+      objectRefs:
+        - media.domain.project
+      stateRefs: []
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      requirementRefs: []
+      result: authorized-query-scoped-project-summaries-or-empty-page
+      effect: Read-only observation; no project or revision state changes.
+      nonhappy: Denied, stale, unavailable, or empty results remain scoped to the trusted principal,
+        selected authorized workspace, and query; do not imply global absence.
+      recovery: Re-observe only within the same tenant, principal, workspace, and query after current
+        authority is available; never expose cross-workspace metadata.
+      runtimeAdmission: NOT_ADMITTED
+      decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ordinal: 2
+      viewRef: media.view.resume-work
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepSourceFacts:
+        intent: null
+        result: authorized-projects-or-a-purposeful-first-use-state-are-shown;
+          no-cross-tenant-project-data-is-visible
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: authorized-project-collection-observation
+          sourceRef: media.operation-slice.list-projects
+          proposal: Return only project summaries currently visible to this trusted principal in the selected
+            authorized workspace, with observation freshness explicit.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.operation-slice.list-projects
+          proposal: Denied, stale, unavailable, or empty results are scoped to the current
+            principal/workspace/query. An empty page never means global absence; do not expose
+            cross-workspace or unauthorized project metadata.
+        degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+          identity or authorization cannot be confirmed.
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.operation-slice.list-projects
+          proposal: Re-observe only within the same tenant, principal, selected workspace, and query scope
+            after authority is current; use an opaque page token only with its original scope.
+        postconditions:
+          - The query changes no project or revision state.
+          - Only currently authorized project summaries are visible.
+          - Empty results describe this query scope and observation time only.
+        contextPreservation:
+          status: source-defined; runtime-admission-pending
+          fields:
+            - return-destination
+            - selected-workspace
+            - selected-project-identity-and-revision-when-known
+            - same-create-requestId-while-outcome-is-unknown
+          sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+            identity contract.
+      action:
+        actionRef: null
+        bindingStatus: PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH
+        selectionBasis: Read-only authorized project collection observation has an exact query but no
+          separate Media dispatch action.
+        candidateActionRefs: []
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+        stateRefs:
+          - media-project/ACTIVE
+          - media-project/ARCHIVED
+        canonicalOperationRef: media.operation-slice.list-projects
+        canonicalOperationRefs:
+          - media.operation-slice.list-projects
+        authorityRef: null
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        transitionRef: null
+        requirementRefs: []
+        scenarioRefs:
+          - media.scenario.first-use-empty
+        actionChoiceRefs: []
+        actionChoiceDisposition: PASSIVE_CANONICAL_QUERY; NO_ACTION_DISPATCH
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.list-projects
+        operationRef: media.operation-slice.list-projects
+        operationKind: QUERY
+        domainObjectRefs:
+          - media.domain.project
+        stateRefs: []
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        scopeStatus: OWNER_DEFINED_QUERY; INDEPENDENT_REVIEW_AND_RUNTIME_ADMISSION_OPEN
+        runtimeAdmission: NOT_ADMITTED
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-01
+        scenarioRefs: [media.scenario.first-use-empty]
+        scenarios:
+          - scenarioRef: media.scenario.first-use-empty
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.first-use-empty
+            initialConditions: authenticated-creator-authorized-workspace-with-no-projects
+            expected: show-a-purposeful-first-use-state-and-enable-project-creation-without-provider-selection
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        executable: true
+      scenarioRefs:
+      - media.scenario.first-use-empty
+    scenarioRefs:
+      - media.scenario.first-use-empty
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    canonicalBindings:
+      actionChoiceRefs: []
+      actionChoiceDisposition: PASSIVE_CANONICAL_QUERY; NO_ACTION_DISPATCH
+      canonicalOperationRefs:
+        - media.operation-slice.list-projects
+      domainObjectRefs:
+        - media.domain.project
+      stateRefs: []
+      authorityRefs:
+        - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      requirementRefs: []
+      scenarioRefs:
+        - media.scenario.first-use-empty
+  - view: media.view.find-projects
+    screenContractRef: screen-contracts/find-projects.yaml
+    action: media.action.create-project
+    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs: [media.project.create]
+    result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.project
+      - media.domain.project-revision
+    stateRefs:
+      - media-project/ACTIVE
+      - media-project-version/COMMITTED
+    canonicalOperationRef: media.operation-slice.create-project
+    authorityRef: null
     decisionRef: .product-experience/decision-log.md#PXD-055
-    reason: 'No lifecycle transition applies: create establishes the initial ACTIVE
-      project and immutable COMMITTED revision atomically.'
-  definitionVerification:
-    status: source-contract-checked
-    evidence:
-    - tests/media-j01-definition-semantics.test.mjs
-    - tests/product-definition-authority.test.mjs
-    - scripts/check-product-experience-local.mjs
-    runtimeAdmission: NOT_ADMITTED
-    runtimeVerification: not-run
-- view: media.view.work-in-project
-  screenContractRef: screen-contracts/work-in-project.yaml
-  result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
-  surfaceRefs:
-  - media.surface.web
-  objectRefs:
-  - media.domain.project
-  - media.domain.project-revision
-  stateRefs:
-  - media-project/ACTIVE
-  - media-project/ARCHIVED
-  - media-project-version/COMMITTED
-  canonicalOperationRef: media.operation-slice.inspect-project
-  authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.inspect-project
-  decisionRef: .product-experience/decision-log.md#PXD-055
-  transitionRef:
-  handoffRef:
-  success:
-    status: source-defined; runtime-admission-pending
-    scope: exact-project-head-observation
-    sourceRef: media.operation-slice.inspect-project
-    proposal: Return the authorized project identity and exact opaque current headRevisionId
-      plus its immutable revision snapshot identity, as observed at an explicit time.
-  failure:
-    status: source-defined; runtime-admission-pending
-    scope: step-specific-fail-closed
-    sourceRef: media.operation-slice.inspect-project
-    proposal: A scoped NOT_FOUND means absent or inaccessible within this caller scope
-      only. Denied, unavailable, stale, or unknown observations never prove global
-      absence, prior non-creation, artifact rights, or content availability.
-  degradedBehavior: Preserve last observation as stale/unknown; keep protected data
-    hidden when identity or authorization cannot be confirmed.
-  recovery:
-    status: source-defined; runtime-admission-pending
-    scope: same-identity-and-current-authority
-    sourceRef: media.operation-slice.inspect-project
-    proposal: Re-observe the same projectId under current tenant/principal/workspace
-      authorization. For uncertain create, inspect only the same creationRequestId;
-      do not infer or retry from scoped absence.
-  postconditions:
-  - The operation reads project and revision metadata only.
-  - The exact head revision identity is preserved; digest is not substituted for revisionId.
-  - No artifact bytes, current rights, or processing availability is exposed or implied.
-  requirementRefs: []
-  verification:
-    status: not-run
-    requiredChecks:
-    - duplicate-key-safe YAML parse
-    - focused PDP3-005 ten-contract structural/reference check
-    actualEvidence: []
-  contextPreservation:
-    status: source-defined; runtime-admission-pending
-    fields:
-    - return-destination
-    - selected-workspace
-    - selected-project-identity-and-revision-when-known
-    - same-create-requestId-while-outcome-is-unknown
-    sensitivity: Never persist or expose credentials; preserve only context permitted
-      by the Shared identity contract.
-  bindingStatus:
-    surfaceRefs: screen contract source-linked; host admission pending
-    objectRefs: exact PDP-1 project identities bound where applicable
-    stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI
-      labels promoted
-    canonicalOperationRef: exact PDP-1 project operation bound where applicable; external
-      identity handoff has no Media operation
-    authorityRef: identity/policy authority source identified; runtime enforcement
-      not admitted
-    decisionRef: PXD-055 Media definition; independent review pending
-    transitionRef: no transition applies to these query/handoff steps or atomic initial
-      aggregate creation
-    handoffRef: external Shared identity contract only; not Media self-authentication
-    success: step-specific semantics source-defined; runtime evidence pending
-    failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime
-      evidence pending
-    degradedBehavior: stale/unavailable/unknown distinction defined; host behavior
-      pending
-    recovery: same-identity recovery defined; runtime evidence pending
-    postconditions: exact source-defined boundaries recorded
-    requirementRefs: existing requirement refs retained; satisfaction not claimed
-    verification: source contract tests required; runtime verification not run
-    contextPreservation: bounded context fields defined; host binding pending
-  stepId: J01-4
-  actorRefs:
-  - media.creator
-  - media.editor
-  - media.reviewer
-  actorBindingReason: Actor references describe the interaction participant only;
-    trusted tenant/principal identity and current policy authorization come from the
-    owning identity/policy authorities.
-  requiredOperationRefs:
-  - media.operation-slice.inspect-project
-  transitionDisposition:
-    status: NOT_APPLICABLE_WITH_REASON
-    transitionRef:
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: source-defined; runtime-admission-pending
+      scope: atomic-project-and-initial-revision-commit
+      sourceRef: media.operation-slice.create-project
+      proposal: After an authoritative durable commit receipt, return the same opaque projectId and
+        initial revisionId for one ACTIVE project with an empty immutable COMMITTED revision and
+        matching headRevisionId.
+    failure:
+      status: source-defined; runtime-admission-pending
+      scope: step-specific-fail-closed
+      sourceRef: media.operation-slice.create-project
+      proposal: Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched
+        idempotency replay without mutation. After dispatch ambiguity preserve UNKNOWN_OUTCOME and
+        the same requestId; never infer no effect from absence/unavailability or blindly resubmit.
+    degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+      identity or authorization cannot be confirmed.
+    recovery:
+      status: source-defined; runtime-admission-pending
+      scope: same-identity-and-current-authority
+      sourceRef: media.operation-slice.create-project
+      proposal: Reconcile with inspect-project using the same creationRequestId, tenant, principal, and
+        workspace. Resubmit only after an authoritative safe disposition; never create a second
+        request identity to bypass unknown.
+    postconditions:
+      - Project, initial revision, and head reference commit atomically.
+      - The initial revision has no media assets, scenes, timelines, or settings.
+      - No provider, model, engine, processing job, source media, artifact rights, or artifact
+        availability is implied.
+    requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: source-defined; runtime-admission-pending
+      fields:
+        - return-destination
+        - selected-workspace
+        - selected-project-identity-and-revision-when-known
+        - same-create-requestId-while-outcome-is-unknown
+      sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+        identity contract.
+    bindingStatus:
+      surfaceRefs: screen contract source-linked; host admission pending
+      objectRefs: exact PDP-1 project identities bound where applicable
+      stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI labels promoted
+      canonicalOperationRef: exact PDP-1 project operation bound where applicable; external identity
+        handoff has no Media operation
+      authorityRef: identity/policy authority source identified; runtime enforcement not admitted
+      decisionRef: PXD-055 Media definition; independent review pending
+      transitionRef: no transition applies to these query/handoff steps or atomic initial aggregate creation
+      handoffRef: external Shared identity contract only; not Media self-authentication
+      success: step-specific semantics source-defined; runtime evidence pending
+      failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime evidence pending
+      degradedBehavior: stale/unavailable/unknown distinction defined; host behavior pending
+      recovery: same-identity recovery defined; runtime evidence pending
+      postconditions: exact source-defined boundaries recorded
+      requirementRefs: existing requirement refs retained; satisfaction not claimed
+      verification: source contract tests required; runtime verification not run
+      contextPreservation: bounded context fields defined; host binding pending
+    stepId: J01-3
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.administrator
+    actorBindingReason: Actor references describe the interaction participant only; trusted
+      tenant/principal identity and current policy authorization come from the owning
+      identity/policy authorities.
+    requiredOperationRefs:
+      - media.operation-slice.create-project
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-055
+      reason: "No lifecycle transition applies: create establishes the initial ACTIVE project and
+        immutable COMMITTED revision atomically."
+    definitionVerification:
+      status: source-contract-checked
+      evidence:
+        - tests/media-j01-definition-semantics.test.mjs
+        - tests/product-definition-authority.test.mjs
+        - scripts/check-product-experience-local.mjs
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+      journeyRef: J-01
+      ordinal: 3
+      viewRef: media.view.find-projects
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.create-project
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.administrator
+        guards:
+          - authenticated-principal
+          - authorized-workspace
+          - current-project-create-authority
+          - owner-approved-project-request-shape
+        effect: create-one-empty-versioned-project-in-the-selected-authorized-workspace
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: confirmed-only-after-the-project-identity-and-initial-revision-are-recorded
+        failureRecovery: do-not-claim-creation-without-confirming-evidence;
+          reconcile-an-unknown-result-against-the-same-request-identity
+        domainOperationDisposition: EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation-slice.create-project
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      stepSourceFacts:
+        intent: search authorized projects and create or open one in the selected workspace
+        result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: atomic-project-and-initial-revision-commit
+          sourceRef: media.operation-slice.create-project
+          proposal: After an authoritative durable commit receipt, return the same opaque projectId and
+            initial revisionId for one ACTIVE project with an empty immutable COMMITTED revision and
+            matching headRevisionId.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.operation-slice.create-project
+          proposal: Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched
+            idempotency replay without mutation. After dispatch ambiguity preserve UNKNOWN_OUTCOME
+            and the same requestId; never infer no effect from absence/unavailability or blindly
+            resubmit.
+        degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+          identity or authorization cannot be confirmed.
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.operation-slice.create-project
+          proposal: Reconcile with inspect-project using the same creationRequestId, tenant, principal, and
+            workspace. Resubmit only after an authoritative safe disposition; never create a second
+            request identity to bypass unknown.
+        postconditions:
+          - Project, initial revision, and head reference commit atomically.
+          - The initial revision has no media assets, scenes, timelines, or settings.
+          - No provider, model, engine, processing job, source media, artifact rights, or artifact
+            availability is implied.
+        contextPreservation:
+          status: source-defined; runtime-admission-pending
+          fields:
+            - return-destination
+            - selected-workspace
+            - selected-project-identity-and-revision-when-known
+            - same-create-requestId-while-outcome-is-unknown
+          sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+            identity contract.
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+          - media.domain.project-revision
+        stateRefs:
+          - media-project/ACTIVE
+          - media-project-version/COMMITTED
+        canonicalOperationRef: media.operation-slice.create-project
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+        scenarioRefs:
+          - media.scenario.project-create-outcome-unknown
+          - media.scenario.intent-unavailable
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        capabilityRefs: [media.project.create]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-01
+        scenarioRefs:
+          - media.scenario.project-create-outcome-unknown
+          - media.scenario.intent-unavailable
+        scenarios:
+          - scenarioRef: media.scenario.project-create-outcome-unknown
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.project-create-outcome-unknown
+            initialConditions: project-create-request-may-have-committed-without-a-confirmed-response
+            expected: reconcile-the-same-request-identity-and-disable-blind-duplicate-creation
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+          - scenarioRef: media.scenario.intent-unavailable
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.intent-unavailable
+            initialConditions: selected-intent-requires-an-unavailable-or-unknown-capability
+            expected: keep-the-project-unchanged-explain-the-limitation-and-offer-only-an-admitted-alternative
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: atomic-project-and-initial-revision-commit
+          sourceRef: media.operation-slice.create-project
+          proposal: After an authoritative durable commit receipt, return the same opaque projectId and
+            initial revisionId for one ACTIVE project with an empty immutable COMMITTED revision and
+            matching headRevisionId.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.operation-slice.create-project
+          proposal: Reject missing trusted identity, unauthorized workspace/policy, blank title, or mismatched
+            idempotency replay without mutation. After dispatch ambiguity preserve UNKNOWN_OUTCOME
+            and the same requestId; never infer no effect from absence/unavailability or blindly
+            resubmit.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.operation-slice.create-project
+          proposal: Reconcile with inspect-project using the same creationRequestId, tenant, principal, and
+            workspace. Resubmit only after an authoritative safe disposition; never create a second
+            request identity to bypass unknown.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
+        actionRef: media.action.create-project
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
+          intendedResult: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+          effect: create-one-empty-versioned-project-in-the-selected-authorized-workspace
+          finality: confirmed-only-after-the-project-identity-and-initial-revision-are-recorded
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
+          guards:
+            - authenticated-principal
+            - authorized-workspace
+            - current-project-create-authority
+            - owner-approved-project-request-shape
+          failure: do-not-claim-creation-without-confirming-evidence;
+            reconcile-an-unknown-result-against-the-same-request-identity
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
+          recovery: do-not-claim-creation-without-confirming-evidence;
+            reconcile-an-unknown-result-against-the-same-request-identity
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        transitionRef: null
+        stateRefs:
+          - media-project/ACTIVE
+          - media-project-version/COMMITTED
+        operationRef: media.operation-slice.create-project
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          requirementRefs: EXACT_REQUIREMENT_REFS_PRESENT
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs:
+          - media.domain.project
+          - media.domain.project-revision
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.create-project
+            operationKind: COMMAND
+            domainObjectRefs:
+              - media.domain.project
+              - media.domain.project-revision
+            stateRefs: []
+            authorityRefs:
+              - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+              - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: null
+            stateApplicability: null
+            scopeStatus: bounded-J01-owner-definition-under-PXD-054; runtime-NOT_ADMITTED;
+              independent-PDP1-review-open
+            runtimeAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: search authorized projects and create or open one in the selected workspace
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.administrator
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.administrator
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml#purpose
+        actionRef: media.action.create-project
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation-slice.create-project
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.project.create]
+        requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.project-create-outcome-unknown
+      - media.scenario.intent-unavailable
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+  - view: media.view.work-in-project
+    actionRef: media.action.open-project
+    screenContractRef: screen-contracts/work-in-project.yaml
+    result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+    surfaceRefs:
+      - media.surface.web
+    objectRefs:
+      - media.domain.project
+      - media.domain.project-revision
+    stateRefs:
+      - media-project/ACTIVE
+      - media-project/ARCHIVED
+      - media-project-version/COMMITTED
+    canonicalOperationRef: media.operation-slice.inspect-project
+    authorityRef: null
     decisionRef: .product-experience/decision-log.md#PXD-055
-    reason: 'No Media domain transition applies: exact project/head observation is
-      read-only.'
-  definitionVerification:
-    status: source-contract-checked
-    evidence:
-    - tests/media-j01-definition-semantics.test.mjs
-    - tests/product-definition-authority.test.mjs
-    - scripts/check-product-experience-local.mjs
-    runtimeAdmission: NOT_ADMITTED
-    runtimeVerification: not-run
+    transitionRef: null
+    handoffRef: null
+    success:
+      status: source-defined; runtime-admission-pending
+      scope: exact-project-head-observation
+      sourceRef: media.operation-slice.inspect-project
+      proposal: Return the authorized project identity and exact opaque current headRevisionId plus its
+        immutable revision snapshot identity, as observed at an explicit time.
+    failure:
+      status: source-defined; runtime-admission-pending
+      scope: step-specific-fail-closed
+      sourceRef: media.operation-slice.inspect-project
+      proposal: A scoped NOT_FOUND means absent or inaccessible within this caller scope only. Denied,
+        unavailable, stale, or unknown observations never prove global absence, prior non-creation,
+        artifact rights, or content availability.
+    degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+      identity or authorization cannot be confirmed.
+    recovery:
+      status: source-defined; runtime-admission-pending
+      scope: same-identity-and-current-authority
+      sourceRef: media.operation-slice.inspect-project
+      proposal: Re-observe the same projectId under current tenant/principal/workspace authorization. For
+        uncertain create, inspect only the same creationRequestId; do not infer or retry from scoped
+        absence.
+    postconditions:
+      - The operation reads project and revision metadata only.
+      - The exact head revision identity is preserved; digest is not substituted for revisionId.
+      - No artifact bytes, current rights, or processing availability is exposed or implied.
+    requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+    verification:
+      status: not-run
+      requiredChecks:
+        - duplicate-key-safe YAML parse
+        - focused PDP3-005 ten-contract structural/reference check
+      actualEvidence: []
+    contextPreservation:
+      status: source-defined; runtime-admission-pending
+      fields:
+        - return-destination
+        - selected-workspace
+        - selected-project-identity-and-revision-when-known
+        - same-create-requestId-while-outcome-is-unknown
+      sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+        identity contract.
+    bindingStatus:
+      surfaceRefs: screen contract source-linked; host admission pending
+      objectRefs: exact PDP-1 project identities bound where applicable
+      stateRefs: exact PDP-1 project lifecycle states bound where applicable; no UI labels promoted
+      canonicalOperationRef: exact PDP-1 project operation bound where applicable; external identity
+        handoff has no Media operation
+      authorityRef: identity/policy authority source identified; runtime enforcement not admitted
+      decisionRef: PXD-055 Media definition; independent review pending
+      transitionRef: no transition applies to these query/handoff steps or atomic initial aggregate creation
+      handoffRef: external Shared identity contract only; not Media self-authentication
+      success: step-specific semantics source-defined; runtime evidence pending
+      failure: scoped failure and UNKNOWN_OUTCOME semantics source-defined; runtime evidence pending
+      degradedBehavior: stale/unavailable/unknown distinction defined; host behavior pending
+      recovery: same-identity recovery defined; runtime evidence pending
+      postconditions: exact source-defined boundaries recorded
+      requirementRefs: existing requirement refs retained; satisfaction not claimed
+      verification: source contract tests required; runtime verification not run
+      contextPreservation: bounded context fields defined; host binding pending
+    stepId: J01-4
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    actorBindingReason: Actor references describe the interaction participant only; trusted
+      tenant/principal identity and current policy authorization come from the owning
+      identity/policy authorities.
+    requiredOperationRefs:
+      - media.operation-slice.inspect-project
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-055
+      reason: "No Media domain transition applies: exact project/head observation is read-only."
+    definitionVerification:
+      status: source-contract-checked
+      evidence:
+        - tests/media-j01-definition-semantics.test.mjs
+        - tests/product-definition-authority.test.mjs
+        - scripts/check-product-experience-local.mjs
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
+    stepDefinitionSemantics:
+      schemaVersion: media.pdp-3-step-definition.v1
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+      journeyRef: J-01
+      ordinal: 4
+      viewRef: media.view.work-in-project
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
+      action:
+        actionRef: media.action.open-project
+        semanticRole: DOMAIN_OPERATION
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+        guards:
+          - project-is-visible-in-current-workspace
+          - current-project-read-authority
+        effect: open-one-exact-project-revision-without-changing-project-or-artifact-bytes
+        reversibilityDisposition: UNKNOWN
+        finality: read-only
+        failureRecovery: keep-the-project-list-and-query-context; hide-data-when-current-access-cannot-be-confirmed
+        domainOperationDisposition: EXACT_OPERATION_REFERENCE
+        exactOperationRefs:
+          - media.operation-slice.inspect-project
+        runtimeAdmission: NOT_ADMITTED
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+        selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
+      stepSourceFacts:
+        intent: show the current project's exact identity, version context, and safe next action
+        result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+        success:
+          status: source-defined; runtime-admission-pending
+          scope: exact-project-head-observation
+          sourceRef: media.operation-slice.inspect-project
+          proposal: Return the authorized project identity and exact opaque current headRevisionId plus its
+            immutable revision snapshot identity, as observed at an explicit time.
+        failure:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.operation-slice.inspect-project
+          proposal: A scoped NOT_FOUND means absent or inaccessible within this caller scope only. Denied,
+            unavailable, stale, or unknown observations never prove global absence, prior
+            non-creation, artifact rights, or content availability.
+        degradedBehavior: Preserve last observation as stale/unknown; keep protected data hidden when
+          identity or authorization cannot be confirmed.
+        recovery:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.operation-slice.inspect-project
+          proposal: Re-observe the same projectId under current tenant/principal/workspace authorization. For
+            uncertain create, inspect only the same creationRequestId; do not infer or retry from
+            scoped absence.
+        postconditions:
+          - The operation reads project and revision metadata only.
+          - The exact head revision identity is preserved; digest is not substituted for revisionId.
+          - No artifact bytes, current rights, or processing availability is exposed or implied.
+        contextPreservation:
+          status: source-defined; runtime-admission-pending
+          fields:
+            - return-destination
+            - selected-workspace
+            - selected-project-identity-and-revision-when-known
+            - same-create-requestId-while-outcome-is-unknown
+          sensitivity: Never persist or expose credentials; preserve only context permitted by the Shared
+            identity contract.
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml#purpose
+      canonicalBindings:
+        surfaceRefs:
+          - media.surface.web
+        objectRefs:
+          - media.domain.project
+          - media.domain.project-revision
+        stateRefs:
+          - media-project/ACTIVE
+          - media-project/ARCHIVED
+          - media-project-version/COMMITTED
+        canonicalOperationRef: media.operation-slice.inspect-project
+        authorityRef: null
+        transitionRef: null
+        requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+        scenarioRefs:
+          - media.scenario.project-created-empty
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        capabilityRefs: [media.project.inspect]
+      verification:
+        status: not-run
+        requiredChecks:
+          - duplicate-key-safe YAML parse
+          - focused PDP3-005 ten-contract structural/reference check
+        actualEvidence: []
+      acceptanceBoundary: Source definition only. Proposal branches, unbound
+        object/state/authority/transition/requirement identities, external review and lifecycle
+        evidence remain separate.
+      fixtureOracle:
+        status: STEP_SCENARIOS_BOUND; ORACLE_ACCEPTANCE_PENDING
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-01
+        scenarioRefs:
+          - media.scenario.project-created-empty
+        scenarios:
+          - scenarioRef: media.scenario.project-created-empty
+            sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.project-created-empty
+            initialConditions: authorized-project-and-initial-revision-are-confirmed-with-no-media
+            expected: show-exact-project-context-and-a-safe-next-action
+            pdp3PayloadState: authored-in-libs-media-experience-simulation-fixtures-ts
+        positiveBranch:
+          status: source-defined; runtime-admission-pending
+          scope: exact-project-head-observation
+          sourceRef: media.operation-slice.inspect-project
+          proposal: Return the authorized project identity and exact opaque current headRevisionId plus its
+            immutable revision snapshot identity, as observed at an explicit time.
+        nonhappyBranch:
+          status: source-defined; runtime-admission-pending
+          scope: step-specific-fail-closed
+          sourceRef: media.operation-slice.inspect-project
+          proposal: A scoped NOT_FOUND means absent or inaccessible within this caller scope only. Denied,
+            unavailable, stale, or unknown observations never prove global absence, prior
+            non-creation, artifact rights, or content availability.
+        recoveryBranch:
+          status: source-defined; runtime-admission-pending
+          scope: same-identity-and-current-authority
+          sourceRef: media.operation-slice.inspect-project
+          proposal: Re-observe the same projectId under current tenant/principal/workspace authorization. For
+            uncertain create, inspect only the same creationRequestId; do not infer or retry from
+            scoped absence.
+        executable: true
+        ownerOracleAcceptance: pending-independent-review
+      stepOutcomeSemantics:
+        status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.open-project
+        actionRef: media.action.open-project
+        positive:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.open-project
+          intendedResult: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+          effect: open-one-exact-project-revision-without-changing-project-or-artifact-bytes
+          finality: read-only
+        nonhappy:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.open-project
+          guards:
+            - project-is-visible-in-current-workspace
+            - current-project-read-authority
+          failure: keep-the-project-list-and-query-context; hide-data-when-current-access-cannot-be-confirmed
+        recovery:
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.open-project
+          recovery: keep-the-project-list-and-query-context; hide-data-when-current-access-cannot-be-confirmed
+          automaticRetry: not-admitted; reconcile same identity only as exact source allows
+      transitionApplicability:
+        status: TRANSITION_APPLICABILITY_UNRESOLVED
+        transitionRef: null
+        stateRefs:
+          - media-project/ACTIVE
+          - media-project/ARCHIVED
+          - media-project-version/COMMITTED
+        operationRef: media.operation-slice.inspect-project
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        runtimeAdmission: NOT_ADMITTED
+      canonicalBindingDisposition:
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+        fields:
+          surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
+          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
+          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          canonicalOperationRef: EXACT_OPERATION_REF
+          authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
+          transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
+          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+        requirementCrosswalkStatus: pending-PDP1-capability-operation-index
+        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
+          lifecycle receipt
+      versionedObjectObservation:
+        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        objectRefs:
+          - media.domain.project
+          - media.domain.project-revision
+        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
+          version; do not substitute a newer version.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        observation: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+        runtimeAdmission: NOT_ADMITTED
+      operationContractBinding:
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operations:
+          - operationRef: media.operation-slice.inspect-project
+            operationKind: QUERY
+            domainObjectRefs: []
+            stateRefs: []
+            authorityRefs:
+              - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+              - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+            profileRef: null
+            transitionRefs: []
+            stateApplicabilitySource: null
+            stateApplicability: null
+            scopeStatus: bounded-J01-owner-definition-under-PXD-054; runtime-NOT_ADMITTED;
+              independent-PDP1-review-open
+            runtimeAdmission: NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      intentBinding:
+        status: SCREEN_PURPOSE_SOURCE
+        intent: show the current project's exact identity, version context, and safe next action
+        intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml#purpose
+        screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+      screenActorScope:
+        status: SCREEN_ACTOR_SET_SOURCE; ACTION_AUTHORITY_SEPARATE
+        actorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml#actors
+        actionActorRefs:
+          - media.creator
+          - media.editor
+          - media.reviewer
+      stepKindDisposition:
+        kind: EXACT_SOURCE_ACTION
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+        screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml#purpose
+        actionRef: media.action.open-project
+        candidateActionRefs: []
+        operationRefs:
+          - media.operation-slice.inspect-project
+        effectClaim: see-stepOutcomeSemantics
+      actionCapabilityBinding:
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [media.project.inspect]
+        requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+        sourceRefs:
+          - .product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml
+        acceptance: crosswalk source only; no independent review/runtime admission
+    scenarioRefs:
+      - media.scenario.project-created-empty
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    capabilityRefs: [media.project.inspect]
 optionalContinuation:
   view: media.view.create-media
   intentSelectionAction: media.action.choose-intent
   planReviewView: media.view.review-creation-plan
-  boundary: J-01-completes-after-project-creation; selecting-a-processing-intent-or-submitting-work-belongs-to-its-own-journey-and-action
-terminalSuccess: An authorized creator has a versioned empty project in the selected
-  workspace and can see a safe next action without selecting a provider, model, queue,
-  or engine.
+  boundary: J-01-completes-after-project-creation;
+    selecting-a-processing-intent-or-submitting-work-belongs-to-its-own-journey-and-action
+terminalSuccess: An authorized creator has a versioned empty project in the selected workspace and
+  can see a safe next action without selecting a provider, model, queue, or engine.
 criticalNonhappyPaths:
-- id: identity-not-established
-  response: preserve-the-return-destination; do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
-- id: workspace-access-denied
-  response: keep-project-data-hidden; explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
-- id: project-create-not-authorized
-  response: keep-the-project-list-and-workspace-context; explain-the-required-access-without-claiming-creation
-- id: project-create-outcome-unknown
-  response: keep-the-same-create-request-identity; inspect-or-reconcile-its-result-before-offering-another-create-action
-- id: requested-intent-unavailable
-  response: keep-the-empty-project; explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
-recovery: Preserve the return destination, selected workspace, and any non-sensitive
-  intent draft across re-authentication; never infer successful project creation from
-  a lost response or retry an unknown effect blindly.
-contextPreserved: [return-destination, selected-workspace, selected-project-identity-and-version,
-  selected-intent-when-present]
-channelEquivalents: [web]
+  - id: identity-not-established
+    response: preserve-the-return-destination;
+      do-not-read-protected-project-data-or-accept-protected-inputs-before-the-identity-handoff-succeeds
+  - id: workspace-access-denied
+    response: keep-project-data-hidden;
+      explain-the-access-boundary-and-return-to-the-same-destination-after-approved-access-is-granted
+  - id: project-create-not-authorized
+    response: keep-the-project-list-and-workspace-context;
+      explain-the-required-access-without-claiming-creation
+  - id: project-create-outcome-unknown
+    response: keep-the-same-create-request-identity;
+      inspect-or-reconcile-its-result-before-offering-another-create-action
+  - id: requested-intent-unavailable
+    response: keep-the-empty-project;
+      explain-that-the-intent-is-not-admitted-here-and-offer-only-an-admitted-alternative-or-a-safe-return
+recovery: Preserve the return destination, selected workspace, and any non-sensitive intent draft
+  across re-authentication; never infer successful project creation from a lost response or retry an
+  unknown effect blindly.
+contextPreserved:
+  - return-destination
+  - selected-workspace
+  - selected-project-identity-and-version
+  - selected-intent-when-present
+channelEquivalents:
+  - web
 accessibilityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
 requiredScenarioBehaviors:
   status: six-synthetic-PDP-3-fixtures-authored; Shared-identity-and-project-service-bindings-pending
   scenarios:
+    - media.scenario.first-use-empty
+    - media.scenario.identity-required
+    - media.scenario.workspace-access-denied
+    - media.scenario.project-create-outcome-unknown
+    - media.scenario.project-created-empty
+    - media.scenario.intent-unavailable
+scenarioRefs:
   - media.scenario.first-use-empty
   - media.scenario.identity-required
   - media.scenario.workspace-access-denied
   - media.scenario.project-create-outcome-unknown
   - media.scenario.project-created-empty
   - media.scenario.intent-unavailable
-scenarioRefs: [media.scenario.first-use-empty, media.scenario.identity-required, media.scenario.workspace-access-denied,
-  media.scenario.project-create-outcome-unknown, media.scenario.project-created-empty,
-  media.scenario.intent-unavailable]
 unresolvedProductDecisions:
-- project-creation-input-shape-and-name-generation-policy-remain-pending-the-media.project.create-leaf-owner-review
-- exact-authentication-return-and-access-request-bindings-remain-pending-the-published-Shared-identity-consumer-contract
+  - project-creation-input-shape-and-name-generation-policy-remain-pending-the-media.project.create-leaf-owner-review
+  - exact-authentication-return-and-access-request-bindings-remain-pending-the-published-Shared-identity-consumer-contract
 definitionReview:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
   decisionRef: .product-experience/decision-log.md#PXD-055
   sourceDecisionRef: .product-experience/decision-log.md#PXD-054
-  boundary: Four ordered J-01 steps are source-defined; the registered create-media
-    screen is optional continuation after this journey completes.
+  boundary: Four ordered J-01 steps are source-defined; the registered create-media screen is optional
+    continuation after this journey completes.
   runtimeAdmission: NOT_ADMITTED
   independentReview: PENDING

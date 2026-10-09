@@ -59,21 +59,27 @@ requirements:
     owner: Media performance owner
     initialProposedBudgets:
       - surface: small-status-or-metadata-request
+        id: media.nfr-perf.small-status-metadata-request.v1
         target: p95-300ms-at-50-requests-per-second-excluding-external-model-execution
         environment: not-yet-named
       - surface: bounded-job-admission
+        id: media.nfr-perf.bounded-job-admission.v1
         target: p95-500ms-when-store-policy-and-capacity-are-healthy-and-source-references-are-registered
         environment: not-yet-named
       - surface: visible-web-control-feedback
+        id: media.nfr-perf.visible-web-control-feedback.v1
         target: within-100ms-on-reference-project
         environment: not-yet-named
       - surface: editor-scrub-selection-undo
+        id: media.nfr-perf.editor-scrub-selection-undo.v1
         target: p95-100ms-for-admitted-preview-size-fixture
         environment: not-yet-named
       - surface: CLI-help-and-version
+        id: media.nfr-perf.cli-help-version.v1
         target: p95-500ms-without-network-or-GPU-initialization
         environment: not-yet-named
       - surface: cancellation-request-acknowledgement
+        id: media.nfr-perf.cancel-request-ack.v1
         target: within-1s-on-healthy-control-plane; provider-termination-measured-separately
         environment: not-yet-named
     acceptance: targets-are-proposals-until-environment-corpus-load-method-and-owner-approval-are-recorded
@@ -134,3 +140,311 @@ openDecisions:
     question: Which production SLO, RPO, RTO, and restore/soak objectives are accepted by runtime operations?
     owner: Media SRE and runtime operations owner
     blocks: production-activation
+ownerMeasurementDefinitions:
+  status: definition-only-not-observed-or-qualified
+  rule: >-
+    Each record defines how its exact NFR acceptance criterion is evaluated. It does not
+    establish that the protocol has run, that a target is calibrated, that an external owner
+    approved it, or that a profile is implemented, qualified, available, or production-ready.
+  records:
+    - id: media.nfr-measurement.NFR-SEC-001.v1
+      requirementRef: NFR-SEC-001
+      metric: unsafe-promotion-count and maximum observed worker resource consumption
+      unit: count per adversarial fixture; bytes, CPU-milliseconds, wall-milliseconds, process-count
+      scope: One declared parser/import/decoder/model/scene/shader/script/archive boundary and its promotion decision.
+      samplePopulation:
+        include: Deterministic malformed, oversized, nested, path-traversal, decompression-expansion, timeout, and worker-crash fixtures for each declared boundary.
+        exclude: Real user content, unbounded fuzz campaigns, and production traffic unless separately authorized and privacy-reviewed.
+      protocol:
+        - Pin parser/worker build, fixture digest, declared resource budget, and promotion boundary.
+        - Run each fixture in a fresh isolated worker and record resource maxima, termination class, and whether trusted promotion occurred.
+        - Compare observations with the declared operation/profile budget and require zero promotion after rejection, timeout, or worker failure.
+      invalidOrAbstain: Abstain if the worker boundary, fixture digest, resource budget, or promotion oracle is missing; any unmeasured or unsupported format is UNKNOWN, never safe by default.
+      requiredEvidence: fixture manifest, build identity, budget reference, per-fixture worker result, and promotion decision evidence.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-SEC-001
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/decisionId
+        - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion
+    - id: media.nfr-measurement.NFR-PRIV-001.v1
+      requirementRef: NFR-PRIV-001
+      metric: incorrect-policy-decision-count and unauthorized-data-flow count
+      unit: count per decision-matrix case; count per labeled source-to-sink flow
+      scope: Each admission, dispatch, read, reuse, output, and export boundary, checking each policy axis independently.
+      samplePopulation:
+        include: Synthetic cases varying tenant, classification, consent, purpose, residency, egress, provider retention, training use, and rights independently, including missing and conflicting facts.
+        exclude: Real identities, real credentials, production tenant data, and any case lacking a documented expected owner decision.
+      protocol:
+        - Construct a decision matrix with one-axis-at-a-time and conflicting-axis cases for every boundary in scope.
+        - Evaluate allow, deny, and unknown outcomes against the exact policy owner and source facts.
+        - Trace labeled synthetic data through logs, provider requests, outputs, and export sinks; verify denied or unknown cases produce no protected effect or flow.
+      invalidOrAbstain: Abstain when a policy axis, boundary owner, expected decision, or sink inventory is missing; missing facts must produce UNKNOWN or DENY according to the exact policy contract.
+      requiredEvidence: versioned synthetic matrix, policy-source refs, per-axis decision result, and data-flow trace.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-PRIV-001
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/dataHandling
+        - .product-experience/pdp-1-domain-data/privacy.yaml#axes/media.privacy.tenant-scope
+    - id: media.nfr-measurement.NFR-AUD-001.v1
+      requirementRef: NFR-AUD-001
+      metric: effect-without-durable-intent count and false-finality count under injected failures
+      unit: count per fault point and operation case
+      scope: Consequential external effects and their intent, dispatch, receipt, and final-persist sequence.
+      samplePopulation:
+        include: Exact owner-defined command contracts with deterministic fault injection before/after intent persistence, provider crossing, provider acknowledgement, and final receipt persistence.
+        exclude: Operations without consequential effects, production provider credentials, and provider outcomes that cannot be deterministically controlled.
+      protocol:
+        - For each included contract, inject a crash or write failure at every declared ordering boundary.
+        - Restart from persisted state and inspect the authoritative intent/effect/finality records.
+        - Require intent-before-effect and prohibit replay when effect outcome is unknown; classify missing evidence as UNKNOWN rather than success.
+      invalidOrAbstain: Abstain if the operation ordering, durable store, fault location, or authoritative finality field is not specified; provider termination is not inferred from a cancellation acknowledgement.
+      requiredEvidence: operation/version, fault schedule, durable record snapshots, restart trace, and finality classification.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-AUD-001
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/ownerDecisionId
+        - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
+    - id: media.nfr-measurement.NFR-OBS-001.v1
+      requirementRef: NFR-OBS-001
+      metric: sensitive-fixture disclosure count and redaction-safe-diagnostic completion count
+      unit: count per sensitive field × telemetry sink × failure case
+      scope: Logs, traces, metrics, audit, and provenance are assessed as distinct output schemas and retention classes.
+      samplePopulation:
+        include: Synthetic secrets, personal data, source excerpts, captions, prompts, and protected metadata placed in each declared telemetry field and redaction-failure path.
+        exclude: Real secrets or personal data; sinks without an owner-declared schema or capture point.
+      protocol:
+        - Seed each synthetic sensitive value at each source and exercise success, error, timeout, and redaction-failure paths.
+        - Inspect every declared sink with exact-field matching and verify the expected redaction or access-controlled audit treatment.
+        - Verify a redaction failure emits only the declared safe diagnostic and does not retry with raw content.
+      invalidOrAbstain: Abstain when a telemetry sink, retention class, redaction rule, or synthetic canary is absent; a sink not inspected is unmeasured, not passing.
+      requiredEvidence: sink inventory, schema/version, synthetic canary manifest, retention rule, and inspected output digest.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-OBS-001
+        - .product-experience/pdp-1-domain-data/privacy.yaml#invariants
+        - .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/decisionId
+    - id: media.nfr-measurement.NFR-ACCESS-001.v1
+      requirementRef: NFR-ACCESS-001
+      metric: task completion, keyboard-only completion, focus-loss, and inaccessible-action counts
+      unit: count per admitted journey/task and assistive-technology configuration
+      scope: Supported interfaces and admitted journey actions, including non-drag alternatives and status/action announcements.
+      samplePopulation:
+        include: Each supported component/action pattern, keyboard path, focus transition, screen-reader announcement, zoom/reflow, reduced-motion, and forced-color case in the declared phase-1 view.
+        exclude: Unimplemented or unadmitted screens, unclaimed assistive-technology combinations, and inferred support for a locale or platform.
+      protocol:
+        - Freeze the tested interface/component version, journey fixture, browser/OS, and assistive-technology configuration.
+        - Execute the same task by keyboard-only and declared screen-reader paths; verify selected objects, measurements, status, and permitted actions are exposed.
+        - Exercise zoom/reflow, reduced motion, and forced colors; record blocked tasks, focus loss, missing announcements, and non-drag alternatives.
+      invalidOrAbstain: Abstain for an unbound component contract, unspecified assistive technology, or missing expected task/action oracle; do not infer conformance from source labels alone.
+      requiredEvidence: interface/version, journey/task fixture, environment, step outcomes, accessibility-tree or screen-reader evidence, and defect list.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-ACCESS-001
+        - .product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/media.a11y.keyboard-equivalence
+        - .product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/media.component.identity-context-boundary
+    - id: media.nfr-measurement.NFR-LOC-001.v1
+      requirementRef: NFR-LOC-001
+      metric: locale-specific rendering/task defect count and unsupported-locale substitution count
+      unit: count per locale × text/audio/caption/time-format fixture
+      scope: UI locale, speech language, subtitle language, voice locale, and metadata/time formatting remain separate dimensions.
+      samplePopulation:
+        include: Declared Latin and Devanagari cases, RTL cases only where claimed, pseudo-localization, font fallback, shaping, caption wrapping, and date/time formatting fixtures.
+        exclude: Languages, voices, scripts, or platform/font combinations not declared in the exact profile; synthetic text is used unless separate review permits real content.
+      protocol:
+        - Run each locale dimension independently against its declared supported/unsupported profile state.
+        - Inspect shaping, bidi ordering, clipping, caption timing/wrapping, and formatted metadata using versioned fixtures.
+        - Submit unsupported cases and verify explicit unavailable/unknown behavior rather than silent language or voice substitution.
+      invalidOrAbstain: Abstain if locale/profile support, font stack, language metadata, or expected rendering oracle is not declared; a locale not tested is not supported.
+      requiredEvidence: locale/profile matrix, fixture digests, font and rendering environment, output capture, and substitution decision.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-LOC-001
+        - .product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/media.a11y.readability-reflow
+        - .product-experience/pdp-2-design-interface-system/cli-language.yaml#commandPrinciples
+    - id: media.nfr-measurement.NFR-SIMPLE-001.v1
+      requirementRef: NFR-SIMPLE-001
+      metric: first-use task completion, recovery success, decision burden, and hidden-consequential-choice count
+      unit: task success proportion; recovery step count; observed choice count per journey
+      scope: Intent-first primary experience and progressive disclosure for exact admitted journeys.
+      samplePopulation:
+        include: Representative participants selected against the declared audience and journey profile; include first-use, recovery, and at least one consequential choice task per applicable journey.
+        exclude: Product team members acting as proxies, unadmitted journeys, and tasks with undocumented expected safe choices.
+      protocol:
+        - Freeze journey, task prompts, participant inclusion criteria, success definition, and observation rubric before sessions.
+        - Observe uncoached first-use completion, recovery after a seeded recoverable error, and whether consequential choices are visible before commitment.
+        - Report task outcomes and decision steps descriptively; do not claim population-level usability from a convenience sample.
+      invalidOrAbstain: Abstain if participant criteria, task success oracle, journey version, or consent/privacy handling is missing; small samples cannot establish generalized usability.
+      requiredEvidence: protocol version, participant inclusion/exclusion summary, journey/task version, anonymized observations, and limitations.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-SIMPLE-001
+        - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/J-01
+        - .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#acceptance/criteria
+    - id: media.nfr-measurement.NFR-PERF-001.v1
+      requirementRef: NFR-PERF-001
+      metric: p95 control-plane latency, visible-feedback latency, editor interaction latency, CLI startup latency, and cancellation-ack latency
+      unit: milliseconds at p95 or stated deadline; request rate in requests/second
+      scope: The six individually identified proposed surfaces below; external model/render/simulation/encoding execution is measured separately from control-plane work.
+      latencyPopulationRule: The denominator is every initiated operation in the declared measurement window. Keep completed, failed, timed-out, cancelled, and right-censored observations in separate outcome counts; never delete failures from the denominator or impute their latency as a success. A run with any missing/unknown timing or an operation whose boundary cannot be observed is inconclusive and cannot pass the proposal.
+      quantileRule: For p95, sort complete valid duration observations in ascending monotonic elapsed time and select the nearest-rank element at index ceil(0.95*N)-1; report N and the percentile together. For `within-X` targets, require every initiated observation to have an observed completion within X and report every failure separately. Wall-clock timestamps are not a latency clock.
+      surfaceProtocols:
+        - id: media.nfr-perf.small-status-metadata-request.v1
+          proposedBudgetRef: media.nfr-perf.small-status-metadata-request.v1
+          startBoundary: First server-side receipt of the exact bounded status/metadata request after transport decoding.
+          endBoundary: Last server-side byte of the response after authorization, bounded read, and serialization; external execution is excluded only if no work is performed synchronously in this interval.
+          load: Sustain 50 initiated requests per second for five measured minutes after one minute of warm-up; record all admitted/rejected responses and timing outcomes.
+        - id: media.nfr-perf.bounded-job-admission.v1
+          proposedBudgetRef: media.nfr-perf.bounded-job-admission.v1
+          startBoundary: First server-side receipt of a schema-valid job submission after transport decoding.
+          endBoundary: Durable accepted/rejected/unknown submission receipt is fully serialized; provider execution and later job completion are excluded.
+          load: Run the fixed source-registration fixture under the declared request rate; record store, policy, capacity, and admission outcome for every initiation.
+        - id: media.nfr-perf.visible-web-control-feedback.v1
+          proposedBudgetRef: media.nfr-perf.visible-web-control-feedback.v1
+          startBoundary: Browser input event for the named control action.
+          endBoundary: First rendered, perceptible feedback frame for that same action, measured on a monotonic browser timeline.
+          load: Use the frozen reference project and one recorded scenario per declared control class; preserve dropped frames and missing feedback as failed observations.
+        - id: media.nfr-perf.editor-scrub-selection-undo.v1
+          proposedBudgetRef: media.nfr-perf.editor-scrub-selection-undo.v1
+          startBoundary: Browser input event for one scrub, selection, or undo action against the admitted preview-size fixture.
+          endBoundary: First rendered state that reflects the exact action and selected project revision; external render completion is excluded and reported separately.
+          load: Measure each of scrub, selection, and undo separately against the frozen project/preview fixture; do not aggregate away the slowest class.
+        - id: media.nfr-perf.cli-help-version.v1
+          proposedBudgetRef: media.nfr-perf.cli-help-version.v1
+          startBoundary: Operating-system process creation for the exact CLI binary and command.
+          endBoundary: Process exit after complete stdout/stderr and exit code are available; network or GPU initialization is forbidden and any attempt is reported as a protocol violation.
+          load: Run help and version separately in the frozen local environment, reporting cold and warm process observations as distinct populations.
+        - id: media.nfr-perf.cancel-request-ack.v1
+          proposedBudgetRef: media.nfr-perf.cancel-request-ack.v1
+          startBoundary: First server-side receipt of an authorized cancellation command after transport decoding.
+          endBoundary: Durable accepted/rejected/unknown cancellation decision is serialized to the caller; provider termination is a separate observation and is never implied by acknowledgement.
+          load: Measure only on the explicitly declared healthy control-plane profile; include duplicate, already-terminal, and outcome-unknown cases as distinct strata.
+      samplePopulation:
+        include: Every proposed surface under a frozen named reference environment, fixed input/project fixture, declared load, and version-pinned build.
+        exclude: External execution time only for the budget clauses that explicitly exclude it; exclude failed/invalid runs from percentile computation but report their count and reason separately.
+      protocol:
+        - Name and freeze CPU/GPU/browser/OS/storage/network environment, build, fixture, concurrency, and instrumentation before measurement.
+        - For each surface, run 30 warm-up observations followed by at least 1000 initiated measured operations unless the five-minute fixed-rate workload initiates more; report the initiation denominator and outcome strata.
+        - Randomize scenario order where possible, use the exact nearest-rank p95 rule above, report p50/p95/p99, errors, timeouts, censored observations, saturation, and external-work intervals separately, and repeat the run three times.
+        - Compare only to the existing proposal for that surface; changing a proposed target requires an owner decision and a new protocol version.
+      invalidOrAbstain: Abstain if environment, workload fixture, measurement boundaries, or load generator validity is missing; do not fill the `not-yet-named` environments or present proposal values as observed SLOs.
+      requiredEvidence: environment manifest, build digest, fixture digest, load schedule, raw latency samples, excluded-run ledger, and percentile calculation.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-PERF-001
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/decisionId
+        - .product-experience/pdp-0-product-truth/profile-semantics.yaml#profileAxes/PROFILE-AXIS-EXECUTION-LOCATION
+    - id: media.nfr-measurement.NFR-COST-001.v1
+      requirementRef: NFR-COST-001
+      metric: per-job resource maximum, budget-exhaustion termination, and fallback reauthorization violations
+      unit: CPU-milliseconds, bytes, GPU-milliseconds, process count, wall-milliseconds, retry count, and currency minor units per job
+      scope: Each exact capability/profile budget and every optimization/fallback path that can consume additional resources.
+      samplePopulation:
+        include: Versioned representative and adversarial jobs at each declared budget boundary, including one-unit-over, timeout, retry, fallback, and concurrent-load cases.
+        exclude: Workloads without a declared finite budget or cost basis; such workloads remain unresolved and are not counted as passing.
+      protocol:
+        - Resolve the exact operation/profile budget and meter definitions before execution.
+        - Exercise under-budget, boundary, and over-budget fixtures while recording each resource independently.
+        - Verify exhaustion terminates or yields explicit uncertainty and every fallback repeats budget, quality, and authority checks.
+      invalidOrAbstain: Abstain if any resource dimension, meter, budget, or fallback recheck is unspecified; unknown cost does not mean zero cost.
+      requiredEvidence: operation/profile budget ref, meter versions, fixture/workload digest, per-dimension measurements, and terminal/recheck record.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-COST-001
+        - .product-experience/pdp-0-product-truth/qualification-policy.yaml#capabilityCoverage/defaultQualificationState
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/boundsCount
+    - id: media.nfr-measurement.NFR-TIME-001.v1
+      requirementRef: NFR-TIME-001
+      metric: sample/frame boundary error and accumulated rational-clock drift
+      unit: exact sample ticks, exact frame ticks, and rational seconds; drift in ticks after N conversions
+      scope: Declared sample, frame, clip, and event clocks, including round-trip conversion and resampling boundaries.
+      samplePopulation:
+        include: Exact rational test points at zero, interior, boundary, negative/invalid, maximum supported value, and repeated round trips across each declared conversion profile.
+        exclude: Clock domains without a declared source timebase, rounding rule, or overflow limit; those cases remain UNKNOWN.
+      protocol:
+        - Generate rational source timestamps and calculate expected destination ticks with the declared exact arithmetic and rounding rule.
+        - Exercise conversion, round trip, resampling, boundary adjacency, overflow, and nonpositive-denominator rejection.
+        - Compare exact integer/rational results; report lossy conversion separately from drift and reject silent precision loss.
+      invalidOrAbstain: Abstain if source timebase, destination timebase, conversion profile, or permitted-loss rule is absent; invalid ratios and overflow must be rejected, not coerced.
+      requiredEvidence: conversion profile/version, exact input rationals, expected ticks, actual ticks, and loss/drift classification.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-TIME-001
+        - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml#ownerDefinitionHandoff/profiles/media.value.rational-media-time
+        - .product-experience/pdp-1-domain-data/interoperability.yaml#canonicalDefinitionConversionBinding/scope
+    - id: media.nfr-measurement.NFR-FIDELITY-001.v1
+      requirementRef: NFR-FIDELITY-001
+      metric: invalid-domain-constraint acceptance count and unsupported fidelity-claim count
+      unit: count per domain constraint × case; count per claim with missing owner/model/range evidence
+      scope: Scientific/domain constraints are evaluated separately from perceptual quality and rights/safety gates.
+      samplePopulation:
+        include: Domain-owner supplied validation cases, invalid-unit cases, out-of-range inputs, misleading-upscaling cases, unsupported repair cases, and missing model/solver qualification cases.
+        exclude: Render-only judgments as scientific evidence and any domain for which no qualified owner or reference case is declared.
+      protocol:
+        - Resolve owner, model/solver version, units, validity range, and reference cases for each claimed domain.
+        - Run valid and negative cases against the declared tolerances, recording abstention when the model or evidence is out of scope.
+        - Verify perceptual scores cannot override an invalid domain constraint or a denied rights/safety decision.
+      invalidOrAbstain: Abstain when owner, model/solver, units, validity range, or reference evidence is absent; visual plausibility never substitutes for scientific validation.
+      requiredEvidence: domain-owner source, model/solver identity, units/range, case fixture, expected tolerance, and independent rights result.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-FIDELITY-001
+        - .product-experience/pdp-0-product-truth/quality-policy.yaml#qualityDimensions/QUALITY-DIM-DOMAIN-SCIENTIFIC
+        - .product-experience/pdp-0-product-truth/quality-policy.yaml#protectedSemanticProperties/PROTECTED-DOMAIN-FIDELITY
+    - id: media.nfr-measurement.NFR-RECOVERY-001.v1
+      requirementRef: NFR-RECOVERY-001
+      metric: unsafe-replay count, fence/tombstone violation count, and unresolved-outcome misclassification count
+      unit: count per injected crash/race scenario and operation identity
+      scope: Restart, retry, cancellation, restore, and reconciliation for each exact stateful owner operation.
+      samplePopulation:
+        include: Duplicate request, stale lease/fence, crash before/after dispatch, cancel race, partial success, restore, tombstone replay, and provider-outcome-unknown cases.
+        exclude: Uncontrolled real provider execution and scenarios with no deterministic authoritative expected-state oracle.
+      protocol:
+        - Freeze operation/state-machine version, durable fixture, actor/tenant, attempt identity, and fault schedule.
+        - Inject each crash/race point, restart or reconcile from persisted evidence, and assert only declared safe next actions are possible.
+        - Verify unknown outcomes stay UNKNOWN and are never converted to success/failure or replay authorization without exact evidence.
+      invalidOrAbstain: Abstain if a fence, durable identity, tombstone rule, or state oracle is missing; a passing in-process test alone does not establish restart safety.
+      requiredEvidence: fault schedule, before/after durable snapshots, actor and attempt identities, state oracle, and safe-next-action result.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-RECOVERY-001
+        - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job
+        - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
+        - .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure
+    - id: media.nfr-measurement.NFR-DEPLOY-001.v1
+      requirementRef: NFR-DEPLOY-001
+      metric: undeclared egress/model-download/fallback count and profile-contract completeness
+      unit: count per profile × capability × boundary; checklist item completion fraction
+      scope: Local-development, private-local, connected-production, and hybrid-production profiles at capability scope.
+      samplePopulation:
+        include: Each declared profile and each capability it claims, including offline, unavailable dependency, denied egress, and lower-fidelity fallback cases.
+        exclude: Profiles not yet authored and deployment environments without approved identity/durability/security owners; these remain unadmitted.
+      protocol:
+        - Freeze profile, capability set, identity/durability/encryption/backup/quota/integration declarations, and allowed egress list.
+        - Exercise denied-network and unavailable-dependency cases; record attempted egress, download, fallback, and stop behavior.
+        - Verify each fallback requires an explicit profile permission and repeats quality, budget, and authority checks.
+      invalidOrAbstain: Abstain if profile identity, egress policy, capability list, or stop condition is undefined; absent policy is not local-only permission.
+      requiredEvidence: profile version, capability list, network policy, deployment manifest, observed egress trace, and stop/fallback decision.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-DEPLOY-001
+        - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback/hardwareFootprintDoesNotWaiveAdmission
+        - .product-experience/pdp-0-product-truth/profile-semantics.yaml#fallbackSemantics
+    - id: media.nfr-measurement.NFR-SLO-001.v1
+      requirementRef: NFR-SLO-001
+      metric: owner-approved availability/error/latency SLI, recovery-point loss, recovery-time, restore integrity, and soak stability
+      unit: owner-selected ratio/percentile, seconds, bytes or records lost, and incident/error count over a named window
+      scope: One named production deployment, service boundary, data class, and runtime-operations-approved target set.
+      samplePopulation:
+        include: Only production or approved production-like observations with a frozen service boundary, target environment, traffic/data class, and SRE-approved measurement window.
+        exclude: Local tests, synthetic-only drills as evidence of real availability, unapproved environments, and any number not approved by the service owner.
+      protocol:
+        - Obtain runtime-operations approval for exact SLI/SLO, RPO/RTO, restore and soak targets, environment, and window before evaluating compliance.
+        - Measure availability/error/latency from the approved service boundary; measure RPO/RTO and restore integrity using approved failure and restore exercises.
+        - Report missing instrumentation or an unapproved target as NOT_SET/NOT_EVALUATED; never substitute a proposed budget or synthetic pass.
+      invalidOrAbstain: Abstain until the service owner names and approves the target, environment, window, data boundary, and evidence source; no production activation follows from this method definition.
+      requiredEvidence: signed target decision, deployment/environment identity, SLI query/version, observation window, restore/drill trace, and limitations.
+      observationStatus: NOT_EVALUATED
+      sourceRefs:
+        - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#requirements/NFR-SLO-001
+        - .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/reconnectProtocol
+        - .product-experience/pdp-1-domain-data/versioning.yaml#observed/restart

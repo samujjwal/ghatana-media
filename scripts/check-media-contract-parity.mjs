@@ -515,6 +515,13 @@ export function analyzeContractParity(input) {
   const retiredFindings = retiredSdkRetryFindings(input.sdkSourceFiles);
   if (semanticUnresolved) gaps.push(`semantic binding unresolved: PDP-1 operations remain ${operationStatus}; structural identities are not accepted mappings`);
   if (!input.pdp1Operations.includes("bindingStatus:")) gaps.push("semantic binding unresolved: PDP-1 binding status is absent");
+  // Keep the frozen source-observation census separate from newer typed
+  // contract validation gaps. A new Media-owned type reference can add a
+  // definition blocker, but it does not rewrite the historical 47-finding
+  // inventory or its two open acceptance findings.
+  const historicalGaps = gaps.filter((gap) => gap.startsWith("Agent Tool structural inventory")
+    || gap.startsWith("semantic binding unresolved:"));
+  const typedContractGaps = gaps.filter((gap) => gap.startsWith("typed contract binding:"));
 
   return {
     structural: {
@@ -531,10 +538,13 @@ export function analyzeContractParity(input) {
     },
     semanticStatus: semanticUnresolved ? "UNRESOLVED" : "REVIEW_REQUIRED",
     observedFindingCount: gaps.length + reconciledFindings.length,
+    historicalObservedFindingCount: historicalGaps.length + reconciledFindings.length,
     operationAcceptance,
     retiredFindings,
-    historicalFindingCount: gaps.length + reconciledFindings.length + retiredFindings.length,
+    historicalFindingCount: historicalGaps.length + reconciledFindings.length + retiredFindings.length,
     historicalDispositionedCount: reconciledFindings.length + retiredFindings.length,
+    historicalUnresolvedCount: historicalGaps.length,
+    typedContractGaps,
     reconciledFindings,
     gaps,
     passed: gaps.length === 0,
@@ -587,7 +597,8 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.
   console.log(`  structural inventory: ${JSON.stringify(result.structural)}`);
   console.log(`  semantic binding: ${result.semanticStatus}`);
   console.log(`  source findings audited: ${result.observedFindingCount} (${result.reconciledFindings.length} dispositioned; ${result.gaps.length} unresolved)`);
-  console.log(`  historical source findings: ${result.historicalFindingCount} (${result.historicalDispositionedCount} dispositioned; ${result.gaps.length} unresolved; ${result.retiredFindings.length} retired routes)`);
+  console.log(`  historical source findings: ${result.historicalFindingCount} (${result.historicalDispositionedCount} dispositioned; ${result.historicalUnresolvedCount} unresolved; ${result.retiredFindings.length} retired routes)`);
+  if (result.typedContractGaps.length) console.log(`  current typed-contract definition gaps: ${result.typedContractGaps.length}`);
   if (result.reconciledFindings.length) {
     console.log(`  source-dispositioned findings: ${result.reconciledFindings.length}`);
   }

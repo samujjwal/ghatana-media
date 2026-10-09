@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: all 47 view definitions enumerate every source label without treating a label or source pointer as evidence
+ok 1 - all 47 view definitions enumerate every source label without treating a label or source pointer as evidence
+  ---
+  duration_ms: 3.83502
+  type: 'test'
+  ...
+# Subtest: no view-label enum is treated as an observation schema; unsupported fact families fail closed
+ok 2 - no view-label enum is treated as an observation schema; unsupported fact families fail closed
+  ---
+  duration_ms: 0.551457
+  type: 'test'
+  ...
+# Subtest: project list labels derive from a fresh trusted query result, not a label or self-asserted currentness
+ok 3 - project list labels derive from a fresh trusted query result, not a label or self-asserted currentness
+  ---
+  duration_ms: 54.86561
+  type: 'test'
+  ...
+# Subtest: in-flight labels derive only from a fresh exact local request tuple and never assert remote finality
+ok 4 - in-flight labels derive only from a fresh exact local request tuple and never assert remote finality
+  ---
+  duration_ms: 4.292047
+  type: 'test'
+  ...
+# Subtest: all 27 in-flight labels bind pending observations to a source action-operation tuple
+ok 5 - all 27 in-flight labels bind pending observations to a source action-operation tuple
+  ---
+  duration_ms: 5.047639
+  type: 'test'
+  ...
+# Subtest: offline labels derive from fresh exact client-local availability signals, not remote state
+ok 6 - offline labels derive from fresh exact client-local availability signals, not remote state
+  ---
+  duration_ms: 4.182065
+  type: 'test'
+  ...
+# Subtest: stale labels compare an exact object/version snapshot against trusted currentness and age policy
+ok 7 - stale labels compare an exact object/version snapshot against trusted currentness and age policy
+  ---
+  duration_ms: 2.337446
+  type: 'test'
+  ...
+# Subtest: query predicates fail closed on absent scope, stale reads, incomplete empty pages, malformed facts, or wrong source
+ok 8 - query predicates fail closed on absent scope, stale reads, incomplete empty pages, malformed facts, or wrong source
+  ---
+  duration_ms: 0.644603
+  type: 'test'
+  ...
+# Subtest: labels whose current owner query schema cannot support a state remain explicitly unsupported
+ok 9 - labels whose current owner query schema cannot support a state remain explicitly unsupported
+  ---
+  duration_ms: 0.634256
+  type: 'test'
+  ...
+# Subtest: artifact lifecycle predicates bind the exact proposed read model, immutable version, evidence and currentness
+ok 10 - artifact lifecycle predicates bind the exact proposed read model, immutable version, evidence and currentness
+  ---
+  duration_ms: 1.466344
+  type: 'test'
+  ...
+# Subtest: stored job observations bind exact owner read scope and map only OUTCOME_UNKNOWN
+ok 11 - stored job observations bind exact owner read scope and map only OUTCOME_UNKNOWN
+  ---
+  duration_ms: 1.364053
+  type: 'test'
+  ...
+# Subtest: local draft observations compare exact current snapshot and base across every typed draft label
+ok 12 - local draft observations compare exact current snapshot and base across every typed draft label
+  ---
+  duration_ms: 18.424357
+  type: 'test'
+  ...
+# Subtest: all unknown-outcome labels bind exact action-operation tuples to local loss-of-response facts only
+ok 13 - all unknown-outcome labels bind exact action-operation tuples to local loss-of-response facts only
+  ---
+  duration_ms: 8.666711
+  type: 'test'
+  ...
+# Subtest: owner meanings close the previously pending state semantics without rewriting historical extraction
+ok 14 - owner meanings close the previously pending state semantics without rewriting historical extraction
+  ---
+  duration_ms: 3.265034
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10337.458059

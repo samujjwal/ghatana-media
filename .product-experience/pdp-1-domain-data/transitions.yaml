@@ -17,11 +17,18 @@ transitionRecords:
   - id: media-job/T01
     sourceMachineId: media-job
     sourceTransitionIndex: 1
-    from: [QUEUED]
-    to: [RUNNING, CANCELLED, FAILED]
+    from:
+      - QUEUED
+    to:
+      - RUNNING
+      - CANCELLED
+      - FAILED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    ownerGuardDefinition: request-is-valid-and-current-authority-allows-admission
     guardDisposition: pending-owner-review; source guard not promoted
-    operationRefs: [media.operation.job-lifecycle]
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
+    operationRefs:
+      - media.operation.job-lifecycle
     operationBinding: proposed-unresolved; PDP1-002 family reference only, not an operation equivalence or accepted link
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
@@ -29,10 +36,19 @@ transitionRecords:
   - id: media-job/T02
     sourceMachineId: media-job
     sourceTransitionIndex: 2
-    from: [RUNNING]
-    to: [RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED]
+    from:
+      - RUNNING
+    to:
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    ownerGuardDefinition: current-fence-and-recorded-attempt-outcome
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -41,11 +57,19 @@ transitionRecords:
   - id: media-job/T03
     sourceMachineId: media-job
     sourceTransitionIndex: 3
-    from: [RETRY_PENDING]
-    to: [RUNNING, CANCELLED, FAILED, OUTCOME_UNKNOWN]
+    from:
+      - RETRY_PENDING
+    to:
+      - RUNNING
+      - CANCELLED
+      - FAILED
+      - OUTCOME_UNKNOWN
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    ownerGuardDefinition: retry-budget-policy-and-authority-rechecked
     guardDisposition: pending-owner-review; source guard not promoted
-    operationRefs: [media.operation.job-lifecycle]
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
+    operationRefs:
+      - media.operation.job-lifecycle
     operationBinding: proposed-unresolved; PDP1-002 family reference only, not an operation equivalence or accepted link
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
@@ -53,11 +77,16 @@ transitionRecords:
   - id: media-job/T04
     sourceMachineId: media-job
     sourceTransitionIndex: 4
-    from: [OUTCOME_UNKNOWN]
-    to: [RECONCILING]
+    from:
+      - OUTCOME_UNKNOWN
+    to:
+      - RECONCILING
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    ownerGuardDefinition: provider-or-owner-reconciliation-begins
     guardDisposition: pending-owner-review; source guard not promoted
-    operationRefs: [media.operation.job-lifecycle]
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
+    operationRefs:
+      - media.operation.job-lifecycle
     operationBinding: proposed-unresolved; PDP1-002 family reference only, not an operation equivalence or accepted link
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
@@ -65,10 +94,20 @@ transitionRecords:
   - id: media-job/T05
     sourceMachineId: media-job
     sourceTransitionIndex: 5
-    from: [RECONCILING]
-    to: [RUNNING, RETRY_PENDING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED, OUTCOME_UNKNOWN]
+    from:
+      - RECONCILING
+    to:
+      - RUNNING
+      - RETRY_PENDING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
+      - OUTCOME_UNKNOWN
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    ownerGuardDefinition: durable-reconciliation-evidence-and-safe-decision
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -77,10 +116,17 @@ transitionRecords:
   - id: media-attempt/T01
     sourceMachineId: media-attempt
     sourceTransitionIndex: 1
-    from: [CLAIMED]
-    to: [DISPATCH_INTENT_RECORDED, CANCEL_CONFIRMED, FAILED, SUPERSEDED]
+    from:
+      - CLAIMED
+    to:
+      - DISPATCH_INTENT_RECORDED
+      - CANCEL_CONFIRMED
+      - FAILED
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    ownerGuardDefinition: current-lease-and-policy-rechecked-before-dispatch
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -89,10 +135,17 @@ transitionRecords:
   - id: media-attempt/T02
     sourceMachineId: media-attempt
     sourceTransitionIndex: 2
-    from: [DISPATCH_INTENT_RECORDED]
-    to: [DISPATCHED, CANCEL_CONFIRMED, FAILED, OUTCOME_UNKNOWN]
+    from:
+      - DISPATCH_INTENT_RECORDED
+    to:
+      - DISPATCHED
+      - CANCEL_CONFIRMED
+      - FAILED
+      - OUTCOME_UNKNOWN
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    ownerGuardDefinition: durable-dispatch-intent-and-idempotency-identity-exist
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -101,10 +154,19 @@ transitionRecords:
   - id: media-attempt/T03
     sourceMachineId: media-attempt
     sourceTransitionIndex: 3
-    from: [DISPATCHED]
-    to: [RUNNING, CANCEL_REQUESTED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    from:
+      - DISPATCHED
+    to:
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    ownerGuardDefinition: dispatch-may-have-crossed-boundary-and-current-fence-remains-valid
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -113,10 +175,18 @@ transitionRecords:
   - id: media-attempt/T04
     sourceMachineId: media-attempt
     sourceTransitionIndex: 4
-    from: [RUNNING]
-    to: [CANCEL_REQUESTED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    from:
+      - RUNNING
+    to:
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    ownerGuardDefinition: provider-observation-is-recorded-under-current-fence
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -125,10 +195,18 @@ transitionRecords:
   - id: media-attempt/T05
     sourceMachineId: media-attempt
     sourceTransitionIndex: 5
-    from: [CANCEL_REQUESTED]
-    to: [CANCEL_CONFIRMED, SUCCEEDED, FAILED, OUTCOME_UNKNOWN, SUPERSEDED]
+    from:
+      - CANCEL_REQUESTED
+    to:
+      - CANCEL_CONFIRMED
+      - SUCCEEDED
+      - FAILED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    ownerGuardDefinition: cancellation-race-is-resolved-from-provider-or-local-authority-evidence
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -137,16 +215,25 @@ transitionRecords:
   - id: media-upload-and-artifact/T01
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 1
-    from: [RECEIVING]
-    to: [VERIFYING, REJECTED, EXPIRED]
+    from:
+      - RECEIVING
+    to:
+      - VERIFYING
+      - REJECTED
+      - EXPIRED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: upload-bounds-and-current-authority-remain-valid
     guardDisposition: bounded-owner-definition-under-PXD-049; runtime-and-independent-qualification-not-admitted
-    operationRefs: [media.operation-slice.complete-upload]
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
+    operationRefs:
+      - media.operation-slice.complete-upload
     operationBinding: only-RECEIVING-to-VERIFYING-on-successful-upload-finalization; 409-or-unknown-does-not-transition-to-REJECTED-or-EXPIRED; not-full-transition-or-runtime-admission
     operationEdgeBounds:
       operationRef: media.operation-slice.complete-upload
       acceptedEdge: RECEIVING-to-VERIFYING-after-required-upload-bytes-and-SHA-256-are-verified
-      excludedEdges: [RECEIVING-to-REJECTED, RECEIVING-to-EXPIRED]
+      excludedEdges:
+        - RECEIVING-to-REJECTED
+        - RECEIVING-to-EXPIRED
       decisionRef: .product-experience/decision-log.md#PXD-049
       authority: Media product semantics only; runtimeAdmission remains NOT_ADMITTED
     eventTriggers: pending-PDP1-004
@@ -155,22 +242,47 @@ transitionRecords:
   - id: media-upload-and-artifact/T02
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 2
-    from: [VERIFYING]
-    to: [AVAILABLE, QUARANTINED, REJECTED]
+    from:
+      - VERIFYING
+    to:
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: integrity-format-rights-and-security-disposition-is-recorded
     guardDisposition: bounded-owner-definition-under-PXD-049; runtime-and-independent-qualification-not-admitted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: no-existing-verification-operation-identity; definition-does-not-create-a-route-or-runtime-admission
     ownerDecisionRef: .product-experience/decision-log.md#PXD-049
     evidenceGuards:
       subjectBinding: exact-tenantId-artifactId-stable-opaque-immutable-versionId-byte-size-and-full-content-sha256-lowercase-64-hex-digits
       requiredCheckRecords:
-        - {check: detected-format-and-format-policy, authority: existing-format-validation-and-policy-authority}
-        - {check: parser-and-security, authority: existing-security-scanning-and-isolated-parser-policy}
-        - {check: rights-for-intended-use, authority: existing-rights-authority}
-        - {check: consent-where-required, authority: existing-tenant-and-principal-scoped-consent-authority}
-        - {check: applicable-policy-and-retention, authority: existing-media-policy-and-retention-authority}
-      recordFields: [tenantId, subjectArtifactId, subjectArtifactVersionId, byteSize, fullContentDigest, intendedUseOrNotApplicable, evaluatedPrincipalIdOrNotApplicable, checkKind, authorityRef, decision, observedAt, policyOrMethodVersion, evidenceRef, expiresAtOrNotApplicable]
+        - check: detected-format-and-format-policy
+          authority: existing-format-validation-and-policy-authority
+        - check: parser-and-security
+          authority: existing-security-scanning-and-isolated-parser-policy
+        - check: rights-for-intended-use
+          authority: existing-rights-authority
+        - check: consent-where-required
+          authority: existing-tenant-and-principal-scoped-consent-authority
+        - check: applicable-policy-and-retention
+          authority: existing-media-policy-and-retention-authority
+      recordFields:
+        - tenantId
+        - subjectArtifactId
+        - subjectArtifactVersionId
+        - byteSize
+        - fullContentDigest
+        - intendedUseOrNotApplicable
+        - evaluatedPrincipalIdOrNotApplicable
+        - checkKind
+        - authorityRef
+        - decision
+        - observedAt
+        - policyOrMethodVersion
+        - evidenceRef
+        - expiresAtOrNotApplicable
       freshness: all-records-must-be-current-at-disposition-and-rechecked-at-use; expiry-is-authority-supplied
       outcomeRules:
         AVAILABLE: all-applicable-records-current-positive-and-bound-to-the-same-exact-subject
@@ -178,17 +290,27 @@ transitionRecords:
         QUARANTINED: missing-stale-unsupported-ambiguous-or-unverifiable-evidence; deny-use-pending-reconciliation
         REJECTED: authoritative-format-security-rights-consent-or-policy-denial
       expiryBoundary: EXPIRED-is-outside-this-transition-and-requires-the-separate-authoritative-retention-lifecycle-disposition; expired-check-evidence-cannot-establish-AVAILABLE
-      exclusions: [no-new-operation, no-self-issued-verification-authority, no-availability-from-upload-completion, no-runtime-or-independent-qualification-claim]
+      exclusions:
+        - no-new-operation
+        - no-self-issued-verification-authority
+        - no-availability-from-upload-completion
+        - no-runtime-or-independent-qualification-claim
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
     executionEffects: pending-runtime-and-platform-owner-contracts
   - id: media-upload-and-artifact/T03
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 3
-    from: [AVAILABLE]
-    to: [QUARANTINED, EXPIRED, ERASURE_REQUESTED]
+    from:
+      - AVAILABLE
+    to:
+      - QUARANTINED
+      - EXPIRED
+      - ERASURE_REQUESTED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: new-policy-or-retention-or-authorized-erasure-event
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -197,10 +319,16 @@ transitionRecords:
   - id: media-upload-and-artifact/T04
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 4
-    from: [QUARANTINED]
-    to: [AVAILABLE, REJECTED, ERASURE_REQUESTED]
+    from:
+      - QUARANTINED
+    to:
+      - AVAILABLE
+      - REJECTED
+      - ERASURE_REQUESTED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: explicit-review-or-erasure-decision-with-evidence
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -209,10 +337,15 @@ transitionRecords:
   - id: media-upload-and-artifact/T05
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 5
-    from: [EXPIRED]
-    to: [PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD]
+    from:
+      - EXPIRED
+    to:
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: expiry-policy-and-hold-check-are-re-evaluated
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -221,10 +354,15 @@ transitionRecords:
   - id: media-upload-and-artifact/T06
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 6
-    from: [ERASURE_REQUESTED]
-    to: [ACCESS_REVOKED, BLOCKED_BY_HOLD]
+    from:
+      - ERASURE_REQUESTED
+    to:
+      - ACCESS_REVOKED
+      - BLOCKED_BY_HOLD
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: authorized-erasure-is-durably-recorded-before-access-is-revoked
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -233,10 +371,16 @@ transitionRecords:
   - id: media-upload-and-artifact/T07
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 7
-    from: [ACCESS_REVOKED]
-    to: [PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, EXTERNAL_ERASURE_UNCONFIRMED]
+    from:
+      - ACCESS_REVOKED
+    to:
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - EXTERNAL_ERASURE_UNCONFIRMED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: controlled-copy-inventory-and-hold-check
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -245,10 +389,16 @@ transitionRecords:
   - id: media-upload-and-artifact/T08
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 8
-    from: [PHYSICAL_ERASURE_PENDING]
-    to: [ERASURE_CONFIRMED, BLOCKED_BY_HOLD, EXTERNAL_ERASURE_UNCONFIRMED]
+    from:
+      - PHYSICAL_ERASURE_PENDING
+    to:
+      - ERASURE_CONFIRMED
+      - BLOCKED_BY_HOLD
+      - EXTERNAL_ERASURE_UNCONFIRMED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -257,10 +407,15 @@ transitionRecords:
   - id: media-upload-and-artifact/T09
     sourceMachineId: media-upload-and-artifact
     sourceTransitionIndex: 9
-    from: [BLOCKED_BY_HOLD]
-    to: [PHYSICAL_ERASURE_PENDING, EXTERNAL_ERASURE_UNCONFIRMED]
+    from:
+      - BLOCKED_BY_HOLD
+    to:
+      - PHYSICAL_ERASURE_PENDING
+      - EXTERNAL_ERASURE_UNCONFIRMED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerGuardDefinition: hold-release-or-destination-boundary-reconciliation
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -269,10 +424,16 @@ transitionRecords:
   - id: media-stream-session/T01
     sourceMachineId: media-stream-session
     sourceTransitionIndex: 1
-    from: [OPEN]
-    to: [CONNECTED, DRAINING, FAILED]
+    from:
+      - OPEN
+    to:
+      - CONNECTED
+      - DRAINING
+      - FAILED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    ownerGuardDefinition: session-grant-and-provider-binding-are-current
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -281,10 +442,16 @@ transitionRecords:
   - id: media-stream-session/T02
     sourceMachineId: media-stream-session
     sourceTransitionIndex: 2
-    from: [CONNECTED]
-    to: [DEGRADED, DRAINING, FAILED]
+    from:
+      - CONNECTED
+    to:
+      - DEGRADED
+      - DRAINING
+      - FAILED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    ownerGuardDefinition: lease-sequence-and-consent-are-rechecked-per-effect
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -293,10 +460,16 @@ transitionRecords:
   - id: media-stream-session/T03
     sourceMachineId: media-stream-session
     sourceTransitionIndex: 3
-    from: [DEGRADED]
-    to: [CONNECTED, DRAINING, FAILED]
+    from:
+      - DEGRADED
+    to:
+      - CONNECTED
+      - DRAINING
+      - FAILED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    ownerGuardDefinition: recovery-is-within-declared-degradation-and-budget-policy
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -305,10 +478,15 @@ transitionRecords:
   - id: media-stream-session/T04
     sourceMachineId: media-stream-session
     sourceTransitionIndex: 4
-    from: [DRAINING]
-    to: [CLOSED, FAILED]
+    from:
+      - DRAINING
+    to:
+      - CLOSED
+      - FAILED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    ownerGuardDefinition: new-work-is-fenced-and-active-frame-effects-are-confirmed-or-recorded-unknown
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -317,10 +495,16 @@ transitionRecords:
   - id: media-review/T01
     sourceMachineId: media-review
     sourceTransitionIndex: 1
-    from: [DRAFT]
-    to: [REQUESTED, WITHDRAWN, EXPIRED]
+    from:
+      - DRAFT
+    to:
+      - REQUESTED
+      - WITHDRAWN
+      - EXPIRED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    ownerGuardDefinition: immutable-version-and-review-purpose-are-selected
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -329,10 +513,17 @@ transitionRecords:
   - id: media-review/T02
     sourceMachineId: media-review
     sourceTransitionIndex: 2
-    from: [REQUESTED]
-    to: [IN_REVIEW, WITHDRAWN, EXPIRED, SUPERSEDED]
+    from:
+      - REQUESTED
+    to:
+      - IN_REVIEW
+      - WITHDRAWN
+      - EXPIRED
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    ownerGuardDefinition: reviewer-delegation-and-version-remain-current
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -341,10 +532,19 @@ transitionRecords:
   - id: media-review/T03
     sourceMachineId: media-review
     sourceTransitionIndex: 3
-    from: [IN_REVIEW]
-    to: [CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, EXPIRED, SUPERSEDED]
+    from:
+      - IN_REVIEW
+    to:
+      - CHANGES_REQUESTED
+      - APPROVED
+      - REJECTED
+      - WITHDRAWN
+      - EXPIRED
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    ownerGuardDefinition: authorized-reviewer-decides-on-exact-version-and-purpose
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -353,10 +553,16 @@ transitionRecords:
   - id: media-review/T04
     sourceMachineId: media-review
     sourceTransitionIndex: 4
-    from: [CHANGES_REQUESTED]
-    to: [SUPERSEDED, WITHDRAWN, EXPIRED]
+    from:
+      - CHANGES_REQUESTED
+    to:
+      - SUPERSEDED
+      - WITHDRAWN
+      - EXPIRED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    ownerGuardDefinition: revision-creates-new-version-and-new-review-request
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -365,10 +571,16 @@ transitionRecords:
   - id: media-review/T05
     sourceMachineId: media-review
     sourceTransitionIndex: 5
-    from: [APPROVED]
-    to: [SUPERSEDED, EXPIRED, WITHDRAWN]
+    from:
+      - APPROVED
+    to:
+      - SUPERSEDED
+      - EXPIRED
+      - WITHDRAWN
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    ownerGuardDefinition: version-change-validity-expiry-or-authorized-withdrawal
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -377,10 +589,15 @@ transitionRecords:
   - id: media-delivery/T01
     sourceMachineId: media-delivery
     sourceTransitionIndex: 1
-    from: [NOT_STARTED]
-    to: [PREPARING, REVOKED]
+    from:
+      - NOT_STARTED
+    to:
+      - PREPARING
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: delivery-intent-and-destination-are-authorized
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -389,10 +606,16 @@ transitionRecords:
   - id: media-delivery/T02
     sourceMachineId: media-delivery
     sourceTransitionIndex: 2
-    from: [PREPARING]
-    to: [READY_FOR_AUTHORIZED_DELIVERY, FAILED, REVOKED]
+    from:
+      - PREPARING
+    to:
+      - READY_FOR_AUTHORIZED_DELIVERY
+      - FAILED
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: exact-output-version-and-destination-policy-are-checked
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -401,10 +624,16 @@ transitionRecords:
   - id: media-delivery/T03
     sourceMachineId: media-delivery
     sourceTransitionIndex: 3
-    from: [READY_FOR_AUTHORIZED_DELIVERY]
-    to: [SUBMITTED, FAILED, REVOKED]
+    from:
+      - READY_FOR_AUTHORIZED_DELIVERY
+    to:
+      - SUBMITTED
+      - FAILED
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: approval-and-idempotency-identity-are-durable-before-external-submit
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -413,10 +642,18 @@ transitionRecords:
   - id: media-delivery/T04
     sourceMachineId: media-delivery
     sourceTransitionIndex: 4
-    from: [SUBMITTED]
-    to: [ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, FAILED, REVOKED]
+    from:
+      - SUBMITTED
+    to:
+      - ACKNOWLEDGED
+      - PARTIALLY_DELIVERED
+      - OUTCOME_UNKNOWN
+      - FAILED
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: destination-evidence-is-recorded-and-uncertainty-is-preserved
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -425,10 +662,14 @@ transitionRecords:
   - id: media-delivery/T05
     sourceMachineId: media-delivery
     sourceTransitionIndex: 5
-    from: [OUTCOME_UNKNOWN]
-    to: [RECONCILING]
+    from:
+      - OUTCOME_UNKNOWN
+    to:
+      - RECONCILING
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: destination-query-or-owner-reconciliation-starts
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -437,10 +678,18 @@ transitionRecords:
   - id: media-delivery/T06
     sourceMachineId: media-delivery
     sourceTransitionIndex: 6
-    from: [RECONCILING]
-    to: [ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, FAILED, REVOKED]
+    from:
+      - RECONCILING
+    to:
+      - ACKNOWLEDGED
+      - PARTIALLY_DELIVERED
+      - OUTCOME_UNKNOWN
+      - FAILED
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: stable-submission-identity-and-destination-evidence-support-classification
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -449,10 +698,17 @@ transitionRecords:
   - id: media-delivery/T07
     sourceMachineId: media-delivery
     sourceTransitionIndex: 7
-    from: [PARTIALLY_DELIVERED]
-    to: [RECONCILING, ACKNOWLEDGED, FAILED, REVOKED]
+    from:
+      - PARTIALLY_DELIVERED
+    to:
+      - RECONCILING
+      - ACKNOWLEDGED
+      - FAILED
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerGuardDefinition: remaining-destination-effects-are-explicitly-accounted-for
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -461,10 +717,15 @@ transitionRecords:
   - id: media-quality-disposition/T01
     sourceMachineId: media-quality-disposition
     sourceTransitionIndex: 1
-    from: [NOT_ASSESSED]
-    to: [ASSESSING, REVIEW_REQUIRED]
+    from:
+      - NOT_ASSESSED
+    to:
+      - ASSESSING
+      - REVIEW_REQUIRED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    ownerGuardDefinition: metric-applicability-and-version-bound-protocol-are-declared
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -473,10 +734,18 @@ transitionRecords:
   - id: media-quality-disposition/T02
     sourceMachineId: media-quality-disposition
     sourceTransitionIndex: 2
-    from: [ASSESSING]
-    to: [PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+    from:
+      - ASSESSING
+    to:
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    ownerGuardDefinition: measurements-or-abstention-reason-are-recorded-for-exact-output
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -485,10 +754,17 @@ transitionRecords:
   - id: media-quality-disposition/T03
     sourceMachineId: media-quality-disposition
     sourceTransitionIndex: 3
-    from: [PASS, FAIL, ABSTAINED, REVIEW_REQUIRED]
-    to: [SUPERSEDED]
+    from:
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+    to:
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    ownerGuardDefinition: output-or-material-measurement-protocol-changes
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -497,10 +773,14 @@ transitionRecords:
   - id: media-project/T01
     sourceMachineId: media-project
     sourceTransitionIndex: 1
-    from: [ACTIVE]
-    to: [ARCHIVED]
+    from:
+      - ACTIVE
+    to:
+      - ARCHIVED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    ownerGuardDefinition: an authorized project owner requests archive and the current head/revision identity is recorded
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -509,10 +789,14 @@ transitionRecords:
   - id: media-project/T02
     sourceMachineId: media-project
     sourceTransitionIndex: 2
-    from: [ARCHIVED]
-    to: [ACTIVE]
+    from:
+      - ARCHIVED
+    to:
+      - ACTIVE
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    ownerGuardDefinition: an authorized restore request revalidates project access, retention, tombstones, and referenced artifact availability; restore does not clear erasure
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -521,10 +805,14 @@ transitionRecords:
   - id: media-project-version/T01
     sourceMachineId: media-project-version
     sourceTransitionIndex: 1
-    from: [DRAFT]
-    to: [COMMITTED]
+    from:
+      - DRAFT
+    to:
+      - COMMITTED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    ownerGuardDefinition: current authorization and policy pass; validation succeeds; expected head compare-and-swap succeeds; revision and head update commit atomically
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -533,10 +821,14 @@ transitionRecords:
   - id: media-project-version/T02
     sourceMachineId: media-project-version
     sourceTransitionIndex: 2
-    from: [DRAFT]
-    to: [CONFLICTED]
+    from:
+      - DRAFT
+    to:
+      - CONFLICTED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    ownerGuardDefinition: expected head or declared merge precondition no longer matches; no partial project or artifact selection is committed
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -545,10 +837,14 @@ transitionRecords:
   - id: media-project-version/T03
     sourceMachineId: media-project-version
     sourceTransitionIndex: 3
-    from: [DRAFT]
-    to: [ABANDONED]
+    from:
+      - DRAFT
+    to:
+      - ABANDONED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    ownerGuardDefinition: authorized explicit abandon or bounded draft-expiry policy records the disposition
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -557,10 +853,14 @@ transitionRecords:
   - id: media-project-version/T04
     sourceMachineId: media-project-version
     sourceTransitionIndex: 4
-    from: [COMMITTED]
-    to: [SUPERSEDED]
+    from:
+      - COMMITTED
+    to:
+      - SUPERSEDED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    ownerGuardDefinition: a newer revision atomically becomes the project head; prior revision content and evidence remain immutable
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -569,10 +869,14 @@ transitionRecords:
   - id: media-project-membership/T01
     sourceMachineId: media-project-membership
     sourceTransitionIndex: 1
-    from: [INVITED]
-    to: [ACTIVE]
+    from:
+      - INVITED
+    to:
+      - ACTIVE
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    ownerGuardDefinition: invitee acceptance, inviter authority, tenant/project scope, and current policy are verified
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -581,10 +885,15 @@ transitionRecords:
   - id: media-project-membership/T02
     sourceMachineId: media-project-membership
     sourceTransitionIndex: 2
-    from: [INVITED]
-    to: [REVOKED, EXPIRED]
+    from:
+      - INVITED
+    to:
+      - REVOKED
+      - EXPIRED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    ownerGuardDefinition: authorized revocation or declared invitation expiry is durably recorded
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -593,10 +902,15 @@ transitionRecords:
   - id: media-project-membership/T03
     sourceMachineId: media-project-membership
     sourceTransitionIndex: 3
-    from: [ACTIVE]
-    to: [SUSPENDED, REVOKED]
+    from:
+      - ACTIVE
+    to:
+      - SUSPENDED
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    ownerGuardDefinition: current project authority and policy allow the membership change; affected work is reconciled
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -605,10 +919,14 @@ transitionRecords:
   - id: media-project-membership/T04
     sourceMachineId: media-project-membership
     sourceTransitionIndex: 4
-    from: [SUSPENDED]
-    to: [ACTIVE]
+    from:
+      - SUSPENDED
+    to:
+      - ACTIVE
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    ownerGuardDefinition: authorized reactivation rechecks identity, delegation, policy, and project scope
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
@@ -617,12 +935,132 @@ transitionRecords:
   - id: media-project-membership/T05
     sourceMachineId: media-project-membership
     sourceTransitionIndex: 5
-    from: [SUSPENDED]
-    to: [REVOKED]
+    from:
+      - SUSPENDED
+    to:
+      - REVOKED
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    ownerGuardDefinition: authorized revocation is durably recorded
     guardDisposition: pending-owner-review; source guard not promoted
+    ownerGuardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate
     operationRefs: []
     operationBinding: unresolved
     eventTriggers: pending-PDP1-004
     permissions: pending-owner-contracts
     executionEffects: pending-runtime-and-platform-owner-contracts
+ownerDefinedTransitionRecords:
+  - id: media-rights-and-consent/rightsAssertion/T01
+    sourceMachineId: media-rights-and-consent
+    stateDimension: rightsAssertion
+    sourceTransitionIndex: 1
+    from:
+      - ASSERTED
+    to:
+      - UNDER_REVIEW
+      - RESTRICTED
+      - REJECTED
+    sourceGuard: user-assertion-is-recorded-as-unverified-input
+    guardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate
+    operationRefs: []
+    operationBinding: authority-owned-state-transition; no-public-domain-operation-or-transport-is-implied
+    eventTriggers: authority-source-event-required; transport-contract-unbound
+    permissions: current-policy-and-consent-or-rights-authority-owner-decision
+    executionEffects: no-automatic-termination-or-erasure-claim
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-review-open; runtime-not-admitted
+  - id: media-rights-and-consent/rightsAssertion/T02
+    sourceMachineId: media-rights-and-consent
+    stateDimension: rightsAssertion
+    sourceTransitionIndex: 2
+    from:
+      - UNDER_REVIEW
+    to:
+      - VERIFIED_FOR_DECLARED_SCOPE
+      - RESTRICTED
+      - REJECTED
+    sourceGuard: assigned-reviewer-or-authority-produces-scope-bound-evidence
+    guardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate
+    operationRefs: []
+    operationBinding: authority-owned-state-transition; no-public-domain-operation-or-transport-is-implied
+    eventTriggers: authority-source-event-required; transport-contract-unbound
+    permissions: current-policy-and-consent-or-rights-authority-owner-decision
+    executionEffects: no-automatic-termination-or-erasure-claim
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-review-open; runtime-not-admitted
+  - id: media-rights-and-consent/rightsAssertion/T03
+    sourceMachineId: media-rights-and-consent
+    stateDimension: rightsAssertion
+    sourceTransitionIndex: 3
+    from:
+      - VERIFIED_FOR_DECLARED_SCOPE
+    to:
+      - RESTRICTED
+      - REVOKED
+      - EXPIRED
+    sourceGuard: policy-change-revocation-or-validity-window-event
+    guardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate
+    operationRefs: []
+    operationBinding: authority-owned-state-transition; no-public-domain-operation-or-transport-is-implied
+    eventTriggers: authority-source-event-required; transport-contract-unbound
+    permissions: current-policy-and-consent-or-rights-authority-owner-decision
+    executionEffects: no-automatic-termination-or-erasure-claim
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-review-open; runtime-not-admitted
+  - id: media-rights-and-consent/rightsAssertion/T04
+    sourceMachineId: media-rights-and-consent
+    stateDimension: rightsAssertion
+    sourceTransitionIndex: 4
+    from:
+      - RESTRICTED
+    to:
+      - UNDER_REVIEW
+      - REVOKED
+      - EXPIRED
+    sourceGuard: new-evidence-or-revocation-or-expiry
+    guardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate
+    operationRefs: []
+    operationBinding: authority-owned-state-transition; no-public-domain-operation-or-transport-is-implied
+    eventTriggers: authority-source-event-required; transport-contract-unbound
+    permissions: current-policy-and-consent-or-rights-authority-owner-decision
+    executionEffects: no-automatic-termination-or-erasure-claim
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-review-open; runtime-not-admitted
+  - id: media-rights-and-consent/consent/T01
+    sourceMachineId: media-rights-and-consent
+    stateDimension: consent
+    sourceTransitionIndex: 1
+    from:
+      - PENDING_VERIFICATION
+    to:
+      - ACTIVE
+      - REVOKED
+      - EXPIRED
+      - SUPERSEDED
+    sourceGuard: trusted-consent-authority-verifies-current-scope-before-activation
+    guardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate
+    operationRefs: []
+    operationBinding: authority-owned-state-transition; no-public-domain-operation-or-transport-is-implied
+    eventTriggers: authority-source-event-required; transport-contract-unbound
+    permissions: current-policy-and-consent-or-rights-authority-owner-decision
+    executionEffects: no-automatic-termination-or-erasure-claim
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-review-open; runtime-not-admitted
+  - id: media-rights-and-consent/consent/T02
+    sourceMachineId: media-rights-and-consent
+    stateDimension: consent
+    sourceTransitionIndex: 2
+    from:
+      - ACTIVE
+    to:
+      - REVOKED
+      - EXPIRED
+      - SUPERSEDED
+    sourceGuard: authority-recorded-revocation-expiry-or-replacement
+    guardDisposition: Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; authority-owner-binding-separate
+    operationRefs: []
+    operationBinding: authority-owned-state-transition; no-public-domain-operation-or-transport-is-implied
+    eventTriggers: authority-source-event-required; transport-contract-unbound
+    permissions: current-policy-and-consent-or-rights-authority-owner-decision
+    executionEffects: no-automatic-termination-or-erasure-claim
+    sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-review-open; runtime-not-admitted

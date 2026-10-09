@@ -134,6 +134,7 @@ existingContractMap:
       - products/tutorputor/contracts/v1/experience/timeline.ts
       - products/tutorputor/contracts/v1/experience/scientific.ts
       - products/tutorputor/contracts/v1/experience/fidelity.ts
+      - products/tutorputor/libs/tutorputor-simulation/src/aef/domain-packs.ts
       - products/tutorputor/docs/architecture/experience-fabric/CONTRACTS_AND_IR.md
     observedSemantics:
       - Experience IR owns learning purpose, audience, pedagogy, and evidence intent.
@@ -141,10 +142,13 @@ existingContractMap:
       - Scene IR owns representations, bindings, controls, instruments, and presentation; it is separate from model truth.
       - Scientific quantities require units in the scientific helper contract, and scientific time series declare a unit and sampling mode.
       - The AEF fidelity tiers are F0 through F4; determinism labels include EXACT, TOLERANCE_BOUND, DISTRIBUTION_BOUND, and NON_REPLAYABLE_EXTERNAL.
+      - TutorPutor source assigns learning purpose and pedagogy to Experience IR, learning evidence to its evidence plan, model fidelity and domain truth to Model IR, domain-pack specifications to TutorPutor domain packs, and learning outcomes to TutorPutor learning plans.
     boundary:
       - These are TutorPutor-owned semantics. Media may bind through a reviewed public contract or adapter, but must not fork TutorPutor Experience IR, Model IR, learning evidence, or assessment semantics.
       - TutorPutor's legacy Simulation Manifest/USP remains a compatibility input. Its visual and physical fields are mixed and some quantities are unitless or carry legacy aliases.
       - No Media-to-TutorPutor conversion has been qualified by this inventory; see conformance/domain-contracts/p0-004-golden-fixtures.yaml.
+    authorityRule: TutorPutor retains education purpose, learning evidence, domain-pack, and learning-outcome authority; Media must consume reviewed public contracts and must not copy these product authorities.
+    implementationImportBoundary: Media may bind through an owner-reviewed public TutorPutor contract or bounded adapter; it must not import TutorPutor product implementation internals/packages or fork TutorPutor Experience IR, Model IR, learning evidence, or assessment semantics.
 
   - id: tutorputor-legacy-usp
     evidence: observed-contract
@@ -155,6 +159,10 @@ existingContractMap:
       - products/tutorputor/contracts/v1/simulation/types.ts
       - products/tutorputor/contracts/v1/simulation/manifest.schema.json
       - products/tutorputor/libs/tutorputor-simulation/src/physics/types/entities.ts
+    packageDependencyBoundary:
+      source: products/tutorputor/libs/tutorputor-simulation/package.json
+      observedDependencies: ["@tutorputor/contracts", "@tutorputor/core", "@react-three/drei", "@react-three/fiber", "three", "pixi.js", "konva", "react-konva"]
+      rule: The simulation package dependency closure includes TutorPutor contracts/core and rendering libraries; inspecting a useful public type does not justify importing the broad package or skipping dependency-owner review.
     compatibilityFacts:
       - SimKeyframe has stepIndex and numeric timestamp without a unit on timestamp.
       - SimulationRunRequest samplingRate is described as keyframes per second.
@@ -165,6 +173,10 @@ existingContractMap:
       - Preserve source meaning and aliases on the legacy path; do not silently infer missing units, axis conventions, or time bases while adapting to a Media proposal.
 
 recordLifecycleRules:
+  lifecycleSeparation: >-
+    Keep immutable user/domain specifications, immutable resolved execution
+    plans, and mutable run/checkpoint state as distinct records. A run never
+    mutates the source specification or admitted plan.
   specification:
     proposedMeaning: Immutable versioned user/domain intent or authored graph.
     examples: [MediaRecipe, MediaProcessingGraph, ScenePlan, SceneGraph, AnimationGraph, SimulationWorld, Timeline, CompositionConfig]
@@ -174,20 +186,68 @@ recordLifecycleRules:
     examples: [ResolvedMediaPlan]
   run:
     proposedMeaning: Mutable progression of one admitted execution, with immutable observations/checkpoints and explicit attempts.
+    telemetryBoundary: Telemetry or event-delivery lag can degrade observation, but does not by itself alter the business effect outcome or finality.
     examples: [ProcessingJob, ArtifactVerificationJob, JobAttempt, JobLease, MediaRun, Checkpoint]
   artifact:
     proposedMeaning: Immutable byte identity and technical descriptor, with access, retention, and lifecycle represented separately.
+    retentionRule: Immutable content identity does not imply indefinite retention; retention and deletion/purge follow their separate authority and lifecycle contracts.
     examples: [MediaArtifact, ArtifactVersion, RenderOutcome, DeliveryOutcome]
   identity:
     proposedRule: Use opaque stable IDs and explicit version/hash references across boundaries; never rely on engine object identity.
   mutableState:
     proposedRule: Only run/job/lease/stream progression is mutable; recorded decisions and observations are append-only or versioned.
 
+architecturePrinciples:
+  evidence: proposed-media-contract
+  productControlPlane: >-
+    Keep product orchestration modular behind explicit ports and adapters.
+    Canonical domain values and immutable specifications remain independent of
+    SDK, engine, provider, persistence, and transport implementation objects.
+  typedPortRule: >-
+    Use a common capability descriptor with typed batch, streaming, simulation,
+    and inference ports. Capability absence is explicit; do not satisfy an
+    unrelated port with a fake implementation. A port identifies a product
+    contract and does not route or execute a generic provider.
+  subsystemProposal:
+    status: historical-owner-proposal; runtime-selection-and-qualification-not-admitted
+    names: [ScenePlanner, MediaSynth, MediaQualityEngine, ContinuityEngine, AVSyncEngine, RenderComposer]
+    peerMechanisms: [animation, simulation]
+    sharedConcerns: [rendering, synchronization, quality, provenance]
+    rule: MediaSynth orchestrates admitted creation capabilities and does not own duplicate copies of rendering, synchronization, quality, or provenance mechanisms.
+  isolationRule: >-
+    Out-of-process execution is not automatically a sandbox. A future admitted
+    runtime boundary must explicitly isolate decoders, scripts, simulations,
+    and model artifacts, including resource, filesystem, network, subprocess,
+    and output-registration limits. This is a definition constraint, not a
+    runtime-isolation or security qualification claim.
+  boundary: >-
+    This is a product-definition architecture constraint; it does not select a
+    runtime framework, provider, or deployment topology.
+
+imageVideoOutputConstraints:
+  evidence: proposed-media-contract
+  resolutionRule: >-
+    A requested display size such as 720×405 is not a universal safe default.
+    Resolve model-native grid or latent constraints, encoder pixel-format
+    alignment, requested display aspect, and any crop/pad/scale as separate
+    profile-bound values; reject or explicitly transform incompatible sizes.
+    Do not assume an odd output height is accepted by a selected 4:2:0 encoder;
+    require that exact model/encoder profile to declare and satisfy its pixel
+    alignment.
+  boundary: >-
+    This defines a planning constraint only. It does not claim any model,
+    encoder, or GPU profile has been qualified.
+coordinateConventionValidationRule: >-
+  Validate a Media-native coordinate proposal against the exact admitted
+  Ghatana scene/model contracts before treating it as a default. Record any
+  required unit, axis, transform, or time-base conversion explicitly; do not
+  impose a conflicting universal schema by assumption.
+
 proposedRecordCatalog:
   - id: MediaProject
     evidence: proposed-media-contract
     meaning: Tenant/workspace membership, title, immutable revision reference, asset and scene/timeline references, settings, and access policy.
-    stateBoundary: Project metadata is versioned; referenced artifact bytes are not embedded.
+    stateBoundary: Project metadata is versioned; referenced artifact bytes are not embedded. Branches and duplicate projects retain exact source revision/artifact references and independently evaluated access; copying does not widen access.
   - id: MediaArtifact-and-ArtifactVersion
     evidence: proposed-media-contract
     meaning: Immutable content identity, digest, byte size, media type, technical descriptors, origin, and owner references.
@@ -197,10 +257,19 @@ proposedRecordCatalog:
     evidence: proposed-media-contract
     meaning: Project-specific use of an artifact version, purpose, crop/trim, and presentation bindings.
     stateBoundary: References bytes; does not duplicate or redefine them.
+    licensePolicyBoundary: A project asset binding does not define or override the Media product license policy; licensing and distribution rights remain separate owner-reviewed decisions.
   - id: MediaRecipe
     evidence: proposed-media-contract
     meaning: Versioned parameterized processing, animation, or simulation intent, with typed parameters, bounds, required ports, and safe variants.
     stateBoundary: Specification only; no provider or engine execution object is part of its public shape.
+    agentRuntimeBoundary:
+      ownerDecisionRef: user-delegated Media semantic owner authority; MPSEM-0095-C004
+      status: owner-defined-definition-only; implementation-and-independent-review-open
+      rule: An ordinary MediaRecipe is a versioned processing or simulation specification, not an agent-runtime graph. Workflow-like shape, branching, or ordered steps does not grant agent, tool, model, or privileged execution authority and does not itself dispatch work.
+      integrationRequirement: Agent/tool integration requires a separate exact authorized contract naming the trusted principal and authority scope, admitted tool/capability identities, closed typed inputs and outputs, guards, confirmation where effects require it, policy-decision references, effect and resource bounds, provenance, idempotency, finality, and recovery behavior. Missing fields or authority block dispatch; a recipe cannot supply or widen them.
+      reuseBoundary: Shared may provide generic workflow or orchestration mechanics behind Media-owned state, policy, and persistence adapters. Tools workflow definitions and agent graphs do not constitute production Media execution or acceptance evidence.
+      state: NOT_ADMITTED
+      runtimeQualification: NOT_EVALUATED
   - id: ProcessingJob-and-RenderJob
     evidence: proposed-media-contract
     meaning: Durable requested operation with immutable request/plan references, owner, state, attempts, and outputs; RenderJob and ArtifactVerificationJob are intent-specific views.
@@ -258,10 +327,11 @@ proposedRecordCatalog:
     evidence: proposed-media-contract
     meaning: Metric/version, applicability, input/output references, score and unit, threshold, uncertainty, failure region, and reviewer disposition.
     stateBoundary: Visual quality is not scientific/domain fidelity.
+    qualityFidelityContract: A QualityAssessment carries metric/version, applicability, input/output references, score and unit, threshold, uncertainty, failure region, and reviewer disposition; it keeps the quality/fidelity contract explicit and domain-specific.
   - id: RenderOutcome-and-DeliveryOutcome
     evidence: proposed-media-contract
     meaning: Registered outputs, exact technical descriptors, validation, degradation, provenance, and publication certainty.
-    stateBoundary: A successful render is not a successful delivery or external publication.
+    stateBoundary: A successful render is not a successful delivery or external publication. Contiguous-delivery claims require evidence that the declared frame sequence has no duplicate or skipped frames; otherwise report the exact gap or degradation.
   - id: ConsentReference-RightsDecision-ProvenanceManifest
     evidence: proposed-media-contract
     meaning: Separate authority references for permission, lawful/contractual permitted use, and observed creation history.
@@ -278,6 +348,7 @@ separationAndCompatibility:
     - Product records use discriminated, validated payloads and typed references; arbitrary Map<String, unknown> is not an adequate new core semantic contract.
     - SDK/engine/device/tensor/scene-library objects, database entities, local filesystem paths, credentials, and signed URLs stay behind adapters.
     - Compatibility changes are classified and versioned; existing OpenAPI/protobuf/package/persistence identities are not reinterpreted in place.
+  reconciliationRule: A migration reconciliation requirement does not authorize an unrelated API change during a source move.
   irCompatibility:
     tutorputor:
       - Prefer a reviewed public TutorPutor contract or owner-approved bounded adapter.
@@ -287,6 +358,10 @@ separationAndCompatibility:
     externalFrameworks:
       - External SDK classes and engine-specific scene/simulation objects are adapter-private.
       - Interchange conversion must declare supported subset and conversion loss; lossy import/export requires explicit disposition.
+    interchangeRule: >-
+      Media uses bounded interchange adapters for supported subsets and records
+      conversion loss; it must not claim universal losslessness across
+      frameworks or formats.
 
 openValidationItems:
   - Validate any Media-native 3D coordinate proposal against admitted scene/model contracts before adopting it as a universal default.
@@ -299,6 +374,11 @@ conformanceFixtureSpecification:
   path: conformance/domain-contracts/p0-004-golden-fixtures.yaml
   status: test-vector-specification-only
   implementationStatus: not-run-against-a-domain-adapter
+  cutoverPrerequisiteRule: >-
+    A source cutover requires an accepted Phase-0 product boundary, verified
+    compatibility for supported consumers, and an owner transfer record before
+    cutover. This definition neither authorizes production deployment nor
+    treats file relocation as acceptance of runtime behavior.
   scope:
     - rational temporal conversion
     - coordinate serialization round-trip and ambiguous legacy coordinates

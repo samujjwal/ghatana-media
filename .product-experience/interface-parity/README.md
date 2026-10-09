@@ -11,7 +11,11 @@ the current denominators and dispositions.
 semantic owner approval. `transport-only` is reserved for protocol mechanics
 with no product operation meaning. `internal-only` is reserved for
 implementation-private behavior. `unresolved` means evidence does not support
-an equivalence. The current inventory has no accepted canonical mappings.
+an equivalence. `provider-admin` is reserved for source methods that manage
+provider-owned models or voices; it does not imply a Media user-domain
+operation. These classifications identify an observed role and do not accept
+an operation-equivalence binding. The current inventory has no accepted
+cross-interface bindings.
 
 The matrix also records source-grounded candidate crosswalks for HTTP routes,
 fixture CLI commands, SDK methods, Agent Tool names, and lifecycle event names.

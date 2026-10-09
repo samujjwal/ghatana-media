@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: generator refuses duplicate source identities without modifying closure inputs
+ok 1 - generator refuses duplicate source identities without modifying closure inputs
+  ---
+  duration_ms: 199.300167
+  type: 'test'
+  ...
+# Subtest: generator refuses omitted source collections before any output is written
+ok 2 - generator refuses omitted source collections before any output is written
+  ---
+  duration_ms: 179.468041
+  type: 'test'
+  ...
+# Subtest: check mode detects stale source fingerprints and output drift without writing
+ok 3 - check mode detects stale source fingerprints and output drift without writing
+  ---
+  duration_ms: 383.254021
+  type: 'test'
+  ...
+# Subtest: source-owned nested wire schemas have their own obligations and exact parent anchors
+ok 4 - source-owned nested wire schemas have their own obligations and exact parent anchors
+  ---
+  duration_ms: 209.148105
+  type: 'test'
+  ...
+# Subtest: nested step definitions remain distinct obligations without inventing cases or acceptance
+ok 5 - nested step definitions remain distinct obligations without inventing cases or acceptance
+  ---
+  duration_ms: 399.450432
+  type: 'test'
+  ...
+# Subtest: three existing upload operations bind source identities to bounded version-1 owner definitions
+ok 6 - three existing upload operations bind source identities to bounded version-1 owner definitions
+  ---
+  duration_ms: 8.515566
+  type: 'test'
+  ...
+# Subtest: upload operation contracts reject false replay, finality, authority, and acceptance claims
+ok 7 - upload operation contracts reject false replay, finality, authority, and acceptance claims
+  ---
+  duration_ms: 43.077965
+  type: 'test'
+  ...
+# Subtest: source identity drift or invented completion key is not silently accepted as parity
+ok 8 - source identity drift or invented completion key is not silently accepted as parity
+  ---
+  duration_ms: 8.488761
+  type: 'test'
+  ...
+# Subtest: upload state, action and object bindings reject availability, rights and action-equivalence expansion
+ok 9 - upload state, action and object bindings reject availability, rights and action-equivalence expansion
+  ---
+  duration_ms: 59.560852
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10815.268109

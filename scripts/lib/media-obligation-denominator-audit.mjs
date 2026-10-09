@@ -3,22 +3,65 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PHASES = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
+const parsedSources = new Map();
+function readSourceEntry(absolutePath, parseYaml) {
+  const text = fs.readFileSync(absolutePath, 'utf8');
+  const previous = parsedSources.get(absolutePath);
+  if (previous?.text === text && previous.parseYaml === parseYaml) return previous;
+  const entry = { text, parseYaml, digest: `sha256:${crypto.createHash('sha256').update(text).digest('hex')}` };
+  try { entry.document = absolutePath.endsWith('.json') ? JSON.parse(text) : parseYaml(text); }
+  catch (error) { entry.parseError = error; }
+  parsedSources.set(absolutePath, entry);
+  return entry;
+}
 
 const SOURCE_ENUMERATORS = [
   ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'requirements', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml', 'ownerCapabilityLeafAdjudication.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml', 'ownerMeasurementDefinitions.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml', 'successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records', 'product-truth'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/states.yaml', 'stateMachines', 'state-machine'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'transitionRecords', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerDefinedTransitionRecords', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transition-guard-contracts.yaml', 'records', 'transition'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'objects', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerOutputArtifactTypeCrosswalk.records', 'value-object'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'operations', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'individualOperationContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'operations', 'value-object', 'ownerWireSchema'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'individualOperationContracts.records', 'value-object', 'ownerWireSchema'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'value-object', 'ownerWireSchema'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationProfiles.profiles', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.families', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.bounds', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.inputPayloadSchemas', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.outputPayloadSchemas', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.scalarTypeRecords', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/events.yaml', 'ownerEventContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/events.yaml', 'ownerEventContracts.notificationRecords', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/relationships.yaml', 'relationships', 'relationship'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/value-objects.yaml', 'values', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/value-objects.yaml', 'canonicalConversionDefinitions.records', 'value-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/value-objects.yaml', 'ownerDescriptorDefinitions.records', 'value-object'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'components', 'component-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'components', 'value-object', 'typedDefinition'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-value-types.yaml', 'normativeTypeRecords', 'value-object'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml', 'normativeRuleRecords', 'component-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/layout.yaml', 'layouts', 'layout'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml', 'patterns', 'interaction-pattern'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml', 'templates', 'view-template'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml', 'aliases', 'semantic-token-alias'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/journey-registry.yaml', 'journeys', 'journey-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/handoff-bindings.yaml', 'handoffs', 'action-contract', 'mediaOwnerDefinition'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/action-registry.yaml', 'actions', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/action-registry.yaml', 'ownerDefinedActions', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml', 'records', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml', 'factSchemas', 'value-object'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/view-observation-predicates.yaml', 'predicates', 'transition'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml', 'views', 'screen-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-definition-oracles.yaml', 'journeys.*.steps', 'journey-contract', 'canonicalBindings', 'semanticDefinitionId', true],
   ['PDP-3', '.product-experience/pdp-3-product-experience/screen-registry.yaml', 'screens', 'screen-contract'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/screen-registry.yaml', 'laneViews', 'screen-contract'],
 ];
@@ -26,7 +69,9 @@ const SOURCE_ENUMERATORS = [
 export function enumerateExpectedMediaObligations({ root, parseYaml }) {
   const records = [];
   const issues = [];
-  for (const [phase, sourcePath, collection, dimension] of SOURCE_ENUMERATORS) {
+  const sourceDocuments = new Map();
+  const sourceDigests = {};
+  for (const [phase, sourcePath, collection, dimension, childField, identityField = 'id', requiredChild = false] of SOURCE_ENUMERATORS) {
     const absolutePath = path.resolve(root, sourcePath);
     if (!fs.existsSync(absolutePath)) {
       issues.push({ code: 'SOURCE_ENUMERATION_MISSING', detail: `Cannot enumerate ${sourcePath}` });
@@ -34,29 +79,57 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
     }
     let document;
     try {
-      const text = fs.readFileSync(absolutePath, 'utf8');
-      document = sourcePath.endsWith('.json') ? JSON.parse(text) : parseYaml(text);
+      if (!sourceDocuments.has(sourcePath)) {
+        const entry = readSourceEntry(absolutePath, parseYaml);
+        if (entry.parseError) throw entry.parseError;
+        sourceDigests[sourcePath] = entry.digest;
+        sourceDocuments.set(sourcePath, entry.document);
+      }
+      document = sourceDocuments.get(sourcePath);
     } catch (error) {
       issues.push({ code: 'SOURCE_ENUMERATION_PARSE', detail: `${sourcePath}: ${error.message}` });
       continue;
     }
     const collectionPath = collection.split('.');
-    const candidates = collectionPath.reduce((value, segment) => value?.[segment], document);
+    const nested = collectionPath.includes('*');
+    const entries = [];
+    let validCollection = true;
+    const visit = (value, remaining, pointer = []) => {
+      if (remaining.length === 0) {
+        if (!Array.isArray(value)) { validCollection = false; return; }
+        value.forEach((record, index) => entries.push({ record, pointer: [...pointer, index] }));
+      } else if (remaining[0] === '*') {
+        if (!Array.isArray(value)) { validCollection = false; return; }
+        value.forEach((record, index) => visit(record, remaining.slice(1), [...pointer, index]));
+      } else visit(value?.[remaining[0]], remaining.slice(1), [...pointer, remaining[0]]);
+    };
+    if (nested) visit(document, collectionPath);
+    const candidates = nested ? (validCollection ? entries.map(({ record }) => record) : undefined)
+      : collectionPath.reduce((value, segment) => value?.[segment], document);
     if (!Array.isArray(candidates)) {
       issues.push({ code: 'SOURCE_ENUMERATION_COLLECTION', detail: `${sourcePath} has no ${collection} array` });
       continue;
     }
-    for (const record of candidates) {
-      const recordId = record?.id ?? record?.machineId;
+    for (const [index, sourceRecord] of candidates.entries()) {
+      const record = childField ? sourceRecord?.[childField] : sourceRecord;
+      if (childField && record === undefined && !requiredChild) continue;
+      const recordId = record?.[identityField] ?? record?.machineId;
       if (typeof recordId !== 'string' || !recordId.trim()) {
         issues.push({ code: 'SOURCE_ENUMERATION_ID', detail: `${sourcePath}#/${collection} has a record without a stable ID` });
+        continue;
+      }
+      const sourceRecordId = sourceRecord?.id ?? sourceRecord?.machineId;
+      if (childField && !nested && (typeof sourceRecordId !== 'string' || !sourceRecordId.trim())) {
+        issues.push({ code: 'SOURCE_ENUMERATION_ID', detail: `${sourcePath}#/${collection} has an anonymous parent for ${recordId}` });
         continue;
       }
       records.push({
         phase,
         dimension,
         sourcePath,
-        sourceRef: `${sourcePath}#/${collectionPath.join('/')}/${recordId}`,
+        sourceRef: nested
+          ? `${sourcePath}#/${[...entries[index].pointer, ...(childField ? [childField] : [])].join('/')}`
+          : `${sourcePath}#/${collectionPath.join('/')}/${childField ? `${sourceRecordId}/${childField}` : recordId}`,
         recordId,
         obligationId: `media.${phase.toLowerCase()}.requirement.${recordId.toLowerCase()}`,
         sourceSummary: record.statement ?? record.purpose ?? record.useFor ?? record.domainIntent
@@ -64,7 +137,7 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
       });
     }
   }
-  return { records, issues };
+  return { records, issues, sourceDigests };
 }
 
 function addIssue(issues, code, detail) {
@@ -79,11 +152,19 @@ function resolveAnchor(document, anchor) {
     const token = tokens[index];
     if (Array.isArray(value)) {
       const numericIndex = Number(token);
-      value = Number.isInteger(numericIndex) ? value[numericIndex]
-        : value.find((item) => item?.id === `${token}/${tokens[index + 1]}`)
-          ?? value.find((item) => item?.id === token || item?.key === token || item?.recordId === token
-            || item?.machineId === token || item?.sourceMachineId === token);
-      if (value && value.id === `${token}/${tokens[index + 1]}`) index += 1;
+      if (Number.isInteger(numericIndex)) value = value[numericIndex];
+      else {
+        let match;
+        // Stable record IDs can contain multiple slashes (machine/dimension/edge).
+        // Match the complete identity before traversing any remaining fields.
+        for (let end = tokens.length; end > index && !match; end -= 1) {
+          const identity = tokens.slice(index, end).join('/');
+          const candidate = value.find(item => item?.id === identity || item?.key === identity
+            || item?.recordId === identity || item?.machineId === identity || item?.sourceMachineId === identity);
+          if (candidate) { match = candidate; index = end - 1; }
+        }
+        value = match;
+      }
     } else if (value && typeof value === 'object' && value.id === `${tokens[index - 1]}/${token}`) {
       // Anchors sometimes spell a composite record ID as two path segments.
     } else value = value?.[token];
@@ -192,14 +273,7 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
     }
     let sourceEntry = sourceDocuments.get(relativePath);
     if (!sourceEntry) {
-      const text = fs.readFileSync(absolutePath, 'utf8');
-      sourceEntry = {
-        digest: `sha256:${crypto.createHash('sha256').update(text).digest('hex')}`,
-        document: undefined,
-        parseError: undefined,
-      };
-      try { sourceEntry.document = relativePath.endsWith('.json') ? JSON.parse(text) : parseYaml(text); }
-      catch (error) { sourceEntry.parseError = error; }
+      sourceEntry = readSourceEntry(absolutePath, parseYaml);
       sourceDocuments.set(relativePath, sourceEntry);
       sourceHashes[relativePath] = sourceEntry.digest;
     }
@@ -210,7 +284,7 @@ export function auditMediaObligationDenominator({ root, obligations, program, bi
       continue;
     }
     const resolved = anchor ? resolveAnchor(sourceEntry.document, anchor) : sourceEntry.document;
-    const resolvedId = resolved?.id ?? resolved?.requirementId ?? resolved?.key ?? resolved?.recordId
+    const resolvedId = resolved?.id ?? resolved?.semanticDefinitionId ?? resolved?.requirementId ?? resolved?.key ?? resolved?.recordId
       ?? resolved?.machineId ?? resolved?.sourceMachineId;
     if (!resolved || (resolvedId !== undefined && resolvedId !== source.recordId)) {
       unresolvedSourceRefs += 1;

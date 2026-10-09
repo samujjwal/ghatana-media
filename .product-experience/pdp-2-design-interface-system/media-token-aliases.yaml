@@ -25,6 +25,30 @@ sharedPublicContract:
   sourceAvailability: local-sibling-built-tarballs; all-nine-consumer-packages-0.1.0-SNAPSHOT
   verifiedConsumption: isolated-Media-UI-TypeScript-and-Vite-public-export-consumer-pass; see-explorer-verification-matrix
   consumerBinding: local-development-source-snapshot-proven; ordinary-workspace-lockfile-and-registry-resolution-unverified; design-review-pending
+  pinnedDevelopmentSnapshotQualification:
+    sourceManifest: .product-experience/source-manifest.yaml#externalOwnerObservations/ghatana-shared
+    sourceRevision: c6d182af472c8954438f219c08d0202d1faa63a3
+    sourceWorkingTreeAtPin: CLEAN
+    previousReviewedSourceRevision: f651aaebf20b09d44bda96e4082ecf700c2bbfcc
+    consumerCheck: scripts/verify-media-shared-artifact-consumer.mjs
+    consumerEvidence: docs/implementation/verification/pdp-38/shared-artifact-consumer.txt
+    canonicalDesignSystemContentSha256: b71b392573d9bca5797197d60abe6018d31f1e415c8da60f369ddf9cee329389
+    reducedMotionEvidence: docs/implementation/verification/pdp-38/shared-control-motion.json
+    result: PASS_LOCAL_PACKED_PUBLIC_SOURCE_SNAPSHOT
+    observedAt: '2026-10-08'
+    installedTransitiveSharedPackages: 9
+    directlyDeclaredSharedPackages: ['@ghatana/tokens', '@ghatana/theme', '@ghatana/design-system']
+    limitations: [no-registry-publication, no-immutable-release, no-Shared-owner-acceptance, no-independent-visual-or-AT-review]
+  sourceLicenseClassification:
+    basis: exact-package-manifest-license-and-private-fields-at-the-pinned-source-revision
+    observed: MIT; direct-token-theme-and-design-system-manifests-mark-private-false
+    meaning: package-metadata-classification-only
+    limitations: [no-legal-review, no-publication-or-distribution-approval, downstream-license-obligations-not-assessed]
+  profileCoverage:
+    semanticColorRoles: [light, dark]
+    forcedColors: Media structural stylesheet uses system colors Canvas, CanvasText, GrayText, Highlight, ButtonFace, LinkText, Mark, and MarkText; composed Shared component behavior still requires Shared owner review and assistive conformance
+    reducedMotion: Media structural stylesheet defines no animation. The clean Shared source pin c6d182af472c8954438f219c08d0202d1faa63a3 includes the strict-CSP Button, Select, TextArea, and TextField reduced-motion fix. Four Shared component tests, the build, Media isolated installed-artifact consumption, and Chromium computed-style checks pass; transitions are 0.15s normally and 0s with prefers-reduced-motion. This is selected-control behavior evidence; Shared owner acceptance and composed assistive review remain pending
+    status: light-dark-alias-resolution-proven; forced-colors-and-reduced-motion-conformance-not-accepted
   aliasResolutionObservation:
     source: scripts/verify-media-shared-artifact-consumer.mjs
     checkedAliasCount: 9

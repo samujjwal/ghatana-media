@@ -6,7 +6,9 @@ import { createRequire } from 'node:module';
 
 const toolsRequire = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url));
 const { parse } = toolsRequire('yaml');
-const { validateExperienceDefinition } = await import('@ghatana/experience-specification');
+// Validate against the current public source entrypoint. The installed sibling
+// dist may be an older package snapshot than the Tools source under review.
+const { validateExperienceDefinition } = await import(new URL('../../ghatana-tools/libs/product-development/experience-specification/src/index.ts', import.meta.url));
 const specPath = '.product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json';
 const specification = JSON.parse(await readFile(specPath, 'utf8'));
 const model = specification.candidateModel;
@@ -14,6 +16,7 @@ const screenRegistry = parse(await readFile('.product-experience/pdp-3-product-e
 const interactionRegistry = parse(await readFile('.product-experience/pdp-3-product-experience/interaction-registry.yaml', 'utf8'));
 const journeyRegistry = parse(await readFile('.product-experience/pdp-3-product-experience/journey-registry.yaml', 'utf8'));
 const actionRegistry = parse(await readFile('.product-experience/pdp-3-product-experience/action-registry.yaml', 'utf8'));
+const publicTaxonomy = parse(await readFile('.product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml', 'utf8'));
 const componentContracts = parse(await readFile('.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'utf8'));
 const scenarioFixtureRegistry = parse(await readFile('.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml', 'utf8'));
 const journeyCatalog = parse(await readFile('.product-experience/pdp-0-product-truth/journey-catalog.yaml', 'utf8'));
@@ -226,7 +229,9 @@ test('PDP-3 interactions inherit preconditions from their exact referenced actio
 });
 
 test('PDP-3 report retains only genuinely unresolved specification mappings', () => {
-  const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], { encoding: 'utf8' }));
+  const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
+    encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+  }));
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
   assert.equal(pdp3.unresolvedFieldCount, 9);
   assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), [
@@ -237,47 +242,86 @@ test('PDP-3 report retains only genuinely unresolved specification mappings', ()
   assert.match(specification.candidateMappingReview.ownerDecisionStatus, /PENDING/);
 });
 
-test('PDP-3 finality projects only explicit confirmations and source boolean reversibility', () => {
-  const sourceById = new Map(actionRegistry.actions.map((action) => [action.id, action]));
-  const expected = actionRegistry.actions.filter((action) => typeof action.finality === 'string'
-    && typeof action.reversible === 'boolean'
-    && typeof action.confirmation === 'string'
-    && /require a separate explicit confirmation before dispatch/iu.test(action.confirmation));
-  const explicit = actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicFinality ? [action.actionDefinitionSemantics.publicFinality] : []);
-  const explicitActions = new Set(explicit.map((entry) => entry.actionRef));
-  assert.equal(model.finality.length, expected.filter((action) => !explicitActions.has(action.id)).length + explicit.length);
-  assert.equal(model.finality.length, 21);
-  for (const finality of model.finality) {
-    const action = sourceById.get(finality.actionRef);
-    assert.ok(action, `finality action ${finality.actionRef} is exact`);
-    if (explicitActions.has(action.id)) {
-      assert.deepEqual(finality, action.actionDefinitionSemantics.publicFinality);
-      assert.equal(action.actionDefinitionSemantics.runtimeAdmission, "NOT_ADMITTED");
-      continue;
-    }
-    assert.equal(finality.description, action.finality);
-    assert.equal(finality.confirmationRequired, true);
-    assert.equal(finality.undoable, action.reversible);
+test('PDP-3 finality candidates preserve exact approved membership and enum dispositions', () => {
+  const allActions = [...actionRegistry.actions, ...(actionRegistry.ownerDefinedActions ?? [])];
+  const taxonomyByAction = new Map(publicTaxonomy.records.map((record) => [record.actionRef, record]));
+  const sharedIds = ['media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff'];
+  const expectedPxd078 = actionRegistry.actions.map(({ id }) => id).filter((id) => !sharedIds.includes(id)).sort();
+  const actualPxd078 = publicTaxonomy.records.filter((record) => record.mappingDecisionRef === '.product-experience/decision-log.md#PXD-078'
+    && record.publicFinalityCandidate).map(({ actionRef }) => actionRef).sort();
+  assert.deepEqual(actualPxd078, expectedPxd078, 'PXD-078 maps exactly the original 146 actions minus the two Shared identity handoffs');
+  assert.deepEqual(publicTaxonomy.records.filter(({ actionRef }) => sharedIds.includes(actionRef))
+    .map(({ actionRef, publicFinalityCandidate, mappingDecisionRef }) => ({ actionRef, publicFinalityCandidate, mappingDecisionRef })),
+  sharedIds.map((actionRef) => ({ actionRef, publicFinalityCandidate: null, mappingDecisionRef: null })));
+  const reconnect = taxonomyByAction.get('media.action.request-live-session-reconnect');
+  assert.equal(reconnect.mappingDecisionRef, '.product-experience/decision-log.md#PXD-077');
+  assert.deepEqual(reconnect.operationRefs, ['media.operation.capability.media-stream-session-reconnect']);
+  assert.equal(reconnect.runtimeAdmission, 'NOT_ADMITTED');
+
+  const historicalFinality = new Map(allActions.filter((action) => action.actionDefinitionSemantics?.publicFinality)
+    .map((action) => [action.id, action.actionDefinitionSemantics.publicFinality]));
+  const expected = [];
+  for (const action of allActions) {
+    const oldRecord = historicalFinality.get(action.id);
+    const mapping = taxonomyByAction.get(action.id);
+    if (oldRecord) { expected.push(oldRecord); continue; }
+    if (!mapping?.publicFinalityCandidate) continue;
+    expected.push({
+      id: `${mapping.id}.finality`, actionRef: action.id, description: action.finality,
+      confirmationDisposition: mapping.publicFinalityCandidate.confirmationDisposition,
+      undoabilityDisposition: mapping.publicFinalityCandidate.undoabilityDisposition,
+    });
   }
-  assert.ok(model.finality.every((item) => !String(sourceById.get(item.actionRef).reversible).includes('only-before')));
+  assert.deepEqual(model.finality, expected);
+  assert.equal(model.finality.length, 145);
+  for (const finality of model.finality) {
+    const action = allActions.find(({ id }) => id === finality.actionRef);
+    assert.ok(action, `finality action ${finality.actionRef} resolves exactly`);
+    const mapping = taxonomyByAction.get(finality.actionRef);
+    if (historicalFinality.has(action.id)) {
+      assert.deepEqual(finality, historicalFinality.get(action.id), 'the three original public records retain exact IDs and shape');
+    } else {
+      assert.equal(finality.confirmationDisposition, mapping.confirmationDisposition);
+      assert.equal(finality.undoabilityDisposition, mapping.reversibilityDisposition);
+    }
+    assert.equal(action.actionDefinitionSemantics?.runtimeAdmission ?? mapping.runtimeAdmission, 'NOT_ADMITTED');
+  }
 });
 
-test('PDP-3 preserves exact action prose while leaving unsupported effect taxonomy unresolved', () => {
+test('PDP-3 action/effect candidate projection preserves original census, reviewed records, and Shared exclusions', () => {
+  const allActions = [...actionRegistry.actions, ...(actionRegistry.ownerDefinedActions ?? [])];
+  const taxonomyByAction = new Map(publicTaxonomy.records.map((record) => [record.actionRef, record]));
   const projectedActions = new Map(model.actions.map((action) => [action.id, action]));
-  assert.equal(projectedActions.size, actionRegistry.actions.length);
-  for (const source of actionRegistry.actions) {
-    assert.equal(projectedActions.get(source.id).description, source.effect);
-    const definedEffect = source.actionDefinitionSemantics?.publicEffect;
-    assert.deepEqual(projectedActions.get(source.id).producesEffectRefs, definedEffect ? [definedEffect.id] : []);
-    if (["CONDITIONAL", "UNKNOWN"].includes(source.actionDefinitionSemantics?.reversibility.kind)) assert.equal(definedEffect, undefined);
+  assert.equal(projectedActions.size, 147, '146 historical actions plus the additive owner-defined reconnect action');
+  for (const source of allActions) {
+    const projected = projectedActions.get(source.id);
+    assert.ok(projected, `action ${source.id} is projected`);
+    assert.equal(projected.description, source.effect);
+    const historical = source.actionDefinitionSemantics?.publicEffect;
+    const mapping = taxonomyByAction.get(source.id);
+    const expectedEffectRefs = historical ? [historical.id] : mapping?.publicEffectCandidate ? [`${mapping.id}.effect`] : [];
+    assert.deepEqual(projected.producesEffectRefs, expectedEffectRefs);
   }
-  assert.deepEqual(model.effects, actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect] : []));
-  assert.equal(model.effects.length, 3, 'only the unconditional attachment, project-creation, and immutable caption-registration effects have directly representable definitions');
-  assert.deepEqual(model.effects.map(({ id }) => id).sort(), [
-    'media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version',
-  ]);
+  const expectedEffects = [];
+  for (const action of allActions) {
+    const historical = action.actionDefinitionSemantics?.publicEffect;
+    const mapping = taxonomyByAction.get(action.id);
+    if (historical) { expectedEffects.push(historical); continue; }
+    if (!mapping?.publicEffectCandidate) continue;
+    expectedEffects.push({
+      id: `${mapping.id}.effect`, name: action.label, kind: mapping.publicEffectCandidate.kind,
+      description: action.effect, reversibilityDisposition: mapping.publicEffectCandidate.reversibilityDisposition,
+    });
+  }
+  assert.deepEqual(model.effects, expectedEffects);
+  assert.equal(model.effects.length, 145);
+  const historicalIds = allActions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect.id] : []).sort();
+  assert.deepEqual(historicalIds, ['media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version']);
+  assert.deepEqual(model.effects.filter(({ id }) => historicalIds.includes(id)).map(({ id }) => id).sort(), historicalIds);
   const blocker = specification.fieldMappingBlockers.find(({ field }) => field === 'effects');
-  assert.ok(blocker?.reasons?.some((reason) => /effect kind|reversib/iu.test(reason)));
+  assert.match(blocker.status, /144 BOUNDED ENUM CANDIDATES/u);
+  assert.match(blocker.status, /RUNTIME_AND_PHASE_ACCEPTANCE_PENDING/u);
+  assert.match(blocker.reasons.join(' '), /2 actions remain unmapped/u);
 });
 
 test('PDP-3 scenarios and fixture descriptors require exact state, journey, and simulation-source links', async () => {

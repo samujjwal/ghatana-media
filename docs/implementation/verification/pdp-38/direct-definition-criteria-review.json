@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "media.pdp38-direct-definition-criteria-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-089",
+  "authority": "User-delegated Media product-definition ownership; coordinator criterion review",
+  "records": [
+    {
+      "taskId": "P0-01",
+      "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "scope": "Exactly462 leaf identities have explicit owner dispositions and exact canonical operation/binding, typed input/output, profile/bounds and channel source references. Same-count substitution, missing identities and stale operation references are rejected.",
+      "sourceFingerprints": {
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "6f68d3a91531c9159390ef3681434e6a239040844b32054d5b955abedf16d90e",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "611760e26f00cac2ba279486d4ed636b2bc37d0c619caa290d641f7f227986bb",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "b0ef43bf780e4579be38524eb35a8566ea4b1414e61ee20eba5cffb361a71d21",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
+        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d",
+        "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+        "tests/pdp-truth-domain.test.mjs": "2d236ca3ec8afea7276ff81747ecb0b2227ed62025aab430095e30b877df13fb",
+        "tests/pdp-truth-domain-schema-validation.test.mjs": "59580fa1fe21d084a224766d1a9861e80daee6ca56bee0a6cd329634b19f28fa",
+        "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
+      }
+    },
+    {
+      "taskId": "P0-02",
+      "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "scope": "All462 leaf-bound definitions resolve448 closed request/result schemas and14 existing-operation bindings;170 typed payload schemas are material and fail closed.14 distinct NFRs have exact owned measurement-method definitions with actual source references; six proposed performance surfaces retain unmeasured/unapproved environment gates. DEFINED does not establish IMPLEMENTED/QUALIFIED/AVAILABLE.",
+      "sourceFingerprints": {
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "6f68d3a91531c9159390ef3681434e6a239040844b32054d5b955abedf16d90e",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "611760e26f00cac2ba279486d4ed636b2bc37d0c619caa290d641f7f227986bb",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "b0ef43bf780e4579be38524eb35a8566ea4b1414e61ee20eba5cffb361a71d21",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
+        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d",
+        "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+        "tests/pdp-truth-domain.test.mjs": "2d236ca3ec8afea7276ff81747ecb0b2227ed62025aab430095e30b877df13fb",
+        "tests/pdp-truth-domain-schema-validation.test.mjs": "59580fa1fe21d084a224766d1a9861e80daee6ca56bee0a6cd329634b19f28fa",
+        "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
+      }
+    }
+  ],
+  "verification": {
+    "passedTests": 8,
+    "log": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.log",
+    "outputSha256": "1b8c9fad0a166cc89fcf15f05acc818bd165d3a7937d1aaafca427de0bf1471e",
+    "supportingMeasureReviewRef": ".product-experience/decision-log.md#PXD-081"
+  },
+  "nonClaims": [
+    "Original full task ledger completion",
+    "Task dependency completion",
+    "Independent PDP acceptance",
+    "Runtime behavior or qualification",
+    "SRE/AT/legal/scientific owner acceptance",
+    "Native Lifecycle receipt"
+  ]
+}

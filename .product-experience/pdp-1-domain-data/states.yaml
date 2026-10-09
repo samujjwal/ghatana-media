@@ -11,6 +11,12 @@ authorityBoundary:
   events: pending-PDP1-004-and-owner-review
   permissions: pending-owner-contracts
   executionEffects: pending-runtime-and-platform-owner-contracts
+currentOwnerMeaningDecision:
+  authority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRef: docs/implementation/EXECUTE-MEDIA-PDP-0-3-38-TASKS.md
+  selectedFields: ownerCurrentMeaning and ownerCurrentMeaningStatus
+  decisionBoundary: Exact meanings are Media product definitions for the scoped machine/dimension. Historical source meanings, spellings, counts, and transition projections remain preserved. External rights/licensor/consent authority, independent acceptance, runtime observation, and qualification are not claimed.
+  status: owner-definition-only; independent-PDP1-review-open; runtime-observation-UNKNOWN
 inventory:
   sourceMachineRecords: 11
   extractedMachineRecords: 11
@@ -24,29 +30,234 @@ stateMachines:
     sourceMachineId: media-job
     statusDimension: overall-job-status
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
-    stateIds: [QUEUED, RUNNING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED]
+    stateIds:
+      - QUEUED
+      - RUNNING
+      - RETRY_PENDING
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - COMPLETED
+      - PARTIALLY_SUCCEEDED
+      - FAILED
+      - CANCELLED
     stateCount: 9
+    stateDefinitions:
+      - id: QUEUED
+        terminal: false
+        meaning: accepted and durably registered; no attempt currently owns execution
+        ownerCurrentMeaning: A durable job acceptance and request identity exist, but no executing attempt is currently observed; a claimed fenced lease before dispatch may coexist with QUEUED.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: RUNNING
+        terminal: false
+        meaning: at least one current fenced attempt is executing an admitted stage
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: RETRY_PENDING
+        terminal: false
+        meaning: prior attempt ended in a classified retryable outcome and bounded retry authority remains
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: OUTCOME_UNKNOWN
+        terminal: false
+        meaning: an external effect may have occurred but its result is not known
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: RECONCILING
+        terminal: false
+        meaning: provider, store, or operator evidence is being checked before a safe next action
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: COMPLETED
+        terminal: true
+        meaning: verified outputs are registered and satisfy the accepted result contract
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: PARTIALLY_SUCCEEDED
+        terminal: true
+        meaning: a declared subset succeeded and the remaining work has a recorded disposition
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: FAILED
+        terminal: true
+        meaning: no eligible continuation remains and failure truth is persisted
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: CANCELLED
+        terminal: true
+        meaning: cancellation finality is confirmed for all effects that could still mutate this job
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
   - machineId: media-attempt
     sourceMachineId: media-attempt
     statusDimension: technical-attempt-state
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
-    stateIds: [CLAIMED, DISPATCH_INTENT_RECORDED, DISPATCHED, RUNNING, CANCEL_REQUESTED, SUCCEEDED, FAILED, CANCEL_CONFIRMED, OUTCOME_UNKNOWN, SUPERSEDED]
+    stateIds:
+      - CLAIMED
+      - DISPATCH_INTENT_RECORDED
+      - DISPATCHED
+      - RUNNING
+      - CANCEL_REQUESTED
+      - SUCCEEDED
+      - FAILED
+      - CANCEL_CONFIRMED
+      - OUTCOME_UNKNOWN
+      - SUPERSEDED
     stateCount: 10
+    stateDefinitions:
+      - id: CLAIMED
+        terminal: false
+        meaning: worker owns a valid lease and fencing token
+        ownerCurrentMeaning: One fenced worker lease owns this attempt before dispatch intent; expiry or fence loss prevents later writes from this attempt.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: DISPATCH_INTENT_RECORDED
+        terminal: false
+        meaning: durable intent and idempotency identity exist before external dispatch
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: DISPATCHED
+        terminal: false
+        meaning: external request may have crossed the boundary
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: RUNNING
+        terminal: false
+        meaning: execution is observed as active by the attempt owner
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: CANCEL_REQUESTED
+        terminal: false
+        meaning: stop was requested; the effect is not yet known to be stopped
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: SUCCEEDED
+        terminal: true
+        meaning: provider returned an outcome that still requires result validation and registration
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: FAILED
+        terminal: true
+        meaning: attempt failure is classified and recorded
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: CANCEL_CONFIRMED
+        terminal: true
+        meaning: provider or local execution authority confirms no further mutation from this attempt
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: OUTCOME_UNKNOWN
+        terminal: true
+        meaning: attempt may have produced external work or cost without a confirmable result
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: SUPERSEDED
+        terminal: true
+        meaning: a newer fence owns writes; this attempt cannot commit
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
   - machineId: media-upload-and-artifact
     sourceMachineId: media-upload-and-artifact
     statusDimension: artifact-ingestion-and-lifecycle
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
-    stateIds: [RECEIVING, VERIFYING, AVAILABLE, QUARANTINED, REJECTED, EXPIRED, ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
+    stateIds:
+      - RECEIVING
+      - VERIFYING
+      - AVAILABLE
+      - QUARANTINED
+      - REJECTED
+      - EXPIRED
+      - ERASURE_REQUESTED
+      - ACCESS_REVOKED
+      - PHYSICAL_ERASURE_PENDING
+      - BLOCKED_BY_HOLD
+      - ERASURE_CONFIRMED
+      - EXTERNAL_ERASURE_UNCONFIRMED
     stateCount: 12
+    stateDefinitions:
+      - id: RECEIVING
+        terminal: false
+        meaning: bounded ordered upload parts are being accepted
+        ownerCurrentMeaning: An authorized upload session accepts only contiguous, bounded chunks for its exact upload identity; partial bytes are not a registered or available artifact version.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: bounded-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meanings-and-T01-T02-guards-defined-under-PXD-049; EXPIRED-and-remaining-lifecycle-guards-open; runtime-NOT_ADMITTED
+      - id: VERIFYING
+        terminal: false
+        meaning: expected length, per-part integrity, full digest, policy, and detected format are being checked
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: AVAILABLE
+        terminal: false
+        meaning: verified artifact bytes and metadata may be referenced by authorized jobs
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: QUARANTINED
+        terminal: false
+        meaning: content is isolated pending security, rights, policy, or format review
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: REJECTED
+        terminal: true
+        meaning: admission or verification failed; the artifact is not usable
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: EXPIRED
+        terminal: false
+        meaning: retention expiry has elapsed and physical cleanup is due or in progress
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: ERASURE_REQUESTED
+        terminal: false
+        meaning: authorized erasure intent is durably recorded
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: ACCESS_REVOKED
+        terminal: false
+        meaning: new reads, reuse, and dispatch are blocked while erasure work proceeds
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: PHYSICAL_ERASURE_PENDING
+        terminal: false
+        meaning: bytes, derivatives, metadata, caches, and declared replicas are being removed or reconciled
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: BLOCKED_BY_HOLD
+        terminal: false
+        meaning: an active lawful or policy hold prevents some or all physical erasure
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: ERASURE_CONFIRMED
+        terminal: true
+        meaning: every in-scope controlled copy has verifiable deletion evidence
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: EXTERNAL_ERASURE_UNCONFIRMED
+        terminal: true
+        meaning: Media cannot confirm deletion of a remote or recipient-held copy
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: bounded-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meanings-and-T01-T02-guards-defined-under-PXD-049; EXPIRED-and-remaining-lifecycle-guards-open; runtime-NOT_ADMITTED
   - machineId: media-stream-session
     sourceMachineId: media-stream-session
     statusDimension: stream-session-state
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
-    stateIds: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED]
+    stateIds:
+      - OPEN
+      - CONNECTED
+      - DEGRADED
+      - DRAINING
+      - CLOSED
+      - FAILED
     stateCount: 6
+    stateDefinitions:
+      - id: OPEN
+        terminal: false
+        meaning: session has an authorized provider and persisted token hash
+        ownerCurrentMeaning: A tenant-scoped session record and protected reconnect-token reference exist; no live provider connection or accepted frame is implied.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: CONNECTED
+        terminal: false
+        meaning: current connection holds a valid short reconnect lease
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: DEGRADED
+        terminal: false
+        meaning: stream can continue only under its declared bounded degradation rules
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: DRAINING
+        terminal: false
+        meaning: close fences new frames and active work is being terminated
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: CLOSED
+        terminal: true
+        meaning: no new frames or reconnects are accepted and provider close is recorded
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: FAILED
+        terminal: true
+        meaning: the stream cannot continue; accepted frames and uncertain remote effects remain auditable
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-stream-session
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
   - machineId: media-rights-and-consent
     sourceMachineId: media-rights-and-consent
@@ -55,53 +266,341 @@ stateMachines:
     stateIds: []
     stateCount: 0
     meaningDisposition: no source states enumerated; owner decision required before proposals are added
+    stateDimensions:
+      - rights-assertion-disposition
+      - consent-authority-disposition
+    stateDefinitionsByDimension:
+      rightsAssertion:
+        - id: ASSERTED
+          meaning: A user supplied a rights claim; it remains unverified and cannot authorize a rights-dependent effect.
+          ownerCurrentMeaning: The claimant supplied an assertion only; it is not a verified license or permission and cannot authorize a protected use.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: UNDER_REVIEW
+          meaning: A scoped reviewer or authority is evaluating evidence; protected use remains blocked.
+          ownerCurrentMeaning: A named authority is evaluating exact declared scope; rights-dependent effects remain blocked until a scoped decision is recorded.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: VERIFIED_FOR_DECLARED_SCOPE
+          meaning: An authorized source verified rights only for the recorded scope and validity; recheck at each effect boundary.
+          ownerCurrentMeaning: An authorized source verified only the identified scope, evidence, territory, and validity; the decision does not authorize unlisted uses.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: RESTRICTED
+          meaning: The current evidence or policy permits only a narrower scope; disallowed uses remain blocked.
+          ownerCurrentMeaning: Current evidence or policy permits a narrower scope; prohibited use remains blocked and the restriction reason is retained.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: REJECTED
+          meaning: An authoritative review rejected the asserted scope; the assertion cannot authorize use.
+          ownerCurrentMeaning: The authority rejected the asserted scope; the rejected assertion cannot authorize use, while new evidence requires a new review.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: REVOKED
+          meaning: The previously verified scope was revoked; block new work and reconcile in-flight effects.
+          ownerCurrentMeaning: A prior scoped verification was revoked; new work is blocked and in-flight effects require the relevant authority’s reconciliation.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: EXPIRED
+          meaning: The verified scope validity elapsed; block new work pending current evidence.
+          ownerCurrentMeaning: The declared verification validity elapsed; new rights-dependent work is blocked until current evidence is reviewed.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+      consent:
+        - id: PENDING_VERIFICATION
+          meaning: Consent is recorded as an unverified request; consent-dependent processing is blocked.
+          ownerCurrentMeaning: Consent is only a recorded request and has no processing authority before trusted verification.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: ACTIVE
+          meaning: The trusted consent authority verified consent for its tenant, principal, purpose, region, and validity; recheck at each effect.
+          ownerCurrentMeaning: Trusted authority verified consent for the exact tenant, principal, purpose, region, and validity; recheck those dimensions at each effect boundary.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: REVOKED
+          meaning: The authority recorded revocation; block new work at the next enforcement boundary and reconcile in-flight work.
+          ownerCurrentMeaning: Trusted consent authority recorded revocation; new work is blocked at the next enforcement boundary and in-flight effects require separate reconciliation, without implying automatic termination.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: EXPIRED
+          meaning: The consent validity elapsed; block new work pending authority verification.
+          ownerCurrentMeaning: Consent validity elapsed; new consent-dependent work is blocked until a current trusted authority decision is recorded.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+
+        - id: SUPERSEDED
+          meaning: A newer authoritative consent record replaced this record; do not reactivate or rely on the superseded record.
+          ownerCurrentMeaning: A newer authoritative consent replaces this record; the superseded record cannot be reactivated or used for new work.
+          ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; legal/contract authority remains external; independent-review-open; runtime-observation-UNKNOWN
+    ownerSemanticDisposition: Media-owner-defined-from-PDP0-rights-and-consent-guards; no-legal-licensor-authority-claimed; independent-review-open; runtime-not-admitted
   - machineId: media-review
     sourceMachineId: media-review
     statusDimension: review-disposition
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
-    stateIds: [DRAFT, REQUESTED, IN_REVIEW, CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, SUPERSEDED, EXPIRED]
+    stateIds:
+      - DRAFT
+      - REQUESTED
+      - IN_REVIEW
+      - CHANGES_REQUESTED
+      - APPROVED
+      - REJECTED
+      - WITHDRAWN
+      - SUPERSEDED
+      - EXPIRED
     stateCount: 9
+    stateDefinitions:
+      - id: DRAFT
+        terminality: not-declared-by-source
+        meaning: A review request is being prepared for one exact immutable version and declared review purpose; no reviewer decision exists.
+        ownerCurrentMeaning: The requester is preparing a review for one exact immutable version and purpose; no reviewer assignment or decision exists.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: REQUESTED
+        terminality: not-declared-by-source
+        meaning: A review request is recorded for the selected immutable version and purpose and awaits an authorized reviewer.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: IN_REVIEW
+        terminality: not-declared-by-source
+        meaning: An authorized, currently delegated reviewer is evaluating the exact version and purpose.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: CHANGES_REQUESTED
+        terminality: not-declared-by-source
+        meaning: The reviewer requested changes; the prior version and review remain immutable, and changed content requires a new version and review request.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: APPROVED
+        terminality: not-declared-by-source
+        meaning: An authorized reviewer approved only the exact version and purpose within the current delegation; other policy gates remain independent.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: REJECTED
+        terminality: not-declared-by-source
+        meaning: An authorized reviewer rejected the exact version and purpose; the decision and reason remain part of review history.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: WITHDRAWN
+        terminality: not-declared-by-source
+        meaning: The requester withdrew this review request; withdrawal does not change the underlying version or other review records.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: SUPERSEDED
+        terminality: not-declared-by-source
+        meaning: A newer version-bound review request replaces this request for current decision-making; this record remains historical.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: EXPIRED
+        terminality: not-declared-by-source
+        meaning: The validity window or delegated authority for this review elapsed; it cannot authorize a current action.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-review
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
   - machineId: media-delivery
     sourceMachineId: media-delivery
     statusDimension: delivery-finality
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
-    stateIds: [NOT_STARTED, PREPARING, READY_FOR_AUTHORIZED_DELIVERY, SUBMITTED, ACKNOWLEDGED, PARTIALLY_DELIVERED, OUTCOME_UNKNOWN, RECONCILING, FAILED, REVOKED]
+    stateIds:
+      - NOT_STARTED
+      - PREPARING
+      - READY_FOR_AUTHORIZED_DELIVERY
+      - SUBMITTED
+      - ACKNOWLEDGED
+      - PARTIALLY_DELIVERED
+      - OUTCOME_UNKNOWN
+      - RECONCILING
+      - FAILED
+      - REVOKED
     stateCount: 10
+    stateDefinitions:
+      - id: NOT_STARTED
+        terminality: not-declared-by-source
+        meaning: No delivery preparation or external submission has been recorded for this delivery intent.
+        ownerCurrentMeaning: A delivery intent exists without preparation, dispatch, or external destination effect.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: PREPARING
+        terminality: not-declared-by-source
+        meaning: The exact output version and destination are being checked against current delivery policy; no external submission is implied.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: READY_FOR_AUTHORIZED_DELIVERY
+        terminality: not-declared-by-source
+        meaning: The exact output version passed declared pre-submit checks, but authorization and idempotency must be rechecked before submission.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: SUBMITTED
+        terminality: not-declared-by-source
+        meaning: A durable submission intent was issued to the destination; receipt, completion, and recipient acceptance are not established.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: ACKNOWLEDGED
+        terminality: not-declared-by-source
+        meaning: Authoritative destination evidence confirms the specifically declared delivered effect; it does not prove other recipients or copies.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: PARTIALLY_DELIVERED
+        terminality: not-declared-by-source
+        meaning: Only a declared subset of delivery effects has destination evidence; remaining effects and uncertainty stay explicit.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: OUTCOME_UNKNOWN
+        terminality: not-declared-by-source
+        meaning: A submission may have taken effect, but no authoritative destination result is available; blind resubmission is unsafe.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: RECONCILING
+        terminality: not-declared-by-source
+        meaning: The existing submission is being resolved using its stable identity and destination evidence; no new submission is implied.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: FAILED
+        terminality: not-declared-by-source
+        meaning: A classified delivery failure is recorded and no unaccounted successful effect is being asserted.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: REVOKED
+        terminality: not-declared-by-source
+        meaning: Current authority revoked unsent delivery; already submitted effects require destination reconciliation and may be beyond Media control.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
   - machineId: media-quality-disposition
     sourceMachineId: media-quality-disposition
     statusDimension: quality-disposition
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
-    stateIds: [NOT_ASSESSED, ASSESSING, PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+    stateIds:
+      - NOT_ASSESSED
+      - ASSESSING
+      - PASS
+      - FAIL
+      - ABSTAINED
+      - REVIEW_REQUIRED
+      - SUPERSEDED
     stateCount: 7
+    stateDefinitions:
+      - id: NOT_ASSESSED
+        terminality: not-declared-by-source
+        meaning: No quality measurement or declared abstention has been recorded for this exact output version.
+        ownerCurrentMeaning: No version-bound assessment result or explicit abstention has been recorded.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: ASSESSING
+        terminality: not-declared-by-source
+        meaning: A version-bound assessment is in progress under a declared applicable metric and protocol.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: PASS
+        terminality: not-declared-by-source
+        meaning: The declared assessment protocol recorded passing results for its applicable dimensions; this is not a universal quality claim.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: FAIL
+        terminality: not-declared-by-source
+        meaning: The declared assessment protocol recorded a failed applicable dimension; remediation or protected use is governed separately.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: ABSTAINED
+        terminality: not-declared-by-source
+        meaning: The assessor did not produce a valid measurement and recorded an explicit reason; abstention is not a pass.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: REVIEW_REQUIRED
+        terminality: not-declared-by-source
+        meaning: Automated evidence is insufficient or out of domain and an authorized human review is required.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+      - id: SUPERSEDED
+        terminality: not-declared-by-source
+        meaning: A changed output or material protocol superseded this assessment; the prior record remains historical.
+        ownerMeaningDisposition: Media-owner-defined-under-current-PDP-mandate
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-quality-disposition
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
   - machineId: media-project
     sourceMachineId: media-project
     statusDimension: project-container-lifecycle
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
-    stateIds: [ACTIVE, ARCHIVED]
+    stateIds:
+      - ACTIVE
+      - ARCHIVED
     stateCount: 2
+    stateDefinitions:
+      - id: ACTIVE
+        terminal: false
+        meaning: The project is open for authorized inspection and versioned change under its current head revision.
+        ownerCurrentMeaning: The project container is open for current-authority reads and versioned changes; this status does not itself grant membership or imply an empty or populated revision.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: bounded-J01-ACTIVE-initial-create-and-authorized-inspection-semantics-under-PXD-054; archive-and-restore-guards-remain-pending
+      - id: ARCHIVED
+        terminal: false
+        meaning: The project is retained but excluded from ordinary active-work views; source and revision history remain immutable.
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: bounded-J01-ACTIVE-initial-create-and-authorized-inspection-semantics-under-PXD-054; archive-and-restore-guards-remain-pending
   - machineId: media-project-version
     sourceMachineId: media-project-version
     statusDimension: project-revision-lifecycle
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
-    stateIds: [DRAFT, COMMITTED, SUPERSEDED, CONFLICTED, ABANDONED]
+    stateIds:
+      - DRAFT
+      - COMMITTED
+      - SUPERSEDED
+      - CONFLICTED
+      - ABANDONED
     stateCount: 5
+    stateDefinitions:
+      - id: DRAFT
+        terminal: false
+        meaning: A mutable candidate revision based on an explicit parent/head revision; it is not the canonical project head.
+        ownerCurrentMeaning: A mutable candidate revision is bound to its exact parent head and remains noncanonical until a guarded compare-and-set commit succeeds.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: bounded-J01-COMMITTED-empty-initial-revision-and-immutable-head-identity-under-PXD-054; draft-commit-branch-restore-and-conflict-guards-remain-pending
+      - id: COMMITTED
+        terminal: false
+        meaning: An immutable revision atomically accepted as the current project head after expected-head comparison and validation.
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: SUPERSEDED
+        terminal: true
+        meaning: An immutable previously committed revision that is no longer the project head; retained for authorized history/branch/restore.
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: CONFLICTED
+        terminal: true
+        meaning: An immutable commit attempt rejected because the expected head was stale or a declared merge constraint failed.
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: ABANDONED
+        terminal: true
+        meaning: An uncommitted draft explicitly abandoned or expired without changing the project head.
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: bounded-J01-COMMITTED-empty-initial-revision-and-immutable-head-identity-under-PXD-054; draft-commit-branch-restore-and-conflict-guards-remain-pending
   - machineId: media-project-membership
     sourceMachineId: media-project-membership
     statusDimension: project-membership-lifecycle
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
-    stateIds: [INVITED, ACTIVE, SUSPENDED, REVOKED, EXPIRED]
+    stateIds:
+      - INVITED
+      - ACTIVE
+      - SUSPENDED
+      - REVOKED
+      - EXPIRED
     stateCount: 5
+    stateDefinitions:
+      - id: INVITED
+        terminal: false
+        meaning: A scoped membership invitation exists but has not been accepted or activated.
+        ownerCurrentMeaning: An invitation is pending acceptance and confers no project access before the membership authority activates it.
+        ownerCurrentMeaningStatus: OWNER_DEFINED_DEFINITION_ONLY; independent-review-open; runtime-observation-UNKNOWN
+        ownerMeaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
+      - id: ACTIVE
+        terminal: false
+        meaning: An accepted membership relationship exists; every action is still checked against current grants and project policy.
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: SUSPENDED
+        terminal: false
+        meaning: The relationship is retained but project actions are blocked pending authorized reactivation or revocation.
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: REVOKED
+        terminal: true
+        meaning: The membership relationship is ended; prior actions remain auditable and access is re-evaluated at every boundary.
+        ownerMeaningDisposition: source-owner-definition-adopted
+      - id: EXPIRED
+        terminal: true
+        meaning: An invitation expired without becoming active.
+        ownerMeaningDisposition: source-owner-definition-adopted
+    stateDefinitionRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-project-membership
+    ownerSemanticDisposition: Media-owner-definition-recorded; independent-PDP1-domain-review-open; runtime-qualification-not-claimed
     meaningDisposition: pending-owner-review; PDP-0 descriptions remain proposal source material
 crossSourceReconciliation:
   status: unresolved; no source projection is selected as canonical
   conflicts:
     - conflictId: state-conflict.retry-pending-vs-retrying
-      sourceSpellings: [RETRY_PENDING, RETRYING]
+      sourceSpellings:
+        - RETRY_PENDING
+        - RETRYING
       sourceRefs:
         - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
         - modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvTranscriptionJob.java#JobStatus
@@ -114,7 +613,9 @@ crossSourceReconciliation:
       reason: source generation and compatibility behavior do not establish semantic equivalence
       owner: media-domain-owner plus Java-and-TypeScript contract owners
     - conflictId: state-conflict.cancel-requested-vs-cancelling
-      sourceSpellings: [CANCEL_REQUESTED, CANCELLING]
+      sourceSpellings:
+        - CANCEL_REQUESTED
+        - CANCELLING
       sourceRefs:
         - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
         - libs/audio-video-types/src/contracts.ts#LegacyMediaJobStateSchema
@@ -126,7 +627,10 @@ crossSourceReconciliation:
       reason: machine dimension differs and the observed lossy mapping collapses a cancellation-in-progress spelling into RUNNING
       owner: media-domain-owner plus TypeScript-and-UI contract owners
     - conflictId: state-conflict.unknown-reconciling-partial-outcomes
-      sourceSpellings: [OUTCOME_UNKNOWN, RECONCILING, PARTIALLY_SUCCEEDED]
+      sourceSpellings:
+        - OUTCOME_UNKNOWN
+        - RECONCILING
+        - PARTIALLY_SUCCEEDED
       sourceRefs:
         - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
         - .product-experience/pdp-0-product-truth/state-models.yaml#media-delivery
@@ -141,15 +645,33 @@ crossSourceReconciliation:
     proposals: []
     unresolvedObservedMappings:
       - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#JobStatus
-        values: [ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED]
+        values: [ ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED ]
         disposition: current Media runtime job enum observed; request/job spelling does not establish canonical job-state mapping
         owner: Media runtime and domain owners
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvTranscriptionJob.java#JobStatus
-        values: [CREATED, QUEUED, PROCESSING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, FAILED, CANCELLED, RETRYING]
+        values:
+          - CREATED
+          - QUEUED
+          - PROCESSING
+          - RETRY_PENDING
+          - OUTCOME_UNKNOWN
+          - RECONCILING
+          - COMPLETED
+          - FAILED
+          - CANCELLED
+          - RETRYING
         disposition: observed Java enum; no state-machine or product-meaning authority inferred
         owner: Media runtime and Java contract owners
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
-        observedMapping: {CREATED: PENDING, QUEUED: QUEUED, PROCESSING: RUNNING, COMPLETED: COMPLETED, FAILED: FAILED, CANCELLED: CANCELLED, RETRY_PENDING: RETRYING, RETRYING: RETRYING}
+        observedMapping:
+          CREATED: PENDING
+          QUEUED: QUEUED
+          PROCESSING: RUNNING
+          COMPLETED: COMPLETED
+          FAILED: FAILED
+          CANCELLED: CANCELLED
+          RETRY_PENDING: RETRYING
+          RETRYING: RETRYING
         disposition: implementation-observed adapter projection; retry spellings collapse, but this adapter's source enum has neither OUTCOME_UNKNOWN nor RECONCILING
         owner: Media runtime and Java contract owners
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#canonicalMediaState
@@ -157,7 +679,16 @@ crossSourceReconciliation:
         disposition: implementation-observed source-state preservation; does not make the shared status lossless or accept a product-state mapping
         owner: Media runtime and Java contract owners
       - source: libs/audio-video-types/src/contracts.ts#MediaJobStateSchema
-        values: [QUEUED, RUNNING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, PARTIALLY_SUCCEEDED, FAILED, CANCELLED]
+        values:
+          - QUEUED
+          - RUNNING
+          - RETRY_PENDING
+          - OUTCOME_UNKNOWN
+          - RECONCILING
+          - COMPLETED
+          - PARTIALLY_SUCCEEDED
+          - FAILED
+          - CANCELLED
         disposition: observed TypeScript schema; its source comment asserting canonical PDP-1 ownership is not accepted by this proposal
         owner: Media TypeScript contract owner
       - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
@@ -169,50 +700,103 @@ crossSourceReconciliation:
         to: CANCELLING
         kind: compatibility-observation-preserves-raw; canonical mapping unresolved
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
-        from: [RETRY_PENDING, RETRYING]
+        from:
+          - RETRY_PENDING
+          - RETRYING
         to: RETRYING
         kind: implementation-observed; not accepted canonical mapping
       - source: modules/speech/stt-service/src/main/java/com/ghatana/stt/job/AvJobLifecycleAdapter.java#mapStatus
-        from: [OUTCOME_UNKNOWN, RECONCILING]
+        from:
+          - OUTCOME_UNKNOWN
+          - RECONCILING
         to: RUNNING
         kind: lossy-implementation-observed; not accepted presentation or semantic mapping
       - source: contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/state
-        values: [ACCEPTED, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED]
+        values:
+          - ACCEPTED
+          - QUEUED
+          - RUNNING
+          - SUCCEEDED
+          - FAILED
+          - CANCELLED
         disposition: narrower-and-differently-named API projection; per-state mapping unresolved
         owner: Media API contract owner
       - source: active Media service protobuf declarations
         observedOtherDimensions:
           engineState:
-            sourceRefs: [modules/speech/stt-service/src/main/proto/stt_service.proto#EngineState, modules/speech/tts-service/src/main/proto/tts_service.proto#EngineState]
-            values: [ENGINE_STATE_UNSPECIFIED, ENGINE_STATE_INITIALIZING, ENGINE_STATE_READY, ENGINE_STATE_BUSY, ENGINE_STATE_ERROR]
+            sourceRefs:
+              - modules/speech/stt-service/src/main/proto/stt_service.proto#EngineState
+              - modules/speech/tts-service/src/main/proto/tts_service.proto#EngineState
+            values:
+              - ENGINE_STATE_UNSPECIFIED
+              - ENGINE_STATE_INITIALIZING
+              - ENGINE_STATE_READY
+              - ENGINE_STATE_BUSY
+              - ENGINE_STATE_ERROR
             ttsAdditionalValue: ENGINE_STATE_SHUTDOWN
           healthStatus:
             sourceRef: modules/speech/stt-service/src/main/proto/stt_service.proto#HealthStatus
-            values: [HEALTH_STATUS_UNSPECIFIED, HEALTH_STATUS_HEALTHY, HEALTH_STATUS_DEGRADED, HEALTH_STATUS_UNHEALTHY]
+            values:
+              - HEALTH_STATUS_UNSPECIFIED
+              - HEALTH_STATUS_HEALTHY
+              - HEALTH_STATUS_DEGRADED
+              - HEALTH_STATUS_UNHEALTHY
         observation: no matching job-lifecycle state enum was found in the four inspected active Media service proto files; the listed enums describe engine/health dimensions
         disposition: absence is an inventory observation, not an unsupported-state decision
         owner: protobuf/API owners
       - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamState
         machineDimension: stream-session-state
-        values: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED]
+        values:
+          - OPEN
+          - CONNECTED
+          - DEGRADED
+          - DRAINING
+          - CLOSED
+          - FAILED
         disposition: implementation-observed runtime enum; state meanings and transition authority remain unresolved
         owner: Media runtime and domain owners
       - source: launcher/src/main/java/com/ghatana/media/launcher/LocalMediaRuntimeSupport.java#StreamStore.allowed
         observedTransitionRelations:
-          OPEN: [CONNECTED, CLOSED, FAILED]
-          CONNECTED: [DEGRADED, DRAINING, CLOSED, FAILED]
-          DEGRADED: [CONNECTED, DRAINING, CLOSED, FAILED]
-          DRAINING: [CLOSED, FAILED]
+          OPEN:
+            - CONNECTED
+            - CLOSED
+            - FAILED
+          CONNECTED:
+            - DEGRADED
+            - DRAINING
+            - CLOSED
+            - FAILED
+          DEGRADED:
+            - CONNECTED
+            - DRAINING
+            - CLOSED
+            - FAILED
+          DRAINING:
+            - CLOSED
+            - FAILED
           CLOSED: []
           FAILED: []
         disposition: implementation-observed local-store guard; differs from PDP-0 proposal edges and is not accepted as product transition policy
         owner: Media runtime and domain owners
       - source: providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaStreamSessionStore.java#allowed
         observedTransitionRelations:
-          OPEN: [CONNECTED, CLOSED, FAILED]
-          CONNECTED: [DEGRADED, DRAINING, CLOSED, FAILED]
-          DEGRADED: [CONNECTED, DRAINING, CLOSED, FAILED]
-          DRAINING: [CLOSED, FAILED]
+          OPEN:
+            - CONNECTED
+            - CLOSED
+            - FAILED
+          CONNECTED:
+            - DEGRADED
+            - DRAINING
+            - CLOSED
+            - FAILED
+          DEGRADED:
+            - CONNECTED
+            - DRAINING
+            - CLOSED
+            - FAILED
+          DRAINING:
+            - CLOSED
+            - FAILED
           CLOSED: []
           FAILED: []
         additionalBehavior: same-state transition accepted before the listed edge guard

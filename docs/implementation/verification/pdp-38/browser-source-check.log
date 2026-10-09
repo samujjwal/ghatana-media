@@ -1,0 +1,96 @@
+{
+  "baseUrl": "http://127.0.0.1:4179/",
+  "viewports": [
+    {
+      "name": "wide",
+      "width": 1536,
+      "height": 960
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "name": "compact-desktop",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "narrow-mobile",
+      "width": 320,
+      "height": 640
+    }
+  ],
+  "coverage": [
+    "retained viewport sweeps",
+    "100% and 200% text sizing",
+    "browser zoom/reflow",
+    "keyboard",
+    "forced colors",
+    "reduced motion",
+    "long-label localization stress",
+    "RTL when admitted",
+    "touch targets",
+    "focus not obscured"
+  ],
+  "manualGates": {
+    "screenReader": {
+      "status": "MANUAL_NOT_VERIFIED",
+      "reason": "No supported screen-reader automation is configured for this audit."
+    },
+    "independentVisualReview": {
+      "status": "MANUAL_NOT_VERIFIED",
+      "reason": "Screenshots and geometry diagnostics do not constitute independent expert visual review."
+    },
+    "canonicalVisualReferences": {
+      "status": "NOT_SUPPLIED",
+      "reason": "No accepted canonical visual references are indexed for this browser audit."
+    }
+  },
+  "scenarioCount": "explore scenarios: 30",
+  "productRouteCount": 47,
+  "observations": [
+    "explore scenarios: 30",
+    "keyboard primary-mode navigation and phase-radio navigation exercised",
+    "For the same source-available fixture, Tools consumed the exact @audio-video/ui#MediaProductRenderer binding; candidate input/state/action/error ports, renderer DOM, and accessible control signatures matched Product review. This does not establish production-host parity; no production Web host is present.",
+    "cross-phase search from PDP-0 selected PDP-2 record and exact canonical trace: ART-P1-PHASE-1-DESIGN-LANGUAGE-DESIGN-LANGUAGE-MD",
+    "specification artifacts exercised: 326",
+    "Legacy proposal URLs exercised in read-only Specification mode with source screenId equality: 282",
+    "J-01, J-02, J-20 and J-03 shared candidate bodies mounted at all six viewports; caption correction payload exercised",
+    "text sizing 100%: SUPPORTED_AND_EXERCISED (computed root font size 16px)",
+    "text sizing 200%: SUPPORTED_AND_EXERCISED (computed root font size 32px)",
+    "browser zoom: Chromium page scale 200% and equivalent narrow layout viewport exercised",
+    "forced-colors active and reduced-motion reduce preferences exercised",
+    "long-label localization stress: 15 mode labels expanded with a deterministic long-label fixture (not a translation claim)",
+    "RTL: not admitted by rendered surface; not simulated",
+    "touch targets: 25 enabled visible targets checked against 24 CSS px; 2 visually-hidden checkbox/radio controls represented by visible associated labels; 5 disabled/hidden/non-rendered targets excluded",
+    "focus-not-obscured: first keyboard focus target checked for viewport visibility and hit-test obstruction",
+    "Artifact-verification job-family URL remains a Specification record, not a Product route"
+  ],
+  "consoleErrors": [],
+  "instrumentationWarnings": [],
+  "policyViolations": [],
+  "pageErrors": [],
+  "failures": [],
+  "screenshots": [
+    "/tmp/media-experience-browser-audit/explore-desktop.png",
+    "/tmp/media-experience-browser-audit/specification-desktop.png",
+    "/tmp/media-experience-browser-audit/verify-desktop.png",
+    "/tmp/media-experience-browser-audit/candidate-edit-captions-desktop.png",
+    "/tmp/media-experience-browser-audit/explore-narrow-mobile.png",
+    "/tmp/media-experience-browser-audit/specification-narrow-mobile.png",
+    "/tmp/media-experience-browser-audit/verify-narrow-mobile.png",
+    "/tmp/media-experience-browser-audit/candidate-edit-captions-narrow-mobile.png"
+  ]
+}

@@ -2,7 +2,7 @@ schemaVersion: media.pdp2-reuse-audit.v1
 productId: media
 authority: Source inventory observations and PDP-2 contract/catalog identity crosswalk; candidate links are not
   admitted implementation or design bindings.
-status: audit-recorded; component-owner-review-pending; composition-review-pending; Shared-style-binding-unverified
+status: source-dispositions-complete; component-owner-review-pending; composition-review-pending; Shared-style-binding-unverified
 sharedPackageMetadataObservation:
   packages:
     "@ghatana/design-system": { version: 0.1.0-SNAPSHOT, declaredLicense: MIT }
@@ -141,6 +141,11 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/components/MediaTaskFlow.tsx
   bindingStatus: exact-source-and-public-export-identity-observed; owner-accessibility-and-package-acceptance-pending
   publicExport: "@audio-video/ui/components#MediaTaskFlow"
+  boundPackageVersion: 0.1.0-SNAPSHOT
+  packageVersionEvidence: libs/audio-video-ui/package.json#version
+  versionEvidenceKind: source-package-manifest-snapshot; not immutable artifact or release identity
+  bindingPort: exact named component export and its typed source contract
+
   publicExportEvidence:
   - libs/audio-video-ui/package.json#./components
   - libs/audio-video-ui/src/index.tsx#export*from-components
@@ -167,6 +172,11 @@ componentFamilyCrosswalk:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
   bindingStatus: exact-source-and-public-export-identity-observed; owner-accessibility-and-package-acceptance-pending
   publicExport: "@ghatana/ai-voice-ui-react/components#VoiceProductionWorkflow"
+  boundPackageVersion: 0.1.0-SNAPSHOT
+  packageVersionEvidence: modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json#version
+  versionEvidenceKind: source-package-manifest-snapshot; not immutable artifact or release identity
+  bindingPort: exact named component export and its typed source contract
+
   publicExportEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json#./components
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/index.ts#VoiceProductionWorkflow
@@ -179,23 +189,38 @@ componentFamilyCrosswalk:
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx`, not an exact public reusable export for `identity-context-boundary`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.intent-launcher
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.intent-launcher
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.intent-launcher`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.project-browser
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.project-browser
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no-PDP-2-family-specific-export-binding-established
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'FirstUseProjectScreen is a whole-screen candidate and Shared EmptyState is only partial composition reuse. Neither is evidence of an exact reusable project-browser export or contract-level anatomy/state/action parity.'
+    noEquivalenceInferred: true
+
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
@@ -211,16 +236,26 @@ componentFamilyCrosswalk:
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no-PDP-2-family-specific-export-binding-established
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'FirstUseProjectScreen is a whole-screen candidate; the StemTrack audio-mix export is unrelated to a project-context summary. Neither establishes a public family export.'
+    noEquivalenceInferred: true
+
   crosswalkNote: FirstUseProjectScreen.tsx is a screen candidate; StemTrack is an audio-mix component export and is not evidence of a project-context-summary implementation.
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.creation-plan-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.creation-plan-summary
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.creation-plan-summary`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.source-picker
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-picker
@@ -228,8 +263,13 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
   - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'ArtifactIntakeScreen and TranscriptCaptionScreen are full-screen candidate sources; Shared FileUpload is partial source-picker reuse only. Source selection, retained-preview and host action semantics are not proven equivalent across the family.'
+    noEquivalenceInferred: true
+
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: ".#FileUpload"
@@ -241,16 +281,26 @@ componentFamilyCrosswalk:
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.source-player
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.source-player`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.transcript-review
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.transcript-review
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx`, not an exact public reusable export for `transcript-review`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
@@ -263,8 +313,13 @@ componentFamilyCrosswalk:
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx`, not an exact public reusable export for `caption-track-editor`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: "."
@@ -279,23 +334,39 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
   - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/TrainingProgress.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: candidate exports include "@audio-video/ui/screens#JobRecoveryScreen" and "@ghatana/ai-voice-ui-react/components#TrainingProgress"; no admission
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  candidatePublicExportObservation: 'candidate exports include "@audio-video/ui/screens#JobRecoveryScreen" and "@ghatana/ai-voice-ui-react/components#TrainingProgress"; no admission'
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'JobRecoveryScreen and TrainingProgress are screen/progress candidates, not an exact reusable job-status family export with authoritative job finality and safe-next-action semantics. The candidate sources remain observations only.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.provenance-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.provenance-summary
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.provenance-summary`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.artifact-source-picker
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-source-picker
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx`, not an exact public reusable export for `artifact-source-picker`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   sharedCandidateReview:
     package: "@ghatana/design-system"
     publicExport: ".#FileUpload"
@@ -308,24 +379,39 @@ componentFamilyCrosswalk:
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx`, not an exact public reusable export for `artifact-transfer-status`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.artifact-integrity-summary
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-integrity-summary
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx`, not an exact public reusable export for `artifact-integrity-summary`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.artifact-browser
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.artifact-browser
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The only family candidate is the full-screen source `libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx`, not an exact public reusable export for `artifact-browser`. The source remains visible as a candidate observation; anatomy, props, state, and action equivalence are not established.'
+    noEquivalenceInferred: true
+
   sharedReuse:
     package: "@ghatana/design-system"
     publicExport: ".#EmptyState"
@@ -339,23 +425,40 @@ componentFamilyCrosswalk:
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/Waveform.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: "@ghatana/ai-voice-ui-react/components#Waveform"
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  candidatePublicExportObservation: '@ghatana/ai-voice-ui-react/components#Waveform'
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source-bound Waveform candidate renders a waveform, but the Media contract also requires spectrogram mode, analysis kind and units, source timebase, measured observations, and a structured alternative. The source export alone does not implement that full family contract.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.storyboard
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.storyboard
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.storyboard`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.timeline-keyframe-editor
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.timeline-keyframe-editor
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/PhraseTimeline.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: "@ghatana/ai-voice-ui-react/components#PhraseTimeline"
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  candidatePublicExportObservation: '@ghatana/ai-voice-ui-react/components#PhraseTimeline'
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'PhraseTimeline is a voice-phrase timeline candidate. The Media contract requires synchronized media tracks, animation keyframes and curves, explicit revision/timebase state, conflict handling, and undo/redo; similar timeline presentation does not establish family equivalence.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.audio-mixer
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.audio-mixer
@@ -363,73 +466,124 @@ componentFamilyCrosswalk:
   implementationEvidence:
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/StemTrack.tsx
   - modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/components/VoiceProductionWorkflow.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: "@ghatana/ai-voice-ui-react/components#StemTrack"
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  candidatePublicExportObservation: '@ghatana/ai-voice-ui-react/components#StemTrack'
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'StemTrack is an exported per-stem control candidate. It does not establish the Media contract for routed channel/bus lists, gain/pan/routing, inserted processing, measured metering, master output, clipping, and versioned save/recovery.'
+    noEquivalenceInferred: true
+
   crosswalkNote: VoiceProductionWorkflow is separately crosswalked
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.mask-tracking-editor
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.mask-tracking-editor
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.mask-tracking-editor`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.scene-inspector
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.scene-inspector
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.scene-inspector`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.simulation-instruments
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.simulation-instruments
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.simulation-instruments`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.result-comparison
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.result-comparison
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.result-comparison`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.quality-inspector
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.quality-inspector
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.quality-inspector`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.delivery-profile-picker
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.delivery-profile-picker
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.delivery-profile-picker`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.rights-retention-review
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.rights-retention-review
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.rights-retention-review`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.activity-recovery-feed
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.activity-recovery-feed
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence:
   - libs/audio-video-ui/src/screens/JobRecoveryScreen.tsx
-  bindingStatus: candidate-source-link-needs-owner-review
-  publicExport: no PDP-2 family-specific export binding established; source path evidence only
+  bindingStatus: contract-only-no-verified-exact-public-family-export
+  publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'JobRecoveryScreen is a whole-screen observation, not a family-specific activity feed export with the proposed event ordering, filtering, recovery and state semantics.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.cli-output
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.cli-output
   contractStatus: authored-proposal; bindings-and-review-pending
   implementationEvidence: no exact reusable implementation identified in the audited source inventory
-  bindingStatus: contract-only-no-observed-reusable-export
+  bindingStatus: contract-only-no-verified-exact-public-family-export
   publicExport: none established
+  contractOnlyDisposition:
+    status: EXPLICIT_CONTRACT_ONLY
+    rationale: 'The source audit identified no exact reusable implementation or family-specific public export for `media.component.cli-output`. The Media-owned component contract remains explicit and contract-only; no callback, action intent, screen projection, or inferred export is treated as equivalent.'
+    noEquivalenceInferred: true
+
   reviewState: pending; this record does not establish anatomy/state/variant/accessibility/localization acceptance
 - componentRef: media.component.progress-indicator
   contractSource: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.progress-indicator
@@ -438,6 +592,11 @@ componentFamilyCrosswalk:
   - libs/audio-video-ui/src/components/MediaProgress.tsx
   bindingStatus: exact-source-and-public-export-identity-observed; owner-accessibility-and-package-acceptance-pending
   publicExport: "@audio-video/ui/components#MediaProgress"
+  boundPackageVersion: 0.1.0-SNAPSHOT
+  packageVersionEvidence: libs/audio-video-ui/package.json#version
+  versionEvidenceKind: source-package-manifest-snapshot; not immutable artifact or release identity
+  bindingPort: exact named component export and its typed source contract
+
   publicExportEvidence:
   - libs/audio-video-ui/package.json#./components
   - libs/audio-video-ui/src/index.tsx#export*from-components
@@ -460,6 +619,16 @@ publicExportInventory:
   contractFamilyCount: 31
   exactSourceAndPublicExportIdentityCount: 3
   unboundFamilyCount: 28
+  implementationDispositionCounts:
+    sourceAndPublicExportIdentityObserved: 3
+    explicitContractOnlyWithFamilySpecificRationale: 28
+  completionMeaning: >-
+    All 31 Media component families now have a bounded source disposition: three
+    exact source/public-export identities are recorded at their current package
+    snapshot versions, and 28 remain explicit contract-only families with
+    source-grounded rationale. This is not package-resolution evidence, component
+    parity, accessibility/visual qualification, independent specialist review,
+    Shared publisher acceptance, or PDP-2 phase acceptance.
   exactBindings:
   - media.component.progress-indicator
   - media.component.task-flow

@@ -19,7 +19,7 @@ function interfaceRequiredProps(source, interfaceName) {
     .sort();
 }
 
-test("ExperienceSpecification required props map only exact typed public component contracts", () => {
+test("ExperienceSpecification required props map exact typed contracts and the three public source interfaces", () => {
   const expected = new Map([
     ["media.component.progress-indicator", {
       source: "libs/audio-video-ui/src/components/MediaProgress.tsx#MediaProgressProps",
@@ -39,7 +39,7 @@ test("ExperienceSpecification required props map only exact typed public compone
   ]);
   const byId = new Map(contracts.components.map((component) => [component.id, component]));
 
-  assert.equal(expected.size, 3, "only the source-bound public export subset is projected");
+  assert.equal(expected.size, 3, "the source-bound public export subset remains separately verified");
   for (const [componentId, binding] of expected) {
     const component = byId.get(componentId);
     assert.ok(component, `${componentId} must remain in the component registry`);
@@ -53,11 +53,21 @@ test("ExperienceSpecification required props map only exact typed public compone
   }
 
   const generator = read("scripts/generate-media-phase-projections.mjs");
-  assert.match(generator, /requiredProps:\s*component\.requiredProps\s*\?\?\s*\[\]/u,
-    "projection must copy only an explicitly authored source mapping");
+  assert.match(generator, /component\.typedDefinition\.props\.filter\(\(prop\) => prop\.required === true\)\.map\(\(prop\) => prop\.name\)/u,
+    "Media-owned required props must derive only from the formally validated typed definition");
+  assert.match(generator, /validateTypedComponentContracts\(root, componentContracts\.components\)/u,
+    "projection must fail closed unless every typed component definition validates");
+  assert.match(generator, /decisionRef: ".product-experience\/decision-log\.md#PXD-083"/u,
+    "projection metadata must bind the exact bounded source decision");
   for (const component of contracts.components) {
-    if (expected.has(component.id)) continue;
-    assert.equal(component.requiredProps, undefined,
-      `${component.id} must not receive inferred props from anatomy or a display name`);
+    if (!expected.has(component.id)) {
+      assert.equal(component.requiredProps, undefined,
+        `${component.id} must not receive public props inferred from anatomy or display name`);
+      assert.ok(component.typedDefinition.props.length > 0, `${component.id} must have an exact Media-owned typed prop contract`);
+      assert.ok(component.typedDefinition.props.every((prop) => typeof prop.name === "string" && typeof prop.type === "string"),
+        `${component.id} props must have exact Media-owned type identities`);
+      assert.equal(component.typedDefinition.inputSchema.additionalProperties, false,
+        `${component.id} input schema must be closed`);
+    }
   }
 });

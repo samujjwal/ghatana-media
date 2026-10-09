@@ -157,14 +157,58 @@ profileResolutionRecord:
     - budgetEstimateAndCeiling
     - confirmationOrApprovalOutcome
   capabilityBindingState: pending-P0-003-integration
-bindingProfileRule: >-
-  Model-native parameters such as steps, guidance, offload, and quantization
-  belong in an exact qualified binding profile. They are not ordinary user
-  requirements or portable guarantees of a quality-intent label.
+bindingProfileRule:
+  id: media.profile.binding-profile-rule
   rule: >-
-    Requested and effective profile values and quality dimensions are both
-    recorded. Unknown or unbound values block execution or produce a typed,
-    policy-permitted fallback; they are never reported as available.
+    Model-native parameters such as steps, guidance, offload, and quantization
+    belong in an exact qualified binding profile. They are not ordinary user
+    requirements or portable guarantees of a quality-intent label.
+  requestedAndEffectiveProfileRule: >-
+    Record requested and effective profile identities, versions, and quality
+    dimensions separately, including unchanged and changed values and the
+    authority and reason for every change. Unknown or unbound values block
+    execution or use only an explicit policy-permitted fallback; they are never
+    reported as available. A fallback never overwrites the requested profile.
+  scopeStatus: OWNER_DEFINED_PROFILE_SEMANTICS; no binding or runtime qualification is claimed.
+supportedIOContract:
+  id: media.profile.supported-io-contract
+  rule: >-
+    Each capability leaf declares its accepted input kinds and exact constraints,
+    required context and authority, output kinds and schemas, cardinality and
+    size/duration bounds, and any preservation or transformation behavior.
+    Declare unsupported combinations and typed failure behavior. A profile or
+    reproducibility record may reference only an IO contract that is exact for
+    its capability and version; it cannot imply support from a file extension,
+    MIME label, example, or neighboring profile.
+  scopeStatus: OWNER_DEFINED_IO_CONTRACT_REQUIREMENT; capability-specific registrations remain separately required.
+streamProfileRule:
+  id: media.profile.stream-profile-support
+  rule: >-
+    A real-time or recorded stream profile binds codec, transport, recording
+    behavior, reconnect and resumption semantics, and latency bounds together
+    for the exact profile version. State supported directions, media tracks,
+    timing units, buffering and loss behavior, cancellation/finality, and
+    compatibility evidence. An unbound or unqualified dimension is unsupported;
+    support on one profile cannot be inferred for another.
+  requiredProfileBindings:
+    - profileIdentityAndVersion
+    - codecAndContainerOrWireFormat
+    - transportAndDirection
+    - trackAndRecordingSemantics
+    - reconnectAndResumeSemantics
+    - latencyAndBufferBoundsWithUnits
+    - compatibilityEvidenceAndQualificationScope
+  scopeStatus: OWNER_DEFINED_PROFILE_REQUIREMENT; no stream profile is qualified by this rule.
+preserveModeSemanticRule:
+  id: media.profile.preserve-mode-semantic-boundary
+  rule: >-
+    Preserve mode does not invent or infer semantic detail absent from its source.
+    A generated or reconstructed detail cannot be represented as source-preserved
+    truth, even when it is disclosed as generated. Enhancement and creative modes
+    are distinct explicit intents that may permit bounded reconstruction or edits
+    subject to their own authorization, disclosure, and preservation limits; they
+    never retroactively redefine a preserve-mode result.
+  scopeStatus: OWNER_DEFINED_PRESERVATION_SEMANTICS; no enhancement or runtime capability is admitted.
 fallbackSemantics:
   id: FALLBACK-PERMISSION-RECORD
   defaultPermission: denied

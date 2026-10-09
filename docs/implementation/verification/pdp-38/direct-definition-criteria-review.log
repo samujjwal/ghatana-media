@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
+ok 1 - every declared NFR has one complete owner measurement method without implying observation or acceptance
+  ---
+  duration_ms: 7929.168266
+  type: 'test'
+  ...
+# Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
+ok 2 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
+  ---
+  duration_ms: 0.781911
+  type: 'test'
+  ...
+# Subtest: missing method material and attempted qualification promotion fail validation
+ok 3 - missing method material and attempted qualification promotion fail validation
+  ---
+  duration_ms: 2.718648
+  type: 'test'
+  ...
+# Subtest: SLO and human/specialist methods remain gated on their real external evidence
+ok 4 - SLO and human/specialist methods remain gated on their real external evidence
+  ---
+  duration_ms: 0.266323
+  type: 'test'
+  ...
+# Subtest: all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
+ok 5 - all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
+  ---
+  duration_ms: 11029.925514
+  type: 'test'
+  ...
+# Subtest: all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
+ok 6 - all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
+  ---
+  duration_ms: 844.343382
+  type: 'test'
+  ...
+# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+ok 7 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+  ---
+  duration_ms: 1192.078719
+  type: 'test'
+  ...
+# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 8 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+  ---
+  duration_ms: 14990.292817
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20326.715455

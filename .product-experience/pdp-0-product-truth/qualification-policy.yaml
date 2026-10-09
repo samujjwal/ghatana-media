@@ -643,3 +643,77 @@ ownerGaps:
 - GAP-15
 - GAP-MEDIA-DI-PUBLIC-CLIENT
 - GAP-MEDIA-TOOLS-SCHEMA-BINDING
+ownerDefinedMigrationQualificationRules:
+  authority: Media-owner definition; independent specialist review, qualification evidence, license admission, and runtime availability remain separate and open.
+  reproducibilityClassification:
+    id: media.qualification.reproducibility-classification
+    canonicalSolverFidelityDescriptorRef: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.simulation-fidelity-definition
+    exactEnvironment: >-
+      Identical declared output representation is asserted only for the exact frozen operation, engine/model and weight
+      digests, solver identity/version and configuration, declared numerical/precision/time-step bounds where applicable
+      (or an explicit NOT_APPLICABLE disposition), runtime and hardware class, configuration, source assets, seed, and
+      relevant policy/profile values covered by evidence. A changed or missing member invalidates the exact-environment
+      claim until re-evaluated.
+    toleranceBound: >-
+      A tolerance-bound result names each numeric, geometric, perceptual, or timing measure, units, comparator, tolerance,
+      input scope, measurement method/version, solver identity/version/configuration, and declared numerical/precision/
+      time-step bounds where applicable (or an explicit NOT_APPLICABLE disposition). No unspecified tolerance or metric
+      can be inferred.
+    statistical: >-
+      A statistical class states its sample population, distributional and quality protocol, confidence/uncertainty,
+      applicability scope, solver identity/version/configuration and applicable numeric bounds (or NOT_APPLICABLE), and
+      abstention conditions. A seed is recorded as an input but does not promise identical output.
+    replayUnavailable: >-
+      Preserve inputs, outputs, and execution provenance, label replay unavailable, and do not offer exact reproduction
+      for an unsupported engine or profile.
+    separation: Solver determinism, rendered-output determinism, and encoded-byte determinism are distinct claims; one does not establish another.
+    scopeStatus: DEFINITION_ONLY; qualification evidence is not supplied here.
+  substitutionAdmissionRule:
+    id: media.qualification.substitution-admission
+    rule: >-
+      A different model, engine, runtime, provider, codec, or material configuration is not a silent substitute. The exact
+      candidate must have an explicit reuse-decision record before entering a critical path, a registered capability/profile
+      binding, compatible typed inputs and outputs, current license
+      and policy admission, qualification for the requested scope, and preservation of every requested quality, fidelity,
+      rights, locality, delivery, and cost floor. Missing or unknown evidence denies substitution; a user confirmation
+      cannot replace policy or license authorization.
+    decision: Explicit deny by default; any allowed substitution records requested and effective identities, evidence refs, reason, bounds, and required confirmation.
+    scopeStatus: DEFINITION_ONLY; no candidate is admitted or qualified by this rule.
+  failureRecoveryQualificationRule:
+    id: media.qualification.failure-recovery
+    rule: >-
+      A recovery claim identifies the durable checkpoint state/version, source and intermediate artifact digests, ordered
+      input-event sequence, acknowledged effects, and the declared reproducibility class. Evidence exercises interruption
+      before and after each consequential boundary, restart, duplicate observation, stale checkpoint, missing event, and
+      unknown effect outcome. Resume only from a compatible authoritative checkpoint under the operation contract; reconcile
+      uncertain effects before replay, and classify missing ordering or evidence as recovery-unavailable rather than success.
+    scopeStatus: DEFINITION_ONLY; failure/recovery qualification has not been run or admitted.
+  cacheReuseValidityRule:
+    id: media.qualification.cache-reuse-validity
+    rule: >-
+      A reusable output key binds source artifact digests, exact operation and schema versions, parameters, and the exact
+      quality-profile and delivery-profile identities and versions, engine/model/runtime/hardware and weight/configuration
+      digests, seed and reproducibility class, temporal,
+      color, audio, layout, and font configuration, plus the relevant policy and license decision versions. Reuse requires
+      exact key equality, intact output integrity, current authorization and retention checks, and evidence still valid for
+      the requested scope. Missing fields, changed policy, expired authority, or unknown impact invalidates reuse and
+      requires a fresh decision; a cache hit never supplies authorization or proves current availability.
+    scopeStatus: DEFINITION_ONLY; this does not establish an implementation or cache admission.
+  licenseEvidenceRule:
+    id: media.qualification.exact-license-evidence
+    rule: >-
+      Evaluate the exact selected release/build, source and binary digests, license expression and included files, notices,
+      modifications and distribution mode, transitive/native dependencies and build flags, codecs/plugins, model weights,
+      datasets, fonts, assets, adapters, copyright and patent grants/encumbrances, and intended execution/serving profile.
+      Unknown or incompatible scope is not admitted; package-level license labels alone do not establish rights for the
+      complete selected artifact set.
+    scopeStatus: DEFINITION_ONLY; legal review and license admission remain open.
+  identityAndConsentImplementationBoundary:
+    id: media.qualification.no-parallel-identity-or-consent-framework
+    rule: >-
+      Media consumes the authenticated identity, delegation, cryptographic, and consent public contracts owned by their
+      designated platform/domain providers. Media must not create a parallel IAM service, JWT parser, cryptographic
+      implementation, or generic consent framework. Media defines operation-specific authorization and consent
+      applicability and supplies those preconditions to the owning mechanism; caller-supplied role labels or interface
+      presence do not authenticate a principal or establish a production trust binding.
+    scopeStatus: OWNER_DEFINED_BOUNDARY; no production trust binding or enforcement is claimed.

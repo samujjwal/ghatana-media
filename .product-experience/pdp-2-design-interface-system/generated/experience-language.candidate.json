@@ -17,8 +17,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-      "sha256": "5527e311866f824fdb343e19ea02366c18a58dd71ffa4aaa229ac5be7a421a1d",
-      "bytes": 4269,
+      "sha256": "022ff9d0e53b82d44c600ee28a51e49a4dfe888e79cda97618fcd6953931b308",
+      "bytes": 5368,
       "format": "yaml",
       "schemaVersion": "media.typography-layout.v1",
       "authority": "Media reading hierarchy and layout behavior; Shared owns typography and layout primitives",
@@ -30,6 +30,7 @@
         "dependencies",
         "disclosureInvariants",
         "layoutRules",
+        "mediaOwnerDefinitionDecision",
         "presentationProfiles",
         "productId",
         "progressiveDisclosureRules",
@@ -52,8 +53,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-      "sha256": "698951074ec823da69429716017417eee42e10e5a3d72bef5fecce01669e2af2",
-      "bytes": 2468,
+      "sha256": "05a61682849ea619a52908407386dd6b2fbb676bb2b48b7a9108882cbc129bc7",
+      "bytes": 2666,
       "format": "yaml",
       "schemaVersion": "media.semantic-state-grammar.v1",
       "authority": "Media state presentation mappings; PDP-0 owns state machines",
@@ -71,8 +72,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
-      "sha256": "5223265683c29877d272a42c0dc8f2503f970fb1a211632213057d14c459a91a",
-      "bytes": 1314,
+      "sha256": "f3c030c125062147a8be27555ad5eefdcc7898e7b6a1d3aa0aa589bac7f872a9",
+      "bytes": 1933,
       "format": "yaml",
       "schemaVersion": "media.responsive-adaptive.v1",
       "authority": "Media responsive composition and task capability at each viewport",
@@ -80,6 +81,7 @@
       "topLevelFields": [
         "authority",
         "invariants",
+        "mediaOwnerDefinitionDecision",
         "productId",
         "schemaVersion",
         "source",
@@ -91,8 +93,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-      "sha256": "50bb4b2ebee7a4c8e9a9949f64fa831d9cfd7a8dfa7fa61003b28f201c617324",
-      "bytes": 3607,
+      "sha256": "1cec53c4f6e7f3cb00aab47f14f2c49e6b58653b2a87268e4afcdebb7c3d0f6a",
+      "bytes": 4450,
       "format": "yaml",
       "schemaVersion": "media.accessibility-language.v1",
       "authority": "Media-specific accessibility contracts over Shared primitives",
@@ -101,6 +103,7 @@
         "acceptance",
         "accessibilityRules",
         "authority",
+        "mediaOwnerDefinitionDecision",
         "productId",
         "requirements",
         "reviewTarget",
@@ -177,8 +180,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
-      "sha256": "66ab3e856e6baca98ab8779becd447e685f03d3dc56272ae0bd06ed993add99a",
-      "bytes": 6403,
+      "sha256": "1888914e0a5ce266a9ab866e0ee631bcb8864ced214e207beaaea8675b7ee31c",
+      "bytes": 7162,
       "format": "yaml",
       "schemaVersion": "media.gui-layout.v1",
       "authority": "Media owns information hierarchy and responsive composition; Shared owns layout primitives and design tokens",
@@ -210,8 +213,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
-      "sha256": "ae5d9be55be00ec9c3d8d32f472d0aff8bd9366c1ff58f0bad67e6f8f2a14e4b",
-      "bytes": 6154,
+      "sha256": "87ba4671053ba119c63a8d0d0525d68e71923e666bcfdd13d20fa2cbdef72608",
+      "bytes": 9655,
       "format": "yaml",
       "schemaVersion": "media.gui-templates.v1",
       "authority": "Media owns reusable screen-composition templates; Shared owns the primitives used to realize them",
@@ -244,8 +247,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
-      "sha256": "ef95346c068c547b7de89b29cd77eb997a35d8e1f2b6a3fbfcef36ec9308680f",
-      "bytes": 10538,
+      "sha256": "5f8266c44ed1d16911c376f5d5ac73282d0dc65212fddbab91c7b088eacda21d",
+      "bytes": 12789,
       "format": "yaml",
       "schemaVersion": "media.gui-patterns.v1",
       "authority": "Media owns domain-specific composition and behavior; Shared owns reusable primitive implementation",
@@ -253,6 +256,7 @@
       "topLevelFields": [
         "acceptance",
         "authority",
+        "compositionOwnerDecision",
         "owner",
         "patterns",
         "schemaVersion",
@@ -375,8 +379,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
-      "sha256": "4c06c5ad25fbba4cddea43b83f2f39ad4295eb3e2f898a9b50ab5b8cff8c6dbc",
-      "bytes": 7469,
+      "sha256": "acaf3c0674ff542c77346fb7651a7e5193ac94738cf6be8bbae897d9f2a55637",
+      "bytes": 9811,
       "format": "yaml",
       "schemaVersion": "media.design-token-aliases.v1",
       "authority": "media-semantic-aliases; Shared owns token values and primitive tokens",
@@ -406,8 +410,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-      "sha256": "3f653e0ca8777041e43a0670f88626d9b0521955f5fa5eed465ec894dd69a279",
-      "bytes": 75691,
+      "sha256": "5d5eb8711b84b2666b1a593a00e62c4ec935966d6f9e4f65f19385aade6ea290",
+      "bytes": 337940,
       "format": "yaml",
       "schemaVersion": "media.component-contracts.v1",
       "authority": "Media component anatomy and behavior; Shared owns generic component primitives",
@@ -422,42 +426,70 @@
       ],
       "declaredIds": [
         "media.component.activity-recovery-feed",
+        "media.component.activity-recovery-feed.typed-definition.v1",
         "media.component.artifact-browser",
+        "media.component.artifact-browser.typed-definition.v1",
         "media.component.artifact-integrity-summary",
+        "media.component.artifact-integrity-summary.typed-definition.v1",
         "media.component.artifact-source-picker",
+        "media.component.artifact-source-picker.typed-definition.v1",
         "media.component.artifact-transfer-status",
+        "media.component.artifact-transfer-status.typed-definition.v1",
         "media.component.audio-mixer",
+        "media.component.audio-mixer.typed-definition.v1",
         "media.component.caption-track-editor",
+        "media.component.caption-track-editor.typed-definition.v1",
         "media.component.cli-output",
+        "media.component.cli-output.typed-definition.v1",
         "media.component.creation-plan-summary",
+        "media.component.creation-plan-summary.typed-definition.v1",
         "media.component.delivery-profile-picker",
+        "media.component.delivery-profile-picker.typed-definition.v1",
         "media.component.identity-context-boundary",
+        "media.component.identity-context-boundary.typed-definition.v1",
         "media.component.intent-launcher",
+        "media.component.intent-launcher.typed-definition.v1",
         "media.component.job-status-card",
+        "media.component.job-status-card.typed-definition.v1",
         "media.component.mask-tracking-editor",
+        "media.component.mask-tracking-editor.typed-definition.v1",
         "media.component.progress-indicator",
         "media.component.project-browser",
+        "media.component.project-browser.typed-definition.v1",
         "media.component.project-context-summary",
+        "media.component.project-context-summary.typed-definition.v1",
         "media.component.provenance-summary",
+        "media.component.provenance-summary.typed-definition.v1",
         "media.component.quality-inspector",
+        "media.component.quality-inspector.typed-definition.v1",
         "media.component.result-comparison",
+        "media.component.result-comparison.typed-definition.v1",
         "media.component.rights-retention-review",
+        "media.component.rights-retention-review.typed-definition.v1",
         "media.component.scene-inspector",
+        "media.component.scene-inspector.typed-definition.v1",
         "media.component.simulation-instruments",
+        "media.component.simulation-instruments.typed-definition.v1",
         "media.component.source-picker",
+        "media.component.source-picker.typed-definition.v1",
         "media.component.source-player",
+        "media.component.source-player.typed-definition.v1",
         "media.component.storyboard",
+        "media.component.storyboard.typed-definition.v1",
         "media.component.task-flow",
         "media.component.timeline-keyframe-editor",
+        "media.component.timeline-keyframe-editor.typed-definition.v1",
         "media.component.transcript-review",
+        "media.component.transcript-review.typed-definition.v1",
         "media.component.voice-production-workflow",
-        "media.component.waveform-spectrogram"
+        "media.component.waveform-spectrogram",
+        "media.component.waveform-spectrogram.typed-definition.v1"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
-      "sha256": "bc0c5865486f4a2e1ce3090b4177a04be7a07bf8345ca12dfc82bfe438d0e09b",
-      "bytes": 3784,
+      "sha256": "6327e72956e680980abb75f75f023fe22c1be8bb9e5e43b0c642320154effc35",
+      "bytes": 5006,
       "format": "yaml",
       "schemaVersion": "media.navigation-contracts.v1",
       "authority": null,
@@ -465,13 +497,16 @@
       "topLevelFields": [
         "additionalJourneyFlows",
         "entryPoints",
+        "informationArchitecture",
         "intentRef",
         "productId",
         "rules",
         "schemaVersion",
         "status"
       ],
-      "declaredIds": []
+      "declaredIds": [
+        "media.navigation.ordinary-path-provider-boundary.v1"
+      ]
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -582,19 +617,19 @@
         "id": "media.language.density.simple",
         "name": "simple",
         "density": "minimal",
-        "description": "one primary task, essential source context, and the next safe action"
+        "description": "intent and safe defaults for one primary task, essential source/version context, and the next safe action over the same state and actions"
       },
       {
         "id": "media.language.density.guided",
         "name": "guided",
         "density": "standard",
-        "description": "decision inputs, timing details, rights status, and review evidence"
+        "description": "quality, style, duration, reference, output, and privacy choices plus timing, rights status, decision inputs, and review evidence over the same state and actions"
       },
       {
         "id": "media.language.density.expert",
         "name": "expert",
         "density": "rich",
-        "description": "typed media parameters and provenance; no hidden change to action meaning"
+        "description": "typed graph, curves, solver limits, generation, color, audio, and encoding controls plus measurements and provenance over the same state and actions; no hidden change to action meaning or authority"
       }
     ],
     "presentationProfiles": [
@@ -602,19 +637,19 @@
         "id": "media.language.presentation.simple",
         "name": "simple",
         "densityRef": "media.language.density.simple",
-        "description": "one primary task, essential source context, and the next safe action"
+        "description": "intent and safe defaults for one primary task, essential source/version context, and the next safe action over the same state and actions"
       },
       {
         "id": "media.language.presentation.guided",
         "name": "guided",
         "densityRef": "media.language.density.guided",
-        "description": "decision inputs, timing details, rights status, and review evidence"
+        "description": "quality, style, duration, reference, output, and privacy choices plus timing, rights status, decision inputs, and review evidence over the same state and actions"
       },
       {
         "id": "media.language.presentation.expert",
         "name": "expert",
         "densityRef": "media.language.density.expert",
-        "description": "typed media parameters and provenance; no hidden change to action meaning"
+        "description": "typed graph, curves, solver limits, generation, color, audio, and encoding controls plus measurements and provenance over the same state and actions; no hidden change to action meaning or authority"
       }
     ],
     "semanticStates": [
@@ -978,6 +1013,18 @@
       {
         "id": "media.language.accessibility.8",
         "standard": "WCAG 2.2",
+        "requirement": "System color keywords and native semantic controls remain the fallback when Shared theme colors are unavailable or overridden; forced-color-adjust must not suppress user-selected system colors without a reviewed reason.",
+        "level": "AA"
+      },
+      {
+        "id": "media.language.accessibility.9",
+        "standard": "WCAG 2.2",
+        "requirement": "Motion preferences remove decorative component transitions and movement while preserving explicit state, progress, and focus indication.",
+        "level": "AA"
+      },
+      {
+        "id": "media.language.accessibility.10",
+        "standard": "WCAG 2.2",
         "requirement": "Localized labels and caption content remain separate from stable reason codes and machine fields.",
         "level": "AA"
       }
@@ -1201,8 +1248,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-09T01:43:54.412Z",
-    "updatedAt": "2026-10-09T01:43:54.412Z"
+    "createdAt": "2026-10-09T07:28:44.344Z",
+    "updatedAt": "2026-10-09T07:28:44.344Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

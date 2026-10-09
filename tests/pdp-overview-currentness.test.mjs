@@ -49,7 +49,7 @@ test('PDP overview blocker summaries match generated candidate projections', () 
   const p3 = projections.pdp3;
   assert.deepEqual(p3.fieldMappingBlockers.map(({ field }) => field), ['componentContracts', 'views', 'journeys', 'transitions', 'actions', 'effects', 'finality', 'scenarios', 'fixtures']);
   assert.deepEqual(Object.fromEntries(['componentContracts', 'views', 'journeys', 'transitions', 'actions', 'effects', 'finality', 'recovery', 'scenarios', 'fixtures'].map((key) => [key, p3.candidateModel[key].length])), {
-    componentContracts: 31, views: 47, journeys: 30, transitions: 0, actions: 146, effects: 3, finality: 21, recovery: 5, scenarios: 15, fixtures: 15,
+    componentContracts: 31, views: 47, journeys: 30, transitions: 0, actions: 147, effects: 145, finality: 145, recovery: 5, scenarios: 15, fixtures: 15,
   });
   assert.match(contents.pdp3, /nine\s+semantic field blockers/);
   assert.match(contents.pdp3, /projects 31\s+component contracts, 47 views,\s+30 journey records with 130 of 130 source\s+steps/);

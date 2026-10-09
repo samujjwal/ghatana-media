@@ -103,7 +103,7 @@ decisions:
     publication: source-contract-and-headless-host-observed; public-isolated-consumer-and-browser-admission-unverified
     phaseUse: EXPLORER-only-after-PDP-3-acceptance
     sourceCouplingAllowed: false
-    blockers: [GAP-02, GAP-11, GAP-12]
+    blockers: [ GAP-02, GAP-11, GAP-12 ]
   - id: REUSE-LIFECYCLE-CLOSURE-AND-EVIDENCE
     need: cross-repository-evidence-admission-currentness-receipts-and-convergence
     owner: ghatana-lifecycle
@@ -135,14 +135,14 @@ decisions:
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana
     publication: source-contract-and-production-durability-qualification-not-verified
     sourceCouplingAllowed: false
-    blockers: [GAP-02, GAP-13]
+    blockers: [ GAP-02, GAP-13 ]
   - id: REUSE-EXTERNAL-ENGINES-AND-MODELS
     need: image-video-audio-animation-simulation-enhancement-generation-and-quality-capabilities
     owner: each-proposed-library-model-engine-and-license-holder
     decision: keep-existing-candidates-unadmitted-until-Ghatana-reuse-license-security-isolation-and-benchmark-gates-pass; no-new-runtime-selected
     publication: candidate-register-in-master-plan-is-not-an-admission-record
     sourceCouplingAllowed: false
-    blockers: [GAP-08, GAP-09, GAP-10]
+    blockers: [ GAP-08, GAP-09, GAP-10 ]
 externalMechanics:
   decision: no-new-OSS-runtime-selected-in-the-migration-boundary-slice
   admission: deferred-until-Ghatana-reuse-and-license-gates-are-complete
@@ -153,6 +153,25 @@ selectionOrder:
   - use-existing-public-contract-when-fit-is-sufficient; request-owner-extension-when-neutral-contract-is-missing
   - extract-shared-mechanics-only-after-all-affected-owners-accept-both-boundary-and-isolated-tests
   - select-external-library-or-model-only-after-reuse-license-security-and-profile-benchmark-admission
+selectionSequenceRule:
+  id: media.reuse.selection-sequence
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  orderedChoices:
+    - inspect-Ghatana-public-library-service-and-product-owner-contracts-and-artifacts-first
+    - request-owner-extension-or-extract-neutral-reusable-mechanics-only-after-recording-fit-gap-and-owner-boundary
+    - consider-external-OSS-only-after-exact-reuse-license-security-isolation-and-profile-benchmark-review
+    - implement-new-Media-mechanics-only-when-no-fitting-admitted-owner-contract-extension-or-extraction-is-available-and-the-remaining-gap-is-justified
+  requiredRecord:
+    - exact-capability-and-profile-need
+    - candidate-fit-and-material-gap
+    - owner-and-public-contract-identity-version-and-license-status
+    - replacement-and-isolated-consumer-evidence
+    - reason-the-next-priority-choice-is-required
+  constraints:
+    - A candidate list or package name is not an integration mandate or admission.
+    - Do not duplicate generic Ghatana mechanisms inside Media to avoid an owner-contract review.
+    - No source-workspace coupling, silent substitution, or unreviewed dependency is permitted.
+  scopeStatus: OWNER_DEFINED_SELECTION_POLICY_ONLY; no owner extension, extraction, external package, or new runtime is admitted by this record.
 notAdmittedByThisRecord:
   - generic-OCR-or-document-intelligence-inside-Media
   - AI-Inference-owned-model-router-credentials-quota-or-generic-provider-failover
@@ -437,3 +456,96 @@ selectionRegister:
     compatibility: isolated-installed-artifact-contract-test-required
     performance: cold-start-memory-size-throughput-cancellation-and-CPU-GPU-profile-required-for-runtime-candidates
     modelAssetsAndPatents: independent-rights-patent-training-data-likeness-and-output-use-review-required
+
+# Owner-authored reuse and architecture rules extracted from the migration
+# review. A definition here is not package admission, legal approval,
+# qualification, or authorization to build/deploy runtime adapters.
+mediaArchitectureRules:
+  status: MEDIA_OWNER_AUTHORED_DEFINITION; implementation-and-independent-review-pending
+  licenses:
+    preferredWhenSuitable: [ MIT, Apache-2.0, BSD, ISC, Zlib ]
+    selectionCondition: technically-suitable-and-after-Ghatana-reuse-gap-is-recorded
+    categoriesRequiringSeparateReview:
+      - weak-copyleft
+      - strong-copyleft
+      - network-copyleft
+      - proprietary-services
+      - noncommercial-or-research-only-model-weights
+      - unclear-license-terms
+    bundleSafetyRule: component-license-labels-and-selection-do-not-establish-that-an-entire-bundle-or-transitive-dependency-closure-is-cleared-for-distribution
+    legalReviewStatus: not-performed; no-legal-conclusion-or-distribution-clearance
+  reusePreferences:
+    - prefer-current-Ghatana-image-and-media-integrations
+    - prefer-Ghatana-Shared-public-primitives-for-generic-interface-mechanics
+    - prefer-reviewed-TutorPutor-contracts-for-rendering-and-animation-integration
+  externalSelectionRequires: concrete-Ghatana-reuse-gap-license-security-and-profile-qualification-admission
+  engineAdapterSequencing:
+    rule: do-not-simultaneously-build-parallel-engine-adapters-before-the-first-end-to-end-experience
+    engines: [ Godot, Bevy, Filament, Jolt, PhysX, MuJoCo, Taichi ]
+    purpose: avoid-premature-parallel-engine-adapter-work-before-a-first-end-to-end-experience
+    runtimeEffect: no-engine-is-admitted-or-qualified-by-this-rule
+  qualifiedStackRule: choose-the-smallest-stack-that-meets-the-qualified-requirements-of-the-next-admitted-recipe
+  replaceablePortsRule:
+    requirement: keep-implementation-ports-replaceable-at-the-accepted-contract-boundary
+    prohibition: do-not-create-dozens-of-unused-abstractions-or-adapters-before-an-admitted-end-to-end-need
+    canonicalSemantics: remain-in-Media-owned-contracts; external-engine-types-remain-adapter-private
+  componentLicenseBoundary:
+    id: media.reuse.component-license-boundary
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    rule: The wrapper or adapter license is independent from every bundled, downloaded or transitively used model weight, checkpoint, codec, encoder, decoder, plugin, font, dataset, asset and native library.
+    requiredEvidence:
+      - exact component and immutable version or content digest
+      - authoritative source and full distribution/build SBOM
+      - separate license and use-term disposition for code and each model/asset weight
+      - commercial, hosted-service, redistribution, modification, attribution, patent, dataset, likeness and output-use rights as applicable
+      - security provenance and integrity review
+      - approved profile and execution/deployment scope
+    unknownDisposition: DENY_SELECTION_OR_ACQUISITION; NOASSERTION, package-level license, owner label or successful test does not establish component or weight clearance.
+    noAutomaticAcquisition: Package installation, provider selection and fallback never silently download weights or other media assets.
+    scopeStatus: OWNER_DEFINED_POLICY_ONLY; legal/security review, exact artifact SBOMs and runtime admission remain pending
+  externalStackSelectionRule:
+    id: media.reuse.external-stack-selection-rule
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    rule: A candidate-library or engine selection is not an integration mandate. Integrate only when an exact admitted Media capability/profile has a demonstrated Ghatana reuse gap and the candidate closes that gap under its public contract.
+    scope: Do not integrate every listed package or engine; select the smallest stack that meets the requirements of the next admitted recipe.
+    multiplicity: One qualified implementation is selected for an exact capability/profile. An alternative requires a separate versioned profile and qualification; do not keep parallel adapters or silently fall back.
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.qualifiedStackRule
+      - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.externalSelectionRequires
+      - .product-experience/pdp-0-product-truth/qualification-policy.yaml
+    scopeStatus: OWNER_DEFINED_SELECTION_POLICY; no integration, candidate qualification, or runtime admission implied
+  dependencyUpdatePolicy:
+    id: media.reuse.dependency-update-policy
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    pinning:
+      rule: Every runtime, build tool, transitive dependency, model, codec, plugin, and native component used by a candidate Media profile is pinned to an immutable version and integrity digest in the reproducible build/deployment manifest.
+      floatingVersions: DENY_FOR_RELEASE_CANDIDATES
+      lockfileOnly: Insufficient without source, digest, license, provenance, and resolved transitive closure.
+    validationBeforePromotion:
+      required:
+        - reproducible clean-resolution/build against the committed lock and immutable artifact digests
+        - API and ABI compatibility checks against the exact supported Media profile
+        - security advisory, provenance, integrity and transitive dependency review
+        - license and component-use-term review per media.reuse.component-license-boundary
+        - relevant definition, regression, and profile-specific conformance tests
+        - reviewed change record identifying affected capability/profile and rollback boundary
+      failure: Reject promotion on missing pin/evidence, digest drift, compatibility regression, unresolved critical security finding, disallowed terms, or failed required checks; do not silently float, substitute, or roll forward.
+      promotion: Only the existing authorized release process may promote after required evidence and independent review; this policy does not admit or qualify a dependency or runtime.
+    scopeStatus: OWNER_DEFINED_UPDATE_GATE; build pipeline enforcement, security/legal review, and independent acceptance remain pending
+  genericMechanicsBoundary:
+    id: media.reuse.generic-mechanics-boundary
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    sharedWorkflow:
+      rule: Reuse Ghatana Shared workflow, outbox, idempotency, CAS, retry-scheduling, and reconciliation mechanics behind Media-owned adapters when the exact public contract satisfies the Media operation guard and finality requirements.
+      boundary: Media retains authoritative domain state, policy, rights/consent, persistence schema, attempt/effect classification, and product finality. Shared mechanics cannot assign Media state semantics or bypass Media policy.
+      rejection: Do not fork generic workflow/outbox mechanics in Media when the Shared contract is suitable; do not use an unsuitable Shared contract merely to avoid a Media adapter.
+    tools:
+      rule: Tools authoring or development workflows do not constitute production Media execution, durable provider dispatch, or product finality.
+      admission: Any production invocation needs an exact admitted Media operation, trusted delegation, current policy, and authoritative receipt.
+    scopeStatus: OWNER_DEFINED_REUSE_BOUNDARY; Shared/Tools contract qualification and deployment acceptance remain pending
+  dependencyBlockScopeRule:
+    id: media.reuse.dependency-block-scope-rule
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    rule: Scope a dependency blocker to the exact affected capability, versioned profile, channel, and deployment boundary. A defined capability is not held indefinitely by unrelated ecosystem hardening. Record the blocked dependency and criterion, select a separately qualified permitted alternative where one exists, or isolate/disable the affected feature while continuing independent work.
+    nonWaiver: Narrowing a blocker never waives a required security, license, rights, consent, policy, conformance, independent review, or admission gate for the affected capability.
+    scopeStatus: OWNER_DEFINED_DEPENDENCY_SCOPE_RULE; no dependency or feature admission implied

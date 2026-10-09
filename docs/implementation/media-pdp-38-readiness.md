@@ -1,11 +1,11 @@
 # PDP-0 through PDP-3 readiness
 
-Source HEAD: `89ae715de2b9283db44cd4e86193c8112638887b`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.
+Source HEAD: `2ea980485da076b459f89f21246b5ef08539f28c`. Exactly 38 tasks. Source criteria, dependencies, independent acceptance and Lifecycle currentness are separate. Historical ledger criteria/status are preserved. See JSON for current source fingerprints, test outputs and historical residual provenance.
 
 | Task | Original status | Direct source criterion | Dependencies | Independent/publisher | Native phase proof |
 | --- | --- | --- | --- | --- | --- |
-| P0-01 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
-| P0-02 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-01 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
+| P0-02 | partial | VERIFIED_IN_CURRENT_SOURCE | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-03 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-04 | partial | VERIFIED_IN_CURRENT_SOURCE | NOT_ESTABLISHED | NOT_EVALUATED | NOT_EVALUATED |
 | P0-05 | partial | NOT_ESTABLISHED | PRIOR_AUDIT_NO_UNMET_DEPENDENCY_IDENTIFIED | NOT_EVALUATED | NOT_EVALUATED |
@@ -48,25 +48,28 @@ Current source counters:
 ```json
 {
   "capabilityLeaves": 462,
-  "unresolvedCapabilityTargets": 383,
-  "migrationSemanticUnresolved": 260,
-  "migrationMixed": 124,
+  "historicalUnresolvedCapabilityTargets": 383,
+  "authoredCapabilityContractRecords": 462,
+  "historicalMigrationSemanticUnresolved": 260,
+  "historicalMigrationMixed": 124,
   "interfaceIdentities": 286,
-  "interfaceUnresolved": 190,
+  "interfaceUnresolved": 164,
   "acceptedInterfaceBindings": 0,
   "designGates": 7,
   "designOpenGates": 2,
   "screens": 47,
   "journeys": 30,
   "steps": 130,
-  "stepsWithoutActions": 112,
+  "stepsWithoutActions": 10,
   "projectionBlockers": {
     "PDP-0": 0,
     "PDP-2": 0,
     "PDP-3": 9
   },
-  "obligations": 348,
-  "obligationsWithoutCases": 249,
+  "obligations": 5161,
+  "sourceEnumeratedObligations": 5161,
+  "persistedObligationPopulationCountMatchesSource": true,
+  "obligationsWithoutCases": 5062,
   "localReceiptRecords": 0,
   "authoritativeReceiptCount": null,
   "currentness": {

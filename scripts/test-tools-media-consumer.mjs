@@ -4,6 +4,8 @@ import { cp, mkdtemp, mkdir, readFile, readdir, rm, symlink } from "node:fs/prom
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+import { writeFile } from "node:fs/promises";
 
 const mediaRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const toolsRoot = path.resolve(mediaRoot, "../ghatana-tools");
@@ -64,6 +66,7 @@ try {
     "@ghatana/experience-explorer-contracts",
     "@ghatana/experience-package",
     "@ghatana/development-traceability",
+    "@ghatana/experience-specification",
   ]) {
     await visit(packageName);
   }
@@ -125,7 +128,21 @@ try {
     cp(path.join(mediaRoot, "libs/media-experience-simulation/tsconfig.json"), path.join(fixtureMediaDir, "tsconfig.json")),
     cp(path.join(mediaRoot, "apps/media-experience-explorer/src/tools-consumer.ts"), path.join(fixtureExplorerDir, "tools-consumer.ts")),
     cp(path.join(mediaRoot, "tests/tools-media-consumer.test.mjs"), path.join(fixtureTestsDir, "tools-media-consumer.test.mjs")),
+    cp(path.join(mediaRoot, "scripts/fixtures/tools-media-experience-candidate-consumer.test.mjs"), path.join(fixtureTestsDir, "tools-media-experience-candidate-consumer.test.mjs")),
+    cp(path.join(mediaRoot, ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json"), path.join(fixtureTestsDir, "experience-specification.candidate.json")),
   ]);
+  const { parse } = createRequire(path.join(toolsRoot, 'package.json'))('yaml');
+  const referenceSources = [
+    ['searchable-type', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'objects'],
+    ['actor', '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml', 'actors'],
+    ['desired-outcome', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml', 'outcomes'],
+  ];
+  const referenceInventory = {};
+  for (const [kind, source, field] of referenceSources) {
+    const document = parse(await readFile(path.join(mediaRoot, source), 'utf8'));
+    referenceInventory[kind] = document[field].map(({id}) => id);
+  }
+  await writeFile(path.join(fixtureTestsDir, 'reference-inventory.json'), JSON.stringify(referenceInventory));
   await symlink(fixtureMediaDir, path.join(nodeModulesDir, "media-experience-simulation"), "dir");
 
   run(
@@ -133,7 +150,7 @@ try {
     ["-p", path.join(fixtureMediaDir, "tsconfig.json")],
     mediaRoot,
   );
-  run(process.execPath, ["--experimental-strip-types", "--test", path.join(fixtureTestsDir, "tools-media-consumer.test.mjs")], tempRoot);
+  run(process.execPath, ["--experimental-strip-types", "--test", path.join(fixtureTestsDir, "tools-media-consumer.test.mjs"), path.join(fixtureTestsDir, "tools-media-experience-candidate-consumer.test.mjs")], tempRoot);
 } finally {
   for (const link of createdToolLinks.reverse()) await rm(link, { force: true });
   await rm(tempRoot, { recursive: true, force: true });

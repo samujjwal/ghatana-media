@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "media.pdp38-migration-reviewed-source-impact.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-088",
+  "hashEncodingByReview": {
+    "PXD-084": "UTF8_JSON.stringify(value)",
+    "PXD-085": "UTF8_RAW_STRING_ELSE_JSON.stringify(value)",
+    "PXD-086": "UTF8_RAW_STRING_ELSE_JSON.stringify(value)"
+  },
+  "records": [
+    {
+      "claimId": "MPSEM-0388-C003",
+      "sourceTextSha256": "add0e02fcd01eff7a7a9f0c7231ceb19f70affbb77eb52bc32c21303ab903604",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback",
+      "priorReviewRef": ".product-experience/decision-log.md#PXD-084",
+      "previousTargetValueSha256": "5a29712ad7914bd6856b6b9112e0cc13db54ae753c0b7b66c61c99ab9f465a7e",
+      "currentTargetValueSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+      "currentExpectedOwnerValue": {
+        "id": "media.policy.model-acquisition-and-fallback",
+        "authority": "user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS",
+        "sourceRefs": [
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+          ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary",
+          ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary"
+        ],
+        "scopeStatus": "OWNER_DEFINED_POLICY; no model/provider is selected, downloaded, licensed, qualified or available by this definition",
+        "automaticAcquisition": {
+          "default": "DENY",
+          "unavailableBehavior": "return unsupported-or-unavailable; do not download a model, codec, plugin, font or asset automatically",
+          "explicitAdmissionRequires": [
+            "exact artifact name and immutable version or digest",
+            "authoritative source and integrity verification",
+            "separate source-code, model-weight, dataset, patent, likeness and redistribution term review as applicable",
+            "security and untrusted-input review",
+            "named execution profile, locality and retention conditions",
+            "independent legal/security and runtime qualification approvals"
+          ],
+          "effect": "This policy defines an eligibility gate only; it does not approve any candidate."
+        },
+        "hardwareFootprintDoesNotWaiveAdmission": {
+          "id": "media.policy.model-hardware-footprint-does-not-waive-admission",
+          "rule": "A model or codec being small enough to fit available local RAM, disk, CPU, GPU, or an ONNX runtime package does not create an exception to artifact identity, source integrity, model-weight/license/terms review, security review, named-profile admission, privacy and locality checks, or independent runtime qualification.",
+          "localExecutionDisposition": "DENY_UNADMITTED_MODEL; local hardware availability is a resource fact, not an admission, authority, compatibility, or qualification decision.",
+          "unknownDisposition": "DENY; do not infer a model is safe, licensed, compatible, or approved from file size, format, or package presence.",
+          "scopeStatus": "OWNER_DEFINED_POLICY; no model, codec, package, or runtime is admitted by this rule"
+        },
+        "fallback": {
+          "default": "DENY_SILENT_FALLBACK",
+          "localOnly": "Cloud/provider egress is always denied for a local-only request or profile.",
+          "otherProfiles": "Fallback may be considered only when an exact owner-approved profile explicitly lists the alternate provider/version and current consent, rights, locality, residency, retention, cost, quality/fidelity floor and security checks all pass.",
+          "failureBehavior": "Do not download, substitute, or dispatch to another provider after unavailable, timeout, unknown outcome or policy error unless an exact pre-authorized fallback branch defines reconciliation and duplicate-effect behavior.",
+          "userDisclosure": "Before a separately authorized fallback, surface the exact alternate provider/location, changed data handling, cost and fidelity consequences; otherwise fail closed."
+        },
+        "nonClaims": [
+          "No default provider/model/codec selection",
+          "No production-host download or cloud inference authorization",
+          "No admission, license, availability, quality, performance or scientific-fidelity claim"
+        ]
+      },
+      "soleAdditiveField": "hardwareFootprintDoesNotWaiveAdmission",
+      "meaning": "Hardware fit and local package presence cannot waive acquisition/admission/rights/privacy/security/profile/qualification gates. All prior DENY-default acquisition and fallback meanings are unchanged.",
+      "disposition": "APPROVED_BOUNDED_CURRENT_TARGET_IMPACT",
+      "acceptanceEffect": "none"
+    }
+  ],
+  "verification": {
+    "passedTests": 16,
+    "log": "docs/implementation/verification/pdp-38/model-acquisition-impact-review.log",
+    "outputSha256": "68e903c70d0328ae813f51b7b6b5306d474ee417ccfa04e24ce1e9c7d9a92aa3"
+  },
+  "nonClaims": [
+    "New migration completion count",
+    "Any model acquisition or fallback approval",
+    "Legal/independent acceptance",
+    "Runtime qualification",
+    "Lifecycle receipts"
+  ]
+}

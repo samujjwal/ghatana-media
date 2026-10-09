@@ -47,7 +47,14 @@ test('PDP-2 recovery and accessibility projections preserve their authored scope
     automaticRecovery: false,
   });
   assert.equal(candidate.candidateFieldSources.recoveryPatterns.sourcePath, 'recoveryPatterns');
-  assert.equal(model.accessibilityRules.length, 8);
+  assert.equal(model.accessibilityRules.length, 10);
+  assert.deepEqual(model.accessibilityRules.slice(0, 8).map(({ id }) => id),
+    Array.from({ length: 8 }, (_, index) => `media.language.accessibility.${index + 1}`),
+    "the eight previously grounded accessibility rules remain stable");
+  assert.deepEqual(model.accessibilityRules.slice(8).map(({ id, requirement }) => [id, requirement]), [
+    ["media.language.accessibility.9", "Motion preferences remove decorative component transitions and movement while preserving explicit state, progress, and focus indication."],
+    ["media.language.accessibility.10", "Localized labels and caption content remain separate from stable reason codes and machine fields."],
+  ], "the two added owner rules preserve their motion and localization semantics");
   assert.ok(model.accessibilityRules.every(({ standard, level }) => standard === 'WCAG 2.2' && level === 'AA'));
   assert.match(candidate.candidateMappingReview.ownerDecisionStatus, /PENDING/);
   assert.equal(candidate.acceptance, 'NOT_CLAIMED');
@@ -110,7 +117,9 @@ test('PDP-3 search and inspection source records project to the public schema sh
 });
 
 test('residual report drops mapped PDP-2 and search/inspection fields while retaining other PDP-3 gaps', () => {
-  const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], { encoding: 'utf8' }));
+  const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
+    encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+  }));
   const pdp2 = report.projections.find(({ phase }) => phase === 'PDP-2');
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
   assert.equal(pdp2.unresolvedFieldCount, 0);
