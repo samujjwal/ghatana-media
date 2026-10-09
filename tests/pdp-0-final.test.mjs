@@ -178,9 +178,14 @@ test("all 462 capability leaves have operation-specific inputs, outcomes, precon
       assert.ok(leaf.journeyRefs.length > 0 || leaf.supportingViewRefs.length > 0, `${leaf.id} has direct reachability references`);
     }
   }
-  assert.equal(reviewed.leaves.filter(({ operation }) => operation.explicitOperationBindings.length > 0).length, 12);
+  assert.equal(reviewed.leaves.filter(({ operation }) => operation.explicitOperationBindings.length > 0).length, 11);
+  const forcedAlignLeaf = reviewById.get("media.speech.transcription.forced-align");
+  assert.ok(forcedAlignLeaf.sourcePhrase.includes("forced alignment"), "the original forced-alignment leaf remains in the denominator");
+  assert.equal(forcedAlignLeaf.coverageDecision.disposition, "JOURNEY_STEP");
+  assert.deepEqual(forcedAlignLeaf.operation.explicitOperationBindings, [], "manual user tick edits do not bind the forced-alignment operation");
+  assert.match(forcedAlignLeaf.operation.canonicalOperationDisposition, /PXD-069 rejects manual user timing edits as a forced-alignment operation/u);
   assert.equal(reviewed.leaves.filter(({ operation }) => operation.ambiguousOperationBindings.length > 0).length, 1);
-  assert.equal(reviewed.leaves.filter(({ operation }) => operation.canonicalOperationDisposition.startsWith("unresolved;")).length, 449);
+  assert.equal(reviewed.leaves.filter(({ operation }) => operation.canonicalOperationDisposition.startsWith("unresolved;")).length, 450);
 });
 
 test("PDP-0 quality and NFR records retain measurement limits and unresolved specialist decisions", () => {

@@ -77,8 +77,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-      "sha256": "9b9253a1dec77f36ef1a2b549d3f70e1a1f69a4527f42cb03986731d50facfe7",
-      "bytes": 15416,
+      "sha256": "e5a8fc468d0c296c3ee1d8a94e768749a636a7846f6132c2805af49aece6cdcc",
+      "bytes": 16098,
       "format": "yaml",
       "schemaVersion": "media.journey-registry.v1",
       "authority": null,
@@ -88,6 +88,7 @@
         "coverageObservation",
         "coverageRule",
         "j01DefinitionReviewObservation",
+        "j03CaptionDraftDefinitionObservation",
         "j03DefinitionReviewObservation",
         "j03TranscriptReviewDefinitionObservation",
         "journeySource",
@@ -134,8 +135,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "2027e497bad4a7f568103bddcfaa19422067900aec3b4ae3eab40a4e0ab44994",
-      "bytes": 262965,
+      "sha256": "07fb3322b656c61df45e38336cb8375f0c852ddc66504137f53f24e81acd3c5f",
+      "bytes": 264611,
       "format": "yaml",
       "schemaVersion": "media.action-registry.v1",
       "authority": null,
@@ -410,8 +411,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
-      "sha256": "d8d8a92ace33fe252ec81fbbc56e4ec49ebaf70b71067e6cf1614378474ef40e",
-      "bytes": 23138,
+      "sha256": "05b7d85cb9ea1a412a52802eaa9e6f4acb76bcc336a3891a96d8aa083ef34fdd",
+      "bytes": 31851,
       "format": "yaml",
       "schemaVersion": "media.experience-source-bindings.v1",
       "authority": "Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals",
@@ -421,6 +422,7 @@
         "inspectionBindings",
         "j01StepBindings",
         "j02RecoveryApplicability",
+        "j03CaptionDraftBindings",
         "j03CaptionVersionBindings",
         "j03TranscriptReviewBindings",
         "productId",
@@ -1834,8 +1836,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-      "sha256": "ef80c9204fec1cdefdd467d1ba2026807056f3379c7735057d2677ffb4dc3bbf",
-      "bytes": 7604,
+      "sha256": "be1b391c7a62fd81cbebb25a4807ba55e4d975db83af1f1048528cd21b1bfffc",
+      "bytes": 9084,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -2247,8 +2249,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-      "sha256": "b219f02b5cde3586b322a239bbd27dc49682bea75af1ce27c05c04c6c18c4300",
-      "bytes": 7817,
+      "sha256": "e80a69327514f4d893ae4c1c4ffac6f4432f25cddc21eb8e2e305081ec361f59",
+      "bytes": 8359,
       "format": "yaml",
       "schemaVersion": "media.screen-contract.v2",
       "authority": null,
@@ -5112,8 +5114,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-      "sha256": "1e075d2239d395c60bc4272ff2bf032b47394683aa0ee81bd093ded136c47a38",
-      "bytes": 39335,
+      "sha256": "9389fc975172de9fa28db2069e4f93fcb485458d007e7e32f5cd16d4a8896d06",
+      "bytes": 49123,
       "format": "yaml",
       "schemaVersion": "media.journey-contract.v1",
       "authority": null,
@@ -6354,14 +6356,14 @@
             "transitionRefs": []
           },
           {
-            "stepId": "J-03.step-05",
-            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "stepId": "J03-5",
+            "intent": "Apply an explicit text-only correction to one existing segment of a session-local draft while preserving its exact immutable source version and typed transcript-or-caption parent.",
             "viewRef": "media.view.correct-captions",
             "transitionRefs": []
           },
           {
-            "stepId": "J-03.step-06",
-            "intent": "Contextual view for the transcription and caption-correction journey.",
+            "stepId": "J03-6",
+            "intent": "Apply explicitly user-entered timing to one segment only when authoritative clock metadata is bound to the exact immutable source artifact version.",
             "viewRef": "media.view.correct-captions",
             "transitionRefs": []
           },
@@ -7377,9 +7379,9 @@
         "name": "media.interaction.edit-caption-text",
         "trigger": "keyboard-text-edit",
         "preconditions": [
-          "source-version-readable",
-          "transcript-or-caption-draft-readable",
-          "current-edit-authority"
+          "exact-source-and-typed-parent-readable",
+          "current-scoped-source-read-and-derived-edit-authority",
+          "expected-session-draft-revision"
         ],
         "actionRef": "media.action.correct-caption"
       },
@@ -7388,9 +7390,11 @@
         "name": "media.interaction.correct-caption-time",
         "trigger": "keyboard-numeric-time-or-accessible-range-control",
         "preconditions": [
-          "exact-source-clock-known",
-          "source-version-readable",
-          "current-edit-authority"
+          "exact-source-version-readable",
+          "authoritative-exact-source-clock-rate-and-duration",
+          "current-scoped-derived-edit-authority",
+          "explicit-user-tick-values",
+          "expected-session-draft-revision"
         ],
         "actionRef": "media.action.align-caption-timing"
       },
@@ -8245,11 +8249,11 @@
         "id": "media.action.correct-caption",
         "name": "Correct caption text",
         "kind": "user",
-        "description": "append-a-caption-draft-derived-from-the-exact-parent-version",
+        "description": "apply-an-explicit-text-only-edit-to-one-existing-segment-in-a-session-local-draft-derived-from-the-exact-immutable-source-and-typed-parent",
         "preconditions": [
-          "source-version-readable",
-          "transcript-or-caption-draft-readable",
-          "current-edit-authority"
+          "exact-source-and-typed-parent-readable",
+          "current-scoped-source-read-and-derived-edit-authority",
+          "expected-session-draft-revision"
         ],
         "producesEffectRefs": []
       },
@@ -8257,11 +8261,13 @@
         "id": "media.action.align-caption-timing",
         "name": "Correct caption timing",
         "kind": "user",
-        "description": "bind-caption-segments-to-half-open-source-time-ranges",
+        "description": "apply-explicit-user-entered-half-open-source-tick-values-to-one-segment-of-the-session-local-caption-draft",
         "preconditions": [
-          "exact-source-clock-known",
-          "source-version-readable",
-          "current-edit-authority"
+          "exact-source-version-readable",
+          "authoritative-exact-source-clock-rate-and-duration",
+          "current-scoped-derived-edit-authority",
+          "explicit-user-tick-values",
+          "expected-session-draft-revision"
         ],
         "producesEffectRefs": []
       },
@@ -10301,8 +10307,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-09T01:08:16.607Z",
-    "updatedAt": "2026-10-09T01:08:16.607Z"
+    "createdAt": "2026-10-09T01:28:44.730Z",
+    "updatedAt": "2026-10-09T01:28:44.730Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -10443,15 +10449,15 @@
         "source": "PDP-0 and PDP-3 exact singleton outcome intersection"
       },
       "stepIntentProjection": {
-        "explicitSourceIntentCount": 109,
-        "linkedViewPurposeProposalOnlyCount": 21,
+        "explicitSourceIntentCount": 111,
+        "linkedViewPurposeProposalOnlyCount": 19,
         "omitted": [],
         "viewPurposeDisposition": "SOURCE_PROPOSAL_ONLY; DIRECT_VIEW_PURPOSE_TEXT_COPIED_VERBATIM; OWNER_REVIEW_AND_SEMANTIC_ACCEPTANCE_PENDING; RESULT_TEXT_NEVER_USED_AS_INTENT",
         "idTransformation": "Preserve unique source-authored stepId; otherwise use <journeyId>.step-<two-digit source ordinal> as deterministic projection-only ID, including missing or repeated IDs."
       },
       "transitionProjection": {
         "sourceNullCount": 128,
-        "sourceNoMutationReasonCount": 10,
+        "sourceNoMutationReasonCount": 12,
         "rows": [
           {
             "journeyId": "J-01",
@@ -10636,20 +10642,28 @@
           {
             "journeyId": "J-03",
             "stepOrdinal": 5,
-            "sourceStepId": null,
-            "projectedStepId": "J-03.step-05",
+            "sourceStepId": "J03-5",
+            "projectedStepId": "J03-5",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NOT_APPLICABLE_WITH_REASON",
+              "transitionRef": null,
+              "reason": "A text correction atomically advances only a session-local draft snapshot; it does not change a canonical domain object's state or register a caption version."
+            },
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
           {
             "journeyId": "J-03",
             "stepOrdinal": 6,
-            "sourceStepId": null,
-            "projectedStepId": "J-03.step-06",
+            "sourceStepId": "J03-6",
+            "projectedStepId": "J03-6",
             "sourceTransitionRef": null,
-            "sourceTransitionDisposition": null,
+            "sourceTransitionDisposition": {
+              "status": "NOT_APPLICABLE_WITH_REASON",
+              "transitionRef": null,
+              "reason": "Manual timing alignment atomically advances only a session-local draft snapshot and is neither a domain transition nor forced-alignment engine output."
+            },
             "projectedTransitionRefs": [],
             "disposition": "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY"
           },
@@ -11860,8 +11874,8 @@
           ],
           "desiredOutcomeRef": null,
           "intentSources": {
-            "explicit": 3,
-            "linkedViewPurposeProposalOnly": 5
+            "explicit": 5,
+            "linkedViewPurposeProposalOnly": 3
           }
         },
         {
@@ -12286,11 +12300,11 @@
         "stepViewUnresolved": 0,
         "stepActionLinked": 18,
         "stepActionUnresolved": 112,
-        "stepObjectRefsEmpty": 119,
+        "stepObjectRefsEmpty": 117,
         "stepStateRefsEmpty": 122,
         "canonicalOperationRefsNull": 111,
         "canonicalOperationCandidateRefs": 19,
-        "authorityRefsNull": 118,
+        "authorityRefsNull": 116,
         "transitionRefsNull": 128,
         "requirementRefsEmpty": 112,
         "verificationNotRun": 130,
@@ -12306,7 +12320,7 @@
         "withRefs": 3,
         "withoutRefs": 27
       },
-      "remainingGap": "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 10 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 119, stateRefs empty 122, authorityRef null 118, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
+      "remainingGap": "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 12 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 117, stateRefs empty 122, authorityRef null 116, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
     },
     "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
     "definitionSemantics": {
@@ -12319,6 +12333,8 @@
         "media.action.inspect-project-creation",
         "media.action.open-project",
         "media.action.review-transcript",
+        "media.action.correct-caption",
+        "media.action.align-caption-timing",
         "media.action.compare-caption-versions"
       ],
       "projectedRecoveries": 5,
@@ -12832,7 +12848,7 @@
       "status": "PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_130_OF_130_STEPS; OWNER_REVIEW_PENDING",
       "sourceDisposition": "journey-registry.yaml#journeys; journey-contracts/*.yaml#steps; pdp-0-product-truth/journey-actor-resolutions.yaml#journeys; journey-catalog.yaml#journeys; goals-jtbd.yaml#outcomes; screen-registry.yaml#screens,laneViews",
       "reasons": [
-        "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 10 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 119, stateRefs empty 122, authorityRef null 118, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
+        "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 12 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 117, stateRefs empty 122, authorityRef null 116, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",

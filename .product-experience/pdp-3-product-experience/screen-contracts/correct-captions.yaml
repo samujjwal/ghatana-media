@@ -13,35 +13,40 @@ patternIds:
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
+domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version, media.domain.transcription]
 domainObjectBindingStatus: pending-canonical-domain-object-binding
-operationRefs: [media.operation.caption-version-write]
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+operationRefs: [media.operation.caption-draft-write, media.operation.caption-version-write]
+requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
-entry: []
-entryBindingStatus: pending-canonical-entry-condition-binding
+entry:
+  - exact-media.operation.transcript-version-read-result-from-J03-4-with-transcriptVersionId-and-linked-sourceArtifactId/sourceArtifactVersionId; current scoped source-read authority was checked
+  - host rechecks current derived-edit policy and trusted tenant/principal/activeSessionId; bind typed parent identity to the exact transcriptVersionId
+  - prepare opaque session-bound draftId at revision zero only from faithful ordered segments with stable nonempty unique IDs and explicit availability; absent/unfaithful segments block with DRAFT_INITIALIZATION_BLOCKED unless the user explicitly authors stable IDs/text under the same policy
+  - preserve each segment's exact tagged timing union; never infer IDs, segments, language, speaker, clock, or timing; this host-local preparation is not a new operation or persisted object
+  - existing editor caption-parent entry may use only an already prepared exact source/typed-parent value after the same current read/edit policy and trusted session checks
+entryBindingStatus: definition-source-bound; runtime-admission-pending
 exit: []
 exitBindingStatus: pending-canonical-exit-condition-binding
 actionConsequences:
   - actionId: media.action.correct-caption
     capabilityRefs: [media.artifact.derive]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-068; runtime-admission-pending
+    operationRef: media.operation.caption-draft-write
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: explicit text-only correction to one segment in an exact-source session-local draft; preserve unavailable timing and uncertainty
+    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
   - actionId: media.action.align-caption-timing
-    capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    capabilityRefs: [media.artifact.derive]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-068/PXD-069; runtime-admission-pending
+    operationRef: media.operation.caption-draft-write
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: explicit user-entered source-clock tick edit to one session-local draft revision; no forced-alignment output or scientific timing claim
+    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
   - actionId: media.action.resolve-caption-conflict
     capabilityRefs: [media.artifact.derive]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
@@ -87,7 +92,7 @@ fieldBindingStatus:
   operationRefs: pending
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: pending-local-labels-not-canonical
-  entry: pending
+  entry: candidate-pending-acceptance
   exit: pending
   actionConsequences: unresolved-pending-owner-binding
   responsiveBehavior: proposal-unverified
@@ -165,7 +170,7 @@ journeyDefinitionBindings:
   grammarDecisionRef: .product-experience/decision-log.md#PXD-059
   runtimeAdmission: NOT_ADMITTED
   applicability: required-J03-step-J03-7
-  operationRefs: [media.operation.caption-version-write]
-  domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version, media.domain.transcription]
+  operationRefs: [media.operation.caption-draft-write, media.operation.caption-version-write]
+  domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
   stateRefs: []
   semanticBoundary: Append-only immutable registration with same-request receipt reconciliation; registration is not approval, export, publication, or delivery.

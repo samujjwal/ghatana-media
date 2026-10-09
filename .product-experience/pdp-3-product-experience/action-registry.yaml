@@ -375,23 +375,47 @@ actions:
   label: Correct caption text
   actorRefs: [media.creator, media.editor]
   capabilityRefs: [media.artifact.derive]
-  preconditions: [source-version-readable, transcript-or-caption-draft-readable, current-edit-authority]
-  effect: append-a-caption-draft-derived-from-the-exact-parent-version
-  reversible: draft-changes-can-be-undone; source-and-committed-versions-are-immutable
-  finality: draft-save-status-is-explicit
-  failure: preserve-local-edit-and-surface-version-conflict
+  preconditions: [exact-source-and-typed-parent-readable, current-scoped-source-read-and-derived-edit-authority, expected-session-draft-revision]
+  effect: apply-an-explicit-text-only-edit-to-one-existing-segment-in-a-session-local-draft-derived-from-the-exact-immutable-source-and-typed-parent
+  reversible: unknown
+  finality: one-session-local-draft-revision-only; no-registration-approval-or-publication
+  failure: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
+  actionDefinitionSemantics:
+    actionRef: media.action.correct-caption
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-067
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-068
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation.caption-draft-write
+    effectKind: LOCAL_DRAFT_UPDATE
+    reversibility:
+      kind: CONDITIONAL
+      scope: Undo or discard may restore a retained prior snapshot only in the active local draft context; source and typed parent are immutable and are never reversed or deleted.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
   componentRefs:
   - media.component.caption-track-editor
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
 - id: media.action.align-caption-timing
   label: Correct caption timing
   actorRefs: [media.creator, media.editor]
-  capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
-  preconditions: [exact-source-clock-known, source-version-readable, current-edit-authority]
-  effect: bind-caption-segments-to-half-open-source-time-ranges
-  reversible: draft-changes-can-be-undone; source-and-committed-versions-are-immutable
-  finality: timing-requires-review-when-alignment-is-incomplete-or-estimated
-  failure: retain-original-times-and-mark-alignment-required
+  capabilityRefs: [media.artifact.derive]
+  preconditions: [exact-source-version-readable, authoritative-exact-source-clock-rate-and-duration, current-scoped-derived-edit-authority, explicit-user-tick-values, expected-session-draft-revision]
+  effect: apply-explicit-user-entered-half-open-source-tick-values-to-one-segment-of-the-session-local-caption-draft
+  reversible: unknown
+  finality: one-session-local-draft-revision-only; manual-user-edit-not-forced-alignment-output; no-registration-approval-or-publication
+  failure: retain-prior-draft-and-require-authoritative-clock-and-in-range-explicit-ticks
+  actionDefinitionSemantics:
+    actionRef: media.action.align-caption-timing
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-067
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-068
+    runtimeAdmission: NOT_ADMITTED
+    operationRef: media.operation.caption-draft-write
+    effectKind: LOCAL_DRAFT_UPDATE
+    reversibility:
+      kind: CONDITIONAL
+      scope: Undo or discard may restore a retained prior snapshot only in the active local draft context; source and typed parent are immutable and are never reversed or deleted.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
   componentRefs:
   - media.component.caption-track-editor
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending

@@ -282,6 +282,100 @@ boundedTranscriptReviewSlice:
   runtimeAdmission: NOT_ADMITTED
   phaseAdmission: pending-independent-PDP2-review
 
+boundedCaptionDraftSlice:
+  status: bounded-definition-grammar-under-PXD-067; independent-PDP-review-and-runtime-admission-open
+  decisionRef: .product-experience/decision-log.md#PXD-067
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+  experienceDecisionRef: .product-experience/decision-log.md#PXD-068
+  journeyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+  journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#journeyId
+  scope: two-existing-session-local-caption-draft-edit-kinds-only; text-correction-and-source-clock-timing-alignment-are-distinct
+  domainRefs: [media.domain.transcript-version, media.domain.caption-version, media.domain.artifact-version]
+  authorityRefs:
+    identity: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    editPolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+    deploymentQualification: NOT_ADMITTED
+  actions:
+    correctCaptionText:
+      actionRef: media.action.correct-caption
+      operationRef: media.operation.caption-draft-write
+      journeyStepId: J03-5
+      editKind: TEXT_CORRECTION
+      branchRequestFields: [text]
+      exactEffect: change-only-the-target-segment-text-and-set-target-origin-to-USER_EDITED; preserve-nontarget-segment-identities-order-text-origin-language-uncertainty-and-evidence
+      timingRule: timing-may-remain-NOT_SUPPLIED-or-PROVIDER_TIME_UNQUALIFIED; text-correction-does-not-require-or-infer-a-source-clock
+    alignCaptionTiming:
+      actionRef: media.action.align-caption-timing
+      operationRef: media.operation.caption-draft-write
+      journeyStepId: J03-6
+      editKind: TIMING_ALIGNMENT
+      branchRequestFields: [startTick, endTick]
+      exactEffect: change-only-the-target-segment-half-open-source-tick-range-and-set-target-origin-to-USER_EDITED; preserve-target-text-parent-and-all-nontarget-segment-identities-order-text-origin-language-uncertainty-and-evidence
+      method: manual-user-entered-ticks-only; no-forced-alignment-engine-is-invoked-or-equated
+      timingRule: require-authoritative-sourceClockId-positive-safe-integer-ticksPerSecond-and-sourceDurationTicks-for-the-exact-sourceArtifactVersion; 0-<=-startTick-<-endTick-<=-sourceDurationTicks; no-conversion-estimation-or-clock-inference
+    sharedOperation:
+      operationRef: media.operation.caption-draft-write
+      trustedContextFields: [tenantId, principalId]
+      requestFields: [draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segmentId, edit]
+      parentKinds: [TRANSCRIPT_VERSION, CAPTION_VERSION]
+      editKinds: [TEXT_CORRECTION, TIMING_ALIGNMENT]
+      successFields: [draftId, draftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segments, timingAvailability, observedAt]
+      preservedFields: [segmentId, segmentOrder, unchangedTextOrTiming, languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+      segmentItems:
+        requiredFields: [segmentId, text, origin, timing]
+        optionalFields: [languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+        timingField: exact-per-segment-tagged-union-identical-to-draftSnapshotDefinition.initialization.timingUnion; never-flatten-or-drop-a-segment-timing-disposition
+        unchangedSegmentValues: preserve-stable-segmentId-order-exact-text-origin-language-uncertainty-and-evidence-for-all-nontarget-segments; text-edit-changes-target-text-and-origin-to-USER_EDITED-only; timing-edit-changes-target-timing-and-origin-to-USER_EDITED-only
+      timingAvailabilityValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND, MIXED]
+      timingAvailabilityAggregate:
+        NOT_SUPPLIED: every-segment-timing-tag-is-NOT_SUPPLIED
+        PROVIDER_TIME_UNQUALIFIED: every-segment-timing-tag-is-PROVIDER_TIME_UNQUALIFIED-and-original-units-remain-unqualified
+        SOURCE_CLOCK_BOUND: every-segment-timing-tag-is-SOURCE_TICKS-and-all-share-one-qualified-exact-sourceArtifactVersion-sourceClockId-ticksPerSecond-and-sourceDurationTicks-tuple
+        MIXED: segment-timing-tags-differ-or-source-tick-metadata-tuples-are-inconsistent; retain-each-segment-tag-and-never-promote-the-aggregate-to-SOURCE_CLOCK_BOUND
+        emptySegments: not-a-valid-initialized-draft; initialization-is-blocked-until-faithful-or-explicit-user-authored-segments-exist
+      registrationReadiness: aggregate-SOURCE_CLOCK_BOUND-is-only-a-summary-not-registration-eligibility; caption-version-write-still-revalidates-every-explicit-segment-tick-range-and-current-source-parent-clock-policy; any-NOT_SUPPLIED-or-PROVIDER_TIME_UNQUALIFIED-segment-or-MIXED-aggregate-blocks-registration
+      draftSnapshotDefinition:
+        valueKind: session-local-caption-draft-snapshot; not-a-new-domain-object-or-durable-record
+        ownerScope: trusted-host-binds-draftId-to-tenantId-principalId-and-activeSessionId; request-cannot-select-or-override-session-ownership; exact-source-and-typed-parent-identity-are-fixed-for-the-snapshot
+        initialization:
+          revision: 0
+          source: initialize-from-one-exact-currently-readable-canonical-parent-under-current-derived-edit-policy; copy-only-faithfully-observed-segments-and-their-explicit-availability
+          segmentRequirements: ordered-segment-array-with-stable-nonempty-unique-segmentIds-exact-text-and-explicit-origin; preserve-source-order-and-all-supplied-language-uncertainty-and-evidence-without-normalization
+          timingUnion:
+            SOURCE_TICKS: explicit-startTick-endTick-plus-the-exact-qualified-sourceClockId-ticksPerSecond-and-sourceDurationTicks-for-this-sourceArtifactVersion
+            PROVIDER_TIME_UNQUALIFIED: preserve-original-provider-time-values-and-declared-unit; never-relabel-as-source-ticks
+            NOT_SUPPLIED: explicit-absence; never-infer-or-fill
+          clockContext: source-clock-fields-are-available-only-from-a-qualified-current-mapping-bound-to-the-exact-sourceArtifactVersion; mapping-evidence-does-not-retime-or-rewrite-parent-observations
+          missingParentData: when-parent-has-no-faithful-segments-or-stable-identities-block-automatic-initialization; require-explicit-user-authored-segments-with-stable-user-provided-IDs-under-edit-policy-or-return-DRAFT_INITIALIZATION_BLOCKED; never-segment-joined-text-generate-IDs-or-infer-language-timing-or-clock
+          entry: host-prepares-the-revision-zero-session-local-snapshot-before-either-existing-edit-action; absent-prepared-snapshot-is-blocked-not-assumed
+        revision: nonnegative-safe-integer; each-successful-edit-or-undo-advances-exactly-one; at-Number.MAX_SAFE_INTEGER-reject-atomically-with-DRAFT_REVISION_EXHAUSTED; never-wrap-or-reuse-a-revision
+        undo: local-only; require-same-trusted-tenant-principal-activeSessionId-draftId-and-source-parent-lineage-plus-exact-current-draftRevision-and-a-retained-prior-snapshot; restore-prior-content-as-a-new-current-revision-increment; if-no-snapshot-or-revision-mismatch-return-DRAFT_UNDO_NOT_AVAILABLE; no-ABA-rollback-or-parent-source-change
+        discard: remove-only-this-session-local-draft-after-current-owner-check; does-not-delete-or-reverse-source-parent-or-registered-caption-version
+        rebase: explicit-host-preparation-only-under-fresh-current-policy-and-a-new-exact-typed-parent; allocate-a-distinct-new-draftId-at-revision-zero; preserve-the-old-stale-draft-until-explicitly-discarded; never-reparent-an-existing-draftId-or-reuse-its-revision-identity
+      authorization: trusted-current-tenant-and-principal-plus-current-source-read-and-derived-edit-policy; caller-supplied-identity-and-role-labels-grant-no-authority
+      concurrency: atomic-session-local-revision-advance-only-if-expectedDraftRevision-matches; stale-revision-conflicts-and-prior-snapshot-is-preserved
+      parentIdentity: preserve-exact-sourceArtifactId-sourceArtifactVersionId-and-typed-parent; source-or-parent-change-requires-explicit-rebase-and-policy-recheck
+      localUndo:
+        scope: retained-prior-snapshot-may-be-restored-or-discarded-only-within-the-same-session-local-draft-lineage; source-parent-and-registered-versions-never-change
+        reversibility: {kind: CONDITIONAL, publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE}
+      finality: atomic-session-local-draft-revision-only; no-commit-or-immutable-caption-registration-review-approval-delivery-or-publication
+      unknownOutcome: inspect-the-same-draftId-and-revision-or-recover-the-caller-retained-snapshot-before-an-explicit-edit; no-blind-reapplication-or-remote-effect-is-implied
+      cancellation: stops-waiting-only; it-does-not-undo-an-edit-already-applied
+      problemCodes: [INVALID_REQUEST, ACCESS_DENIED, DRAFT_NOT_FOUND_IN_CALLER_SCOPE, DRAFT_INITIALIZATION_BLOCKED, SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT, DRAFT_REVISION_EXHAUSTED, DRAFT_UNDO_NOT_AVAILABLE, CAPTION_SEGMENT_NOT_FOUND, SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID, UNAVAILABLE]
+      prohibited: [new-operation-or-domain-object, source-or-parent-mutation, text-inferred-from-segments, timing-inferred-from-text, milliseconds-treated-as-source-ticks, implicit-rebase, unconditional-public-reversible-boolean, caption-registration-or-approval-claim, forced-align-engine-equivalence, gRPC-SubmitCorrection-equivalence]
+  observedChannels:
+    web:
+      source: libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx
+      actions: [media.action.correct-caption, media.action.align-caption-timing]
+      disposition: local-UI-source-observed-only; no-production-host-or-runtime-admission-claim
+    syntheticFixtureCli:
+      source: libs/media-experience-simulation/src/cli.ts
+      disposition: synthetic-fixture-only; no-production-command-or-authority-claim
+    httpSdkAgentToolGrpcEvents:
+      disposition: unresolved; no-current-method-or-equivalence-claim; SubmitCorrection-is-a-provider-interface-not-this-operation
+  runtimeAdmission: NOT_ADMITTED
+  phaseAdmission: pending-independent-PDP2-review
+
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

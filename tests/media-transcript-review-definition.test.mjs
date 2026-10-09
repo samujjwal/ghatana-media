@@ -89,15 +89,15 @@ test('J-03 binds the existing transcript review step without changing the journe
   ]);
   assertBoundDefinition(journey, reviewAction, bindings);
   assert.equal(registry.coverageObservation.orderedStepCount, 130);
-  assert.equal(registry.coverageObservation.stepBindings.objectRefs.empty, 119);
+  assert.equal(registry.coverageObservation.stepBindings.objectRefs.empty, 117);
   assert.equal(registry.coverageObservation.stepBindings.stateRefs.empty, 122);
-  assert.equal(registry.coverageObservation.stepBindings.authorityRef.null, 118);
+  assert.equal(registry.coverageObservation.stepBindings.authorityRef.null, 116);
   assert.equal(registry.coverageObservation.stepBindings.canonicalOperationRef.null, 111);
   assert.equal(registry.coverageObservation.stepBindings.transitionRef.null, 128);
-  assert.equal(registry.coverageObservation.stepBindings.transitionRef.sourceDefinedNoMutationReasonCount, 10);
+  assert.equal(registry.coverageObservation.stepBindings.transitionRef.sourceDefinedNoMutationReasonCount, 12);
   assert.equal(registry.coverageObservation.stepBindings.verification.notRun, 130);
   assert.equal(registry.coverageObservation.stepBindings.verification.evidenceRefsPresent, 0);
-  assert.equal(registry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 3);
+  assert.equal(registry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 5);
   assert.deepEqual(registry.j03TranscriptReviewDefinitionObservation, {
     sourceRef: 'journey-contracts/transcribe-and-correct-captions.yaml#J03-4',
     decisionRef: decision,

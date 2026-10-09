@@ -95,7 +95,9 @@ test("operation source changes reconcile affected leaf links without promoting c
   const captionDelta = review.captionVersionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(captionDelta.previousSha256, projectDelta.currentSha256, "caption definitions extend rather than replace project-definition history");
   const transcriptDelta = review.transcriptVersionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
-  assert.equal(sourcePin.sha256, transcriptDelta.currentSha256);
+  const draftDelta = review.captionDraftDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
+  assert.equal(draftDelta.previousSha256, transcriptDelta.currentSha256);
+  assert.equal(sourcePin.sha256, draftDelta.currentSha256);
   assert.equal(review.canonicalReadSourceReconciliation.previousSha256, impact.sceneTextAdapterSourceDelta.currentSha256);
   assert.deepEqual(review.canonicalReadSourceReconciliation.exactChangedRecords, [
     'media.operation-slice.inspect-upload', 'media.operation-slice.inspect-artifact',
@@ -159,8 +161,18 @@ test("operation source changes reconcile affected leaf links without promoting c
     ambiguousOperationBindings: operation.ambiguousOperationBindings,
   }));
   const leafOperationBindingsSha256 = hash(JSON.stringify(leafOperationBindings));
-  assert.equal(leafOperationBindingsSha256, followOn.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256);
-  assert.equal(leafOperationBindingsSha256, followOn.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256);
+  const historicalLeafOperationBindingsSha256 = followOn.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256;
+  assert.equal(historicalLeafOperationBindingsSha256, followOn.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256,
+    "the historical SDK follow-on snapshot remains internally chained");
+  const draftLeafDelta = review.captionDraftLeafBindingReconciliation;
+  assert.equal(draftLeafDelta.previousSha256, historicalLeafOperationBindingsSha256,
+    "PXD-069 begins from the historical leaf-binding snapshot without rewriting it");
+  assert.equal(draftLeafDelta.currentSha256, leafOperationBindingsSha256,
+    "PXD-069 records the current leaf-binding projection hash");
+  assert.notEqual(draftLeafDelta.currentSha256, draftLeafDelta.previousSha256,
+    "the forced-align non-equivalence removes one active binding");
+  assert.equal(draftLeafDelta.decisionRef, '.product-experience/decision-log.md#PXD-069');
+  assert.deepEqual(draftLeafDelta.exactChangedLeaves, ['media.speech.transcription.forced-align']);
   assert.deepEqual(followOn.reviewedCapabilityEvidence.coverageCounts, {
     total: 462,
     unresolved: 383,
@@ -214,8 +226,8 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.deepEqual(transcriptionSubmission.evidenceAudit.observedRefs, ["STTService.Transcribe"]);
   assert.equal(subsequent.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);
   assert.equal(subsequent.reviewedCapabilityEvidence.impact, "No capability-leaf operation binding or coverage disposition changed; the SDK method census and submission-versus-execution evidence correction do not establish capability applicability or runtime support.");
-  assert.equal(leafOperationBindingsSha256, subsequent.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256);
-  assert.equal(leafOperationBindingsSha256, subsequent.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256);
+  assert.equal(subsequent.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256, historicalLeafOperationBindingsSha256);
+  assert.equal(subsequent.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256, historicalLeafOperationBindingsSha256);
   assert.equal(subsequent.result.endsWith("no capability-leaf impact"), true);
   assert.deepEqual(subsequent.reviewedCapabilityEvidence.coverageCounts, {
     total: 462,
@@ -225,8 +237,8 @@ test("operation source changes reconcile affected leaf links without promoting c
     machineOperations: 0,
   });
   assert.equal(ownerDispositions.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);
-  assert.equal(ownerDispositions.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256, leafOperationBindingsSha256);
-  assert.equal(ownerDispositions.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256, leafOperationBindingsSha256);
+  assert.equal(ownerDispositions.reviewedCapabilityEvidence.capabilityLeafOperationBindingsSha256, historicalLeafOperationBindingsSha256);
+  assert.equal(ownerDispositions.reviewedCapabilityEvidence.previousCapabilityLeafOperationBindingsSha256, historicalLeafOperationBindingsSha256);
   assert.equal(ownerDispositions.reviewedCapabilityEvidence.coverageCounts.unresolved, 383);
   assert.match(ownerDispositions.result, /capability leaf bindings and coverage unchanged/u);
   const unchangedObligationRecords = Object.fromEntries(operations.operations
@@ -257,9 +269,12 @@ test("operation source changes reconcile affected leaf links without promoting c
     "media.operation.transcription-submission",
     "media.operation.transcription",
   ], "the whole recognition capability remains unresolved across submission and execution semantics");
-  assert.deepEqual(exactBindings("media.speech.transcription.forced-align"), [
-    ["media.action.align-caption-timing", "media.operation.caption-draft-write"],
-  ]);
+  assert.deepEqual(exactBindings("media.speech.transcription.forced-align"), [],
+    "manual user-entered caption ticks are not a forced-alignment operation binding");
+  assert.equal(review.leaves.find(({ id }) => id === "media.speech.transcription.forced-align")
+    .manualTimingNonEquivalence.decisionRef, ".product-experience/decision-log.md#PXD-069");
+  assert.match(review.leaves.find(({ id }) => id === "media.speech.transcription.forced-align")
+    .manualTimingNonEquivalence.status, /HISTORICAL_JOURNEY_TRACE_ONLY/u);
 
   const transcription = operations.operations.find(({ id }) => id === "media.operation.transcription");
   assert.deepEqual(transcription.observedBindings.gRPC, ["STTService.Transcribe", "STTService.StreamTranscribe", "STTService.SubmitCorrection"]);
@@ -365,8 +380,10 @@ test('selected action definition source change retains historical pins without p
   assert.equal(captionDelta.previousSha256, projectDelta.currentSha256, "caption action definitions extend J-01 history without rewriting it");
   const transcriptDelta = review.transcriptVersionDefinitionSourceReconciliations.find(({ path }) => path === delta.path);
   assert.equal(captionDelta.currentSha256, transcriptDelta.previousSha256);
-  assert.equal(transcriptDelta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
-  assert.equal(sourcePin.sha256, transcriptDelta.currentSha256);
+  const draftDelta = review.captionDraftDefinitionSourceReconciliations.find(({ path }) => path === delta.path);
+  assert.equal(draftDelta.previousSha256, transcriptDelta.currentSha256);
+  assert.equal(draftDelta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
+  assert.equal(sourcePin.sha256, draftDelta.currentSha256);
   assert.equal(delta.ownerDecisionRef, '.product-experience/decision-log.md#PXD-052');
   assert.equal(delta.coverageEffect, 'no-full-leaf-admission-or-denominator-reduction');
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
@@ -408,8 +425,9 @@ test('project definition source reconciliations retain exact HEAD history and cu
   const sourcePin = path => review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256;
   const captionByPath = new Map(review.captionVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
   const transcriptByPath = new Map(review.transcriptVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
   for (const path of expectedPaths.filter(path => captionByPath.has(path))) {
-    assert.equal(sourcePin(path), transcriptByPath.get(path)?.currentSha256 ?? captionByPath.get(path).currentSha256);
+    assert.equal(sourcePin(path), draftByPath.get(path)?.currentSha256 ?? transcriptByPath.get(path)?.currentSha256 ?? captionByPath.get(path).currentSha256);
   }
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
@@ -431,6 +449,7 @@ test('caption-version definition source reconciliations chain from J-01 history 
     '.product-experience/pdp-3-product-experience/action-registry.yaml': ['media.action.save-caption-version', 'media.action.compare-caption-versions'],
   };
   const priorByPath = new Map(review.projectDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
   const records = review.captionVersionDefinitionSourceReconciliations;
   assert.deepEqual(records.map(({ path }) => path), Object.keys(expectedPreviousHashes));
   assert.equal(new Set(records.map(({ path }) => path)).size, records.length);
@@ -440,8 +459,9 @@ test('caption-version definition source reconciliations chain from J-01 history 
     assert.equal(record.previousSha256, priorByPath.get(path)?.currentSha256, `${path} chains from the preserved project-source history`);
     const transcriptDelta = review.transcriptVersionDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
     assert.equal(record.currentSha256, transcriptDelta.previousSha256, `${path} caption digest remains the transcript chain's previous pin`);
-    assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256, transcriptDelta.currentSha256,
-      `${path} active source inventory points at the latest transcript definition source`);
+    assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256,
+      draftByPath.get(path)?.currentSha256 ?? transcriptDelta.currentSha256,
+      `${path} active source inventory points at the latest source definition`);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
     assert.match(record.ownerDecisionRef, path.endsWith('action-registry.yaml') ? /#PXD-060$/u : /#PXD-058$/u);
     if (path.endsWith('action-registry.yaml')) {
@@ -473,6 +493,7 @@ test('transcript-version source reconciliations chain from caption pins without 
     '.product-experience/pdp-3-product-experience/action-registry.yaml': ['media.action.review-transcript'],
   };
   const captionByPath = new Map(review.captionVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const draftByPath = new Map(review.captionDraftDefinitionSourceReconciliations.map(record => [record.path, record]));
   const records = review.transcriptVersionDefinitionSourceReconciliations;
   assert.deepEqual(records.map(({ path }) => path), Object.keys(expectedPreviousHashes));
   assert.equal(new Set(records.map(({ path }) => path)).size, records.length);
@@ -480,9 +501,11 @@ test('transcript-version source reconciliations chain from caption pins without 
     const path = record.path;
     assert.equal(record.previousSha256, expectedPreviousHashes[path], `${path} begins at the preserved caption current pin`);
     assert.equal(record.previousSha256, captionByPath.get(path)?.currentSha256, `${path} extends the caption history chain`);
-    assert.equal(record.currentSha256, hash(readFileSync(resolve(root, path))), `${path} current hash matches source bytes`);
-    assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256, record.currentSha256,
-      `${path} current source inventory points at the transcript definition`);
+    const draftDelta = draftByPath.get(path);
+    assert.equal(record.currentSha256, draftDelta?.previousSha256 ?? hash(readFileSync(resolve(root, path))),
+      `${path} transcript digest remains intact as a historical pin`);
+    assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256,
+      draftDelta?.currentSha256 ?? record.currentSha256, `${path} inventory points to the latest chain head`);
     assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
     assert.match(record.ownerDecisionRef, path.endsWith('action-registry.yaml') ? /#PXD-064$/u : /#PXD-062$/u);
     if (path.endsWith('action-registry.yaml')) {
@@ -494,6 +517,51 @@ test('transcript-version source reconciliations chain from caption pins without 
     assert.match(record.capabilityImpact, /383.*unresolved/u);
     assert.match(record.acceptanceEffect, /no .*runtime|runtime.*NOT_ADMITTED|no .*capability|no .*phase/u);
   }
+  assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
+  assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
+  assert.equal(review.denominatorReconciliation.machineOperationDispositions, 0);
+  assert.equal(review.leaves.filter(({ coverageDecision }) => coverageDecision.disposition === 'ACCEPTED').length, 0);
+});
+
+test('caption-draft source reconciliations chain from transcript pins without changing capability coverage', () => {
+  const draftLeafDelta = review.captionDraftLeafBindingReconciliation;
+  const expectedPreviousHashes = {
+    '.product-experience/pdp-1-domain-data/operations.yaml': 'bd82cc079e64848d9b3b0f5f7aaf663a7a9d5e6b6bb28453356ca4977ee97cfa',
+    '.product-experience/pdp-1-domain-data/action-contracts.yaml': '59d6833fc810038cc5051941fdcbe657b14a1bb020c1a78861b56c60336cee19',
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': '2027e497bad4a7f568103bddcfaa19422067900aec3b4ae3eab40a4e0ab44994',
+  };
+  const expectedChanges = {
+    '.product-experience/pdp-1-domain-data/operations.yaml': ['media.operation.caption-draft-write'],
+    '.product-experience/pdp-1-domain-data/action-contracts.yaml': ['media.operation.caption-draft-write'],
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': ['media.action.correct-caption', 'media.action.align-caption-timing'],
+  };
+  const transcriptByPath = new Map(review.transcriptVersionDefinitionSourceReconciliations.map(record => [record.path, record]));
+  const records = review.captionDraftDefinitionSourceReconciliations;
+  assert.deepEqual(records.map(({ path }) => path), Object.keys(expectedPreviousHashes));
+  assert.equal(new Set(records.map(({ path }) => path)).size, records.length);
+  for (const record of records) {
+    const path = record.path;
+    assert.equal(record.previousSha256, expectedPreviousHashes[path]);
+    assert.equal(record.previousSha256, transcriptByPath.get(path)?.currentSha256, `${path} extends rather than replaces transcript history`);
+    assert.equal(record.currentSha256, hash(readFileSync(resolve(root, path))));
+    assert.equal(review.sourceInventory.find(({ path: sourcePath }) => sourcePath === path)?.sha256, record.currentSha256);
+    assert.deepEqual(record.exactChangedRecords, expectedChanges[path]);
+    assert.equal(record.ownerDecisionRef, path.endsWith('action-registry.yaml')
+      ? '.product-experience/decision-log.md#PXD-068'
+      : '.product-experience/decision-log.md#PXD-066');
+    assert.match(record.semanticImpact, /draft|manual|session-local/u);
+    assert.match(record.capabilityImpact, /462.*unchanged/u);
+    assert.match(record.capabilityImpact, /383.*unresolved/u);
+    assert.match(record.acceptanceEffect, /NOT_ADMITTED|no .*runtime/u);
+  }
+  const forcedAlign = review.leaves.find(({ id }) => id === 'media.speech.transcription.forced-align');
+  assert.equal(forcedAlign.manualTimingNonEquivalence.decisionRef, '.product-experience/decision-log.md#PXD-069');
+  assert.match(forcedAlign.manualTimingNonEquivalence.status, /HISTORICAL_JOURNEY_TRACE_ONLY/u);
+  assert.deepEqual(forcedAlign.operation.explicitOperationBindings, []);
+  assert.deepEqual(draftLeafDelta.previousBindings, [
+    { leaf: 'media.speech.transcription.forced-align', actionRef: 'media.action.align-caption-timing', operationRef: 'media.operation.caption-draft-write' },
+  ]);
+  assert.deepEqual(draftLeafDelta.currentBindings, []);
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
   assert.equal(review.denominatorReconciliation.machineOperationDispositions, 0);

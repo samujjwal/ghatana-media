@@ -106,7 +106,10 @@ acceptance.
   retained their prior definitions in that caption batch. PXD-062 through PXD-065
   now define only existing J03-4 exact transcript-version inspection, preserving
   missing timing and supplied uncertainty, with no approval or new processing.
-  The remaining earlier steps stay incomplete, and runtime verification remains not-run.
+  PXD-066 through PXD-069 now define existing J03-5/6 session-local correction
+  and manual tick alignment, including guarded revisions, undo and new-identity
+  rebase. Manual timing does not satisfy forced alignment. J03-1/2/3 still need
+  individual source semantics; runtime verification remains not-run.
   Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
   Media owner selections from the source intent and view inventories. All 130
   steps project as partial proposals; these links do not admit screens or

@@ -113,6 +113,23 @@ function validateLink(link) {
           "assert.equal(Object.hasOwn(read, 'executionAdmission'), false);",
         ],
       },
+      'media.definition-case.caption-draft.edit': {
+        obligationId: 'media.pdp-1.requirement.media.operation.caption-draft-write',
+        testName: 'caption draft edit definition',
+        sourcePath: 'tests/media-caption-draft-operation-definition.test.mjs',
+        ownerDecisionRef: '.product-experience/decision-log.md#PXD-069',
+        requiredVariables: [
+          'staleDraftOverwrite', 'unboundedDraftRevision', 'timingCanInferClock', 'textEditChangesTiming',
+          'validationFailurePartiallyApplies', 'localUndoDeletesParent', 'forgedAdmission', 'wrongActionBinding',
+        ],
+        assertions: [
+          'assert.deepEqual(validateMediaCaptionDraftDefinition(base), []);',
+          "assert.deepEqual(operation.inputSemantics.editKindValues, ['TEXT_CORRECTION', 'TIMING_ALIGNMENT']);",
+          "assert.deepEqual(operation.inputSemantics.editBranches.TEXT_CORRECTION.allowedFields, ['text']);",
+          'assert.equal(operation.transition.transitionRefs.length, 0);',
+          'assert.match(operation.scopeStatus, /runtime-NOT_ADMITTED/u);',
+        ],
+      },
     };
     const expected = sourceDefinitionCases[link.caseId];
     assert.ok(expected, `unexpected source-definition case ${link.caseId}`);
@@ -136,7 +153,7 @@ function validateLink(link) {
     for (const variable of link.negativeAssertionVariables) {
       assert.match(body, new RegExp(`\\b${variable}\\b`, 'u'), `${expected.testName} no longer declares negative case ${variable}`);
     }
-    assert.match(body, /validateMedia(?:CaptionVersionDefinitions|TranscriptVersionDefinition)\(/u);
+    assert.match(body, /validateMedia(?:CaptionVersionDefinitions|TranscriptVersionDefinition|CaptionDraftDefinition)\(/u);
     assert.ok(body.includes(".join('\\n')"),
       `${expected.testName} negative cases must exercise the source validator`);
     return;
@@ -193,9 +210,9 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
   assert.equal(proposal.status, 'SOURCE_LINK_PROPOSAL_PARTIAL_NOT_EXECUTION_ADMITTED');
   assert.deepEqual(proposal.obligationIds, obligationIds, 'proposal denominator must preserve every obligation ID in source order');
   assert.equal(new Set(proposal.obligationIds).size, 348);
-  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 42);
-  assert.equal(proposal.candidateLinks.length, 63);
-  assert.equal(proposal.unmappedObligationIds.length, 306);
+  assert.equal(new Set(proposal.candidateLinks.map(({ obligationId }) => obligationId)).size, 43);
+  assert.equal(proposal.candidateLinks.length, 64);
+  assert.equal(proposal.unmappedObligationIds.length, 305);
   assert.deepEqual(new Set(proposal.unmappedObligationIds), new Set(obligationIds.filter((id) =>
     !proposal.candidateLinks.some((link) => link.obligationId === id))));
 
@@ -209,6 +226,7 @@ test('L-02 source-link proposal preserves all obligations and validates exact ex
 
   const sourceDefinitionLinks = proposal.candidateLinks.filter((link) => link.method === 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS');
   assert.deepEqual(sourceDefinitionLinks.map(({ caseId }) => caseId).sort(), [
+    'media.definition-case.caption-draft.edit',
     'media.definition-case.caption-version.compare',
     'media.definition-case.caption-version.register',
     'media.definition-case.transcript-version.identity',
@@ -258,9 +276,9 @@ test('parameterized definition cases reject swapped scope, parameters and invent
   ]) { const link = structuredClone(valid); mutate(link); assert.throws(() => validateLink(link)); }
 });
 
-test('caption and transcript source-definition links reject invented case identity, partial-scope promotion, admission and missing negatives', () => {
+test('caption, transcript, and draft source-definition links reject invented case identity, partial-scope promotion, admission and missing negatives', () => {
   const links = proposal.candidateLinks.filter((link) => link.method === 'SOURCE_DEFINITION_CONTRACT_ASSERTIONS');
-  assert.equal(links.length, 4);
+  assert.equal(links.length, 5);
   for (const valid of links) {
     validateLink(valid);
     for (const mutate of [

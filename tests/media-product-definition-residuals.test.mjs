@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 test("residual report validates exact projection dispositions and pinned sources", () => {
+  const root = resolve(new URL("..", import.meta.url).pathname);
   const report = buildMediaProductDefinitionResidualReport();
 
   assert.deepEqual(report.diagnostics, []);
@@ -107,7 +108,40 @@ test("residual report validates exact projection dispositions and pinned sources
   ]);
   assert.equal(report.lifecycle.obligationCount, 348);
   assert.equal(report.lifecycle.totalProofRoutes, 348);
-  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 251);
+  assert.equal(report.lifecycle.obligationsMissingCaseIds.length, 250);
+  const l02Links = JSON.parse(readFileSync(resolve(root, "config/closure/media-product-definition/l02-source-case-links.json"), "utf8"));
+  const l03Candidates = JSON.parse(readFileSync(resolve(root, "config/closure/media-product-definition/l03-proof-route-candidates.json"), "utf8"));
+  const draftLink = l02Links.candidateLinks.find(({ caseId }) => caseId === "media.definition-case.caption-draft.edit");
+  assert.equal(l02Links.candidateLinks.length, 64);
+  assert.equal(new Set(l02Links.candidateLinks.map(({ obligationId }) => obligationId)).size, 43);
+  assert.equal(l02Links.unmappedObligationIds.length, 305);
+  assert.deepEqual(draftLink, {
+    obligationId: "media.pdp-1.requirement.media.operation.caption-draft-write",
+    caseId: "media.definition-case.caption-draft.edit",
+    method: "SOURCE_DEFINITION_CONTRACT_ASSERTIONS",
+    testIdentity: {
+      sourcePath: "tests/media-caption-draft-operation-definition.test.mjs",
+      testName: "caption draft edit definition",
+    },
+    assertionEvidence: "assert.deepEqual(validateMediaCaptionDraftDefinition(base), []);",
+    negativeAssertionVariables: [
+      "staleDraftOverwrite", "unboundedDraftRevision", "timingCanInferClock", "textEditChangesTiming",
+      "validationFailurePartiallyApplies", "localUndoDeletesParent", "forgedAdmission", "wrongActionBinding",
+    ],
+    scope: "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+    admission: "NOT_LIFECYCLE_ADMITTED",
+    ownerDecisionRef: ".product-experience/decision-log.md#PXD-069",
+  });
+  assert.equal(l03Candidates.l02CaseLinkReview.reviewedLinkCount, 64);
+  assert.equal(l03Candidates.l02CaseLinkReview.reviewedObligationCount, 43);
+  assert.equal(l03Candidates.l02CaseLinkReview.obligationDenominator, 348);
+  assert.equal(l03Candidates.l02CaseLinkReview.unmappedObligationCount, 305);
+  assert.equal(l03Candidates.l02CaseLinkReview.candidateRouteCount, 0);
+  assert.equal(l03Candidates.l02CaseLinkReview.authoritativeAssignments, "UNCHANGED_ZERO_OF_348");
+  const l03Explanation = l03Candidates.l02CaseLinkReview.missingSemantics.join(" ");
+  assert.match(l03Explanation, /source-only caption-draft edit definition assertions/u);
+  assert.match(l03Explanation, /not a native provider or correction-runtime observation/u);
+  assert.ok(l03Candidates.routes.every(({ obligationIds }) => !obligationIds.includes(draftLink.obligationId)));
   assert.equal(report.lifecycle.receiptEvaluation.status, "NOT_EVALUATED");
   assert.equal(report.lifecycle.receiptEvaluation.authoritativeReceiptCount, null);
   assert.equal(report.lifecycle.currentnessEvaluation.status, "NOT_EVALUATED");

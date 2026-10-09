@@ -76,6 +76,26 @@ function validateCandidateRoutes(routes, obligations) {
   return routeIds.size;
 }
 
+function assertCaptionDraftSourceDefinitionRemainsUnrouted(candidates, links) {
+  const draftObligation = 'media.pdp-1.requirement.media.operation.caption-draft-write';
+  const draftLinks = links.candidateLinks.filter(({ caseId }) => caseId === 'media.definition-case.caption-draft.edit');
+  assert.equal(draftLinks.length, 1, 'the exact source-definition case must remain singly linked');
+  assert.equal(draftLinks[0].obligationId, draftObligation);
+  assert.equal(draftLinks[0].testIdentity.sourcePath, 'tests/media-caption-draft-operation-definition.test.mjs');
+  assert.equal(draftLinks[0].testIdentity.testName, 'caption draft edit definition');
+  assert.equal(draftLinks[0].scope, 'PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY');
+  assert.equal(draftLinks[0].admission, 'NOT_LIFECYCLE_ADMITTED');
+  assert.equal(draftLinks[0].ownerDecisionRef, '.product-experience/decision-log.md#PXD-069');
+  const explanation = candidates.l02CaseLinkReview.missingSemantics.join(' ');
+  assert.match(explanation, /source-only caption-draft edit definition assertions/u);
+  assert.match(explanation, /tests\/media-caption-draft-operation-definition\.test\.mjs/u);
+  assert.match(explanation, /not a native provider or correction-runtime observation/u);
+  assert.ok(candidates.routes.every(({ obligationIds }) => !obligationIds.includes(draftObligation)),
+    'source-only draft-definition assertions must not acquire an L-03 candidate route');
+  assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
+  assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
+}
+
 test('records exact 348-obligation authoritative observer/oracle gap and source-resolvable candidates only', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
@@ -123,13 +143,13 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
 
   assert.equal(candidates.l02CaseLinkReview.reviewedLinkCount, links.candidateLinks.length);
   assert.equal(candidates.l02CaseLinkReview.reviewedObligationCount, linkedObligationIds.size);
-  assert.equal(links.candidateLinks.length, 63);
-  assert.equal(linkedObligationIds.size, 42);
+  assert.equal(links.candidateLinks.length, 64);
+  assert.equal(linkedObligationIds.size, 43);
   assert.equal(candidates.l02CaseLinkReview.obligationDenominator, obligations.length);
   assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount,
     obligations.length - linkedObligationIds.size);
   assert.equal(obligations.length, 348, 'the authoritative denominator remains 348');
-  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 306);
+  assert.equal(candidates.l02CaseLinkReview.unmappedObligationCount, 305);
   assert.equal(candidates.l02CaseLinkReview.candidateRouteCount, 0);
   assert.equal(candidates.l02CaseLinkReview.status, 'NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED');
   assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
@@ -140,6 +160,9 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
   assert.match(missingSemantics, /tests\/media-caption-version-operation-definitions\.test\.mjs/u);
   assert.match(missingSemantics, /source-only transcript-version definition assertions/u);
   assert.match(missingSemantics, /tests\/media-transcript-version-definition\.test\.mjs/u);
+  assert.match(missingSemantics, /source-only caption-draft edit definition assertions/u);
+  assert.match(missingSemantics, /tests\/media-caption-draft-operation-definition\.test\.mjs/u);
+  assert.match(missingSemantics, /not a native provider or correction-runtime observation/u);
   assert.match(missingSemantics, /do not establish an L-03 oracle or native proof route/u);
   const captionLinks = links.candidateLinks.filter(({ testIdentity }) =>
     testIdentity.sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs');
@@ -177,12 +200,14 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
       admission: 'NOT_LIFECYCLE_ADMITTED',
     },
   ]);
+  assertCaptionDraftSourceDefinitionRemainsUnrouted(candidates, links);
   assert.equal(candidates.l02CaseLinkReview.authoritativeAssignments, 'UNCHANGED_ZERO_OF_348');
   assert.ok(linkedTestPaths.size > 0 && [...linkedTestPaths].every((sourcePath) =>
     sourcePath.startsWith('libs/media-experience-simulation/tests/')
       || sourcePath === 'tests/media-component-definition-proof-cases.test.mjs'
       || sourcePath === 'tests/media-caption-version-operation-definitions.test.mjs'
-      || sourcePath === 'tests/media-transcript-version-definition.test.mjs'),
+      || sourcePath === 'tests/media-transcript-version-definition.test.mjs'
+      || sourcePath === 'tests/media-caption-draft-operation-definition.test.mjs'),
   'the reviewed links are exact simulation or parameterized/source-definition case sources');
   assert.ok([...linkedTestPaths].every((testPath) => !producerScopes.some((scope) =>
     testPath === scope || testPath.startsWith(`${scope.replace(/\/$/u, '')}/`))),
@@ -193,6 +218,25 @@ test('documents why current L-02 simulation links do not yet have L-03 observer/
     'existing runtime routes must not be repurposed for unrelated L-02 obligations');
   assert.ok(candidates.routes.every((route) => !captionLinks.some(({ obligationId }) => route.obligationIds.includes(obligationId))),
     'source-only caption definition cases do not invent an L-03 native route');
+});
+
+test('caption draft source assertions cannot become native provider routes or admitted cases', () => {
+  const links = readJson('config/closure/media-product-definition/l02-source-case-links.json');
+  const candidates = readJson('config/closure/media-product-definition/l03-proof-route-candidates.json');
+  assertCaptionDraftSourceDefinitionRemainsUnrouted(candidates, links);
+
+  const forgedRoute = structuredClone(candidates);
+  forgedRoute.routes.push({ id: 'forged-draft-route', obligationIds: ['media.pdp-1.requirement.media.operation.caption-draft-write'] });
+  assert.throws(() => assertCaptionDraftSourceDefinitionRemainsUnrouted(forgedRoute, links), /must not acquire an L-03 candidate route/u);
+
+  const promotedLink = structuredClone(links);
+  promotedLink.candidateLinks.find(({ caseId }) => caseId === 'media.definition-case.caption-draft.edit').admission = 'LIFECYCLE_ADMITTED';
+  assert.throws(() => assertCaptionDraftSourceDefinitionRemainsUnrouted(candidates, promotedLink), /NOT_LIFECYCLE_ADMITTED/u);
+
+  const falseProviderClaim = structuredClone(candidates);
+  falseProviderClaim.l02CaseLinkReview.missingSemantics = falseProviderClaim.l02CaseLinkReview.missingSemantics
+    .filter((item) => !item.includes('not a native provider or correction-runtime observation'));
+  assert.throws(() => assertCaptionDraftSourceDefinitionRemainsUnrouted(falseProviderClaim, links), /not a native provider/u);
 });
 
 test('rejects empty, missing, stale-source, or unreviewed candidate route records', () => {

@@ -18,13 +18,13 @@ sourceInventory:
 - path: .product-experience/pdp-0-product-truth/applications-channels.yaml
   sha256: e79f1191d9dbd46bab7eee89058ff0e11ba8b6fdd5df9a90a889df398a9c258d
 - path: .product-experience/pdp-1-domain-data/operations.yaml
-  sha256: bd82cc079e64848d9b3b0f5f7aaf663a7a9d5e6b6bb28453356ca4977ee97cfa
+  sha256: 1190e27e61882054b7c1ae92e06120b16035f914876a29637b1940203f2b011d
 - path: .product-experience/pdp-1-domain-data/action-contracts.yaml
-  sha256: 59d6833fc810038cc5051941fdcbe657b14a1bb020c1a78861b56c60336cee19
+  sha256: c500cfb35e83163f7b4cc10480f290b9ff12d399aa3ff3dd23009b504e4978ab
 - path: .product-experience/pdp-1-domain-data/states.yaml
   sha256: 53c310be8c3e1ced1d90db5450a1e5a7bd6973a8c7ec443c7a50e214cdc58110
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: 2027e497bad4a7f568103bddcfaa19422067900aec3b4ae3eab40a4e0ab44994
+  sha256: 07fb3322b656c61df45e38336cb8375f0c852ddc66504137f53f24e81acd3c5f
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
   sha256: fba56330b2993892c6cb4a2a1b66e05ef0e22615460c378f301a4ac4d1890d67
 denominatorReconciliation:
@@ -4573,6 +4573,30 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/24
+  captionDraftDefinitionSlice:
+    status: OWNER_ACCEPTED_J03_LOCAL_DRAFT_DEFINITION_SLICE; full leaf and runtime admission not claimed
+    decisionRef: .product-experience/decision-log.md#PXD-069
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+    experienceDecisionRef: .product-experience/decision-log.md#PXD-068
+    scope: Prepare and edit one session-local caption draft with exact immutable source/typed parent and expected revision; manual text and tick edits are not forced alignment or immutable output registration.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyStepRefs: [J03-5, J03-6]
+    operationRefs: [media.operation.caption-draft-write]
+    sourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#/operations/5]
+    normativeChannelScope: Web interaction definition only; no current HTTP, SDK, CLI, Agent Tool, gRPC or event equivalence is inferred.
+    contentBoundary: Immutable source and parent stay unchanged; preserve supplied language and uncertainty. Timing edits require explicit user ticks and qualified source clock context, without scientific alignment claims.
+    profileApplicability:
+      noForcedAlignmentEngineAdmission: true
+      noRegistrationApprovalOrPublication: true
+      noDurabilityOrStorageAdmission: true
+      preserveExactSourceAndParentIdentity: true
+      conditionalLocalUndoOnly: true
+      missingTimingPermitsTextEdit: true
+      unqualifiedClockBlocksTickAlignment: true
+      unresolvedAxes: [execution-location, resource, reproducibility]
+    runtimeAdmission: NOT_ADMITTED
+    fullLeafAcceptance: NOT_CLAIMED
+
 - id: media.artifact.output.register
   sourceIndex: 25
   label: Register output
@@ -12728,14 +12752,10 @@ leaves:
   intentDisposition: explicit-leaf-reference-to-proposed-intent; owner-acceptance-pending
   operation:
     sourceOperation: forced-align
-    actionRefs:
-    - media.action.align-caption-timing
-    explicitOperationBindings:
-    - operationRef: media.operation.caption-draft-write
-      viaActionRef: media.action.align-caption-timing
-      disposition: explicit-source-linked-proposal; owner-acceptance-pending
+    actionRefs: []
+    explicitOperationBindings: []
     ambiguousOperationBindings: []
-    canonicalOperationDisposition: explicit-source-linked-proposal; owner-acceptance-pending
+    canonicalOperationDisposition: unresolved; PXD-069 rejects manual user timing edits as a forced-alignment operation
   domain:
     familyRef: media.speech.transcription
     inputArtifactTypes:
@@ -12842,6 +12862,18 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/84
+  manualTimingNonEquivalence:
+    decisionRef: .product-experience/decision-log.md#PXD-069
+    status: HISTORICAL_JOURNEY_TRACE_ONLY; EXACT_FORCED_ALIGNMENT_OPERATION_UNRESOLVED
+    historicalActionRef: media.action.align-caption-timing
+    historicalOperationRef: media.operation.caption-draft-write
+    sourceCapabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#media.speech.transcription.forced-align
+    reason: Forced alignment requires a qualified audio-plus-transcript operation/profile producing timing observations and uncertainty; editing explicit user-entered ticks in a local draft does not satisfy that contract.
+    broadJourneyTrace: Existing J03 applicability trace retained as context only; it is not exact operation, behavioral, interface or scientific acceptance.
+    normativeScope: Forced alignment remains an original in-scope capability; no algorithm, engine, wire binding or optional new operation is introduced by this draft batch.
+    runtimeAdmission: NOT_ADMITTED
+    fullLeafAcceptance: NOT_CLAIMED
+
 - id: media.speech.transcription.punctuate-capitalize
   sourceIndex: 85
   label: Punctuate and capitalize transcript
@@ -62041,3 +62073,46 @@ transcriptVersionDefinitionSourceReconciliations:
   semanticImpact: The existing transcript-review action is a scoped read-only inspection; it preserves uncertainty and explicitly does not approve, register, or publish a caption.
   capabilityImpact: Existing capability associations and all 462 leaves remain unchanged; 383 remain unresolved and machine-operation coverage remains zero.
   acceptanceEffect: Bounded J-03 source definition only; no host, channel, runtime, phase, or Lifecycle admission.
+
+# Caption-draft semantics chain from the preserved transcript-version definition pins.
+captionDraftDefinitionSourceReconciliations:
+- path: .product-experience/pdp-1-domain-data/operations.yaml
+  previousSha256: bd82cc079e64848d9b3b0f5f7aaf663a7a9d5e6b6bb28453356ca4977ee97cfa
+  currentSha256: 1190e27e61882054b7c1ae92e06120b16035f914876a29637b1940203f2b011d
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-066
+  exactChangedRecords: [media.operation.caption-draft-write]
+  semanticImpact: The existing draft operation defines text-only and manual source-tick edit branches, session-local initialization and revisions, guarded undo/rebase, and exact source/parent identity; it does not define forced alignment.
+  capabilityImpact: Existing 462 leaves, capability/action associations and coverage dispositions remain unchanged; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Bounded source-definition reconciliation only; runtime remains NOT_ADMITTED and no capability, scientific operation, phase or Lifecycle admission is inferred.
+- path: .product-experience/pdp-1-domain-data/action-contracts.yaml
+  previousSha256: 59d6833fc810038cc5051941fdcbe657b14a1bb020c1a78861b56c60336cee19
+  currentSha256: c500cfb35e83163f7b4cc10480f290b9ff12d399aa3ff3dd23009b504e4978ab
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-066
+  exactChangedRecords: [media.operation.caption-draft-write]
+  semanticImpact: Existing text-correction and manual timing-edit actions share the session-local draft operation with disjoint inputs and explicit source-clock requirements; forced alignment is not an equivalent binding.
+  capabilityImpact: Existing 462 leaves, action associations and applicability dispositions remain unchanged; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Source-level action/operation crosswalk only; no transport, runtime, forced-alignment capability or Lifecycle admission.
+- path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: 2027e497bad4a7f568103bddcfaa19422067900aec3b4ae3eab40a4e0ab44994
+  currentSha256: 07fb3322b656c61df45e38336cb8375f0c852ddc66504137f53f24e81acd3c5f
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-068
+  sourceDefinitionDecisionRef: .product-experience/decision-log.md#PXD-066
+  sourceGrammarDecisionRef: .product-experience/decision-log.md#PXD-067
+  exactChangedRecords: [media.action.correct-caption, media.action.align-caption-timing]
+  semanticImpact: Correct-caption and align-timing actions are exact session-local edits; manual user-entered ticks are explicitly non-equivalent to the retained forced-alignment journey trace.
+  capabilityImpact: Existing 462 leaves and capability associations remain unchanged; 383 remain unresolved and machine-operation dispositions remain zero.
+  acceptanceEffect: Bounded J-03 action-definition reconciliation only; no product host, runtime, forced-alignment, phase or Lifecycle admission.
+
+# PXD-069 changes one active capability-to-operation binding while preserving its historical trace.
+captionDraftLeafBindingReconciliation:
+  previousSha256: 09894846a1c5896f368a83a0d17d9579df4e41256aa91299ddfaed2b1b269076
+  currentSha256: 5b8485539cb8de3ad5109f87d16faeb20196ad40aca301ce60c0153a5617ddab
+  decisionRef: .product-experience/decision-log.md#PXD-069
+  sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.align-caption-timing
+  exactChangedLeaves: [media.speech.transcription.forced-align]
+  previousBindings:
+  - {leaf: media.speech.transcription.forced-align, actionRef: media.action.align-caption-timing, operationRef: media.operation.caption-draft-write}
+  currentBindings: []
+  semanticImpact: The manual user-entered source-tick edit is not equivalent to audio-plus-transcript forced alignment; the exact operation binding is removed while the historical broad J-03 journey trace remains context only.
+  capabilityImpact: The original 462-leaf denominator is unchanged; 383 applicability/coverage dispositions remain unresolved, machine-operation dispositions remain zero, and no leaf is fully accepted.
+  acceptanceEffect: Exact forced-alignment operation remains unresolved and runtime NOT_ADMITTED; no scientific, channel, phase or Lifecycle admission.

@@ -162,7 +162,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
   assert.equal(journeys.coverageObservation.stepBindings.screenContractRef.blocker.startsWith("none;"), true);
   assert.equal(linkedViewJourneyRefs, 132);
   assert.deepEqual({ actionLinks, requirementLinks, capabilityLinks, outcomeLinks, operationLinks }, {
-    actionLinks: 18, requirementLinks: 20, capabilityLinks: 21, outcomeLinks: 72, operationLinks: 19,
+    actionLinks: 18, requirementLinks: 19, capabilityLinks: 20, outcomeLinks: 72, operationLinks: 19,
   });
 });
 
@@ -316,6 +316,7 @@ test("J-01 passive project reads admit only their exact source identity, view, a
 test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk and remain proposals", () => {
   const journeys = readYaml(`${experience}/journey-registry.yaml`);
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const actions = readYaml(`${experience}/action-registry.yaml`);
   const explicit = operations.sourceDenominators.uiProductActions.explicitOperationIds;
   const exact = operations.sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings;
   const selectedCandidateActions = new Set(Object.keys(explicit));
@@ -332,6 +333,26 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
         assert.equal(step.definitionVerification?.runtimeAdmission, "NOT_ADMITTED");
         assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /query[- ]bound/u,
           "PXD-064 defines this exact read query while runtime admission remains pending");
+      } else if (journey.id === "J-03" && ["J03-5", "J03-6"].includes(step.stepId)) {
+        const expectedAction = step.stepId === "J03-5" ? "media.action.correct-caption" : "media.action.align-caption-timing";
+        const expectedKind = step.stepId === "J03-5" ? "TEXT_CORRECTION" : "TIMING_ALIGNMENT";
+        const action = actions.actions.find(({ id }) => id === expectedAction);
+        assert.equal(step.action, expectedAction);
+        assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-068");
+        assert.equal(step.sourceDecisionRef, ".product-experience/decision-log.md#PXD-066");
+        assert.equal(step.grammarDecisionRef, ".product-experience/decision-log.md#PXD-067");
+        assert.deepEqual(step.requiredOperationRefs, ["media.operation.caption-draft-write"]);
+        assert.equal(step.draftEditSemantics.editKind, expectedKind);
+        assert.equal(step.transitionDisposition.status, "NOT_APPLICABLE_WITH_REASON");
+        assert.equal(step.transitionDisposition.transitionRef, null);
+        assert.equal(step.definitionVerification?.runtimeAdmission, "NOT_ADMITTED");
+        assert.equal(action.actionDefinitionSemantics.operationRef, "media.operation.caption-draft-write");
+        assert.equal(action.actionDefinitionSemantics.effectKind, "LOCAL_DRAFT_UPDATE");
+        assert.equal(action.actionDefinitionSemantics.reversibility.kind, "CONDITIONAL");
+        assert.equal(action.actionDefinitionSemantics.publicBooleanDisposition, "PUBLIC_BOOLEAN_NOT_REPRESENTABLE");
+        assert.equal(action.actionDefinitionSemantics.publicEffect, undefined);
+        assert.equal(action.actionDefinitionSemantics.publicFinality, undefined);
+        assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /draft-write-bound/u);
       } else {
         assert.match(step.bindingStatus?.canonicalOperationRef ?? "", /pending/u, `${journey.id}/${step.action} remains runtime-admission pending`);
       }

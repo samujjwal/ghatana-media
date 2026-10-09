@@ -425,38 +425,98 @@ operations:
   - id: media.operation.caption-draft-write
     operationId: media.operation.caption-draft-write
     family: [edit-caption-text, align-caption-timing]
-    domainIntent: derive-an-editable-caption-draft-from-one-exact-parent-caption-or-transcript-version
-    consumerActor: {proposal: caption-editor, bindingStatus: derived-from-caption-action-contracts; actor-review-pending}
-    authority: {semanticOwner: media, edit-authorization-and-clock-authority: unresolved}
-    context: {status: unresolved; tenant, editor, exact source version, and draft identity need binding}
-    preconditions: {status: proposal; current edit authority and exact parent version required}
-    inputSemantics: {proposal: exact-parent-version-and-text-or-timing-edit; timing-uses-source-clock, status: proposal-pending-owner-review}
-    effect: {proposal: append-or-update-local-derived-draft; committed-parent-version-remains-immutable, status: proposal-pending-owner-review}
-    outputSemantics: {proposal: draft-identity-and-parent-version-reference, status: unresolved}
-    authorization: unresolved; edit authority and principal scope are not bound
-    error: unresolved; version conflict and draft persistence outcomes remain source-specific
-    finality: draft-edit-does-not-register-an-immutable-caption-version
-    version: exact-parent-version-required; draft identity and revision scheme unresolved
-    transport: unresolved; local draft behavior is not evidence of an admitted remote operation
-    idempotency: unresolved; draft-save and edit replay semantics are not bound
-    cancellation: draft-discard semantics remain client-local and unresolved
-    affectedObjects: {proposalRefs: [media.domain.transcription, media.domain.artifact-version], exactBindings: unresolved}
-    transition: {status: draft-only; committed-version lifecycle remains separate}
+    domainIntent: atomically-update-one-session-local-caption-draft-from-an-exact-immutable-source-and-typed-parent
+    consumerActor: {permittedActorRefs: [media.creator, media.editor], authoritySource: current-trusted-principal-and-policy-decision, bindingStatus: action-identities-source-observed; deployed-identity-binding-unqualified}
+    authority: {semanticOwner: media, trustedIdentityAndDelegationOwner: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation, currentSourceReadAndDerivedEditPolicyOwner: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy, deployedBindings: unqualified}
+    context:
+      trustedIdentityFields: [tenantId, principalId]
+      exactSourceFields: [sourceArtifactId, sourceArtifactVersionId]
+      exactParentFields: [parentVersionKind, parentVersionId]
+      draftFields: [draftId, expectedDraftRevision]
+      currentPolicy: source-read-and-derived-content-edit-authority-for-the-exact-source-and-parent-in-caller-scope
+    preconditions: [trusted-current-tenant-and-principal-from-host, exact-source-artifact-version-and-typed-transcript-or-caption-parent-resolve-in-caller-scope, current-source-read-and-derived-content-edit-policy-allows-operation, draft-source-and-parent-match-request, expectedDraftRevision-matches-current-session-local-draft, target-segment-exists-in-current-draft]
+    inputSemantics:
+      requiredFields: [draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segmentId, edit]
+      trustedHostFields: [tenantId, principalId]
+      parentVersionKindValues: [TRANSCRIPT_VERSION, CAPTION_VERSION]
+      expectedDraftRevision: nonnegative-safe-integer; compare-exactly-before-applying; next-draftRevision-increments-by-one
+      editKindValues: [TEXT_CORRECTION, TIMING_ALIGNMENT]
+      editBranches:
+        TEXT_CORRECTION:
+          requiredFields: [text]
+          allowedFields: [text]
+          rule: change-only-the-target-segment-text-and-mark-it-USER_EDITED; preserve-segment-identity-order-other-segment-origins-language-and-uncertainty; timing-may-remain-explicitly-unavailable
+        TIMING_ALIGNMENT:
+          requiredFields: [startTick, endTick]
+          allowedFields: [startTick, endTick]
+          rule: change-only-the-target-segment-half-open-source-tick-range-and-mark-user-edited; require-explicit-user-values-and-authoritative-clock-metadata-for-this-exact-source-version
+      selector: exactly-one-existing-draftId-with-expectedDraftRevision; no-global-draft-or-parent-list
+    sourceClockRequirement: timing-alignment-requires-authoritative-sourceClockId-positive-safe-integer-ticksPerSecond-and-nonnegative-safe-integer-sourceDurationTicks-for-the-exact-sourceArtifactVersion; 0-<=-startTick-<-endTick-<=-sourceDurationTicks; no-unit-conversion-estimation-or-clock-inference
+    effect: validate-entire-edit-before-atomic-session-local-draft-revision-advance; immutable-source-and-parent-are-never-modified
+    draftSnapshotDefinition:
+      valueKind: session-local-caption-draft-snapshot; not-a-new-domain-object-or-durable-record
+      ownerScope: trusted-host-binds-draftId-to-tenantId-principalId-and-activeSessionId; request-cannot-select-or-override-session-ownership; exact-source-and-typed-parent-identity-are-fixed-for-the-snapshot
+      initialization:
+        revision: 0
+        source: initialize-from-one-exact-currently-readable-canonical-parent-under-current-derived-edit-policy; copy-only-faithfully-observed-segments-and-their-explicit-availability
+        segmentRequirements: ordered-segment-array-with-stable-nonempty-unique-segmentIds-exact-text-and-explicit-origin; preserve-source-order-and-all-supplied-language-uncertainty-and-evidence-without-normalization
+        timingUnion:
+          SOURCE_TICKS: explicit-startTick-endTick-plus-the-exact-qualified-sourceClockId-ticksPerSecond-and-sourceDurationTicks-for-this-sourceArtifactVersion
+          PROVIDER_TIME_UNQUALIFIED: preserve-original-provider-time-values-and-declared-unit; never-relabel-as-source-ticks
+          NOT_SUPPLIED: explicit-absence; never-infer-or-fill
+        clockContext: source-clock-fields-are-available-only-from-a-qualified-current-mapping-bound-to-the-exact-sourceArtifactVersion; mapping-evidence-does-not-retime-or-rewrite-parent-observations
+        missingParentData: when-parent-has-no-faithful-segments-or-stable-identities-block-automatic-initialization; require-explicit-user-authored-segments-with-stable-user-provided-IDs-under-edit-policy-or-return-DRAFT_INITIALIZATION_BLOCKED; never-segment-joined-text-generate-IDs-or-infer-language-timing-or-clock
+        entry: host-prepares-the-revision-zero-session-local-snapshot-before-either-existing-edit-action; absent-prepared-snapshot-is-blocked-not-assumed
+      revision: nonnegative-safe-integer; each-successful-edit-or-undo-advances-exactly-one; at-Number.MAX_SAFE_INTEGER-reject-atomically-with-DRAFT_REVISION_EXHAUSTED; never-wrap-or-reuse-a-revision
+      undo: local-only; require-same-trusted-tenant-principal-activeSessionId-draftId-and-source-parent-lineage-plus-exact-current-draftRevision-and-a-retained-prior-snapshot; restore-prior-content-as-a-new-current-revision-increment; if-no-snapshot-or-revision-mismatch-return-DRAFT_UNDO_NOT_AVAILABLE; no-ABA-rollback-or-parent-source-change
+      discard: remove-only-this-session-local-draft-after-current-owner-check; does-not-delete-or-reverse-source-parent-or-registered-caption-version
+      rebase: explicit-host-preparation-only-under-fresh-current-policy-and-a-new-exact-typed-parent; allocate-a-distinct-new-draftId-at-revision-zero; preserve-the-old-stale-draft-until-explicitly-discarded; never-reparent-an-existing-draftId-or-reuse-its-revision-identity
+    outputSemantics:
+      successFields: [draftId, draftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segments, timingAvailability, observedAt]
+      preservedFields: [segmentId, segmentOrder, unchangedTextOrTiming, languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+      segmentItems:
+        requiredFields: [segmentId, text, origin, timing]
+        optionalFields: [languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+        timingField: exact-per-segment-tagged-union-identical-to-draftSnapshotDefinition.initialization.timingUnion; never-flatten-or-drop-a-segment-timing-disposition
+        unchangedSegmentValues: preserve-stable-segmentId-order-exact-text-origin-language-uncertainty-and-evidence-for-all-nontarget-segments; text-edit-changes-target-text-and-origin-to-USER_EDITED-only; timing-edit-changes-target-timing-and-origin-to-USER_EDITED-only
+      timingAvailabilityValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND, MIXED]
+      timingAvailabilityAggregate:
+        NOT_SUPPLIED: every-segment-timing-tag-is-NOT_SUPPLIED
+        PROVIDER_TIME_UNQUALIFIED: every-segment-timing-tag-is-PROVIDER_TIME_UNQUALIFIED-and-original-units-remain-unqualified
+        SOURCE_CLOCK_BOUND: every-segment-timing-tag-is-SOURCE_TICKS-and-all-share-one-qualified-exact-sourceArtifactVersion-sourceClockId-ticksPerSecond-and-sourceDurationTicks-tuple
+        MIXED: segment-timing-tags-differ-or-source-tick-metadata-tuples-are-inconsistent; retain-each-segment-tag-and-never-promote-the-aggregate-to-SOURCE_CLOCK_BOUND
+        emptySegments: not-a-valid-initialized-draft; initialization-is-blocked-until-faithful-or-explicit-user-authored-segments-exist
+      registrationReadiness: aggregate-SOURCE_CLOCK_BOUND-is-only-a-summary-not-registration-eligibility; caption-version-write-still-revalidates-every-explicit-segment-tick-range-and-current-source-parent-clock-policy; any-NOT_SUPPLIED-or-PROVIDER_TIME_UNQUALIFIED-segment-or-MIXED-aggregate-blocks-registration
+      result: return-the-complete-new-session-local-draft-snapshot-with-exact-source-and-parent-identities; do-not-claim-persistence-beyond-the-active-session
+    authorization: current-trusted-tenant-and-principal-plus-current-source-read-and-derived-edit-policy; roles-or-caller-supplied-identities-do-not-grant-access
+    error: [INVALID_REQUEST, ACCESS_DENIED, DRAFT_NOT_FOUND_IN_CALLER_SCOPE, DRAFT_INITIALIZATION_BLOCKED, SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT, DRAFT_REVISION_EXHAUSTED, DRAFT_UNDO_NOT_AVAILABLE, CAPTION_SEGMENT_NOT_FOUND, SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID, UNAVAILABLE]
+    finality: successful-result-confirms-only-the-atomic-session-local-draft-revision; no-immutable-caption-registration-review-approval-delivery-or-publication
+    version: draftId-and-monotonic-draftRevision-are-session-local; source-version-and-typed-parent-are-immutable-for-a-draftId; explicit-rebase-creates-a-distinct-draftId-at-revision-zero-and-does-not-reuse-the-old-revision-identity
+    transport: no-remote-command-or-durable-storage-binding-is-established; local-simulation-and-SubmitCorrection-provider-interface-are-not-equivalent-to-this-operation
+    idempotency: expectedDraftRevision-is-a-compare-and-swap-precondition; after-uncertain-local-result-inspect-the-same-draft-before-applying-any-edit-again; never-blindly-reapply-or-increment-again
+    cancellation: cancellation-stops-waiting-only; a-local-edit-already-applied-is-not-undone-by-cancelling-the-wait
+    affectedObjects: {exactBindings: [media.domain.transcript-version, media.domain.caption-version, media.domain.artifact-version], sessionLocalValue: caption-draft-snapshot; no-new-canonical-persisted-object}
+    transition:
+      applicability: no-domain-transition
+      effect: session-local-draft-revision-only
+      transitionRefs: []
     events: {status: no-event-binding-established}
-    risk: {status: unresolved; timing/source-clock and edit authorization require review}
-    reversibility: {proposal: draft-changes-may-be-undone; parent-is-immutable, status: pending-owner-review}
-    commitFinality: {proposal: draft-write-is-not-caption-version-registration, status: pending-owner-review}
-    downstreamEffects: {status: no-committed-version-or-delivery-effect-proposed}
-    failure: {status: unresolved; local persistence and version-conflict behavior remain unbound}
-    partialSuccess: {status: unresolved; text and timing edits may have distinct partial states}
-    unknownOutcome: {proposal: preserve-draft-and-inspect-save-state, status: pending-review}
-    retry: {status: unresolved; draft-save replay semantics not established}
-    recovery: {proposal: preserve-local-edits-and-reconcile-parent-version-before-commit, status: pending-review}
-    evidenceAudit: {observedRefs: [media.action.correct-caption, media.action.align-caption-timing], canonicalEvidenceContract: unresolved}
-    nextSafeAction: {proposal: review-source-clock-and-parent-version-before-save, status: pending-review}
+    risk: stale-source-or-parent-overwrite-and-unqualified-timebase-must-fail-closed
+    reversibility: explicit-undo-or-discard-may-revert-only-the-session-local-draft-to-a-retained-prior-snapshot; never-reverses-or-deletes-parent-source-or-registered-version
+    commitFinality: no-commit; draft-update-is-not-caption-version-registration
+    downstreamEffects:
+      status: no-source-mutation-registration-approval-delivery-or-publication
+    failure: validation-or-policy-failure-is-atomic-and-preserves-the-prior-draft-snapshot; stale-parent-requires-explicit-rebase-and-current-policy-recheck
+    partialSuccess: none; each-edit-revision-is-atomic
+    unknownOutcome: local-process-or-adapter-unavailability-does-not-establish-the-new-draft-revision; inspect-the-same-session-local-draft-or-recover-the-caller-retained-snapshot-before-an-explicit-edit; no-remote-effect-or-automatic-replay-is-implied
+    retry: reobserve-draftId-and-revision-first; submit-again-only-as-a-new-explicit-edit-against-the-observed-revision-after-policy-recheck
+    recovery: preserve-the-exact-source-parent-and-user-edit; on-source-or-parent-staleness-rebase-explicitly-and-revalidate; do-not-silently-overwrite-or-reinterpret-timing
+    evidenceAudit: {observedRefs: [media.action.correct-caption, media.action.align-caption-timing], providerInterface: modules/speech/stt-service/src/main/proto/stt_service.proto#SubmitCorrection; none-establishes-session-local-draft-persistence-or-exact-source-version-binding}
+    nextSafeAction: {proposal: explicitly-review-the-draft-then-invoke-the-separate-caption-version-registration-operation-under-current-policy, status: source-defined-next-step; registration-remains-separate}
     actionRefs: [media.action.correct-caption, media.action.align-caption-timing]
-    observedBindings: {HTTP: unresolved, SDK: unresolved, CLI: fixture-caption-edit-commands-not-bound-without-crosswalk-review, gRPC: STTService.SubmitCorrection-not-assumed-equivalent}
-    scopeStatus: proposal-only; draft persistence boundary requires review
+    observedBindings: {HTTP: unresolved, SDK: unresolved, CLI: synthetic-caption-edit-fixtures-only; production-runtime-unbound, gRPC: SubmitCorrection-is-a-provider-correction-interface-not-this-draft-operation}
+    ownerDefinitionRef: .product-experience/decision-log.md#PXD-066
+    scopeStatus: bounded-owner-semantics-under-PXD-066; session-local-draft-only; no-durable-storage-or-runtime-binding; runtime-NOT_ADMITTED
   - id: media.operation.caption-version-write
     operationId: media.operation.caption-version-write
     family: [save-caption-version]

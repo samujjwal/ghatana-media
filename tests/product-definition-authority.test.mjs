@@ -58,6 +58,91 @@ function validateBoundedJ01ProjectDefinitions(journey) {
   assert.equal(journey.steps[3].canonicalOperationRef, "media.operation-slice.inspect-project");
 }
 
+function validateBoundedJ03CaptionDraftDefinitions(journey, { operationDoc = readYaml(".product-experience/pdp-1-domain-data/operations.yaml") } = {}) {
+  const sourceDecision = ".product-experience/decision-log.md#PXD-066";
+  const grammarDecision = ".product-experience/decision-log.md#PXD-067";
+  const decision = ".product-experience/decision-log.md#PXD-068";
+  assert.equal(journey.journeyId, "J-03");
+  assert.equal(journey.steps.length, 8);
+  const operation = operationDoc.operations.find(({ id }) => id === "media.operation.caption-draft-write");
+  assert.ok(operation);
+  assert.equal(operation.ownerDefinitionRef, sourceDecision);
+  assert.match(operation.scopeStatus, /runtime-NOT_ADMITTED/u);
+  assert.deepEqual(operation.inputSemantics.requiredFields, [
+    "draftId", "expectedDraftRevision", "sourceArtifactId", "sourceArtifactVersionId", "parentVersionKind", "parentVersionId", "editKind", "segmentId", "edit",
+  ]);
+  assert.deepEqual(operation.inputSemantics.editBranches.TEXT_CORRECTION.allowedFields, ["text"]);
+  assert.deepEqual(operation.inputSemantics.editBranches.TIMING_ALIGNMENT.allowedFields, ["startTick", "endTick"]);
+  assert.match(operation.sourceClockRequirement, /authoritative-sourceClockId-positive-safe-integer-ticksPerSecond.*sourceDurationTicks/u);
+  assert.match(operation.sourceClockRequirement, /0-<=-startTick-<-endTick-<=-sourceDurationTicks/u);
+  assert.match(operation.draftSnapshotDefinition.undo, /same-trusted-tenant-principal-activeSessionId-draftId-and-source-parent-lineage/u);
+  assert.match(operation.draftSnapshotDefinition.undo, /restore-prior-content-as-a-new-current-revision-increment/u);
+  assert.match(operation.draftSnapshotDefinition.rebase, /distinct-new-draftId-at-revision-zero/u);
+
+  const actions = readYaml(".product-experience/pdp-3-product-experience/action-registry.yaml").actions;
+  const bindings = readYaml(".product-experience/pdp-3-product-experience/experience-source-bindings.yaml").j03CaptionDraftBindings;
+  assert.equal(bindings.reviewDecisionRef, decision);
+  assert.equal(bindings.sourceDecisionRef, sourceDecision);
+  assert.equal(bindings.grammarDecisionRef, grammarDecision);
+  assert.equal(bindings.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(bindings.steps.map(({ stepId }) => stepId), ["J03-5", "J03-6"]);
+  const checks = [
+    { stepId: "J03-5", actionId: "media.action.correct-caption", kind: "TEXT_CORRECTION", fields: ["text"] },
+    { stepId: "J03-6", actionId: "media.action.align-caption-timing", kind: "TIMING_ALIGNMENT", fields: ["startTick", "endTick"] },
+  ];
+  for (const { stepId, actionId, kind, fields } of checks) {
+    const step = journey.steps.find((entry) => entry.stepId === stepId);
+    assert.ok(step, `${stepId} exists`);
+    assert.equal(step.action, actionId);
+    assert.equal(step.canonicalOperationRef, operation.id);
+    assert.deepEqual(step.requiredOperationRefs, [operation.id]);
+    assert.equal(step.sourceDecisionRef, sourceDecision);
+    assert.equal(step.grammarDecisionRef, grammarDecision);
+    assert.equal(step.decisionRef, decision);
+    assert.equal(step.authorityRef, "current-trusted-tenant-principal-and-source-read-plus-derived-content-edit-policy");
+    assert.deepEqual(step.stateRefs, []);
+    assert.deepEqual(step.objectRefs, ["media.domain.artifact-version", "media.domain.transcript-version", "media.domain.caption-version"]);
+    assert.deepEqual(step.actorRefs, ["media.creator", "media.editor"]);
+    assert.equal(step.transitionDisposition.status, "NOT_APPLICABLE_WITH_REASON");
+    assert.equal(step.transitionDisposition.transitionRef, null);
+    assert.equal(step.definitionVerification.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(step.definitionVerification.runtimeVerification, "not-run");
+    assert.equal(step.verification.status, "not-run");
+    assert.deepEqual(step.verification.actualEvidence, []);
+    assert.equal(step.draftEditSemantics.editKind, kind);
+    assert.deepEqual(step.draftEditSemantics.allowedEditFields, fields);
+    assert.deepEqual(step.draftEditSemantics.trustedHostFields, ["tenantId", "principalId"]);
+    if (kind === "TIMING_ALIGNMENT") {
+      assert.match(step.draftEditSemantics.sourceClockRequirement, /authoritative sourceClockId/u);
+      assert.match(step.draftEditSemantics.sourceClockRequirement, /0 <= startTick < endTick <= sourceDurationTicks/u);
+      assert.match(step.draftEditSemantics.provenance, /not forced alignment/u);
+    }
+    const action = actions.find(({ id }) => id === actionId);
+    assert.ok(action);
+    assert.deepEqual(action.capabilityRefs, ["media.artifact.derive"]);
+    assert.equal(action.actionDefinitionSemantics.actionRef, actionId);
+    assert.equal(action.actionDefinitionSemantics.sourceDecisionRef, sourceDecision);
+    assert.equal(action.actionDefinitionSemantics.grammarDecisionRef, grammarDecision);
+    assert.equal(action.actionDefinitionSemantics.reviewDecisionRef, decision);
+    assert.equal(action.actionDefinitionSemantics.operationRef, operation.id);
+    assert.equal(action.actionDefinitionSemantics.effectKind, "LOCAL_DRAFT_UPDATE");
+    assert.equal(action.actionDefinitionSemantics.reversibility.kind, "CONDITIONAL");
+    assert.equal(action.actionDefinitionSemantics.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(action.actionDefinitionSemantics.publicBooleanDisposition, "PUBLIC_BOOLEAN_NOT_REPRESENTABLE");
+    assert.equal(action.actionDefinitionSemantics.publicEffect, undefined);
+    assert.equal(action.actionDefinitionSemantics.publicFinality, undefined);
+    const screen = readYaml(".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml");
+    const consequence = screen.actionConsequences.find(({ actionId: id }) => id === actionId);
+    assert.equal(consequence.operationRef, operation.id);
+    assert.deepEqual(consequence.capabilityRefs, ["media.artifact.derive"]);
+    assert.deepEqual(consequence.requirementRefs, ["MEDIA-REQ-CAP-ARTIFACT"]);
+    assert.equal(consequence.bindingStatus, "source-defined-action-semantics; runtime-and-screen-admission-pending");
+  }
+  assert.equal(journey.steps.find(({ stepId }) => stepId === "J03-5").draftEditSemantics.timingUnavailableAllowed, true);
+  assert.equal(journey.steps.find(({ stepId }) => stepId === "J03-6").draftEditSemantics.timingUnavailableAllowed, false);
+  assert.match(journey.steps.find(({ stepId }) => stepId === "J03-6").draftEditSemantics.provenance, /not forced alignment/u);
+}
+
 function validateBoundedJ03CaptionVersionDefinitions(journey) {
   const decision = ".product-experience/decision-log.md#PXD-060";
   const sourceDecision = ".product-experience/decision-log.md#PXD-058";
@@ -69,7 +154,7 @@ function validateBoundedJ03CaptionVersionDefinitions(journey) {
     sourceDecisionRef: sourceDecision,
     grammarDecisionRef: grammarDecision,
     decisionRef: decision,
-    boundary: "J-03 save-and-compare semantics only; independent review, runtime admission, and phase acceptance remain separate",
+    boundary: "PXD-060 covers immutable caption registration and exact-pair comparison; PXD-064 separately covers exact transcript inspection, and PXD-068 covers the two session-local draft edit branches. Independent review, runtime admission, and phase acceptance remain separate.",
     runtimeAdmission: "NOT_ADMITTED",
   });
 
@@ -274,6 +359,32 @@ test("bounded J-03 caption-version definitions fail closed on swapped action, op
   const admitted = structuredClone(journey);
   admitted.steps[6].definitionVerification.runtimeAdmission = "ADMITTED";
   assert.throws(() => validateBoundedJ03CaptionVersionDefinitions(admitted), /NOT_ADMITTED/u);
+});
+
+test("bounded J-03 caption-draft definitions fail closed on action, operation, clock, undo, or admission drift", () => {
+  const journey = readYaml(".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml");
+  assert.doesNotThrow(() => validateBoundedJ03CaptionDraftDefinitions(journey));
+
+  const wrongAction = structuredClone(journey);
+  wrongAction.steps[4].action = "media.action.align-caption-timing";
+  assert.throws(() => validateBoundedJ03CaptionDraftDefinitions(wrongAction), /media\.action\.correct-caption/u);
+
+  const wrongOperation = structuredClone(journey);
+  wrongOperation.steps[5].canonicalOperationRef = "media.operation.caption-version-write";
+  assert.throws(() => validateBoundedJ03CaptionDraftDefinitions(wrongOperation), /caption-draft-write/u);
+
+  const clockless = structuredClone(journey);
+  clockless.steps[5].draftEditSemantics.sourceClockRequirement = "infer timing from transcript text";
+  assert.throws(() => validateBoundedJ03CaptionDraftDefinitions(clockless), /sourceClockId/u);
+
+  const unsafeUndo = structuredClone(journey);
+  const operationDoc = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  operationDoc.operations.find(({ id }) => id === "media.operation.caption-draft-write").draftSnapshotDefinition.undo = "always reversible; reset revision to prior number";
+  assert.throws(() => validateBoundedJ03CaptionDraftDefinitions(unsafeUndo, { operationDoc }), /same-trusted-tenant/u);
+
+  const admitted = structuredClone(journey);
+  admitted.steps[4].definitionVerification.runtimeAdmission = "ADMITTED";
+  assert.throws(() => validateBoundedJ03CaptionDraftDefinitions(admitted), /NOT_ADMITTED/u);
 });
 
 test("bounded J-03 transcript review fails closed on wrong identity, source, operation, or admission", () => {
@@ -520,6 +631,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
 
   let boundedJ01Validated = false;
   let boundedJ03Validated = false;
+  let boundedJ03DraftValidated = false;
   let boundedJ03TranscriptReviewValidated = false;
   for (const path of files) {
     const content = readFileSync(path, "utf8");
@@ -537,6 +649,8 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
     if (sourceDefinedJ03) {
       validateBoundedJ03CaptionVersionDefinitions(parsedJourney);
       boundedJ03Validated = true;
+      validateBoundedJ03CaptionDraftDefinitions(parsedJourney);
+      boundedJ03DraftValidated = true;
       validateBoundedJ03TranscriptReviewDefinition(parsedJourney);
       boundedJ03TranscriptReviewValidated = true;
     }
@@ -594,6 +708,11 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
           || (sourceDefinedJ03 && boundedJ03TranscriptReviewValidated && itemIndex === 3
             && content.includes(".product-experience/decision-log.md#PXD-064")
             && /runtimeAdmission: NOT_ADMITTED/u.test(block))
+          || (sourceDefinedJ03 && boundedJ03DraftValidated && [4, 5].includes(itemIndex)
+            && block.includes(".product-experience/decision-log.md#PXD-066")
+            && block.includes(".product-experience/decision-log.md#PXD-067")
+            && block.includes(".product-experience/decision-log.md#PXD-068")
+            && /runtimeAdmission: NOT_ADMITTED/u.test(block))
           || (sourceDefinedJ03 && boundedJ03Validated && [6, 7].includes(itemIndex)
             && content.includes(".product-experience/decision-log.md#PXD-060")
             && content.includes("runtimeAdmission: NOT_ADMITTED"));
@@ -640,6 +759,7 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
   assert.equal(journeys.size, 30, "all 30 distinct journey IDs must be represented");
   assert.equal(boundedJ01Validated, true, "J-01 source-defined bindings require their bounded source checks");
   assert.equal(boundedJ03Validated, true, "only J-03 steps 7 and 8 use their exact bounded caption-version source checks");
+  assert.equal(boundedJ03DraftValidated, true, "only J-03 steps 5 and 6 use the exact bounded caption-draft definition check");
   assert.deepEqual(journeys.get("J-29"), [
     "detect-loss-or-consent-change", "fence-new-frame-submission", "reconcile-dispatched-frame-effects", "present-bounded-return-state",
   ]);

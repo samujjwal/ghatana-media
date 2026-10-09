@@ -102,6 +102,9 @@ operationSliceBindings:
   media.operation.transcript-version-read:
     actionIntentRefs: [media.action.review-transcript]
     disposition: read-one-exact-canonical-transcriptVersionId-in-current-trusted-scope; preserve-only-supplied-text-segments-language-uncertainty-evidence-and-explicit-timing-availability; no-clock-inference-mutation-correction-approval-or-publication; runtime-NOT_ADMITTED
+  media.operation.caption-draft-write:
+    actionIntentRefs: [media.action.correct-caption, media.action.align-caption-timing]
+    disposition: atomic-session-local-draft-revision-from-exact-source-and-typed-parent; compare-and-swap-on-expectedDraftRevision; text-and-source-tick-edits-are-exclusive; timing-alignment-requires-authoritative-exact-source-clock-rate-and-duration; no-source-mutation-registration-review-approval-delivery-or-publication; runtime-NOT_ADMITTED
 bindingRules:
   - above-family-lists-are-allowed-result-shapes-not-guaranteed-result-support
   - each-HTTP-gRPC-SDK-CLI-Agent-tool-and-event-adapter-must-declare-its-actual-supported-subset

@@ -1516,6 +1516,29 @@
       "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
       "admission": "NOT_LIFECYCLE_ADMITTED",
       "ownerDecisionRef": ".product-experience/decision-log.md#PXD-065"
+    },
+    {
+      "obligationId": "media.pdp-1.requirement.media.operation.caption-draft-write",
+      "caseId": "media.definition-case.caption-draft.edit",
+      "method": "SOURCE_DEFINITION_CONTRACT_ASSERTIONS",
+      "testIdentity": {
+        "sourcePath": "tests/media-caption-draft-operation-definition.test.mjs",
+        "testName": "caption draft edit definition"
+      },
+      "assertionEvidence": "assert.deepEqual(validateMediaCaptionDraftDefinition(base), []);",
+      "negativeAssertionVariables": [
+        "staleDraftOverwrite",
+        "unboundedDraftRevision",
+        "timingCanInferClock",
+        "textEditChangesTiming",
+        "validationFailurePartiallyApplies",
+        "localUndoDeletesParent",
+        "forgedAdmission",
+        "wrongActionBinding"
+      ],
+      "scope": "PARTIAL_SOURCE_DEFINITION_ASSERTIONS_ONLY",
+      "admission": "NOT_LIFECYCLE_ADMITTED",
+      "ownerDecisionRef": ".product-experience/decision-log.md#PXD-069"
     }
   ],
   "unmappedObligationIds": [
@@ -1669,7 +1692,6 @@
     "media.pdp-1.requirement.media.operation-slice.retry-job",
     "media.pdp-1.requirement.media.operation-slice.submit-job",
     "media.pdp-1.requirement.media.operation.artifact-ingest",
-    "media.pdp-1.requirement.media.operation.caption-draft-write",
     "media.pdp-1.requirement.media.operation.consent",
     "media.pdp-1.requirement.media.operation.health-capability",
     "media.pdp-1.requirement.media.operation.job-lifecycle",

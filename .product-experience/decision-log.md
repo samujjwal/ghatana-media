@@ -1080,3 +1080,29 @@ register; see [`source-manifest.yaml`](./source-manifest.yaml) and
 - Decision: Accept only the transcript inspection slice of existing `media.artifact.inspect`, preserving its J02 metadata and J03 caption comparison definitions. Author actual partial source cases for the necessary canonical object and existing read requirement. No new capability, journey, step, action or operation family is introduced.
 - Sources: `capability-leaf-review.yaml#media.artifact.inspect.transcriptVersionDefinitionSlice`, PXD-062/PXD-064 and the exact source assertion declarations.
 - Boundaries: Full leaf acceptance, scientific quality and current runtime availability remain unclaimed. The 462 leaves, 383 unresolved targets and 445 unbounded leaves retain their denominator/status. Case IDs/source links do not admit providers, observers, oracles or native phase receipts. PXD-026 through PXD-039 retain their original approved scopes.
+
+### PXD-066 — Existing caption draft operation and local snapshot
+
+- Authority: Media semantic owner under delegated user authority; definitions only.
+- Decision: Accept the existing `media.operation.caption-draft-write` for its two existing text-correction and manual timing actions. Define a nested session-local draft value and host preparation recipe, not a new canonical persisted object or remote operation. Trusted active-session ownership, exact immutable source/typed parent and expected local revision govern each atomic edit.
+- Sources: Existing J03 steps5/6, PDP-1 draft operation, canonical transcript/caption parent contracts, and source-observed simulation draft/reducer/CLI/provider correction shapes. Observations are not runtime equivalence.
+- Required boundaries: Faithful supplied parent segments with stable identities or explicit user-authored preparation; otherwise block initialization. No implicit segmentation, joining, IDs, language, speaker, confidence, clock or provider-unit conversion. Text edits may preserve missing timing; manual tick edits require explicit user values and qualified exact-source clock/rate/duration. Complete validation/policy failure preserves the old snapshot.
+- Revision/recovery: Edits and guarded undo advance monotonic safe-integer revisions. Exhaustion rejects atomically. Undo requires same session, identity, source/parent lineage, exact current revision and retained prior snapshot; never resets a revision or causes ABA. Rebase creates a distinct new draftId/revision0 under fresh policy; retain the stale draft until explicit discard. Discard/cancellation cannot delete immutable parents or reverse registration. Registration uses its separate contract and fresh authority; no durability, provider or native admission is claimed.
+
+### PXD-067 — Caption draft interface grammar
+
+- Decision: Accept only `boundedCaptionDraftSlice`, exactly linked to PXD-066 and the two existing actions. Preserve separate TEXT_CORRECTION and TIMING_ALIGNMENT field sets, full local snapshot/timing union, explicit initialization, CAS, exhaustion, guarded undo and new-identity rebase rules.
+- Sources: PDP-2 action/finality grammar and exact PDP-1 draft definition; existing UI/fixture CLI/provider shapes remain separately observed.
+- Boundaries: User tick edits are manual observations, not qualified forced alignment. Local conditional undo cannot become an unconditional public reversibility boolean or remote-effect reversal. No HTTP/SDK/gRPC/Agent/event equivalence, durable storage, scientific alignment, license or runtime availability is admitted.
+
+### PXD-068 — Existing J03 correction and manual timing steps
+
+- Decision: Accept bounded definitions for J03-5 and J03-6, existing correction/timing actions and their selected screen consequences, linked exactly to PXD-066/PXD-067. Both prepare/use a session-local draft; source and typed parent stay immutable. Bind actor, object, authority, success, failure, recovery, initialization and explicit local-only transition applicability.
+- Sources: Existing journey, action registry, source bindings, `correct-captions` and `edit-captions` contracts. Preserve the other six steps, transcript inspection, caption registration/comparison and all original populations.
+- Boundaries: LOCAL_DRAFT_UPDATE/CONDITIONAL undo cannot project unconditional public effect/finality booleans. No canonical domain state edge is invented for a local value. Actual runtime verification remains not-run and evidence empty; separate source checks do not establish runtime behavior or independent experience/accessibility acceptance.
+
+### PXD-069 — Manual timing capability crosswalk and source case
+
+- Decision: Accept only the bounded draft slice of existing `media.artifact.derive`; narrow the manual timing action, its existing step and affected screen consequences to that capability. Reject `media.speech.transcription.forced-align` as the meaning of manual user-entered tick edits. Its source requires an authorized audio/transcript operation and qualified profile producing timing observations with uncertainty.
+- Sources: Exact `capabilities.yaml#media.speech.transcription.forced-align` and draft/J03 action definitions. Preserve forced alignment as original normative scope and preserve its historical broad J03 applicability trace explicitly as context only. Current exact action/operation bindings are empty/unresolved; no algorithm or optional operation is added.
+- Counts/acceptance: The broad inventory classification remains 462 leaves/383 unresolved/77 journey traces/445 unbounded/full accepted0; journey traces are not exact accepted operation behavior. One actual partial source case links the existing draft operation obligation. No new capability, domain object, journey, action, operation family or proof obligation. No provider/observer/oracle admission or native receipt is fabricated; PXD-026 through PXD-039 retain their approved scope.

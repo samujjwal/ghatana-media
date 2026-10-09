@@ -179,6 +179,68 @@ j02RecoveryApplicability:
       recovery: Do not append or complete until the authoritative rights/workspace source records restored applicable permission; reconcile partial-data disposition under policy.
       automaticRecovery: false
       userActionRequired: true
+j03CaptionDraftBindings:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  journeyRef: J-03
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+  grammarDecisionRef: .product-experience/decision-log.md#PXD-067
+  reviewDecisionRef: .product-experience/decision-log.md#PXD-068
+  capabilityScopeDecisionRef: .product-experience/decision-log.md#PXD-069
+  runtimeAdmission: NOT_ADMITTED
+  operationSource: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records
+  steps:
+    - stepId: J03-5
+      screenRef: media.view.correct-captions
+      actorRefs: [media.creator, media.editor]
+      actionRef: media.action.correct-caption
+      operationRef: media.operation.caption-draft-write
+      handoffRef:
+        kind: HOST_LOCAL_VALUE_PREPARATION
+        fromStepId: J03-4
+        fromOperationRef: media.operation.transcript-version-read
+        toStepId: J03-5
+        sourceSelector: exact-transcriptVersionId-only; retain-linked-sourceArtifactId-and-sourceArtifactVersionId-from-that-read-result
+        parentBinding: parentVersionKind-TRANSCRIPT_VERSION-and-parentVersionId-equal-to-exact-transcriptVersionId
+        authority: recheck-current-trusted-tenant-principal-activeSessionId-source-read-and-derived-edit-policy-before-preparation
+        preparedValue: host-bound-opaque-draftId-at-revision-zero; no-new-operation-or-canonical-persisted-object
+        initialization: copy-faithful-ordered-parent-segments-only-when-stable-nonempty-unique-IDs-exact-text-origin-and-explicit-field-availability-are-present; otherwise-block-DRAFT_INITIALIZATION_BLOCKED-unless-user-explicitly-authors-stable-IDs-and-text-under-the-same-policy; never-auto-segment-join-text-generate-IDs-or-infer-identity
+        timing: preserve-exact-per-segment-SOURCE_TICKS-PROVIDER_TIME_UNQUALIFIED-or-NOT_SUPPLIED-union-and-all-original-values; aggregate-MIXED-when-tags-differ-or-source-clock-tuples-conflict; never-promote
+        runtimeAdmission: NOT_ADMITTED
+      editKind: TEXT_CORRECTION
+      requestFields: [draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segmentId, edit.text]
+      trustedHostFields: [tenantId, principalId]
+      domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
+      stateRefs: []
+      authority: Current trusted tenant/principal and current source-read plus derived-content-edit policy for the exact source and typed parent; actor labels grant no authority.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Text correction changes only one session-local draft snapshot; no canonical domain state transition or caption registration occurs.
+      editSemantics: Change only target segment text; preserve exact draft/source/typed-parent identity, ordering, timing availability, language, uncertainty, evidence, and prior snapshots. Text edits may proceed while timing is explicitly unavailable.
+      snapshotRequirements: J03-4 supplies the exact transcriptVersionId and linked sourceArtifactId/sourceArtifactVersionId under current scoped read authority; host rechecks current derived-edit policy, binds parentVersionKind TRANSCRIPT_VERSION and parentVersionId equal to that transcriptVersionId, then creates an opaque session-bound draftId at revision zero. Copy only faithful ordered parent segments with stable nonempty unique IDs, exact text/origin, and explicit availability. If segments or IDs are absent or unfaithful, block with DRAFT_INITIALIZATION_BLOCKED unless the user explicitly authors stable IDs and text under the same policy; never auto-segment, join text, or infer identities.
+      concurrencyAndRecovery: expectedDraftRevision is compare-and-swap; reject stale revisions atomically. After uncertain observation inspect the same active-session draft before an explicit new edit. Parent/source staleness requires host-prepared revision zero under fresh current policy with a new draftId and exact new typed parent; preserve the old stale draft until explicit discard and never reparent or reuse its revision; never silently overwrite or blindly reapply.
+      resultShape: >-
+        Match the exact PDP-1 outputSemantics.segmentItems requiredFields and optionalFields. Each segment timing is the exact tagged union from the draft snapshot: SOURCE_TICKS with qualified source-clock metadata, PROVIDER_TIME_UNQUALIFIED preserving original values and unit, or NOT_SUPPLIED. Aggregate timingAvailability is NOT_SUPPLIED only when every segment is NOT_SUPPLIED; PROVIDER_TIME_UNQUALIFIED only when every segment has that tag; SOURCE_CLOCK_BOUND only when every segment is SOURCE_TICKS and all share one qualified exact source-version/clock/rate/duration tuple; MIXED when tags differ or source-tick tuples conflict. Preserve each per-segment tag; never promote. Empty segments block initialization. Aggregate is descriptive; registration revalidates every explicit range and current source/parent/clock policy, and any NOT_SUPPLIED or PROVIDER_TIME_UNQUALIFIED segment, or a MIXED aggregate, blocks registration.
+      undoAndDiscard: >-
+        Conditional and local only: require the same tenant/principal/session/draft/source-parent lineage and exact current revision plus a retained prior snapshot; restore prior content as a new revision increment (never reset or reuse a revision) or discard this local draft; never change/delete source, parent, or registered versions. Missing initial segments require explicit user-authored stable IDs rather than inferred segmentation.
+      prohibitedClaims: [durable-draft-persistence, caption-version-registration, approval, publication, inferred-language-or-speaker-or-confidence-or-timing]
+    - stepId: J03-6
+      screenRef: media.view.correct-captions
+      actorRefs: [media.creator, media.editor]
+      actionRef: media.action.align-caption-timing
+      operationRef: media.operation.caption-draft-write
+      editKind: TIMING_ALIGNMENT
+      requestFields: [draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segmentId, edit.startTick, edit.endTick]
+      trustedHostFields: [tenantId, principalId]
+      domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
+      stateRefs: []
+      authority: Current trusted tenant/principal and current source-read plus derived-content-edit policy for the exact source and typed parent; actor labels grant no authority.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      transitionReason: Manual user timing changes one session-local draft snapshot only; this is neither a domain transition nor forced-alignment engine output.
+      editSemantics: Accept only explicit user-entered half-open ticks when authoritative sourceClockId, positive safe-integer ticksPerSecond, and sourceDurationTicks are bound to the exact immutable source version; require 0 <= startTick < endTick <= sourceDurationTicks. No inference, conversion, estimation, or scientific timing claim.
+      snapshotRequirements: Revision zero is host-prepared from one exact currently-readable canonical parent under current edit policy, copying only faithful ordered segments with stable nonempty unique IDs, exact text/origin, explicit timing availability, language, uncertainty, and evidence. If the parent lacks faithful segments or IDs, block initialization or require explicitly user-authored stable IDs/text under policy; never join text, infer segments, or generate IDs.
+      concurrencyAndRecovery: expectedDraftRevision is compare-and-swap; reject stale revisions atomically. Reinspect the same draft and exact clock under fresh current authority before a user-directed edit. A stale parent requires a new host-prepared revision-zero draftId with an exact new typed parent under fresh policy; preserve the old stale draft until explicit discard and never reparent or reuse its revision. Never auto-align or blindly replay.
+      undoAndDiscard: >-
+        Conditional and local only: require the same tenant/principal/session/draft/source-parent lineage and exact current revision plus a retained prior snapshot; restore prior content as a new revision increment (never reset or reuse a revision) or discard this local draft; never change/delete source, parent, or registered versions. Missing initial segments require explicit user-authored stable IDs rather than inferred segmentation.
+      prohibitedClaims: [durable-draft-persistence, forced-alignment-capability-or-model-output, scientific-timing-qualification, caption-version-registration, approval, publication]
 j03CaptionVersionBindings:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
   journeyRef: J-03

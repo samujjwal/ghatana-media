@@ -8,7 +8,7 @@ definitionReview:
   sourceDecisionRef: .product-experience/decision-log.md#PXD-058
   grammarDecisionRef: .product-experience/decision-log.md#PXD-059
   decisionRef: .product-experience/decision-log.md#PXD-060
-  boundary: J-03 save-and-compare semantics only; independent review, runtime admission, and phase acceptance remain separate
+  boundary: PXD-060 covers immutable caption registration and exact-pair comparison; PXD-064 separately covers exact transcript inspection, and PXD-068 covers the two session-local draft edit branches. Independent review, runtime admission, and phase acceptance remain separate.
   runtimeAdmission: NOT_ADMITTED
 laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
 scope: selected-audio-source-slice-of-J-03; video-transcription-and-video-audio-extraction-remain-out-of-scope
@@ -333,164 +333,191 @@ steps:
       contextPreservation: exact version, source, supplied observations, and availability
   - view: media.view.correct-captions
     screenContractRef: screen-contracts/correct-captions.yaml
+    stepId: J03-5
+    actorRefs: [media.creator, media.editor]
     action: media.action.correct-caption
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
     capabilityRefs: [media.artifact.derive]
-    result: a-draft-caption-version-links-to-the-exact-source-and-parent
-    surfaceRefs:
-    - media.surface.web
-    objectRefs: []
+    result: one-session-local-draft-revision-with-the-same-exact-source-and-typed-parent
+    surfaceRefs: [media.surface.web]
+    objectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
     stateRefs: []
     canonicalOperationRef: media.operation.caption-draft-write
-    authorityRef: null
-    decisionRef: null
+    authorityRef: current-trusted-tenant-principal-and-source-read-plus-derived-content-edit-policy
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-067
+    decisionRef: .product-experience/decision-log.md#PXD-068
     transitionRef: null
-    handoffRef: null
+    handoffRef:
+      kind: HOST_LOCAL_VALUE_PREPARATION
+      fromStepId: J03-4
+      fromOperationRef: media.operation.transcript-version-read
+      toStepId: J03-5
+      sourceSelector: exact-transcriptVersionId-only; retain-linked-sourceArtifactId-and-sourceArtifactVersionId-from-that-read-result
+      parentBinding: parentVersionKind-TRANSCRIPT_VERSION-and-parentVersionId-equal-to-exact-transcriptVersionId
+      authority: recheck-current-trusted-tenant-principal-activeSessionId-source-read-and-derived-edit-policy-before-preparation
+      preparedValue: host-bound-opaque-draftId-at-revision-zero; session-local-value-not-a-canonical-object
+      initialization: copy-only-faithful-ordered-parent-segments-with-stable-nonempty-unique-IDs-exact-text-origin-and-explicit-availability; block-DRAFT_INITIALIZATION_BLOCKED-unless-user-explicitly-authors-stable-IDs-and-text-under-the-same-policy; never-auto-segment-join-text-generate-IDs-or-infer-identity
+      timing: preserve-exact-per-segment-tagged-union-and-original-provider-values; aggregate-MIXED-when-tags-or-clock-tuples-differ; never-promote
+      runtimeAdmission: NOT_ADMITTED
+      noNewOperationOrPersistedObject: true
+    requiredOperationRefs: [media.operation.caption-draft-write]
+    intent: Apply an explicit text-only correction to one existing segment of a session-local draft while preserving its exact immutable source version and typed transcript-or-caption parent.
+    contextPreservation: [tenantId, principalId, draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, segmentId, originalText, timingAvailability, languageDisposition, uncertaintyObservations, evidenceRefs]
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      reason: A text correction atomically advances only a session-local draft snapshot; it does not change a canonical domain object's state or register a caption version.
+    draftEditSemantics:
+      editKind: TEXT_CORRECTION
+      requestFields: [draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segmentId, edit.text]
+      trustedHostFields: [tenantId, principalId]
+      allowedEditFields: [text]
+      preservedFields: [segmentId, segmentOrder, timingAvailability, languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+      timingUnavailableAllowed: true
+      sourceAndParent: exact immutable source artifact version and exact typed transcript-or-caption parent are fixed for the draft revision
+      authority: current scoped source-read and derived-content-edit policy must allow the exact source and parent; actor labels confer no authority
+      draftInitialization: J03-4 must return the exact transcriptVersionId and linked sourceArtifactId/sourceArtifactVersionId under current scoped read authority; host rechecks current derived-edit policy, binds the transcript as parentVersionKind TRANSCRIPT_VERSION with parentVersionId equal to transcriptVersionId, and creates an opaque session-bound draftId at revision zero. Copy only faithful ordered parent segments with stable nonempty unique segment IDs, exact text/origin, and explicit availability. If segments or IDs are absent or not faithful, block initialization with DRAFT_INITIALIZATION_BLOCKED unless the user explicitly authors segments with stable IDs under the same policy; never auto-segment, join text, or infer identities.
+      optimisticConcurrency: expectedDraftRevision must equal the current session-local revision; stale revision is rejected without partial edit
+      revisionScope: complete updated draft snapshot is session-local; no durable storage is claimed
+      resultShape:
+        requiredFields: [draftId, draftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segments, timingAvailability, observedAt]
+        segmentRequiredFields: [segmentId, text, origin, timing]
+        segmentOptionalFields: [languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+        timingTagUnion:
+          SOURCE_TICKS: exact startTick/endTick with authoritative sourceClockId/ticksPerSecond/sourceDurationTicks for this source version
+          PROVIDER_TIME_UNQUALIFIED: preserve provider values and original unit; never interpret as source ticks
+          NOT_SUPPLIED: explicit absence; never infer or fill
+        timingAvailabilityAggregateValues: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND, MIXED]
+        aggregateRules: [NOT_SUPPLIED only when every segment is NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED only when every segment has that tag, SOURCE_CLOCK_BOUND only when every segment is SOURCE_TICKS and shares one exact qualified source/version/clock/rate/duration tuple, MIXED for differing tags or tuples without promotion]
+        emptySegments: block-initialization
+        registrationReadiness: aggregate is descriptive only; registration revalidates every explicit range and current source-parent-clock policy; any NOT_SUPPLIED or PROVIDER_TIME_UNQUALIFIED segment, or a MIXED aggregate, blocks registration
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
-        and the recorded authority/finality disposition.
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: session-local-text-correction
+      sourceRef: media.operation.caption-draft-write
+      proposal: Return the same draft/source/typed-parent identities and one new draftRevision with only the target segment text changed and marked user-edited; preserve explicitly unavailable or unqualified timing and all other supplied fields.
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-      - id: language-uncertain
-        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
-      - id: timing-missing
-        response: identify missing alignment and permit explicit correction; do not infer exact timing.
-      - id: consent-revoked
-        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
-      - id: provider-outcome-unknown
-        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
-      - id: source-version-changed
-        response: preserve draft and mark its parent stale; require explicit rebase or restart.
-    degradedBehavior: null
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-draft-and-parent
+      sourceRef: media.operation.caption-draft-write
+      proposal: Keep the prior snapshot unchanged on policy denial, missing segment, stale source/parent, or revision conflict; retain ACCESS_DENIED, DRAFT_NOT_FOUND_IN_CALLER_SCOPE, SOURCE_IDENTITY_MISMATCH, PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT, and UNAVAILABLE as distinct outcomes.
+    degradedBehavior: Missing or unqualified timing remains explicitly unavailable; never infer language, speaker, confidence, timing, source clock, or scientific correctness.
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
-        a fresh policy check.
-    postconditions: []
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: same-session-local-draft
+      sourceRef: media.operation.caption-draft-write
+      proposal: After uncertain observation, inspect the same active-session draft and revision before a user explicitly submits another edit; stale parent requires host-prepared revision zero under fresh current policy with a new draftId and exact new typed parent; preserve the old stale draft until explicit discard, never reparent or reuse its revision, and never silently overwrite.
+    postconditions: [immutable-source-unchanged, immutable-parent-unchanged, prior-draft-snapshot-retained, one-session-local-revision-advanced-only-on-valid-edit, no-registration-or-approval-or-publication]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
-      requiredChecks:
-      - duplicate-key-safe YAML parse
-      - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [duplicate-key-safe-YAML-parse, exact-text-only-edit-branch, stale-parent-and-revision-conflict-negative-cases]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-      - project
-      - source-artifact-version
-      - source-time
-      - language-intent
-      - job-identity
-      - transcript-version
-      - caption-draft-version
+    definitionVerification:
+      status: source-contract-checked
+      evidence: [tests/media-caption-draft-experience-definitions.test.mjs, scripts/check-product-experience-local.mjs]
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: exact-existing-correct-captions-screen-linked; screen-admission-pending
+      objectRefs: exact-source-artifact-version-and-typed-parent; draft-is-session-local-not-canonical-object
+      stateRefs: no-canonical-domain-state-machine-or-transition-applies
+      canonicalOperationRef: existing-caption-draft-write-bound-to-text-correction-branch
+      authorityRef: trusted-host-principal-and-current-scoped-source-read-and-derived-edit-policy; deployed-enforcement-unqualified
+      decisionRef: PXD-068 owner definition; independent review pending
+      transitionRef: explicitly not applicable; session-local draft snapshot only
+      handoffRef: exact source-only J03-4 transcript read to host-prepared session-local revision-zero draft; no new operation or durable persistence boundary claimed
+      success: exact same source/parent and one session-local text-only draft revision
+      failure: prior snapshot preserved atomically; stale and policy conditions distinct
+      degradedBehavior: unavailable timing and supplied uncertainty are preserved without inference
+      recovery: inspect same draft then explicit user-directed edit or rebase under fresh authority
+      postconditions: no source mutation, canonical registration, approval, or publication
+      requirementRefs: existing artifact derivation requirement linked; satisfaction not claimed
+      verification: definition source checks separate; runtime verification not run
+      contextPreservation: exact draft revision, source version, typed parent, segment, and supplied fields
   - view: media.view.correct-captions
     screenContractRef: screen-contracts/correct-captions.yaml
+    stepId: J03-6
+    actorRefs: [media.creator, media.editor]
     action: media.action.align-caption-timing
-    actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
-    result: caption-time-is-corrected-on-the-source-media-clock
-    surfaceRefs:
-    - media.surface.web
-    objectRefs: []
+    actionBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED; runtime-admission-pending
+    capabilityRefs: [media.artifact.derive]
+    result: one-session-local-draft-revision-with-explicit-half-open-source-tick-range
+    surfaceRefs: [media.surface.web]
+    objectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
     stateRefs: []
     canonicalOperationRef: media.operation.caption-draft-write
-    authorityRef: null
-    decisionRef: null
+    authorityRef: current-trusted-tenant-principal-and-source-read-plus-derived-content-edit-policy
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-066
+    grammarDecisionRef: .product-experience/decision-log.md#PXD-067
+    decisionRef: .product-experience/decision-log.md#PXD-068
     transitionRef: null
     handoffRef: null
+    requiredOperationRefs: [media.operation.caption-draft-write]
+    intent: Apply explicitly user-entered timing to one segment only when authoritative clock metadata is bound to the exact immutable source artifact version.
+    contextPreservation: [tenantId, principalId, draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, segmentId, sourceClockId, ticksPerSecond, sourceDurationTicks, timingAvailability]
+    transitionDisposition:
+      status: NOT_APPLICABLE_WITH_REASON
+      transitionRef: null
+      reason: Manual timing alignment atomically advances only a session-local draft snapshot and is neither a domain transition nor forced-alignment engine output.
+    draftEditSemantics:
+      editKind: TIMING_ALIGNMENT
+      requestFields: [draftId, expectedDraftRevision, sourceArtifactId, sourceArtifactVersionId, parentVersionKind, parentVersionId, editKind, segmentId, edit.startTick, edit.endTick]
+      trustedHostFields: [tenantId, principalId]
+      allowedEditFields: [startTick, endTick]
+      preservedFields: [segmentId, segmentOrder, text, origin, languageDisposition, languageTag, uncertaintyObservations, evidenceRefs]
+      timingUnavailableAllowed: false
+      sourceClockRequirement: Require authoritative sourceClockId, positive safe-integer ticksPerSecond, and sourceDurationTicks for the exact sourceArtifactVersion; validate 0 <= startTick < endTick <= sourceDurationTicks.
+      authority: current scoped source-read and derived-content-edit policy must allow the exact source and parent; actor labels confer no authority
+      draftInitialization: J03-4 must return the exact transcriptVersionId and linked sourceArtifactId/sourceArtifactVersionId under current scoped read authority; host rechecks current derived-edit policy, binds the transcript as parentVersionKind TRANSCRIPT_VERSION with parentVersionId equal to transcriptVersionId, and creates an opaque session-bound draftId at revision zero. Copy only faithful ordered parent segments with stable nonempty unique segment IDs, exact text/origin, and explicit availability. If segments or IDs are absent or not faithful, block initialization with DRAFT_INITIALIZATION_BLOCKED unless the user explicitly authors segments with stable IDs under the same policy; never auto-segment, join text, or infer identities.
+      optimisticConcurrency: expectedDraftRevision must equal the current session-local revision; stale revision is rejected without partial edit
+      revisionScope: complete updated draft snapshot is session-local; no durable storage is claimed
+      provenance: explicit user-entered tick values, not forced alignment, model output, unit conversion, estimation, or scientific timing qualification
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: A reviewable caption version is linked to the exact source and carries timing, language, provenance,
-        and the recorded authority/finality disposition.
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: session-local-user-timing-edit
+      sourceRef: media.operation.caption-draft-write
+      proposal: Return the same draft/source/typed-parent identities and one new draftRevision with only the target segment's explicit half-open tick range changed and marked user-edited.
     failure:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.criticalNonhappyPaths
-      proposal:
-      - id: language-uncertain
-        response: keep-result-review-required; permit correction only under current policy; do not claim confidence.
-      - id: timing-missing
-        response: identify missing alignment and permit explicit correction; do not infer exact timing.
-      - id: consent-revoked
-        response: block new processing and reconcile in-flight work under the owning lifecycle; retain necessary evidence.
-      - id: provider-outcome-unknown
-        response: retain the same job identity; disable resubmission; check the outcome or route to operator review.
-      - id: source-version-changed
-        response: preserve draft and mark its parent stale; require explicit rebase or restart.
-    degradedBehavior: null
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: exact-source-clock-and-draft
+      sourceRef: media.operation.caption-draft-write
+      proposal: Preserve the prior snapshot if clock metadata is absent or unbound, ticks are invalid/out of duration, the target segment is missing, authority is denied, or parent/revision is stale; retain SOURCE_CLOCK_UNAVAILABLE, CAPTION_TIMING_INVALID, PARENT_VERSION_STALE, DRAFT_REVISION_CONFLICT, and UNAVAILABLE distinctly.
+    degradedBehavior: If the exact source clock/rate/duration is unavailable, do not offer or apply timing alignment; text correction may remain available without timing.
     recovery:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.recovery
-      proposal: Every recovery preserves the source and completed output; retry requires a classified safe state and
-        a fresh policy check.
-    postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+      status: SOURCE_DEFINED; runtime-admission-pending
+      scope: same-session-local-draft
+      sourceRef: media.operation.caption-draft-write
+      proposal: Reinspect the same draft and exact source clock under current authority; require explicit user-entered replacement values after conflict or rebase; never estimate or silently reinterpret ticks.
+    postconditions: [immutable-source-unchanged, immutable-parent-unchanged, prior-draft-snapshot-retained, one-session-local-revision-advanced-only-on-valid-explicit-tick-edit, no-forced-alignment-claim, no-registration-or-approval-or-publication]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     verification:
       status: not-run
-      requiredChecks:
-      - duplicate-key-safe YAML parse
-      - focused PDP3-005 ten-contract structural/reference check
+      requiredChecks: [duplicate-key-safe-YAML-parse, exact-clock-binding-and-half-open-tick-bounds, no-forced-alignment-claim-negative-case]
       actualEvidence: []
-    contextPreservation:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.contextPreserved
-      proposal:
-      - project
-      - source-artifact-version
-      - source-time
-      - language-intent
-      - job-identity
-      - transcript-version
-      - caption-draft-version
+    definitionVerification:
+      status: source-contract-checked
+      evidence: [tests/media-caption-draft-experience-definitions.test.mjs, scripts/check-product-experience-local.mjs]
+      runtimeAdmission: NOT_ADMITTED
+      runtimeVerification: not-run
     bindingStatus:
-      surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
-      objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-explicit-step-state-reference-and-transition
-      canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk; owner-acceptance-pending
-      authorityRef: pending-explicit-step-authority-binding
-      decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
-      handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
-      failure: candidate-proposal-only; journey-level exceptions not allocated to this step
-      degradedBehavior: pending-explicit-step-degraded-behavior
-      recovery: candidate-proposal-only; journey-level recovery not allocated to this step
-      postconditions: pending-explicit-step-postconditions
-      requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-      verification: not-run; no evidence refs recorded
-      contextPreservation: candidate-proposal-only; journey-level context not allocated to this step
+      surfaceRefs: exact-existing-correct-captions-screen-linked; screen-admission-pending
+      objectRefs: exact-source-artifact-version-and-typed-parent; draft-is-session-local-not-canonical-object
+      stateRefs: no-canonical-domain-state-machine-or-transition-applies
+      canonicalOperationRef: existing-caption-draft-write-bound-to-timing-alignment-branch
+      authorityRef: trusted-host-principal-and-current-scoped-source-read-and-derived-edit-policy; deployed-enforcement-unqualified
+      decisionRef: PXD-068 owner definition; independent review pending
+      transitionRef: explicitly not applicable; session-local draft snapshot only
+      handoffRef: no external handoff or durable persistence boundary claimed
+      success: exact source-clock-bound user-entered timing advances one local draft revision
+      failure: prior snapshot preserved atomically; missing clock and invalid timing rejected
+      degradedBehavior: no time-alignment offer without authoritative exact-source clock metadata
+      recovery: inspect same draft and source clock then explicit user-directed correction under fresh authority
+      postconditions: no source mutation, forced-alignment qualification, canonical registration, approval, or publication
+      requirementRefs: existing artifact derivation requirement linked; satisfaction not claimed
+      verification: definition source checks separate; runtime verification not run
+      contextPreservation: exact draft revision, source version, typed parent, clock, and user-entered ticks
   - view: media.view.correct-captions
     screenContractRef: screen-contracts/correct-captions.yaml
     action: media.action.save-caption-version

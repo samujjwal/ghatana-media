@@ -7,8 +7,8 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 
 const root = '.product-experience/pdp-3-product-experience';
 const { parse } = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml');
-// Immutable parsed source baseline: main a3e6989; PXD-064 separately defines step4.
-const originalPrefixDigest = 'f3963499ca89cbf6653e60792d49511c0d43858d20edd470c140311fe584f796';
+// Immutable parsed source baseline: main b995dca; PXD-064/068 define steps4-6 separately.
+const originalPrefixDigest = 'ba7d157e3617f1c17f48fd7354a5af0efa7f969f7255580faff0da372679e467';
 const stable = (value) => Array.isArray(value) ? value.map(stable) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])])) : value;
 const prefixDigest = (steps) => createHash('sha256').update(JSON.stringify(stable(steps))).digest('hex');
@@ -38,8 +38,8 @@ function assertSelectedBindings(j, ops, actions, source) {
   const compare = j.steps.find(({ stepId }) => stepId === 'J03-8');
   assert.equal(j.journeyId, 'J-03');
   assert.equal(j.steps.length, 8);
-  assert.equal(prefixDigest(j.steps.slice(0, 6).filter((_, index) => index !== 3)), originalPrefixDigest,
-    'J-03 steps1-3 and5-6 retain the immutable parsed source baseline; step4 has its own definition test');
+  assert.equal(prefixDigest(j.steps.slice(0, 3)), originalPrefixDigest,
+    'J-03 steps1-3 retain the immutable parsed source baseline; steps4-6 have separate definition tests');
   assert.equal(save?.action, 'media.action.save-caption-version');
   assert.equal(save?.canonicalOperationRef, 'media.operation.caption-version-write');
   assert.deepEqual(save?.requiredOperationRefs, ['media.operation.caption-version-write']);
@@ -132,8 +132,14 @@ function assertSelectedBindings(j, ops, actions, source) {
     [writeScreen, 'media.operation.caption-version-write', save.objectRefs, 'media.action.save-caption-version'],
     [compareScreen, 'media.operation.caption-version-read', compare.objectRefs, 'media.action.compare-caption-versions'],
   ]) {
-    assert.deepEqual(screen.operationRefs, [exactOperation]);
-    assert.deepEqual(screen.domainObjectRefs, objectRefs);
+    assert.ok(screen.operationRefs.includes(exactOperation));
+    if (screen === writeScreen) assert.ok(screen.operationRefs.includes('media.operation.caption-draft-write'));
+    if (screen === writeScreen) {
+      assert.ok(objectRefs.every((reference) => screen.domainObjectRefs.includes(reference)));
+      assert.ok(screen.domainObjectRefs.includes('media.domain.transcript-version'));
+    } else {
+      assert.deepEqual(screen.domainObjectRefs, objectRefs);
+    }
     assert.equal(screen.journeyDefinitionBindings.decisionRef, decision);
     assert.equal(screen.journeyDefinitionBindings.runtimeAdmission, 'NOT_ADMITTED');
     const screenAction = screen.actionConsequences.find(({ actionId: id }) => id === actionId);
@@ -161,7 +167,7 @@ test('J-03 binds only existing save and exact-pair compare operations, preservin
   assert.equal(journey.definitionReview.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.notRun, 130);
   assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.evidenceRefsPresent, 0);
-  assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 3);
+  assert.equal(journeyRegistry.coverageObservation.stepBindings.verification.sourceDefinitionCheckedSteps, 5);
   assert.equal(journeyRegistry.j03DefinitionReviewObservation.sourceDefinitionCheckedSteps, 2);
   assertSelectedBindings(journey, operations, actionRegistry.actions, bindings);
 });

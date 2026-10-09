@@ -1483,3 +1483,26 @@ definitionTranscriptReviewInputs20261008:
     - Native providers, observers, oracles and authoritative Lifecycle receipts must admit the exact cases before phase acceptance.
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED
+
+definitionCaptionDraftReviewInputs20261008:
+  status: BOUNDED_MEDIA_OWNER_DEFINITIONS_REVIEWED; INDEPENDENT_ACCEPTANCE_PENDING
+  decisionRefs: [PXD-066, PXD-067, PXD-068, PXD-069]
+  selectedJourney: J-03
+  selectedStepIds: [J03-5, J03-6]
+  canonicalOperationRefs: [media.operation.caption-draft-write]
+  obligationsAdded: 0
+  evidenceReport: docs/implementation/media-product-definition-draft-batch-2026-10-08.json
+  testSources:
+    - tests/media-caption-draft-operation-definition.test.mjs
+    - tests/media-caption-draft-interface-grammar.test.mjs
+    - tests/media-caption-draft-experience-definitions.test.mjs
+    - tests/media-caption-draft-capability-definition.test.mjs
+  reviewInputs:
+    - Trusted session ownership, exact source/typed parent, faithful initialization and expected revision must govern atomic edits.
+    - Missing timing permits text correction, but source-tick edits require explicit user values and qualified clock/rate/duration; no automatic segmentation or clock inference.
+    - Undo requires retained snapshot, current revision and same ownership/lineage; restore advances a revision and exhaustion rejects atomically.
+    - Rebase creates a distinct new draft ID/revision0 under current policy; preserve the old stale draft until explicit discard.
+    - Manual timing edits do not satisfy forced alignment, registered output, scientific quality, durable storage, approval or publication contracts.
+    - Source cases require registered providers/observers/oracles and native Lifecycle acceptance; metadata assertions do not establish runtime behavior.
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED

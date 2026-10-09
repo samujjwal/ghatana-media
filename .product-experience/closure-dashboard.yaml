@@ -473,3 +473,16 @@ definitionTranscriptContinuation20261008:
   runtimeAdmission: NOT_ADMITTED
   nativeLifecycleAcceptance: NOT_CLAIMED
   evidenceReport: docs/implementation/media-product-definition-transcript-batch-2026-10-08.json
+
+definitionCaptionDraftContinuation20261008:
+  scope: Four PDP definitions only; application implementation deferred.
+  decisionRefs: [PXD-066, PXD-067, PXD-068, PXD-069]
+  selectedJourney: J-03
+  selectedStepIds: [J03-5, J03-6]
+  existingOperationRecordsRefined: 1
+  obligationsAdded: 0
+  sourceCaseLinksAdded: 1
+  manualTimingForcedAlignmentEquivalence: REJECTED; original capability preserved in scope
+  runtimeAdmission: NOT_ADMITTED
+  nativeLifecycleAcceptance: NOT_CLAIMED
+  evidenceReport: docs/implementation/media-product-definition-draft-batch-2026-10-08.json

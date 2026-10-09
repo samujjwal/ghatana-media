@@ -17,10 +17,10 @@ patternIds:
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: []
+domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
 domainObjectBindingStatus: pending-canonical-domain-object-binding
-operationRefs: []
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+operationRefs: [media.operation.caption-draft-write, media.operation.caption-version-write, media.operation.caption-version-read]
+requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
@@ -33,19 +33,19 @@ actionConsequences:
   - actionId: media.action.correct-caption
     capabilityRefs: [media.artifact.derive]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-068; runtime-admission-pending
+    operationRef: media.operation.caption-draft-write
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: explicit text-only correction to one segment in an exact-source session-local draft; preserve unavailable timing and uncertainty
+    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
   - actionId: media.action.align-caption-timing
-    capabilityRefs: [media.speech.transcription.forced-align, media.artifact.derive]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
+    capabilityRefs: [media.artifact.derive]
+    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-068/PXD-069; runtime-admission-pending
+    operationRef: media.operation.caption-draft-write
     effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    consequence: explicit user-entered source-clock tick edit to one session-local draft revision; no forced-alignment output or scientific timing claim
+    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
   - actionId: media.action.save-caption-version
     capabilityRefs: [media.artifact.output.register]
     requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]

@@ -121,8 +121,8 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   }, {
     resolvedActorCount: 30,
     unresolvedActorCount: 0,
-    authoredStepIds: 20,
-    authoredIntents: 11,
+    authoredStepIds: 22,
+    authoredIntents: 13,
     authoredViewIntents: 98,
     authoredLabels: 4,
     authoredTransitionRefArrays: 0,
@@ -171,11 +171,11 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.match(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.disposition, /PROJECTED_AS_CANDIDATE_ACTOR_REFS/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p3OrderedStepCount, 130);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.projectedStepCount, 130);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 109);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 21);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 111);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 19);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 0);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 128);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 10);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 12);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);

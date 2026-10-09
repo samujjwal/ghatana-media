@@ -5,16 +5,16 @@
   "description": "Source-resolvable L-03 proof-route candidates. These records document actual local producer/criterion/test identities and method results; they are not Lifecycle observer/oracle registrations, case admission, independent review, or proof receipts.",
   "l02CaseLinkReview": {
     "sourcePath": "config/closure/media-product-definition/l02-source-case-links.json",
-    "reviewedLinkCount": 63,
-    "reviewedObligationCount": 42,
+    "reviewedLinkCount": 64,
+    "reviewedObligationCount": 43,
     "obligationDenominator": 348,
-    "unmappedObligationCount": 306,
+    "unmappedObligationCount": 305,
     "candidateRouteCount": 0,
     "status": "NO_CASE_SPECIFIC_OBSERVER_OR_ORACLE_CANDIDATE_IDENTIFIED",
     "missingSemantics": [
-      "The L-02 linked declarations include deterministic simulation assertions, parameterized component source-definition checks, source-only caption-version definition assertions in tests/media-caption-version-operation-definitions.test.mjs, and source-only transcript-version definition assertions in tests/media-transcript-version-definition.test.mjs; no registered Evidence Generator producer declares these test paths and commands in unitScope.",
-      "The producer and criterion registries contain no case-specific input/result schema, registered oracle ID, admitted observer, or comparison rule for these linked simulation, component, caption-version, and transcript-version source-definition cases. Their exact tests validate bounded source definitions only and do not establish an L-03 oracle or native proof route.",
-      "The existing runtime, provider-fallback, and production-state routes target different PDP-1 obligations and methods; they do not observe the linked PDP-3 scenarios or these source-only caption cases.",
+      "The L-02 linked declarations include deterministic simulation assertions, parameterized component source-definition checks, source-only caption-version definition assertions in tests/media-caption-version-operation-definitions.test.mjs, source-only transcript-version definition assertions in tests/media-transcript-version-definition.test.mjs, and source-only caption-draft edit definition assertions in tests/media-caption-draft-operation-definition.test.mjs; no registered Evidence Generator producer declares these test paths and commands in unitScope.",
+      "The producer and criterion registries contain no case-specific input/result schema, registered oracle ID, admitted observer, or comparison rule for these linked simulation, component, caption-version, transcript-version, and caption-draft source-definition cases. Their exact tests validate bounded source definitions only and do not establish an L-03 oracle or native proof route; the caption-draft test is not a native provider or correction-runtime observation.",
+      "The existing runtime, provider-fallback, and production-state routes target different PDP-1 obligations and methods; they do not observe the linked PDP-3 scenarios or these source-only caption cases, nor do they qualify caption correction providers.",
       "Local test execution does not establish an admitted Lifecycle observer, independent review, runtime behavior, rendered accessibility, or qualified production/browser observation. Native case admission and Lifecycle binding remain deferred."
     ],
     "authoritativeAssignments": "UNCHANGED_ZERO_OF_348"

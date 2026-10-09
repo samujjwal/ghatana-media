@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "media.product-definition-draft-batch.v1",
+  "date": "2026-10-08",
+  "baseMain": "b995dca0665efa22d94a71c456d15be73c74e780",
+  "branch": "main",
+  "scope": "Four PDP phases: definitions, validation and acceptance inputs only; application implementation deferred under latest direct user instruction",
+  "delegation": "Three Luna agents authored the existing local draft operation/value, interface grammar, J03 edit steps and exact validation/case-link repairs; coordinator reviewed snapshot identity/initialization/rebase and capability non-equivalence.",
+  "ownerDecisions": [
+    "PXD-066",
+    "PXD-067",
+    "PXD-068",
+    "PXD-069"
+  ],
+  "original71Tasks": {
+    "complete": 6,
+    "partial": 51,
+    "blockedExternalIndependent": 14,
+    "newlyComplete": 0,
+    "criteria": "Original IDs, titles and full Done predicates preserved; partial definition evidence is not full implementation or independent acceptance."
+  },
+  "beforeAfter": {
+    "projectionBlockers": {
+      "phaseOrder": [
+        "PDP-0",
+        "PDP-2",
+        "PDP-3"
+      ],
+      "before": [
+        0,
+        0,
+        9
+      ],
+      "after": [
+        0,
+        0,
+        9
+      ]
+    },
+    "capabilityLeaves": [
+      462,
+      462
+    ],
+    "unresolvedCapabilityTargets": [
+      383,
+      383
+    ],
+    "unboundedCapabilityLeaves": [
+      445,
+      445
+    ],
+    "fullAcceptedCapabilityCoverage": [
+      0,
+      0
+    ],
+    "migrationOriginalObservations": [
+      349,
+      349
+    ],
+    "migrationSemanticsUnresolved": [
+      260,
+      260
+    ],
+    "interfaceIdentities": [
+      286,
+      286
+    ],
+    "interfaceUnresolved": [
+      190,
+      190
+    ],
+    "fullAcceptedInterfaceBindings": [
+      0,
+      0
+    ],
+    "historicalParityFindingsOpen": [
+      2,
+      2
+    ],
+    "designGatesOpen": [
+      2,
+      2
+    ],
+    "journeys": [
+      30,
+      30
+    ],
+    "orderedSteps": [
+      130,
+      130
+    ],
+    "screenLinkedSteps": [
+      130,
+      130
+    ],
+    "actionLinkedSteps": [
+      18,
+      18
+    ],
+    "authoredStepIds": [
+      20,
+      22
+    ],
+    "exactNonNullOperationRefs": [
+      19,
+      19
+    ],
+    "emptyObjectRefs": [
+      119,
+      117
+    ],
+    "emptyStateRefs": [
+      122,
+      122
+    ],
+    "nullAuthorityRefs": [
+      118,
+      116
+    ],
+    "sourceNoTransitionReasons": [
+      10,
+      12
+    ],
+    "projectedUnconditionalEffects": [
+      3,
+      3
+    ],
+    "projectedFinalityRecords": [
+      21,
+      21
+    ],
+    "publicRecoveryDefinitions": [
+      5,
+      5
+    ],
+    "lifecycleObligations": [
+      348,
+      348
+    ],
+    "obligationsWithCaseIds": [
+      97,
+      98
+    ],
+    "obligationsWithoutCaseIds": [
+      251,
+      250
+    ],
+    "sourceCaseCandidateLinks": [
+      63,
+      64
+    ],
+    "sourceCaseLinkedObligations": [
+      42,
+      43
+    ],
+    "unmappedSourceCaseObligations": [
+      306,
+      305
+    ],
+    "observerAssignments": [
+      0,
+      0
+    ],
+    "oracleAssignments": [
+      0,
+      0
+    ],
+    "providerBindings": [
+      0,
+      0
+    ],
+    "boundNativePhaseReceipts": [
+      0,
+      0
+    ]
+  },
+  "populationJustification": {
+    "newCanonicalDomainObjects": [],
+    "newOperations": 0,
+    "newObligations": 0,
+    "sourceIdentity": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03",
+    "reason": "Refines existing caption-draft-write and existing J03steps5/6, with nested session-local value/preparation recipe; no new capability, operation, domain object, journey, step or optional feature.",
+    "acceptanceTests": [
+      "tests/media-caption-draft-operation-definition.test.mjs",
+      "tests/media-caption-draft-interface-grammar.test.mjs",
+      "tests/media-caption-draft-experience-definitions.test.mjs",
+      "tests/media-caption-draft-capability-definition.test.mjs",
+      "tests/media-caption-draft-host-preparation.test.mjs"
+    ],
+    "proofRoute": "Actual local source assertion links existing draft obligation; registered providers/observers/oracles and independent/native acceptance remain absent."
+  },
+  "verification": {
+    "focusedNewDefinitions": {
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "skipped": 0,
+      "log": "/tmp/media-execution/definition-draft-focused-final.log"
+    },
+    "structuralIntegration": {
+      "result": "PASS",
+      "scope": "Scoped crosslink/authority/projection/capability repairs; final full suite includes all repaired predicates and adversarial guards."
+    },
+    "fullNode": {
+      "tests": 478,
+      "pass": 478,
+      "fail": 0,
+      "skipped": 0,
+      "log": "/tmp/media-execution/definition-draft-node-final.log"
+    },
+    "publicSchemasAndValidators": "All three candidates VALID/PASS",
+    "sourceChecks": "PASS: strict projection currentness, Lifecycle source currentness, authority, local experience, closure-input consumer admission and 348-obligation membership/fingerprint audit",
+    "design": "NON-GREEN: two external/independent gates",
+    "parity": "NON-GREEN: two full semantic findings",
+    "initialFullNode": {
+      "tests": 473,
+      "pass": 469,
+      "fail": 4,
+      "skipped": 0,
+      "log": "/tmp/media-execution/definition-draft-node-full.log",
+      "reason": "Stale count predicates for no-transition reasons and rejected manual forced-align binding; undefined structural fixture variable; negative fixture targeted a now-legitimate draft step. Scoped repairs preserve adversarial checks."
+    },
+    "residualReport": {
+      "result": "PASS",
+      "diagnostics": [],
+      "log": "/tmp/media-execution/definition-draft-residual-final.json"
+    }
+  },
+  "dependencies": {
+    "Tools": "0.1.0-rc.1",
+    "Lifecycle": "0.1.0-rc.1",
+    "Shared": "0.1.0-SNAPSHOT",
+    "DocumentIntelligence": "0.1.0",
+    "AIInference": "1.1.0",
+    "DataCloud": "1.2.1",
+    "ActionPlane": "1.2.0",
+    "EventPlane": "1.3.0",
+    "NetworkNT": "3.0.6"
+  },
+  "dependencyBoundary": "Source/development observations unchanged; no new immutable distribution or external approval claimed",
+  "runtimeImplementationChanged": false,
+  "preservedPendingImplementationStash": "dd69e97b095b7ef5abc9b8b157e1a0d2561736da",
+  "phaseAcceptance": {
+    "PDP-0": "OPEN; native acceptance not claimed",
+    "PDP-1": "OPEN; native acceptance not claimed",
+    "PDP-2": "OPEN; native acceptance not claimed",
+    "PDP-3": "OPEN; native acceptance not claimed"
+  },
+  "outstandingIndependentAuthorities": [
+    "Independent PDP semantic and complete-experience reviewers",
+    "Shared package owner and visual/assistive-technology reviewers",
+    "Lifecycle registry/distribution owner and native phase receipt issuer"
+  ],
+  "nextExecutableDefinitionBatch": "Define existing transcription-submission and J03 source selection/submission/job observation steps1-3 with canonical version identity, current policy, exact request/job/retry/finality contracts; keep recognition quality and production provider qualification separate.",
+  "authoritativeReceiptEvaluation": {
+    "status": "NOT_EVALUATED",
+    "authoritativeReceiptCount": null,
+    "boundLocalReceiptRecords": 0
+  },
+  "worktreeAtVerification": "Reviewed definition-only changes on main before source commit; origin/main matches baseMain; full suite and source checks pass; deferred implementation stash preserved.",
+  "independentReviewInputs": [
+    {
+      "authority": "Independent PDP domain/interface/complete-experience reviewers",
+      "artifact": ".product-experience/acceptance.yaml#definitionCaptionDraftReviewInputs20261008",
+      "test": "node --test tests/media-caption-draft-operation-definition.test.mjs tests/media-caption-draft-interface-grammar.test.mjs tests/media-caption-draft-experience-definitions.test.mjs tests/media-caption-draft-capability-definition.test.mjs",
+      "acceptance": "Attributed independent source assessment of session ownership/initialization/CAS/timing union/undo/rebase and manual-alignment non-equivalence; native phase receipts separately required."
+    },
+    {
+      "authority": "Shared package owner and accessibility/visual reviewers",
+      "artifact": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml and tests/media-component-definition-proof-cases.test.mjs",
+      "test": "node scripts/check-media-design-conformance.mjs",
+      "acceptance": "Qualified public Shared artifact binding and attributed rendered/assistive-technology conformance review; the31 metadata cases cannot satisfy these gates."
+    },
+    {
+      "authority": "Lifecycle registry/distribution owner and native phase receipt issuer",
+      "artifact": "config/closure/media-product-definition/{obligations,l02-source-case-links,l03-proof-route-candidates,phase-program,phase-binding}.json",
+      "test": "node scripts/check-media-lifecycle-closure-inputs.mjs; node scripts/generate-media-lifecycle-source-inputs.mjs --check",
+      "acceptance": "Registered case-specific provider/observer/oracle bindings with admitted methods, exact dependency fingerprints and authoritative current PDP phase receipts; local input readiness is insufficient."
+    }
+  ],
+  "changedFiles": [
+    ".product-experience/acceptance.yaml",
+    ".product-experience/closure-dashboard.yaml",
+    ".product-experience/decision-log.md",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+    ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+    ".product-experience/pdp-1-domain-data/operations.yaml",
+    ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
+    ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
+    ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+    ".product-experience/pdp-3-product-experience/action-registry.yaml",
+    ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
+    ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+    ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+    ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
+    ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
+    ".product-experience/source-manifest.yaml",
+    "config/closure/media-product-definition/l02-source-case-links.json",
+    "config/closure/media-product-definition/l03-proof-route-candidates.json",
+    "config/closure/media-product-definition/obligations.json",
+    "docs/implementation/media-product-definition-draft-batch-2026-10-08.json",
+    "scripts/lib/media-caption-draft-capability-definition-validation.mjs",
+    "scripts/lib/media-caption-draft-definition-validation.mjs",
+    "scripts/lib/media-experience-definition-mapping.mjs",
+    "tests/media-capability-review-source-impact.test.mjs",
+    "tests/media-caption-draft-capability-definition.test.mjs",
+    "tests/media-caption-draft-experience-definitions.test.mjs",
+    "tests/media-caption-draft-host-preparation.test.mjs",
+    "tests/media-caption-draft-interface-grammar.test.mjs",
+    "tests/media-caption-draft-operation-definition.test.mjs",
+    "tests/media-caption-version-experience-definitions.test.mjs",
+    "tests/media-experience-specification-projection.test.mjs",
+    "tests/media-j01-definition-semantics.test.mjs",
+    "tests/media-lifecycle-l02-source-case-links.test.mjs",
+    "tests/media-lifecycle-l03-proof-route-candidates.test.mjs",
+    "tests/media-product-definition-residuals.test.mjs",
+    "tests/media-transcript-review-definition.test.mjs",
+    "tests/pdp-0-final.test.mjs",
+    "tests/pdp-3-screen-journey-crosslinks.test.mjs",
+    "tests/product-definition-authority.test.mjs"
+  ],
+  "draftBoundary": {
+    "selectedStepIds": [
+      "J03-5",
+      "J03-6"
+    ],
+    "operation": "media.operation.caption-draft-write",
+    "editKinds": [
+      "TEXT_CORRECTION",
+      "TIMING_ALIGNMENT"
+    ],
+    "snapshot": "Nested session-local value with trusted session ownership, exact immutable source/typed parent, ordered stable segment IDs and explicit timing union",
+    "initialization": "Faithful supplied parent segments/IDs or explicit user-authored segments; missing prerequisites block preparation, never inferred segmentation or clock",
+    "revision": "Safe-integer CAS, monotonic edit/undo revisions; exhaustion rejects atomically",
+    "undo": "Same ownership/draft/lineage/current revision plus retained prior snapshot; content restore advances revision, never ABA or immutable-parent deletion",
+    "rebase": "Distinct newdraftId/revision0 under fresh policy/newexactparent; preserve oldstaledraft until explicitdiscard",
+    "manualTiming": "Explicit user ticks plus qualified clock/rate/duration; not forced alignment, provider correction or scientific quality",
+    "sourceCases": 1,
+    "runtimeVerification": "130steps not-run with no actual evidence",
+    "sourceDefinitionChecks": 5,
+    "returnedTiming": "Exact per-segment tagged timing union; conservative NOT_SUPPLIED/PROVIDER_TIME_UNQUALIFIED/SOURCE_CLOCK_BOUND/MIXED summary; registration independently revalidates all ranges and current policy."
+  },
+  "capabilityNonEquivalence": {
+    "decision": "PXD-069",
+    "leaf": "media.speech.transcription.forced-align",
+    "exactManualBinding": "REMOVED_AS_NON_EQUIVALENT",
+    "originalScope": "PRESERVED",
+    "broadHistoricalJourneyTrace": "PRESERVED_AS_CONTEXT_ONLY; not accepted exact operation or scientific behavior",
+    "newCapabilitiesOrAlgorithms": 0
+  },
+  "sourceReviewFixes": [
+    "Edited target origin is USER_EDITED; non-target origin and values are preserved.",
+    "Returned segment timing stays tagged individually; MIXED aggregate cannot imply registration readiness.",
+    "Exact transcript-read-to-local-draft preparation handoff rechecks current edit policy/session and blocks absent faithful segment identities."
+  ]
+}
