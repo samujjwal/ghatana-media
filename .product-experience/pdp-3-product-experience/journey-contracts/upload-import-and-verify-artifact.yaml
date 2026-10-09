@@ -43,8 +43,7 @@ steps:
     objectRefs:
       - media.domain.artifact
       - media.domain.artifact-version
-    stateRefs:
-      - media-upload-and-artifact/AVAILABLE
+    stateRefs: []
     canonicalOperationRef: null
     authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
     decisionRef: .product-experience/decision-log.md#PXD-040
@@ -209,8 +208,7 @@ steps:
         objectRefs:
           - media.domain.artifact
           - media.domain.artifact-version
-        stateRefs:
-          - media-upload-and-artifact/AVAILABLE
+        stateRefs: []
         canonicalOperationRef: null
         authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
         transitionRef: null
@@ -218,6 +216,15 @@ steps:
         scenarioRefs:
           - media.scenario.upload-permission-revoked
         capabilityRefs: []
+        localEffectContractId: media.local-step-effect.j-02.step-01.v1
+        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-02.step-01.v1
+        localObjectRef: media.local-object.editor-session-draft
+        localDraftSlotRef: media.local-draft.slot.upload-source-version
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
+        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         status: not-run
         requiredChecks:
@@ -295,12 +302,13 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: SOURCE_STEP_OBJECT_REFS_PRESENT
-          stateRefs: SOURCE_STEP_STATE_REFS_PRESENT
+          objectRefs: EXACT_CANONICAL_SOURCE_CANDIDATE_IDENTITY; LOCAL_SELECTION_ONLY
+          stateRefs: LIFECYCLE_STATE_UNKNOWN;
+            SOURCE_CANDIDATE_SCHEMA_HAS_NO_AUTHORITATIVE_LIFECYCLE_OBSERVATION
           canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: EXACT_AUTHORITY_REF
-          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
+          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
         operationContractRef: null
         authorityRefs: []
@@ -308,7 +316,8 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        status: EXACT_SOURCE_CANDIDATE_DOMAIN_IDENTITY; LOCAL_SELECTION_ONLY;
+          NO_CANONICAL_MUTATION
         operationContractRef: null
         objectRefs:
           - media.domain.artifact
@@ -316,8 +325,20 @@ steps:
         versionIdentityRule: Exact immutable version identity is required whenever the
           source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
-        observation: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+        observation: Selection is limited to an exact immutable candidate identity from
+          the current host-observed catalog. It does not read bytes, create a
+          new artifact, or mutate the selected canonical object.
         runtimeAdmission: NOT_ADMITTED
+        localObjectRef: media.local-object.editor-session-draft
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
+        canonicalObjectRefs:
+          - media.domain.artifact
+          - media.domain.artifact-version
+        observedLifecycleStateRefs: []
+        lifecycleObservationStatus: UNKNOWN;
+          CURRENT_ARTIFACT_VERSION_CANDIDATE_DOES_NOT_PROVE_PRODUCT_LIFECYCLE_STATE
       intentBinding:
         status: SCREEN_PURPOSE_SOURCE
         intent: browse authorized immutable artifact versions and reach an admitted
@@ -347,6 +368,7 @@ steps:
         requirementRefs: []
         sourceRefs: []
         acceptance: crosswalk source only; no independent review/runtime admission
+      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-02.step-01.v1
     scenarioRefs:
       - media.scenario.upload-permission-revoked
     capabilityRefs: []
@@ -354,7 +376,7 @@ steps:
     screenContractRef: screen-contracts/import-media.yaml
     action: media.action.begin-artifact-upload
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.artifact.upload, media.artifact.import]
+    capabilityRefs: [ media.artifact.upload, media.artifact.import ]
     result: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
     surfaceRefs:
       - media.surface.web
@@ -403,7 +425,7 @@ steps:
         verified.
       - No upload command establishes AVAILABLE, rights, consent, or project
         attachment.
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       status: not-run
       requiredChecks:
@@ -557,10 +579,10 @@ steps:
         canonicalOperationRef: media.operation-slice.begin-upload
         authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
         transitionRef: media-upload-and-artifact/T01
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         scenarioRefs:
           - media.scenario.upload-interrupted
-        capabilityRefs: [media.artifact.upload, media.artifact.import]
+        capabilityRefs: [ media.artifact.upload, media.artifact.import ]
       verification:
         status: not-run
         requiredChecks:
@@ -719,8 +741,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.artifact.upload, media.artifact.import]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        capabilityRefs: [ media.artifact.upload, media.artifact.import ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
@@ -731,7 +753,7 @@ steps:
     screenContractRef: screen-contracts/import-media.yaml
     action: media.action.resume-artifact-upload
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.artifact.upload.resume]
+    capabilityRefs: [ media.artifact.upload.resume ]
     when: an-existing-upload-is-interrupted-and-its-identity-source-metadata-and-current-authority-still-match
     result: resume-the-matching-upload-or-explain-why-it-cannot-resume;
       never-create-a-duplicate-from-an-unknown-result
@@ -788,7 +810,7 @@ steps:
       - No append in FINALIZING or any terminal state.
       - Completion enters VERIFYING only; no step asserts AVAILABLE, rights
         clearance, downstream usability, or attachment.
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       status: not-run
       requiredChecks:
@@ -978,12 +1000,12 @@ steps:
           - media.operation-slice.complete-upload
         authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.upload-and-import-admission
         transitionRef: media-upload-and-artifact/T01
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         scenarioRefs:
           - media.scenario.upload-interrupted
           - media.scenario.upload-outcome-unknown
           - media.scenario.upload-permission-revoked
-        capabilityRefs: [media.artifact.upload.resume]
+        capabilityRefs: [ media.artifact.upload.resume ]
       verification:
         status: not-run
         requiredChecks:
@@ -1211,8 +1233,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.artifact.upload.resume]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        capabilityRefs: [ media.artifact.upload.resume ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
@@ -1268,7 +1290,7 @@ steps:
       - No job or artifact lifecycle transition is caused by this screen.
       - Verification-authority evidence, not job COMPLETED alone, governs
         artifact state.
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -1414,7 +1436,7 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs:
           - media.scenario.artifact-verification-running
           - media.scenario.artifact-verification-outcome-unknown
@@ -1422,7 +1444,7 @@ steps:
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         status: not-run
         requiredChecks:
@@ -1587,8 +1609,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -1605,12 +1627,12 @@ steps:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-    capabilityRefs: [media.job.view-status]
+    capabilityRefs: [ media.job.view-status ]
   - view: media.view.inspect-media
     screenContractRef: screen-contracts/inspect-media.yaml
     action: media.action.inspect-artifact
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.artifact.inspect]
+    capabilityRefs: [ media.artifact.inspect ]
     when: the-artifact-state-is-AVAILABLE-or-an-authorized-review-is-required
     result: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
     surfaceRefs:
@@ -1652,7 +1674,7 @@ steps:
       - Metadata inspection does not dereference content or establish rights.
       - T02 is verification-authority-owned and is not performed by this UI
         action.
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       status: not-run
       requiredChecks:
@@ -1794,13 +1816,13 @@ steps:
         canonicalOperationRef: media.operation-slice.inspect-artifact
         authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         scenarioRefs:
           - media.scenario.upload-checksum-mismatch
           - media.scenario.upload-format-unsupported
           - media.scenario.upload-quarantined
           - media.scenario.upload-verified-available
-        capabilityRefs: [media.artifact.inspect]
+        capabilityRefs: [ media.artifact.inspect ]
       verification:
         status: not-run
         requiredChecks:
@@ -1971,8 +1993,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.artifact.inspect]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        capabilityRefs: [ media.artifact.inspect ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml

@@ -246,6 +246,88 @@ ownerEventContracts:
   - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts
   runtimeEventCount: 9
   notificationCount: 15
+  deliveryProtocol:
+    id: media.event-delivery-protocol.definition.v1
+    status: OWNER_DEFINED_DEFINITION_ONLY
+    operationAuthority: Media owns event identity, committed-transition meaning, payload minimization, and the Media-side outbox intent. Shared Event Plane owns append storage, stream lookup, and consumer replay. This record defines the boundary; it does not claim either runtime is deployed or qualified.
+    eventPlaneDependency:
+      id: media.event-dependency.event-plane-append-and-exact-lookup.v1
+      owner: Shared Event Plane
+      publicContractRefs:
+      - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events/post
+      - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get
+      - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/components/schemas/AppendEventRequest
+      - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/components/schemas/AppendEventResponse
+      - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/components/schemas/EventRecord
+      ownerServiceRequirementRef: ../ghatana/services/event-plane/service-contract.yaml#/requirements/@id=EVT-EXACT-LOOKUP-001
+      sourceFingerprints:
+        openApiSha256: b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272
+        serviceContractSha256: 26f286bb837783f2fbb3c423bab622e0e8783eb6db3e6083bbe7f30ee8558c45
+        ownerRepositoryHead: b1c892a9fc6a5e11fff82adc4bf3fcf190ba76e4
+        latestRelevantContractChange: d7b2b27b050723585267ce48a2e5f63838cb6381
+      requiredAppendReceipt:
+        status: 201
+        fields: [eventId, storedEventId, streamId, offset]
+        acceptanceRule: All four receipt values must bind to the submitted event ID, expected tenant-scoped stream, stored event identity, and nonnegative stream position. A 201 or a matching eventId by itself is not sufficient evidence of an exact append.
+        publisherAuthoritySelector: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/@id=<exact-event-contract-id>/producer
+        hostBoundEvidence: Append authority and request fingerprint are host-computed from the exact immutable outbox request; caller fields cannot assert either value.
+      exactLookup:
+        method: GET
+        operationId: getStreamEvent
+        scope: [trustedTenant, streamId, eventId]
+        requiredAuthority: Authenticated Shared Event Plane reader with `event-plane:event:read`, bound to the exact trusted tenant; lookup authority is distinct from the Media publisher authority.
+        authorityRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get/x-ghatana-security
+        matchingRecordRule: returned event identity, stream, tenant, eventType, eventVersion, aggregate tuple, and canonical payload fingerprint must match the immutable outbox entry
+        notFoundRule: NOT_FOUND is not proof that an uncertain append did not commit unless the Event Plane contract supplies a current, complete lookup receipt for the exact tenant/stream/event identity
+        requiredHostVerifiedReadReceipt:
+          definitionStatus: MEDIA_CONSUMER_REQUIREMENT_ONLY; current Shared response contract does not yet establish these fields or semantics
+          fields: [tenantId, streamId, eventId, queryId, requestFingerprint, readAuthorityRef, readVersion, observedAt, observedAtCurrentness]
+          requestFingerprint: Host-computed SHA-256 of the exact trusted tenant, stream, event ID, query ID, and read authority tuple; caller-supplied digests are rejected.
+          currentness: Must be explicitly established by an authoritative complete read at the same trusted read authority and current read version; an untrusted boolean or status label is insufficient.
+          freshness: observedAt must be a valid UTC instant, not future-dated, and within the Media-selected maximum observation age; otherwise lookup remains UNKNOWN.
+          admission: NOT_ADMITTED until Shared publishes a response contract and owner approval for this receipt.
+      contractMismatch:
+        openApiRule: x-ghatana-idempotency.required=false and clients must not automatically retry the append mutation
+        ownerServiceRule: EVT-EXACT-LOOKUP-001 describes stable caller-ID reconciliation across retries
+        disposition: Until the published API contract and owner service requirement are reconciled by the Shared Event Plane owner, Media MUST NOT automatically repeat an append after timeout or ambiguous response. Exact lookup may reconcile a verified match; absent, unavailable, partial, stale, or mismatched lookup remains UNKNOWN.
+      executionAdmission: NOT_ADMITTED
+      qualificationState: NOT_EVALUATED
+    externalOwnerReviewRequest:
+      id: media.event-dependency-review.event-plane-retry-reconciliation.v1
+      owner: Shared Event Plane
+      status: PENDING_SHARED_CONTRACT_RECONCILIATION
+      exactQuestion: Reconcile the public append operation's explicit no-automatic-retry declaration with EVT-EXACT-LOOKUP-001's same-caller-ID-across-retries requirement.
+      requiredContractEvidence:
+      - Versioned public append contract states whether same tenant, stream, eventId, and canonical payload may be retried after timeout without duplicating the event.
+      - Exact lookup contract states whether 200 and 404 are current/complete for this tuple, exposes enough typed fields to compare the full event intent, and specifies stale, partial, and unavailable outcomes.
+      - Contract test demonstrates crash-after-append-before-receipt, same-ID/same-payload retry or exact lookup reconciliation, same-ID/different-payload conflict, cross-tenant isolation, and incomplete lookup behavior.
+      - Published schema version and owner approval identify the required caller and response fields; no private runtime/bootstrap route substitutes for the public contract.
+      MediaDispositionUntilClosed: Keep ambiguous append UNKNOWN, retain outbox intent, and do not automatically repeat POST. Do not claim delivery, replay safety, or at-least-once delivery as established runtime behavior.
+    mediaOutbox:
+      requiredPattern: Media state transition and immutable minimized event intent commit atomically in the same Media-owned persistence transaction.
+      eventIdentity: One stable eventId and canonical payload fingerprint per committed transition; retries preserve both exactly; same eventId with different fingerprint is EVENT_ID_CONFLICT.
+      ordering: Aggregate version is strictly increasing and checked within (trustedTenant, aggregateType, aggregateId); gaps are buffered or reconciled, never silently reordered into a global clock.
+      privacy: Store and transmit only each exact event schema's allowed fields; never place raw media, prompts, transcripts, credentials, biometric templates, or rights-document contents in the outbox or event payload.
+      dispatch: Dispatch only after the aggregate commit and matching outbox intent are durable. A crash before commit emits nothing; a crash after commit leaves a recoverable intent; an ambiguous external append is not discarded or replayed blindly.
+      replay: At-least-once delivery is a target only after the dependency contract permits safe reconciliation. Duplicate same-ID/same-fingerprint observations are idempotent; same-ID/different-fingerprint, cross-tenant scope, stale aggregate version, and unknown event versions fail closed.
+      partialFailureOutcomes:
+      - { condition: aggregate-transaction-aborts, disposition: NO_EVENT_AND_NO_OUTBOX_INTENT }
+      - { condition: aggregate-and-outbox-commit-succeeds-before-dispatch, disposition: OUTBOX_PENDING }
+      - { condition: append-returns-exact-current-receipt, disposition: EVENT_PLANE_ACCEPTED }
+      - { condition: append-timeout-or-ambiguous-response, disposition: UNKNOWN_RECONCILE_EXACT_LOOKUP, automaticAppendRetry: FORBIDDEN }
+      - { condition: lookup-is-stale-incomplete-unavailable-or-not-found-without-authoritative-currentness, disposition: UNKNOWN_RETAIN_OUTBOX_INTENT }
+      - { condition: lookup-exactly-matches-tenant-stream-event-and-payload-fingerprint, disposition: RECONCILED_ACCEPTED }
+      - { condition: lookup-or-receipt-crosses-tenant-or-conflicts-with-event-intent, disposition: UNKNOWN_QUARANTINE_AND_ESCALATE }
+    negativeCases:
+    - append-timeout-followed-by-blind-post-retry
+    - event-id-reused-with-different-canonical-payload
+    - lookup-not-found-treated-as-proof-of-no-commit-without-current-complete-receipt
+    - stale-or-partial-lookup-promoted-to-accepted
+    - same-event-id-from-another-tenant-reconciled
+    - lower-aggregate-version-published-after-higher-version
+    - event-dispatched-before-aggregate-and-outbox-commit
+    - raw-sensitive-content-added-to-outbox-payload
+    - notification-reclassified-as-canonical-event
   records:
   - id: media.event-contract.media-upload-started
     eventType: media.upload.started
@@ -342,7 +424,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -473,7 +555,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -599,7 +681,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -726,7 +808,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -853,7 +935,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -977,7 +1059,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -1104,7 +1186,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -1237,7 +1319,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:
@@ -1367,7 +1449,7 @@ ownerEventContracts:
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
       delivery: at-least-once; consumer must deduplicate
-      dispatch: retry with bounded exponential backoff until platform receipt or explicit terminal operational disposition
+      dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
     privacy:

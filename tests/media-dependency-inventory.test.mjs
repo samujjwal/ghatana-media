@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { assertNoDenominatorShrink, buildMediaDependencyInventory } from "../scripts/lib/media-dependency-inventory.mjs";
 
@@ -16,7 +16,7 @@ const EXPECTED_DENOMINATORS = Object.freeze({
   gradleDeclarationCount: 315,
   dockerfileCount: 9,
   pythonDependencyManifestCount: 0,
-  trackedAssetOrFixtureCount: 22,
+  trackedAssetOrFixtureCount: 31,
   modelOrWeightBinaryCount: 0,
   fontBinaryCount: 0,
   gradleLockOrVerificationFileCount: 0,
@@ -24,6 +24,8 @@ const EXPECTED_DENOMINATORS = Object.freeze({
   externalCandidateCount: 23,
   licenseExceptionCount: 1,
 });
+const RESPONSIVE_CAPTURE_DIRECTORY = "docs/implementation/verification/pdp-38/responsive-reference-captures";
+const RESPONSIVE_CAPTURE_MANIFEST = `${RESPONSIVE_CAPTURE_DIRECTORY}/manifest.json`;
 
 test("dependency inventory preserves current source denominators and lock membership", () => {
   const report = buildMediaDependencyInventory(root);
@@ -36,7 +38,7 @@ test("dependency inventory preserves current source denominators and lock member
   assert.deepEqual(report.denominators, EXPECTED_DENOMINATORS);
   // Historical baseline: 21 tracked assets/fixtures. The current PDP-3
   // scenario fixture registry is a newly tracked source fixture, making the
-  // live denominator 22 without changing any license/admission conclusion.
+  // baseline denominator 22 before the nine reviewed responsive captures.
   const currentScenarioRegistry = report.trackedAssets.find(({ path }) =>
     path === ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml");
   assert.ok(currentScenarioRegistry, "current denominator includes the source-owned PDP-3 scenario fixture registry");
@@ -78,6 +80,45 @@ test("source pins cover the exact manifests, locks, policy authorities, and asse
     assert.match(pin.sha256, /^sha256:[a-f0-9]{64}$/u, `invalid digest for ${pin.path}`);
     assert.equal(pin.sha256, `sha256:${createHash("sha256").update(readFileSync(resolve(root, pin.path))).digest("hex")}`);
   }
+});
+
+test("nine responsive reference PNGs are pinned as local test evidence, not licensed runtime assets", () => {
+  const manifest = JSON.parse(readFileSync(resolve(root, RESPONSIVE_CAPTURE_MANIFEST), "utf8"));
+  const captures = manifest.captures.filter(({ screenshot }) => screenshot);
+  const expectedNames = [
+    "job-status-medium-768.png", "job-status-narrow-390.png", "job-status-wide-1280.png",
+    "review-transcript-medium-768.png", "review-transcript-narrow-390.png", "review-transcript-wide-1280.png",
+    "work-in-project-medium-768.png", "work-in-project-narrow-390.png", "work-in-project-wide-1280.png",
+  ].sort();
+  assert.equal(captures.length, 9);
+  assert.deepEqual(captures.map(({ screenshot }) => screenshot).sort(), expectedNames);
+  assert.deepEqual(readdirSync(resolve(root, RESPONSIVE_CAPTURE_DIRECTORY)).filter((name) => name.endsWith(".png")).sort(), expectedNames);
+  for (const capture of captures) {
+    const file = `${RESPONSIVE_CAPTURE_DIRECTORY}/${capture.screenshot}`;
+    const bytes = readFileSync(resolve(root, file));
+    assert.equal(capture.screenshotSha256, createHash("sha256").update(bytes).digest("hex"), `${file} hash matches the capture manifest`);
+    assert.match(capture.status, /RENDERED_SIMULATION_FIXTURE/u);
+    assert.match(capture.status, /NOT_ADMITTED/u);
+    assert.match(capture.status, /NOT_ACCEPTANCE/u);
+    assert.equal(capture.structuralChecks?.admittedRuntime, false);
+    assert.equal(capture.structuralChecks?.humanComprehension, "NOT_RUN");
+    assert.equal(capture.structuralChecks?.accessibilityAcceptance, "NOT_RUN");
+  }
+  assert.ok(captures.every(({ screenshotSha256 }) => /^([a-f0-9]{64})$/u.test(screenshotSha256)));
+  // The repository inventory is git-index based. Before integration, the
+  // historical/current baseline is 22; once the nine captured PNGs are indexed,
+  // the exact final denominator is 31.
+  const report = buildMediaDependencyInventory(root);
+  const indexedCaptures = report.trackedAssets.filter(({ path }) => path.startsWith(`${RESPONSIVE_CAPTURE_DIRECTORY}/`) && path.endsWith(".png"));
+  assert.ok(indexedCaptures.length === 0 || indexedCaptures.length === captures.length,
+    "all nine responsive captures enter the tracked inventory together");
+  assert.equal(report.denominators.trackedAssetOrFixtureCount, 22 + indexedCaptures.length);
+  if (indexedCaptures.length === captures.length) {
+    assert.equal(report.denominators.trackedAssetOrFixtureCount, 31);
+    assert.ok(indexedCaptures.every(({ licenseReview, distributionProfile }) =>
+      licenseReview === "REVIEW_REQUIRED" && distributionProfile === "TEST_ONLY_UNLESS_SEPARATELY_PACKAGED"));
+  }
+  assert.ok(report.trackedAssets.every(({ licenseReview }) => licenseReview === "REVIEW_REQUIRED"));
 });
 
 test("the inventory keeps legal, transitive, codec, model, and font states unresolved", () => {

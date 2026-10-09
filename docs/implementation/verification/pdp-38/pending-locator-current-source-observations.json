@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "media.pending-locator-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-108",
+  "scope": "Five pending legacy locator observations only; immutable historical target digests retained. No pending claim is promoted or accepted.",
+  "priorSourceCommit": "11eb14ea9059045ca4d983383d36c01f9a08bc8f",
+  "records": [
+    {
+      "claimId": "MPSEM-0030-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch/acceptanceCases/1/when",
+      "priorHash": "fa940b6375fd85eb292c64e1771e67643136fd11e08344e096dae055132ac8b6",
+      "currentHash": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
+      "status": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "currentValue": "A local timeout, disconnect, or close ends observation; Ctrl-C ends local observation with exit code 130.",
+      "disposition": "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY",
+      "acceptanceEffect": "none",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "sourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+      "sourceChangeReviewRefs": [
+        ".product-experience/decision-log.md#PXD-100",
+        ".product-experience/decision-log.md#PXD-106"
+      ],
+      "meaning": "Current job-watch case distinguishes local observation timeout/disconnect/close and local Ctrl-C exit130. It does not confirm remote cancellation or execution finality. This old migration locator does not establish semantic equivalence for its source claim."
+    },
+    {
+      "claimId": "MPSEM-0187-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#personAndIdentityInferenceRule",
+      "priorHash": "38bf5a4eecaade59696031fbd764da0f5e5671323b0a5538def50c7bb1223624",
+      "currentHash": "6532821ab005fe93b1a2ead5ceb245c2ca617c93c6d08589a83ddee566481b0e",
+      "status": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "currentValue": {
+        "id": "media.quality.person-identity-inference",
+        "rule": "An estimator's identity, emotion, demographic, gaze, or other person-related label is an inference, not an established fact about a person. Report the method/model identity and version, evidence/reference, applicable scope, uncertainty, and known limitations; abstain when the evidence is ambiguous, out of scope, or lacks required authority. Anonymous track identity does not identify a person, and diarization alone does not establish speaker identity. Do not assert ground truth from a model label or promote it to a person record without separate authorization and evidence.",
+        "anonymousTrackIdsByDefault": {
+          "id": "media.quality.anonymous-track-identifiers-by-default.v1",
+          "preference": "When a task needs to associate observations of the same subject within one authorized asset, stream, or explicitly scoped session but does not require identifying the person, prefer a random, non-semantic track identifier whose scope is limited to that asset/version or session. Do not create a reusable cross-tenant or global identity key merely to keep a track label stable.",
+          "identityResolution": "Resolve or persist a person identity only when the exact operation requires it and current purpose-specific authority and any applicable consent are established. If identity is unnecessary, unavailable, ambiguous, or unauthorized, retain the scoped track identifier or abstain; do not substitute a person label.",
+          "privacyLimit": "A scoped track identifier is not automatically anonymous if it can be linked with other data. Do not claim de-identification or anonymization from using a track ID alone; apply the separate authorized de-identification process and its evidence when that claim is needed.",
+          "unknownDisposition": "preserve-scoped-observation-or-abstain; never-infer-person-identity",
+          "scopeStatus": "OWNER_DEFINED_POLICY_ONLY; identity/biometric specialist review and qualification remain open"
+        },
+        "scopeStatus": "DEFINITION_ONLY; identity/biometric applicability, specialist review, and qualification remain open."
+      },
+      "disposition": "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY",
+      "acceptanceEffect": "none",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "sourceFileSha256": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+      "sourceChangeReviewRefs": [
+        ".product-experience/decision-log.md#PXD-100",
+        ".product-experience/decision-log.md#PXD-106"
+      ],
+      "meaning": "Current owner source adds the reviewed anonymous-track boundary; original inference rule fields remain identical."
+    },
+    {
+      "claimId": "MPSEM-0336-C006",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch/acceptanceCases/1/when",
+      "priorHash": "fa940b6375fd85eb292c64e1771e67643136fd11e08344e096dae055132ac8b6",
+      "currentHash": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
+      "status": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "currentValue": "A local timeout, disconnect, or close ends observation; Ctrl-C ends local observation with exit code 130.",
+      "disposition": "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY",
+      "acceptanceEffect": "none",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "sourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+      "sourceChangeReviewRefs": [
+        ".product-experience/decision-log.md#PXD-100",
+        ".product-experience/decision-log.md#PXD-106"
+      ],
+      "meaning": "Current job-watch case distinguishes local observation timeout/disconnect/close and local Ctrl-C exit130. It does not confirm remote cancellation or execution finality. This old migration locator does not establish semantic equivalence for its source claim."
+    },
+    {
+      "claimId": "MPSEM-0349-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch/acceptanceCases/1/when",
+      "priorHash": "fa940b6375fd85eb292c64e1771e67643136fd11e08344e096dae055132ac8b6",
+      "currentHash": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
+      "status": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "currentValue": "A local timeout, disconnect, or close ends observation; Ctrl-C ends local observation with exit code 130.",
+      "disposition": "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY",
+      "acceptanceEffect": "none",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "sourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+      "sourceChangeReviewRefs": [
+        ".product-experience/decision-log.md#PXD-100",
+        ".product-experience/decision-log.md#PXD-106"
+      ],
+      "meaning": "Current job-watch case distinguishes local observation timeout/disconnect/close and local Ctrl-C exit130. It does not confirm remote cancellation or execution finality. This old migration locator does not establish semantic equivalence for its source claim."
+    },
+    {
+      "claimId": "MPSEM-0351-C001",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch/acceptanceCases/1/when",
+      "priorHash": "fa940b6375fd85eb292c64e1771e67643136fd11e08344e096dae055132ac8b6",
+      "currentHash": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
+      "status": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
+      "currentValue": "A local timeout, disconnect, or close ends observation; Ctrl-C ends local observation with exit code 130.",
+      "disposition": "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY",
+      "acceptanceEffect": "none",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "sourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+      "sourceChangeReviewRefs": [
+        ".product-experience/decision-log.md#PXD-100",
+        ".product-experience/decision-log.md#PXD-106"
+      ],
+      "meaning": "Current job-watch case distinguishes local observation timeout/disconnect/close and local Ctrl-C exit130. It does not confirm remote cancellation or execution finality. This old migration locator does not establish semantic equivalence for its source claim."
+    }
+  ],
+  "acceptanceEffect": "none"
+}

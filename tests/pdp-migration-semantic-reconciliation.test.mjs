@@ -16,12 +16,23 @@ const readYaml = (path) => {
 };
 const sha = (text) => createHash("sha256").update(text).digest("hex");
 const normalizedWhitespace = (text) => text.replace(/\s+/gu, " ").trim();
+const pendingObservationBytes = readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json"));
+assert.equal(sha(pendingObservationBytes), "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec", "exact bounded PXD-108 observation artifact");
+const pendingObservations = JSON.parse(pendingObservationBytes);
+assert.equal(pendingObservations.decisionRef, ".product-experience/decision-log.md#PXD-108");
+assert.deepEqual(pendingObservations.records.map(({ claimId }) => claimId), ["MPSEM-0030-C001", "MPSEM-0187-C002", "MPSEM-0336-C006", "MPSEM-0349-C001", "MPSEM-0351-C001"]);
+
 
 function resolveRef(ref) {
   const [path, pointer] = ref.split("#", 2);
   if (path.endsWith(".md")) {
     assert.ok(pointer, `${ref}: Markdown owner reference needs an anchor`);
     const source = readFileSync(resolve(root, path), "utf8");
+    if (/^line=\d+$/u.test(pointer)) {
+      const line = source.split(/\r?\n/u)[Number(pointer.slice(5)) - 1];
+      assert.ok(line, `${ref}: historical source line must exist`);
+      return line;
+    }
     assert.match(source, /DECISION 1|Decision 1/u, `${ref}: referenced mandate section is missing`);
     return source;
   }
@@ -174,10 +185,22 @@ function assertClaimDisposition(claim) {
   assert.ok(claim.targetRef, `${claim.claimId} needs one exact authority selector`);
   const target = resolveRef(claim.targetRef);
   const targetText = typeof target === "string" ? target : JSON.stringify(target);
-  const targetDigest = claim.coordinatorReviewStatus === "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE"
+  const targetDigest = claim.coordinatorReviewStatus === "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE" && !claim.targetRef.includes(".md#line=")
     ? sha(JSON.stringify(target))
     : sha(targetText);
-  assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+  const pendingObservation = pendingObservations.records.find(({ claimId }) => claimId === claim.claimId);
+  if (pendingObservation) {
+    assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
+    assert.equal(pendingObservation.disposition, "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY");
+    assert.equal(pendingObservation.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(pendingObservation.acceptanceEffect, "none");
+    assert.equal(claim.targetRef, pendingObservation.targetRef);
+    assert.equal(claim.targetTextSha256, pendingObservation.priorHash, "immutable historical locator digest remains unchanged");
+    assert.equal(targetDigest, pendingObservation.currentHash, "current observed locator bytes remain exact");
+    assert.equal(sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))), pendingObservation.sourceFileSha256);
+  } else {
+    assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+  }
   assert.equal(claim.acceptanceEffect, "none");
   assertHighRiskMigrationSemantics(claim);
   if (claim.claimId.startsWith("MPSEM-0456-C")) assertLicenseSemantics(claim);

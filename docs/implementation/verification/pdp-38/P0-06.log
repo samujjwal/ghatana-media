@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: source applicability validates the exact Cartesian population without admitting measurement
+ok 1 - source applicability validates the exact Cartesian population without admitting measurement
+  ---
+  duration_ms: 1.951478
+  type: 'test'
+  ...
+# Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
+ok 2 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
+  ---
+  duration_ms: 15915.793451
+  type: 'test'
+  ...
+# Subtest: actual measure source bindings resolve exact owner rows and reject valid foreign targets
+ok 3 - actual measure source bindings resolve exact owner rows and reject valid foreign targets
+  ---
+  duration_ms: 15887.720941
+  type: 'test'
+  ...
+# Subtest: same-count substitution, duplicates and stale binding projections are rejected
+ok 4 - same-count substitution, duplicates and stale binding projections are rejected
+  ---
+  duration_ms: 1.325625
+  type: 'test'
+  ...
+# Subtest: unknown applicability, missing evidence and invented measurements remain errors
+ok 5 - unknown applicability, missing evidence and invented measurements remain errors
+  ---
+  duration_ms: 0.796358
+  type: 'test'
+  ...
+# Subtest: explicit applicability decision keeps missing output identity in scope without qualified measurements
+ok 6 - explicit applicability decision keeps missing output identity in scope without qualified measurements
+  ---
+  duration_ms: 2.072751
+  type: 'test'
+  ...
+# Subtest: P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated
+ok 7 - P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated
+  ---
+  duration_ms: 2223.902068
+  type: 'test'
+  ...
+# Subtest: P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators
+ok 8 - P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators
+  ---
+  duration_ms: 2672.669274
+  type: 'test'
+  ...
+# Subtest: P0-06 retains source-defined measurement applicability without turning it into a pass or target
+ok 9 - P0-06 retains source-defined measurement applicability without turning it into a pass or target
+  ---
+  duration_ms: 1531.410619
+  type: 'test'
+  ...
+# Subtest: P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+ok 10 - P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+  ---
+  duration_ms: 22.066924
+  type: 'test'
+  ...
+# Subtest: P0-06 keeps privacy and locality applicability as independent policy decisions
+ok 11 - P0-06 keeps privacy and locality applicability as independent policy decisions
+  ---
+  duration_ms: 9.913931
+  type: 'test'
+  ...
+# Subtest: P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
+ok 12 - P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
+  ---
+  duration_ms: 9.488447
+  type: 'test'
+  ...
+# Subtest: measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values
+ok 13 - measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values
+  ---
+  duration_ms: 5395.473977
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 32096.636445

@@ -24,8 +24,9 @@ const suites = {
   'P0-01': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs', 'tests/pdp-migration-capability-leaf-narrowing.test.mjs'],
   'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-truth-domain-schema-validation.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs', 'tests/pdp-migration-capability-leaf-narrowing.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs'],
+  'P0-05': ['tests/pdp-truth-domain-policy-projection.test.mjs', 'tests/product-definition-domain-rule-mapping.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp-truth-domain-race-semantics.test.mjs'],
   'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs'],
-  'P0-07': ['tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs'],
+  'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
   'P2-01': ['tests/pdp-2-tools-experience-language-contract.test.mjs', 'tests/pdp-2-experience-language-projection.test.mjs'],
   'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs'],
@@ -47,7 +48,7 @@ const directTestNames = {
   'P0-01': 'P0 defines every capability leaf|all 14 existing-operation capability bindings|owner wire|simulation passes reject|edit leaves reject|all eleven simulation-pass|all eighteen edit leaves',
   'P0-02': 'P0 defines every capability leaf|P0-06 enumerates exact capability applicability|all 448 canonical capability|all 101 input and 69 output|rational frame-rate|all 14 existing-operation|measure|applicability|output producer|recovery|recipe|NFR|performance method|missing method|SLO|owner wire|simulation passes reject|edit leaves reject|all eleven simulation-pass|all eighteen edit leaves',
   'P0-04': 'P0-04|PDP-0 preserves exact collaborator|PDP-0 requirement trace targets',
-  'P0-07': 'P0-07|complete product feature review matrix|every feature leaf has an exact proposal-time channel|channel applicability|P0 channel and dependency',
+  'P0-07': 'P0-07|complete product feature review matrix|every feature leaf has an exact proposal-time channel|channel applicability|P0 channel and dependency|all 462 leaves have exact profile-channel applicability|channel rules keep protocol|15 review dimensions resolve',
   'P2-01': 'Tools public ExperienceLanguage|PDP-2 disclosure density|PDP-2 recovery and accessibility|PDP-2 projects exact owner',
 };
 const implementationScopes = {

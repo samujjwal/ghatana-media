@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import test from "node:test";
 import { validateMigrationClaimCohort, validateMigrationClaimReview } from "../scripts/lib/pdp-migration-dependency-review.mjs";
@@ -13,6 +15,10 @@ const actorsPath = ".product-experience/pdp-0-product-truth/actors-responsibilit
 const qualityPath = ".product-experience/pdp-0-product-truth/quality-policy.yaml";
 const glossaryPath = ".product-experience/pdp-0-product-truth/glossary.yaml";
 const interfaceParityPath = ".product-experience/interface-parity/operation-parity.yaml";
+const currentObservationPath = "docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json";
+const sourceImpactPath = "docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json";
+const frozenSourceCommit = "11eb14ea9059045ca4d983383d36c01f9a08bc8f";
+const historicalQuality = parse(execFileSync("git", ["show", `${frozenSourceCommit}:${qualityPath}`], { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }));
 const owners = new Map([
   [actorsPath, parseYaml(actorsPath)],
   [qualityPath, parseYaml(qualityPath)],
@@ -52,14 +58,34 @@ function resolveRef(ref) {
   return value;
 }
 
+function resolveHistoricalQualityRef(ref) {
+  const [source, pointer] = ref.split("#", 2);
+  let value = source === qualityPath ? historicalQuality : owners.get(source);
+  assert.ok(value, `historical/current source resolves: ${source}`);
+  for (const raw of pointer.split("/").filter(Boolean)) {
+    const segment = raw.replaceAll("~1", "/").replaceAll("~0", "~");
+    if (segment.startsWith("@id=")) {
+      assert.ok(Array.isArray(value), `stable ID selector addresses a list: ${ref}`);
+      value = value.find((entry) => entry.id === segment.slice(4));
+    } else if (/^\d+$/u.test(segment)) value = value[Number(segment)];
+    else value = value?.[segment];
+    assert.notEqual(value, undefined, `exact historical owner target resolves: ${ref}`);
+  }
+  return value;
+}
+
 function claims() {
   return migration.pdp38ClaimReconciliation.records.flatMap((record) => record.claims ?? [])
     .flatMap((claim) => claim.subclaims ?? [claim]);
 }
 
+const targetDigest = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
+
 test("privacy, preservation, person-inference and wire-compatibility claims bind exact current owner rules", () => {
   const rows = claims().filter((claim) => targets.has(claim.claimId));
-  const result = validateMigrationClaimCohort({ claims: rows, expectedTargets: targets, resolveRef, predicatesByClaim: predicates });
+  // The ledger locator digest is an immutable historical observation. Validate it
+  // against the frozen source tree; current additive policy is checked separately.
+  const result = validateMigrationClaimCohort({ claims: rows, expectedTargets: targets, resolveRef: resolveHistoricalQualityRef, predicatesByClaim: predicates });
   assert.deepEqual(result.errors, []);
   assert.equal(rows.length, targets.size);
   for (const claim of rows) {
@@ -73,6 +99,37 @@ test("privacy, preservation, person-inference and wire-compatibility claims bind
       assert.equal(claim.semanticReviewRef, "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0354-C001");
     }
   }
+});
+
+test("PXD-100 person-inference addition is current-source evidence only; historical locator remains pending", () => {
+  const claim = claims().find((row) => row.claimId === "MPSEM-0187-C002");
+  const observation = JSON.parse(readFileSync(resolve(root, currentObservationPath), "utf8"));
+  const observed = observation.records.find((row) => row.claimId === claim.claimId);
+  const impact = JSON.parse(readFileSync(resolve(root, sourceImpactPath), "utf8"));
+  const impactRecord = impact.records.find((row) => row.claimId === claim.claimId);
+  const current = resolveRef(targets.get(claim.claimId));
+  const historical = historicalQuality.personAndIdentityInferenceRule;
+  const currentWithoutAddition = structuredClone(current);
+  delete currentWithoutAddition.anonymousTrackIdsByDefault;
+
+  assert.equal(claim.targetTextSha256, observed.priorHash, "the historical ledger pin is unchanged");
+  assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
+  assert.equal(observed.status, claim.semanticReviewStatus);
+  assert.equal(observed.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(observed.acceptanceEffect, "none");
+  assert.equal(observed.targetRef, targets.get(claim.claimId));
+  assert.equal(observed.currentHash, targetDigest(current));
+  const impactSourceHash = createHash("sha256").update(readFileSync(resolve(root, qualityPath))).digest("hex");
+  assert.equal(impactSourceHash, impactRecord.currentSourceFileSha256, "the additive source-impact artifact pins the live file separately");
+  assert.equal(observed.sourceFileSha256, impactRecord.currentSourceFileSha256,
+    "PXD-108's frozen current-file observation remains exact; later source edits invalidate this test until reviewed");
+  assert.equal(targetDigest(historical), observed.priorHash, "the frozen source resolves the exact prior target value");
+  assert.deepEqual(currentWithoutAddition, historical, "only the separately bounded anonymous-track rule was added to this target");
+  assert.equal(impactRecord.historicalTargetValueSha256, observed.priorHash);
+  assert.equal(impactRecord.currentTargetValueSha256, observed.currentHash);
+  assert.deepEqual(impactRecord.addedPaths, ["#/personAndIdentityInferenceRule/anonymousTrackIdsByDefault"]);
+  assert.equal(impactRecord.semanticPromotion, false);
+  assert.equal(impactRecord.observationRef, `${currentObservationPath}#/records/@claimId=${claim.claimId}`);
 });
 
 test("material mutations cannot erase privacy axes, uncertainty, preservation limits or exact wire compatibility", () => {

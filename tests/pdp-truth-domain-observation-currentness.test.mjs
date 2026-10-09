@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
-import { typedObservationRequestFingerprint, validateTypedObservationCurrentRead } from "../scripts/lib/pdp-truth-domain-observation-currentness.mjs";
+import { typedObservationRequestFingerprint, validateRetryPolicyCurrentRead, validateTypedObservationCurrentRead } from "../scripts/lib/pdp-truth-domain-observation-currentness.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const parse = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml").parse;
@@ -81,13 +81,34 @@ function tuple(contract) {
   } else if (contract.id.includes("rights-decision")) {
     result.observationStatus = "UNKNOWN";
     delete result.decision;
+  } else if (contract.id.includes("retry-policy")) {
+    request.jobId = "job-1";
+    request.priorAttemptId = "attempt-1";
+    result.observation = {
+      kind: "OBSERVED_RETRY_POLICY_AND_ATTEMPT",
+      jobId: request.jobId,
+      priorAttemptId: request.priorAttemptId,
+      jobVersionRef: "job-version-1",
+      attemptVersionRef: "attempt-version-1",
+      capabilityRef: "media.job.submit",
+      retryOperationRef: "media.operation-slice.retry-job",
+      profileRef: "media.capability-profile.media-job",
+      boundsRef: "media.capability-bounds.media-job-submit",
+      policyVersionRef: "retry-policy-version-1",
+      retryability: "NOT_RETRYABLE",
+      outcomeClass: "DEFINITIVE_NO_EFFECT",
+      budgetUnit: "ADDITIONAL_ATTEMPTS_PER_LOGICAL_JOB",
+      maximumExplicitRetries: 0,
+      retriesUsed: 0,
+      retriesRemaining: 0,
+    };
   }
   result.requestFingerprint = typedObservationRequestFingerprint(request, trusted);
   return { request, trusted, result };
 }
 
 test("all raw observation records accept exact current query/read tuples only", () => {
-  assert.equal(contracts.length, 7);
+  assert.equal(contracts.length, 8);
   for (const contract of contracts) {
     const sample = tuple(contract);
     const schemaValid = schemaAjv.compile(contract.resultSchema);
@@ -105,6 +126,19 @@ test("all raw observation records accept exact current query/read tuples only", 
       assert.equal(rejectLanguage(unsupportedNotUncertain), false, "NOT_UNCERTAIN requires a source language observation and evidence");
     }
     assert.deepEqual(validateTypedObservationCurrentRead({ contract, ...sample, now: "2026-10-09T12:00:10Z", maxAgeMs: 60000 }), { truth: "TRUE", reason: "EXACT_CURRENT_READ_RECEIPT" }, contract.id);
+    if (contract.id.includes("retry-policy")) {
+      const specialized = { contract, ...sample, now: "2026-10-09T12:00:10Z", maxAgeMs: 60000 };
+      assert.deepEqual(validateRetryPolicyCurrentRead(specialized), { truth: "TRUE", reason: "EXACT_CURRENT_RETRY_POLICY_AND_ATTEMPT_READ" });
+      for (const mutate of [
+        (value) => { value.result.observation.boundsRef = "media.capability-bounds.media-project-create"; },
+        (value) => { value.result.observation.retriesRemaining = 1; },
+        (value) => { value.result.observation.retryability = "RETRYABLE"; value.result.observation.outcomeClass = "EFFECT_UNKNOWN"; },
+      ]) {
+        const invalid = structuredClone(specialized);
+        mutate(invalid);
+        assert.equal(validateRetryPolicyCurrentRead(invalid).truth, "UNKNOWN", "retry query rejects wrong bounds, inconsistent arithmetic, or uncertain-effect promotion");
+      }
+    }
     for (const mutate of [
       (x) => { x.result.queryId = "other-query"; },
       (x) => { x.result.requestFingerprint = `sha256:${"b".repeat(64)}`; },
@@ -125,8 +159,10 @@ test("all raw observation records accept exact current query/read tuples only", 
     if (contract.bindingRules?.length) {
       const changed = structuredClone(sample);
       const target = contract.id.includes("declared-options") ? "profileRef"
-        : contract.id.includes("quality-action-plan") ? "subjectArtifactVersionRef" : "declaredLanguageTag";
-      changed.result[target] = target === "declaredLanguageTag" ? "fr" : `${sample.result[target]}-other`;
+        : contract.id.includes("quality-action-plan") ? "subjectArtifactVersionRef"
+          : contract.id.includes("retry-policy") ? "jobId" : "declaredLanguageTag";
+      if (contract.id.includes("retry-policy")) changed.result.observation.jobId = "foreign-job";
+      else changed.result[target] = target === "declaredLanguageTag" ? "fr" : `${sample.result[target]}-other`;
       assert.equal(validateTypedObservationCurrentRead({ contract, ...changed, now: "2026-10-09T12:00:10Z", maxAgeMs: 60000 }).reason, "OBSERVATION_BINDING_RULE_MISMATCH", `${contract.id} rejects a schema-valid foreign target`);
       const invalidRule = structuredClone(contract);
       invalidRule.bindingRules[0].operator = "UNSUPPORTED_OPERATOR";

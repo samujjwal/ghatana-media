@@ -184,6 +184,15 @@ steps:
         requirementRefs: []
         scenarioRefs: []
         capabilityRefs: []
+        localEffectContractId: media.local-step-effect.j-28.step-01.v1
+        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
+        localObjectRef: media.local-object.editor-session-draft
+        localDraftSlotRef: media.local-draft.slot.scene-entities
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         status: not-run
         requiredChecks:
@@ -264,12 +273,12 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/0
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          objectRefs: NO_CANONICAL_PRODUCT_OBJECT; LOCAL_EDITOR_SESSION_DRAFT_ONLY
+          stateRefs: LOCAL_EDITOR_SESSION_REVISION; NOT_PDP1_DOMAIN_STATE
           canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
+          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null
         authorityRefs: []
@@ -277,7 +286,8 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
+          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs: []
         versionIdentityRule: Exact immutable version identity is required whenever the
@@ -285,6 +295,11 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml
         observation: null
         runtimeAdmission: NOT_ADMITTED
+        localObjectRef: media.local-object.editor-session-draft
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Scene entities/material/camera/light and model bindings
@@ -315,6 +330,7 @@ steps:
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
+      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
     scenarioRefs: []
     capabilityRefs: []
   - view: media.view.animate-media
@@ -475,6 +491,15 @@ steps:
         requirementRefs: []
         scenarioRefs: []
         capabilityRefs: []
+        localEffectContractId: media.local-step-effect.j-28.step-02.v1
+        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
+        localObjectRef: media.local-object.editor-session-draft
+        localDraftSlotRef: media.local-draft.slot.timeline-keyframes
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         status: not-run
         requiredChecks:
@@ -555,12 +580,12 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/1
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          objectRefs: NO_CANONICAL_PRODUCT_OBJECT; LOCAL_EDITOR_SESSION_DRAFT_ONLY
+          stateRefs: LOCAL_EDITOR_SESSION_REVISION; NOT_PDP1_DOMAIN_STATE
           canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
+          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null
         authorityRefs: []
@@ -568,7 +593,8 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
+          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs: []
         versionIdentityRule: Exact immutable version identity is required whenever the
@@ -576,6 +602,11 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
         observation: null
         runtimeAdmission: NOT_ADMITTED
+        localObjectRef: media.local-object.editor-session-draft
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Timeline/keyframes/curves/rig/path/control actions
@@ -606,6 +637,7 @@ steps:
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
+      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
     scenarioRefs: []
     capabilityRefs: []
   - view: media.view.prepare-render
@@ -1099,6 +1131,15 @@ steps:
         requirementRefs: []
         scenarioRefs: []
         capabilityRefs: []
+        localEffectContractId: media.local-step-effect.j-28.step-04.v1
+        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
+        localObjectRef: media.local-object.editor-session-draft
+        localDraftSlotRef: media.local-draft.slot.named-destination
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         status: not-run
         requiredChecks:
@@ -1179,12 +1220,12 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/steps/3
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          objectRefs: NO_CANONICAL_PRODUCT_OBJECT; LOCAL_EDITOR_SESSION_DRAFT_ONLY
+          stateRefs: LOCAL_EDITOR_SESSION_REVISION; NOT_PDP1_DOMAIN_STATE
           canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
+          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null
         authorityRefs: []
@@ -1192,7 +1233,8 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
+          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs: []
         versionIdentityRule: Exact immutable version identity is required whenever the
@@ -1200,6 +1242,11 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
         observation: null
         runtimeAdmission: NOT_ADMITTED
+        localObjectRef: media.local-object.editor-session-draft
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Destination/format/rights/approval and publication finality
@@ -1230,6 +1277,7 @@ steps:
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
+      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
     scenarioRefs: []
     capabilityRefs: []
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy

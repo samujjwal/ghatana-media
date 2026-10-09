@@ -2,9 +2,12 @@ export { evaluateDefinitionActionChoiceSet, evaluateDefinitionOracle } from "./d
 export type { DefinitionActionChoiceDecision, DefinitionActionChoiceSet, DefinitionGuardVerdict, DefinitionOracleAction, DefinitionOracleDecision, DefinitionOracleResult } from "./definition-oracles.js";
 export { evaluateStreamRecoveryDefinition } from "./stream-recovery-definition.js";
 export type { FrameEffectEvidence, StreamConsentState, StreamLeaseState, StreamRecoveryDefinitionInput, StreamRecoveryDefinitionResult, StreamSessionState } from "./stream-recovery-definition.js";
+export { evaluateRetryEligibilityDefinition } from "./retry-eligibility-definition.js";
+export type { RetryEligibilityDecision, RetryEligibilityResult, RetryEligibilityTrustedContext } from "./retry-eligibility-definition.js";
 import { createFixtureState, mediaExperienceScenarioIds, syntheticTranscriptSegments } from "./fixtures.js";
 import type {
   AccessDisposition,
+  RetryEligibilityEvidence,
   ArtifactVerificationExperienceState,
   ArtifactVerificationState,
   CaptionVersionRecord,
@@ -23,6 +26,7 @@ export type {
   ArtifactIntakeState,
   ArtifactIntakeStatus,
   AccessDisposition,
+  RetryEligibilityEvidence,
   ArtifactVerificationExperienceState,
   ArtifactVerificationState,
   ArtifactIntakeExperienceState,

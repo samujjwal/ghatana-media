@@ -1855,9 +1855,9 @@ steps:
           - scenarioRef: media.scenario.job-retry-eligible
             sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.job-retry-eligible
             initialConditions: prior-attempt-is-classified-retryable-and-current-authority-policy-rights-license-resource-deployment-and-budget-checks-pass
-            expected: create-one-new-fenced-attempt-under-the-same-job-identity;
-              preserve-the-classified-prior-attempt-and-do-not-claim-the-new-attempt-completed
-            pdp3PayloadState: proposal-only; no-local-retry-reducer
+            expected: pre-dispatch-guard-returns-eligible-for-an-explicit-retry-request;
+              no-retry-request-is-dispatched-and-no-new-attempt-or-fence-is-claimed
+            pdp3PayloadState: synthetic-pre-dispatch-eligibility-fixture-seeded; retry-request-not-dispatched; no-local-retry-reducer
         positiveBranch:
           status: candidate-proposal
           scope: existing-step-result

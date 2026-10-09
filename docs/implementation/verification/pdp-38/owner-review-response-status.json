@@ -12,7 +12,16 @@
       ],
       "independentApproval": null,
       "phaseReceipt": null,
-      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+      "status": "NO_QUALIFIED_ACCEPTANCE_RESPONSE_OBSERVED; ALL_OBSERVED_COMMENTS_ARE_COORDINATOR_REQUESTS",
+      "latestRecheckAtUtc": "2026-10-09 13:16:02 UTC",
+      "commentIds": [
+        6070389659,
+        6070993050,
+        6073287199,
+        6076958923,
+        6077919082,
+        6079711721
+      ]
     },
     {
       "repository": "samujjwal/ghatana-shared",
@@ -21,16 +30,24 @@
       "commentAuthors": [],
       "independentApproval": null,
       "phaseReceipt": null,
-      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+      "status": "NO_QUALIFIED_ACCEPTANCE_RESPONSE_OBSERVED; ALL_OBSERVED_COMMENTS_ARE_COORDINATOR_REQUESTS",
+      "latestRecheckAtUtc": "2026-10-09 13:16:02 UTC",
+      "commentIds": []
     },
     {
       "repository": "samujjwal/ghatana-tools",
       "issue": 31,
       "url": "https://github.com/samujjwal/ghatana-tools/issues/31",
-      "commentAuthors": [],
+      "commentAuthors": [
+        "samujjwal"
+      ],
       "independentApproval": null,
       "phaseReceipt": null,
-      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+      "status": "NO_QUALIFIED_ACCEPTANCE_RESPONSE_OBSERVED; ALL_OBSERVED_COMMENTS_ARE_COORDINATOR_REQUESTS",
+      "commentIds": [
+        6076966554
+      ],
+      "latestRecheckAtUtc": "2026-10-09 13:16:02 UTC"
     },
     {
       "repository": "samujjwal/ghatana-lifecycle",
@@ -41,7 +58,15 @@
       ],
       "independentApproval": null,
       "phaseReceipt": null,
-      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+      "status": "NO_QUALIFIED_ACCEPTANCE_RESPONSE_OBSERVED; ALL_OBSERVED_COMMENTS_ARE_COORDINATOR_REQUESTS",
+      "latestRecheckAtUtc": "2026-10-09 13:16:02 UTC",
+      "commentIds": [
+        6068243405,
+        6070166418,
+        6073289506,
+        6076966374,
+        6079714829
+      ]
     },
     {
       "repository": "samujjwal/ghatana-shared",
@@ -52,7 +77,27 @@
       ],
       "independentApproval": null,
       "phaseReceipt": null,
-      "status": "REQUESTED; NO_INDEPENDENT_OWNER_RESPONSE_OBSERVED"
+      "status": "NO_QUALIFIED_ACCEPTANCE_RESPONSE_OBSERVED; ALL_OBSERVED_COMMENTS_ARE_COORDINATOR_REQUESTS",
+      "commentIds": [
+        6068244686,
+        6073521454
+      ],
+      "latestRecheckAtUtc": "2026-10-09 13:16:02 UTC"
+    },
+    {
+      "repository": "samujjwal/ghatana",
+      "issue": 254,
+      "url": "https://github.com/samujjwal/ghatana/issues/254",
+      "independentApproval": null,
+      "phaseReceipt": null,
+      "status": "NO_QUALIFIED_ACCEPTANCE_RESPONSE_OBSERVED; ALL_OBSERVED_COMMENTS_ARE_COORDINATOR_REQUESTS",
+      "latestRecheckAtUtc": "2026-10-09 13:16:02 UTC",
+      "commentIds": [
+        6080143751
+      ],
+      "commentAuthors": [
+        "samujjwal"
+      ]
     }
   ],
   "nonClaims": [
@@ -83,7 +128,149 @@
       "commentId": 6076966554,
       "immutableMediaCommit": "38b6673",
       "effect": "EXACT_PUBLIC_INVOCATION_AND_ADMISSION_ARTIFACT_REQUEST_ONLY"
+    },
+    {
+      "repository": "samujjwal/ghatana-media",
+      "issue": 4,
+      "commentId": 6077919082,
+      "immutableMediaCommit": "349caa6",
+      "effect": "CORRECTIVE_REVIEW_REQUEST_UPDATE_ONLY; P0-01/P0-02 reopened after material defects; previous tests historical"
+    },
+    {
+      "repository": "samujjwal/ghatana-media",
+      "issue": 4,
+      "commentId": 6079711721,
+      "immutableMediaCommit": "d99baf7",
+      "effect": "REVIEW_REQUEST_ONLY"
+    },
+    {
+      "repository": "samujjwal/ghatana-lifecycle",
+      "issue": 1,
+      "commentId": 6079714829,
+      "immutableMediaCommit": "d99baf7",
+      "effect": "REVIEW_REQUEST_ONLY"
+    },
+    {
+      "repository": "samujjwal/ghatana",
+      "issue": 254,
+      "commentId": 6080143751,
+      "publishedOwnerRevision": "b1c892a9fc6a5e11fff82adc4bf3fcf190ba76e4",
+      "scope": "PDP-1 Event Plane append/retry/exact-lookup contract conflict only",
+      "consumerProtocolStatus": "WORKING_SOURCE_UNDER_REVIEW",
+      "effect": "REVIEW_REQUEST_ONLY"
     }
   ],
-  "requestUpdatesAt": "2026-10-09T08:04:54.694510+00:00"
+  "requestUpdatesAt": "2026-10-09T09:17:21.618245+00:00",
+  "latestCommentRecheck": {
+    "observedAtUtc": "2026-10-09T12:02:11Z",
+    "method": "Connected GitHub full issue-comment reads; only the four listed issues were refreshed; bodies contain coordinator requests, no qualified attributed outcome.",
+    "requests": [
+      {
+        "repository": "samujjwal/ghatana-media",
+        "issue": 4,
+        "commentCount": 6,
+        "observedCommentIds": [
+          6070389659,
+          6070993050,
+          6073287199,
+          6076958923,
+          6077919082,
+          6079711721
+        ],
+        "result": "No attributed qualified independent outcome, package-owner admission or Lifecycle issuer evidence observed"
+      },
+      {
+        "repository": "samujjwal/ghatana-lifecycle",
+        "issue": 1,
+        "commentCount": 5,
+        "observedCommentIds": [
+          6068243405,
+          6070166418,
+          6073289506,
+          6076966374,
+          6079714829
+        ],
+        "result": "No attributed qualified independent outcome, package-owner admission or Lifecycle issuer evidence observed"
+      },
+      {
+        "repository": "samujjwal/ghatana",
+        "issue": 254,
+        "commentCount": 1,
+        "observedCommentIds": [
+          6080143751
+        ],
+        "result": "No attributed qualified independent outcome, package-owner admission or Lifecycle issuer evidence observed"
+      },
+      {
+        "repository": "samujjwal/ghatana-shared",
+        "issue": 242,
+        "commentCount": 0,
+        "observedCommentIds": [],
+        "result": "No attributed qualified independent outcome, package-owner admission or Lifecycle issuer evidence observed"
+      }
+    ],
+    "acceptanceEffect": "NONE; absence of responses does not establish globally zero native receipts"
+  },
+  "commentRecheckHistory": [
+    {
+      "observedAtUtc": "2026-10-09T10:07:35Z",
+      "method": "Connected GitHub issue-comment reads; only the three listed issues were refreshed",
+      "requests": [
+        {
+          "repository": "samujjwal/ghatana-media",
+          "issue": 4,
+          "commentCount": 5,
+          "result": "Only coordinator requests and correction observed; no attributed qualified independent outcome"
+        },
+        {
+          "repository": "samujjwal/ghatana-lifecycle",
+          "issue": 1,
+          "commentCount": 4,
+          "result": "Only coordinator artifact/admission requests observed; no issuer receipt or public artifact owner response"
+        },
+        {
+          "repository": "samujjwal/ghatana-shared",
+          "issue": 242,
+          "commentCount": 0,
+          "result": "No comment response observed"
+        }
+      ],
+      "acceptanceEffect": "NONE; requests and absence of responses are not approvals or globally zero native receipts"
+    }
+  ],
+  "recheckHistory": [
+    {
+      "atUtc": "2026-10-09 13:16:02 UTC",
+      "method": "GitHub issue comments fetched across all pages for six requested owner/reviewer issues",
+      "qualifiedResponsesObserved": 0,
+      "issueCommentIds": {
+        "samujjwal/ghatana-media#4": [
+          6070389659,
+          6070993050,
+          6073287199,
+          6076958923,
+          6077919082,
+          6079711721
+        ],
+        "samujjwal/ghatana-lifecycle#1": [
+          6068243405,
+          6070166418,
+          6073289506,
+          6076966374,
+          6079714829
+        ],
+        "samujjwal/ghatana-shared#242": [],
+        "samujjwal/ghatana-shared#234": [
+          6068244686,
+          6073521454
+        ],
+        "samujjwal/ghatana-tools#31": [
+          6076966554
+        ],
+        "samujjwal/ghatana#254": [
+          6080143751
+        ]
+      }
+    }
+  ]
 }

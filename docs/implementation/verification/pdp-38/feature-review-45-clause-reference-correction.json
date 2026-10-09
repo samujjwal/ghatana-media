@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-referent-correction.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-101",
+  "baseArtifactRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseArtifactSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "scope": "One of224 PXD-098 referents; four exact source-selector repairs only. Clause text, capability meaning, operation/profile/bounds/availability and all other fields are unchanged.",
+  "authority": "User-delegated Media coordinator material reference review",
+  "acceptanceBoundary": "No whole P0-01/P0-02/P0-07 acceptance, runtime admission, independent review or Lifecycle receipt.",
+  "records": [
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.text-to-image",
+      "identity": "media.generate.image.text-to-image",
+      "priorContentSha256": "3697f0a093ecae9bab2497f8a498ec6dba84b5b3d17d7020db300de2249725cc",
+      "currentContentSha256": "2a6fa4812b77fa1f1bfdb85d2c45d84b458a1a09e3702fa1b8cf468776c3cde8",
+      "reviewStatus": "APPROVED_EXACT_REFERENCE_ONLY_CORRECTION",
+      "reviewedReferenceChanges": [
+        {
+          "path": [
+            "ownerDefinition",
+            "channelApplicabilityRef"
+          ],
+          "prior": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication.records.media.generate.image.text-to-image.channelApplicability",
+          "current": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.generate-image-text-to-image/channelApplicability"
+        },
+        {
+          "path": [
+            "ownerDefinition",
+            "canonicalAuthorityRefs",
+            "0"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope",
+          "current": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope"
+        },
+        {
+          "path": [
+            "ownerDefinition",
+            "canonicalAuthorityRefs",
+            "1"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary",
+          "current": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/effectBoundary"
+        },
+        {
+          "path": [
+            "ownerDefinition",
+            "canonicalAuthorityRefs",
+            "2"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention",
+          "current": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/duplicateEffectPrevention"
+        }
+      ]
+    }
+  ]
+}

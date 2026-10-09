@@ -730,7 +730,7 @@ test("active cross-phase metadata uses canonical PDP labels while stable excepti
   const journeyRegistry = readFileSync(resolve(experienceRoot, "journey-registry.yaml"), "utf8");
   assert.match(journeyRegistry, /^pdp0Authority:/mu);
   assert.match(journeyRegistry, /^additionalPdp0JourneyCount: 2$/mu);
-  assert.match(journeyRegistry, /^  pdp0JourneyRef: J-01$/mu);
+  assert.equal(parseYaml(journeyRegistry).journeys.find(row=>row.id==='J-01').pdp0JourneyRef,'J-01');
   assert.match(journeyRegistry, /PDP-3 acceptance/u);
   assert.doesNotMatch(journeyRegistry, /phase0Authority|phase0JourneyRef|additionalPhase0JourneyCount|Phase-2 acceptance/u);
 
@@ -1420,7 +1420,7 @@ test("PDP2-004/005 interface registries are complete proposals with owner and ru
   const apiNames = [
     "conventions", "errors", "auth", "identifiers", "pagination", "filtering-sorting", "idempotency",
     "concurrency", "async-operations", "cancellation", "retry-timeout-unknown-outcome", "correlation",
-    "compatibility", "versioning",
+    "compatibility", "versioning", "http-canonical-adapters",
   ];
   const apiFiles = new Map(apiNames.map((name) => [name, readFileSync(resolve(designRoot, `api/${name}.yaml`), "utf8")]));
   const apiConventions = apiFiles.get("conventions");

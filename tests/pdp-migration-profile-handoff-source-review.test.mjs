@@ -14,10 +14,12 @@ const sha = (value) => createHash("sha256").update(value).digest("hex");
 const ledgerPath = ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml";
 const reviewPath = "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json";
 const sourceImpactPath = "docs/implementation/verification/pdp-38/migration-reviewed-source-impact.json";
+const frozenSourceDeltasPath = "docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json";
 const handoffImpactPath = "docs/implementation/verification/pdp-38/migration-handoff-owner-source-impact.json";
 const domainImpactPath = "docs/implementation/verification/pdp-38/migration-domain-model-owner-source-impact.json";
 const ledger = readYaml(ledgerPath).pdp38ClaimReconciliation;
 const review = JSON.parse(readText(reviewPath));
+const frozenDeltas = JSON.parse(readText(frozenSourceDeltasPath));
 const claims = ledger.records.flatMap((record) => record.claims ?? []).flatMap((claim) => claim.subclaims ?? [claim]);
 const claimById = new Map(claims.map((claim) => [claim.claimId, claim]));
 
@@ -48,7 +50,35 @@ test("PXD-086 verifies exactly 57 bounded profile/handoff claims and one source-
       ? handoffImpactPath
       : path === ".product-experience/pdp-0-product-truth/domain-model.yaml" ? domainImpactPath : null;
     if (!impactPath) {
-      assert.equal(sha(readText(path)), expectedDigest, `${path} remains at the bounded reviewed source cut`);
+      if (path === ".product-experience/pdp-2-design-interface-system/cli-language.yaml") {
+        const impact = frozenDeltas.records.find((record) => record.sourcePath === path);
+        assert.ok(impact, "current CLI additive source delta is separately documented");
+        const frozenText = execFileSync("git", ["show", `${frozenDeltas.priorSourceCommit}:${path}`], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
+        assert.equal(sha(frozenText), expectedDigest, "PXD-086 historical CLI fingerprint remains unchanged");
+        assert.equal(sha(frozenText), impact.historicalSourceFileSha256);
+        const currentText = readText(path);
+        assert.equal(sha(currentText), impact.currentSourceFileSha256);
+        const current = parse(currentText);
+        for (const addedKey of ["ownerDefinedInvocationRules", "normativeRuleRecords", "ownerDefinedMachineOutputRules"]) {
+          assert.ok(Object.hasOwn(current, addedKey), `the current CLI definition adds ${addedKey}`);
+          assert.ok(!Object.hasOwn(parse(frozenText), addedKey), `the frozen PXD-086 source predates ${addedKey}`);
+        }
+        const currentProjection = structuredClone(current);
+        for (const key of ["ownerDefinedInvocationRules", "normativeRuleRecords", "ownerDefinedMachineOutputRules"]) delete currentProjection[key];
+        assert.equal(sha(JSON.stringify(currentProjection)), impact.removedAddedPathsProjectionSha256);
+        assert.deepEqual(currentProjection, parse(frozenText), "removing only the three reviewed additive collections reproduces the PXD-086 parsed source");
+
+        const currentReview = JSON.parse(readText("docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json"));
+        const cliRecords = currentReview.records.filter((record) => record.currentTargetRef?.startsWith(`${path}#`));
+        assert.ok(cliRecords.length > 0, "current CLI rules have exact PXD-100 reviewed targets");
+        for (const record of cliRecords) {
+          assert.equal(record.reviewStatus, "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE", record.claimId);
+          assert.equal(targetDigest(resolveRef(record.currentTargetRef)), record.currentTargetValueSha256, `${record.claimId} current CLI target matches its bounded review`);
+          assert.equal(record.acceptanceEffect, "none");
+        }
+      } else {
+        assert.equal(sha(readText(path)), expectedDigest, `${path} remains at the bounded reviewed source cut`);
+      }
       continue;
     }
     const impact = JSON.parse(readText(impactPath));
@@ -131,8 +161,20 @@ test("PXD-084, PXD-085 and PXD-086 are disjoint immutable review cohorts", () =>
     assert.equal(claim.sourceTextSha256, record.sourceTextSha256, `${record.claimId} prior source digest unchanged`);
     const currentTarget = resolveRef(record.targetRef);
     const reviewedEncodingDigest = sha(historicalEncoding ? JSON.stringify(currentTarget) : (typeof currentTarget === "string" ? currentTarget : JSON.stringify(currentTarget)));
+    let historicalTarget = currentTarget;
     if (reviewedEncodingDigest !== record.targetValueSha256) {
-      assert.equal(record.claimId, "MPSEM-0388-C003", "only the separately recorded acquisition-policy delta may supersede a historical target snapshot");
+      assert.ok(["MPSEM-0388-C003", "MPSEM-0455-C002"].includes(record.claimId), "only explicitly separated additive source observations can differ from a historical target snapshot");
+      if (record.claimId === "MPSEM-0455-C002") {
+        assert.equal(frozenDeltas.records.some(({ claimId }) => claimId === record.claimId), false,
+          "the later GPU scheduler addition is outside the frozen PXD-085/PXD-100/105 impact evidence");
+        const projected = structuredClone(currentTarget);
+        delete projected.gpuSchedulerBoundary;
+        assert.deepEqual(projected, record.expectedOwnerValue, "PXD-085's reviewed Shared-mechanics clauses remain unchanged");
+        assert.ok(currentTarget.gpuSchedulerBoundary, "the live GPU scheduler addition is explicitly present but unreviewed by this cohort");
+        assert.equal(claim.targetTextSha256, record.targetValueSha256, "the old approved target digest remains in the ledger");
+        assert.equal(claim.semanticReviewRef, `docs/implementation/verification/pdp-38/migration-policy-source-review.json#/records/@claimId=${record.claimId}`);
+        historicalTarget = projected;
+      } else {
       const sourceImpact = JSON.parse(readText(sourceImpactPath));
       assert.equal(sha(readText(sourceImpactPath)), "4c3b9d12fe072c5f58b735eae38d197f94790d056979c66c5ab65dac15f5b9a7", "PXD-088 reviewed impact artifact remains exact");
       assert.equal(claim.sourceImpactReviewRef, `${sourceImpactPath}#/records/@claimId=MPSEM-0388-C003`);
@@ -155,8 +197,9 @@ test("PXD-084, PXD-085 and PXD-086 are disjoint immutable review cohorts", () =>
       assert.equal(claim.currentOwnerDeltaRef, deltaRecord.currentOwnerDelta.targetRef);
       assert.equal(claim.currentOwnerDeltaTextSha256, deltaRecord.currentOwnerDelta.targetValueSha256);
       assert.deepEqual(resolveRef(claim.currentOwnerDeltaRef), deltaRecord.currentOwnerDelta.expectedOwnerValue);
+      }
     }
-    assert.equal(claim.targetTextSha256, targetDigest(currentTarget), `${record.claimId} current overlay digest tracks the current source value`);
+    assert.equal(claim.targetTextSha256, targetDigest(historicalTarget), `${record.claimId} retains its reviewed target value or explicit current overlay digest`);
     assert.equal(claim.semanticReviewStatus, "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
     assert.equal(claim.acceptanceEffect, "none");
   }

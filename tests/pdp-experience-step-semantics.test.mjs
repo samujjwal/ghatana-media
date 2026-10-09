@@ -187,3 +187,20 @@ test('ambiguous live-session steps are not rebound to unrelated generic job acti
     assert.ok(step.stepDefinitionSemantics.fixtureOracle.definitionCases.length >= 3);
   }
 });
+
+test('first-use identity step binds the approved Media adapter definition without claiming Shared wire or runtime acceptance', async () => {
+  const oracle = stepOracles.journeys.find(({ journeyId }) => journeyId === 'J-01').steps[0];
+  const handoffs = parse(await readFile(`${base}/handoff-bindings.yaml`, 'utf8'));
+  const identity = handoffs.handoffs.find(({ id }) => id === 'media.handoff.identity');
+  assert.ok(identity);
+  assert.equal(identity.mediaOwnerDefinition.sourceDecisionRef, '.product-experience/decision-log.md#PXD-082');
+  assert.equal(oracle.coverageDisposition, 'SOURCE_BINDING_RECORDED');
+  assert.equal(oracle.canonicalBindings.bindingKind, 'EXTERNAL_SHARED_IDENTITY_HANDOFF_BOUNDARY');
+  assert.equal(oracle.canonicalBindings.externalHandoffRef,
+    `${base}/handoff-bindings.yaml#handoffs/@id=media.handoff.identity/mediaOwnerDefinition/adapterEnvelopeDefinition`);
+  assert.equal(oracle.canonicalBindings.externalHandoffDecisionRef, '.product-experience/decision-log.md#PXD-082');
+  assert.equal(oracle.canonicalBindings.externalWireBindingStatus, 'PENDING_SHARED_OWNER_EVIDENCE');
+  assert.deepEqual(oracle.canonicalBindings.operationRefs, []);
+  assert.equal(oracle.canonicalBindings.runtimeAdmission, 'NOT_ADMITTED');
+  assert.match(oracle.coverageReason, /does not claim executable authentication, membership, or workspace authorization/u);
+});

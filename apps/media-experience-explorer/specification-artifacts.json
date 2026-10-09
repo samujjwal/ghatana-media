@@ -651,6 +651,13 @@
     "title": "Filtering Sorting"
   },
   {
+    "artifactId": "ART-P2-HTTP-CANONICAL-ADAPTER-DEFINITIONS",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml",
+    "title": "Http Canonical Adapters"
+  },
+  {
     "artifactId": "ART-MEDIA-8C19A6D459DC",
     "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
     "phase": "PDP-2",
@@ -1778,6 +1785,13 @@
     "title": "Journey Registry"
   },
   {
+    "artifactId": "ART-P3-LOCAL-STEP-EFFECT-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml",
+    "title": "Local Step Effect Contracts"
+  },
+  {
     "artifactId": "ART-P3-MIGRATION-SEMANTIC-RULES",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -1790,6 +1804,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
     "title": "Navigation Contracts"
+  },
+  {
+    "artifactId": "ART-P3-PROJECT-LIST-OBSERVATION-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml",
+    "title": "Project List Observation Contracts"
   },
   {
     "artifactId": "ART-P3-PUBLIC-EFFECT-FINALITY-TAXONOMY",
@@ -2224,6 +2245,20 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
     "title": "Step Definition Oracles"
+  },
+  {
+    "artifactId": "ART-P3-STEP-GUARD-FACT-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml",
+    "title": "Step Guard Fact Contracts"
+  },
+  {
+    "artifactId": "ART-P3-STEP-GUARD-SPECIALIZED-FACT-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/step-guard-specialized-fact-contracts.yaml",
+    "title": "Step Guard Specialized Fact Contracts"
   },
   {
     "artifactId": "ART-P3-VIEW-OBSERVATION-INPUT-CONTRACTS",

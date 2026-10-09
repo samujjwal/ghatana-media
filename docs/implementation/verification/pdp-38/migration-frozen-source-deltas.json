@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "media.pdp38-historical-current-owner-source-impact.v1",
+  "scope": "Bounded historical/current source observations for frozen migration review tests. Historical fingerprints and claim targets are not rewritten. Additive source deltas do not promote pending claim parity, implementation, runtime, independent acceptance, or phase receipts.",
+  "priorSourceCommit": "11eb14ea9059045ca4d983383d36c01f9a08bc8f",
+  "decisionRefs": [
+    ".product-experience/decision-log.md#PXD-100",
+    ".product-experience/decision-log.md#PXD-105"
+  ],
+  "records": [
+    {
+      "claimId": "MPSEM-0388-C005",
+      "sourcePath": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+      "historicalSourceFileSha256": "be8913ba3edce70ee7eed739f5585e677fe372ccbd36aa710ccfd801209d8824",
+      "currentSourceFileSha256": "a553a79da537517a1380bd686eed2db73ba29ce6ace64f4a2f9f880e296dff80",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/inputAndExecutionThreats",
+      "historicalTargetValueSha256": "f472d1538117d7a15c0c38b188af6096da3bc01a26eca9f48ccb3fd37bbbbe74",
+      "currentTargetValueSha256": "cadc160889868ef815419085b1cf7861feccb6caa49b3f0cd108c093396fdaa7",
+      "addedPaths": [
+        "#/productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary"
+      ],
+      "removedAddedPathsProjectionSha256": "f472d1538117d7a15c0c38b188af6096da3bc01a26eca9f48ccb3fd37bbbbe74",
+      "reviewEvidenceRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0388-C005",
+      "semanticPromotion": false
+    },
+    {
+      "claimId": "MPSEM-0187-C002",
+      "sourcePath": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "historicalSourceFileSha256": "046932f222691ba17503d520d379df4eb390047eed9752093b8ae58879edd721",
+      "currentSourceFileSha256": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+      "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#personAndIdentityInferenceRule",
+      "historicalTargetValueSha256": "38bf5a4eecaade59696031fbd764da0f5e5671323b0a5538def50c7bb1223624",
+      "currentTargetValueSha256": "6532821ab005fe93b1a2ead5ceb245c2ca617c93c6d08589a83ddee566481b0e",
+      "addedPaths": [
+        "#/personAndIdentityInferenceRule/anonymousTrackIdsByDefault"
+      ],
+      "removedAddedPathsProjectionSha256": "38bf5a4eecaade59696031fbd764da0f5e5671323b0a5538def50c7bb1223624",
+      "observationRef": "docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json#/records/@claimId=MPSEM-0187-C002",
+      "reviewEvidenceRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0187-C004",
+      "semanticPromotion": false
+    },
+    {
+      "sourcePath": ".product-experience/pdp-2-design-interface-system/cli-language.yaml",
+      "historicalSourceFileSha256": "8a774014d7c515e3140ca1b619532d22da9c91f387014db0219d05a7a9843c46",
+      "currentSourceFileSha256": "b63310559bf9ecd8265353ccdcbfbf9905851bec7facd8c76e1a21c428446d38",
+      "addedPaths": [
+        "#/ownerDefinedInvocationRules",
+        "#/normativeRuleRecords",
+        "#/ownerDefinedMachineOutputRules"
+      ],
+      "removedAddedPathsProjectionSha256": "36ff48dad751c811d54b649a95b2bb36a023c569c1415ba066c31444fe8f6968",
+      "reviewEvidenceRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json",
+      "scope": "PXD-086 fingerprint remains historical; exact current CLI target clauses are checked against PXD-100 rows",
+      "semanticPromotion": false
+    }
+  ],
+  "nonClaims": [
+    "No historical review artifact or ledger hash is refreshed",
+    "No claim semantic status is promoted by this artifact",
+    "No runtime, legal, specialist, independent, or Lifecycle acceptance is implied"
+  ]
+}

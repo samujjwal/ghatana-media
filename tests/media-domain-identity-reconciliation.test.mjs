@@ -129,7 +129,7 @@ test("artifact, job, and lease identities preserve the source-specific keys with
 test("PDP-1 observes the current Media runtime job enum without accepting a canonical mapping", () => {
   const runtime = readFileSync("runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java", "utf8");
   const stateInventory = parse(readFileSync(".product-experience/pdp-1-domain-data/states.yaml", "utf8"));
-  const adjudication = readFileSync(".product-experience/pdp-1-domain-data/state-adjudication.yaml", "utf8");
+  const adjudication = parse(readFileSync(".product-experience/pdp-1-domain-data/state-adjudication.yaml", "utf8"));
   const reconciliation = readFileSync(".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml", "utf8");
   const runtimeEnum = runtime.match(/public enum JobStatus \{([^}]+)\}/u)?.[1];
   assert.ok(runtimeEnum, "current runtime JobStatus enum must remain discoverable");
@@ -140,8 +140,12 @@ test("PDP-1 observes the current Media runtime job enum without accepting a cano
   assert.deepEqual(exactObserved.values, runtimeValues);
   assert.match(exactObserved.disposition, /observed; request\/job spelling does not establish canonical/u,
     "runtime enum observation does not imply canonical mapping acceptance");
-  assert.match(adjudication, /current-runtime-enum-observed; per-state canonical and wire mapping unresolved/u);
-  assert.match(adjudication, /ACCEPTED is not evidence of durable job queueing/u);
+  const runtimeDisposition = adjudication.crossProjectionDispositions.find((row) => row.source === exactObserved.source);
+  assert.ok(runtimeDisposition, "runtime source has one parsed owner disposition");
+  assert.match(runtimeDisposition.disposition, /^current-runtime-enum-observed; per-state canonical and wire mapping unresolved; ACCEPTED is not evidence of durable job queueing$/u);
+  assert.match(runtimeDisposition.observation, /no RETRY_PENDING, RECONCILING, or PARTIALLY_SUCCEEDED/u);
+  assert.equal(adjudication.ownerAcceptedPolicyDecisions.requestReceiptIsQueuedJob, false,
+    "owner policy keeps transport acceptance distinct from durable queue state");
   assert.match(reconciliation, /Java tenantId\+jobId and JobStatus \[ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED\]/u);
   assert.match(reconciliation, /status check includes OUTCOME_UNKNOWN/u);
   const sqlMigration = readFileSync("providers/aws-postgresql/src/main/resources/db/media-runtime/V007__media_job_unknown_outcome.sql", "utf8");

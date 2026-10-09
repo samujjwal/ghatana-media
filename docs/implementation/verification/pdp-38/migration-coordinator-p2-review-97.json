@@ -1,0 +1,1763 @@
+{
+  "schemaVersion": "media.pdp38.coordinator-p2-migration-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-100",
+  "authority": "User-delegated Media product-definition coordinator semantic ownership",
+  "reviewedRecordCount": 97,
+  "proposalArtifactRef": "docs/implementation/verification/pdp-38/migration-p2-97-owner-review-candidate.json",
+  "proposalArtifactSha256": "d8cd73d52664f8ac25d997a4da9c75198fe509e8403360a46360d42f166f4ffe",
+  "sourcePartitionRef": "docs/implementation/verification/pdp-38/migration-pending-owner-partition-499.json",
+  "sourcePartitionSha256": "00e07ac21969c3145310189398333a8c4ad06d417a4d8bf91c1002d2c8017bf7",
+  "scope": "Entire 97-claim PDP-2 migration partition; 96 exact owner definition clauses plus one independently observed historical external-license source statement. Full original clause meanings reviewed; deficient loopback, build, historical inventory, inspector, flashing, identity and registry routes corrected before approval.",
+  "verification": {
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "evidenceRef": "docs/implementation/verification/pdp-38/p2-97-feature-coordinator-review-tests.log"
+  },
+  "externalSourceObservation": {
+    "claimId": "MPSEM-0458-C001",
+    "url": "https://www.openvdb.org/license/",
+    "observedStatement": "Official OpenVDB license page identifies Mozilla Public License Version 2.0.",
+    "scope": "Verify the preserved historical source fact only; no candidate selection, distribution clearance, legal review or product admission.",
+    "observedOn": "2026-10-09"
+  },
+  "acceptanceBoundary": "No independent migration/PDP acceptance, Shared owner publication, rendered/AT review, runtime qualification, or Lifecycle receipt/currentness.",
+  "records": [
+    {
+      "claimId": "MPSEM-0017-C003",
+      "exactSourceText": "Several instructions conflate source relocation with product redesign, presume reusable components without checking their boundaries, leave safety-critical contracts underspecified, or describe desired quality as if it were guaranteed.",
+      "sourceTextSha256": "38250e049c39220bc2fdf4cc3429ccb491fcd83e7075141e68c2483246646df8",
+      "proposalRecordSha256": "fd724cca354957007409d53b9161e56579da290491b376bef87a8732aca7826a",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/states/4/label",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.source-change-and-evidence-boundary.v1",
+      "currentTargetValueSha256": "40442fbb9db2f9df9a12ba3d7008fbc9ea349d776f359686a770c674d7111b1d",
+      "exactMaterialClauses": [
+        "A source relocation preserves existing behavior, identities, authority checks, and side effects",
+        "new product behavior is specified as a separate change",
+        "actual public boundary covers the required typed inputs, states, actions, errors, and accessibility behavior",
+        "Safety-critical authority, denial, uncertainty, finality, and budget rules must be explicit",
+        "Desired quality is a target, not a guarantee"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0033-C001",
+      "exactSourceText": "| REV-13 — Three distinct time domains were conflated",
+      "sourceTextSha256": "ec30c34c4d48545e29de684a77918380af045cc5c8d541fbef9e28eb6628bc46",
+      "proposalRecordSha256": "728ada21b3955def471bbd69b842a7049cd7afc46bcc706411218ef11b218baa",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/identifiers.yaml#/acceptance/criteria/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedClockPresentation",
+      "currentTargetValueSha256": "f84a907f36eebbe613362652a5b3fe00915003af82f49dc0d305e92df94e4cc0",
+      "exactMaterialClauses": [
+        "mediaPresentation",
+        "audioSamples",
+        "simulation",
+        "story",
+        "wallClock",
+        "cross-clock, cross-stream, timebase, frame-rate, sample-rate, and drift conversion uses the exact referenced PDP-1 definition",
+        "missing mapping disables conversion"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0034-C001",
+      "exactSourceText": "| REV-14 — Graph definition and execution state were mixed",
+      "sourceTextSha256": "c46d5f28da212b70137466af605cb159d7a252ae29f3228f0d69d591caea14f2",
+      "proposalRecordSha256": "b3af495dc8e5901339b8db1cd2651c67a2717847007f195905cbe2274920cfd7",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.definition-and-run-state-separation.v1",
+      "currentTargetValueSha256": "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925",
+      "exactMaterialClauses": [
+        "A versioned workflow definition contains only its declared stages, typed parameters, policy references, and dependency edges",
+        "Each invocation is a separately identified run",
+        "Run status never rewrites the definition",
+        "workflow graph alone grants no dispatch authority or runtime execution"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0037-C001",
+      "exactSourceText": "| REV-17 — Erasure, retention and provenance could conflict",
+      "sourceTextSha256": "74c6fdb85aedb95597815ec201e9a67894ca5c7b990c06e75b2b334ae01fbb1b",
+      "proposalRecordSha256": "70f7c35eb6064673dfcd3cde39eddf8eb53f0bda8cff118e99bd22df1d3d1819",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.rights-retention-review/hierarchy/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.erasure-retention-provenance.v1",
+      "currentTargetValueSha256": "a0d4b42bc2f1ff32d9a8157be09ae3d6a58447b9f39c1317b6bc29ab5d03384a",
+      "exactMaterialClauses": [
+        "Immutable output versions and provenance do not require retaining source media or personal content forever",
+        "Apply the exact lifecycle decision to content and derivatives",
+        "retain only provenance fields required and permitted for audit",
+        "remove protected content from copied caches/previews/temporary artifacts",
+        "legal hold or undeletable external copy as a separately scoped disposition"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0077-C001",
+      "exactSourceText": "Primary outcomes are useful finished assets and explainable recoverable work, not access to a list of model endpoints.",
+      "sourceTextSha256": "880b9047c5440a529d229c9c295ad0973b3a9ca9d5e31574dbbd1ee71946d1e8",
+      "proposalRecordSha256": "3d9d2ce960f0f67105c7473b22f7a44dd9c19491a0786bc0c6d893e906689387",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/templateCrosswalk/4/useFor",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.intent-launcher",
+      "currentTargetValueSha256": "c74d453d17fc6710b778e2819a6caa4cb684d9855c080a6eaa14423563af0aff",
+      "exactMaterialClauses": [
+        "choose a Media outcome without selecting an implementation provider",
+        "must-not-expose-model-or-provider-selection-as-a-normal-intent-choice"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0090-C001",
+      "exactSourceText": "Media meaning, projects/assets, processing specifications, media-job policy/state, timeline, animation/simulation presentation, media quality, rights and delivery intent",
+      "sourceTextSha256": "5cafa98707d3099b64f2b417de3747769b59141597b4b5e5147a8dbf92b7088e",
+      "proposalRecordSha256": "efecc555a23bb185ed081d557593ca65d731932bd3ff748a6a1be54cad6988cd",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#/authority",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#mediaSemanticResponsibilityBoundary",
+      "currentTargetValueSha256": "b0758fd596f1e5cf6958d02c9453be1691be8b24b08bd961eb4a55b2f66d6c30",
+      "exactMaterialClauses": [
+        "mediaMeaningProjectsAndAssets",
+        "processingSpecificationsAndOperations",
+        "jobPolicyAndState",
+        "timelineAndExactTime",
+        "animationAndSimulationPresentation",
+        "mediaQualityPolicy",
+        "rightsAndPrivacy",
+        "deliveryAndExecutionPolicy",
+        "P2 consumes and presents those meanings",
+        "does not create a second authority"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0022-C004",
+      "exactSourceText": "Complete behavior-preserving relocation independently of new-feature implementation.",
+      "sourceTextSha256": "a8df3d6fdfc1e07700237eb4eb425fd51a38008db2a3212d91fc128e3884e9f0",
+      "proposalRecordSha256": "93d01e984e45455b2792073ace5de0437928859375ac85110e807d34bc2d999f",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/events/conventions.yaml#/observedPopulations/runtimeLifecyclePublishers/classification",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.behavior-preserving-relocation.v1",
+      "currentTargetValueSha256": "24df231eea4a31f3b625d5091fc8c7ced8cd13e60fbf35c2d9f2b2ecc091f87f",
+      "exactMaterialClauses": [
+        "preserves the prior behavior, identities, authorization checks, side effects, error/finality semantics, and persistence boundaries",
+        "New behavior is a separately identified change"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0025-C002",
+      "exactSourceText": "Media `service-contract.yaml` is generated from authored sources/overlays [R12]",
+      "sourceTextSha256": "2482e180272387af50d193c25e5330d03f64d20174a49cbd012eaa4a1785a7ff",
+      "proposalRecordSha256": "01dac023de1714566b20d31c334a20d16c33f7f8f3847c585c43b545692f6e2e",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml#/labels/@id=media.origin.generated/id",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1",
+      "currentTargetValueSha256": "95309d002e63f99a1c0b4a5bef193270fd4ab8a268389533c9bf63faf12fc91a",
+      "exactMaterialClauses": [
+        "Authored owner sources and explicitly versioned overlays are the only inputs",
+        "Generated files are outputs, never the primary place to change semantics"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0025-C004",
+      "exactSourceText": "Never edit generated files as the primary change.",
+      "sourceTextSha256": "c453ef0ef85a9c61a172c04428e4d9102085f49509b92a5c10319601bb07012e",
+      "proposalRecordSha256": "8c97a559fac7d0620931d9326a2b7aacb76ea3650044b83be9b4cf63cd045a70",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/motion.yaml#/rules/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1",
+      "currentTargetValueSha256": "95309d002e63f99a1c0b4a5bef193270fd4ab8a268389533c9bf63faf12fc91a",
+      "exactMaterialClauses": [
+        "Generated files are outputs, never the primary place to change semantics",
+        "cannot add an operation, field, status, authority, or finality rule"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0310-C004",
+      "exactSourceText": "Endpoints and status codes are authored in the contract, generated into SDKs/fixtures and tested against the actual transport.",
+      "sourceTextSha256": "32f7074943c351f3ff9de0d4a708fb4fdcc2eb9ef9bf93631e5d5e444e6ca7d5",
+      "proposalRecordSha256": "c5062c80879c7d7370f6d373470744d4aab8ee7c5dad2d0bb99dee98af649af0",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/verification/method",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.contract-generation-and-transport-verification.v1",
+      "currentTargetValueSha256": "8a7cb6e681dda6aa167d572d1f7d54a29c0c164e142ad74c372ba8c82ae77525",
+      "exactMaterialClauses": [
+        "Endpoint paths, methods, status/result meanings, schemas, and operation bindings are authored in the versioned owner contract",
+        "actual bound transport",
+        "A passing schema-only test or generated fixture test is not actual transport parity"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0025-C001",
+      "exactSourceText": "| REV-05 — Generated contracts could become duplicate authority",
+      "sourceTextSha256": "2909a296362bd0c1e4de1fbf774fb843d4b1abf8f265a011fb082016fa55d17e",
+      "proposalRecordSha256": "32e84e3c4cb55491d1d5b207335ee70739cbd4d5491a637923b142389b0804e2",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml#/acceptance/criteria/2",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1",
+      "currentTargetValueSha256": "95309d002e63f99a1c0b4a5bef193270fd4ab8a268389533c9bf63faf12fc91a",
+      "exactMaterialClauses": [
+        "Authored owner sources and explicitly versioned overlays are the only inputs",
+        "Generated files are outputs, never the primary place to change semantics",
+        "cannot add an operation, field, status, authority, or finality rule that its accepted inputs do not contain"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0060-C002",
+      "exactSourceText": "No parallel “V2 product” or indefinite compatibility code fork.",
+      "sourceTextSha256": "4ee8268440b5f500060e5f3dfc75c59a7cedba15638f4c2e48cb2d29b0657f47",
+      "proposalRecordSha256": "a0b70d5caae3b63ca25ff071f7d9f93916b38fd869d7e1c6a85d61ab6bb51f9c",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/compatibility.yaml#/authority",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/compatibility.yaml#/ownerDefinedCompatibilityRules/@id=media.api.no-parallel-product-fork.v1",
+      "currentTargetValueSha256": "50c33180587b00f121f5f25e7f854b5bb6ea82d402fe23035b33750f97bee7d1",
+      "exactMaterialClauses": [
+        "one current semantic owner",
+        "Do not create a parallel V2 product or preserve an indefinite compatibility-code fork",
+        "explicit owner-approved migration path",
+        "versioned compatibility window",
+        "end condition"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0473-C002",
+      "exactSourceText": "Default product-native runtime with Tools development mechanics.",
+      "sourceTextSha256": "2af955bee6b59ad5004b58915eb2556fba5e9ed8b07645e998acb03726fa521c",
+      "proposalRecordSha256": "7ba0a32667e36a4f93f013e1e8740f858b5fab144754d91d35d4610250ffa62d",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml#/sharedPublicApiEvidence/consumerBinding",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedExecutionBoundary",
+      "currentTargetValueSha256": "804e72f7330f86580e4650480c4b2bbe40416d5b1d799e7ff74940bc7c5b78ee",
+      "exactMaterialClauses": [
+        "The product-native execution boundary is owned by Media",
+        "Tools may provide development and authoring mechanics",
+        "not production execution, durable dispatch, or product finality",
+        "selects no deployment technology, service topology, or runtime",
+        "does not claim runtime implementation, qualification, or admission"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0171-C003",
+      "exactSourceText": "action and state references",
+      "sourceTextSha256": "acebd17126f3faab474902a8702e7b5ea704d9f3afab7eb614f52a358a26089f",
+      "proposalRecordSha256": "5d7480482b8bbd7d8b2bf36ac27ca162210d62662775f0740f7e176c2126ddac",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/acceptance/criteria/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/acceptance/criteria/0",
+      "currentTargetValueSha256": "275e5106ce1279c8f2f431e4a5064a55eb09b831bf2a6b48119af3a36a4a5694",
+      "exactMaterialClauses": [
+        "references canonical Media state and action contracts"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0331-C004",
+      "exactSourceText": "Do not invent unsupported API routes just to make a command appear to work.",
+      "sourceTextSha256": "07124f403b6fac427cb7b263ba15c767a001e55f5a5071211e9717a2deb9f765",
+      "proposalRecordSha256": "c250320be72fe8167f050f79a7befac6b75272cc0020da8a198acb9076fd2e40",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.rights-and-consent-review/intent",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/authorityAndProjection/projectionConstraints",
+      "currentTargetValueSha256": "83b719ea0c5df6ef98a143d58ab38fde276302d171153ae516dd7fd86b73000a",
+      "exactMaterialClauses": [
+        "Do not add an OpenAPI schema, route, status, header, or example as a product rule unless its owning rule and operation binding are approved"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0259-C003",
+      "exactSourceText": "Preserve original and intermediate precision",
+      "sourceTextSha256": "3c58024e4aba140ecac886d8128a63dce3075ba63b126ba2cfd6da675238869c",
+      "proposalRecordSha256": "e250a6f60e70d961193ef5cee82a449da61e2b36400c2ce8c6da610a064c96d9",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/localization-content.yaml#/rules/2",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/localization-content.yaml#/ownerDefinedLocalizationRules/@id=media.localization.original-and-intermediate-precision.v1",
+      "currentTargetValueSha256": "bfb8efe870ca27ba7fad0582546d2aedcb77bb5f666c21ed10ec39068638c780",
+      "exactMaterialClauses": [
+        "Preserve the exact original value and every retained intermediate value",
+        "cannot overwrite the canonical value",
+        "conversion that changes precision must produce a separately identified derived value",
+        "exact conversion, rounding mode, and disclosed loss",
+        "unknown precision or conversion history remains unknown"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0352-C003",
+      "exactSourceText": "Mutation retry/replay uses persisted keys.",
+      "sourceTextSha256": "73906f9868c4386d9b8e3fb7eb3a4acd1879179740bf91062ba47266eea4d7de",
+      "proposalRecordSha256": "8f613bbdedb0d81a1ec6465a8ac5632815cd3dfe51aa9084e9d8aa28781dcca9",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#/rules/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedReplayPersistenceRequirement",
+      "currentTargetValueSha256": "cf667ee3e93fecbe7b631b1a4080bf15d192610011d9e36d54cea0a3f1fdc6ec",
+      "exactMaterialClauses": [
+        "durably commits the trusted tenant",
+        "client request key",
+        "canonical effect-bearing request fingerprint",
+        "replay fence",
+        "prior result/receipt before the first externally visible effect",
+        "retention boundary and expiry are explicit",
+        "changed fingerprint conflicts",
+        "perform no second effect"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0353-C001",
+      "exactSourceText": "Configuration precedence is explicit flag → environment → selected project/profile file → user config → product defaults, **all constrained by non-overridable policy**.",
+      "sourceTextSha256": "b75ca6004b336a1697943659f5e80ec31c30bd485b34d0c8d2b214c673165369",
+      "proposalRecordSha256": "75a7a061dc74fdd60c7adde68d77e358a7cb67cff154bf2be962a4de4c128886",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.delivery-profile-picker/actionIntents/2",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.effective-configuration-redaction.v1",
+      "currentTargetValueSha256": "538de9f50845c4d3c7370b2470d875be4838192062850e9ea731d6b7e6719f82",
+      "exactMaterialClauses": [
+        "resolutionOrder",
+        "explicit-flag",
+        "environment",
+        "selected-project-or-profile-file",
+        "user-config",
+        "product-default",
+        "cannot be overridden by any flag, environment variable, project/profile file, user config, or product default",
+        "Reject unknown or conflicting profile fields"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0374-C006",
+      "exactSourceText": "Do not add RabbitMQ, Redis Streams, Temporal or another workflow engine before a concrete reuse/capacity-gap decision.",
+      "sourceTextSha256": "9ea5ccbc03d9f140ecf4571ef7e69d558f3466f16e3b32996e8a7bd00f7257e9",
+      "proposalRecordSha256": "4f58d63b19064bbe0024b0091617d757756ad2f2f87251e4652985cec4947069",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/additionalSharedCandidates/2/rationale",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule",
+      "currentTargetValueSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "exactMaterialClauses": [
+        "candidate-library or engine selection is not an integration mandate",
+        "exact admitted Media capability/profile",
+        "demonstrated Ghatana reuse gap",
+        "select the smallest stack",
+        "One qualified implementation is selected for an exact capability/profile",
+        "do not keep parallel adapters or silently fall back"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0103-C002",
+      "exactSourceText": "Choosing `STANDALONE_CLOSURE` for Media is a proposed initial packaging decision, subject to the actual owner schema.",
+      "sourceTextSha256": "b6e9c77e996798a76a01ccd5cfee228210cf7693c1d94a8a9801f62dadc3c024",
+      "proposalRecordSha256": "3f1aafcb00a3359ddd76248432d4af5c85a676608eb59fb00a6f66b1ede714cc",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#/definitionBindingReview/authority",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#packagingClassificationBoundary",
+      "currentTargetValueSha256": "cf41b947558936e5298f50a9ad1646aba9afcedb6a3779bd2429470a1b5516c5",
+      "exactMaterialClauses": [
+        "STANDALONE_CLOSURE",
+        "PROPOSED_INITIAL_CLASSIFICATION_ONLY",
+        "does not establish a package schema",
+        "exact reuse dispositions",
+        "actualOwnerSchema",
+        "NOT_ESTABLISHED_BY_THIS_CLASSIFICATION",
+        "Shared package publication, consumer binding, implementation admission, and independent conformance remain open"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0458-C003",
+      "exactSourceText": "FFmpeg’s license obligations depend on its configured components",
+      "sourceTextSha256": "cddc15724f2f9b51ac34503df98d34acdd849707141c332ba2606a657df2f09c",
+      "proposalRecordSha256": "a710a667f32eada618574b41da7ab66bb6b4e6b26f199c43abc33e648b9e1fea",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/componentFamilyCrosswalk/0/publicExport",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#selectionRegister/externalCandidates/@id=TECH-FFMPEG",
+      "currentTargetValueSha256": "5f753e8c17c31bfe19fce75d87e6f405624d947e05a300b7beea543fb277a100",
+      "exactMaterialClauses": [
+        "TECH-FFMPEG",
+        "REJECTED_FOR_DEFAULT_BUNDLE",
+        "exact-build-license-is-configuration-dependent",
+        "build-configuration-specific-legal-review-would-be-required-for-exception",
+        "not-installed-or-activated"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0296-C005",
+      "exactSourceText": "The source-of-truth matrix identifies the owner and implementation for every method/path/action.",
+      "sourceTextSha256": "3bd5d99f2b8e2bfa8b782a8a15116babf54ebcf7179e9044b0af27e5649542b5",
+      "proposalRecordSha256": "684c92cd04717f628c7dc03dd3d492cdf4c791b1eda4ed4318d72d17b4c395af",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#/rules/0",
+      "currentTargetRef": ".product-experience/interface-parity/operation-parity.yaml#ownerDefinedSourceTruthMatrix",
+      "currentTargetValueSha256": "cd7dc0f0af3884cc1239c3764eb24d4ab47576f5fb9ca7d067f1485296e77cf1",
+      "exactMaterialClauses": [
+        "Every inventoried public method, path, SDK method, and UI action has an exact identity",
+        "source owner",
+        "implementation/source evidence",
+        "explicit semantic disposition",
+        "unknown or unsupported identity is named as a gap rather than inferred from its label"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0157-C002",
+      "exactSourceText": "Meaning, actors, outcomes, requirements, capabilities, domain/time/units, authority, states, failure/finality, dependencies and NFRs",
+      "sourceTextSha256": "922236df49ee999e7b7779588810f42a981ed9fe0ef5e33ce79b7ffd9a640ee0",
+      "proposalRecordSha256": "59a1ca77935a92ac94137674cef848864cce8ae9d0f0581662c0f04f840f4687",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#/acceptance/criteria/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#semanticCoverageRequirement",
+      "currentTargetValueSha256": "7c9347af842dc0f870f074dd618e9af62740aff00de71d5a3b8ad0b39f7bb231",
+      "exactMaterialClauses": [
+        "meaning-actors-outcomes-requirements",
+        "domain-time-units",
+        "authority-and-rights",
+        "state-failure-and-finality",
+        "dependencies-and-nfrs"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0159-C003",
+      "exactSourceText": "Independent business state machines or duplicate external schemas |",
+      "sourceTextSha256": "b9e2731da9a6eefe19564eb780326b01cc653ff0809431213d11e1ee50fa1f0b",
+      "proposalRecordSha256": "9cd8e0f9c47c34c883ab6de1e0e508a56151a2a48b7cef7f82cd425b10427a87",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#/bindings/2/forbiddenInference/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#architectureIdentityBoundary",
+      "currentTargetValueSha256": "624a28d6be82683c4684545543364e15a18a9f3175479a37cd079067200e9d2b",
+      "exactMaterialClauses": [
+        "one canonical PDP-1 authority",
+        "may not create independent business state machines",
+        "duplicate external service schemas",
+        "new transition meaning",
+        "alternate finality",
+        "field-level projection, loss/rejection, error/finality mapping"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0165-C001",
+      "exactSourceText": "Existing equivalent authorities are reconciled and registered instead of duplicated.",
+      "sourceTextSha256": "8a9b45815119bdeb7998be4ca31c03c41e26023ba3ecc9666f81d1b3359106c2",
+      "proposalRecordSha256": "280393c4553d2b8f6c08bb9477a5429b7fd17b77aab1110076c9145cc276f968",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#/recoveryPatterns/@id=media.recovery.observer-reconnect/name",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedIdentityReconciliation",
+      "currentTargetValueSha256": "b8aa94ed0272126462270a7eb4ac168e417ce18243e3a8f40e7f41f7afaac07c",
+      "exactMaterialClauses": [
+        "resolve the exact existing owning glossary/domain/operation identity",
+        "Reuse and register an equivalent authority instead of inventing a duplicate alias",
+        "If no existing owner identity has the required meaning, define a new versioned Media identity",
+        "External service schema identities remain owned by that service"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0161-C001",
+      "exactSourceText": "| External owner contracts",
+      "sourceTextSha256": "a815260365c48b0c3d1df8d760f82baabd3f672a6ce8f5e7ccb514dca27cfa0c",
+      "proposalRecordSha256": "7e0e350ca6cc5bcee3f28806e8d7795817ddd3395af974f8a235ca1869ae13da",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#/sharedBinding/status",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1",
+      "currentTargetValueSha256": "95309d002e63f99a1c0b4a5bef193270fd4ab8a268389533c9bf63faf12fc91a",
+      "exactMaterialClauses": [
+        "external schemas remain with their service owner",
+        "a local copy of an external service schema does not become its authoritative source"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0158-C002",
+      "exactSourceText": "Reusable visual/interaction/content/accessibility/responsive and terminal grammar",
+      "sourceTextSha256": "6e18e6fdd4d8a31ec5234f6ef1a369623720ce21c580ae63b8870e03018eaadb",
+      "proposalRecordSha256": "fa9da73135c6eadd5ab9218a798287a35d80fdb3fee3a45004d2a272326e8f4a",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/interactionGrammarCoverage/status",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#grammarCoverageInventory",
+      "currentTargetValueSha256": "76de0f895b5e422c6b43251fdc723c61e41ea73325b097e1a9d9619606852b76",
+      "exactMaterialClauses": [
+        "visual",
+        "interaction",
+        "content",
+        "accessibility",
+        "responsive",
+        "terminal",
+        "SOURCE_INVENTORY_ONLY",
+        "grammar-acceptance"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0309-C001",
+      "exactSourceText": "Liveness, readiness and authenticated detailed diagnostics with independent semantics |",
+      "sourceTextSha256": "3cdf3674a4e15e08974fde50d4cb8e072da9fed9155efb5684ba2a1d868f2d50",
+      "proposalRecordSha256": "69ed5343c4d5b186a4ac698cea133c34fea5cecbe6b2ae089122235c92489112",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#/progressiveDisclosureRules/@id=media.disclosure.technical-diagnostics/trigger",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedHealthAndDiagnosticsBoundary",
+      "currentTargetValueSha256": "fc217e4e112522b4b44799468c269ad58f912c22799dd565a149c4bcd75219f7",
+      "exactMaterialClauses": [
+        "liveness, readiness, and detailed diagnostics as three independently named contracts",
+        "readiness answers whether the explicitly required dependencies",
+        "detailed diagnostics expose only separately authorized, authenticated, redacted information",
+        "Missing, stale, or unobservable dependency state is UNKNOWN",
+        "no current endpoint, runtime health behavior, or authentication acceptance is claimed"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0365-C002",
+      "exactSourceText": "References, legal holds and retention constraints require explicit decisions",
+      "sourceTextSha256": "f33eec4ad72858a4a67c898ad5a7e2492b74a85fd915bcff76abc68d1a4b9f3e",
+      "proposalRecordSha256": "8bc633455092861db3d278e666fd5e72c8f9eb45fce7ece4d42b492bd8931a59",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/acceptance/criteria/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.erasure-retention-provenance.v1",
+      "currentTargetValueSha256": "a0d4b42bc2f1ff32d9a8157be09ae3d6a58447b9f39c1317b6bc29ab5d03384a",
+      "exactMaterialClauses": [
+        "Apply the exact lifecycle decision to content and derivatives",
+        "retain only provenance fields required and permitted for audit",
+        "legal hold or undeletable external copy as a separately scoped disposition"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0385-C002",
+      "exactSourceText": "An unavailable optional AI planner must not make deterministic editing unavailable.",
+      "sourceTextSha256": "a04513be83afef9d2abb7225044b11249f529a47af12153e9f2b37e0e431ee8d",
+      "proposalRecordSha256": "e24000c4ed15a15e242b22332fc6d85e815d8475f0c0eaad76e5673d8df1d15d",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/events/conventions.yaml#/privacyAndProvenance/proposalRules/4",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.optional-ai-planner-isolation.v1",
+      "currentTargetValueSha256": "616e9afe5e4b7c3679a9b1ffc2a063c664f7df6a7ae8dd3b576e0451ff4a0b04",
+      "exactMaterialClauses": [
+        "An unavailable or unqualified optional AI planner does not make a separately defined deterministic editing operation unavailable",
+        "preserve the exact deterministic input, edit, validation, and save path",
+        "Do not silently substitute another model/provider",
+        "Planner availability, model qualification, and runtime behavior remain independently unevaluated"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0291-C003",
+      "exactSourceText": "allowed frame/duration change",
+      "sourceTextSha256": "4fcc2a0b49fe674902a24f59053d96bdb6b1a04cb82a724a5eb9b3c69ae4ab57",
+      "proposalRecordSha256": "91e48392fbb2cbdb66fc1c5e49a88cf42a1770cc9a980e7266f9cec227781495",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/motion.yaml#/rules/4",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#fallbackSemantics",
+      "currentTargetValueSha256": "f03734b6b377ede43583d36e3cc1b147d980bd5bbdfea1c2c99f7f300ddf50b1",
+      "exactMaterialClauses": [
+        "frameRateChange",
+        "durationChange",
+        "permitted",
+        "allowedOutputRates",
+        "maximumTemporalDeviation",
+        "minimumDuration",
+        "maximumDuration",
+        "editOrNarrativeDisposition"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0455-C001",
+      "exactSourceText": "A Ghatana dependency gap is handled in one of four explicit ways: extend its owning public contract",
+      "sourceTextSha256": "23743b9684450340a20161063e4065fb44b0315c0fdcd119acb54b8e1fe1a3a0",
+      "proposalRecordSha256": "92964a6ec76029d53780f47ccce799faf082671f782df9a3682bc1746d1ff227",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#/definitionBindings/27/disposition",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#dependencyGapResolutionRule",
+      "currentTargetValueSha256": "f8aca656992346d351f829c7cc9039ae4376435a47976cea861fe885f8392571",
+      "exactMaterialClauses": [
+        "extend that dependency owner's public contract with its approval",
+        "extract only genuinely reusable mechanics with owner approval",
+        "use a bounded integration against an exact public artifact/version",
+        "select an external component only after recording why the internal candidate is inadequate",
+        "Never fork or copy Shared, Tools, or Kernel",
+        "Scope a blocker to its exact capability, profile, channel, and deployment boundary"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0450-C001",
+      "exactSourceText": "Notify for action required, material degradation, approval, completion of long work, delivery outcome or critical security/rights problems.",
+      "sourceTextSha256": "56e69d54ba2b7c280088bbbd62d1bfdfaaa5f34582e623c9199b57dcd68cc860",
+      "proposalRecordSha256": "ceefead4ad8af27c85a1d9bd7e60fa1cad8413e89534a692928982d02cf92c09",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/templateCrosswalk/4/useFor",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#ownerDefinedAttentionNotificationScope",
+      "currentTargetValueSha256": "19906b4f4255cc5371d168f00a118c9b425ba18f8ae9a3a4ebad326b80160737",
+      "exactMaterialClauses": [
+        "action-required",
+        "material-degradation",
+        "approval-required",
+        "long-running-work-completed",
+        "delivery-outcome",
+        "critical-security-or-rights-issue",
+        "authoritative current fact or event",
+        "delivery, display, read state, or omission is an acknowledgment"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0449-C002",
+      "exactSourceText": "Explain what happened, which output is safe, whether anything may still be running, and the next permitted action.",
+      "sourceTextSha256": "a9549c50eca466b2a125d669b76b5b7b12185b191da2af1f00fa505478856324",
+      "proposalRecordSha256": "bdd86012fe6385b30ad62ba1103cf7b8d4909e9c2bad4f7ccbac9849046171cc",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.creation-plan-summary/hierarchy/5",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.job-outcome-and-safe-next-action.v1",
+      "currentTargetValueSha256": "1853799e97ef1a7a06d4d21f3da99740a71f1ba4d34dc30f619156061e3ad641",
+      "exactMaterialClauses": [
+        "exact submitted operation and authoritative recorded outcome",
+        "states whether work may still be running",
+        "exact immutable version is inspectable",
+        "integrity, access, rights, and review requirements are satisfied",
+        "job success alone is insufficient",
+        "next action explicitly supported by the current operation contract"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0452-C002",
+      "exactSourceText": "Mark generated drafts and support review/correction.",
+      "sourceTextSha256": "9108028fdc65423c6fe6ae9a474730158cefae2b00c729fa96ab21972f26cc0d",
+      "proposalRecordSha256": "c83e5beb2254dc3b20e8cc74e6585ce7e827469c473d249fd4f414197923abbc",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.creation-plan-review/intent",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.creation-plan-review",
+      "currentTargetValueSha256": "ca10dc7edfbe7673e15b1578ce097177c87de9e03a12b065aed84366620a70f8",
+      "exactMaterialClauses": [
+        "Review proposed outcome, material choices, support, and consequences before execution",
+        "draft",
+        "confirm-or-edit"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0177-C004",
+      "exactSourceText": "admission and consent rechecked",
+      "sourceTextSha256": "eaf0a582f5825460adc03185c4494b29bc4db71f34a85dbcfdafa8e3b97c84c4",
+      "proposalRecordSha256": "1f6793ccaaf2ae3fa39a80a40f2edb912d13ab770ef7f59097b76dd322d62c4a",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/componentFamilyCrosswalk/1/reviewState",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/ownerDefinedPatternRules/@id=media.gui.rights-consent-currentness-before-effect.v1",
+      "currentTargetValueSha256": "4569080c72034ff5fa2cdbe86fcbe3879f1c50ebb93750a1cdcc4d0e5a84a17a",
+      "exactMaterialClauses": [
+        "Before each affected consequential operation, revalidate current admission, consent, and rights",
+        "under the same tenant/principal and operation scope",
+        "Stale, revoked, expired, missing, or unavailable evidence remains unresolved/denied",
+        "a prior screen review, cached valid label, or user confirmation does not authorize a later effect"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0029-C004",
+      "exactSourceText": "Media still owns media state, scheduling policy and persistence",
+      "sourceTextSha256": "c42680bbb7d587d69b2a7fa6ea005d7e54a51896c5cbd618b052ef6aaf983301",
+      "proposalRecordSha256": "c4ca41b6f506092639b421974d2af98ebfa7812e745c99c2484f1c12abeb5d30",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/authority",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.state-presentation-not-state-machine.v1",
+      "currentTargetValueSha256": "e4d0598d4d24d7449135fd3797cfe4bd1be0d12e6ef63ece49c2ed5908663aef",
+      "exactMaterialClauses": [
+        "Media owns state meaning, transition, scheduling, and persistence"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0033-C003",
+      "exactSourceText": "Define rational media time, sample/frame mapping, simulation time, story time, and wall-clock deadlines.",
+      "sourceTextSha256": "720c66f8f9e1c47a4c570684f5ef50e7d240ca6bc2cd04429cb8f242966797e6",
+      "proposalRecordSha256": "908b6329d49101b00ebcd563557cb5cde021c8b0dddd4a0f9591940c17eb65b3",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#/rules/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedClockPresentation",
+      "currentTargetValueSha256": "f84a907f36eebbe613362652a5b3fe00915003af82f49dc0d305e92df94e4cc0",
+      "exactMaterialClauses": [
+        "rationalMediaAndSimulationStoryTime",
+        "sampleBoundary",
+        "sourceFrameSampleMapping",
+        "cross-clock, cross-stream, timebase, frame-rate, sample-rate, and drift conversion",
+        "wallClock"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0035-C004",
+      "exactSourceText": "bounded repair loops",
+      "sourceTextSha256": "60040747ae1f55cdc041f8c98a7c3bcace38ce12936da2cda3704d1ebea6a124",
+      "proposalRecordSha256": "89d55638b9ff73670a01ea020acf53fda169705ce4b4e7daf1e88e38bfc90f14",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.quality-inspector/actionIntents/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.bounded-repair-loop.v1",
+      "currentTargetValueSha256": "8d8b948ee2d0c212ac1ed19709527b54750ff122f4980dbe17d269c0d209b903",
+      "exactMaterialClauses": [
+        "finite per-operation bound for attempt count, elapsed time, and resource budget",
+        "an unknown outcome is reconciled before continuing"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0041-C001",
+      "exactSourceText": "| REV-21 — Low cognitive load conflicted with navigation",
+      "sourceTextSha256": "11917020d5116045dcc40e862fc49a0eb71461d8fa91c2f1636810fecc8d78ae",
+      "proposalRecordSha256": "df57e54ab73ad620dfa1a004baacceb641344857cc55d522fadb94ae670f5b45",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.scene-inspector/hierarchy/4",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.navigation-and-safety-visibility.v1",
+      "currentTargetValueSha256": "84850015bdf1c4dc76b6fb1cbddb85a432e632e445aa8c3de06df9193db979f0",
+      "exactMaterialClauses": [
+        "keeping the current location, primary task navigation, Cancel, Undo",
+        "access/rights denial, uncertainty, and safety warnings discoverable and operable"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0042-C003",
+      "exactSourceText": "One command registry over canonical action IDs",
+      "sourceTextSha256": "849e0947c24d498d8067ab29a04195542faac2dc9faf2f34f8b57595a1404816",
+      "proposalRecordSha256": "76bbd4dc0f76de2e938e99c23a433542fb2a98f05ba285dfeda29ad7e55ff0a0",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/commandPrinciples/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1",
+      "currentTargetValueSha256": "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b",
+      "exactMaterialClauses": [
+        "Every command in the one canonical registry has one unique command ID",
+        "explicit actionRef that resolves by exact ID to the Media action registry",
+        "exact operation ID/version or an explicit non-domain disposition",
+        "no command or alias may be inferred",
+        "sole source for help/completion",
+        "current command registry contains 12 synthetic fixture commands",
+        "does not establish production CLI/Web/API transport binding or runtime admission"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0042-C005",
+      "exactSourceText": "stable JSON/JSONL, exit codes and interruption semantics.",
+      "sourceTextSha256": "ef5ac523c64ccb33cb00e1009faae9b07ee583aa786a19e368e825479f4dd698",
+      "proposalRecordSha256": "3dac42300efed9348f2d713698d4b0cda5b4ae3ff1c091dc9d830cad6a5c9bd0",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.cli-output/localization",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedMachineOutputRules",
+      "currentTargetValueSha256": "a0a883514a48b1f649302dd48c45320a7718c88d3ff69aafb60f5e1d26c45e48",
+      "exactMaterialClauses": [
+        "stdout contains exactly one versioned result or error object",
+        "cannot change stable JSON keys, reason codes, command effects, or exit-code meaning",
+        "stdout contains only one complete JSON object per line",
+        "Ctrl-C or another local interruption while waiting stops the local wait only",
+        "remote cancellation is a separate explicit operation"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0074-C001",
+      "exactSourceText": "Brand labels are not state machines.",
+      "sourceTextSha256": "0a546f3e56396efd4114744661543a9bba2ec2006a78d370ee6da57a3cf072ae",
+      "proposalRecordSha256": "5a9d2dd89a47e10f4102153400cdd502bdaff684ecfe26a9ed7431e96df2265f",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/authority",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.state-presentation-not-state-machine.v1",
+      "currentTargetValueSha256": "e4d0598d4d24d7449135fd3797cfe4bd1be0d12e6ef63ece49c2ed5908663aef",
+      "exactMaterialClauses": [
+        "Brand strings, CSS classes, screen names, and localized labels never create states, transitions, finality, or scheduling policy"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0193-C004",
+      "exactSourceText": "the contract must not require a dummy source file just because the current processing API accepts one artifact.",
+      "sourceTextSha256": "d9f07b24c3a29be5e5fdf83c8e08243a8080630bf376234a3783b8b29349a06c",
+      "proposalRecordSha256": "47da00a3ae35d5462189523dcc8f7abdd4263b05b76ed25c8241bbac614ac728",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/states/4/label",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.no-semantic-dummy-input.v1",
+      "currentTargetValueSha256": "ced02b355042fbb00a10ba49e0e0d700196c6bc769a2b86a02d942940fef6b31",
+      "exactMaterialClauses": [
+        "does not require a placeholder artifact, source file, or dummy input",
+        "necessary to the selected Media operation"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0204-C002",
+      "exactSourceText": "Analysis selects only eligible operations whose measured improvement outweighs artifact risk.",
+      "sourceTextSha256": "654488af658bc97f29cdb843c9c09344557c768a61e403c93b84cedba2956eba",
+      "proposalRecordSha256": "2dd2c9f1762ef377174778927c790747dbb1f22803cb76cb793ab684d1a48745",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.source-picker/semanticRole",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.risk-bounded-analysis-selection.v1",
+      "currentTargetValueSha256": "8251f73c5620e6ee75b457e665378f4491f804eddab600c2966e5d536137fb39",
+      "exactMaterialClauses": [
+        "selects only operations eligible for the exact source, purpose, rights, profile, and budget",
+        "measured improvement is greater than the declared artifact risk",
+        "A default pipeline never applies every enhancer"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0236-C002",
+      "exactSourceText": "Public schema changes require compatibility classification.",
+      "sourceTextSha256": "57206e81bc5f85731f7778bd9bfcc71b51b2ea76df86b25176fd744fe496c527",
+      "proposalRecordSha256": "1421d44bb54e99128bab7c40e5f1d50a5e7f2f8d55cbc28cd46ea1b81ba3fc99",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml#/proposalRules/compatibility/proposal/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/compatibility.yaml#acceptance/criteria",
+      "currentTargetValueSha256": "a60898a10be2d296f27e890ae228aad3defa380953c38945fc541ccf9bd3ca06",
+      "exactMaterialClauses": [
+        "changes are classified for request and response compatibility",
+        "semantic changes are not disguised as additive"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0300-C002",
+      "exactSourceText": "Admission persists the job/command identity before returning acceptance.",
+      "sourceTextSha256": "abe8068888206124568a7652dacc2a207f170372019d117f47a6c0661ffd95f7",
+      "proposalRecordSha256": "64416bd2c4b5fa0d5707c382432299eb8ba256450454255b193d0d8635d6ec1e",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.job-status-card/hierarchy/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.acceptance-after-durable-identity.v1",
+      "currentTargetValueSha256": "7b8c72c76488fdb6fb26b1203f54555c06ffc72b44b98c54849dc181ff9caf37",
+      "exactMaterialClauses": [
+        "stable tenant/principal-scoped identity and durable owner receipt before acceptance is reported",
+        "unknown commit results remain unknown"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0311-C001",
+      "exactSourceText": "Canonical identity includes tenant, authority scope/principal where relevant, operation/version, client key and canonical request fingerprint.",
+      "sourceTextSha256": "debdc7236089fc663fe0130bf2c7e73a2e6169183470f284ce17bf8f6021fa35",
+      "proposalRecordSha256": "e6685eef8b41a8130f053fa21c0a1596e747f639c6c7f87813c30d95febd3105",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/idempotency.yaml#/rules/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/idempotency.yaml#ownerDefinedIdempotencySemantics",
+      "currentTargetValueSha256": "6f533ea95bc6d78fafec596c7ee7d6418c401d3ef76093dd9b0720826c760345",
+      "exactMaterialClauses": [
+        "trustedTenantId",
+        "trustedPrincipalIdWhenOperationScoped",
+        "exactCanonicalOperationId",
+        "operationVersion",
+        "clientRequestKey",
+        "canonicalValidatedRequestFingerprint"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0311-C005",
+      "exactSourceText": "Retry after a network timeout first observes the existing request/operation",
+      "sourceTextSha256": "22edd8b9f7b2e3c4d5a831cf235697166a08c08d998d68aebba0c9aed052e35c",
+      "proposalRecordSha256": "29943b3137221d6dca63addda103bacf0b407297fb2c2a8f7608f9f4c7958964",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#/rules/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedRetrySemantics",
+      "currentTargetValueSha256": "03218822b66116973aa030346519cba1c13366882ef4f8fc203885644069903f",
+      "exactMaterialClauses": [
+        "read-only observation before considering any resubmission",
+        "never mint a new request identity"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0311-C006",
+      "exactSourceText": "it never blindly creates another expensive job.",
+      "sourceTextSha256": "710b73dcdbd8041a4c79e6a5888a43de9a91f46487bf3d05e86ffbd928b6f731",
+      "proposalRecordSha256": "e0684355f4976ca2429cfea493d409311dbd5ae5c3c2911a60d8a36bcb9116c5",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml#/proposalRules/interruptionCancellationAndUnknownOutcome/unknownMutation",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedRetrySemantics",
+      "currentTargetValueSha256": "03218822b66116973aa030346519cba1c13366882ef4f8fc203885644069903f",
+      "exactMaterialClauses": [
+        "read-only observation before considering any resubmission",
+        "never mint a new request identity"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0312-C003",
+      "exactSourceText": "Provider parameters cannot overwrite reserved authority, budget or routing policy.",
+      "sourceTextSha256": "87e9096ae4729eb9daf10ea4e5eeafc650cc9040db43dc721b32adf231eb54e8",
+      "proposalRecordSha256": "f983a806140a165b897921b6abc865bde00fd0cc41116a1932b31ce52ae88ee7",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedRetrySemantics",
+      "currentTargetValueSha256": "03218822b66116973aa030346519cba1c13366882ef4f8fc203885644069903f",
+      "exactMaterialClauses": [
+        "provider-supplied parameters cannot override reserved tenant, principal, authorization, budget, routing, profile-version, or idempotency fields"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0314-C003",
+      "exactSourceText": "do not create another independent state/operation taxonomy.",
+      "sourceTextSha256": "17563ce184ac1a9c93c9e6be4672f69637084e97d7d6219e8f6d8fb9b3d90b6c",
+      "proposalRecordSha256": "3f4e3188ee01a755f2470eb9af2376633d7bab131ad8770ba2d12ccb16061600",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/cancellation.yaml#/rules/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.state-presentation-not-state-machine.v1",
+      "currentTargetValueSha256": "e4d0598d4d24d7449135fd3797cfe4bd1be0d12e6ef63ece49c2ed5908663aef",
+      "exactMaterialClauses": [
+        "never create states, transitions, finality, or scheduling policy"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0315-C001",
+      "exactSourceText": "Cancellation of a local SDK wait/poll is different from cancelling a server job.",
+      "sourceTextSha256": "4ce55c6d31842cfbeed8ffc6e3617690917545d52c128c25370ec48375f17a3c",
+      "proposalRecordSha256": "c5f302cc5878250be480e6c2b99db0b9b2f7277a7cd735ec554e9d3720a9c7a1",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/cancellation.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/cancellation.yaml#ownerDefinedCancellationSemantics",
+      "currentTargetValueSha256": "c12c72af74922514afa88e5103914704900646c6adfd0b3e0ac75d15df52a3ac",
+      "exactMaterialClauses": [
+        "does not issue a server cancellation request",
+        "local poll only ends observation"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0315-C003",
+      "exactSourceText": "Error objects expose structured reason codes, output references for partial results, and uncertainty.",
+      "sourceTextSha256": "f1331d400cf1b8705408a991df01ec61ba15cb8628abbf154680d7006ec11036",
+      "proposalRecordSha256": "bb4ab481c403bf0dc07dca30fd56be1e6b5b252f936b59b23569b56042ea80d5",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.cli-output/hierarchy/5",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics",
+      "currentTargetValueSha256": "ab2d66b9bb0cf7e8ceb5bd9bd595bd5957da322da8d552ca42ac547738ab9d7a",
+      "exactMaterialClauses": [
+        "stable Media reason code",
+        "partial result is listed only by exact inspectable output-version references",
+        "UNKNOWN_OUTCOME"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0316-C001",
+      "exactSourceText": "Every canonical CLI command maps to the same action/operation ID as Web/API.",
+      "sourceTextSha256": "7d190fed301dbc01a4353b3cae947cc4c266f1413830252a401d9a1d45113fc1",
+      "proposalRecordSha256": "82151039ed71ed7256268e9ac41930be2866f84a343d110e384201c7c5bc9778",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#/bindings/2/forbiddenInference/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1",
+      "currentTargetValueSha256": "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b",
+      "exactMaterialClauses": [
+        "explicit canonical action ID and exact operation/version binding",
+        "equal to the binding used by the corresponding Web/API command",
+        "command spelling, route shape, provider name, or fixture label never establishes equivalence"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0163-C001",
+      "exactSourceText": "A missing upstream rule found in Explorer must be fixed at its owning phase first.",
+      "sourceTextSha256": "6fd882371cd12547e4f811c3ad12b6364b2c13b9490f23a800c315bfd5966160",
+      "proposalRecordSha256": "98340abec7da1c910bb720524b5f3a2bbf70918677f799449437b1d67b4d2030",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/events/conventions.yaml#/privacyAndProvenance/proposalRules/4",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.upstream-owner-source-first.v1",
+      "currentTargetValueSha256": "106fbe734fc97ab24f162d5bcf0081c7e9ea622fd209537d6f8b0e90f513d800",
+      "exactMaterialClauses": [
+        "route the requirement to the authoritative source phase and correct that source first",
+        "cannot repair it with a local override, duplicate taxonomy, or generated artifact edit",
+        "Record the exact owner source and selector"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0167-C002",
+      "exactSourceText": "External service schemas stay with the service owner",
+      "sourceTextSha256": "a6c5f1b8f08e1b1bcfe9231a933afeb8b43fe96c7ac3b1fda11e8ccf666cac72",
+      "proposalRecordSha256": "4d8c2a824811fee2a101d66166c79b5478aa8465b296de8332d66c338ac9aedb",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#/sharedBinding/status",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1",
+      "currentTargetValueSha256": "95309d002e63f99a1c0b4a5bef193270fd4ab8a268389533c9bf63faf12fc91a",
+      "exactMaterialClauses": [
+        "external schemas remain with their service owner",
+        "a local copy of an external service schema does not become its authoritative source"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0171-C002",
+      "exactSourceText": "supported parameters with units/ranges",
+      "sourceTextSha256": "09ebf428f82be5efd52d644f63e88bc9998eed48778ef5a68e62f9ec912ed7bf",
+      "proposalRecordSha256": "e299faaf16744a4b594c06613cc4c65cd48b38952b2521e4043ce62f3f7b6bdc",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.waveform-spectrogram/hierarchy/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.typed-parameter-boundaries.v1",
+      "currentTargetValueSha256": "379d79d3ad36b36358e1eb79f5432bef9edda1623609eb2bd059561fd1f61499",
+      "exactMaterialClauses": [
+        "finite declared type, unit when dimensional, accepted range or finite enum",
+        "Reject unknown or conflicting values"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0331-C001",
+      "exactSourceText": "A parameterized command family expands to an explicit finite registry.",
+      "sourceTextSha256": "4dfdb3e07f8d83f5c734d607c7913764ef7858830a32f526f4f3e60c443775b3",
+      "proposalRecordSha256": "bb60d45d5d64b177f87713d23f2fc9bcc352b317541b0d678616082009f6830e",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml#/acceptance/criteria/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.finite-command-family-registry.v1",
+      "currentTargetValueSha256": "92b9c275eec6a7b677c76df5b66e6c3cb7e1516c577857c45e4f5c23fae7ec1f",
+      "exactMaterialClauses": [
+        "finite set of registered command identities",
+        "Wildcards, implicit aliases, or a parameter value cannot introduce a new command"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0339-C001",
+      "exactSourceText": "Invalid arguments or input validation |",
+      "sourceTextSha256": "de01ba257b56715214023e9190ab1d18d64ab2b868bcac01d47ab374cdfcb7d9",
+      "proposalRecordSha256": "2f72b75d858bf89ddf8e2640079fc2f21be142eb290fd4034463fed8d1f63753",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#/mediaHandlerImplementationObservation/implementedChecks/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/machineOutput/productExitCodeTaxonomy/codes/@id=media.cli.exit.invalid-request",
+      "currentTargetValueSha256": "45ec6ef35b6c7e81aef22a035c05a6fae946b4255c8b36b30b369ef08b31c1c9",
+      "exactMaterialClauses": [
+        "invalid-arguments-or-input-validation"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0342-C001",
+      "exactSourceText": "Required capability unavailable/unqualified |",
+      "sourceTextSha256": "c52bd82533a726b261c039a2f04722cf2403373a208709278891f2da7e8caed0",
+      "proposalRecordSha256": "de605e0d4a9727b0f84bba43cffac0d5d5fe4138abcb48fe22222f2c27b0b47f",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/acceptance/criteria/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/machineOutput/productExitCodeTaxonomy/codes/@id=media.cli.exit.capability-unavailable",
+      "currentTargetValueSha256": "ca8039491f0e4a5fbf93a7773614c412fc58a1297f9d2e6d0f7897ac0b218784",
+      "exactMaterialClauses": [
+        "required-capability-unavailable-or-unqualified"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0334-C006",
+      "exactSourceText": "never interpolate it into a shell command.",
+      "sourceTextSha256": "486fd0a3a9886fe20e935551bb5ef75abe41ad8b28dde59a422ab0ae15aa3ebf",
+      "proposalRecordSha256": "60b05a7ec9f798a9f3d37058ac4ed4813ef114e768ea3883c0b1024ff60912a7",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/filtering-sorting.yaml#/rules/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.literal-argument-boundary.v1",
+      "currentTargetValueSha256": "a2c7b9489ca1f0d1669c26682d2f6673352ba6a4b4a8c0632ae50658ae3a3016",
+      "exactMaterialClauses": [
+        "Treat user-supplied values, paths, filter expressions, profile names, and request text as literal data",
+        "Never interpolate them into a shell command"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0335-C001",
+      "exactSourceText": "`--json` emits one versioned result/error object to stdout",
+      "sourceTextSha256": "210347dc22a09ec1e6580148a99f5b2309323c23627090fe3427174c6518ca02",
+      "proposalRecordSha256": "8341efb5aeecfcc20d18422d15d0a3ce79acdb684eadc2e7e120d120f86a6096",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#/acceptance/criteria/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.machine-output-exit-semantics.v1",
+      "currentTargetValueSha256": "5fd6677b66076a988a36b0e7c9c312f6938a0caff11426007a1e3e5107813f32",
+      "exactMaterialClauses": [
+        "stdout contains exactly one versioned result or error object",
+        "diagnostics and progress use stderr"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0335-C002",
+      "exactSourceText": "no banners, ANSI escapes or progress text.",
+      "sourceTextSha256": "cb4581873ffe70444571436bf1925b2d4dbd8e96ee93e5d1e46c00efedb26432",
+      "proposalRecordSha256": "3786ee5c7c621d5d85a7cdf58071d53de3415e657317ba7bdb35623a6f561bde",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/motion.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.machine-output-exit-semantics.v1",
+      "currentTargetValueSha256": "5fd6677b66076a988a36b0e7c9c312f6938a0caff11426007a1e3e5107813f32",
+      "exactMaterialClauses": [
+        "diagnostics and progress use stderr",
+        "color-disabled output contains no ANSI escapes"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0335-C005",
+      "exactSourceText": "Honor non-TTY output, `NO_COLOR`, `--quiet`, terminal width and accessible plain text.",
+      "sourceTextSha256": "ed56429e00180f02282d547637f4815aa8b70fe70d759dccb3804176380dda7b",
+      "proposalRecordSha256": "28a086c0453b89ab41f23b6eec7ce6ebf4a74c6319ded7d0e1b58b8500e8108c",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.cli-output/accessibility",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.machine-output-exit-semantics.v1",
+      "currentTargetValueSha256": "5fd6677b66076a988a36b0e7c9c312f6938a0caff11426007a1e3e5107813f32",
+      "exactMaterialClauses": [
+        "TTY, color, quiet, and width choices may change presentation only",
+        "Non-TTY output remains line-oriented",
+        "color-disabled output contains no ANSI escapes"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0335-C006",
+      "exactSourceText": "Graphical terminal presentation must not change exit semantics.",
+      "sourceTextSha256": "ce4132534d7c168283609666c64bc1616669a07f9be77d6d81df93c196badf72",
+      "proposalRecordSha256": "137e8f3c4b37262044d8ff510d12fd74c9607f19ce7f42b62681cdb73a009b0e",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/compatibility.yaml#/rules/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.machine-output-exit-semantics.v1",
+      "currentTargetValueSha256": "5fd6677b66076a988a36b0e7c9c312f6938a0caff11426007a1e3e5107813f32",
+      "exactMaterialClauses": [
+        "TTY, color, quiet, and width choices may change presentation only",
+        "cannot change stable JSON keys, reason codes, command effects, or exit-code meaning"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0336-C003",
+      "exactSourceText": "`--wait` returns the final requested result or an explicit non-success.",
+      "sourceTextSha256": "bd43769fc4dae60c81014097cce655e8828628009e2ede1c1d648a96abc8a599",
+      "proposalRecordSha256": "b0714cc737021e4c250d742e5d62a44c3f9a247fd811fcf4dc0c98d35fc0607e",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/acceptance/criteria/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.wait-timeout-semantics.v1",
+      "currentTargetValueSha256": "14225a979ffdcf35343473b91896cf876a303b8779fa249f18ccbcb747ecbbc2",
+      "exactMaterialClauses": [
+        "returns the requested final result or an explicit non-success"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0336-C005",
+      "exactSourceText": "`--timeout` bounds the client wait unless the command explicitly defines a server deadline option.",
+      "sourceTextSha256": "0eca573ec6892957a9db29ee196a6dd8d51c4e530a076fae53e0690614d5db65",
+      "proposalRecordSha256": "bfe228322baf4da305d152118e8409fe078f96991e07aa8aab210eaeec9165a4",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/cancellation.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.wait-timeout-semantics.v1",
+      "currentTargetValueSha256": "14225a979ffdcf35343473b91896cf876a303b8779fa249f18ccbcb747ecbbc2",
+      "exactMaterialClauses": [
+        "client timeout bounds observation",
+        "does not cancel the remote job, prove failure, or authorize a blind resubmission"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0346-C001",
+      "exactSourceText": "Client wait timeout",
+      "sourceTextSha256": "71e7d989e2f532f0ba184904ce2437a82aa7b6516f3feacdc93f04b07070ade6",
+      "proposalRecordSha256": "1ec969f581cbdcbbfb85c8a1268d11335b5f7034d17632dc0372ecf498c54f16",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/cancellation.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.timeout-and-unknown-finality.v1",
+      "currentTargetValueSha256": "9872d0e510d0e8c6433005829c84caf76b6529a8a1213ab84c58ed31015b7d7f",
+      "exactMaterialClauses": [
+        "local interruption ends observation only",
+        "report unknown finality when authoritative evidence is unavailable"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0350-C001",
+      "exactSourceText": "Partial completion not accepted as success by the command contract |",
+      "sourceTextSha256": "6ac13b6cb426b269b639dde15af96f7c7762c32ed00c4485d1ed89d46a862e84",
+      "proposalRecordSha256": "17182e4791fe677b5df2ed770a479749a96c6ab27b761fdf83941a827f35e986",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#/machineInterfaceCoverage/lanes/2/verificationStatus",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics",
+      "currentTargetValueSha256": "ab2d66b9bb0cf7e8ceb5bd9bd595bd5957da322da8d552ca42ac547738ab9d7a",
+      "exactMaterialClauses": [
+        "partial output is not full success",
+        "unavailable references are omitted rather than guessed"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0353-C002",
+      "exactSourceText": "Reject conflicting/unknown profile fields.",
+      "sourceTextSha256": "ef41d94869fe34a3a84f750b8b7c4e9d0573cdc367ffbe804ba1a64ebc773b9f",
+      "proposalRecordSha256": "70d20c4456ae634e6716c1766db2c80a1652ad24f79f9298700abc1653463f7d",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/filtering-sorting.yaml#/rules/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.typed-parameter-boundaries.v1",
+      "currentTargetValueSha256": "379d79d3ad36b36358e1eb79f5432bef9edda1623609eb2bd059561fd1f61499",
+      "exactMaterialClauses": [
+        "finite declared type, unit when dimensional, accepted range or finite enum",
+        "Reject unknown or conflicting values"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0353-C003",
+      "exactSourceText": "`config show` reports effective values and safe provenance, never secrets.",
+      "sourceTextSha256": "d99ddb6b4a6b6d3f72ba309b71df13c7b01923628e40e3db639d8971f9ee9c3e",
+      "proposalRecordSha256": "a75af804db7b46b5a0775f61462ca8e84dbc7e3f9bc5fa4f95b25def10538d26",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/conventions.yaml#/principles/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.effective-configuration-redaction.v1",
+      "currentTargetValueSha256": "538de9f50845c4d3c7370b2470d875be4838192062850e9ea731d6b7e6719f82",
+      "exactMaterialClauses": [
+        "`config show` reports effective values only for declared configuration fields",
+        "safe source category",
+        "without exposing credentials, tokens, secrets, or protected content",
+        "if a value cannot be safely classified, omit it"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0354-C002",
+      "exactSourceText": "tenant/workspace ownership",
+      "sourceTextSha256": "63ed03161a9e10487f7f10dcfd3c3d649e499a0493705577bf76d01a9d4ccc0d",
+      "proposalRecordSha256": "19532b21745a2d536ee6ed1472fdb5e023cea6ef4968be5ffda808ea7262a939",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/auth.yaml#/acceptance/criteria/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/auth.yaml#acceptance/criteria",
+      "currentTargetValueSha256": "38fc5d2c88e0be83ce0d9241d2ed4d51b25972bd3d91f8627fb79ee2ad81fef6",
+      "exactMaterialClauses": [
+        "authorize tenant/workspace/project/resource and action independently"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0358-C001",
+      "exactSourceText": "Sign or authenticate service context through the existing ecosystem identity mechanisms.",
+      "sourceTextSha256": "29441bb7accb0db65dc4a90dffb8cda3ff093ec1d3691c040cc4171417b15252",
+      "proposalRecordSha256": "574f00ea28e3102f9cf20a4c63265e5bb30f9254d8812d97b979d5445f8e19b8",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/auth.yaml#/acceptance/criteria/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/auth.yaml#acceptance/criteria",
+      "currentTargetValueSha256": "38fc5d2c88e0be83ce0d9241d2ed4d51b25972bd3d91f8627fb79ee2ad81fef6",
+      "exactMaterialClauses": [
+        "authenticate through admitted Shared identity boundary"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0358-C004",
+      "exactSourceText": "Deny conflicting authorities before any paid or externally visible work.",
+      "sourceTextSha256": "2c7e611387f185f675a9ffe72fed1a83169ced938354b116b2004159abb8dad8",
+      "proposalRecordSha256": "2611033aa049d3be6fdb5fec041612d3ee2588d5e526fa5ce771ffa53ea04aff",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/patterns/@id=media.gui.pattern.rights-and-consent-review/intent",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#/adapterRules/@id=media.http.adapter-rule.no-effect-on-reject",
+      "currentTargetValueSha256": "2b2ae630b2cdd2bb86dd6ec5b8c3a50125a0edaa8e46ef4a5898c1d63b46bc25",
+      "exactMaterialClauses": [
+        "rejects before mutation, dispatch, stream attachment, or frame acceptance"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0367-C004",
+      "exactSourceText": "“immutable” does not require retaining personal content forever.",
+      "sourceTextSha256": "33a8353bdefad9ac20089d5c6c14efc5bca43c1410e3fa60637cb739c5071edc",
+      "proposalRecordSha256": "5429140756e8152e34bd89647806f2710800cc6062f5d3be33c980b6e7900c43",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/concurrency.yaml#/rules/4",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.erasure-retention-provenance.v1",
+      "currentTargetValueSha256": "a0d4b42bc2f1ff32d9a8157be09ae3d6a58447b9f39c1317b6bc29ab5d03384a",
+      "exactMaterialClauses": [
+        "do not require retaining source media or personal content forever",
+        "Apply the exact lifecycle decision to content and derivatives"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0370-C001",
+      "exactSourceText": "Origin labels distinguish source, edited, generatively enhanced, AI-generated and simulation-generated output.",
+      "sourceTextSha256": "b8532f7a487de24375fa962124dca20e3a6ebc83ecb25ebcbf7693adb0e4d6b2",
+      "proposalRecordSha256": "a63d90f1026fc3aaa3b8e59894b0910381ac8aac140646fd29cab96bb8301302",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml#/labels/@id=media.origin.source/id",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml#ownerDefinedOriginClassification",
+      "currentTargetValueSha256": "47fb43057cbae958a58f9bc1b5074401e54bfeec75f34f47eb14253825d92da4",
+      "exactMaterialClauses": [
+        "media.origin.edited",
+        "media.origin.generatively-enhanced",
+        "media.origin.ai-generated",
+        "media.origin.simulation-generated",
+        "Edited and generatively enhanced are distinct classes",
+        "neither implies validation, measurement, truth, ownership, license, or permission"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0376-C001",
+      "exactSourceText": "Parent deadlines, cancellation and remaining budgets propagate to child stages and delegated agents",
+      "sourceTextSha256": "5fcef5b455b9f55d47a8f778a6ac95b5d104eb19c2f96a8a8824f42804f9db04",
+      "proposalRecordSha256": "bad72ccc1db9ab271a581ce16dae3826b5bbd2f84d4d63eb8e47cb1579c7a002",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml#/proposalRules/cancellationDeadlinesAndInterruption/proposal/2",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.parent-child-budget-and-cancellation-scope.v1",
+      "currentTargetValueSha256": "6dd6c29b1aced81bc9013d06289d79e2e58a8c431dd8485386d85db1ace87593",
+      "exactMaterialClauses": [
+        "deadline, cancellation policy, and remaining budget propagate to each child stage",
+        "child completion remains scoped to that child"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0299-C004",
+      "exactSourceText": "Retrying a group must reuse completed eligible items and must not resubmit ambiguous ones.",
+      "sourceTextSha256": "69612ce6e828c3e9de81bb8c8594f4a2293c3ce3c6d41b50be25fe945f60e41c",
+      "proposalRecordSha256": "f9042b0bdb3516581948c1725a7879fe19f782c6bdee76df72b90c4377f0eb18",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#/outcomes/@id=media.action-outcome.partial/next",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.group-retry-item-finality.v1",
+      "currentTargetValueSha256": "5cc926dac8de61a61bb4fad126ad6eaa4fd7432e75c2c742e40001abd6f01f06",
+      "exactMaterialClauses": [
+        "retains each item's exact original operation and request identity",
+        "Completed eligible items are reused and not resubmitted",
+        "unknown outcome is read-only reconciled",
+        "unresolved ambiguity blocks that item's resubmission",
+        "never mark a partial group complete"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0376-C004",
+      "exactSourceText": "Completed child assets are retained or erased according to the accepted lifecycle policy.",
+      "sourceTextSha256": "b029d9eccc19a5df714fe2d58f7c194dce5d64d0bf3ba8baf03b709d009013fc",
+      "proposalRecordSha256": "4ac40b166ee65a848f35a52e42dd513de4c391a0bfccfc330a1144c4ba562ca4",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#/ownerSemanticSelections/status",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.child-output-lifecycle-boundary.v1",
+      "currentTargetValueSha256": "a258a3bc8376f340a5bc586614fe7da23b0d0e827d54b36374ea2a1487e7fb25",
+      "exactMaterialClauses": [
+        "retains its exact immutable output identity and parent/child operation provenance",
+        "only for the lifecycle and retention scope authorized by its owning Media policy",
+        "Later parent failure does not erase or rewrite a completed child effect",
+        "neither automatically retained forever nor implicitly deleted with its parent"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0034-C002",
+      "exactSourceText": "U1 §9 puts parameters, policies and execution state in one graph",
+      "sourceTextSha256": "8fcae6531f94bec3f1c4b87e1d0977f8f3ca5ba8e0834dc7ad966bbd37f06f65",
+      "proposalRecordSha256": "73fc29eb82602838fbeeadd859290f92202b04f20e99661911c76cafdedb9cfa",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/rules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.definition-and-run-state-separation.v1",
+      "currentTargetValueSha256": "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925",
+      "exactMaterialClauses": [
+        "A versioned workflow definition contains only its declared stages, typed parameters, policy references, and dependency edges",
+        "Each invocation is a separately identified run",
+        "Run status never rewrites the definition",
+        "parameter or policy values never stand in for run state",
+        "a workflow graph alone grants no dispatch authority or runtime execution"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0440-C004",
+      "exactSourceText": "Project context provides Storyboard, Editor, Audio, Captions, Versions and Outputs as needed.",
+      "sourceTextSha256": "5a709ffce1af2b63985304740c3142c5708fecc8656be9cb917d34425a7bc2e0",
+      "proposalRecordSha256": "6c6d84db9b5cec4126391c2f83bf362630fc743d1f64796727e5e9d17d0db4a5",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.artifact-source-picker/hierarchy/0",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.contextual-workspace-navigation.v1",
+      "currentTargetValueSha256": "a51f789147f60111cca24e6476a8be2266b8a4f7b2a7378c3b0174a0e14191de",
+      "exactMaterialClauses": [
+        "Storyboard, Editor, Audio, Captions, Versions, and Outputs",
+        "exact project task",
+        "stable destinations"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0441-C004",
+      "exactSourceText": "One dominant primary action does not mean hiding Cancel, Undo or a safety warning.",
+      "sourceTextSha256": "325b9ddcce8f2a9ec70cc16f1400c353292101e76caf7c9a6fe6fd2c2b454234",
+      "proposalRecordSha256": "a63791c89621f77b39b0513b8d10a91b8ea68358158dc5a16c8a0e7567c2618a",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#/density/simple",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.navigation-and-safety-visibility.v1",
+      "currentTargetValueSha256": "84850015bdf1c4dc76b6fb1cbddb85a432e632e445aa8c3de06df9193db979f0",
+      "exactMaterialClauses": [
+        "Cancel, Undo where valid",
+        "access/rights denial, uncertainty, and safety warnings discoverable and operable"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0444-C003",
+      "exactSourceText": "Repeated safe technical steps do not need repeated dialogs.",
+      "sourceTextSha256": "8b08e074eac8b1c1909dd2479c02c778adfbf61415693ed165ecb819818af83d",
+      "proposalRecordSha256": "980547ecc349e18dd7fe4ef3eabe828295a22fc85d31dd06c72ac2bd6bc474ae",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#/progressiveDisclosureRules/@id=media.disclosure.advanced-parameters/conceals",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#repeatSafeStepDisclosure",
+      "currentTargetValueSha256": "55b88fce2e6dbcab0f6c8e0c2a66027d00e674a4203f6fb3f1ae3bd7e2430d3b",
+      "exactMaterialClauses": [
+        "does not require a second confirmation dialog",
+        "remain unchanged and current",
+        "A prior confirmation is scoped to the exact action and facts shown"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0446-C003",
+      "exactSourceText": "Undo/redo has a documented scope: local edit history is not reversal of an already published external effect.",
+      "sourceTextSha256": "d1ab98cdef69ffc14136ce23d697dc691ae61412e824cdb493058ecf8fe8df6b",
+      "proposalRecordSha256": "6a36b605078576cc6ee762fa7d2ba2a12e5ea65557a48eca69d715df9c78b66b",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.timeline-keyframe-editor/actionIntents/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.undo-redo-effect-boundary.v1",
+      "currentTargetValueSha256": "1227f38739c08208dcfe3a1c7ea777721dd92b2a3202dd3d2339384a8477d629",
+      "exactMaterialClauses": [
+        "versioned local edit history",
+        "never reverse a published delivery, external provider effect, consent decision"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0447-C003",
+      "exactSourceText": "Concurrent same-field edits require defined merge/conflict behavior.",
+      "sourceTextSha256": "3287e2c21331cc878af5d770c75c9c4b39f76c3b8a929238daa594311f7d069c",
+      "proposalRecordSha256": "c06afe2d4390535375f7c5810e755c4b01b728cfec262a75dd7ee4d930e27651",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#/recoveryPatterns/@id=media.recovery.conflicted-offline-edit/description",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/concurrency.yaml#rules",
+      "currentTargetValueSha256": "e951945ab2434c67ab2b83f18adaceb6e47993a7f770a904252e0b43746a7cff",
+      "exactMaterialClauses": [
+        "define conflict behavior per operation for stale preconditions",
+        "do not equate a job attempt with a resource revision",
+        "does not establish compare-and-set support or immutable storage"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0449-C003",
+      "exactSourceText": "Provider ambiguity is not an ordinary retryable failure.",
+      "sourceTextSha256": "d69ef77d5ea5bc415e199d57de3b9bd7c2144b95cc23b8cdf5f5e996dd26a2a8",
+      "proposalRecordSha256": "5a34b7dbe1de5459745bc58708f73a437c0e4f4c8f43a74efdc22662dcbdeb21",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/events/conventions.yaml#/committedFactsAndRequests/proposalRules/3",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.timeout-and-unknown-finality.v1",
+      "currentTargetValueSha256": "9872d0e510d0e8c6433005829c84caf76b6529a8a1213ab84c58ed31015b7d7f",
+      "exactMaterialClauses": [
+        "unknown finality when authoritative evidence is unavailable",
+        "reconcile the same operation before retry"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0450-C004",
+      "exactSourceText": "Technical details remain available through a protected inspector/correlation reference.",
+      "sourceTextSha256": "4af3edc50436febd42605ee706e936b1f08975d8adb7d96dc33761e92136613e",
+      "proposalRecordSha256": "e7a3d78d570d32e572e96c28c6491ed6e5c8566b6945118377a0ce5cfc3f9c76",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/api/correlation.yaml#/rules/1",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/api/correlation.yaml#ownerDefinedProtectedInspectorRule",
+      "currentTargetValueSha256": "79f4cb0b813580e19827c8d5fe1f98f18e850ee8a188ef86004e36e453380240",
+      "exactMaterialClauses": [
+        "separately authenticated protected inspector",
+        "exact tenant, principal, operation, and resource scope",
+        "revalidate current read authority",
+        "Redact credentials, secrets, raw media, prompts, transcript text, and personal data",
+        "never a bearer capability",
+        "denies the inspector response"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0452-C004",
+      "exactSourceText": "Flashing/motion risks require checks and safe playback behavior.",
+      "sourceTextSha256": "b016ae1f32bea3a7d9bd44f201d3d1e2dc4cc766bd7beec3eea72c7dff1eaa74",
+      "proposalRecordSha256": "7b50b28410d688bc2a89d6d45505eef1f5fe0d534c6608fb73762b28a7d4b0e0",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/motion.yaml#/authority",
+      "currentTargetRef": ".product-experience/pdp-2-design-interface-system/motion.yaml#ownerDefinedPhotosensitivitySafePlayback",
+      "currentTargetValueSha256": "5213f3077fe30668e433326abd451d50c637127a9f3d87754a948daffc34c48b",
+      "exactMaterialClauses": [
+        "Before playback",
+        "flashing or motion",
+        "applicable content-risk check",
+        "safe-playback disposition",
+        "missing, stale, or unsupported analysis as a clean result",
+        "block automatic or uninterrupted playback",
+        "warning before playback",
+        "safe alternative",
+        "no-universal-safe-flashing-threshold-is-defined-here",
+        "no-runtime-detector-or-player-behavior-is-claimed"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0040-C005",
+      "exactSourceText": "Process isolation does not remove license obligations.",
+      "sourceTextSha256": "389ed7c785a46b824a5acf5175ea096ee01bbbff6203373b0ab3cfd62359428a",
+      "proposalRecordSha256": "a0804c223313796ca70a50008c6a8d475d7da509d858d8a6c0f23f3662a4d6f1",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml#/labels/@id=media.origin.source/limits",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/componentLicenseBoundary/processIsolationDoesNotWaiveLicenseRule",
+      "currentTargetValueSha256": "f48755d0d268b9799e320f74ef0330e62f20c743d4f60246d36ae403b16cd21f",
+      "exactMaterialClauses": [
+        "Container, process, or adapter isolation narrows execution and authority boundaries but does not waive license",
+        "patent",
+        "attribution",
+        "redistribution",
+        "dataset",
+        "model-weight",
+        "codec",
+        "native-library",
+        "plugin",
+        "font",
+        "or asset terms",
+        "complete direct and transitive",
+        "DENY_SELECTION_OR_DISTRIBUTION"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0122-C001",
+      "exactSourceText": "The following stable constitutional IDs preserve the original principles and add explicit enforcement.",
+      "sourceTextSha256": "3b7963047b2c42dcaf691a46a7fc09871456d6a805aedf40c93bb1f00185b38b",
+      "proposalRecordSha256": "b74fe847b0a3ff2b11f06ba99a7085fe8f79c7c1af622b9ed99df738fd90fec1",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.cli-output/hierarchy/2",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/constitution.yaml#invariants",
+      "currentTargetValueSha256": "78083b5ae7fc35329b400a77a77b0793f790c2240b9bd2d53014f144c5a92312",
+      "exactMaterialClauses": [
+        "MEDIA-INV-001",
+        "MEDIA-INV-002",
+        "MEDIA-INV-003",
+        "MEDIA-INV-004",
+        "MEDIA-INV-005",
+        "MEDIA-INV-006",
+        "MEDIA-INV-007",
+        "media-owner-resolved",
+        "P0-010-independent-review-pending"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0187-C004",
+      "exactSourceText": "Prefer anonymous track IDs when identification is unnecessary.",
+      "sourceTextSha256": "210e66edccad0ce82d689dfb0bef43a279d1634aef582f69f2d8dc5cb1a309dd",
+      "proposalRecordSha256": "f9546011baa797f585ef7a38f0f1318e9c39c1db71140252f2ad6e978fbfed72",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.timeline-keyframe-editor/actionIntents/0",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#personAndIdentityInferenceRule/anonymousTrackIdsByDefault",
+      "currentTargetValueSha256": "c84bfab82dbc2dbd7464b4c0f72c806e2a13f2d526d246a9b33260a88a895adf",
+      "exactMaterialClauses": [
+        "prefer a random, non-semantic track identifier",
+        "scope is limited to that asset/version or session",
+        "Do not create a reusable cross-tenant or global identity key",
+        "only when the exact operation requires it and current purpose-specific authority",
+        "A scoped track identifier is not automatically anonymous",
+        "never-infer-person-identity"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0303-C002",
+      "exactSourceText": "define index base and idempotent part replay |",
+      "sourceTextSha256": "449421162abd4bff9555504fdbe6a5a39f64c4af340c98ea09b3e5e0d004caa3",
+      "proposalRecordSha256": "b10e6ef0fdde2a61b3851509157df19177f0dd83261a4564f84ec3967d181f40",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/events/conventions.yaml#/committedFactsAndRequests/sourceGroundedExamples/4/doesNotEstablish",
+      "currentTargetRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+      "currentTargetValueSha256": "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd",
+      "exactMaterialClauses": [
+        "zero-based-and-contiguous",
+        "current-nextChunkIndex",
+        "matching-persisted-index-length-digest-receipt",
+        "reject-conflicting-content-without-a-second-write",
+        "no-automatic-replay-after-unknown",
+        "chunk-acknowledgement-does-not-enter-VERIFYING-or-AVAILABLE"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0388-C005",
+      "exactSourceText": "binding to loopback alone is insufficient.",
+      "sourceTextSha256": "9819ccc225e234d2302a794a09f68829d47dabb542719f5f4b3a48df1c127601",
+      "proposalRecordSha256": "9e87c6e21a5c356c91bb6a896a391d0543e7933c3f0d8524ef38cb290b5d04ef",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#/mediaOwnerDefinitionDecision/exclusions/2",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary",
+      "currentTargetValueSha256": "56e250f85f07a98c29e699c5b098d00bc4f844dc1e1dd61a63cb449027c4238d",
+      "exactMaterialClauses": [
+        "loopback is not authentication or authorization",
+        "authenticated pairing",
+        "current tenant, principal, browser origin, worker instance, and narrowly scoped file grant",
+        "explicit origin allowlist",
+        "anti-CSRF/rebinding controls on every request",
+        "Origin metadata alone is never identity proof",
+        "reject-before-local-file-read-or-effect"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0458-C004",
+      "exactSourceText": "record the exact binary/build and enabled external codecs [W01].",
+      "sourceTextSha256": "3b44e7e0902d18f0a32aebc3ba68af53aabad86836a0439428497c73337ee31a",
+      "proposalRecordSha256": "55149c3609dcfb38bcb1a9429e419842ed566e11ae09ae77044a905d04ee8fdd",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml#/recipes/@id=media.gui.recipe.record-detail/label",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/enabledCodecBuildEvidenceRule",
+      "currentTargetValueSha256": "8259f158bbe04946a3b3cb501f206a2d0616014a9c7c188800d7759386fba86c",
+      "exactMaterialClauses": [
+        "exact executable binary digest",
+        "build recipe and configuration flags",
+        "enabled codec/demuxer/muxer/protocol set",
+        "complete direct and transitive linked-component inventory",
+        "observed runtime capability set must match",
+        "blocks selection or distribution",
+        "does not itself establish license clearance",
+        "no build is admitted or qualified"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0459-C001",
+      "exactSourceText": "Appendix B retains all previously discussed engines/libraries as candidates, with role and admission conditions.",
+      "sourceTextSha256": "29639c805ebd359c074e230b31872960be65403ef3b7f794c5b9f200e7e9d2c1",
+      "proposalRecordSha256": "667086cdbd7a2bdf920c36ca20d2d5c455dd85338ddb002df783be2158076a05",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#/definitionBindingReview/scope",
+      "currentTargetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/historicalCandidateInventoryDisposition",
+      "currentTargetValueSha256": "310d8ce033be25337d3e7ac0167b04d34e5b118d4709868acc90a2b243bc7b43",
+      "exactMaterialClauses": [
+        "docs/migration/expert-reviewed-master-plan.md",
+        "Appendix B. External candidate inventory",
+        "complete historical Appendix B candidate table",
+        "intended role and evaluation constraint",
+        "historical candidate discussion rather than a current procurement or integration list",
+        "selectionRegister is the current owner-authored decision subset",
+        "omission alone is not acceptance, rejection, evaluation, or a replacement decision",
+        "never mandates integration",
+        "HISTORICAL_SOURCE_PRESERVATION_ONLY"
+      ],
+      "scope": "BOUNDED_OWNER_DEFINITION_CLAUSE",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0458-C001",
+      "exactSourceText": "**Specific correction:** OpenVDB’s official license page identifies MPL-2.0",
+      "sourceTextSha256": "e2987a132cd4ad2920ce94693039eb416aa54a15a0780b61dd1f7fcb21067912",
+      "proposalRecordSha256": "4a4037f5f34b605c5fdf5971fdc70af88b9868b77302dfbb764217578bb66914",
+      "previousTargetRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/components/@id=media.component.artifact-browser/actionIntents/1",
+      "currentTargetRef": "docs/migration/expert-reviewed-master-plan.md#line=1045",
+      "currentTargetValueSha256": "80e99560e046da5ac0f9c3f6fbaf7542d5d61a4734dda2404c0f9851a6dc2867",
+      "exactMaterialClauses": [
+        "OpenVDB’s official license page identifies MPL-2.0",
+        "[W02]"
+      ],
+      "scope": "HISTORICAL_EXTERNAL_SOURCE_FACT_ONLY",
+      "reviewStatus": "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE",
+      "acceptanceEffect": "none"
+    }
+  ]
+}

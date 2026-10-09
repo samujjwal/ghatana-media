@@ -1,0 +1,161 @@
+schemaVersion: media.pdp3.step-guard-specialized-fact-contracts.v1
+records:
+  - id: media.pdp3.guard-fact.retry-budget-current.v1
+    guardRef: retry-budget-remains-under-current-policy
+    status: MEDIA_OWNER_DEFINITION; P1_TYPED_QUERY_SOURCE_AVAILABLE; RUNTIME_NOT_ADMITTED
+    ownerReadQueryRef: media.operation.action.inspect-job-retry-policy
+    ownerReadQuerySourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-job-retry-policy
+    ownerReadContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1
+    ownerReadValidationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationValidationRules/records/@id=media.observation-validation.retry-policy-current-read.v1
+    ownerReadSemantics: A matching current definition-only owner query can establish retryability and remaining-attempt budget for the exact job and prior attempt; this is not a dispatch authorization or a runtime receipt.
+    omitReceiptFields: [capabilityRef, delegationRef, policyVersionRef, authorityRef, authorityVersionRef]
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/transitions.yaml#ownerRaceResolutionContract/invariants/@id=media.pdp1.invariant.retry-fenced-and-bounded
+      - .product-experience/pdp-1-domain-data/transitions.yaml#ownerRaceResolutionContract/resolutionCases/@id=media.pdp1.race.retry-with-unknown-effect
+    semantics:
+      unitRef: media.retry-budget-unit.attempt
+      unit: retry-attempt
+      requestedUnits: exactly one new attempt per retry request
+      remainingUnits: limitUnits minus spentUnits minus heldUnits
+      eligibleWhen: current exact job, prior-attempt fence, policy identity and authority match; policy is current and permitted; remainingUnits is at least requestedUnits; the prior effect is independently classified as no-effect and retryable
+      falseWhen: current scoped policy explicitly denies or remainingUnits is insufficient
+      unknownWhen: any identity, policy, evidence, currentness, or prior-effect field is absent, stale, malformed, or outside the exact tuple
+      queryTuple: exact jobId and priorAttemptId; host tenant/principal; queryId correlation; server fingerprint; exact retry operation, profile, bounds, policy version, job/attempt versions; bounded retriesRemaining
+      noAuthorization: current-query truth never reserves an attempt, grants retry authority, or changes dispatch admission
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    factSchema:
+      type: object
+      additionalProperties: false
+      required: [tenantScopeRef, principalRef, jobRef, jobVersionRef, attemptRef, attemptFencingToken, budgetRef, budgetVersionRef, unitRef, policyRef, policyVersionRef, policyAuthorityRef, policyAuthorityVersionRef, policyCurrentness, policyDisposition, limitUnits, spentUnits, heldUnits, requestedUnits, observedAt, validFrom, validUntil, evidenceRef]
+      properties:
+        tenantScopeRef: {type: string, minLength: 1}
+        principalRef: {type: string, minLength: 1}
+        jobRef: {type: string, minLength: 1}
+        jobVersionRef: {type: string, minLength: 1}
+        attemptRef: {type: string, minLength: 1}
+        attemptFencingToken: {type: integer, minimum: 0, maximum: 9007199254740991}
+        budgetRef: {type: string, minLength: 1}
+        budgetVersionRef: {type: string, minLength: 1}
+        unitRef: {const: media.retry-budget-unit.attempt}
+        policyRef: {type: string, minLength: 1}
+        policyVersionRef: {type: string, minLength: 1}
+        policyAuthorityRef: {type: string, minLength: 1}
+        policyAuthorityVersionRef: {type: string, minLength: 1}
+        policyCurrentness: {type: string, enum: [CURRENT, STALE, UNKNOWN]}
+        policyDisposition: {type: string, enum: [RETRY_ALLOWED, RETRY_DENIED, UNKNOWN]}
+        limitUnits: {type: integer, minimum: 0, maximum: 9007199254740991}
+        spentUnits: {type: integer, minimum: 0, maximum: 9007199254740991}
+        heldUnits: {type: integer, minimum: 0, maximum: 9007199254740991}
+        requestedUnits: {type: integer, minimum: 1, maximum: 9007199254740991}
+        observedAt: {type: string, format: date-time}
+        validFrom: {type: string, format: date-time}
+        validUntil: {type: string, format: date-time}
+        evidenceRef: {type: string, minLength: 1}
+  - id: media.pdp3.guard-fact.project-create-request-schema.v1
+    guardRef: owner-approved-project-request-shape
+    status: MEDIA_OWNER_DEFINITION; DIRECT_REQUEST_VALIDATION; RUNTIME_NOT_ADMITTED
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/requestSchema
+    validator:
+      kind: canonical-json-schema
+      schemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/requestSchema
+      schemaVersionRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema
+      tenantAndPrincipal: trusted-context-only
+      workspaceMustMatchTrustedSelection: true
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    factSchema:
+      type: object
+      additionalProperties: false
+      required: [observationKind, subjectRefs, versionRefs, purposeRef, observationStatus, evidenceRefs, details]
+      properties:
+        observationKind: {const: CANONICAL_REQUEST_SCHEMA_VALIDATION}
+        subjectRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+        versionRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+        purposeRef: {type: string, minLength: 1}
+        observationStatus: {type: string, enum: [OBSERVED, UNKNOWN]}
+        evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+        details:
+          type: object
+          additionalProperties: false
+          required: [schemaRef, schemaVersionRef, requestFingerprint, requestPayload]
+          properties:
+            schemaRef: {const: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/requestSchema}
+            schemaVersionRef: {const: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema}
+            requestFingerprint: {type: string, pattern: '^[a-f0-9]{64}$'}
+            requestPayload: {type: object, additionalProperties: false, required: [selectedAuthorizedWorkspaceId, title, requestId], properties: {selectedAuthorizedWorkspaceId: {type: string, minLength: 1, maxLength: 128}, title: {type: string, minLength: 1, maxLength: 128}, requestId: {type: string, minLength: 1, maxLength: 128}}}
+  - id: media.pdp3.guard-fact.caption-draft-structural-validity.v1
+    guardRef: caption-draft-valid
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
+      - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/draftSnapshotDefinition
+      - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+      - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/sourceClockRequirement
+    status: MEDIA_OWNER_DEFINITION; SESSION_LOCAL_VALUE_VALIDATION; RUNTIME_NOT_ADMITTED
+    semantics:
+      rule: Evaluate the supplied immutable draft value; a caller-supplied VALID label is never evidence.
+      cueRule: Each segment has a unique stable ID, strictly increasing explicit order, nonempty text, explicit origin, and preserved language disposition/uncertainty/evidence. SOURCE_TICKS require an exact current source-clock tuple and bounded half-open range. PROVIDER_TIME_UNQUALIFIED preserves its declared unit. NOT_SUPPLIED remains explicit. No overlap or single-language rule is inferred.
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+    factSchema:
+      type: object
+      additionalProperties: false
+      required: [observationKind, subjectRefs, versionRefs, purposeRef, observationStatus, evidenceRefs, details]
+      properties:
+        observationKind: {const: CAPTION_DRAFT_VALUE_VALIDATION}
+        subjectRefs: {type: array, minItems: 2, items: {type: string, minLength: 1}}
+        versionRefs: {type: array, minItems: 2, items: {type: string, minLength: 1}}
+        purposeRef: {type: string, minLength: 1}
+        observationStatus: {type: string, enum: [OBSERVED, UNKNOWN]}
+        evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+        details:
+          type: object
+          additionalProperties: false
+          required: [validatorRef, validatorVersionRef, draftRef, draftRevision, sourceVersionRef, parentVersionRef, timingAvailability, segments]
+          properties:
+            validatorRef: {const: media.caption.timeline-validator}
+            validatorVersionRef: {const: media.caption.timeline-validator.v1}
+            draftRef: {type: string, minLength: 1}
+            draftRevision: {type: integer, minimum: 0, maximum: 9007199254740991}
+            sourceVersionRef: {type: string, minLength: 1}
+            parentVersionRef: {type: string, minLength: 1}
+            timingAvailability: {type: string, enum: [NOT_SUPPLIED, PROVIDER_TIME_UNQUALIFIED, SOURCE_CLOCK_BOUND, MIXED]}
+            segments:
+              type: array
+              minItems: 1
+              maxItems: 100000
+              items:
+                type: object
+                additionalProperties: false
+                required: [segmentId, segmentOrder, text, origin, languageDisposition, timing]
+                properties:
+                  segmentId: {type: string, minLength: 1}
+                  segmentOrder: {type: integer, minimum: 0, maximum: 9007199254740991}
+                  text: {type: string, minLength: 1, maxLength: 8192}
+                  origin: {type: string, enum: [RECOGNIZED, USER_EDITED]}
+                  languageDisposition: {type: string, enum: [NOT_SELECTED, DECLARED_BY_USER, UNCERTAIN]}
+                  languageTag: {type: [string, 'null'], minLength: 2}
+                  uncertaintyObservations: {type: array, items: {type: string, minLength: 1}}
+                  evidenceRefs: {type: array, items: {type: string, minLength: 1}}
+                  timing:
+                    oneOf:
+                      - type: object
+                        additionalProperties: false
+                        required: [kind]
+                        properties: {kind: {const: NOT_SUPPLIED}}
+                      - type: object
+                        additionalProperties: false
+                        required: [kind, providerTime, unitRef]
+                        properties: {kind: {const: PROVIDER_TIME_UNQUALIFIED}, providerTime: {}, unitRef: {type: string, minLength: 1}}
+                      - type: object
+                        additionalProperties: false
+                        required: [kind, sourceClockRef, sourceVersionRef, ticksPerSecond, sourceDurationTicks, startTick, endTick]
+                        properties:
+                          kind: {const: SOURCE_TICKS}
+                          sourceClockRef: {type: string, minLength: 1}
+                          sourceVersionRef: {type: string, minLength: 1}
+                          ticksPerSecond: {type: integer, minimum: 1, maximum: 9007199254740991}
+                          sourceDurationTicks: {type: integer, minimum: 0, maximum: 9007199254740991}
+                          startTick: {type: integer, minimum: 0, maximum: 9007199254740991}
+                          endTick: {type: integer, minimum: 1, maximum: 9007199254740991}

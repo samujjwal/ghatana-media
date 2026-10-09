@@ -33,3 +33,47 @@ requiredContext:
   - applicable-time-or-region
   - uncertainty-or-abstention
   - conversion-loss-and-limitations-when-known
+ownerDefinedOriginClassification:
+  id: media.trust.origin-classification-and-lineage.v1
+  authority: Media defines the product-visible origin distinctions; an origin label is not a license, rights grant, authenticity proof, or quality qualification.
+  classes:
+    - id: media.origin.source-preserved
+      label: Source
+      meaning: Output is an unchanged source version or byte-preserving reference to that exact version.
+      requiredEvidence: [exact-source-version-ref, byte-preservation-or-immutable-reference-evidence]
+    - id: media.origin.edited
+      label: Edited
+      meaning: Output is derived through explicit non-generative edits from one or more identified source versions.
+      requiredEvidence: [exact-source-version-refs, exact-output-version-ref, edit-operation-and-version, changed-region-or-property-scope]
+    - id: media.origin.generatively-enhanced
+      label: Generatively enhanced
+      meaning: Source-derived output includes synthesized, reconstructed, or inferred content while retaining an explicit source lineage and disclosure of changed or uncertain regions.
+      requiredEvidence: [exact-source-version-refs, exact-output-version-ref, generation-operation-and-version, method-or-model-profile-when-applicable, changed-or-uncertain-region-scope]
+    - id: media.origin.ai-generated
+      label: AI-generated
+      meaning: New output content was produced by an AI generation operation; it is not represented as recovered source evidence.
+      requiredEvidence: [exact-output-version-ref, generation-operation-and-version, method-or-model-profile-when-applicable]
+    - id: media.origin.simulation-generated
+      label: Simulation-generated
+      meaning: Output was produced by a named simulation operation and declared simulation model, solver, and input state.
+      requiredEvidence: [exact-output-version-ref, simulation-operation-and-version, exact-model-and-solver-profile-refs, exact-input-state-version-refs]
+  classificationRules:
+    - Origin classes are typed per output version; a presentation label cannot create or change the source record.
+    - Edited and generatively enhanced are distinct classes; a class cannot be inferred from a filename, provider name, MIME type, or UI surface.
+    - AI-generated and simulation-generated distinguish production method; neither implies validation, measurement, truth, ownership, license, or permission.
+    - A derivative may retain source lineage while carrying an edited, generatively enhanced, AI-generated, or simulation-generated class; the source and derivative identities remain separate.
+    - If required lineage or method evidence is absent, report origin as unknown and preserve the missing evidence; never promote an unsupported class.
+    - Rights, retention, privacy, and disclosure policy independently constrain which source references and evidence may be shown or retained.
+  negativeCases:
+    - classify-edited-output-as-source-preserved
+    - collapse-ai-generated-and-simulation-generated
+    - label-inferred-from-provider-or-file-extension
+    - claim-source-recovery-without-exact-source-lineage
+    - treat-origin-class-as-quality-or-rights-qualification
+    - omit-unknown-when-required-method-evidence-is-missing
+  scopeStatus: OWNER_DEFINED_PRODUCT_ORIGIN_DEFINITION; output binding, rights review, runtime behavior, and independent acceptance remain separate.
+normativeRuleRecords:
+  - id: media.p2.rule.origin-classification-and-lineage.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml#ownerDefinedOriginClassification
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml#labels
+    acceptanceEffect: none

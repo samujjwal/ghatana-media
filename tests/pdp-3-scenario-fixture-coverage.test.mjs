@@ -26,22 +26,21 @@ test('P3-05 scenario and fixture denominator preserves source-linked and blocked
   const seeds = new Set(simulationSeedKeys(simulationSource));
   const indexed = new Map(fixtureIndex.fixtures.map((fixture) => [fixture.scenarioId, fixture]));
   const stateBindings = new Map(sourceBindings.scenarioStartingStateBindings.map((binding) => [binding.scenarioRef, binding]));
+  const localContextBindings = new Map(sourceBindings.scenarioStartingContextBindings.records.map((binding) => [binding.scenarioRef, binding]));
 
   assert.equal(scenarios.size, 31, 'the authored scenario registry denominator remains explicit');
-  assert.equal(seeds.size, 30, 'only exact keys in the simulation seed record count as seeded');
+  assert.equal(seeds.size, 31, 'the pre-dispatch retry-eligibility oracle is now seeded in the Media simulation');
   assert.equal(indexed.size, 30, 'only indexed synthetic fixture payloads count as Explorer fixtures');
-  assert.deepEqual(new Set(indexed.keys()), new Set([...seeds].map((key) => `media.scenario.${key}`)));
+  assert.deepEqual(new Set(indexed.keys()), new Set([...seeds].filter((key) => key !== 'job-retry-eligible').map((key) => `media.scenario.${key}`)), 'retry eligibility is a Media definition fixture and is not added to the Explorer fixture index');
   assert.deepEqual(new Set(seeds), new Set([...scenarios.keys()].map((id) => id.slice('media.scenario.'.length)).filter((key) => seeds.has(key))));
 
   const unseeded = [...scenarios.keys()].filter((id) => !seeds.has(id.slice('media.scenario.'.length))).sort();
-  assert.deepEqual(unseeded, [
-    'media.scenario.job-retry-eligible',
-  ]);
-  assert.ok(unseeded.every((id) => /proposal-only/u.test(scenarios.get(id).pdp3PayloadState ?? '')));
+  assert.deepEqual(unseeded, []);
   const retryAction = actionRegistry.actions.find(({ id }) => id === 'media.action.retry-job');
   assert.deepEqual(retryAction.scenarioRefs, ['media.scenario.job-retry-eligible', 'media.scenario.job-retry-ineligible'], 'the action authority links both retry proposals while payload availability is tracked independently');
   assert.match(retryAction.effect, /new-fenced-attempt/u);
   assert.ok(retryAction.scenarioRefs.every((id) => /no-local-retry-reducer/u.test(scenarios.get(id).pdp3PayloadState)));
+  assert.match(scenarios.get('media.scenario.job-retry-eligible').pdp3PayloadState, /pre-dispatch-eligibility-fixture-seeded; retry-request-not-dispatched/u);
   assert.equal(scenarios.get('media.scenario.job-retry-ineligible').sourceFixtureRef, 'FIXTURE-PROVIDER-AMBIGUITY');
   assert.match(scenarios.get('media.scenario.job-retry-ineligible').pdp3PayloadState, /unknown-outcome-branch-seeded/u);
 
@@ -52,9 +51,10 @@ test('P3-05 scenario and fixture denominator preserves source-linked and blocked
     .map((key) => `media.scenario.${key}`)
     .filter((id) => !pdp1CanonicalStateRefs.has(stateBindings.get(id)?.startingStateRef))
     .sort();
-  const sourceSeededWithoutAnyStateLink = sourceSeededWithoutCanonicalStart.filter((id) => !stateBindings.has(id));
-  assert.equal(stateBindings.size, 16, 'exact source-state links include proposal-only links');
-  assert.equal(canonicalStartBindings.length, 15, 'only PDP-1 enumerated state IDs count as canonical starts');
+  const sourceSeededWithoutAnyStateLink = sourceSeededWithoutCanonicalStart
+    .filter((id) => !stateBindings.has(id) && !localContextBindings.has(id));
+  assert.equal(stateBindings.size, 16, 'exact source-state links include the two retry outcome states and exclude local-only contexts');
+  assert.equal(canonicalStartBindings.length, 16, 'only PDP-1 enumerated state IDs count as canonical starts');
   assert.deepEqual(sourceSeededWithoutCanonicalStart, [
     'media.scenario.alignment-required',
     'media.scenario.caption-conflict',
@@ -73,23 +73,26 @@ test('P3-05 scenario and fixture denominator preserves source-linked and blocked
     'media.scenario.workspace-access-denied',
   ], 'seeded payloads without exact PDP-1 canonical starting-state links remain individually visible');
   assert.ok(sourceSeededWithoutCanonicalStart.every((id) => seeds.has(id.slice('media.scenario.'.length))));
-  assert.deepEqual(sourceSeededWithoutAnyStateLink, sourceSeededWithoutCanonicalStart.filter((id) => id !== 'media.scenario.consent-revoked'),
-    'the consent proposal link is the only source-state link that is not a PDP-1 canonical state');
-  assert.equal(sourceSeededWithoutAnyStateLink.length, 14);
+  assert.deepEqual(sourceSeededWithoutAnyStateLink, [],
+    'every noncanonical start is explicitly owned by a typed local synthetic context instead of a PDP state');
+  assert.deepEqual(new Set(sourceSeededWithoutCanonicalStart), new Set(localContextBindings.keys()),
+    'local context coverage exactly matches the seeded scenarios without canonical state links');
+  assert.equal(sourceSeededWithoutAnyStateLink.length, 0);
   const canonicalModelIds = new Set(stateModels.models.map(({ modelId }) => modelId));
   const consentModel = stateModels.models.find(({ modelId }) => modelId === 'media-rights-and-consent');
   const domainConsentMachine = domainStates.stateMachines.find(({ machineId }) => machineId === 'media-rights-and-consent');
   assert.ok(consentModel.consentStates.includes('REVOKED'));
   assert.equal(consentModel.states, undefined, 'the consent axis has no explicitly terminal-annotated state records');
   assert.deepEqual(domainConsentMachine.stateIds, [], 'PDP-1 confirms no owner-selected canonical rights/consent machine states');
-  assert.equal(stateBindings.get('media.scenario.consent-revoked').startingStateRef, 'media-rights-and-consent.consent.REVOKED',
-    'the exact seed is cross-referenced to the PDP-0 proposal identity, without filling PDP-1 stateIds');
+  const consentContext = localContextBindings.get('media.scenario.consent-revoked');
+  assert.equal(consentContext.contextKind, 'RIGHTS_AND_CONSENT_LOCAL');
+  assert.deepEqual(consentContext.canonicalStateRefs, [], 'consent fixture state remains local until a canonical P1 state exists');
   assert.equal(stateBindings.get('media.scenario.job-retry-ineligible').startingStateRef, 'media-job.OUTCOME_UNKNOWN',
     'the ineligible retry seed uses the exact canonical state for its explicit unknown-outcome branch');
   assert.match(sourceBindings.status, /^proposal-only;/u,
     'source-state cross-references remain proposals pending independent review');
   assert.ok(!domainConsentMachine.stateIds.includes('REVOKED'),
-    'the cross-reference does not imply an owner-selected PDP-1 rights/consent machine state');
+    'the local context does not imply an owner-selected PDP-1 rights/consent machine state');
   assert.match(simulationSource, /"consent-revoked": \{[\s\S]*?consentState: "REVOKED"/u,
     'the exact synthetic fixture records the same consent-axis state');
   assert.match(simulationSource, /"job-retry-ineligible": \{[\s\S]*?state: "OUTCOME_UNKNOWN",[\s\S]*?attemptState: "OUTCOME_UNKNOWN",[\s\S]*?finality: "UNKNOWN"/u,
@@ -111,8 +114,8 @@ test('P3-05 scenario and fixture denominator preserves source-linked and blocked
   assert.equal(journeys.length, 30);
   const seededJourneyIds = registry.journeyCoverage.journeysWithExactSimulationSeeds;
   const blockedJourneyIds = registry.journeyCoverage.journeysWithoutExactSimulationSeeds;
-  assert.equal(seededJourneyIds.length, 3);
-  assert.equal(blockedJourneyIds.length, 27);
+  assert.equal(seededJourneyIds.length, 4);
+  assert.equal(blockedJourneyIds.length, 26);
   assert.equal(new Set([...seededJourneyIds, ...blockedJourneyIds]).size, 30);
   assert.deepEqual(new Set(journeys.map(({ journeyId }) => journeyId)), new Set([...seededJourneyIds, ...blockedJourneyIds]));
   assert.match(registry.journeyCoverage.status, /owner-approved-oracles-pending/u);

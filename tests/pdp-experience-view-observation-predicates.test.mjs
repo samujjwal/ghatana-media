@@ -24,11 +24,11 @@ const addOperationSource = (operationRef, sourceRef) => {
   operationSources.set(operationRef, rows);
 };
 for (const key of ["individualOperationContracts", "ownerDefinedOperationContracts"]) {
-  for (const record of operationDocument[key].records) addOperationSource(record.id, `.product-experience/pdp-1-domain-data/operations.yaml#${key}.records.${record.id}`);
+  for (const record of operationDocument[key].records) addOperationSource(record.id, `.product-experience/pdp-1-domain-data/operations.yaml#${key}/records/@id=${record.id}`);
 }
 for (const record of operationDocument.capabilityOperationContracts.records) {
   for (const operationRef of record.operationRefs ?? []) {
-    addOperationSource(operationRef, `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.${record.id}`);
+    addOperationSource(operationRef, `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=${record.id}`);
   }
 }
 const ajv = new Ajv2020({ allErrors: true, strict: false });
@@ -301,7 +301,7 @@ test("artifact lifecycle predicates bind the exact proposed read model, immutabl
   const schema = inputContracts.factSchemas.find(({ factKind }) => factKind === "OWNER_ARTIFACT_STATE").closedSchema;
   assert.equal(schema.additionalProperties, false);
   assert.deepEqual(schema.properties.queryResult.$ref,
-    ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema.resultSchema");
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema/resultSchema");
   assert.deepEqual(evaluateArtifactLifecycleObservation(predicate, fact, trustedContext), {
     truth: "TRUE", reason: "EXACT_SCOPED_ARTIFACT_LIFECYCLE_OBSERVATION", canonicalStateRef: `${base}/${state}`,
   });
@@ -373,7 +373,7 @@ test("stored job observations bind exact owner read scope and map only OUTCOME_U
   const wrapperSchema = inputContracts.factSchemas.find(({ factKind }) => factKind === "OWNER_JOB_STATE").closedSchema;
   assert.equal(wrapperSchema.additionalProperties, false);
   assert.deepEqual(wrapperSchema.properties.queryResult.$ref,
-    ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema.resultSchema");
+    ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema/resultSchema");
   assert.deepEqual(evaluateStoredJobStatus(predicate, fact, queryTrusted), {
     truth: "TRUE", reason: "EXACT_TYPED_JOB_STATUS_AND_CANONICAL_MAPPING", canonicalStateRef: unknownStateRef, runtimeStatus: "OUTCOME_UNKNOWN",
   });

@@ -16,3 +16,48 @@ sharedPatterns:
   keyframes: announce-selected-object-property-time-and-value
   simulationInstrument: show-unit-method-applicability-uncertainty-and-fidelity-class
   unsupportedConversion: preserve-source-model-and-report-the-lost-or-unmapped-feature
+ownerDefinedClockPresentation:
+  id: media.animation.clock-domain-presentation.v1
+  sourceAuthority: Media presentation grammar consumes exact PDP-1 time/value definitions; it does not create clock arithmetic or scientific timing qualification.
+  canonicalDefinitionRefs:
+    rationalMediaAndSimulationStoryTime: .product-experience/pdp-1-domain-data/value-objects.yaml#/canonicalConversionDefinitions/records/@id=media.value.rational-media-time
+    sampleBoundary: .product-experience/pdp-1-domain-data/value-objects.yaml#/canonicalConversionDefinitions/records/@id=media.value.sample-boundary-index
+    sourceFrameSampleMapping: .product-experience/pdp-1-domain-data/value-objects.yaml#/ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping
+  clockRoles:
+    mediaPresentation: exact-source-clock-kind-id-stream-and-rational-ticks; VFR uses retained frame mapping
+    audioSamples: exact-stream-and-sample-rate-boundary; priming-padding require an explicit mapping
+    simulation: explicit simulation clock and units; never implicitly synchronized to media presentation
+    story: explicit story clock and units; never implicitly synchronized to wall clock
+    wallClock: deadline or observation instant only; never used as a media-frame or simulation-step count
+  rules:
+    - every displayed time control identifies its clock kind, clock identity, stream when applicable, units, and conversion convention
+    - cross-clock, cross-stream, timebase, frame-rate, sample-rate, and drift conversion uses the exact referenced PDP-1 definition and explicit alignment mapping; missing mapping disables conversion
+    - numeric frame-rate division cannot replace VFR frame maps or source PTS; rounded values disclose the selected rounding and loss
+    - scrubbing, pausing, or changing story presentation does not advance, reset, or mutate the simulation state
+    - an unsupported conversion preserves the source value and model and exposes the lost or unmapped feature; it never silently substitutes 24 fps, zero, or a guessed duration
+  scopeStatus: OWNER_DEFINED_PRESENTATION_DEFINITION; clock accuracy, alignment qualification, provider timing, and simulation validity remain NOT_EVALUATED.
+mediaSemanticResponsibilityBoundary:
+  id: media.animation.media-semantic-responsibility-boundary.v1
+  authority: Media P2 presentation owner; cited phases remain the sole semantic owners of their exact definitions.
+  responsibilities:
+    mediaMeaningProjectsAndAssets: .product-experience/pdp-0-product-truth/domain-model.yaml#authorityBoundary
+    processingSpecificationsAndOperations: .product-experience/pdp-1-domain-data/operations.yaml#operations
+    jobPolicyAndState: .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+    timelineAndExactTime: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+    animationAndSimulationPresentation: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedClockPresentation
+    mediaQualityPolicy: .product-experience/pdp-0-product-truth/quality-policy.yaml#assessmentContract
+    rightsAndPrivacy: .product-experience/pdp-1-domain-data/privacy.yaml#axes
+    deliveryAndExecutionPolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+  rule: >-
+    Media product meaning, project/asset identity, processing specification, job policy/state, timeline time, animation/simulation presentation, quality applicability, rights/privacy, and delivery intent remain Media-owned at their cited exact phase sources. P2 consumes and presents those meanings; it does not create a second authority, silently infer missing definitions, or treat a presentation control as authorization or execution. A missing or unresolved source remains visibly unresolved and blocks only the dependent representation/action.
+  negativeCases: [presentation-rule-substitutes-for-domain-owner,p2-control-invents-operation-or-rights-meaning,missing-owner-definition-defaulted-to-success,screen-rendering-treated-as-policy-or-execution]
+  scopeStatus: OWNER_DEFINED_CROSS_PHASE_PRESENTATION_BOUNDARY; source phase acceptance, specialist review, runtime, and Lifecycle receipts remain separate.
+normativeRuleRecords:
+  - id: media.p2.rule.animation-clock-domain-presentation.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedClockPresentation
+    sourceAuthority: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+    acceptanceEffect: none
+  - id: media.p2.rule.animation-media-semantic-responsibility-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#mediaSemanticResponsibilityBoundary
+    sourceAuthority: .product-experience/pdp-0-product-truth/domain-model.yaml#authorityBoundary
+    acceptanceEffect: none

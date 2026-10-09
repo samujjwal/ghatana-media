@@ -23,10 +23,11 @@ test("PDP-3 scenario inventory has a deterministic seed or an explicit non-execu
   const intentionallyUnseeded = scenarios.filter(({ pdp3PayloadState }) =>
     pdp3PayloadState?.startsWith("proposal-only;"),
   );
-  assert.deepEqual(intentionallyUnseeded.map(({ id }) => id), ["media.scenario.job-retry-eligible"]);
-  assert.match(intentionallyUnseeded[0].initialConditions, /prior-attempt-is-classified-retryable/u);
-  assert.match(intentionallyUnseeded[0].initialConditions, /current-authority-policy-rights-license-resource-deployment-and-budget-checks-pass/u);
-  assert.match(intentionallyUnseeded[0].pdp3PayloadState, /no-local-retry-reducer/u);
+  assert.deepEqual(intentionallyUnseeded.map(({ id }) => id), []);
+  const retryEligible = scenarios.find(({ id }) => id === "media.scenario.job-retry-eligible");
+  assert.match(retryEligible.pdp3PayloadState, /pre-dispatch-eligibility-fixture-seeded/u);
+  assert.match(retryEligible.pdp3PayloadState, /retry-request-not-dispatched/u);
+  assert.match(retryEligible.pdp3PayloadState, /no-local-retry-reducer/u);
 
   const seededIds = ids.filter((id) => !intentionallyUnseeded.some((scenario) => scenario.id === id));
   assert.deepEqual([...mediaExperienceScenarioIds].sort(), [...seededIds].sort());
@@ -48,7 +49,7 @@ test("PDP-3 scenario inventory has a deterministic seed or an explicit non-execu
     assert.deepEqual(first, replay, `${scenarioId} seed must be deterministic`);
   }
 
-  assert.throws(() => createFixtureState("media.scenario.job-retry-eligible"), /Unknown Media experience fixture/u);
+  assert.equal(createFixtureState("media.scenario.job-retry-eligible").retryEligibility?.priorAttemptDisposition, "RETRYABLE");
 });
 
 test("PDP-3 seeded scenarios enforce their declared denied, pending, and unknown outcomes", () => {

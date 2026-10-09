@@ -1,0 +1,103 @@
+schemaVersion: media.pdp3.project-list-observation-contracts.v1
+records:
+  - id: media.project-list-observation.v1
+    status: OWNER_DEFINED_OBSERVATION_RULE; OPERATION_ADAPTER_AND_RUNTIME_NOT_ADMITTED
+    operationRef: media.operation-slice.list-projects
+    operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/media.operation-slice.list-projects
+    operationWireSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/media.operation-slice.list-projects/ownerWireSchema
+    journeyStepRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/1
+    scenarioRefs:
+      - media.scenario.first-use-empty
+      - media.scenario.workspace-access-denied
+      - media.scenario.identity-required
+    operationKind: QUERY
+    targetObjectRefs:
+      - media.domain.project
+    targetStateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ARCHIVED
+    trustedContext:
+      requiredFields:
+        - tenantId
+        - principalId
+        - selectedAuthorizedWorkspaceId
+        - projectReadAuthorityRef
+        - authorityObservation
+        - serverComputedQueryFingerprint
+        - snapshotRefForPageToken
+      bodyMaySupplyTrustedContext: false
+      authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      limitation: The typed host context is a definition input, not proof that an identity or policy provider admitted the caller.
+    request:
+      closedFields:
+        - workspaceId
+        - pageToken
+      workspaceIdMustEqualTrustedContext: true
+      queryFingerprint: server-computed SHA-256 from workspaceId, optional pageToken and trusted tenant/principal
+      pageToken: optional; opaque and valid only in its tenant, principal, workspace, query fingerprint and snapshot
+    result:
+      closedFields:
+        - operationRef
+        - outcome
+        - tenantId
+        - principalId
+        - workspaceId
+        - queryFingerprint
+        - snapshotRef
+        - observedAt
+        - records
+        - nextPageToken
+      observedOutcome: OBSERVED
+      unknownOutcome: UNKNOWN_OBSERVATION; reason is one of AUTHORITY_UNAVAILABLE, SNAPSHOT_UNAVAILABLE, PAGE_TOKEN_INVALID, QUERY_UNAVAILABLE; no records or continuation token
+      projectRecordFields:
+        - projectId
+        - workspaceId
+        - title
+        - headRevisionId
+        - projectState
+      exactHostBinding:
+        - trusted tenantId equals result tenantId
+        - trusted principalId equals result principalId
+        - requested workspaceId equals result workspaceId
+        - server-computed query fingerprint equals result queryFingerprint
+      pageSnapshotBinding: A continuation token may only be used with its original snapshotRef, query fingerprint, tenant, principal and workspace.
+      maximumRecordsPerPage: 1000
+      maxPageTokenLength: 2048
+      observationTime: canonical UTC ISO timestamp; it is not a currentness or authorization receipt
+      recordWorkspaceMustEqualTrustedWorkspace: true
+      projectStateSourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions
+      projectStateIds:
+        - ACTIVE
+        - ARCHIVED
+      successVariants:
+        - id: media.project-list-observation.nonempty-page.v1
+          when: OBSERVED with one or more exact project records
+          meaning: At least one project summary was visible in this authorized query page at observedAt.
+          excludes: No statement about other workspaces, later changes, project membership outside this query, or project mutation.
+        - id: media.project-list-observation.empty-page-with-continuation.v1
+          when: OBSERVED with zero records and a non-null nextPageToken
+          meaning: This page is empty; more results may exist in the same scoped query.
+          excludes: It is not a first-use or empty-collection conclusion.
+        - id: media.project-list-observation.empty-terminal-page.v1
+          when: OBSERVED with zero records and a null nextPageToken
+          meaning: No visible project summary was returned for this authorized query page at observedAt.
+          excludes: It does not prove global absence, project nonexistence outside the authorized query, or currentness after observedAt.
+      nonSuccess: UNKNOWN_OBSERVATION has no records or continuation token and produces UNKNOWN, never an empty collection conclusion.
+    guards:
+      - trusted tenant, principal and selected authorized workspace are present and match the requested query scope
+      - project-read authority observation is explicitly current and allowed for this exact principal and workspace
+      - returned query status, timestamps and every project summary satisfy the closed result shape
+    effects:
+      dispatch: NONE from the observation oracle; the canonical QUERY is defined separately and runtime remains unadmitted
+      projectMutation: NONE
+      finality: READ_ONLY_OBSERVATION_ONLY
+      retry: Re-observation is a new scoped QUERY; command replay is not applicable
+    negativeCases:
+      - missing or mismatched trusted tenant, principal, workspace or project-read authority
+      - caller body attempts to supply or override trusted context
+      - unknown result field, invalid timestamp, foreign workspace row, or malformed project identity
+      - non-SUCCESS response carrying rows or a continuation token
+      - empty page with continuation misrepresented as a terminal empty page
+      - stale observation presented as current or as proof of global absence
+    runtimeAdmission: NOT_ADMITTED
+    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE

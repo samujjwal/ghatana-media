@@ -1,0 +1,15 @@
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/experience-specification@0.1.0-SNAPSHOT test /home/samujjwal/Developments/ghatana-tools/libs/product-development/experience-specification
+> vitest run
+
+
+ RUN  v4.1.11 /home/samujjwal/Developments/ghatana-tools/libs/product-development/experience-specification
+
+
+ Test Files  2 passed (2)
+      Tests  38 passed (38)
+   Start at  07:05:52
+   Duration  476ms (transform 265ms, setup 0ms, import 371ms, tests 58ms, environment 0ms)
+

@@ -79,6 +79,23 @@ test("E-04 retry-fixture source pin changes have bounded semantic review", () =>
   assert.match(registryReview.semanticDiff.join("\n"), /job-retry-eligible proposal-only/u);
   assert.match(indexReview.semanticDiff.join("\n"), /denominator remains 31/u);
   assert.match(seedReview.semanticDiff.join("\n"), /same job, state, and event count unchanged/u);
+
+  const registryCurrent = pins.sources.find(({ path }) => path === retrySourcePaths[0]);
+  const registryDelta = pins.reviewedSourceDeltas.find(({ path, currentSha256 }) => path === retrySourcePaths[0] && currentSha256 === registryCurrent.sha256);
+  const priorRegistryDelta = pins.reviewedSourceDeltas.find(({ path, currentSha256 }) => path === retrySourcePaths[0] && currentSha256 === registryDelta.previousSha256);
+  assert.ok(priorRegistryDelta, "scenario registry source review preserves the previous pinned cut");
+  assert.match(registryDelta.semanticDiff.join("\n"), /synthetic.*pre-dispatch/u);
+  assert.match(registryDelta.semanticDiff.join("\n"), /no retry is dispatched/u);
+  assert.match(registryDelta.acceptanceEffect, /No retry policy/u);
+
+  const seedCurrent = pins.sources.find(({ path }) => path === retrySourcePaths[2]);
+  const seedDelta = pins.reviewedSourceDeltas.find(({ path, currentSha256 }) => path === retrySourcePaths[2] && currentSha256 === seedCurrent.sha256);
+  const priorSeedDelta = pins.reviewedSourceDeltas.find(({ path, currentSha256 }) => path === retrySourcePaths[2] && currentSha256 === seedDelta.previousSha256);
+  assert.ok(priorSeedDelta, "fixture source review preserves the previous pinned cut");
+  assert.match(seedDelta.focusedVerification, /51\/51 Node tests passed/u);
+  assert.equal(seedDelta.verificationLogRef, "docs/implementation/verification/pdp-38/e04-retry-fixture-simulation-tests.log");
+  assert.match(seedDelta.semanticDiff.join("\n"), /synthetic eligibility evidence is supplied test data/u);
+  assert.match(seedDelta.acceptanceEffect, /No retry policy/u);
 });
 
 test("E-04 pin paths resolve to the exact observed source bytes", async () => {

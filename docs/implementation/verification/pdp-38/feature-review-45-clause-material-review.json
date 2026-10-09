@@ -1,0 +1,1551 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-clause-material-review.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-098",
+  "scope": "All45 clause definitions across15 mandatory feature review dimensions; exact224 source selectors and field meaning reviewed, including ingestion lifecycle distinctions, audio spectral/phase and mix ordering, video render/encode, scene/clock identity, spatial coordinate/unit/loss, generation safety/budget and localization direction/reflow.",
+  "authority": "User-delegated Media product-definition coordinator ownership; source-only review",
+  "acceptanceBoundary": "This approves bounded source clauses for applicability validation. It does not accept the whole P0-07 task, qualify runtimes, prove UI/assistive technology behavior, grant independent phase acceptance or issue Lifecycle evidence.",
+  "records": [
+    {
+      "dimensionId": "media.feature-review-dimension.ingestion-source-preservation",
+      "clauseId": "media.feature-review-clause.ingestion-source-preservation.accepted-source-identity",
+      "criterion": "An upload/import must preserve a typed source identity, tenant-scoped upload session, and immutable artifact version as distinct facts.",
+      "clauseFingerprint": "5d1300eafae14db39ff935cc204613c03f64c13da9fddaae7b1c37a8ac0ace37",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.artifact",
+          "contentSha256": "5446b13e9fa53e7623986eb11e9cac4f80496fbc90a8ff69ce2ef89da41e7c1b",
+          "identity": "media.domain.artifact"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.artifact-version",
+          "contentSha256": "407c9bd9fba8c56f6bac5d0ab943b350a15d2341a91b858337c14470769c8755",
+          "identity": "media.domain.artifact-version"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.upload-session",
+          "contentSha256": "43a86759a42340dcd4a94591ba592fdf8d6d1e88e45b73ed6ca0efc0f3792941",
+          "identity": "media.domain.upload-session"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+          "contentSha256": "37c0ae0a5c1ad6bcb588795efe0f46b322047ef0230e621f398d91c918f23e80",
+          "identity": "media.operation-slice.begin-upload"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-import",
+          "contentSha256": "80fb81e2900d4f00c711dfa70bc23834814c9be9c21b518572665dcf6d812fe2",
+          "identity": "media.capability-binding.media-artifact-import"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-artifact",
+          "contentSha256": "90dd3181ccef879e5bb2249ba339b1bbdc83af35a4c8dd5e9aa8b3f64b52a24b",
+          "identity": "media.capability-profile.media-artifact"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.opaque-artifactid-and-immutable-version-reference",
+          "contentSha256": "141e828ea40a4f72e8c8bdad1eecdcb92c88e93c91468e883af53da35fc21979",
+          "identity": "media.typed-input.opaque-artifactid-and-immutable-version-reference"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.artifact-version-reference-only-after-owner-confirmed-registration",
+          "contentSha256": "fe14437e76114e1ba9776ba6ff2a46590b19dd859d6a9c19ca31e2070b1f3869",
+          "identity": "media.typed-output.artifact-version-reference-only-after-owner-confirmed-registration"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.ingestion-source-preservation",
+      "clauseId": "media.feature-review-clause.ingestion-source-preservation.transfer-integrity",
+      "criterion": "Chunk acceptance, completion, checksum/integrity verification, and artifact availability are separate operations and dispositions.",
+      "clauseFingerprint": "05656a7a1367e70f40110d1d6d0df08653b20fd39c22921f818a439145e7250e",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+          "contentSha256": "37c0ae0a5c1ad6bcb588795efe0f46b322047ef0230e621f398d91c918f23e80",
+          "identity": "media.operation-slice.begin-upload"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+          "contentSha256": "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd",
+          "identity": "media.operation-slice.append-upload-chunk"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload",
+          "contentSha256": "7765c6bb7fe7cffe273d81ae79a06519b95c80f0af6904f6b82aa38bfb6695f0",
+          "identity": "media.operation-slice.complete-upload"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1",
+          "contentSha256": "9a89b877e18b9a2019d9be5793266aa7374d0a24f2a9de735d7dc32408c0ff89",
+          "identity": "media.operation.artifact.lifecycle.observe.v1"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.ingestion-source-preservation",
+      "clauseId": "media.feature-review-clause.ingestion-source-preservation.unsafe-input-and-quarantine",
+      "criterion": "Import and verification review must cover malformed/untrusted inputs and QUARANTINED/REJECTED results; source presence never implies usability.",
+      "clauseFingerprint": "0652f5f099d6f26b81f609ac77afc15336d9e82a0df65f6d67bfffc4ddcfa55b",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-import",
+          "contentSha256": "80fb81e2900d4f00c711dfa70bc23834814c9be9c21b518572665dcf6d812fe2",
+          "identity": "media.capability-binding.media-artifact-import"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=QUARANTINED",
+          "contentSha256": "d21319d6c875a2283d0686b3c00ebb957ef6f959c4aec8e694a6f803430a8e44",
+          "identity": "QUARANTINED"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=REJECTED",
+          "contentSha256": "d0b3bb5bec33b141d8be2f7750a99d3a1346a09045fd6d7cec332fa0a41a4847",
+          "identity": "REJECTED"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.time-synchronization",
+      "clauseId": "media.feature-review-clause.time-synchronization.canonical-time-and-sample-units",
+      "criterion": "Time values use exact rational media-time and sample-boundary contracts; conversions preserve explicit rounding/loss disposition.",
+      "clauseFingerprint": "d7c03856beaa8be61c66cb45f9a3cc880e9bf7a16f6115957d01d64cc381022a",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time",
+          "contentSha256": "bd80603bc042882e02d6710148f59506cad439d648a1b82b52bddcd41eb2f4f1",
+          "identity": "media.value.rational-media-time"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.sample-boundary-index",
+          "contentSha256": "25a5b83cd9d52b7936984779908ee56c1f00b4365523faeb6d176b108f723b9d",
+          "identity": "media.value.sample-boundary-index"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.time-synchronization",
+      "clauseId": "media.feature-review-clause.time-synchronization.source-frame-and-sample-map",
+      "criterion": "A temporal source map records its exact frame/sample identity, timebase, ordering, and retained mapping; do not infer constant frame rate.",
+      "clauseFingerprint": "02ec26e97ad8732b48d0da76de06771deb1f7ae6e76dc47bdd71346d82b232d0",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.source-frame-sample-mapping",
+          "contentSha256": "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c",
+          "identity": "media.value.source-frame-sample-mapping"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition",
+          "contentSha256": "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51",
+          "identity": "media.value.replay-provenance-definition"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.time-synchronization",
+      "clauseId": "media.feature-review-clause.time-synchronization.temporal-interchange",
+      "criterion": "Wire/interchange review must preserve timebase and conversion distinctions across declared protocol projections.",
+      "clauseFingerprint": "d103d14e6fc7b6678143314b86c0fae0f5f49d57c6e19474d16a037a4656f3e6",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/interoperability.yaml#projections/@id=media.interop.openapi",
+          "contentSha256": "8f4668cf04c01c82f8160da01451e93924db790600cc4d4e4e11c645c7edf62e",
+          "identity": "media.interop.openapi"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/interoperability.yaml#projections/@id=media.interop.protobuf",
+          "contentSha256": "cc79182a4b816db98f682038576cb1e24810fc72ee223035b86a588e918c8f03",
+          "identity": "media.interop.protobuf"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.audio-workflows",
+      "clauseId": "media.feature-review-clause.audio-workflows.audio-analysis",
+      "criterion": "Audio analysis scope includes measured loudness, peaks/clipping and spectral/phase observations with metric identity and units.",
+      "clauseFingerprint": "7ff8f13dae070318f1ee83170d46f272d6e1d182026ea5d0e623b59a53109979",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-measure-loudness",
+          "contentSha256": "a66761741ce44cf3512454e5b76c39f2fc7f640a6fff10c7b7bc30f4f93a31b0",
+          "identity": "media.operation.capability.media-audio-analysis-measure-loudness"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-detect-clipping",
+          "contentSha256": "83e40d7ded1a3a23d966d46deb9bd65dd52fe62ca7c634b7c41e60c96c4d00d6",
+          "identity": "media.operation.capability.media-audio-analysis-detect-clipping"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-analyze-spectral",
+          "contentSha256": "061b4084a7c7ccd242949f8743c0100a48bdc30737281e1ca656dc43d9d88039",
+          "identity": "media.operation.capability.media-audio-analysis-analyze-spectral"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-analyze-phase",
+          "contentSha256": "54f9ab2b5ec1001b284279d3b11e5fd74a28a7f9d2c9402e831498bcdab7494c",
+          "identity": "media.operation.capability.media-audio-analysis-analyze-phase"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.audio-artifact",
+          "contentSha256": "ec77e3cd1abfd5e76efd18be7aab2cf950bdadb188a7cf003cc674e7d1b94d01",
+          "identity": "media.typed-input.audio-artifact"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-audio-measurement-or-observation-with-method-and-limits",
+          "contentSha256": "8f1277a9ba4b4973dd1ec4ca259b65a01d684408d1850b6f670443f1c91c1baa",
+          "identity": "media.typed-output.typed-audio-measurement-or-observation-with-method-and-limits"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+          "contentSha256": "1ca8c4fea8ac355fed2c76bdc9640a6244f7105fdcce4acdb0eac15c2da041b7",
+          "identity": "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+          "contentSha256": "89756619ffa4e169ba594d3a21f8f82e42ec99ffc0c2c348d281629e80490a5d",
+          "identity": "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.audio-workflows",
+      "clauseId": "media.feature-review-clause.audio-workflows.audio-effects-and-mix",
+      "criterion": "Mix/effect review preserves audio output distinction, ordered processing, and declared effect parameters rather than image/video-only semantics.",
+      "clauseFingerprint": "aa0b6113de85b3e1858761698fbc6f7cdccc24f93501da2d804d1efa409b7ce8",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.audio-mix-chain.v1",
+          "contentSha256": "5fb9136b357b42471a3b2f12823cb21cf043ac173727b525d24021228b92161f",
+          "identity": "media.workflow-contract.audio-mix-chain.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-master-audio",
+          "contentSha256": "c9122460abcba4ed43155b2449063c6250b6c56e34ab7fef03f8e5784b7d4b80",
+          "identity": "media.capability-profile.media-master-audio"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.audio-artifact",
+          "contentSha256": "ec77e3cd1abfd5e76efd18be7aab2cf950bdadb188a7cf003cc674e7d1b94d01",
+          "identity": "media.typed-input.audio-artifact"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.delivery-and-loudness-context",
+          "contentSha256": "8a639077a4d7ca3ad3a1006f4ed21c05330131e80abee8701b4c1d02895bd285",
+          "identity": "media.typed-input.delivery-and-loudness-context"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.mastered-audio-candidate-with-measurements",
+          "contentSha256": "bd7b44391c40abe99d0b050c338e4817b99b42c1f585d1a651a9a342f5b6ae74",
+          "identity": "media.typed-output.mastered-audio-candidate-with-measurements"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-equalize",
+          "contentSha256": "e5fb6b13af18451b44e390eeaf62467d6868e9ccf4ccfec0a40a1f8a2bb0c69a",
+          "identity": "media.operation.capability.media-master-audio-equalize"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-dynamic-compression",
+          "contentSha256": "cc4c8060c26a1237ffc202e604dd146bf50eb687a1df069cbbb3dbe0f1e616df",
+          "identity": "media.operation.capability.media-master-audio-dynamic-compression"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-multiband-compression",
+          "contentSha256": "b2ef82d5a41aebd3872fb9712e24dfa231662aa4b6f5c4d552c260d8cb5dda7a",
+          "identity": "media.operation.capability.media-master-audio-multiband-compression"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-limit",
+          "contentSha256": "7bb5483fa40c6d93370d1424372233a8a1051b46a465c878094c37f9c365214c",
+          "identity": "media.operation.capability.media-master-audio-limit"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-true-peak-loudness-control",
+          "contentSha256": "9bee8089ebf991f2ce20c6f552ac3c39115637cd42e62cc9d6250bf1667533a5",
+          "identity": "media.operation.capability.media-master-audio-true-peak-loudness-control"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-stereo-width",
+          "contentSha256": "851fa2a6beb3c97c8fe8e486f9c46f01bf871190ee561316312678e0a0bd29e9",
+          "identity": "media.operation.capability.media-master-audio-stereo-width"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-fade-crossfade",
+          "contentSha256": "705ef58ad4ecd209f6ce9768b9cd7f7138dead815d2c3d823eccbdaf6e5e3d1e",
+          "identity": "media.operation.capability.media-master-audio-fade-crossfade"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-duck-sidechain",
+          "contentSha256": "0bbf95eb502139935ace04f9c8f74b56fe1f8acb27a5f03c522b0078820ddb04",
+          "identity": "media.operation.capability.media-master-audio-duck-sidechain"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-room-match",
+          "contentSha256": "e0048ecc47ca7a6d7aca4ce7034ea7b926fd824442ad080334fd5ed8986a52a3",
+          "identity": "media.operation.capability.media-master-audio-room-match"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.audio-workflows",
+      "clauseId": "media.feature-review-clause.audio-workflows.audio-quality-and-export",
+      "criterion": "Quality and export review binds assessment to audio subject/version and preserves explicit unit, uncertainty, and evidence dispositions.",
+      "clauseFingerprint": "8aa1839521baa7a20a9468dd4b807fd44ed36a165f6ecfc2ae45598ad6fdb26f",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-DEFECTS",
+          "contentSha256": "e9f9798be75dc293d8d3e2282a15bdfd387fcc86bc8b8b100dc7b550584a10bb",
+          "identity": "QUALITY-METRIC-AUDIO-DEFECTS"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/evidence.yaml#evidenceClasses/@id=media.evidence.quality-assessment",
+          "contentSha256": "fc30a09e0c27861efdc9a527efc2fdb8591643fe7de7f7617542cd5fa9c3137d",
+          "identity": "media.evidence.quality-assessment"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-measure-loudness",
+          "contentSha256": "a66761741ce44cf3512454e5b76c39f2fc7f640a6fff10c7b7bc30f4f93a31b0",
+          "identity": "media.operation.capability.media-audio-analysis-measure-loudness"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-encode",
+          "contentSha256": "afeadf6ef74497125add722398de16e9efd51fbdab14e6e8e2958d137eb06744",
+          "identity": "media.operation.capability.media-deliver-encode"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-audio-analysis",
+          "contentSha256": "045b2f8784b0d5301db4980466e81b4d650e3f20354ccf4e6349cebed336c35e",
+          "identity": "media.capability-profile.media-audio-analysis"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-deliver",
+          "contentSha256": "8ca5366206edc2932737a1f182bf853f0c997d8f291b06291fdbe0fb21d8bab0",
+          "identity": "media.capability-profile.media-deliver"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.audio-artifact",
+          "contentSha256": "ec77e3cd1abfd5e76efd18be7aab2cf950bdadb188a7cf003cc674e7d1b94d01",
+          "identity": "media.typed-input.audio-artifact"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.delivery-and-loudness-context",
+          "contentSha256": "8a639077a4d7ca3ad3a1006f4ed21c05330131e80abee8701b4c1d02895bd285",
+          "identity": "media.typed-input.delivery-and-loudness-context"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.audio-quality-observations-by-applicable-dimension",
+          "contentSha256": "5ba7cbe41cbdc091b736f71493dfd03347a0adacdf62f1806c3ebdd27195a2c8",
+          "identity": "media.typed-output.audio-quality-observations-by-applicable-dimension"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.delivery-package-or-explicit-delivery-outcome",
+          "contentSha256": "ec6d7d182b76324f572c393b79e76423d92425886021d2666c53ef6dd863745b",
+          "identity": "media.typed-output.delivery-package-or-explicit-delivery-outcome"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.speech-workflows",
+      "clauseId": "media.feature-review-clause.speech-workflows.speech-processing-operations",
+      "criterion": "Speech processing distinguishes file and streaming transcription and speaker diarization as separate typed operations.",
+      "clauseFingerprint": "8fc358224c042b39741d602336756605317e07d000fe897f2017b3cefcc57f95",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file",
+          "contentSha256": "a7f8b30cc7e822254d68cf61371dff51d2b6e70670a6db8f9f285a6e790c9999",
+          "identity": "media.capability-binding.media-speech-transcription-file"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-stream",
+          "contentSha256": "796fbaef649781e6d26d86bba21f9432a10da33d1630702018c680f9a665d766",
+          "identity": "media.operation.capability.media-speech-transcription-stream"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-speaker-diarize",
+          "contentSha256": "ca791511870bdf35c08f702e11dedada8a8ff756e312f8c8393c6584aa6526da",
+          "identity": "media.operation.capability.media-speech-transcription-speaker-diarize"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-speech-transcription",
+          "contentSha256": "2dd125bdc0be679a1b07fb67871ac9e8bc351d082f97b196d67a488c983ca260",
+          "identity": "media.capability-profile.media-speech-transcription"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.audio-artifact-or-live-stream",
+          "contentSha256": "3e1a5d2abf6b94557920459197f72f52a7a0ea123716b9decd163019d2fb60e1",
+          "identity": "media.typed-input.audio-artifact-or-live-stream"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.transcript-or-speech-analysis-artifact-with-timing-and-uncertainty",
+          "contentSha256": "b7181f4f3e731fef16cf7921f3e3b49cc2310526d7a1fd950089373db7ef6a5d",
+          "identity": "media.typed-output.transcript-or-speech-analysis-artifact-with-timing-and-uncertainty"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.speech-workflows",
+      "clauseId": "media.feature-review-clause.speech-workflows.speech-text-and-alignment",
+      "criterion": "Transcript/caption outputs remain versioned text aligned to source media time; language and uncertainty are explicit observation facts.",
+      "clauseFingerprint": "8b60ce4c7c302fce028f70a90b69384393feadce35279b6c6d24c50d77b9fff0",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.transcript-version",
+          "contentSha256": "d3a97bbd033aad5e53b17edd1f6dea4afd921bea21d7fa3553a05d9bb9722272",
+          "identity": "media.domain.transcript-version"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.caption-version",
+          "contentSha256": "da7ef4718d3abfdf14845408a8bade1d8396a54643bf4a1e94e0c3248cfc7b57",
+          "identity": "media.domain.caption-version"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.language-uncertainty.v1",
+          "contentSha256": "c2570366b89e8cf5391a7b87bdeb33d0beb12b73043e188015dcb2ad26a9c2e1",
+          "identity": "media.observation-contract.language-uncertainty.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read",
+          "contentSha256": "7d4335abcd7e5981b36a94fa695b33964c319457c070f1d9f1396257440e20b5",
+          "identity": "media.operation.transcript-version-read"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+          "contentSha256": "f16c3b114d2e95aa517a6781c1fb377673e6f4a106f3209cfec256909e2a37b3",
+          "identity": "media.operation.caption-draft-write"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write",
+          "contentSha256": "d66d8506f5e657d8532f542c49e4ce73124142f2967d84deef3856529f269cea",
+          "identity": "media.operation.caption-version-write"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.exact-transcript-or-text-version",
+          "contentSha256": "b19edcd63e944daf1e73defb9b4c3d051e5216f381961ee2a5231055e6593f83",
+          "identity": "media.typed-input.exact-transcript-or-text-version"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.aligned-transcript-candidate-with-source-timebase",
+          "contentSha256": "756896281f2ef3c31ce8b8403be3794b0872700f91d3128ab8631ad76e1de2b5",
+          "identity": "media.typed-output.aligned-transcript-candidate-with-source-timebase"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.speech-workflows",
+      "clauseId": "media.feature-review-clause.speech-workflows.voice-consent-and-provenance",
+      "criterion": "Voice identity/synthesis/dubbing requires scoped current consent and provenance; processing success is not authority.",
+      "clauseFingerprint": "62ab28d9eb28d09b6802c326d6e06c0bd11c6b00244651b74cb49b31465cfd4f",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1",
+          "contentSha256": "5c96805d2ba24b8f920f3e42fb6577c2720a138d116ab59aee146cf22da07f6d",
+          "identity": "media.observation-contract.rights-decision.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation",
+          "contentSha256": "b221711285108446290a0df420d70d7c068d1b6191fa0700cdb3f6b43a56df61",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.video-image",
+      "clauseId": "media.feature-review-clause.video-image.image-generation-and-inspection",
+      "criterion": "Image review binds exact image generation/analysis operations to the selected output type and quality metric subject.",
+      "clauseFingerprint": "e8cbbfaad3940f00058981fc6c6a4fc247473d395b9d3bbd7ad55617eebd7615",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image",
+          "contentSha256": "170af28d1ae38cbdcf30a8eeafad1689721d6e207b5b4b6c7162a0659a54f897",
+          "identity": "media.operation.capability.media-generate-image-text-to-image"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-IMAGE-DEFECTS",
+          "contentSha256": "db7e54654d89a77200382f6aaadc4da2df9d5d3fd2d65a878aed02fe774a84c3",
+          "identity": "QUALITY-METRIC-IMAGE-DEFECTS"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE",
+          "contentSha256": "ebb3066200d76a86c9a342a0f5281d8f89580cb390f095e248ca1ecea1a3409f",
+          "identity": "QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-generate-image",
+          "contentSha256": "3b9c866c78ef226a120f2704079084fa0f4f3e92b4d78ded98ef875f16dbd2e5",
+          "identity": "media.capability-profile.media-generate-image"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.text-or-audio-intent",
+          "contentSha256": "d81c7fd39272d59751ecb85d93afec9f8968e00bb7081c8cd68815664f3a7d87",
+          "identity": "media.typed-input.text-or-audio-intent"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.optional-authorized-reference-artifacts",
+          "contentSha256": "d7eba167d383aa7383c6c9ec475979fdce9ee0aea70dc1b9cb641d84fa08541d",
+          "identity": "media.typed-input.optional-authorized-reference-artifacts"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.candidate-image-artifact-with-execution-provenance",
+          "contentSha256": "385cb1dcb4be4547f1a4dff075975bdab1987c0740a60d1a6885eb5a68a653fa",
+          "identity": "media.typed-output.candidate-image-artifact-with-execution-provenance"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.video-image",
+      "clauseId": "media.feature-review-clause.video-image.video-temporal-render-and-encode",
+      "criterion": "Video review covers frame/timing-aware rendering, temporal quality, encoding and delivery as distinct output dispositions.",
+      "clauseFingerprint": "8b44234ffdd758e4b8276d6108fcfa40259585f9d99269e587d82d80316873cc",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS",
+          "contentSha256": "54bd3012b995f6a5d84f5eff3f9a88c5f3a50c992cddc37df10a6f12342931bd",
+          "identity": "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-VIDEO-ENCODING",
+          "contentSha256": "4a7af5a934820ce99bb58821f133c128b8555c20c8240abcf40349b74fcb8858",
+          "identity": "QUALITY-METRIC-VIDEO-ENCODING"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerOutputArtifactTypeCrosswalk/records/@id=media.output-type-definition.candidate-video-artifact-with-execution-provenance",
+          "contentSha256": "f0370688b64f0d4f5978605138357a135a87116e71fabc9722296f1fdbcf13dd",
+          "identity": "media.output-type-definition.candidate-video-artifact-with-execution-provenance"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-render-manifest",
+          "contentSha256": "4caab2a44e26bac680f867ce1bbd5c2df2b84f87604f27416c186e7c418cab83",
+          "identity": "media.operation.capability.media-compose-render-manifest"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-encode",
+          "contentSha256": "afeadf6ef74497125add722398de16e9efd51fbdab14e6e8e2958d137eb06744",
+          "identity": "media.operation.capability.media-deliver-encode"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-compose",
+          "contentSha256": "02db5522aed7b819f6d1c4031577f3657ac73cb4447c137a1799443c28620a6e",
+          "identity": "media.capability-profile.media-compose"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-deliver",
+          "contentSha256": "8ca5366206edc2932737a1f182bf853f0c997d8f291b06291fdbe0fb21d8bab0",
+          "identity": "media.capability-profile.media-deliver"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.versioned-project-and-selected-artifacts",
+          "contentSha256": "3dc0ae8beff8873c316c2f529278ed551726d5061d0824779906fde0a2022829",
+          "identity": "media.typed-input.versioned-project-and-selected-artifacts"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.composition-intent",
+          "contentSha256": "78eb5022813adcc7893280bb45cb89016eb827d7f881688bdc3bfef1c83853e6",
+          "identity": "media.typed-input.composition-intent"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.accepted-media-artifact-or-composition",
+          "contentSha256": "5cc43429b2d10e31a327dfaaec25b41d8ed6110fcdb8276c1f5647ca62079695",
+          "identity": "media.typed-input.accepted-media-artifact-or-composition"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.requested-delivery-profile-and-destination",
+          "contentSha256": "b1345f6f227a5c54ccb05af24c14603297b977fa65deb8c9e90b496d23f60503",
+          "identity": "media.typed-input.requested-delivery-profile-and-destination"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.versioned-composition-and-render-manifest",
+          "contentSha256": "bff5cb5d8038577a64f83e71d518b9442c6aee32be7a2e60a53a6908e29dd226",
+          "identity": "media.typed-output.versioned-composition-and-render-manifest"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.delivery-package-or-explicit-delivery-outcome",
+          "contentSha256": "ec6d7d182b76324f572c393b79e76423d92425886021d2666c53ef6dd863745b",
+          "identity": "media.typed-output.delivery-package-or-explicit-delivery-outcome"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.video-image",
+      "clauseId": "media.feature-review-clause.video-image.regions-tracks-and-provenance",
+      "criterion": "Region/keyframe/tracking edits bind to exact source version, geometry/track evidence, and produced-vs-estimated provenance.",
+      "clauseFingerprint": "efa72dfb296f2237478caea3a8e596232b7c0bf6fd984bdf8506cd5a83f95dbe",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.resolved-visual-geometry-plan",
+          "contentSha256": "7b507f560364d9a5194b1e1271c7c867dd918016fdea91106b2ef333023bcf70",
+          "identity": "media.value.resolved-visual-geometry-plan"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerOutputArtifactTypeCrosswalk/records/@id=media.output-type-definition.candidate-video-artifact-with-execution-provenance",
+          "contentSha256": "f0370688b64f0d4f5978605138357a135a87116e71fabc9722296f1fdbcf13dd",
+          "identity": "media.output-type-definition.candidate-video-artifact-with-execution-provenance"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-edit-region-correction",
+          "contentSha256": "97fa3baa015e1d0b9f5402e5f252a50af94386a11390d69f7882213d06675d98",
+          "identity": "media.operation.capability.media-edit-region-correction"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object",
+          "contentSha256": "030c4ee92c4c61e5007e0831aa6cdb953bd8f433c1b50c20744911fb9d70177f",
+          "identity": "media.operation.capability.media-vision-track-object"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-edit",
+          "contentSha256": "bd7744ad8e30b92010c3bfc089540fc84e74940301c8c797295882a692494fe4",
+          "identity": "media.capability-profile.media-edit"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-vision",
+          "contentSha256": "8f792f4e7a1ce2bdf7fd14eed7cd5646730be2eef30feecca87a0fd4db0e5d88",
+          "identity": "media.capability-profile.media-vision"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.time-range-and-region-context",
+          "contentSha256": "acc1efd94f4f218319f23daea2485517a41123fcad22dd6c7d97e5314b3bb420",
+          "identity": "media.typed-input.time-range-and-region-context"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.source-media-or-project-reference",
+          "contentSha256": "a95ae84c81caa6196e5ad78eaf4e2364b068c20dd892f7d9ac84871c2ed5696a",
+          "identity": "media.typed-input.source-media-or-project-reference"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.versioned-edited-artifact-or-project-change",
+          "contentSha256": "b1d9d61b6b5dde662d2de80bee4ccb6bced87336af4ecf43d69c12e2363e6a4e",
+          "identity": "media.typed-output.versioned-edited-artifact-or-project-change"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.animation-spatial",
+      "clauseId": "media.feature-review-clause.animation-spatial.scene-graph-and-animation-clock",
+      "criterion": "Scene hierarchy, animation clock domains, transforms and object identity use the normative animation rule and typed time descriptors.",
+      "clauseFingerprint": "ac1660d7be90a26d3a2f1c5255df9324f5742da556e75915c7866daf8a6a7fc6",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#normativeRuleRecords/@id=media.p2.rule.animation-clock-domain-presentation.v1",
+          "contentSha256": "2815a06ab7dcce59a86b78e3be27d105bcce5b5e5672019e12eaed308a651108",
+          "identity": "media.p2.rule.animation-clock-domain-presentation.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions/records/@id=media.value.rational-media-time",
+          "contentSha256": "bd80603bc042882e02d6710148f59506cad439d648a1b82b52bddcd41eb2f4f1",
+          "identity": "media.value.rational-media-time"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=SceneGraph",
+          "contentSha256": "b26ed2feb889ad7937a82b4d91640eb8b5b43dc3df1ba923f3c8566363ce3302",
+          "identity": "SceneGraph"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog/@id=AnimationGraph",
+          "contentSha256": "0e6d253cad1252aa9283b746fe95d9028655c780ff277af9ce82d0e7b3abdf06",
+          "identity": "AnimationGraph"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.scene-graph",
+          "contentSha256": "100deb3cf2cda7c92a66e69a43b656f724b26a496070574d0da978fe0513c586",
+          "identity": "media.domain.scene-graph"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.animation-graph",
+          "contentSha256": "389e05363450c7f6bfb0d0bf9bc91312e9c24685f1605e8b8c9e94a4a6dd743e",
+          "identity": "media.domain.animation-graph"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.animation-property-owner",
+          "contentSha256": "feed57c57a5b25f48efdeed5b67937b2d752e75910d93d2748d409a9d865a3d3",
+          "identity": "media.rel.animation-property-owner"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d",
+          "contentSha256": "c6e752fa9ef0e5e6a5acd313b573912f3bea837c2e41db13a20ace88cc09b803",
+          "identity": "media.operation.capability.media-animation-3d"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-keyframe-insert",
+          "contentSha256": "81b16cdba1748cbf7db77b864839696a36511b8975e118511bd12f36189e330b",
+          "identity": "media.operation.capability.media-animation-editing-keyframe-insert"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-animation",
+          "contentSha256": "ce7c06659f4c8a80347731fc185ae2744cb12ae0f1f96a10203cac38a31fd9d3",
+          "identity": "media.capability-profile.media-animation"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.animation-intent",
+          "contentSha256": "ea7358f52e6a44033090901ec243ac890733e3a15554b9eaee33840b17eeaf7e",
+          "identity": "media.typed-input.animation-intent"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.versioned-animation-scene",
+          "contentSha256": "9820628a6e2921054a368073ce9b52217e39034c225f1115a0578b47f5a6a96e",
+          "identity": "media.typed-input.versioned-animation-scene"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.edit-intent",
+          "contentSha256": "b3194fd6459d9364df9d8ac64937a74014fe1b87e6fc4400ff82a4672310ecb8",
+          "identity": "media.typed-input.edit-intent"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.versioned-animation-scene-or-edit",
+          "contentSha256": "65c9eee3cb065c0869438a98e0eb430ef76528b654bf5b5954fab3a070e33a00",
+          "identity": "media.typed-output.versioned-animation-scene-or-edit"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.animation-spatial",
+      "clauseId": "media.feature-review-clause.animation-spatial.simulation-input-and-output",
+      "criterion": "Simulation review binds exact initial state/model, selected domain profile, pass contract and typed result; no pass name substitutes for output semantics.",
+      "clauseFingerprint": "214365cfbdd175abc17590de03ac96d3d7be970df4bf3977915ded85d93fc64b",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body",
+          "contentSha256": "0024b25ad3b7e799bb043fbfc7e748f764eec5315c02583653544f1ad154a22e",
+          "identity": "media.operation.capability.media-simulation-rigid-body"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.simulation-fidelity-definition",
+          "contentSha256": "3b1c43db927da78e2a488af3ce4d30c7641c720e26816605e8dbba14dac611b1",
+          "identity": "media.value.simulation-fidelity-definition"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-simulation",
+          "contentSha256": "7d6aa047ea79ee60fbe8a34c086adf4ffb43601f47a7c546bc1283ec6b76c66a",
+          "identity": "media.capability-profile.media-simulation"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-simulation-output",
+          "contentSha256": "9bf6374a2d6ee8b0d9cb5c4dddb2725ce686fb012a00a1638fbd6d20d73f813a",
+          "identity": "media.capability-profile.media-simulation-output"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.simulation-state-and-execution-output",
+          "contentSha256": "4c080f12d164ef12eb32d99cb46a3056890d1af9c7b828e18bd40f26261d009d",
+          "identity": "media.typed-input.simulation-state-and-execution-output"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance",
+          "contentSha256": "24fe7f92afbd97747bab52c585926ef8193c1b10419164e5d7a451b1189d5398",
+          "identity": "media.typed-output.typed-simulation-pass-with-produced-versus-estimated-provenance"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.qualified-simulation-observation-or-output",
+          "contentSha256": "4238b2c59a08727dfcc53c5c0520f2b126dc63021698d285ee885e91113d0897",
+          "identity": "media.typed-output.qualified-simulation-observation-or-output"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.animation-spatial",
+      "clauseId": "media.feature-review-clause.animation-spatial.spatial-interchange",
+      "criterion": "Spatial export preserves exact source geometry and identity, requires explicit target format/profile, coordinate, axis and unit contracts, and reports each conversion loss; runtime, wire and persistence projections remain separate.",
+      "clauseFingerprint": "adfdf644ccf18446d894f0e48df03c835f89ea57a23d418903b113b8053a2b0a",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedWorkflowContracts/records/@id=media.workflow-contract.spatial-export-boundary.v1",
+          "contentSha256": "0f8761c85b5f211f80d954b134dfc5422c1139d61a8316e662f3a41b3444f8f1",
+          "identity": "media.workflow-contract.spatial-export-boundary.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.text-or-spatial-intent",
+          "contentSha256": "e9a0f8ddf8a27290d7347a8857d34aa748f8decf16c5100a7aea8b510045d856",
+          "identity": "media.typed-input.text-or-spatial-intent"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata",
+          "contentSha256": "0ffc5041023c25df97c64d1fad63444dfd0c8da7461d0d9944d83b18ef7a52bc",
+          "identity": "media.typed-output.spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerOutputArtifactTypeCrosswalk/records/@id=media.output-type-definition.spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata",
+          "contentSha256": "07931fedd0f29b1f3c11b3a8218a2e15b44be17f04484aa188b0bc1b937ddf89",
+          "identity": "media.output-type-definition.spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.resolved-visual-geometry-plan",
+          "contentSha256": "7b507f560364d9a5194b1e1271c7c867dd918016fdea91106b2ef333023bcf70",
+          "identity": "media.value.resolved-visual-geometry-plan"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.resolved-visual-geometry-plan",
+          "contentSha256": "7b507f560364d9a5194b1e1271c7c867dd918016fdea91106b2ef333023bcf70",
+          "identity": "media.value.resolved-visual-geometry-plan"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.physical-coordinate-conventions",
+          "contentSha256": "8b2de1e855780832253353715ac6630819f56a42e8cecdd852004ea2a10937a2",
+          "identity": "media.pdp1.decision.physical-coordinate-conventions"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/interoperability.yaml#projections/@id=media.interop.runtime-java",
+          "contentSha256": "6d9a2c9a4dbb3f4476ff2ccf4c2e93fefae7b779642ab2461a39a82e44fe0923",
+          "identity": "media.interop.runtime-java"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/interoperability.yaml#projections/@id=media.interop.database",
+          "contentSha256": "ebf0f29166cacb39d0a2e968534937495055a50adddd7d29ecb2543010f9ba87",
+          "identity": "media.interop.database"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.generative-media",
+      "clauseId": "media.feature-review-clause.generative-media.generation-intent-and-reference",
+      "criterion": "Generation request binds user intent and exact selected references/parameters to a typed generation operation and output.",
+      "clauseFingerprint": "6f371f79d7876a5c5f32719079375166b6bff62198b5e33408fd2dfe4d0191da",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image",
+          "contentSha256": "170af28d1ae38cbdcf30a8eeafad1689721d6e207b5b4b6c7162a0659a54f897",
+          "identity": "media.operation.capability.media-generate-image-text-to-image"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.text-to-image",
+          "contentSha256": "3697f0a093ecae9bab2497f8a498ec6dba84b5b3d17d7020db300de2249725cc",
+          "identity": "media.generate.image.text-to-image"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.generative-media",
+      "clauseId": "media.feature-review-clause.generative-media.provider-profile-cost-and-admission",
+      "criterion": "A declared profile/cost/provider choice is distinct from provider admission, model acquisition and qualification.",
+      "clauseFingerprint": "c7b46865e3bd4021ad90f766693290ef5d125b832e6896a4e07442c229ae4ac5",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback",
+          "contentSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+          "identity": "media.policy.model-acquisition-and-fallback"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules",
+          "contentSha256": "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.generative-media",
+      "clauseId": "media.feature-review-clause.generative-media.safety-provenance-and-reproduction",
+      "criterion": "Compare/reproduce outputs only with exact input/profile/version/provenance, current rights, declared safety controls and budget.",
+      "clauseFingerprint": "0e77f233e9d6df7deefefafa0bcb91a4498fa4e3ded6376b5e25bd8795a03d70",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image",
+          "contentSha256": "170af28d1ae38cbdcf30a8eeafad1689721d6e207b5b4b6c7162a0659a54f897",
+          "identity": "media.operation.capability.media-generate-image-text-to-image"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-generate-image",
+          "contentSha256": "3b9c866c78ef226a120f2704079084fa0f4f3e92b4d78ded98ef875f16dbd2e5",
+          "identity": "media.capability-profile.media-generate-image"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.optional-authorized-reference-artifacts",
+          "contentSha256": "d7eba167d383aa7383c6c9ec475979fdce9ee0aea70dc1b9cb641d84fa08541d",
+          "identity": "media.typed-input.optional-authorized-reference-artifacts"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-generate-image-text-to-image",
+          "contentSha256": "1323af3f5975bb9a4f94862601db3c012ac1af4bb9bcfc46b455270f1b714cf5",
+          "identity": "media.capability-bounds.media-generate-image-text-to-image"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation",
+          "contentSha256": "b221711285108446290a0df420d70d7c068d1b6191fa0700cdb3f6b43a56df61",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.replay-provenance-definition",
+          "contentSha256": "b8550da2b1500f74f3371128f5b4849e0bbb405965d27a8d4429d6328120fe51",
+          "identity": "media.value.replay-provenance-definition"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback",
+          "contentSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+          "identity": "media.policy.model-acquisition-and-fallback"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.quality-scientific-truth",
+      "clauseId": "media.feature-review-clause.quality-scientific-truth.metric-domain-and-subject",
+      "criterion": "Each assessment identifies exact metric/domain, modality, subject input or output, method/version, and applicable reference data.",
+      "clauseFingerprint": "455fd96a6aa0b3a7fdeca0a5fb2ce6da9fa9327749f8f6b85e92a7d76202f43b",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#qualityDimensions/@id=QUALITY-DIM-DOMAIN-SCIENTIFIC",
+          "contentSha256": "ba7ad1f2c407375408c3d923610b2fadf9207e3aa9559dab97f94bce90fd5011",
+          "identity": "QUALITY-DIM-DOMAIN-SCIENTIFIC"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY",
+          "contentSha256": "648e7380be9a242c23060279eae0db9c8ed3206b950b99e1eb873bf168acdd16",
+          "identity": "QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-evidence.v1",
+          "contentSha256": "06fbf4988e6ea4feec7eaaa4a8720702576297ba8c473239f0f3af0ce11b93c0",
+          "identity": "media.observation-contract.quality-evidence.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.quality-observation-or-bounded-repair-plan",
+          "contentSha256": "78f3f834312c4bfe49a46d0ff397c87d9b57d9d1235c881da6437d9e8f8be703",
+          "identity": "media.typed-output.quality-observation-or-bounded-repair-plan"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.quality-scientific-truth",
+      "clauseId": "media.feature-review-clause.quality-scientific-truth.uncertainty-abstention-and-calibration",
+      "criterion": "Unknown, abstained, conflicting, and measured observations stay distinct; calibration/threshold claims require exact method and evidence.",
+      "clauseFingerprint": "93bf6ff09135a89b9f692332e2956d45a57bfb7d18652c8feb2e06a23190a3cc",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/evidence.yaml#evidenceClasses/@id=media.evidence.quality-assessment",
+          "contentSha256": "fc30a09e0c27861efdc9a527efc2fdb8591643fe7de7f7617542cd5fa9c3137d",
+          "identity": "media.evidence.quality-assessment"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-NATURALNESS",
+          "contentSha256": "a42cc26400a1f75862b11c7d67fcb5892e0d018f58a01935e522a2c59350e21f",
+          "identity": "QUALITY-METRIC-AUDIO-NATURALNESS"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.quality-scientific-truth",
+      "clauseId": "media.feature-review-clause.quality-scientific-truth.cross-modality-metric-coverage",
+      "criterion": "The typed quality registry supplies image, video and audio metric domains; absent input/reference applicability remains NOT_APPLICABLE or UNKNOWN, not a score.",
+      "clauseFingerprint": "0a651b22a314e93321bdaf8a89b847925f95ddc4952c1189ec55173d13742b63",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-IMAGE-DEFECTS",
+          "contentSha256": "db7e54654d89a77200382f6aaadc4da2df9d5d3fd2d65a878aed02fe774a84c3",
+          "identity": "QUALITY-METRIC-IMAGE-DEFECTS"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS",
+          "contentSha256": "54bd3012b995f6a5d84f5eff3f9a88c5f3a50c992cddc37df10a6f12342931bd",
+          "identity": "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-DEFECTS",
+          "contentSha256": "e9f9798be75dc293d8d3e2282a15bdfd387fcc86bc8b8b100dc7b550584a10bb",
+          "identity": "QUALITY-METRIC-AUDIO-DEFECTS"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.rights-safety-audit",
+      "clauseId": "media.feature-review-clause.rights-safety-audit.tenant-classification-and-locality",
+      "criterion": "Tenant identity, data classification, processing locality and authorization are independent exact-scope constraints.",
+      "clauseFingerprint": "9b9227949bc02d90a5b19237f249173bf922b8f6f8ca1e92513b9b9006cd2072",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/tenantIsolation",
+          "contentSha256": "8b986976b4df805b1d236b85f38cb036487a69e782159b0b1c3fd3cd9d20014d",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/classificationAndDisclosure/locality",
+          "contentSha256": "862948e09b66f59651e97216d4c866c523da4c30cbe4a392c6817b10ed778d83",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope",
+          "contentSha256": "2c33e7d6352075671e48ce8189cbd6b00de605e91a44de074bd67138fbabc662",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.rights-safety-audit",
+      "clauseId": "media.feature-review-clause.rights-safety-audit.consent-rights-and-revocation",
+      "criterion": "Consent/rights decisions are issuer-scoped and current; revocation denies future effects without asserting in-flight termination or recall.",
+      "clauseFingerprint": "0991b846a918062002149f9da49aa5f0ba9da91ba5801bca1ace56c9ab613b3e",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation",
+          "contentSha256": "b221711285108446290a0df420d70d7c068d1b6191fa0700cdb3f6b43a56df61",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1",
+          "contentSha256": "5c96805d2ba24b8f920f3e42fb6577c2720a138d116ab59aee146cf22da07f6d",
+          "identity": "media.observation-contract.rights-decision.v1"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.rights-safety-audit",
+      "clauseId": "media.feature-review-clause.rights-safety-audit.retention-sharing-and-erasure",
+      "criterion": "Disclosure, retention, legal hold, erasure and deletion evidence use separate scoped dispositions and external-owner boundaries.",
+      "clauseFingerprint": "4de373d59c60976ae35b3e58a564ddebb330ebd815cd1b6a0fa6e23c261d30b8",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure",
+          "contentSha256": "82014c845153b6509dde8354c3c5da37f330c20c6bcd7919b468a36195637ef1",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownership/storageMechanics",
+          "contentSha256": "983b2d37509ed86bf9ad9a24324b56dd45e6f928c1cda2d83e728479e1894a5c",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.review-collaboration",
+      "clauseId": "media.feature-review-clause.review-collaboration.reviewed-version-and-decision",
+      "criterion": "Review/comments/approval bind an exact immutable project/artifact version and actor authority; a newer version invalidates stale decisions when declared.",
+      "clauseFingerprint": "7776c6e2df7a0de7e7a78dc1c1892e39d8630757600dda83fa17a57331ac2361",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.artifact-version-and-lineage",
+          "contentSha256": "35f3bbfac8cfc9d70a4fd62d83462a5b62f90841b03534ddd3339e7c482d93fa",
+          "identity": "media.pdp1.decision.artifact-version-and-lineage"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-review",
+          "contentSha256": "eb506ecc2f6940d5b7589d9ae5de46dbb49faec6b4f00c2de6f76659d847bceb",
+          "identity": "media-review"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics",
+          "contentSha256": "dc9ed1b6f1ddc5d5ff86f54087d38ac7b8d2c221a3ad8831921dcd2145a1e17d",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-review",
+          "contentSha256": "c934d4fb8e304e863c195fb8a9b26993ce617981a15e7f2f1ab6641111d0fccf",
+          "identity": "media.operation.capability.media-project-review"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-version-review-decision",
+          "contentSha256": "b9742319971c286b4d80954cf37a53c906d0a3ea2df1473b84718a3953a907c6",
+          "identity": "media.operation.action.record-version-review-decision"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope",
+          "contentSha256": "410eaad738ddfbecfde42835e7e2d0299599e6c5b19f0bf7db495322a79278c3",
+          "identity": "media.operation.action.inspect-version-and-review-scope"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.review-collaboration",
+      "clauseId": "media.feature-review-clause.review-collaboration.comparison-and-impact",
+      "criterion": "Comparison/impact output names exact input versions, affected scope and completeness; recommendation is not an approval.",
+      "clauseFingerprint": "6b499006797ee858a00700072d509e1600f02e21618bc3b4d83ad41fa871f1ae",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.attempt-history-and-finality",
+          "contentSha256": "992371379982cd960301fb8959fa3836214b086166fb5f6cb23a6190145e5b4a",
+          "identity": "media.pdp1.decision.attempt-history-and-finality"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.quality-action-plan.v1",
+          "contentSha256": "2e66e01d3c7c5b89f44d3d48bdc047dd16154357a0b9e82ad87da05137fe7cf5",
+          "identity": "media.observation-contract.quality-action-plan.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-compare",
+          "contentSha256": "49f3dc6fd87028a80861e1530cd4cdd65a80d5d7c03ffab1c59e2d6ac1f53f2f",
+          "identity": "media.operation.capability.media-quality-compare"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-media-versions",
+          "contentSha256": "4855119cac770e62f4dba9ef51ab46dc08a08ad0b7852803584a6e8b668bdbcd",
+          "identity": "media.operation.action.compare-media-versions"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.review-collaboration",
+      "clauseId": "media.feature-review-clause.review-collaboration.handoff-and-independent-outcome",
+      "criterion": "Handoff and independently recorded decisions preserve actor/authority provenance and distinguish observation from mutation.",
+      "clauseFingerprint": "2db55433f277cf9a480ae211aa458ef7618852fb3777affd2cebd00f9f310a9e",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority",
+          "contentSha256": "d1b6e0e206490f67e2d35c29809d8ee73ac308645d61a3843d88c1ce11e68fd0",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.unknown-finality",
+          "contentSha256": "4469b8dfc9fc0339779f03a527d3f9cb83dfdc2be2d919c550160518a342a7e2",
+          "identity": "media.pdp1.decision.unknown-finality"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-authorized-review",
+          "contentSha256": "9aa6d19910e3edeeedb8d7c6f28d02578c70b61eb88b7340a84485f6b248881b",
+          "identity": "media.operation.action.request-authorized-review"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-review-comment",
+          "contentSha256": "9af7c7d03d592d720443e56785c38b2ecabb1cfaca266d36771eccc239aee597",
+          "identity": "media.operation.action.record-review-comment"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope",
+          "contentSha256": "2c33e7d6352075671e48ce8189cbd6b00de605e91a44de074bd67138fbabc662",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.asynchronous-jobs-streaming",
+      "clauseId": "media.feature-review-clause.asynchronous-jobs-streaming.job-attempt-progress-and-retry",
+      "criterion": "Job, attempt, lease/fence, progress, partial result and retry are distinct machine identities; retry is not safe solely by request label.",
+      "clauseFingerprint": "0a7e2b05cde435a35ace5873f98d60cb25561c9ef621460c14df027e62ef8e21",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job",
+          "contentSha256": "9bfef6db9d25190234a4606ddb3d3dafb9aa515bcbc7a533ee937f2a07fe8d8a",
+          "identity": "media-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-attempt",
+          "contentSha256": "34566111d9dc14e66441c16a5906fef1f29387d7b110168d3bce7d28f35734f8",
+          "identity": "media-attempt"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerRaceResolutionContract/invariants",
+          "contentSha256": "8edd7297b11be9dae2371af2529ec23aad602be7d89eb4fa45fb069d80149522",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.submit-job",
+          "contentSha256": "0183974b79444693737767335e31c845dd408578d92c9bad78d9921986c75051",
+          "identity": "media.operation-slice.submit-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job",
+          "contentSha256": "74ac8e8f52f855f35bc7cffe0da9d1ccc2aefb0b7936657f23a49eb999921d47",
+          "identity": "media.operation-slice.inspect-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job",
+          "contentSha256": "a789a9705edf5530d94abb536f3daacd15b1981015d455e36f5a1e3326b79a53",
+          "identity": "media.operation-slice.retry-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-job",
+          "contentSha256": "35ee69569749b3ea1b8be0518a3804561a39bfbfb3708c70459698e52cabe57e",
+          "identity": "media.capability-profile.media-job"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.asynchronous-jobs-streaming",
+      "clauseId": "media.feature-review-clause.asynchronous-jobs-streaming.cancel-unknown-and-reconcile",
+      "criterion": "Cancellation requests, effect start, timeout/process death, authoritative reconciliation and terminal finality remain distinct.",
+      "clauseFingerprint": "fac04761e989717c2e1df45de0070f33dfbc8923ff016f8089ff17d2ef6399f5",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerRaceResolutionContract/resolutionCases",
+          "contentSha256": "1626af31d12826cff63ff4310024754b49c0e55daee8bb23f4b712cbfd1909a3",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.unknown-finality",
+          "contentSha256": "4469b8dfc9fc0339779f03a527d3f9cb83dfdc2be2d919c550160518a342a7e2",
+          "identity": "media.pdp1.decision.unknown-finality"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+          "contentSha256": "66c881ed1749d17a23a7f19b7dc943397f4d3c1fe2187b2e1d47330919631eee",
+          "identity": "media.operation-slice.cancel-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job",
+          "contentSha256": "74ac8e8f52f855f35bc7cffe0da9d1ccc2aefb0b7936657f23a49eb999921d47",
+          "identity": "media.operation-slice.inspect-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerRaceResolutionContract/invariants/@id=media.pdp1.invariant.dispatch-intent-before-crossing",
+          "contentSha256": "76ca1ff224b895741f92bc97a67ac7c7e70e55746ac8fa28e1ac6a5bfad949a5",
+          "identity": "media.pdp1.invariant.dispatch-intent-before-crossing"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.asynchronous-jobs-streaming",
+      "clauseId": "media.feature-review-clause.asynchronous-jobs-streaming.stream-ordering-backpressure-and-events",
+      "criterion": "Live sessions/frames have explicit sequence, acknowledgement, reconnect and producer event semantics; delivery is not inferred from event declaration.",
+      "clauseFingerprint": "ed9bf3f5f0a869dcbd40c43ea89aee7ca432ba779e6b79f027c50224bb651137",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-stream-session",
+          "contentSha256": "0d84260b062c367086f0228e4bd7971a0a3943347e507a778e113747e831c082",
+          "identity": "media-stream-session"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/@id=media.event-contract.media-stream-opened",
+          "contentSha256": "412dd21e5831092dccbeb32ba125fb24eb9d9f24f7ef1db08ba82c458be102b4",
+          "identity": "media.event-contract.media-stream-opened"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/@id=media.event-contract.media-stream-closed",
+          "contentSha256": "e608ee51b97d41d215baea7508823ba9b9b701bea99da9d73a2a2fa4b02c3539",
+          "identity": "media.event-contract.media-stream-closed"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open",
+          "contentSha256": "83794970082d5b7d5eb8d60dc7c7a882f06fea59ff2308076c96dfa745d7e5d4",
+          "identity": "media.operation.capability.media-stream-session-open"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-connect",
+          "contentSha256": "d203049ca48c1890bba303fc635ca8c427a85d0d5f8a565e11a243b0fe447f77",
+          "identity": "media.operation.capability.media-stream-session-connect"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-frame-submit",
+          "contentSha256": "bbd7a11d9fafac22cb19d36a46a699b4de23e94fea160c0a40c82af0779484e8",
+          "identity": "media.operation.capability.media-stream-frame-submit"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1",
+          "contentSha256": "0f5013640066da654309ec5da0926e917f1b468dcbda9af7b7dc92cf70c1e32f",
+          "identity": "media.operation.stream-session.inspect.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-stream",
+          "contentSha256": "f50244236f47e7c55bf072944aa0431427bf513bd69d62cba79c0147fcf1ac71",
+          "identity": "media.capability-profile.media-stream"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.offline-reconnect",
+      "clauseId": "media.feature-review-clause.offline-reconnect.allowed-and-prohibited-disconnected-work",
+      "criterion": "Local draft edits and reads are distinct from provider dispatch, publication, deletion, and any durable offline command queue.",
+      "clauseFingerprint": "af1da01ebfc5e5bb43aed603bcfcf89f05099b9fb49e1e0ef23133ed1749f878",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/allowedDisconnectedWork",
+          "contentSha256": "68f7408f4d5e32dc39e0f31862e0056c065492a567e72d0bc2e2991fe09520c2",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/prohibitedDisconnectedEffects",
+          "contentSha256": "f23810ea58b7b8b155dac0c3d1ec81847445b2f8ea0bfa86b51a856a387e1e60",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.offline-reconnect",
+      "clauseId": "media.feature-review-clause.offline-reconnect.stable-identities-and-conflicts",
+      "criterion": "Reconnect preserves stable command/object identity and surfaces stale revisions/conflicts without overwriting newer owner state.",
+      "clauseFingerprint": "c1ad688f39dcf63fc37c005dcc2b9f335454fe2ea17673cfab49ff90189e73c8",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/queuePolicy",
+          "contentSha256": "769da0e75535a67b802b4e1e55f35e8fd0a56361b0700e2b3e7f080af5155f67",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/reconnectProtocol",
+          "contentSha256": "77a6c36056443eb18ce4eb1de718d013dd06f69193d0b4a8a1fe4ee9686732fe",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics",
+          "contentSha256": "dc9ed1b6f1ddc5d5ff86f54087d38ac7b8d2c221a3ad8831921dcd2145a1e17d",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.offline-reconnect",
+      "clauseId": "media.feature-review-clause.offline-reconnect.unknown-submit-and-reconciliation",
+      "criterion": "A disconnected or ambiguous submit remains unknown until exact authoritative receipt reconciliation; no blind replay is inferred.",
+      "clauseFingerprint": "88e0fc32be77b9bf0439e72b195a4391d35c5feff015eeb964b4fa364ee205bd",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/ambiguousSubmission",
+          "contentSha256": "c1fdfe8b200dc0dd4b66d38a55f74bf5b73b7b76a4cf2df065b94da7b7d7e8a5",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.disconnected-operation-and-reconciliation",
+          "contentSha256": "d0d1efd921bd1838db6ff0c621a76c06ae522a1ab4708869f2e6dc4df827fc69",
+          "identity": "media.pdp1.decision.disconnected-operation-and-reconciliation"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.api-sdk-cli-events-tools",
+      "clauseId": "media.feature-review-clause.api-sdk-cli-events-tools.canonical-operation-and-wire",
+      "criterion": "Each channel binds to exact operation request/result/error/version semantics; channel names do not imply protocol equivalence.",
+      "clauseFingerprint": "be2e260df787ad922520f0c71ae64035a9867f228ba3461593bec0d7b310959c",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload",
+          "contentSha256": "37c0ae0a5c1ad6bcb588795efe0f46b322047ef0230e621f398d91c918f23e80",
+          "identity": "media.operation-slice.begin-upload"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.submit-job",
+          "contentSha256": "0183974b79444693737767335e31c845dd408578d92c9bad78d9921986c75051",
+          "identity": "media.operation-slice.submit-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/interoperability.yaml#projections/@id=media.interop.openapi",
+          "contentSha256": "8f4668cf04c01c82f8160da01451e93924db790600cc4d4e4e11c645c7edf62e",
+          "identity": "media.interop.openapi"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/ownerWireSchema",
+          "contentSha256": "e7f1ca5df813e537d4c5e0d2a6d3c1cd4a7eda7aef3ecf026136003eb5112692",
+          "identity": "media.operation-wire-schema.begin-upload"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.submit-job",
+          "contentSha256": "0183974b79444693737767335e31c845dd408578d92c9bad78d9921986c75051",
+          "identity": "media.operation-slice.submit-job"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema",
+          "contentSha256": "d9d9aa9364b18ccb06d7a19c5814875cc8d2ab8e7c0adaa7939e9945f99b7db2",
+          "identity": "media.operation-wire-schema.inspect-job-v1"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.api-sdk-cli-events-tools",
+      "clauseId": "media.feature-review-clause.api-sdk-cli-events-tools.event-publication-boundary",
+      "criterion": "Commands and queries are distinct from versioned domain event/notification meanings and transport delivery mechanics.",
+      "clauseFingerprint": "556e08cc2fa3d821ddafaafec1cfc33fe4cdef45084de28f60bfe89309c28ba9",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/@id=media.event-contract.media-job-accepted",
+          "contentSha256": "890a21d2ab8e58df04ed8ba75b5c0f1b4b342fafac9478de0a0b861abb3de7c3",
+          "identity": "media.event-contract.media-job-accepted"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/@id=media.local-notification.stt-transcription-start",
+          "contentSha256": "5f40380657b192c04fcd9fabb8c90d3a9422fcac705060395740c4798a84ff07",
+          "identity": "media.local-notification.stt-transcription-start"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownership/eventTransport",
+          "contentSha256": "dff75c8a8cd4e1bf235873c2952a7a11528170374edbde6dc35041ab8a07c656",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.api-sdk-cli-events-tools",
+      "clauseId": "media.feature-review-clause.api-sdk-cli-events-tools.client-channel-applicability",
+      "criterion": "Web/CLI/API/SDK/HTTP/gRPC/integration/agent/client surfaces require exact leaf bindings and host identity; no CLI/GUI surface is fabricated.",
+      "clauseFingerprint": "d1cd609890850b1834a3bb0fc13e659c22e85dcb2de68cbf87a6a791dfa88cdb",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli",
+          "contentSha256": "6c8f7c48df970abc77aa47ca0aca7057253c241ab97310cadd0381e9731edcbf",
+          "identity": "media.channel.cli"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#ownerDefinedChannels/records/@id=media.channel.agent",
+          "contentSha256": "741e0dccfdfcd42aadaba550ca14f65dfecffaf490c58ab2342fd2922bc4f832",
+          "identity": "media.channel.agent"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#ownerLeafApplicabilityRules/profileApplicabilityContract",
+          "contentSha256": "507a4f7caf0d319dce23a46ca580e8e3efc5635f4fc16fc92fbbc2ee0179abe8",
+          "identity": "media.channel-profile-applicability.v1"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.accessibility-internationalization",
+      "clauseId": "media.feature-review-clause.accessibility-internationalization.keyboard-and-programmatic-state",
+      "criterion": "Every interactive state/effect has keyboard equivalence, accessible programmatic state and non-color status.",
+      "clauseFingerprint": "14cd249a32c6a33caea2ef06f456f2881559afebba1c4c3a5c701bf9628d9c96",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/@id=media.a11y.keyboard-equivalence",
+          "contentSha256": "f6747c0d614b54e0ef06633d4449e05c76a7060535a825e8106191643e3fe2d8",
+          "identity": "media.a11y.keyboard-equivalence"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/@id=media.a11y.programmatic-state",
+          "contentSha256": "e961797b9dcf9306e9b48182f555afa7719cbeff2593c807f4c11fd444c60450",
+          "identity": "media.a11y.programmatic-state"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/@id=media.a11y.noncolor",
+          "contentSha256": "c6381ba8d8d28a7c957659fabc89f0ff1020b56cb628be197ab6a52afbd3dcbe",
+          "identity": "media.a11y.noncolor"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.accessibility-internationalization",
+      "clauseId": "media.feature-review-clause.accessibility-internationalization.media-alternatives-and-motion",
+      "criterion": "Media controls have usable alternatives, status announcements and reduced-motion behavior.",
+      "clauseFingerprint": "ee98a5f68876d31032f471dcc6c03d0a5806f853df1f39ba7370a8bb6fbd1261",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/@id=media.a11y.media-alternatives",
+          "contentSha256": "20f0cdc9c3a9095a94762a6f55ac08076fa73e2dcd55222f7d43cb9836d11eea",
+          "identity": "media.a11y.media-alternatives"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/@id=media.a11y.movement-and-status",
+          "contentSha256": "16b0bc4f6a8c66dc95b7d6183e895add108f878ae57898f62ec9db58ccbb7e77",
+          "identity": "media.a11y.movement-and-status"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.accessibility-internationalization",
+      "clauseId": "media.feature-review-clause.accessibility-internationalization.localization-and-reflow",
+      "criterion": "Long localized strings, RTL direction, text resizing and responsive layouts preserve actions and safety information.",
+      "clauseFingerprint": "8a7ae9b8a18de5491c871e71e6f434e1f5c84dcc5a65c2fbe815021833720ced",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/localization-content.yaml#normativeRuleRecords/@id=media.p2.rule.localization-direction-and-reflow.v1",
+          "contentSha256": "788b872e4276ed7ede999df8e4c3e2b615a7e2aaaba3e4f6144e773c4c9f6e63",
+          "identity": "media.p2.rule.localization-direction-and-reflow.v1"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#responsiveCompositionReferences",
+          "contentSha256": "1eab33510937f471021008afd104c8df45727b75039f874a5aa1785df1d95f9f",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.security-operations",
+      "clauseId": "media.feature-review-clause.security-operations.tenant-and-authority-boundary",
+      "criterion": "Every read/effect scopes host-attested tenant/principal/delegation and exact authority; caller-controlled identity cannot widen scope.",
+      "clauseFingerprint": "0780368c32e581a6624bf2699316137a1d8fa0b32f9afb4f8ae2aee2f5ab5b45",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope",
+          "contentSha256": "2c33e7d6352075671e48ce8189cbd6b00de605e91a44de074bd67138fbabc662",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority",
+          "contentSha256": "d1b6e0e206490f67e2d35c29809d8ee73ac308645d61a3843d88c1ce11e68fd0",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/tenantIsolation",
+          "contentSha256": "8b986976b4df805b1d236b85f38cb036487a69e782159b0b1c3fd3cd9d20014d",
+          "identity": null
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.security-operations",
+      "clauseId": "media.feature-review-clause.security-operations.untrusted-parser-and-resource-bounds",
+      "criterion": "Untrusted media/parser boundaries, request bounds, quotas and effect costs require exact typed controls and deny unknown inputs.",
+      "clauseFingerprint": "6e81f9aab266e4dbcb05a2a0e0fe3327cb437e7b079c0c24b394b330bc6fbe22",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline",
+          "contentSha256": "1833a7d7773ea6968861a7327063df778ee11ef1ee72b9cd4b4683204912760a",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-artifact-import",
+          "contentSha256": "df7da4bfa5278a228f14aa987275e1c33cf39f4c62e2ae055ba6068e45266c44",
+          "identity": "media.capability-bounds.media-artifact-import"
+        }
+      ]
+    },
+    {
+      "dimensionId": "media.feature-review-dimension.security-operations",
+      "clauseId": "media.feature-review-clause.security-operations.telemetry-model-and-recovery",
+      "criterion": "Telemetry is minimized/redacted, model acquisition/fallback is separately gated, and crash/unknown effects require reconciliation.",
+      "clauseFingerprint": "19606f2f6af60fea65b739e86838aa3117f2acf5dfff08c0f7a030b062c3cafe",
+      "reviewStatus": "COORDINATOR_REVIEWED_BOUNDED_DEFINITION_CONTRACT",
+      "referents": [
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/classificationAndDisclosure",
+          "contentSha256": "ced7e09fa723e2ee98aa354eef3852964c287ede1cacf8783c25968b1df769a9",
+          "identity": null
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback",
+          "contentSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+          "identity": "media.policy.model-acquisition-and-fallback"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml#ownerRaceResolutionContract",
+          "contentSha256": "74a72c9222a091026acc2e4f7b5a702c400796113600f2b871127c9dff3fdd3c",
+          "identity": "media.pdp1.job-attempt-race-resolution.v1"
+        }
+      ]
+    }
+  ],
+  "dimensionClauseFingerprints": {
+    "media.feature-review-dimension.ingestion-source-preservation": "5f367b4a4647cc12e104fd2845a05c261c9f6e5b20cab389e953536c49960c54",
+    "media.feature-review-dimension.time-synchronization": "356cf20b50d53583190ee66466db78a2079b34ee1648f50c565338670bad7c34",
+    "media.feature-review-dimension.audio-workflows": "1dcd5887a43f29630b6788ec1d3abc3c8badec32e0446f6b30a7920a006b63c4",
+    "media.feature-review-dimension.speech-workflows": "a8f0a7d3910df48c387f2695f8ab77f1b5a61376c759eaf196bab0bcccd732b3",
+    "media.feature-review-dimension.video-image": "b09d150bd8c981c07670b155dfdc42d3c857c96c164e7c2d02b8fc57a389804c",
+    "media.feature-review-dimension.animation-spatial": "c289f96e456370a6590430ea276c1f8e87a29f004257c747ae0561e6aab09fdb",
+    "media.feature-review-dimension.generative-media": "8ae302bb5b85e3191b1bd3fce8e7cc85b27e55342e963bd3e940531933f27ea8",
+    "media.feature-review-dimension.quality-scientific-truth": "29d8ea54a727b26278985cca2f6a1d1b8b0431b5543dd3f1eea69277cec34720",
+    "media.feature-review-dimension.rights-safety-audit": "7a0650e15f38ea6f83f35e4bdd8272a4bcf3a7f34b2922f550636cfd773d61dc",
+    "media.feature-review-dimension.review-collaboration": "228c70cfcd95dd3fecce2548316e59875756d4b5591f248238d89b7f88ad4c1f",
+    "media.feature-review-dimension.asynchronous-jobs-streaming": "7c7fc19cc8ab3a0834a3f21fffc27f797ccf8f8cdbb27d7ed9c00fff58b3a4d5",
+    "media.feature-review-dimension.offline-reconnect": "241a84c6a4afe1be15520331a64d1da69902fce7a29d49b5143c719dc9c3cb6a",
+    "media.feature-review-dimension.api-sdk-cli-events-tools": "e646f4ccd10f44e4de6a693be5af963376182f8924d46cdca775da795e93e628",
+    "media.feature-review-dimension.accessibility-internationalization": "90d3771a28d372fee6c7673d692c95bd6477946249c4fbffbbd1605e811c1b10",
+    "media.feature-review-dimension.security-operations": "7d884f433950db6589dadbe68bcb8ed164334ddf34b574683ca3216f51987301"
+  }
+}

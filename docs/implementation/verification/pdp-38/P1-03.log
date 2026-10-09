@@ -2,79 +2,79 @@ TAP version 13
 # Subtest: PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
 ok 1 - PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
   ---
-  duration_ms: 134.605641
+  duration_ms: 241.838796
   type: 'test'
   ...
 # Subtest: PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
 ok 2 - PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
   ---
-  duration_ms: 118.152594
+  duration_ms: 196.790111
   type: 'test'
   ...
 # Subtest: all 146 action identities have a source-backed operation or non-operation disposition
 ok 3 - all 146 action identities have a source-backed operation or non-operation disposition
   ---
-  duration_ms: 6771.750113
+  duration_ms: 8627.089692
   type: 'test'
   ...
 # Subtest: P0 exact capability-to-operation decisions resolve only fully classified action slices
 ok 4 - P0 exact capability-to-operation decisions resolve only fully classified action slices
   ---
-  duration_ms: 11614.104634
+  duration_ms: 10899.083033
   type: 'test'
   ...
 # Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
 ok 5 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
   ---
-  duration_ms: 13333.486283
+  duration_ms: 13388.315762
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 6 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 3903.936839
+  duration_ms: 4244.165708
   type: 'test'
   ...
 # Subtest: P1-08 distinguishes nine durable event definitions from fifteen local notifications
 ok 7 - P1-08 distinguishes nine durable event definitions from fifteen local notifications
   ---
-  duration_ms: 67.196674
+  duration_ms: 50.0793
   type: 'test'
   ...
 # Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
 ok 8 - P0-06 enumerates exact capability applicability without inventing a measured population
   ---
-  duration_ms: 13412.264435
+  duration_ms: 15905.114932
   type: 'test'
   ...
 # Subtest: P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
 ok 9 - P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
   ---
-  duration_ms: 8467.202381
+  duration_ms: 9921.341671
   type: 'test'
   ...
 # Subtest: P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
 ok 10 - P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
   ---
-  duration_ms: 6010.785731
+  duration_ms: 5630.441266
   type: 'test'
   ...
 # Subtest: P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
 ok 11 - P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
   ---
-  duration_ms: 9.417019
+  duration_ms: 18.740017
   type: 'test'
   ...
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 12 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 25.236848
+  duration_ms: 23.513635
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 13 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 30.419274
+  duration_ms: 281.567357
   type: 'test'
   ...
 1..13
@@ -85,4 +85,4 @@ ok 13 - P0 channel and dependency update semantics define bounded CLI and promot
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 64185.274418
+# duration_ms 69741.350631

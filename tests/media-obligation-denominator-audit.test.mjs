@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -22,16 +23,16 @@ const input = () => ({
   parseYaml: parse,
 });
 
-test('audits the exact current source denominator, four phase counts, memberships, and resolvable source records', () => {
+test('audits the exact current source denominator, phase counts, memberships, and resolvable source records', () => {
   const enumeration = enumerateExpectedMediaObligations({root, parseYaml:parse});
   assert.deepEqual(enumeration.issues, []);
   const total = enumeration.records.length;
   const phaseCounts = Object.fromEntries([0,1,2,3].map(p=>[`PDP-${p}`,enumeration.records.filter(r=>r.phase===`PDP-${p}`).length]));
   const report = auditMediaObligationDenominator(input());
   assert.equal(report.total, total);
-  assert.equal(report.uniqueIds, total);
+  assert.equal(report.uniqueIds, report.total);
   assert.deepEqual(report.phaseCounts, phaseCounts);
-  assert.equal(report.dispositionRecords, total);
+  assert.equal(report.dispositionRecords, report.total);
   assert.deepEqual(report.sourceReferences, { total, resolved: total, unresolved: 0 });
   assert.ok(Object.keys(report.sourceFingerprints.files).length > 0);
   assert.deepEqual(report.sourceFingerprints.comparison, { present: total, matching: total, stale: 0, absent: 0 });
@@ -44,7 +45,11 @@ test('audits the exact current source denominator, four phase counts, membership
 test('refreshes the nine operation-source fingerprints only after their semantic impact is reconciled', () => {
   const obligations = readJson('config/closure/media-product-definition/obligations.json');
   const operations = parse(fs.readFileSync(path.join(root, '.product-experience/pdp-1-domain-data/operations.yaml'), 'utf8'));
-  const review = parse(fs.readFileSync(path.join(root, '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml'), 'utf8'));
+  const reviewedCommit = 'd99baf7b5df806ed8c528ce1ad4bd90f8640434c';
+  const historicalOperationText = execFileSync('git', ['show', `${reviewedCommit}:.product-experience/pdp-1-domain-data/operations.yaml`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  const historicalOperations = parse(historicalOperationText);
+  const historicalReviewText = execFileSync('git', ['show', `${reviewedCommit}:.product-experience/pdp-0-product-truth/capability-leaf-review.yaml`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  const review = parse(historicalReviewText);
   const reconciliation = review.sourcePinReconciliations.find(({ path: sourcePath }) => sourcePath === '.product-experience/pdp-1-domain-data/operations.yaml');
   const reviewedSourcePin = review.sourceInventory.find(({ path: sourcePath }) => sourcePath === '.product-experience/pdp-1-domain-data/operations.yaml');
   const previousDelta = reconciliation?.subsequentSourceDelta;
@@ -60,20 +65,27 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   const digests = new Set(sourced.map(({ extensions }) => extensions['media-source'].sourceDigest));
   const currentSourceDigest = createHash('sha256')
     .update(fs.readFileSync(path.join(root, '.product-experience/pdp-1-domain-data/operations.yaml'))).digest('hex');
-  assert.deepEqual([...digests], [`sha256:${currentSourceDigest}`]);
   const currentReview = review.ownerDefinitionSourceReconciliation.records.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml');
   const reviewedOperationCut = readJson('docs/implementation/verification/pdp-38/owner-query-current-cut-review.json');
   const reviewedOperationDigest = reviewedOperationCut.sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml'];
   assert.equal(reviewedOperationCut.decisionRef, '.product-experience/decision-log.md#PXD-094');
   assert.equal(reviewedOperationDigest, '16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54');
-  assert.equal(currentSourceDigest, reviewedOperationDigest, 'the denominator source cut matches the exact reviewed operation artifact');
+  assert.deepEqual([...digests], [`sha256:${currentSourceDigest}`]);
+  assert.equal(createHash('sha256').update(historicalOperationText).digest('hex'), reviewedOperationDigest,
+    'PXD-094 remains tied to its exact historical operation bytes');
+  const directCriteria = readJson('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json');
+  const currentP001 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')?.currentCorrectiveReview;
+  assert.equal(currentP001?.status, 'APPROVED_CURRENT_CORRECTION');
+  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-106');
+  assert.equal(currentP001?.sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml'], currentSourceDigest,
+    'the current operations source is checked against PXD-106 separately from historical PXD-094');
   assert.equal(currentReview.currentSha256, 'f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d',
     'the older additive source overlay remains immutable history rather than being rewritten to the newer review');
   assert.equal(reviewedSourcePin.sha256, review.transcriptionSubmissionDefinitionSourceReconciliations.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml').currentSha256, 'the historical SDK source pin remains immutable');
   assert.notEqual(currentSourceDigest, finalDelta.currentSha256,
     'new SDK adapter denominator metadata postdates the bounded capability operation review');
   assert.match(operations.individualOperationContracts.status, /pending/u);
-  const recordById = new Map(operations.operations.map((record) => [record.id, record]));
+  const recordById = new Map(historicalOperations.operations.map((record) => [record.id, record]));
   const expectedRecordHashes = previousDelta.unchangedObligationSourceRecords;
   assert.equal(Object.keys(expectedRecordHashes).length, 9);
   const previouslyReviewedIds = new Set(Object.keys(expectedRecordHashes));
@@ -148,7 +160,15 @@ test('PDP-2 obligation fingerprints change only after exact source-record impact
     if (sourcePath.endsWith('/component-contracts.yaml')) {
       const currentReview = readJson('docs/implementation/verification/pdp-38/component-source-review.json');
       assert.equal(currentReview.decisionRef, '.product-experience/decision-log.md#PXD-083');
-      assert.equal(`sha256:${currentReview.sourceFingerprints[sourcePath]}`, digest);
+      const supplemental = readJson('docs/implementation/verification/pdp-38/component-current-source-impact.json');
+      assert.equal(supplemental.priorSourceSha256,currentReview.sourceFingerprints[sourcePath]);
+      assert.equal(`sha256:${supplemental.currentSourceSha256}`,digest);
+      const currentTree=parse(sourceText);
+      const {ownerDefinedComponentRules,normativeRuleRecords,...unchanged}=currentTree;
+      assert.equal(createHash('sha256').update(JSON.stringify(unchanged)).digest('hex'),supplemental.unchangedPriorParsedTreeSha256);
+      assert.deepEqual(ownerDefinedComponentRules.map(r=>({id:r.id,recordSha256:createHash('sha256').update(JSON.stringify(r)).digest('hex'),negativeCases:r.negativeCases})),supplemental.addedRuleRecords);
+      assert.equal(normativeRuleRecords.length,12);
+      assert.equal(supplemental.wholeTaskCriterionEstablished,false);assert.equal(supplemental.nativeLifecycleReceipt,null);
       assert.equal(currentReview.wholeTaskCriterionEstablished, false);
       assert.equal(currentReview.nativeLifecycleReceipt, null);
     } else {

@@ -1,9 +1,11 @@
 schemaVersion: media.reuse-decisions.v1
 productId: media
-status: P0-008-owner-boundary-and-candidate-disposition-draft; publication-isolation-and-owner-acceptance-pending
+status: P0-008-owner-boundary-and-candidate-disposition-draft;
+  publication-isolation-and-owner-acceptance-pending
 decisions:
   - id: REUSE-SHARED-WORKFLOW
-    need: durable command reservation, compare-and-set state transitions, ambiguity mechanics
+    need: durable command reservation, compare-and-set state transitions, ambiguity
+      mechanics
     owner: ghatana-shared
     contract: platform/java/workflow
     decision: reuse-owner-contract-behind-media-state-and-persistence-adapters
@@ -30,7 +32,8 @@ decisions:
     sourceCouplingAllowed: false
     blocker: GAP-02
   - id: REUSE-SHARED-DOCUMENT-CONTRACTS
-    need: governed document identity and provider-neutral document-extraction contracts
+    need: governed document identity and provider-neutral document-extraction
+      contracts
     owner: ghatana-shared
     contract: '@ghatana/documents; @ghatana/document-extraction'
     decision: retain-shared-as-canonical; consumers use frozen public contracts
@@ -64,7 +67,8 @@ decisions:
     need: neutral product-experience definition and validation contracts
     owner: ghatana-tools
     contract: '@ghatana/experience-specification'
-    decision: use the public package for its declared experience-definition scope; it does not define full PDP-0 requirements or execute an Explorer
+    decision: use the public package for its declared experience-definition scope;
+      it does not define full PDP-0 requirements or execute an Explorer
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     version: 0.1.0-SNAPSHOT
     publication: not-verified
@@ -75,10 +79,13 @@ decisions:
     need: neutral-normative-product-definition-shape-for-purpose-scope-actors-outcomes-capabilities-requirements-domain-rules-policies-invariants-and-ownership
     owner: ghatana-tools
     contract: '@ghatana/product-definition'
-    decision: adopt-v1-shape-and-validator-for-the-neutral-product-meaning-subset; keep time-fidelity-state-and-media-qualification-detail-in-Media-owned-records
+    decision: adopt-v1-shape-and-validator-for-the-neutral-product-meaning-subset;
+      keep
+      time-fidelity-state-and-media-qualification-detail-in-Media-owned-records
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     sourceVersion: 0.1.0-SNAPSHOT
-    publication: local-owner-manifest-and-schema-observed; immutable-public-artifact-and-isolated-consumer-not-verified
+    publication: local-owner-manifest-and-schema-observed;
+      immutable-public-artifact-and-isolated-consumer-not-verified
     phaseUse: PDP-0-authority-shape-pending-public-package-consumption
     sourceCouplingAllowed: false
     blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
@@ -86,21 +93,26 @@ decisions:
     need: neutral-interaction-responsive-accessibility-localization-and-presentation-language-shape
     owner: ghatana-tools
     contract: '@ghatana/experience-language'
-    decision: adopt-v1-shape-for-PDP-2; Media owns domain state presentation and token aliases only
+    decision: adopt-v1-shape-for-PDP-2; Media owns domain state presentation and
+      token aliases only
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     sourceVersion: 0.1.0-SNAPSHOT
-    publication: local-owner-manifest-and-schema-observed; immutable-public-artifact-and-isolated-consumer-not-verified
+    publication: local-owner-manifest-and-schema-observed;
+      immutable-public-artifact-and-isolated-consumer-not-verified
     phaseUse: PDP-2-pending-PDP-0-acceptance-and-public-consumer
     sourceCouplingAllowed: false
     blocker: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   - id: REUSE-TOOLS-EXPERIENCE-PACKAGE-AND-EXPLORER
     need: product-owned-deterministic-experience-package-contract-and-generic-review-host
     owner: ghatana-tools
-    contract: '@ghatana/experience-package; @ghatana/experience-explorer-contracts; @ghatana/product-dev-explorer'
-    decision: use-owner-package-and-host-if-public-version-and-built-browser-contract-meet-Explorer-requirements; request-missing-generic-host-behavior-from-Tools
+    contract: '@ghatana/experience-package; @ghatana/experience-explorer-contracts;
+      @ghatana/product-dev-explorer'
+    decision: use-owner-package-and-host-if-public-version-and-built-browser-contract-meet-Explorer-requirements;
+      request-missing-generic-host-behavior-from-Tools
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana-tools
     sourceVersion: 0.1.0-SNAPSHOT
-    publication: source-contract-and-headless-host-observed; public-isolated-consumer-and-browser-admission-unverified
+    publication: source-contract-and-headless-host-observed;
+      public-isolated-consumer-and-browser-admission-unverified
     phaseUse: EXPLORER-only-after-PDP-3-acceptance
     sourceCouplingAllowed: false
     blockers: [ GAP-02, GAP-11, GAP-12 ]
@@ -108,30 +120,37 @@ decisions:
     need: cross-repository-evidence-admission-currentness-receipts-and-convergence
     owner: ghatana-lifecycle
     contract: lifecycle-owned-closure-and-evidence-workflows
-    decision: consume-owner-generated-outputs-after-binding; Media-authored applicability audits provide inputs only
+    decision: consume-owner-generated-outputs-after-binding; Media-authored
+      applicability audits provide inputs only
     publication: contract-and-Media-consumer-binding-not-yet-completed
     sourceCouplingAllowed: false
     blocker: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
   - id: REUSE-TUTORPUTOR-SIMULATION
     need: animation, rendering, physics, simulation and AEF
     owner: ghatana-products/products/tutorputor
-    decision: do-not-import-broad-barrel; dependency closure includes TutorPutor core/contracts and must be owner-reviewed before extraction or public integration
+    decision: do-not-import-broad-barrel; dependency closure includes TutorPutor
+      core/contracts and must be owner-reviewed before extraction or public
+      integration
     sourceCouplingAllowed: false
     blocker: GAP-03
   - id: REUSE-DATA-CLOUD-MEDIA-READ-MODEL
     need: existing-governed-customer-media-metadata-and-compatibility-experience
     owner: ghatana-services-data-cloud
     contract: /api/v1/media-read-model-and-governed-metadata-paths
-    decision: retain-as-consumer-and-read-model-only; Media-remains-canonical-for-artifact-upload-job-and-stream-lifecycle
+    decision: retain-as-consumer-and-read-model-only;
+      Media-remains-canonical-for-artifact-upload-job-and-stream-lifecycle
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana
-    publication: existing-source-and-reference-scan-observed; cross-repository-route-DTO-and-client-parity-not-verified
+    publication: existing-source-and-reference-scan-observed;
+      cross-repository-route-DTO-and-client-parity-not-verified
     sourceCouplingAllowed: false
     blocker: GAP-05
   - id: REUSE-EVENT-AND-ACTION-PLANE
     need: durable-event-publication-and-privileged-effect-execution
     owner: ghatana
     contract: public-Event-Plane-and-Action-Plane-interfaces
-    decision: use-owner-boundaries-only; Media-retains-event-meaning-and-effect-preconditions; no-direct-privileged-bypass
+    decision: use-owner-boundaries-only;
+      Media-retains-event-meaning-and-effect-preconditions;
+      no-direct-privileged-bypass
     sourceObservation: source-manifest.yaml#externalOwnerObservations/ghatana
     publication: source-contract-and-production-durability-qualification-not-verified
     sourceCouplingAllowed: false
@@ -139,7 +158,8 @@ decisions:
   - id: REUSE-EXTERNAL-ENGINES-AND-MODELS
     need: image-video-audio-animation-simulation-enhancement-generation-and-quality-capabilities
     owner: each-proposed-library-model-engine-and-license-holder
-    decision: keep-existing-candidates-unadmitted-until-Ghatana-reuse-license-security-isolation-and-benchmark-gates-pass; no-new-runtime-selected
+    decision: keep-existing-candidates-unadmitted-until-Ghatana-reuse-license-security-isolation-and-benchmark-gates-pass;
+      no-new-runtime-selected
     publication: candidate-register-in-master-plan-is-not-an-admission-record
     sourceCouplingAllowed: false
     blockers: [ GAP-08, GAP-09, GAP-10 ]
@@ -150,7 +170,8 @@ externalMechanics:
 selectionOrder:
   - inspect-Ghatana-Shared-Tools-Kernel-and-Product-owner-contracts-and-public-artifacts
   - record-fit-gap-owner-version-license-availability-replacement-and-isolated-consumer-evidence
-  - use-existing-public-contract-when-fit-is-sufficient; request-owner-extension-when-neutral-contract-is-missing
+  - use-existing-public-contract-when-fit-is-sufficient;
+    request-owner-extension-when-neutral-contract-is-missing
   - extract-shared-mechanics-only-after-all-affected-owners-accept-both-boundary-and-isolated-tests
   - select-external-library-or-model-only-after-reuse-license-security-and-profile-benchmark-admission
 selectionSequenceRule:
@@ -168,10 +189,14 @@ selectionSequenceRule:
     - replacement-and-isolated-consumer-evidence
     - reason-the-next-priority-choice-is-required
   constraints:
-    - A candidate list or package name is not an integration mandate or admission.
-    - Do not duplicate generic Ghatana mechanisms inside Media to avoid an owner-contract review.
-    - No source-workspace coupling, silent substitution, or unreviewed dependency is permitted.
-  scopeStatus: OWNER_DEFINED_SELECTION_POLICY_ONLY; no owner extension, extraction, external package, or new runtime is admitted by this record.
+    - A candidate list or package name is not an integration mandate or
+      admission.
+    - Do not duplicate generic Ghatana mechanisms inside Media to avoid an
+      owner-contract review.
+    - No source-workspace coupling, silent substitution, or unreviewed
+      dependency is permitted.
+  scopeStatus: OWNER_DEFINED_SELECTION_POLICY_ONLY; no owner extension,
+    extraction, external package, or new runtime is admitted by this record.
 notAdmittedByThisRecord:
   - generic-OCR-or-document-intelligence-inside-Media
   - AI-Inference-owned-model-router-credentials-quota-or-generic-provider-failover
@@ -224,8 +249,10 @@ selectionRegister:
       decision: SELECTED
       owner: ghatana-tools; ghatana-lifecycle
       licenseSPDX: NOASSERTION
-      authoritativeRepository: https://github.com/ghatana/ghatana-tools; https://github.com/ghatana/ghatana-lifecycle
-      observedRepositoryCommit: tools:f35e02910a17e3d268cc255efeb4da4cafb1308b; lifecycle:8016e809289778618f205ce14e33b2137c677d8b
+      authoritativeRepository: https://github.com/ghatana/ghatana-tools;
+        https://github.com/ghatana/ghatana-lifecycle
+      observedRepositoryCommit: tools:f35e02910a17e3d268cc255efeb4da4cafb1308b;
+        lifecycle:8016e809289778618f205ce14e33b2137c677d8b
       version: source-checkout-version-not-fully-pinned
       sourceDigest: repository-commits-above; package-file-digests-not-pinned
       publicContract: '@ghatana/development-traceability; @ghatana/documentation-model'
@@ -242,11 +269,14 @@ selectionRegister:
       observedRepositoryCommit: f35e02910a17e3d268cc255efeb4da4cafb1308b
       version: 0.1.0-SNAPSHOT
       sourceDigest: repository-commit-above; package-file-digests-not-pinned
-      publicContract: '@ghatana/experience-language; @ghatana/experience-specification; @ghatana/experience-package; @ghatana/experience-explorer-contracts'
+      publicContract: '@ghatana/experience-language;
+        @ghatana/experience-specification; @ghatana/experience-package;
+        @ghatana/experience-explorer-contracts'
       purpose: neutral-experience-language-screen-specification-and-product-execution-contracts
       alternatives: Media-local-generic-experience-schemas-rejected
       transitiveLicenseDecision: UNVERIFIED; resolve-package-and-browser-runtime-closure-SBOM
-      securityPosture: contract-and-local-consumer-evidence-only; immutable-public-artifact-and-security-review-pending
+      securityPosture: contract-and-local-consumer-evidence-only;
+        immutable-public-artifact-and-security-review-pending
       qualificationStatus: SELECTED_NOT_QUALIFIED
     - id: TECH-GHATANA-EXPLORER
       decision: SELECTED
@@ -258,23 +288,30 @@ selectionRegister:
       sourceDigest: repository-commit-above; package-file-digest-not-pinned
       publicContract: '@ghatana/product-dev-explorer; @ghatana/experience-explorer-contracts'
       purpose: generic-product-review-host-and-explorer-mechanics
-      alternatives: Media-local-generic-explorer-host-rejected; retire-duplicate-mechanics-gradually
+      alternatives: Media-local-generic-explorer-host-rejected;
+        retire-duplicate-mechanics-gradually
       transitiveLicenseDecision: UNVERIFIED; browser-dependency-SBOM-required
-      securityPosture: local-host-smoke-only; public-installed-artifact-and-security-review-pending
+      securityPosture: local-host-smoke-only;
+        public-installed-artifact-and-security-review-pending
       qualificationStatus: SELECTED_NOT_QUALIFIED
     - id: TECH-GHATANA-DESIGN-SYSTEM
       decision: SELECTED
       owner: ghatana-shared; ghatana-tools
       licenseSPDX: NOASSERTION
-      authoritativeRepository: https://github.com/ghatana/ghatana-shared; https://github.com/ghatana/ghatana-tools
-      observedRepositoryCommit: shared:495663b2d6b61c270367048cec54db8a06f22d69; tools:f35e02910a17e3d268cc255efeb4da4cafb1308b
+      authoritativeRepository: https://github.com/ghatana/ghatana-shared;
+        https://github.com/ghatana/ghatana-tools
+      observedRepositoryCommit: shared:495663b2d6b61c270367048cec54db8a06f22d69;
+        tools:f35e02910a17e3d268cc255efeb4da4cafb1308b
       version: 0.1.0-SNAPSHOT
       sourceDigest: repository-commits-above; package-file-digests-not-pinned
-      publicContract: '@ghatana/tokens; @ghatana/theme; @ghatana/design-system; @ghatana/ds-headless; @ghatana/ui-styles; @ghatana/design-system-tooling'
+      publicContract: '@ghatana/tokens; @ghatana/theme; @ghatana/design-system;
+        @ghatana/ds-headless; @ghatana/ui-styles;
+        @ghatana/design-system-tooling'
       purpose: governed-design-tokens-accessible-primitives-and-reusable-composition-validation
       alternatives: parallel-design-system-or-local-generic-token-scale-rejected
       transitiveLicenseDecision: UNVERIFIED; Shared-accessibility-axe-core-MPL-2.0-caveat-recorded-below
-      securityPosture: local-consumption-observed; installed-artifact-a11y-and-security-review-pending
+      securityPosture: local-consumption-observed;
+        installed-artifact-a11y-and-security-review-pending
       qualificationStatus: SELECTED_NOT_QUALIFIED
     - id: TECH-GHATANA-EXPERIENCE-ASSURANCE
       decision: CONDITIONAL
@@ -287,7 +324,8 @@ selectionRegister:
       publicContract: '@ghatana/experience-assurance'
       purpose: browser-API-accessibility-and-experience-evidence
       alternatives: Media-owned-ad-hoc-browser-assurance-limited-to-explicit-gaps
-      transitiveLicenseDecision: BLOCKED_PENDING_TRANSITIVE_LICENSE_REVIEW; Playwright-and-a11y-provider-closure-required
+      transitiveLicenseDecision: BLOCKED_PENDING_TRANSITIVE_LICENSE_REVIEW;
+        Playwright-and-a11y-provider-closure-required
       securityPosture: candidate-only; isolated-installed-artifact-review-pending
       qualificationStatus: CONDITIONAL_NOT_QUALIFIED
     - id: TECH-GHATANA-CONTRACT-MOCK-SERVER
@@ -302,14 +340,17 @@ selectionRegister:
       purpose: deterministic-API-simulation-if-Lifecycle-RC1-package-compatibility-is-resolved
       alternatives: Media-mock-infrastructure-only-for-proven-contract-gaps
       transitiveLicenseDecision: BLOCKED_PENDING_TRANSITIVE_LICENSE_REVIEW
-      securityPosture: Lifecycle-RC1-development-compatibility-issue-known; installed-artifact-review-pending
+      securityPosture: Lifecycle-RC1-development-compatibility-issue-known;
+        installed-artifact-review-pending
       qualificationStatus: CONDITIONAL_NOT_QUALIFIED
     - id: TECH-GHATANA-VERIFICATION-PLANNER
       decision: CONDITIONAL
       owner: ghatana-tools; ghatana-lifecycle
       licenseSPDX: NOASSERTION
-      authoritativeRepository: https://github.com/ghatana/ghatana-tools; https://github.com/ghatana/ghatana-lifecycle
-      observedRepositoryCommit: tools:f35e02910a17e3d268cc255efeb4da4cafb1308b; lifecycle:8016e809289778618f205ce14e33b2137c677d8b
+      authoritativeRepository: https://github.com/ghatana/ghatana-tools;
+        https://github.com/ghatana/ghatana-lifecycle
+      observedRepositoryCommit: tools:f35e02910a17e3d268cc255efeb4da4cafb1308b;
+        lifecycle:8016e809289778618f205ce14e33b2137c677d8b
       version: source-checkout-version-not-pinned
       sourceDigest: repository-commits-above; package-file-digests-not-pinned
       publicContract: '@ghatana/product-development-verification; Lifecycle-public-adapter'
@@ -326,11 +367,14 @@ selectionRegister:
       observedRepositoryCommit: 8016e809289778618f205ce14e33b2137c677d8b
       version: 0.1.0-rc.1
       sourceDigest: repository-commit-above; evidence-contracts-package-license-is-UNLICENSED
-      publicContract: '@ghatana/evidence-contracts/consumer-schema-admission; public-gtool-Evidence-Generator-Surface-Convergence-interfaces'
+      publicContract: '@ghatana/evidence-contracts/consumer-schema-admission;
+        public-gtool-Evidence-Generator-Surface-Convergence-interfaces'
       purpose: closure-evidence-admission-currentness-receipts-and-convergence-owned-by-Lifecycle
       alternatives: Media-local-closure-currentness-receipt-or-convergence-engine-rejected
-      transitiveLicenseDecision: BLOCKED_PENDING_OWNER_LICENSE_AND_TRANSITIVE_SBOM; package-metadata-says-UNLICENSED
-      securityPosture: public-subpath-consumption-required; sibling-source-import-prohibited; installed-artifact-proof-pending
+      transitiveLicenseDecision: BLOCKED_PENDING_OWNER_LICENSE_AND_TRANSITIVE_SBOM;
+        package-metadata-says-UNLICENSED
+      securityPosture: public-subpath-consumption-required;
+        sibling-source-import-prohibited; installed-artifact-proof-pending
       qualificationStatus: SELECTED_NOT_QUALIFIED
     - id: TECH-GHATANA-SHARED-FOUNDATIONS
       decision: SELECTED
@@ -354,11 +398,15 @@ selectionRegister:
       observedRepositoryCommit: 8eff6331e06fdb91fb53a4beaf329a1b7d6b3ce3
       version: source-checkout-version-not-pinned
       sourceDigest: repository-commit-above; package-file-digest-not-pinned
-      publicContract: public-AI-Inference-delivery-API; typed-modality-capability-extension-owner-required
-      purpose: model-selection-routing-secrets-quota-and-governance; Media-retains-modality-semantics
-      alternatives: Media-local-generic-AI-gateway-rejected; raw-audio-video-not-forced-through-text-completion
+      publicContract: public-AI-Inference-delivery-API;
+        typed-modality-capability-extension-owner-required
+      purpose: model-selection-routing-secrets-quota-and-governance;
+        Media-retains-modality-semantics
+      alternatives: Media-local-generic-AI-gateway-rejected;
+        raw-audio-video-not-forced-through-text-completion
       transitiveLicenseDecision: UNVERIFIED; providers-and-model-weights-require-independent-review
-      securityPosture: API-scope-limited; typed-modality-support-and-provider-security-review-pending
+      securityPosture: API-scope-limited;
+        typed-modality-support-and-provider-security-review-pending
       qualificationStatus: SELECTED_NOT_QUALIFIED
     - id: TECH-GHATANA-DOCUMENT-INTELLIGENCE
       decision: SELECTED
@@ -372,7 +420,8 @@ selectionRegister:
       purpose: generic-OCR-parser-and-document-extraction-outside-Media
       alternatives: Media-local-generic-OCR-or-document-intelligence-rejected
       transitiveLicenseDecision: UNVERIFIED; parser-native-and-model-closure-SBOM-required
-      securityPosture: MDI-001-owner-boundary-preserved; public-client-and-untrusted-parser-security-review-pending
+      securityPosture: MDI-001-owner-boundary-preserved;
+        public-client-and-untrusted-parser-security-review-pending
       qualificationStatus: SELECTED_NOT_QUALIFIED
     - id: TECH-GHATANA-DATA-CLOUD
       decision: SELECTED
@@ -398,7 +447,8 @@ selectionRegister:
       sourceDigest: repository-commit-above; package-file-digest-not-pinned
       publicContract: public-Event-Plane-and-Action-Plane-interfaces
       purpose: durable-event-delivery-and-privileged-effect-execution
-      alternatives: Media-retains-event-meaning-and-effect-preconditions; direct-privileged-bypass-rejected
+      alternatives: Media-retains-event-meaning-and-effect-preconditions;
+        direct-privileged-bypass-rejected
       transitiveLicenseDecision: UNVERIFIED; deployment-and-broker-closure-review-pending
       securityPosture: source-contract-and-production-durability-not-qualified
       qualificationStatus: SELECTED_NOT_QUALIFIED
@@ -414,32 +464,364 @@ selectionRegister:
       purpose: evaluate-reusable-animation-rendering-physics-simulation-and-AEF-contracts
       alternatives: Rapier-reserved-fallback-only-if-neutral-TutorPutor-contract-unavailable
       transitiveLicenseDecision: BLOCKED_PENDING_OWNER_REVIEW_AND_FULL_RENDERER-PHYSICS-SBOM
-      securityPosture: broad-barrel-import-prohibited; extraction-or-isolated-adapter-review-pending
+      securityPosture: broad-barrel-import-prohibited;
+        extraction-or-isolated-adapter-review-pending
       qualificationStatus: CONDITIONAL_NOT_QUALIFIED
   externalCandidates:
-    - { id: TECH-WAVESURFER, decision: SELECTED, owner: WaveSurfer.js project, licenseSPDX: BSD-3-Clause, authoritativeRepository: 'https://github.com/katspaugh/wavesurfer.js', version: not-pinned, sourceDigest: not-observed, publicContract: WaveSurfer.js public browser API, purpose: waveform-region-navigation-and-playback-adapter, alternatives: native-media-controls-or-Media-waveform-adapter, transitiveLicenseDecision: PENDING_FULL_SBOM, securityPosture: no-package-or-runtime-review-performed, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-OPENTIMELINEIO, decision: SELECTED, owner: OpenTimelineIO project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/AcademySoftwareFoundation/OpenTimelineIO', version: not-pinned, sourceDigest: not-observed, publicContract: OpenTimelineIO interchange API, purpose: editorial-timeline-import-export-and-loss-reporting, alternatives: Media-canonical-composition-model-remains-authority, transitiveLicenseDecision: PENDING_FULL_SBOM, securityPosture: parser-input-containment-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-OPENCOLORIO, decision: SELECTED, owner: OpenColorIO project, licenseSPDX: BSD-3-Clause, authoritativeRepository: 'https://github.com/AcademySoftwareFoundation/OpenColorIO', version: not-pinned, sourceDigest: not-observed, publicContract: OpenColorIO public API, purpose: color-space-and-transformation-adapter, alternatives: Media-owned-color-semantics-and-explicit-transform-provenance, transitiveLicenseDecision: PENDING_NATIVE_AND_FULL_SBOM, securityPosture: native-build-and-config-input-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-OPENIMAGEIO, decision: CONDITIONAL, owner: OpenImageIO project, licenseSPDX: NOASSERTION, licenseReviewNote: review-identifies-Apache-2.0-and-BSD-3-Clause-source-mix; exact-files-and-build-closure-not-qualified, authoritativeRepository: 'https://github.com/AcademySoftwareFoundation/OpenImageIO', version: not-pinned, sourceDigest: not-observed, publicContract: OpenImageIO public image-I/O API, purpose: advanced-image-format-I-O-only-if-Ghatana-gap-is-proven, alternatives: existing-Ghatana-media-modules, transitiveLicenseDecision: BLOCKED_PENDING_PER-FILE-NATIVE_LICENSE_AND_BUILD_FOOTPRINT_REVIEW, securityPosture: untrusted-image-parser-containment-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-C2PA-RS, decision: CONDITIONAL, owner: Content Authenticity Initiative; c2pa-rs maintainers, licenseSPDX: MIT OR Apache-2.0, authoritativeRepository: 'https://github.com/contentauth/c2pa-rs', version: not-pinned, sourceDigest: not-observed, publicContract: c2pa-rs signing-and-verification API, purpose: governed-content-provenance-adapter-with-managed-keys, alternatives: Media-rights-consent-and-publication-authority-remain-separate, transitiveLicenseDecision: BLOCKED_PENDING_CARGO_CRATE_SBOM, securityPosture: key-management-and-trust-policy-review-pending; manifest-does-not-prove-rights-or-truth, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-THREEJS, decision: SELECTED, owner: Three.js project, licenseSPDX: MIT, authoritativeRepository: 'https://github.com/mrdoob/three.js', version: not-pinned, sourceDigest: not-observed, publicContract: Three.js public browser API, purpose: browser-scene-preview-and-inspection, alternatives: not-a-domain-authority-or-simulation-engine, transitiveLicenseDecision: PENDING_FULL_SBOM_AND_ASSET_REVIEW, securityPosture: browser-runtime-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-GLTF-TRANSFORM, decision: SELECTED, owner: glTF Transform project, licenseSPDX: MIT, authoritativeRepository: 'https://github.com/donmccurdy/glTF-Transform', version: not-pinned, sourceDigest: not-observed, publicContract: '@gltf-transform/* public APIs', purpose: versioned-glTF-GLB-read-transform-optimize-write-adapter, alternatives: Media-asset-authority-and-versioning-remain-canonical, transitiveLicenseDecision: PENDING_FULL_NPM_SBOM, securityPosture: untrusted-asset-parser-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-SHAKA-PACKAGER, decision: CONDITIONAL, owner: Shaka Project, licenseSPDX: BSD-3-Clause, authoritativeRepository: 'https://github.com/shaka-project/shaka-packager', version: not-pinned, sourceDigest: not-observed, publicContract: Shaka Packager public packaging API, purpose: approved-HLS-DASH-packaging-only, alternatives: packaging-is-not-encoding; DRM-separately-licensed, transitiveLicenseDecision: PENDING_NATIVE_AND_FULL_SBOM, securityPosture: input-containment-and-deployment-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-SHAKA-PLAYER, decision: CONDITIONAL, owner: Shaka Project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/shaka-project/shaka-player', version: not-pinned, sourceDigest: not-observed, publicContract: Shaka Player public browser API, purpose: unified-adaptive-player-only-if-requirements-need-it, alternatives: native-browser-media-elements-first; competing-stacks-not-default, transitiveLicenseDecision: PENDING_FULL_NPM_SBOM, securityPosture: browser-runtime-and-license-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-LIBEBUR128, decision: SELECTED, owner: libebur128 project, licenseSPDX: MIT, authoritativeRepository: 'https://github.com/jiixyj/libebur128', version: not-pinned, sourceDigest: not-observed, publicContract: libebur128 public C API, purpose: reference-grade-EBU-R128-measurement-when-contract-requires, alternatives: measurement-contract-and-threshold-remain-Media-owned, transitiveLicenseDecision: PENDING_NATIVE_SBOM, securityPosture: native-build-and-fixture-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-VMAF, decision: CONDITIONAL, owner: Netflix VMAF project, licenseSPDX: NOASSERTION, licenseReviewNote: review-identifies-BSD-plus-patent; exact-SPDX-expression-and-model-terms-not-independently-confirmed, authoritativeRepository: 'https://github.com/Netflix/vmaf', version: not-pinned, sourceDigest: not-observed, publicContract: VMAF public API and explicitly-selected model, purpose: reference-based-quality-domain-only, alternatives: score-is-not-universal-perceptual-truth, transitiveLicenseDecision: PENDING_MODEL_DATA_LICENSE_AND_PATENT_REVIEW, securityPosture: model-domain-and-distribution-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-RAPIER, decision: CONDITIONAL, owner: Rapier project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/dimforge/rapier', version: not-pinned, sourceDigest: not-observed, publicContract: Rapier public physics API, purpose: fallback-only-if-TutorPutor-neutral-simulation-contract-is-unavailable, alternatives: avoid-two-engines-for-same-workload, transitiveLicenseDecision: PENDING_FULL_RUST_SBOM, securityPosture: simulation-determinism-and-input-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-LIVEKIT-SERVER, decision: NOT_REQUIRED, owner: LiveKit project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/livekit/livekit', version: not-pinned, sourceDigest: not-observed, publicContract: LiveKit SFU server API, purpose: reserve-for-accepted-SFU-multiparty-requirement; not-installed, alternatives: ordinary-upload-stream-and-background-jobs-do-not-require-SFU, transitiveLicenseDecision: PENDING_FULL_SERVER_SBOM, securityPosture: no-deployment-or-security-review-performed, qualificationStatus: NOT_SELECTED }
-    - { id: TECH-ONNX-RUNTIME, decision: SELECTED, owner: ONNX Runtime project; AI Inference or specialized provider owner, licenseSPDX: MIT, authoritativeRepository: 'https://github.com/microsoft/onnxruntime', version: not-pinned, sourceDigest: not-observed, publicContract: ONNX Runtime API only behind owning inference/provider boundary, purpose: general-ONNX-model-execution-outside-a-new-Media-router, alternatives: existing-Ghatana-AI-Inference-or-specialized-provider, transitiveLicenseDecision: GPU-distributions-hardware-runtimes-and-model-weights-separately-unverified, securityPosture: provider-isolation-and-model-security-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-SVT-AV1, decision: SELECTED, owner: SVT-AV1 project, licenseSPDX: BSD-3-Clause, authoritativeRepository: 'https://github.com/AOMediaCodec/SVT-AV1', version: not-pinned, sourceDigest: not-observed, publicContract: SVT-AV1 encoder API, purpose: preferred-AV1-encoder-candidate-for-permissive-codec-profile, alternatives: no-universal-transcoder-claim; benchmark-CPU-and-hardware-profiles, transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_AV1_PATENT_DISTRIBUTION_REVIEW, securityPosture: codec-fuzzing-performance-and-deployment-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-DAV1D, decision: SELECTED, owner: VideoLAN, licenseSPDX: BSD-2-Clause, authoritativeRepository: 'https://code.videolan.org/videolan/dav1d', version: not-pinned, sourceDigest: not-observed, publicContract: dav1d decoder API, purpose: preferred-AV1-software-decoder-candidate, alternatives: approved-provider-or-unsupported-profile-until-qualified, transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_AV1_PATENT_DISTRIBUTION_REVIEW, securityPosture: codec-fuzzing-and-input-containment-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-LIBVPX, decision: CONDITIONAL, owner: libvpx project, licenseSPDX: BSD-3-Clause, authoritativeRepository: 'https://chromium.googlesource.com/webm/libvpx', version: not-pinned, sourceDigest: not-observed, publicContract: libvpx encoder-decoder API, purpose: accepted-VP8-VP9-interoperability-profiles-only, alternatives: mark-unrequested-formats-unsupported-until-qualified, transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_CODEC_PATENT_REVIEW, securityPosture: codec-fuzzing-and-profile-benchmark-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-LIBOPUS, decision: SELECTED, owner: Opus Codec project, licenseSPDX: BSD-3-Clause, authoritativeRepository: 'https://github.com/xiph/opus', version: not-pinned, sourceDigest: not-observed, publicContract: libopus codec API, purpose: preferred-speech-realtime-audio-codec-candidate, alternatives: provider-or-unsupported-codec-profile-until-qualified, transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_PATENT_DISTRIBUTION_REVIEW, securityPosture: codec-fuzzing-and-profile-review-pending, qualificationStatus: SELECTED_NOT_QUALIFIED }
-    - { id: TECH-OPENCV, decision: CONDITIONAL, owner: OpenCV project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/opencv/opencv', version: '4.5+', sourceDigest: not-observed, publicContract: OpenCV public API, purpose: demonstrated-CV-or-frame-processing-gaps-only, alternatives: existing-Media-vision-services, transitiveLicenseDecision: PENDING_FULL_BUILD-FLAVOR_AND_NATIVE_SBOM, securityPosture: untrusted-media-parser-and-build-profile-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-WHISPER-CPP, decision: CONDITIONAL, owner: whisper.cpp project, licenseSPDX: MIT, authoritativeRepository: 'https://github.com/ggml-org/whisper.cpp', version: existing-candidate-version-unverified, sourceDigest: not-observed, publicContract: existing-Media-STT-engine-adapter, purpose: retain-existing-fit; do-not-add-duplicate-STT-engine, alternatives: existing-STT-modules-and-AI-Inference-governance, transitiveLicenseDecision: PENDING_NATIVE_SBOM_AND_MODEL-WEIGHT_TERMS, securityPosture: model-origin-security-and-data-governance-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-SHERPA-ONNX, decision: CONDITIONAL, owner: sherpa-onnx project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/k2-fsa/sherpa-onnx', version: not-pinned, sourceDigest: not-observed, publicContract: sherpa-onnx public ASR-TTS-VAD-diarization APIs, purpose: reserve-for-verified-streaming-speech-capability-gaps, alternatives: existing-STT-TTS-modules-first, transitiveLicenseDecision: PENDING_NATIVE_SBOM_AND_MODEL-WEIGHT_TERMS, securityPosture: provider-model-and-input-isolation-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-DIFFUSERS, decision: CONDITIONAL, owner: Hugging Face Diffusers project, licenseSPDX: Apache-2.0, authoritativeRepository: 'https://github.com/huggingface/diffusers', version: not-pinned, sourceDigest: not-observed, publicContract: Diffusers APIs behind admitted AI-provider-execution boundary, purpose: generative-pipeline-integration-only-at-owning-provider-boundary, alternatives: existing-Ghatana-AI-Inference-provider-capabilities, transitiveLicenseDecision: BLOCKED_PENDING_PYTHON_SBOM_AND_PER-CHECKPOINT-WEIGHT-DATA-LIKENESS-TERMS, securityPosture: model-supply-chain-and-execution-sandbox-review-pending, qualificationStatus: CONDITIONAL_NOT_QUALIFIED }
-    - { id: TECH-FFMPEG, decision: REJECTED, owner: FFmpeg project, licenseSPDX: NOASSERTION, licenseReviewNote: review-identifies-LGPL-2.1-or-later-default-and-GPL-2.0-or-later-build-variants; exact-build-license-is-configuration-dependent, authoritativeRepository: 'https://git.ffmpeg.org/ffmpeg.git', version: not-selected, sourceDigest: not-applicable, publicContract: none-selected, purpose: core-bundled-media-framework-rejected-under-permissive-only-policy, alternatives: individually-admitted-codec-packaging-and-provider-stack; licensed-provider-or-unsupported-format, transitiveLicenseDecision: REJECTED_FOR_DEFAULT_BUNDLE; build-configuration-specific-legal-review-would-be-required-for-exception, securityPosture: not-installed-or-activated, qualificationStatus: REJECTED }
+    - {
+        id: TECH-WAVESURFER,
+        decision: SELECTED,
+        owner: WaveSurfer.js project,
+        licenseSPDX: BSD-3-Clause,
+        authoritativeRepository: 'https://github.com/katspaugh/wavesurfer.js',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: WaveSurfer.js public browser API,
+        purpose: waveform-region-navigation-and-playback-adapter,
+        alternatives: native-media-controls-or-Media-waveform-adapter,
+        transitiveLicenseDecision: PENDING_FULL_SBOM,
+        securityPosture: no-package-or-runtime-review-performed,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-OPENTIMELINEIO,
+        decision: SELECTED,
+        owner: OpenTimelineIO project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/AcademySoftwareFoundation/OpenTimelineIO',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: OpenTimelineIO interchange API,
+        purpose: editorial-timeline-import-export-and-loss-reporting,
+        alternatives: Media-canonical-composition-model-remains-authority,
+        transitiveLicenseDecision: PENDING_FULL_SBOM,
+        securityPosture: parser-input-containment-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-OPENCOLORIO,
+        decision: SELECTED,
+        owner: OpenColorIO project,
+        licenseSPDX: BSD-3-Clause,
+        authoritativeRepository: 'https://github.com/AcademySoftwareFoundation/OpenColorIO',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: OpenColorIO public API,
+        purpose: color-space-and-transformation-adapter,
+        alternatives: Media-owned-color-semantics-and-explicit-transform-provenance,
+        transitiveLicenseDecision: PENDING_NATIVE_AND_FULL_SBOM,
+        securityPosture: native-build-and-config-input-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-OPENIMAGEIO,
+        decision: CONDITIONAL,
+        owner: OpenImageIO project,
+        licenseSPDX: NOASSERTION,
+        licenseReviewNote: review-identifies-Apache-2.0-and-BSD-3-Clause-source-mix;
+          exact-files-and-build-closure-not-qualified,
+        authoritativeRepository: 'https://github.com/AcademySoftwareFoundation/OpenImageIO',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: OpenImageIO public image-I/O API,
+        purpose: advanced-image-format-I-O-only-if-Ghatana-gap-is-proven,
+        alternatives: existing-Ghatana-media-modules,
+        transitiveLicenseDecision: BLOCKED_PENDING_PER-FILE-NATIVE_LICENSE_AND_BUILD_FOOTPRINT_REVIEW,
+        securityPosture: untrusted-image-parser-containment-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-C2PA-RS,
+        decision: CONDITIONAL,
+        owner: Content Authenticity Initiative; c2pa-rs maintainers,
+        licenseSPDX: MIT OR Apache-2.0,
+        authoritativeRepository: 'https://github.com/contentauth/c2pa-rs',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: c2pa-rs signing-and-verification API,
+        purpose: governed-content-provenance-adapter-with-managed-keys,
+        alternatives: Media-rights-consent-and-publication-authority-remain-separate,
+        transitiveLicenseDecision: BLOCKED_PENDING_CARGO_CRATE_SBOM,
+        securityPosture: key-management-and-trust-policy-review-pending;
+          manifest-does-not-prove-rights-or-truth,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-THREEJS,
+        decision: SELECTED,
+        owner: Three.js project,
+        licenseSPDX: MIT,
+        authoritativeRepository: 'https://github.com/mrdoob/three.js',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: Three.js public browser API,
+        purpose: browser-scene-preview-and-inspection,
+        alternatives: not-a-domain-authority-or-simulation-engine,
+        transitiveLicenseDecision: PENDING_FULL_SBOM_AND_ASSET_REVIEW,
+        securityPosture: browser-runtime-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-GLTF-TRANSFORM,
+        decision: SELECTED,
+        owner: glTF Transform project,
+        licenseSPDX: MIT,
+        authoritativeRepository: 'https://github.com/donmccurdy/glTF-Transform',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: '@gltf-transform/* public APIs',
+        purpose: versioned-glTF-GLB-read-transform-optimize-write-adapter,
+        alternatives: Media-asset-authority-and-versioning-remain-canonical,
+        transitiveLicenseDecision: PENDING_FULL_NPM_SBOM,
+        securityPosture: untrusted-asset-parser-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-SHAKA-PACKAGER,
+        decision: CONDITIONAL,
+        owner: Shaka Project,
+        licenseSPDX: BSD-3-Clause,
+        authoritativeRepository: 'https://github.com/shaka-project/shaka-packager',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: Shaka Packager public packaging API,
+        purpose: approved-HLS-DASH-packaging-only,
+        alternatives: packaging-is-not-encoding; DRM-separately-licensed,
+        transitiveLicenseDecision: PENDING_NATIVE_AND_FULL_SBOM,
+        securityPosture: input-containment-and-deployment-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-SHAKA-PLAYER,
+        decision: CONDITIONAL,
+        owner: Shaka Project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/shaka-project/shaka-player',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: Shaka Player public browser API,
+        purpose: unified-adaptive-player-only-if-requirements-need-it,
+        alternatives: native-browser-media-elements-first; competing-stacks-not-default,
+        transitiveLicenseDecision: PENDING_FULL_NPM_SBOM,
+        securityPosture: browser-runtime-and-license-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-LIBEBUR128,
+        decision: SELECTED,
+        owner: libebur128 project,
+        licenseSPDX: MIT,
+        authoritativeRepository: 'https://github.com/jiixyj/libebur128',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: libebur128 public C API,
+        purpose: reference-grade-EBU-R128-measurement-when-contract-requires,
+        alternatives: measurement-contract-and-threshold-remain-Media-owned,
+        transitiveLicenseDecision: PENDING_NATIVE_SBOM,
+        securityPosture: native-build-and-fixture-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-VMAF,
+        decision: CONDITIONAL,
+        owner: Netflix VMAF project,
+        licenseSPDX: NOASSERTION,
+        licenseReviewNote: review-identifies-BSD-plus-patent;
+          exact-SPDX-expression-and-model-terms-not-independently-confirmed,
+        authoritativeRepository: 'https://github.com/Netflix/vmaf',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: VMAF public API and explicitly-selected model,
+        purpose: reference-based-quality-domain-only,
+        alternatives: score-is-not-universal-perceptual-truth,
+        transitiveLicenseDecision: PENDING_MODEL_DATA_LICENSE_AND_PATENT_REVIEW,
+        securityPosture: model-domain-and-distribution-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-RAPIER,
+        decision: CONDITIONAL,
+        owner: Rapier project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/dimforge/rapier',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: Rapier public physics API,
+        purpose: fallback-only-if-TutorPutor-neutral-simulation-contract-is-unavailable,
+        alternatives: avoid-two-engines-for-same-workload,
+        transitiveLicenseDecision: PENDING_FULL_RUST_SBOM,
+        securityPosture: simulation-determinism-and-input-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-LIVEKIT-SERVER,
+        decision: NOT_REQUIRED,
+        owner: LiveKit project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/livekit/livekit',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: LiveKit SFU server API,
+        purpose: reserve-for-accepted-SFU-multiparty-requirement; not-installed,
+        alternatives: ordinary-upload-stream-and-background-jobs-do-not-require-SFU,
+        transitiveLicenseDecision: PENDING_FULL_SERVER_SBOM,
+        securityPosture: no-deployment-or-security-review-performed,
+        qualificationStatus: NOT_SELECTED
+      }
+    - {
+        id: TECH-ONNX-RUNTIME,
+        decision: SELECTED,
+        owner: ONNX Runtime project; AI Inference or specialized provider owner,
+        licenseSPDX: MIT,
+        authoritativeRepository: 'https://github.com/microsoft/onnxruntime',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: ONNX Runtime API only behind owning inference/provider boundary,
+        purpose: general-ONNX-model-execution-outside-a-new-Media-router,
+        alternatives: existing-Ghatana-AI-Inference-or-specialized-provider,
+        transitiveLicenseDecision: GPU-distributions-hardware-runtimes-and-model-weights-separately-unverified,
+        securityPosture: provider-isolation-and-model-security-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-SVT-AV1,
+        decision: SELECTED,
+        owner: SVT-AV1 project,
+        licenseSPDX: BSD-3-Clause,
+        authoritativeRepository: 'https://github.com/AOMediaCodec/SVT-AV1',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: SVT-AV1 encoder API,
+        purpose: preferred-AV1-encoder-candidate-for-permissive-codec-profile,
+        alternatives: no-universal-transcoder-claim; benchmark-CPU-and-hardware-profiles,
+        transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_AV1_PATENT_DISTRIBUTION_REVIEW,
+        securityPosture: codec-fuzzing-performance-and-deployment-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-DAV1D,
+        decision: SELECTED,
+        owner: VideoLAN,
+        licenseSPDX: BSD-2-Clause,
+        authoritativeRepository: 'https://code.videolan.org/videolan/dav1d',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: dav1d decoder API,
+        purpose: preferred-AV1-software-decoder-candidate,
+        alternatives: approved-provider-or-unsupported-profile-until-qualified,
+        transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_AV1_PATENT_DISTRIBUTION_REVIEW,
+        securityPosture: codec-fuzzing-and-input-containment-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-LIBVPX,
+        decision: CONDITIONAL,
+        owner: libvpx project,
+        licenseSPDX: BSD-3-Clause,
+        authoritativeRepository: 'https://chromium.googlesource.com/webm/libvpx',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: libvpx encoder-decoder API,
+        purpose: accepted-VP8-VP9-interoperability-profiles-only,
+        alternatives: mark-unrequested-formats-unsupported-until-qualified,
+        transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_CODEC_PATENT_REVIEW,
+        securityPosture: codec-fuzzing-and-profile-benchmark-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-LIBOPUS,
+        decision: SELECTED,
+        owner: Opus Codec project,
+        licenseSPDX: BSD-3-Clause,
+        authoritativeRepository: 'https://github.com/xiph/opus',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: libopus codec API,
+        purpose: preferred-speech-realtime-audio-codec-candidate,
+        alternatives: provider-or-unsupported-codec-profile-until-qualified,
+        transitiveLicenseDecision: PENDING_FULL_NATIVE_SBOM_AND_PATENT_DISTRIBUTION_REVIEW,
+        securityPosture: codec-fuzzing-and-profile-review-pending,
+        qualificationStatus: SELECTED_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-OPENCV,
+        decision: CONDITIONAL,
+        owner: OpenCV project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/opencv/opencv',
+        version: '4.5+',
+        sourceDigest: not-observed,
+        publicContract: OpenCV public API,
+        purpose: demonstrated-CV-or-frame-processing-gaps-only,
+        alternatives: existing-Media-vision-services,
+        transitiveLicenseDecision: PENDING_FULL_BUILD-FLAVOR_AND_NATIVE_SBOM,
+        securityPosture: untrusted-media-parser-and-build-profile-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-WHISPER-CPP,
+        decision: CONDITIONAL,
+        owner: whisper.cpp project,
+        licenseSPDX: MIT,
+        authoritativeRepository: 'https://github.com/ggml-org/whisper.cpp',
+        version: existing-candidate-version-unverified,
+        sourceDigest: not-observed,
+        publicContract: existing-Media-STT-engine-adapter,
+        purpose: retain-existing-fit; do-not-add-duplicate-STT-engine,
+        alternatives: existing-STT-modules-and-AI-Inference-governance,
+        transitiveLicenseDecision: PENDING_NATIVE_SBOM_AND_MODEL-WEIGHT_TERMS,
+        securityPosture: model-origin-security-and-data-governance-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-SHERPA-ONNX,
+        decision: CONDITIONAL,
+        owner: sherpa-onnx project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/k2-fsa/sherpa-onnx',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: sherpa-onnx public ASR-TTS-VAD-diarization APIs,
+        purpose: reserve-for-verified-streaming-speech-capability-gaps,
+        alternatives: existing-STT-TTS-modules-first,
+        transitiveLicenseDecision: PENDING_NATIVE_SBOM_AND_MODEL-WEIGHT_TERMS,
+        securityPosture: provider-model-and-input-isolation-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-DIFFUSERS,
+        decision: CONDITIONAL,
+        owner: Hugging Face Diffusers project,
+        licenseSPDX: Apache-2.0,
+        authoritativeRepository: 'https://github.com/huggingface/diffusers',
+        version: not-pinned,
+        sourceDigest: not-observed,
+        publicContract: Diffusers APIs behind admitted AI-provider-execution boundary,
+        purpose: generative-pipeline-integration-only-at-owning-provider-boundary,
+        alternatives: existing-Ghatana-AI-Inference-provider-capabilities,
+        transitiveLicenseDecision: BLOCKED_PENDING_PYTHON_SBOM_AND_PER-CHECKPOINT-WEIGHT-DATA-LIKENESS-TERMS,
+        securityPosture: model-supply-chain-and-execution-sandbox-review-pending,
+        qualificationStatus: CONDITIONAL_NOT_QUALIFIED
+      }
+    - {
+        id: TECH-FFMPEG,
+        decision: REJECTED,
+        owner: FFmpeg project,
+        licenseSPDX: NOASSERTION,
+        licenseReviewNote: review-identifies-LGPL-2.1-or-later-default-and-GPL-2.0-or-later-build-variants;
+          exact-build-license-is-configuration-dependent,
+        authoritativeRepository: 'https://git.ffmpeg.org/ffmpeg.git',
+        version: not-selected,
+        sourceDigest: not-applicable,
+        publicContract: none-selected,
+        purpose: core-bundled-media-framework-rejected-under-permissive-only-policy,
+        alternatives: individually-admitted-codec-packaging-and-provider-stack;
+          licensed-provider-or-unsupported-format,
+        transitiveLicenseDecision: REJECTED_FOR_DEFAULT_BUNDLE;
+          build-configuration-specific-legal-review-would-be-required-for-exception,
+        securityPosture: not-installed-or-activated,
+        qualificationStatus: REJECTED
+      }
   ecosystemExceptions:
     - id: EXCEPTION-SHARED-AXE-CORE
       package: axe-core
@@ -447,7 +829,8 @@ selectionRegister:
       licenseSPDX: MPL-2.0
       authoritativeRepository: https://github.com/dequelabs/axe-core
       status: observed-transitive-license-issue-in-ghatana-shared-accessibility-package
-      action: retain-accessibility-verification-requirement; ask-Shared-to-separate-audit-implementation-and-classify-MPL-bearing-distribution
+      action: retain-accessibility-verification-requirement;
+        ask-Shared-to-separate-audit-implementation-and-classify-MPL-bearing-distribution
       qualificationStatus: BLOCKED_PENDING_OWNER_DISPOSITION_AND_DISTRIBUTION_REVIEW
   globalAdmissionGates:
     transitiveSBOM: required-per-npm-maven-cargo-python-native-font-asset-and-model-distribution-surface
@@ -461,7 +844,8 @@ selectionRegister:
 # review. A definition here is not package admission, legal approval,
 # qualification, or authorization to build/deploy runtime adapters.
 mediaArchitectureRules:
-  status: MEDIA_OWNER_AUTHORED_DEFINITION; implementation-and-independent-review-pending
+  status: MEDIA_OWNER_AUTHORED_DEFINITION;
+    implementation-and-independent-review-pending
   licenses:
     preferredWhenSuitable: [ MIT, Apache-2.0, BSD, ISC, Zlib ]
     selectionCondition: technically-suitable-and-after-Ghatana-reuse-gap-is-recorded
@@ -488,64 +872,173 @@ mediaArchitectureRules:
   replaceablePortsRule:
     requirement: keep-implementation-ports-replaceable-at-the-accepted-contract-boundary
     prohibition: do-not-create-dozens-of-unused-abstractions-or-adapters-before-an-admitted-end-to-end-need
-    canonicalSemantics: remain-in-Media-owned-contracts; external-engine-types-remain-adapter-private
+    canonicalSemantics: remain-in-Media-owned-contracts;
+      external-engine-types-remain-adapter-private
   componentLicenseBoundary:
     id: media.reuse.component-license-boundary
     authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
-    rule: The wrapper or adapter license is independent from every bundled, downloaded or transitively used model weight, checkpoint, codec, encoder, decoder, plugin, font, dataset, asset and native library.
+    rule: The wrapper or adapter license is independent from every bundled,
+      downloaded or transitively used model weight, checkpoint, codec, encoder,
+      decoder, plugin, font, dataset, asset and native library.
     requiredEvidence:
       - exact component and immutable version or content digest
       - authoritative source and full distribution/build SBOM
-      - separate license and use-term disposition for code and each model/asset weight
-      - commercial, hosted-service, redistribution, modification, attribution, patent, dataset, likeness and output-use rights as applicable
+      - separate license and use-term disposition for code and each model/asset
+        weight
+      - commercial, hosted-service, redistribution, modification, attribution,
+        patent, dataset, likeness and output-use rights as applicable
       - security provenance and integrity review
       - approved profile and execution/deployment scope
-    unknownDisposition: DENY_SELECTION_OR_ACQUISITION; NOASSERTION, package-level license, owner label or successful test does not establish component or weight clearance.
-    noAutomaticAcquisition: Package installation, provider selection and fallback never silently download weights or other media assets.
-    scopeStatus: OWNER_DEFINED_POLICY_ONLY; legal/security review, exact artifact SBOMs and runtime admission remain pending
+    unknownDisposition: DENY_SELECTION_OR_ACQUISITION; NOASSERTION, package-level
+      license, owner label or successful test does not establish component or
+      weight clearance.
+    noAutomaticAcquisition: Package installation, provider selection and fallback
+      never silently download weights or other media assets.
+    scopeStatus: OWNER_DEFINED_POLICY_ONLY; legal/security review, exact artifact
+      SBOMs and runtime admission remain pending
+    processIsolationDoesNotWaiveLicenseRule:
+      id: media.reuse.process-isolation-does-not-waive-component-terms.v1
+      rule: Container, process, or adapter isolation narrows execution and authority
+        boundaries but does not waive license, patent, attribution,
+        redistribution, dataset, model-weight, codec, native-library, plugin,
+        font, or asset terms for any included component or transitive
+        dependency.
+      requiredEvidence:
+        - exact component and immutable version or content digest
+        - authoritative source plus complete direct and transitive
+          build/distribution inventory
+        - separate applicable license, patent, attribution, redistribution, and
+          use-term review for each included component
+        - approved profile and execution/deployment scope
+      unknownDisposition: DENY_SELECTION_OR_DISTRIBUTION; isolation is not license
+        clearance and package-level NOASSERTION remains unresolved.
+      scopeStatus: OWNER_DEFINED_POLICY_ONLY; exact artifacts and legal review remain
+        pending
+  enabledCodecBuildEvidenceRule:
+    id: media.reuse.enabled-codec-build-evidence.v1
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    rule: >-
+      For any executable that enables external codecs, record the exact executable
+      binary digest, upstream version/source revision, build recipe and configuration
+      flags, enabled codec/demuxer/muxer/protocol set, and the complete direct and
+      transitive linked-component inventory. The observed runtime capability set must
+      match that immutable build record; a package name, nominal FFmpeg version, or
+      generic SBOM without enabled-codec configuration is insufficient. Missing or
+      mismatched evidence leaves the binary/build identity and enabled codecs UNKNOWN
+      and blocks selection or distribution. This evidence does not itself establish
+      license clearance, codec patent rights, profile compatibility, security review,
+      or runtime qualification.
+    requiredEvidence:
+      - immutable-executable-digest-and-upstream-source-version
+      - exact-build-recipe-and-effective-configuration-flags
+      - enabled-external-codec-demuxer-muxer-and-protocol-set
+      - complete-direct-and-transitive-linked-component-inventory
+      - observed-runtime-capabilities-matched-to-the-recorded-build
+    failure: UNKNOWN_BUILD_OR_ENABLED_CODECS; DENY_SELECTION_OR_DISTRIBUTION
+    scopeStatus: OWNER_DEFINED_EVIDENCE_REQUIREMENT_ONLY; no build is admitted or qualified
+  historicalCandidateInventoryDisposition:
+    id: media.reuse.historical-appendix-b-candidate-inventory.v1
+    authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+    historicalSource:
+      document: docs/migration/expert-reviewed-master-plan.md
+      section: Appendix B. External candidate inventory — only after the Ghatana reuse gate
+      statement: >-
+        Preserve the complete historical Appendix B candidate table, including each
+        named candidate's intended role and evaluation constraint, as historical
+        candidate discussion rather than a current procurement or integration list.
+    currentRegisterRelationship: >-
+      selectionRegister is the current owner-authored decision subset, not a claim
+      that every historical candidate is currently evaluated. An item omitted from
+      selectionRegister remains historical source material; omission alone is not
+      acceptance, rejection, evaluation, or a replacement decision. A historical
+      candidate row never mandates integration or waives exact version, license,
+      security, profile, reuse, and qualification gates.
+    acceptanceEffect: none
+    scopeStatus: HISTORICAL_SOURCE_PRESERVATION_ONLY; no candidate is admitted
   externalStackSelectionRule:
     id: media.reuse.external-stack-selection-rule
     authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
-    rule: A candidate-library or engine selection is not an integration mandate. Integrate only when an exact admitted Media capability/profile has a demonstrated Ghatana reuse gap and the candidate closes that gap under its public contract.
-    scope: Do not integrate every listed package or engine; select the smallest stack that meets the requirements of the next admitted recipe.
-    multiplicity: One qualified implementation is selected for an exact capability/profile. An alternative requires a separate versioned profile and qualification; do not keep parallel adapters or silently fall back.
+    rule: A candidate-library or engine selection is not an integration mandate.
+      Integrate only when an exact admitted Media capability/profile has a
+      demonstrated Ghatana reuse gap and the candidate closes that gap under its
+      public contract.
+    scope: Do not integrate every listed package or engine; select the smallest
+      stack that meets the requirements of the next admitted recipe.
+    multiplicity: One qualified implementation is selected for an exact
+      capability/profile. An alternative requires a separate versioned profile
+      and qualification; do not keep parallel adapters or silently fall back.
     sourceRefs:
       - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.qualifiedStackRule
       - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.externalSelectionRequires
       - .product-experience/pdp-0-product-truth/qualification-policy.yaml
-    scopeStatus: OWNER_DEFINED_SELECTION_POLICY; no integration, candidate qualification, or runtime admission implied
+    scopeStatus: OWNER_DEFINED_SELECTION_POLICY; no integration, candidate
+      qualification, or runtime admission implied
   dependencyUpdatePolicy:
     id: media.reuse.dependency-update-policy
     authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
     pinning:
-      rule: Every runtime, build tool, transitive dependency, model, codec, plugin, and native component used by a candidate Media profile is pinned to an immutable version and integrity digest in the reproducible build/deployment manifest.
+      rule: Every runtime, build tool, transitive dependency, model, codec, plugin,
+        and native component used by a candidate Media profile is pinned to an
+        immutable version and integrity digest in the reproducible
+        build/deployment manifest.
       floatingVersions: DENY_FOR_RELEASE_CANDIDATES
-      lockfileOnly: Insufficient without source, digest, license, provenance, and resolved transitive closure.
+      lockfileOnly: Insufficient without source, digest, license, provenance, and
+        resolved transitive closure.
     validationBeforePromotion:
       required:
-        - reproducible clean-resolution/build against the committed lock and immutable artifact digests
-        - API and ABI compatibility checks against the exact supported Media profile
-        - security advisory, provenance, integrity and transitive dependency review
-        - license and component-use-term review per media.reuse.component-license-boundary
+        - reproducible clean-resolution/build against the committed lock and
+          immutable artifact digests
+        - API and ABI compatibility checks against the exact supported Media
+          profile
+        - security advisory, provenance, integrity and transitive dependency
+          review
+        - license and component-use-term review per
+          media.reuse.component-license-boundary
         - relevant definition, regression, and profile-specific conformance tests
-        - reviewed change record identifying affected capability/profile and rollback boundary
-      failure: Reject promotion on missing pin/evidence, digest drift, compatibility regression, unresolved critical security finding, disallowed terms, or failed required checks; do not silently float, substitute, or roll forward.
-      promotion: Only the existing authorized release process may promote after required evidence and independent review; this policy does not admit or qualify a dependency or runtime.
-    scopeStatus: OWNER_DEFINED_UPDATE_GATE; build pipeline enforcement, security/legal review, and independent acceptance remain pending
+        - reviewed change record identifying affected capability/profile and
+          rollback boundary
+      failure: Reject promotion on missing pin/evidence, digest drift, compatibility
+        regression, unresolved critical security finding, disallowed terms, or
+        failed required checks; do not silently float, substitute, or roll
+        forward.
+      promotion: Only the existing authorized release process may promote after
+        required evidence and independent review; this policy does not admit or
+        qualify a dependency or runtime.
+    scopeStatus: OWNER_DEFINED_UPDATE_GATE; build pipeline enforcement,
+      security/legal review, and independent acceptance remain pending
   genericMechanicsBoundary:
     id: media.reuse.generic-mechanics-boundary
     authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
     sharedWorkflow:
-      rule: Reuse Ghatana Shared workflow, outbox, idempotency, CAS, retry-scheduling, and reconciliation mechanics behind Media-owned adapters when the exact public contract satisfies the Media operation guard and finality requirements.
-      boundary: Media retains authoritative domain state, policy, rights/consent, persistence schema, attempt/effect classification, and product finality. Shared mechanics cannot assign Media state semantics or bypass Media policy.
-      rejection: Do not fork generic workflow/outbox mechanics in Media when the Shared contract is suitable; do not use an unsuitable Shared contract merely to avoid a Media adapter.
+      rule: Reuse Ghatana Shared workflow, outbox, idempotency, CAS, retry-scheduling,
+        and reconciliation mechanics behind Media-owned adapters when the exact
+        public contract satisfies the Media operation guard and finality
+        requirements.
+      boundary: Media retains authoritative domain state, policy, rights/consent,
+        persistence schema, attempt/effect classification, and product finality.
+        Shared mechanics cannot assign Media state semantics or bypass Media
+        policy.
+      rejection: Do not fork generic workflow/outbox mechanics in Media when the
+        Shared contract is suitable; do not use an unsuitable Shared contract
+        merely to avoid a Media adapter.
     tools:
-      rule: Tools authoring or development workflows do not constitute production Media execution, durable provider dispatch, or product finality.
-      admission: Any production invocation needs an exact admitted Media operation, trusted delegation, current policy, and authoritative receipt.
-    scopeStatus: OWNER_DEFINED_REUSE_BOUNDARY; Shared/Tools contract qualification and deployment acceptance remain pending
+      rule: Tools authoring or development workflows do not constitute production
+        Media execution, durable provider dispatch, or product finality.
+      admission: Any production invocation needs an exact admitted Media operation,
+        trusted delegation, current policy, and authoritative receipt.
+    scopeStatus: OWNER_DEFINED_REUSE_BOUNDARY; Shared/Tools contract qualification
+      and deployment acceptance remain pending
   dependencyBlockScopeRule:
     id: media.reuse.dependency-block-scope-rule
     authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
-    rule: Scope a dependency blocker to the exact affected capability, versioned profile, channel, and deployment boundary. A defined capability is not held indefinitely by unrelated ecosystem hardening. Record the blocked dependency and criterion, select a separately qualified permitted alternative where one exists, or isolate/disable the affected feature while continuing independent work.
-    nonWaiver: Narrowing a blocker never waives a required security, license, rights, consent, policy, conformance, independent review, or admission gate for the affected capability.
-    scopeStatus: OWNER_DEFINED_DEPENDENCY_SCOPE_RULE; no dependency or feature admission implied
+    rule: Scope a dependency blocker to the exact affected capability, versioned
+      profile, channel, and deployment boundary. A defined capability is not
+      held indefinitely by unrelated ecosystem hardening. Record the blocked
+      dependency and criterion, select a separately qualified permitted
+      alternative where one exists, or isolate/disable the affected feature
+      while continuing independent work.
+    nonWaiver: Narrowing a blocker never waives a required security, license,
+      rights, consent, policy, conformance, independent review, or admission
+      gate for the affected capability.
+    scopeStatus: OWNER_DEFINED_DEPENDENCY_SCOPE_RULE; no dependency or feature
+      admission implied

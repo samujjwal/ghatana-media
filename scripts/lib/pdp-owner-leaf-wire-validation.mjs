@@ -104,7 +104,18 @@ export function resolveEffectiveOwnerLeafWireContract(operations, capabilityRef)
   const overlays = operations.ownerLeafWireContracts?.records?.filter((row) => row.id === base.ownerLeafWireContractRef) ?? [];
   if (overlays.length !== 1) return { valid: false, reason: "OWNER_WIRE_OVERLAY_NOT_UNIQUE" };
   const overlay = overlays[0];
-  if (overlay.capabilityRef !== capabilityRef || overlay.operationRef !== base.id || overlay.baseOperationContractRef !== `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.${base.id}`) {
+  const expectedBaseRef = `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=${base.id}`;
+  const [sourcePath, sourceSelector] = overlay.baseOperationContractRef?.split("#") ?? [];
+  const match = /^capabilityOperationContracts\/records\/@id=([^/]+)$/u.exec(sourceSelector ?? "");
+  const selectedRecord = sourcePath === ".product-experience/pdp-1-domain-data/operations.yaml" && match
+    ? operations.capabilityOperationContracts.records.find((row) => row.id === match[1])
+    : undefined;
+  const profileMatches = operations.capabilityOperationContracts.families?.filter(({ id }) => id === base.familyProfileRef) ?? [];
+  const boundsMatches = operations.capabilityOperationContracts.bounds?.filter(({ id }) => id === base.boundsRef) ?? [];
+  if (overlay.capabilityRef !== capabilityRef || overlay.operationRef !== base.id
+    || overlay.baseOperationContractRef !== expectedBaseRef || selectedRecord !== base
+    || profileMatches.length !== 1 || !profileMatches[0].capabilityRefs?.includes(capabilityRef)
+    || boundsMatches.length !== 1 || boundsMatches[0].capabilityRef !== capabilityRef) {
     return { valid: false, reason: "OWNER_WIRE_OVERLAY_SOURCE_MISMATCH" };
   }
   return { valid: true, contract: { ...overlay, baseOperation: base } };

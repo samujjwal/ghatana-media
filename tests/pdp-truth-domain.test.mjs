@@ -183,8 +183,16 @@ test("all 146 action identities have a source-backed operation or non-operation 
     assert.deepEqual(byAction.get(actionId).exactOperationRefs, [operationId]);
   }
   assert.equal(byAction.get("media.action.check-job-outcome").domainOperationDisposition, "OWNER_DEFINED_EXACT_OPERATION_REFERENCE");
-  const newActionContracts = operations.ownerDefinedOperationContracts.records.filter(({ id }) => id.startsWith("media.operation.action."));
-  assert.equal(newActionContracts.length, 78, "the remaining 51 queries and 27 commands have exact logical operation IDs; two prior queries were defined separately");
+  const newActionContracts = operations.ownerDefinedOperationContracts.records.filter(({ id, actionRef }) => id.startsWith("media.operation.action.") && actionRef);
+  assert.equal(newActionContracts.length, 78, "the source-backed action contracts remain separate from definition-only observation queries");
+  const retryPolicyQuery = operations.ownerDefinedOperationContracts.records.find(({ id }) => id === "media.operation.action.inspect-job-retry-policy");
+  assert.ok(retryPolicyQuery, "retry policy has an exact owner-defined current-read query identity");
+  assert.equal(retryPolicyQuery.operationKind, "QUERY");
+  assert.equal(retryPolicyQuery.actionRef, undefined, "a supporting policy observation is not mislabeled as a separate user action");
+  assert.equal(retryPolicyQuery.readContractRef,
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1");
+  assert.equal(retryPolicyQuery.executionAdmission, "NOT_ADMITTED");
+  assert.equal(retryPolicyQuery.qualificationState, "NOT_EVALUATED");
   const profileIds = new Set(operations.ownerDefinedOperationProfiles.profiles.map(({ id }) => id));
   for (const contract of newActionContracts) {
     assert.ok(profileIds.has(contract.profileRef), `${contract.id} has no typed operation profile`);
@@ -272,7 +280,7 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
   if (ownerLeaves.some((record) => {
     const source = sourceLeaves.find(({ id }) => id === record.capabilityRef);
     const leaf = review.leaves.find(({ id }) => id === record.capabilityRef);
-    const contractId = record.operationContractRef?.split(".records.")[1];
+    const contractId = record.operationContractRef?.split("#capabilityOperationContracts/records/@id=")[1];
     const contract = contracts.find(({ id }) => id === contractId);
     const bound = bounds.get(record.boundsRef);
     if (!source || !leaf?.ownerDefinitionBinding || !contract || !bound) return true;
@@ -289,7 +297,7 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
         || !outputType || source.outputArtifactTypes.length !== 1 || source.outputArtifactTypes[0] !== outputType
         || source.ownerDefinition.successOutputs?.length !== 1
         || source.ownerDefinition.successOutputs[0].artifactType !== outputType
-        || source.ownerDefinition.successOutputs[0].payloadSchemaRef !== `.product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts.records.${wire.id}.resultSchema.properties.outputs.items`) return true;
+        || source.ownerDefinition.successOutputs[0].payloadSchemaRef !== `.product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=${wire.id}/resultSchema/properties/outputs/items`) return true;
     }
     if (record.requirementRefs.join("\0") !== (source.requirementIds ?? []).join("\0")) return true;
     if (record.implementationState !== "UNKNOWN" || record.qualificationState !== "NOT_EVALUATED"
@@ -485,7 +493,7 @@ test("P0-06 enumerates exact capability applicability without inventing a measur
   assert.equal(new Set(records.map(({ capabilityRef }) => capabilityRef)).size, 462);
   assert.ok(records.every(({ capabilityRef, measureApplicability, operationContractRef, profileRef, boundsRef }) =>
     ids.has(capabilityRef)
-    && operationContractRef.startsWith(".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.")
+    && operationContractRef.startsWith(".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=")
     && profileRef && boundsRef
     && measureIds.every((id) => measureApplicability[id]?.disposition && measureApplicability[id]?.reason && measureApplicability[id]?.sourceRefs?.length)));
   assert.ok(goals.successMeasureContracts.records.every(({ baseline, target, qualification }) =>

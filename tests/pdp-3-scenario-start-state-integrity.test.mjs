@@ -75,13 +75,15 @@ test('P3-05 source start-state links match exact simulation seed fields without 
       `${binding.scenarioRef} state ref matches the source seed value`);
   }
 
-  const consentBinding = bindings.scenarioStartingStateBindings.find(({ scenarioRef }) => scenarioRef === 'media.scenario.consent-revoked');
   const consentProposal = proposalStates.models.find(({ modelId }) => modelId === 'media-rights-and-consent');
   const consentMachine = domainStates.stateMachines.find(({ machineId }) => machineId === 'media-rights-and-consent');
   assert.ok(consentProposal.consentStates.includes('REVOKED'), 'PDP-0 source proposal contains the referenced consent state');
   assert.deepEqual(consentMachine.stateIds, [], 'PDP-1 has not selected consent state IDs');
   assert.match(bindings.status, /^proposal-only;/u, 'all bindings remain proposal-only pending independent review');
-  assert.equal(consentBinding.startingStateRef, 'media-rights-and-consent.consent.REVOKED');
+  const consentContext = bindings.scenarioStartingContextBindings.records.find(({ scenarioRef }) => scenarioRef === 'media.scenario.consent-revoked');
+  assert.ok(consentContext);
+  assert.equal(consentContext.contextKind, 'RIGHTS_AND_CONSENT_LOCAL');
+  assert.deepEqual(consentContext.canonicalStateRefs, [], 'the synthetic consent context is not promoted to an unselected PDP-1 state');
   const retryIneligible = bindings.scenarioStartingStateBindings.find(({ scenarioRef }) => scenarioRef === 'media.scenario.job-retry-ineligible');
   assert.equal(retryIneligible.sourceFixtureKey, 'job-retry-ineligible');
   assert.equal(retryIneligible.startingStateRef, 'media-job.OUTCOME_UNKNOWN');

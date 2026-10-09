@@ -138,8 +138,14 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
     assert.ok((contract.outcomes ?? []).every((outcome) => sourceJourney.outcomeRefs.includes(outcome)),
       `${journey.id} contract outcome is not linked by PDP-0`);
     assertUniqueKnownRefs(contract.scenarioRefs ?? [], scenarioIds, `${journey.id}.scenarioRefs`);
-    assert.equal((contract.scenarioRefs ?? []).length > 0, seededJourneyIds.has(journey.id),
-      `${journey.id} scenario links must agree with the exact-seed coverage register`);
+    const stepScenarioRefs = (contract.steps ?? []).flatMap((step, index) => {
+      const refs = step.scenarioRefs ?? [];
+      assertUniqueKnownRefs(refs, scenarioIds, `${journey.id}.steps[${index}].scenarioRefs`);
+      return refs;
+    });
+    const declaredScenarioRefs = new Set([...(contract.scenarioRefs ?? []), ...stepScenarioRefs]);
+    assert.equal(declaredScenarioRefs.size > 0, seededJourneyIds.has(journey.id),
+      `${journey.id} top-level plus exact step-level scenario links must agree with the exact-seed coverage register`);
     outcomeLinks += contract.outcomes?.length ?? 0;
     for (const step of contract.steps ?? []) {
       stepCount++;
@@ -171,7 +177,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
     }
   }
   assert.equal(stepCount, 130);
-  assert.equal(seededJourneyIds.size, 3);
+  assert.equal(seededJourneyIds.size, 4);
   assert.equal(linkedSteps, 130);
   assert.equal(unresolvedViewSteps, 0);
   assert.equal(journeys.coverageObservation.stepBindings.screenContractRef.blocker.startsWith("none;"), true);

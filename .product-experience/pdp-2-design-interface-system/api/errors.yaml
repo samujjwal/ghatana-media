@@ -9,3 +9,34 @@ contract:
   proposedFields: [code, message, category, retryable, correlationId, violations, outcome]
   proposedCategories: [invalid-request, unauthenticated, forbidden, not-found, conflict, rate-limited, unavailable, internal]
   rules: [field names and categories are proposals pending wire-schema and API-owner approval, HTTP status alone does not determine retry safety, never expose stack traces/tokens/source media, represent unknown mutation outcome only when the operation can determine that it is unknown, absent detail is not success]
+ownerDefinedErrorSemantics:
+  id: media.api.error-semantics.v1
+  sourceAuthority: Media owns reason, retry, partial-output, and uncertainty meaning; Shared owns only the generic envelope primitive.
+  status: OWNER_DEFINED_MEDIA_ERROR_SEMANTICS; wire-owner-and-independent-review-open
+  envelopeSourceRef: contracts/openapi/media.yaml#/components/schemas/PlatformErrorEnvelope
+  rules:
+    - every error has a stable Media reason code and a caller-safe message; provider exception text, secrets, credentials, and source media are never exposed
+    - a field violation identifies the input path and safe constraint, never the submitted protected value
+    - retryability is selected from the exact operation's idempotency, effect boundary, and current authority; neither HTTP status nor a generic UNAVAILABLE category authorizes retry
+    - an unknown mutation outcome is explicitly represented as UNKNOWN_OUTCOME when known to be unresolved; it is neither success nor failure and is not automatically retryable
+    - a partial result is listed only by exact inspectable output-version references with per-output finality and provenance; partial output is not full success and unavailable references are omitted rather than guessed
+    - error correlation metadata identifies the same request/job context without replacing tenant, principal, operation, request, or artifact identity
+    - absence of output detail never implies that no output or external effect exists
+  requiredSemantics:
+    error: [stable-code, safe-message, operation-specific-retryability]
+    partialOutput: [exact-output-version-ref, per-output-state, provenance-when-authorized]
+    unknownOutcome: [explicit-unknown-state, original-request-identity, read-only-reconciliation-action]
+    fieldViolation: [input-path, safe-constraint]
+  negativeCases:
+    - retryable true on UNKNOWN_OUTCOME without operation-specific replay proof
+    - HTTP 503 treated as retry permission for a non-idempotent command
+    - source text, token, stack trace, or protected submitted value copied into an error
+    - partial output references omitted while the error claims complete success
+    - generated or inferred output IDs reported as observed outputs
+    - a timeout or missing acknowledgement mapped to ordinary failure
+  runtimeAdmission: NOT_ADMITTED
+normativeRuleRecords:
+  - id: media.p2.rule.api-error-semantics.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/errors.yaml#contract
+    acceptanceEffect: none

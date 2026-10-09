@@ -35,7 +35,13 @@ test('actual PDP-0 owner applicability source closes all pairs and exact binding
   const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
   const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
-  const rows = validate(crosswalk, caps.map(({ id }) => id), measureIds);
+  const sourceDocuments = Object.fromEntries([
+    '.product-experience/pdp-0-product-truth/capabilities.yaml',
+    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+    '.product-experience/pdp-1-domain-data/operations.yaml',
+    '.product-experience/pdp-1-domain-data/domain-objects.yaml',
+  ].map((path) => [path, readSourceYaml(path)]));
+  const rows = validate(crosswalk, caps.map(({ id }) => id), measureIds, sourceDocuments);
   const counts = Object.fromEntries(measureIds.map((id) => [id, rows.filter((row) => row.measureRef === id
     && (row.disposition.startsWith('APPLICABLE_') || row.disposition === 'TRACE_ONLY_NOT_A_MEASURE_UNIT')).length]));
 
@@ -54,6 +60,33 @@ test('actual PDP-0 owner applicability source closes all pairs and exact binding
   assert.equal(crosswalk.target, 'NOT_SET');
   assert.equal(crosswalk.qualification, 'NOT_EVALUATED');
 });
+
+test('actual measure source bindings resolve exact owner rows and reject valid foreign targets', () => {
+  const goals = readSourceYaml('.product-experience/pdp-0-product-truth/goals-jtbd.yaml');
+  const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
+  const sourceDocuments = Object.fromEntries([
+    '.product-experience/pdp-0-product-truth/capabilities.yaml',
+    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
+    '.product-experience/pdp-1-domain-data/operations.yaml',
+    '.product-experience/pdp-1-domain-data/domain-objects.yaml',
+  ].map((path) => [path, readSourceYaml(path)]));
+  const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
+  const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
+  const validateActual = (value) => validate(value, caps.map(({ id }) => id), measureIds, sourceDocuments);
+  assert.equal(validateActual(crosswalk).length, 1848);
+  for (const [index, mutate] of [
+    (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.inspect'; },
+    (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT'; },
+    (value) => { value.measureApplicabilityRecords.records.find((row) => row.measureRef === measures[2] && row.capabilityRef === 'media.generate.image.text-to-image').sourceRefs[1] = '.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-project'; },
+    (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[1] = '.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect'; },
+    (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.foreign'; },
+  ].entries()) {
+    const altered = structuredClone(crosswalk);
+    mutate(altered);
+    assert.throws(() => validateActual(altered), `valid foreign target mutation ${index} must be rejected`);
+  }
+});
+
 test('same-count substitution, duplicates and stale binding projections are rejected', () => {
   for (const mutate of [
     x => { x.measureApplicabilityRecords.records[1] = structuredClone(x.measureApplicabilityRecords.records[0]); },

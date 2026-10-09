@@ -14,6 +14,12 @@ const ledger=parse(fs.readFileSync('.product-experience/pdp-0-product-truth/migr
 const leaves=ledger.records.flatMap(r=>r.claims??[]).flatMap(c=>c.subclaims??[c]);
 const proposalText=fs.readFileSync(approval.proposalArtifactRef,'utf8');
 const proposal=JSON.parse(proposalText);
+const correctionPath='docs/implementation/verification/pdp-38/migration-experience-40-cross-owner-correction.json';
+const correctionText=fs.readFileSync(correctionPath,'utf8');
+assert.equal(hash(correctionText),'206bf5f37e8e0ab248802bed93bae0c801d6a438cf8c21154defa41acc11d36f');
+const correction=JSON.parse(correctionText);
+assert.equal(correction.baseArtifactRef,p);assert.equal(correction.baseArtifactSha256,hash(fs.readFileSync(p)));
+assert.deepEqual(correction.records.map(r=>r.claimId),['MPSEM-0458-C002','MPSEM-0458-C006']);
 const docs={};
 function resolveRef(ref){const source=ref.split('#')[0]; docs[source]??=parse(fs.readFileSync(source,'utf8'));const value=resolvePdp3BindingSourceRef(ref,docs);assert.notEqual(value,undefined,ref);return value;}
 test('PXD-097 reviews exactly the unchanged 40-claim proposal with current source meanings',()=>{
@@ -26,7 +32,15 @@ test('PXD-097 reviews exactly the unchanged 40-claim proposal with current sourc
  assert.equal(current.semanticReviewRef,`${p}#/records/@claimId=${row.claimId}`);assert.equal(current.targetRef,row.currentTargetRef);
  assert.equal(current.targetTextSha256,row.currentTargetValueSha256);assert.equal(jsonHash(resolveRef(current.targetRef)),row.currentTargetValueSha256);
  assert.equal(current.semanticReviewStatus,'CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED');assert.equal(current.acceptanceEffect,'none');
- for(const [ref,fingerprint]of Object.entries(row.sourceAuthorityTargetFingerprints))assert.equal(jsonHash(resolveRef(ref)),fingerprint);
+ for(const [ref,fingerprint]of Object.entries(row.sourceAuthorityTargetFingerprints)){
+ const supplemental=correction.records.find(r=>r.claimId===row.claimId&&r.sourceRef===ref);
+ if(!supplemental){assert.equal(jsonHash(resolveRef(ref)),fingerprint);continue;}
+ assert.equal(supplemental.priorValueSha256,fingerprint);
+ const current=resolveRef(ref);const {processIsolationDoesNotWaiveLicenseRule:added,...prior}=current;
+ assert.equal(jsonHash(prior),fingerprint,'all prior authority fields remain exact');
+ assert.deepEqual(added,correction.reviewedChange.current);
+ assert.equal(jsonHash(current),supplemental.currentValueSha256);
+ }
  }
 });
 test('migration counters remain derived and no other claim was promoted by the bounded approval',()=>{

@@ -47,7 +47,7 @@ function steps(title: string, currentStepId: string): MediaTaskCurrentProjection
 
 function operation(state: MediaExperienceState): MediaTaskOperationObservation | undefined {
   if (state.workflow !== "artifact-verification" && state.workflow !== "transcription") return undefined;
-  const stateMap = { QUEUED: "QUEUED", RUNNING: "RUNNING", OUTCOME_UNKNOWN: "OUTCOME_UNKNOWN", RECONCILING: "RECONCILING", COMPLETED: "COMPLETED", FAILED: "FAILED", PARTIALLY_SUCCEEDED: "PARTIALLY_SUCCEEDED", CANCELLED: "CANCELLED" } as const;
+  const stateMap = { QUEUED: "QUEUED", RUNNING: "RUNNING", RETRY_PENDING: "RETRY_PENDING", OUTCOME_UNKNOWN: "OUTCOME_UNKNOWN", RECONCILING: "RECONCILING", COMPLETED: "COMPLETED", FAILED: "FAILED", PARTIALLY_SUCCEEDED: "PARTIALLY_SUCCEEDED", CANCELLED: "CANCELLED" } as const;
   if (state.workflow === "artifact-verification") {
     const observedState = state.artifactVerification.status;
     return { state: stateMap[observedState], progress: observedState === "OUTCOME_UNKNOWN" ? { kind: "unknown" } : state.artifactVerification.progressPercent === null ? { kind: "none" } : { kind: "determinate", value: state.artifactVerification.progressPercent }, finality: state.artifactVerification.finality };
@@ -160,7 +160,12 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
   let screen: React.ReactNode;
   if (state.workflow === "first-use") {
     const projectView = view === "setup" ? "authenticate-and-select-context" : view === "project" ? "work-in-project" : "find-projects";
-    screen = <MediaProductRenderer kind="first-use-project" {...common} project={{ view: projectView, workspaceName: state.firstUse.workspaceId ?? undefined, projectName: state.firstUse.projectId ?? undefined, projectNameDraft, accessState: state.firstUse.workspaceAccess === "ALLOWED" ? "resolved" : state.firstUse.workspaceAccess === "DENIED" ? "denied" : "unknown", message: `${stateText} Project name is a local draft; this fixture action has no project-name field.`, returnDestination: state.firstUse.returnDestination }} onProjectNameDraftChange={setProjectNameDraft} />;
+    screen = <>
+      <MediaProductRenderer kind="first-use-project" {...common} project={{ view: projectView, workspaceName: state.firstUse.workspaceId ?? undefined, projectName: state.firstUse.projectId ?? undefined, projectNameDraft, accessState: state.firstUse.workspaceAccess === "ALLOWED" ? "resolved" : state.firstUse.workspaceAccess === "DENIED" ? "denied" : "unknown", message: `${stateText} Project name is a local draft; this fixture action has no project-name field.`, returnDestination: state.firstUse.returnDestination }} onProjectNameDraftChange={setProjectNameDraft} />
+      {projectView === "work-in-project" && <p className="candidate-project-version" data-project-version={state.firstUse.projectVersion ?? "unknown"}>
+        Project version: <strong>{state.firstUse.projectVersion ?? "Not established"}</strong>
+      </p>}
+    </>;
   } else if (state.workflow === "artifact-intake") {
     const intakeView = view === "import" ? "import-media" : view === "browse" ? "browse-media" : "inspect-media";
     screen = <MediaProductRenderer kind="artifact-intake" {...common} intake={{ view: intakeView, sourceName: state.artifactIntake.sourceName, uploadId: state.artifactIntake.uploadId, integrity: state.artifactIntake.integrity, verificationState: state.artifactIntake.status, message: stateText, artifacts: state.artifactIntake.artifactVersion ? [{ id: state.artifactIntake.uploadId, name: state.artifactIntake.sourceName, version: state.artifactIntake.artifactVersion, integrity: state.artifactIntake.integrity }] : [] }} />;

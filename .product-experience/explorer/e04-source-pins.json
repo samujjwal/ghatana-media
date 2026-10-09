@@ -6,7 +6,7 @@
     {
       "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
       "role": "PDP-3 scenario identities, source fixture references, and expected proposals",
-      "sha256": "d55af8c6648dc20fe60202b82de2347e4b6a1656865ebb24d3d65df92da75a08"
+      "sha256": "97db892916313f93d00e65df8ebcec7b98d320a98a23d0262ddfd21acd3a3fa9"
     },
     {
       "path": ".product-experience/explorer/scenario-fixtures.yaml",
@@ -16,7 +16,7 @@
     {
       "path": "libs/media-experience-simulation/src/fixtures.ts",
       "role": "Deterministic simulation seed payloads",
-      "sha256": "178585922cf4860cb47d5e45406c5495958374651fb4f73dbaca77bf2325b4c0"
+      "sha256": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533"
     },
     {
       "path": "scripts/check-experience-browser.mjs",
@@ -101,6 +101,48 @@
       ],
       "focusedVerification": "tests/media-explorer-task-first-navigation.test.mjs and media-explorer-canonical-id-search.test.mjs pass 5/5; Explorer production build passes. Production-preview browser audit: 30 scenarios, 315 indexed records, and 47 canonical proposal routes across six viewports (282 route observations), zero failures, console errors, CSP violations, or page errors. That audit initially reported 0 long-label controls because it ran with the old selector. After correcting the selector, focused Playwright verification found 5 primary and 10 secondary controls, verified active aria-current and visible aria-labelledby target with no tab roles, and expanded all 15 labels with zero overflow. Full browser matrix not rerun.",
       "acceptanceEffect": "Explorer navigation hierarchy and long-label audit coverage only. No product workflow semantics, P3 screen acceptance, independent visual or screen-reader review, localization or RTL support, production-host parity, Lifecycle evidence, or phase closure is inferred."
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+      "previousSha256": "d55af8c6648dc20fe60202b82de2347e4b6a1656865ebb24d3d65df92da75a08",
+      "currentSha256": "2706151be456b5cb4e6e5e68d0ad312390c5d7e897329f8cc3911e81945e6420",
+      "reviewedAt": "2026-10-09",
+      "semanticDiff": [
+        "Retained the earlier proposal-only retry fixture review as history; the current eligible fixture now denotes a synthetic, definition-only pre-dispatch guard case for an explicit retry request.",
+        "The expected result is eligibility only: no retry is dispatched, no new attempt or fencing token is created, and no completion is claimed.",
+        "The fixture-supplied policy, rights, consent, profile, prior-attempt, and budget dispositions are hypothetical oracle inputs, not trusted host receipts, current runtime authority, or completion of all step-guard evidence mappings.",
+        "The job-retry-ineligible scenario remains present and preserves the unknown-prior-outcome no-dispatch branch."
+      ],
+      "focusedVerification": "pnpm test in libs/media-experience-simulation: TypeScript build and 51/51 Node tests passed; full log: docs/implementation/verification/pdp-38/e04-retry-fixture-simulation-tests.log. No browser, assistive-technology, or runtime qualification was run.",
+      "verificationLogRef": "docs/implementation/verification/pdp-38/e04-retry-fixture-simulation-tests.log",
+      "acceptanceEffect": "Deterministic synthetic pre-dispatch scenario coverage only. No retry policy, current authority, actual retry eligibility, retry dispatch, P3 semantic acceptance, Lifecycle proof, or phase closure is established."
+    },
+    {
+      "path": "libs/media-experience-simulation/src/fixtures.ts",
+      "previousSha256": "178585922cf4860cb47d5e45406c5495958374651fb4f73dbaca77bf2325b4c0",
+      "currentSha256": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+      "reviewedAt": "2026-10-09",
+      "semanticDiff": [
+        "Added the job-retry-eligible deterministic seed with explicit job and prior-attempt identities plus an owner-shaped budget/authority evidence fixture for pre-dispatch definition-oracle tests.",
+        "The synthetic eligibility evidence is supplied test data, not a trusted receipt; evaluation creates no retry request, new attempt, or fence and does not assert runtime authority or provider reconciliation.",
+        "The test suite retains job-retry-ineligible unknown-outcome no-retry behavior and exercises stale, malformed, foreign-scope, and exhausted-budget denials/holds."
+      ],
+      "focusedVerification": "pnpm test in libs/media-experience-simulation: TypeScript build and 51/51 Node tests passed; full log: docs/implementation/verification/pdp-38/e04-retry-fixture-simulation-tests.log. No browser, assistive-technology, or runtime qualification was run.",
+      "verificationLogRef": "docs/implementation/verification/pdp-38/e04-retry-fixture-simulation-tests.log",
+      "acceptanceEffect": "Deterministic synthetic pre-dispatch oracle coverage only. No retry policy, trusted host evidence, current retry authorization, provider behavior, runtime admission, independent acceptance, Lifecycle proof, or phase closure is established."
+    },
+    {
+      "path": ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
+      "previousSha256": "2706151be456b5cb4e6e5e68d0ad312390c5d7e897329f8cc3911e81945e6420",
+      "currentSha256": "97db892916313f93d00e65df8ebcec7b98d320a98a23d0262ddfd21acd3a3fa9",
+      "reviewedAt": "2026-10-09",
+      "semanticDiff": [
+        "The current exact simulation-seed list now includes J-20 because its two retry scenarios are referenced by exact J-20 step-level scenarioRefs; the other 26 journeys remain outside the seeded-journey set.",
+        "The job-retry-eligible fixture remains synthetic pre-dispatch retry-eligibility only: no retry is dispatched, no attempt or fence is allocated, and job-retry-ineligible continues to preserve the unknown-outcome no-dispatch branch.",
+        "Scenario start-state reconciliation now keeps 16 exact PDP-1 state references separate from 15 typed local synthetic contexts; consent revocation remains a local context with no canonical P1 state ref."
+      ],
+      "focusedVerification": "tests/pdp-3-scenario-fixture-coverage.test.mjs and tests/pdp-3-scenario-start-state-integrity.test.mjs pass 2/2; tests/pdp-3-screen-journey-crosslinks.test.mjs passes 9/9. Test-only reconciliation, no runtime or independent acceptance.",
+      "acceptanceEffect": "Exact source-index and fixture-reference reconciliation only. No retry policy, full J-20 scenario completion, runtime authority, P3 semantic acceptance, Lifecycle proof, or phase closure is inferred."
     }
   ]
 }

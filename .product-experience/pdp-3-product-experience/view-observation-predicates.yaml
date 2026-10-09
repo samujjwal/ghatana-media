@@ -434,7 +434,7 @@ predicates:
           operationRef: media.operation-slice.create-project
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-project-create
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -449,7 +449,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-project-create
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-create
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.create-project
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -988,7 +988,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: VERIFYING
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING
@@ -1032,7 +1032,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: AVAILABLE
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE
@@ -1076,7 +1076,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: QUARANTINED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED
@@ -1120,7 +1120,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: REJECTED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED
@@ -1408,7 +1408,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: VERIFYING
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING
@@ -1475,7 +1475,7 @@ predicates:
           operationRef: media.operation-slice.begin-upload
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-artifact-upload
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -1490,7 +1490,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-artifact-upload
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-upload
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.begin-artifact-upload
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -1508,7 +1508,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: AVAILABLE
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE
@@ -1556,7 +1556,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: QUARANTINED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED
@@ -1604,7 +1604,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: REJECTED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED
@@ -2506,7 +2506,7 @@ predicates:
           operationRef: media.operation.action.submit-validated-request
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -2521,7 +2521,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -2585,7 +2585,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -2742,7 +2742,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: ACCEPTED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -2787,7 +2787,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: RUNNING
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -2831,7 +2831,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -2868,12 +2868,12 @@ predicates:
           operationRef: media.operation-slice.cancel-job
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
         - actionRef: media.action.submit-validated-request
           operationRef: media.operation.action.submit-validated-request
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -2888,8 +2888,8 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
     truthRules:
@@ -2900,7 +2900,7 @@ predicates:
         facts
     sourceStatus: MEDIA_OWNER_DEFINITION; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -2945,7 +2945,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: COMPLETED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -2990,7 +2990,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: FAILED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -3196,7 +3196,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -3230,7 +3230,7 @@ predicates:
           operationRef: media.operation.action.submit-validated-request
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -3245,7 +3245,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-validated-request
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -3459,7 +3459,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: RUNNING
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -3501,7 +3501,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -3540,12 +3540,12 @@ predicates:
           operationRef: media.operation.action.request-admitted-speech-operation
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-admitted-speech-operation
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.request-admitted-speech-operation
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
         - actionRef: media.action.request-transcription
           operationRef: media.operation.transcription-submission
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -3560,8 +3560,8 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.request-admitted-speech-operation
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-admitted-speech-operation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription
     truthRules:
@@ -3572,7 +3572,7 @@ predicates:
         facts
     sourceStatus: MEDIA_OWNER_DEFINITION; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -4382,7 +4382,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -5116,7 +5116,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -5872,7 +5872,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -6094,7 +6094,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: RUNNING
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -6150,7 +6150,7 @@ predicates:
           operationRef: media.operation.action.submit-simulation
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-simulation
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-simulation
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-simulation
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -6165,7 +6165,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-simulation
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-simulation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-simulation
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -6206,7 +6206,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: COMPLETED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -6247,7 +6247,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: FAILED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -6755,7 +6755,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7204,7 +7204,7 @@ predicates:
           operationRef: media.operation.action.submit-render
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-render
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -7219,7 +7219,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.submit-render
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -7352,7 +7352,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7466,7 +7466,7 @@ predicates:
       allowedActionOperationPairs: []
       unsupportedQueryFinality:
         operationRef: media.operation-slice.inspect-job
-        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job
         reason: This exact read query can observe only its typed status mapping; a
           missing or ambiguous query result does not prove the remote effect
           outcome.
@@ -7480,7 +7480,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
         conditions
@@ -7489,7 +7489,7 @@ predicates:
         facts
     sourceStatus: QUERY_LABEL_BINDING_PENDING_EXACT_TYPED_RESULT; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -7521,7 +7521,7 @@ predicates:
       allowedActionOperationPairs: []
       unsupportedQueryFinality:
         operationRef: media.operation.capability.media-job-outputs-inspect
-        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-outputs-inspect
         reason: This exact read query can observe only its typed status mapping; a
           missing or ambiguous query result does not prove the remote effect
           outcome.
@@ -7535,7 +7535,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-outputs-inspect
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
         conditions
@@ -7579,7 +7579,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: ACCEPTED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7624,7 +7624,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: RUNNING
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7668,7 +7668,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: CANCELLED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7713,7 +7713,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: COMPLETED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7758,7 +7758,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7803,7 +7803,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: FAILED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7848,7 +7848,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: ACCEPTED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -7895,7 +7895,7 @@ predicates:
         facts
     sourceStatus: MEDIA_OWNER_DEFINITION; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -7931,12 +7931,12 @@ predicates:
           operationRef: media.operation-slice.cancel-job
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
         - actionRef: media.action.retry-job
           operationRef: media.operation-slice.retry-job
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.retry-job
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-retry
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -7951,8 +7951,8 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-retry
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-retry
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.retry-job
     truthRules:
@@ -7998,7 +7998,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: CANCELLED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -8043,7 +8043,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: RUNNING
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -8087,7 +8087,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -8173,7 +8173,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: QUARANTINED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED
@@ -8304,7 +8304,7 @@ predicates:
       allowedActionOperationPairs: []
       unsupportedQueryFinality:
         operationRef: media.operation-slice.inspect-job
-        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job
         reason: This exact read query can observe only its typed status mapping; a
           missing or ambiguous query result does not prove the remote effect
           outcome.
@@ -8318,7 +8318,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job
+        - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
         conditions
@@ -8327,7 +8327,7 @@ predicates:
         facts
     sourceStatus: QUERY_LABEL_BINDING_PENDING_EXACT_TYPED_RESULT; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -8378,7 +8378,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: AVAILABLE
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE
@@ -8423,7 +8423,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: VERIFYING
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING
@@ -8468,7 +8468,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: QUARANTINED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED
@@ -8513,7 +8513,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: REJECTED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED
@@ -8866,7 +8866,7 @@ predicates:
           operationRef: media.operation.action.deliver-exact-version
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.deliver-exact-version
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -8881,7 +8881,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.deliver-exact-version
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
@@ -8922,7 +8922,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: REJECTED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED
@@ -11082,7 +11082,7 @@ predicates:
     factPath: ownerObservation.artifact.lifecycleState
     factSchemaRef: .product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml#factSchemas/@id=media.view-observation-schema.owner-artifact-state.v1
     artifactLifecycleObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       queryOperationRef: media.operation.artifact.lifecycle.observe.v1
       expectedState: QUARANTINED
       canonicalStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED
@@ -11210,7 +11210,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: ACCEPTED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -11256,7 +11256,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: RUNNING
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -11301,7 +11301,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: COMPLETED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -11347,7 +11347,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -11393,7 +11393,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: FAILED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -11430,12 +11430,12 @@ predicates:
           operationRef: media.operation-slice.cancel-job
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
         - actionRef: media.action.request-transcription
           operationRef: media.operation.transcription-submission
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -11450,8 +11450,8 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription
     truthRules:
@@ -11462,7 +11462,7 @@ predicates:
         facts
     sourceStatus: MEDIA_OWNER_DEFINITION; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -11498,12 +11498,12 @@ predicates:
           operationRef: media.operation-slice.cancel-job
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
         - actionRef: media.action.request-transcription
           operationRef: media.operation.transcription-submission
           operationKind: COMMAND
           actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription
-          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file
+          operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file
       positiveCondition: exact host-bound local request tuple has a confirmed
         transport write and a timeout, connection loss, or local interruption
         before a response is observed
@@ -11518,8 +11518,8 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-job-cancel
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.capability-binding.media-speech-transcription-file
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-job-cancel
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-cancellation
         - .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.request-transcription
     truthRules:
@@ -11566,7 +11566,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: CANCELLED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -11705,7 +11705,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: PARTIALLY_SUCCEEDED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -12058,7 +12058,7 @@ predicates:
       allowedActionOperationPairs: []
       unsupportedQueryFinality:
         operationRef: media.operation.action.check-job-outcome
-        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
         reason: This exact read query can observe only its typed status mapping; a
           missing or ambiguous query result does not prove the remote effect
           outcome.
@@ -12072,7 +12072,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
         conditions
@@ -12081,7 +12081,7 @@ predicates:
         facts
     sourceStatus: QUERY_LABEL_BINDING_PENDING_EXACT_TYPED_RESULT; RUNTIME_NOT_ADMITTED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: OUTCOME_UNKNOWN
       mappingDisposition: EXACT_CANONICAL_STATE
@@ -12113,7 +12113,7 @@ predicates:
       allowedActionOperationPairs: []
       unsupportedQueryFinality:
         operationRef: media.operation.action.check-job-outcome
-        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
         reason: This exact read query can observe only its typed status mapping; a
           missing or ambiguous query result does not prove the remote effect
           outcome.
@@ -12127,7 +12127,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.action.check-job-outcome
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
         conditions
@@ -12171,7 +12171,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: COMPLETED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -12216,7 +12216,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: FAILED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -12261,7 +12261,7 @@ predicates:
     sourceFieldStatus: PDP1_JOB_STATUS_QUERY_SCHEMA_LACKS_STATE_FIELD;
       TRUTH_DOMAIN_ACTION_REQUIRED
     jobStatusObservation:
-      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      ownerReadModelRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       queryOperationRef: media.operation-slice.inspect-job
       runtimeStatus: CANCELLED
       mappingDisposition: NOT_MAPPED_RUNTIME_ONLY
@@ -12293,7 +12293,7 @@ predicates:
       allowedActionOperationPairs: []
       unsupportedQueryFinality:
         operationRef: media.operation.capability.media-job-outputs-inspect
-        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect
+        operationSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-outputs-inspect
         reason: This exact read query can observe only its typed status mapping; a
           missing or ambiguous query result does not prove the remote effect
           outcome.
@@ -12307,7 +12307,7 @@ predicates:
       retryAuthorization: NONE
       runtimeAdmission: NOT_ADMITTED
       sourceRefs:
-        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.media.operation.capability.media-job-outputs-inspect
+        - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-outputs-inspect
     truthRules:
       'TRUE': typed raw facts satisfy scope, closed schema, freshness, and semantic
         conditions

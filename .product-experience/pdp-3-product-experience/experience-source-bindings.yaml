@@ -69,14 +69,260 @@ scenarioStartingStateBindings:
     sourceFixtureKey: job-retry-ineligible
     startingStateRef: media-job.OUTCOME_UNKNOWN
     rationale: The retry-ineligible proposal explicitly includes an unknown prior outcome as a no-dispatch case; its synthetic seed reuses the exact existing unknown-outcome job and attempt state, preserving the same job identity. This seeds only that branch and does not define retry policy or implement retry.
-  - scenarioRef: media.scenario.consent-revoked
-    sourceFixtureKey: consent-revoked
-    startingStateRef: media-rights-and-consent.consent.REVOKED
-    rationale: The exact transcription fixture records consentState REVOKED, matching the PDP-0 proposal state identity; the PDP-1 rights/consent state machine remains empty pending owner review.
+  - scenarioRef: media.scenario.job-retry-eligible
+    sourceFixtureKey: job-retry-eligible
+    startingStateRef: media-job.RETRY_PENDING
+    rationale: The synthetic fixture begins after the exact prior attempt has been classified retryable and the owner-defined job state is RETRY_PENDING; a separate closed pre-dispatch oracle checks current identity, authority, policy, rights, consent, profile, budget and evidence freshness. The fixture does not issue a retry request or allocate a new fence.
   - scenarioRef: media.scenario.job-outcome-confirmed
     sourceFixtureKey: job-outcome-confirmed
     startingStateRef: media-job.COMPLETED
     rationale: The exact outcome-check fixture records job state COMPLETED and finality CONFIRMED after checking the same job.
+scenarioStartingContextBindings:
+  status: OWNER_DEFINED_LOCAL_SCENARIO_CONTEXTS; NO_CANONICAL_STATE_INFERENCE
+  decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+  runtimeAdmission: NOT_ADMITTED
+  records:
+    - id: media.pdp3.scenario-context.upload-interrupted.v1
+      scenarioRef: media.scenario.upload-interrupted
+      fixtureKey: upload-interrupted
+      localContextRef: media.experience.local-context.upload-interrupted.v1
+      contextKind: UPLOAD_SESSION_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-interrupted
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        artifactIntake.status: "INTERRUPTED"
+        artifactIntake.acknowledgedPartCount: 2
+        artifactIntake.uploadResumeAuthority: "ALLOWED"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Preserve the same upload identity; resume remains a guarded request, not a confirmed completion."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.upload-outcome-unknown.v1
+      scenarioRef: media.scenario.upload-outcome-unknown
+      fixtureKey: upload-outcome-unknown
+      localContextRef: media.experience.local-context.upload-outcome-unknown.v1
+      contextKind: UPLOAD_SESSION_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-outcome-unknown
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        artifactIntake.status: "OUTCOME_UNKNOWN"
+        artifactIntake.integrity: "UNKNOWN"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Preserve unknown upload finality; inspect or reconcile only the same upload identity."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.first-use-empty.v1
+      scenarioRef: media.scenario.first-use-empty
+      fixtureKey: first-use-empty
+      localContextRef: media.experience.local-context.first-use-empty.v1
+      contextKind: FIRST_USE_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.first-use-empty
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        firstUse.identityResolved: true
+        firstUse.workspaceAccess: "ALLOWED"
+        firstUse.creationStatus: "NOT_REQUESTED"
+        firstUse.intentDisposition: "NOT_SELECTED"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Show first-use setup for the exact authenticated workspace; no project or provider is inferred."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.identity-required.v1
+      scenarioRef: media.scenario.identity-required
+      fixtureKey: identity-required
+      localContextRef: media.experience.local-context.identity-required.v1
+      contextKind: FIRST_USE_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.identity-required
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        firstUse.identityResolved: false
+        firstUse.workspaceAccess: "UNKNOWN"
+        firstUse.workspaceId: null
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Preserve return destination while protected project data remains unavailable."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.workspace-access-denied.v1
+      scenarioRef: media.scenario.workspace-access-denied
+      fixtureKey: workspace-access-denied
+      localContextRef: media.experience.local-context.workspace-access-denied.v1
+      contextKind: FIRST_USE_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.workspace-access-denied
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        firstUse.workspaceAccess: "DENIED"
+        firstUse.projectCreateAuthority: "DENIED"
+        firstUse.workspaceId: null
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Do not expose protected projects or permit project creation in the denied workspace."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.project-create-outcome-unknown.v1
+      scenarioRef: media.scenario.project-create-outcome-unknown
+      fixtureKey: project-create-outcome-unknown
+      localContextRef: media.experience.local-context.project-create-outcome-unknown.v1
+      contextKind: FIRST_USE_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.project-create-outcome-unknown
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        firstUse.creationStatus: "OUTCOME_UNKNOWN"
+        firstUse.projectId: null
+        firstUse.createRequestId: "fixture-project-create-request-unknown-001"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Reconcile the same request identity; do not issue a duplicate create."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.project-created-empty.v1
+      scenarioRef: media.scenario.project-created-empty
+      fixtureKey: project-created-empty
+      localContextRef: media.experience.local-context.project-created-empty.v1
+      contextKind: FIRST_USE_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.project-created-empty
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        firstUse.creationStatus: "CREATED"
+        firstUse.projectId: "fixture-project-001"
+        firstUse.projectVersion: "project-v1"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Show exact returned project/version context; empty media is not a project failure."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.intent-unavailable.v1
+      scenarioRef: media.scenario.intent-unavailable
+      fixtureKey: intent-unavailable
+      localContextRef: media.experience.local-context.intent-unavailable.v1
+      contextKind: FIRST_USE_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.intent-unavailable
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        firstUse.intentDisposition: "UNAVAILABLE"
+        firstUse.creationStatus: "CREATED"
+        firstUse.projectVersion: "project-v1"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Keep the created project unchanged and offer only a separately admitted alternative."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.language-uncertain.v1
+      scenarioRef: media.scenario.language-uncertain
+      fixtureKey: language-uncertain
+      localContextRef: media.experience.local-context.language-uncertain.v1
+      contextKind: CAPTION_SESSION_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.language-uncertain
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        transcript.languageDisposition: "UNCERTAIN"
+        transcript.timingDisposition: "ALIGNED"
+        captionDraft.parentVersionId: "caption-v0"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Preserve declared uncertainty; do not assert verified language or calibrated confidence."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.alignment-required.v1
+      scenarioRef: media.scenario.alignment-required
+      fixtureKey: alignment-required
+      localContextRef: media.experience.local-context.alignment-required.v1
+      contextKind: CAPTION_SESSION_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.alignment-required
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        transcript.timingDisposition: "REQUIRES_REVIEW"
+        captionDraft.timingDisposition: "REQUIRES_REVIEW"
+        captionDraft.segments.1.endTick: null
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Retain as a draft until exact source-clock timing is supplied and validated."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.caption-corrected.v1
+      scenarioRef: media.scenario.caption-corrected
+      fixtureKey: caption-corrected
+      localContextRef: media.experience.local-context.caption-corrected.v1
+      contextKind: CAPTION_SESSION_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-corrected
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        captionDraft.versionId: "caption-draft-v2"
+        captionDraft.parentVersionId: "caption-v0"
+        captionDraft.segments.0.origin: "USER_EDITED"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Preserve the exact draft parent and source identity; local correction does not register a version."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.caption-conflict.v1
+      scenarioRef: media.scenario.caption-conflict
+      fixtureKey: caption-conflict
+      localContextRef: media.experience.local-context.caption-conflict.v1
+      contextKind: CAPTION_SESSION_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-conflict
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        captionDraft.hasConflict: true
+        registeredCaptionVersions: ["caption-v0", "caption-v1"]
+        captionDraft.parentVersionId: "caption-v0"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Preserve both versions and require an explicit resolution before registration."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.caption-version-comparison.v1
+      scenarioRef: media.scenario.caption-version-comparison
+      fixtureKey: caption-version-comparison
+      localContextRef: media.experience.local-context.caption-version-comparison.v1
+      contextKind: CAPTION_VERSION_COMPARISON_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-version-comparison
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        captionHistory.0.sourceArtifactVersion: "source-v1"
+        captionHistory.1.sourceArtifactVersion: "source-v1"
+        registeredCaptionVersions: ["caption-v0", "caption-v1"]
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Compare only the two exact immutable versions sharing the same source version."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.caption-source-mismatch.v1
+      scenarioRef: media.scenario.caption-source-mismatch
+      fixtureKey: caption-source-mismatch
+      localContextRef: media.experience.local-context.caption-source-mismatch.v1
+      contextKind: CAPTION_VERSION_COMPARISON_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-source-mismatch
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+      observedFixtureFields:
+        captionHistory.0.sourceArtifactVersion: "source-v1"
+        captionHistory.1.sourceArtifactVersion: "source-v2"
+        registeredCaptionVersions: ["caption-v0", "caption-v1"]
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY
+      meaning: "Report the source-version mismatch; do not present versions as directly comparable."
+      acceptanceEffect: none
+    - id: media.pdp3.scenario-context.consent-revoked.v1
+      scenarioRef: media.scenario.consent-revoked
+      fixtureKey: consent-revoked
+      localContextRef: media.experience.local-context.consent-revoked.v1
+      contextKind: RIGHTS_AND_CONSENT_LOCAL
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.consent-revoked
+        - libs/media-experience-simulation/src/fixtures.ts#createFixtureState
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      observedFixtureFields:
+        consentState: "REVOKED"
+        access.processSource: "DENIED"
+        access.registerDerivedVersion: "DENIED"
+      canonicalStateRefs: []
+      applicabilityDisposition: LOCAL_SYNTHETIC_CONTEXT_ONLY; P1_RIGHTS_STATE_MACHINE_HAS_NO_ADJUDICATED_VALUES
+      meaning: "Block new processing in this synthetic fixture; a local scenario state does not claim an authoritative current rights or consent read."
+      acceptanceEffect: none
 recoveryCrossReferences:
   - recoveryRef: media.recovery.language-uncertain
     scenarioRefs: [media.scenario.language-uncertain]

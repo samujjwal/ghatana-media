@@ -1,0 +1,1563 @@
+{
+  "schemaVersion": "media.pdp-responsive-rendered-reference-captures.v1",
+  "generatedAt": "2026-10-09T12:35:45.740Z",
+  "sourceBaseUrl": "http://127.0.0.1:4179/",
+  "sourceFingerprints": {
+    ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+    "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+    "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+    "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+    "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+  },
+  "layoutSource": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml#responsiveCompositionReferences",
+  "captures": [
+    {
+      "viewRef": "media.view.review-transcript",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
+      "scenarioId": "media.scenario.transcript-ready",
+      "viewport": {
+        "band": "narrow",
+        "widthCssPx": 390,
+        "heightCssPx": 844,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "review-transcript-narrow-390.png",
+      "screenshotSha256": "bd63b4283fe90de0f50d8fe11b027f74a5bfcc345f4aaf5cec3e4ddc0118a858",
+      "contractSha256": "a99ccda3a566fb3a0696025d01037b69156192976647e5a20fe52b46fcd559a8",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "a137686793cac6053c117fccb0cb7484ace0be1219ca67bbb353981cc31ca5de",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "transcript-caption",
+        "fixtureId": "media.scenario.transcript-ready",
+        "stateRef": "media.scenario.transcript-ready",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [
+          "media.action.view-job-status",
+          "media.action.inspect-source",
+          "media.action.seek-source",
+          "media.action.review-transcript",
+          "media.action.inspect-provenance",
+          "media.action.correct-caption",
+          "media.action.align-caption-timing",
+          "media.action.save-caption-version"
+        ],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Select a source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review a transcript",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Correct captions",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Compare caption versions",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nTranscription and captions\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Create project",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check project creation",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect artifact",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Resume upload",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check job outcome",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Request cancellation",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Choose source",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Seek source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Request transcription",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review transcript",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect provenance",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Resolve caption conflict",
+            "disabled": true
+          }
+        ],
+        "headingTexts": [
+          "Transcription and captions",
+          "completed",
+          "Transcription and captions",
+          "Review transcript",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "source-version",
+          "sourcePointer": "#/contextGoalNowNext/context",
+          "expectedText": "source-v1"
+        },
+        {
+          "fact": "transcript-version",
+          "sourcePointer": "#/domainObjectRefs/0",
+          "expectedText": "transcript-v1"
+        },
+        {
+          "fact": "source-time-reference",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "ticks per second"
+        },
+        {
+          "fact": "recognition-uncertainty",
+          "sourcePointer": "#/contextGoalNowNext/now",
+          "expectedText": "RECOGNIZED"
+        },
+        {
+          "fact": "edit-and-review-actions",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Review transcript"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "source-version",
+          "sourcePointer": "#/contextGoalNowNext/context",
+          "expectedText": "source-v1"
+        },
+        {
+          "fact": "transcript-version",
+          "sourcePointer": "#/domainObjectRefs/0",
+          "expectedText": "transcript-v1"
+        },
+        {
+          "fact": "source-time-reference",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "ticks per second"
+        },
+        {
+          "fact": "recognition-uncertainty",
+          "sourcePointer": "#/contextGoalNowNext/now",
+          "expectedText": "RECOGNIZED"
+        },
+        {
+          "fact": "edit-and-review-actions",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Review transcript"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "Select a source",
+        "Review a transcript",
+        "Correct captions",
+        "Compare caption versions"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.review-transcript",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
+      "scenarioId": "media.scenario.transcript-ready",
+      "viewport": {
+        "band": "medium",
+        "widthCssPx": 768,
+        "heightCssPx": 1024,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "review-transcript-medium-768.png",
+      "screenshotSha256": "d509bf891685b3f20b223c460d0c9c1d2d9c6173cf169887b4758538707add0a",
+      "contractSha256": "a99ccda3a566fb3a0696025d01037b69156192976647e5a20fe52b46fcd559a8",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "a137686793cac6053c117fccb0cb7484ace0be1219ca67bbb353981cc31ca5de",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "transcript-caption",
+        "fixtureId": "media.scenario.transcript-ready",
+        "stateRef": "media.scenario.transcript-ready",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [
+          "media.action.view-job-status",
+          "media.action.inspect-source",
+          "media.action.seek-source",
+          "media.action.review-transcript",
+          "media.action.inspect-provenance",
+          "media.action.correct-caption",
+          "media.action.align-caption-timing",
+          "media.action.save-caption-version"
+        ],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Select a source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review a transcript",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Correct captions",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Compare caption versions",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nTranscription and captions\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Create project",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check project creation",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect artifact",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Resume upload",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check job outcome",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Request cancellation",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Choose source",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Seek source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Request transcription",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review transcript",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect provenance",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Resolve caption conflict",
+            "disabled": true
+          }
+        ],
+        "headingTexts": [
+          "Transcription and captions",
+          "completed",
+          "Transcription and captions",
+          "Review transcript",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "source-version",
+          "sourcePointer": "#/contextGoalNowNext/context",
+          "expectedText": "source-v1"
+        },
+        {
+          "fact": "transcript-version",
+          "sourcePointer": "#/domainObjectRefs/0",
+          "expectedText": "transcript-v1"
+        },
+        {
+          "fact": "source-time-reference",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "ticks per second"
+        },
+        {
+          "fact": "recognition-uncertainty",
+          "sourcePointer": "#/contextGoalNowNext/now",
+          "expectedText": "RECOGNIZED"
+        },
+        {
+          "fact": "edit-and-review-actions",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Review transcript"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "source-version",
+          "sourcePointer": "#/contextGoalNowNext/context",
+          "expectedText": "source-v1"
+        },
+        {
+          "fact": "transcript-version",
+          "sourcePointer": "#/domainObjectRefs/0",
+          "expectedText": "transcript-v1"
+        },
+        {
+          "fact": "source-time-reference",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "ticks per second"
+        },
+        {
+          "fact": "recognition-uncertainty",
+          "sourcePointer": "#/contextGoalNowNext/now",
+          "expectedText": "RECOGNIZED"
+        },
+        {
+          "fact": "edit-and-review-actions",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Review transcript"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "Select a source",
+        "Review a transcript",
+        "Correct captions",
+        "Compare caption versions"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.review-transcript",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
+      "scenarioId": "media.scenario.transcript-ready",
+      "viewport": {
+        "band": "wide",
+        "widthCssPx": 1280,
+        "heightCssPx": 800,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "review-transcript-wide-1280.png",
+      "screenshotSha256": "f88e5232ce7f145c9736d5ab2399ece1d7cfd4a201ec362fe9b555c8c24ad3ce",
+      "contractSha256": "a99ccda3a566fb3a0696025d01037b69156192976647e5a20fe52b46fcd559a8",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "a137686793cac6053c117fccb0cb7484ace0be1219ca67bbb353981cc31ca5de",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "transcript-caption",
+        "fixtureId": "media.scenario.transcript-ready",
+        "stateRef": "media.scenario.transcript-ready",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [
+          "media.action.view-job-status",
+          "media.action.inspect-source",
+          "media.action.seek-source",
+          "media.action.review-transcript",
+          "media.action.inspect-provenance",
+          "media.action.correct-caption",
+          "media.action.align-caption-timing",
+          "media.action.save-caption-version"
+        ],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Select a source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review a transcript",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Correct captions",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Compare caption versions",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nTranscription and captions\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Create project",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check project creation",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect artifact",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Resume upload",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check job outcome",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Request cancellation",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Choose source",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Seek source",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Request transcription",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review transcript",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Inspect provenance",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Resolve caption conflict",
+            "disabled": true
+          }
+        ],
+        "headingTexts": [
+          "Transcription and captions",
+          "completed",
+          "Transcription and captions",
+          "Review transcript",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "source-version",
+          "sourcePointer": "#/contextGoalNowNext/context",
+          "expectedText": "source-v1"
+        },
+        {
+          "fact": "transcript-version",
+          "sourcePointer": "#/domainObjectRefs/0",
+          "expectedText": "transcript-v1"
+        },
+        {
+          "fact": "source-time-reference",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "ticks per second"
+        },
+        {
+          "fact": "recognition-uncertainty",
+          "sourcePointer": "#/contextGoalNowNext/now",
+          "expectedText": "RECOGNIZED"
+        },
+        {
+          "fact": "edit-and-review-actions",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Review transcript"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "source-version",
+          "sourcePointer": "#/contextGoalNowNext/context",
+          "expectedText": "source-v1"
+        },
+        {
+          "fact": "transcript-version",
+          "sourcePointer": "#/domainObjectRefs/0",
+          "expectedText": "transcript-v1"
+        },
+        {
+          "fact": "source-time-reference",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "ticks per second"
+        },
+        {
+          "fact": "recognition-uncertainty",
+          "sourcePointer": "#/contextGoalNowNext/now",
+          "expectedText": "RECOGNIZED"
+        },
+        {
+          "fact": "edit-and-review-actions",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Review transcript"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "Select a source",
+        "Review a transcript",
+        "Correct captions",
+        "Compare caption versions"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.job-status",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
+      "scenarioId": "media.scenario.artifact-verification-outcome-unknown",
+      "viewport": {
+        "band": "narrow",
+        "widthCssPx": 390,
+        "heightCssPx": 844,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "job-status-narrow-390.png",
+      "screenshotSha256": "ca5b865f3febfcad72973f185e7287fbd55f77c0d7ce53164f54b27b16e7cbb8",
+      "contractSha256": "29d79226eeeece307de5420cb9bcede53bd0a151a29b7dec9b29ee193686309e",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "6a4a8333aaedf1cdf67a0bb2f0d301b9b311abe20e50bf3e07a0eb124b0f560b",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "job-recovery",
+        "fixtureId": "media.scenario.artifact-verification-outcome-unknown",
+        "stateRef": "media.scenario.artifact-verification-outcome-unknown",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [
+          "media.action.view-job-status",
+          "media.action.check-job-outcome"
+        ],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review activity",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nArtifact verification\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check job outcome",
+            "disabled": false
+          }
+        ],
+        "headingTexts": [
+          "Artifact verification",
+          "outcome unknown",
+          "Artifact verification",
+          "Job status and recovery",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "job-and-attempt-identity",
+          "sourcePointer": "#/anatomy/0",
+          "expectedText": "fixture-artifact-verification-job-unknown-001"
+        },
+        {
+          "fact": "observed-state",
+          "sourcePointer": "#/anatomy/2",
+          "expectedText": "OUTCOME_UNKNOWN"
+        },
+        {
+          "fact": "effect-finality-and-unknown-warning",
+          "sourcePointer": "#/anatomy/5",
+          "expectedText": "unknown"
+        },
+        {
+          "fact": "safe-recovery-action",
+          "sourcePointer": "#/anatomy/6",
+          "expectedText": "Check job outcome"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "job-and-attempt-identity",
+          "sourcePointer": "#/anatomy/0",
+          "expectedText": "fixture-artifact-verification-job-unknown-001"
+        },
+        {
+          "fact": "observed-state",
+          "sourcePointer": "#/anatomy/2",
+          "expectedText": "OUTCOME_UNKNOWN"
+        },
+        {
+          "fact": "effect-finality-and-unknown-warning",
+          "sourcePointer": "#/anatomy/5",
+          "expectedText": "unknown"
+        },
+        {
+          "fact": "safe-recovery-action",
+          "sourcePointer": "#/anatomy/6",
+          "expectedText": "Check job outcome"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "View job status",
+        "Check job outcome"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.job-status",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
+      "scenarioId": "media.scenario.artifact-verification-outcome-unknown",
+      "viewport": {
+        "band": "medium",
+        "widthCssPx": 768,
+        "heightCssPx": 1024,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "job-status-medium-768.png",
+      "screenshotSha256": "8564efda3c93dd263509ac8c8937e5ece64cc58d0f8d04bd2efa5ea1d95868c1",
+      "contractSha256": "29d79226eeeece307de5420cb9bcede53bd0a151a29b7dec9b29ee193686309e",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "6a4a8333aaedf1cdf67a0bb2f0d301b9b311abe20e50bf3e07a0eb124b0f560b",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "job-recovery",
+        "fixtureId": "media.scenario.artifact-verification-outcome-unknown",
+        "stateRef": "media.scenario.artifact-verification-outcome-unknown",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [
+          "media.action.view-job-status",
+          "media.action.check-job-outcome"
+        ],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review activity",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nArtifact verification\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check job outcome",
+            "disabled": false
+          }
+        ],
+        "headingTexts": [
+          "Artifact verification",
+          "outcome unknown",
+          "Artifact verification",
+          "Job status and recovery",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "job-and-attempt-identity",
+          "sourcePointer": "#/anatomy/0",
+          "expectedText": "fixture-artifact-verification-job-unknown-001"
+        },
+        {
+          "fact": "observed-state",
+          "sourcePointer": "#/anatomy/2",
+          "expectedText": "OUTCOME_UNKNOWN"
+        },
+        {
+          "fact": "effect-finality-and-unknown-warning",
+          "sourcePointer": "#/anatomy/5",
+          "expectedText": "unknown"
+        },
+        {
+          "fact": "safe-recovery-action",
+          "sourcePointer": "#/anatomy/6",
+          "expectedText": "Check job outcome"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "job-and-attempt-identity",
+          "sourcePointer": "#/anatomy/0",
+          "expectedText": "fixture-artifact-verification-job-unknown-001"
+        },
+        {
+          "fact": "observed-state",
+          "sourcePointer": "#/anatomy/2",
+          "expectedText": "OUTCOME_UNKNOWN"
+        },
+        {
+          "fact": "effect-finality-and-unknown-warning",
+          "sourcePointer": "#/anatomy/5",
+          "expectedText": "unknown"
+        },
+        {
+          "fact": "safe-recovery-action",
+          "sourcePointer": "#/anatomy/6",
+          "expectedText": "Check job outcome"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "View job status",
+        "Check job outcome"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.job-status",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
+      "scenarioId": "media.scenario.artifact-verification-outcome-unknown",
+      "viewport": {
+        "band": "wide",
+        "widthCssPx": 1280,
+        "heightCssPx": 800,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "job-status-wide-1280.png",
+      "screenshotSha256": "6c5f147bef72552db33176e7afe29ce9301623145aebd4bc8ef4f5a4d0d47da7",
+      "contractSha256": "29d79226eeeece307de5420cb9bcede53bd0a151a29b7dec9b29ee193686309e",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "6a4a8333aaedf1cdf67a0bb2f0d301b9b311abe20e50bf3e07a0eb124b0f560b",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "job-recovery",
+        "fixtureId": "media.scenario.artifact-verification-outcome-unknown",
+        "stateRef": "media.scenario.artifact-verification-outcome-unknown",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [
+          "media.action.view-job-status",
+          "media.action.check-job-outcome"
+        ],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Review activity",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nArtifact verification\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "View job status",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check job outcome",
+            "disabled": false
+          }
+        ],
+        "headingTexts": [
+          "Artifact verification",
+          "outcome unknown",
+          "Artifact verification",
+          "Job status and recovery",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "job-and-attempt-identity",
+          "sourcePointer": "#/anatomy/0",
+          "expectedText": "fixture-artifact-verification-job-unknown-001"
+        },
+        {
+          "fact": "observed-state",
+          "sourcePointer": "#/anatomy/2",
+          "expectedText": "OUTCOME_UNKNOWN"
+        },
+        {
+          "fact": "effect-finality-and-unknown-warning",
+          "sourcePointer": "#/anatomy/5",
+          "expectedText": "unknown"
+        },
+        {
+          "fact": "safe-recovery-action",
+          "sourcePointer": "#/anatomy/6",
+          "expectedText": "Check job outcome"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "job-and-attempt-identity",
+          "sourcePointer": "#/anatomy/0",
+          "expectedText": "fixture-artifact-verification-job-unknown-001"
+        },
+        {
+          "fact": "observed-state",
+          "sourcePointer": "#/anatomy/2",
+          "expectedText": "OUTCOME_UNKNOWN"
+        },
+        {
+          "fact": "effect-finality-and-unknown-warning",
+          "sourcePointer": "#/anatomy/5",
+          "expectedText": "unknown"
+        },
+        {
+          "fact": "safe-recovery-action",
+          "sourcePointer": "#/anatomy/6",
+          "expectedText": "Check job outcome"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "View job status",
+        "Check job outcome"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.work-in-project",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
+      "scenarioId": "media.scenario.project-created-empty",
+      "viewport": {
+        "band": "narrow",
+        "widthCssPx": 390,
+        "heightCssPx": 844,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "work-in-project-narrow-390.png",
+      "screenshotSha256": "87afbeec58d5f319829b3b619e90715e28b441f12e997981fe9b65c1453cfd7e",
+      "contractSha256": "c784ca20704e7659e39cf810b9935b57640796c35082b581c01a60b22a9f9663",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "dfc7cfb0b7e5a0c394d46232ba02913f73252aa8a082a5411e6021aacca1cb20",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "first-use-project",
+        "fixtureId": "media.scenario.project-created-empty",
+        "stateRef": "media.scenario.project-created-empty",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Set up access",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Find projects",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Work in a project",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nFirst-use project\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check project creation",
+            "disabled": true
+          }
+        ],
+        "headingTexts": [
+          "First-use project",
+          "First-use project",
+          "Project workspace",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "project-identity",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "fixture-project-001"
+        },
+        {
+          "fact": "project-version",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "project-v1"
+        },
+        {
+          "fact": "pending-work-finality",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "CREATED"
+        },
+        {
+          "fact": "primary-safe-action",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Work in a project"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "project-identity",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "fixture-project-001"
+        },
+        {
+          "fact": "project-version",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "project-v1"
+        },
+        {
+          "fact": "pending-work-finality",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "CREATED"
+        },
+        {
+          "fact": "primary-safe-action",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Work in a project"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "Find projects",
+        "Work in a project"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.work-in-project",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
+      "scenarioId": "media.scenario.project-created-empty",
+      "viewport": {
+        "band": "medium",
+        "widthCssPx": 768,
+        "heightCssPx": 1024,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "work-in-project-medium-768.png",
+      "screenshotSha256": "001d104c48596fe389e2b73ff054f5ce7db06d3cc6a2c6623644b4d7a774a928",
+      "contractSha256": "c784ca20704e7659e39cf810b9935b57640796c35082b581c01a60b22a9f9663",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "dfc7cfb0b7e5a0c394d46232ba02913f73252aa8a082a5411e6021aacca1cb20",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "first-use-project",
+        "fixtureId": "media.scenario.project-created-empty",
+        "stateRef": "media.scenario.project-created-empty",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Set up access",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Find projects",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Work in a project",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nFirst-use project\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check project creation",
+            "disabled": true
+          }
+        ],
+        "headingTexts": [
+          "First-use project",
+          "First-use project",
+          "Project workspace",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "project-identity",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "fixture-project-001"
+        },
+        {
+          "fact": "project-version",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "project-v1"
+        },
+        {
+          "fact": "pending-work-finality",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "CREATED"
+        },
+        {
+          "fact": "primary-safe-action",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Work in a project"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "project-identity",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "fixture-project-001"
+        },
+        {
+          "fact": "project-version",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "project-v1"
+        },
+        {
+          "fact": "pending-work-finality",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "CREATED"
+        },
+        {
+          "fact": "primary-safe-action",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Work in a project"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "Find projects",
+        "Work in a project"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    },
+    {
+      "viewRef": "media.view.work-in-project",
+      "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
+      "scenarioId": "media.scenario.project-created-empty",
+      "viewport": {
+        "band": "wide",
+        "widthCssPx": 1280,
+        "heightCssPx": 800,
+        "deviceScaleFactor": 1
+      },
+      "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
+      "screenshot": "work-in-project-wide-1280.png",
+      "screenshotSha256": "0f4421fafc9a0d7ce95882df5c0f2cef49b413d81af3685135c1f55935f901b0",
+      "contractSha256": "c784ca20704e7659e39cf810b9935b57640796c35082b581c01a60b22a9f9663",
+      "layoutAndRendererSourceFingerprints": {
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "libs/media-experience-simulation/src/fixtures.ts": "09c871d5066614fc4a5ffe07991d7d50bfe7f8c218d86df7bf598162a537f533",
+        "libs/media-experience-simulation/src/model.ts": "bc7e59924b0a2f1b12913dab07228e194525fc2b1819e49e6ed3b25408a02730"
+      },
+      "propProjectionSha256": "dfc7cfb0b7e5a0c394d46232ba02913f73252aa8a082a5411e6021aacca1cb20",
+      "propProjection": {
+        "rendererExport": "@audio-video/ui#MediaProductRenderer",
+        "rendererVariant": "first-use-project",
+        "fixtureId": "media.scenario.project-created-empty",
+        "stateRef": "media.scenario.project-created-empty",
+        "actionPort": "MediaActionPort",
+        "errorPort": "MediaActionDispatchResult",
+        "actionIds": [],
+        "controls": [
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Set up access",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Find projects",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Work in a project",
+            "disabled": false
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "1\nCURRENT\nFirst-use project\nFixture state",
+            "disabled": true
+          },
+          {
+            "tag": "button",
+            "role": null,
+            "name": "Check project creation",
+            "disabled": true
+          }
+        ],
+        "headingTexts": [
+          "First-use project",
+          "First-use project",
+          "Project workspace",
+          "Next action"
+        ]
+      },
+      "criticalFactsExpected": [
+        {
+          "fact": "project-identity",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "fixture-project-001"
+        },
+        {
+          "fact": "project-version",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "project-v1"
+        },
+        {
+          "fact": "pending-work-finality",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "CREATED"
+        },
+        {
+          "fact": "primary-safe-action",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Work in a project"
+        }
+      ],
+      "criticalFactsObserved": [
+        {
+          "fact": "project-identity",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "fixture-project-001"
+        },
+        {
+          "fact": "project-version",
+          "sourcePointer": "#/anatomy/1",
+          "expectedText": "project-v1"
+        },
+        {
+          "fact": "pending-work-finality",
+          "sourcePointer": "#/anatomy/3",
+          "expectedText": "CREATED"
+        },
+        {
+          "fact": "primary-safe-action",
+          "sourcePointer": "#/contextGoalNowNext/next",
+          "expectedText": "Work in a project"
+        }
+      ],
+      "missingCriticalFacts": [],
+      "requiredControlsObserved": [
+        "Find projects",
+        "Work in a project"
+      ],
+      "structuralChecks": {
+        "criticalFactsVisible": true,
+        "controlsVisible": true,
+        "admittedRuntime": false,
+        "humanComprehension": "NOT_RUN",
+        "accessibilityAcceptance": "NOT_RUN"
+      }
+    }
+  ],
+  "contractOnly": {
+    "viewRef": "media.view.review-rights-and-consent",
+    "contractPath": ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
+    "status": "CONTRACT_ONLY_NO_RENDERED_REFERENCE",
+    "missingRenderDependency": "A rights-and-consent screen contract and typed component contracts exist, but the existing ProductReview renderer has no rights-and-consent view route or MediaProductRenderer kind, and its fixture has no bound action adapter for this screen. The supported view union is setup/projects/project/source/transcript/captions/versions/browse/import/artifact/review-activity/job-status. Therefore no existing Media composition renders the declared screen; this capture set records the gap rather than synthesizing a GUI.",
+    "requiredReusableComponentContracts": [
+      {
+        "componentId": "media.component.rights-retention-review",
+        "typedDefinitionRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.rights-retention-review/typedDefinition",
+        "contractStatus": "OWNER_DEFINED_TYPED_COMPONENT_CONTRACT; INDEPENDENT_REVIEW_OPEN",
+        "requiredProps": [
+          "subjectVersionRef",
+          "authorityRef",
+          "rightOrConsent",
+          "scope",
+          "validity",
+          "retentionDisposition",
+          "decisionHistory",
+          "nextActions",
+          "state",
+          "variant",
+          "actionIntents",
+          "keyboardBehavior"
+        ]
+      },
+      {
+        "componentId": "media.component.provenance-summary",
+        "typedDefinitionRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.provenance-summary/typedDefinition",
+        "contractStatus": "OWNER_DEFINED_TYPED_COMPONENT_CONTRACT; INDEPENDENT_REVIEW_OPEN"
+      },
+      {
+        "componentId": "media.component.artifact-integrity-summary",
+        "typedDefinitionRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.artifact-integrity-summary/typedDefinition",
+        "contractStatus": "OWNER_DEFINED_TYPED_COMPONENT_CONTRACT; INDEPENDENT_REVIEW_OPEN"
+      }
+    ],
+    "actionAdapterDependency": ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml#actionConsequences",
+    "notCapturedAtBands": [
+      {
+        "band": "narrow",
+        "widthCssPx": 390,
+        "heightCssPx": 844,
+        "status": "NO_RENDER_COMPONENT"
+      },
+      {
+        "band": "medium",
+        "widthCssPx": 768,
+        "heightCssPx": 1024,
+        "status": "NO_RENDER_COMPONENT"
+      },
+      {
+        "band": "wide",
+        "widthCssPx": 1280,
+        "heightCssPx": 800,
+        "status": "NO_RENDER_COMPONENT"
+      }
+    ],
+    "runtimeAdmission": "NOT_ADMITTED",
+    "humanComprehension": "NOT_RUN",
+    "accessibilityAcceptance": "NOT_RUN"
+  },
+  "limits": [
+    "Synthetic review fixture only",
+    "Screenshots are structural reference evidence, not conformance approval",
+    "No human comprehension study or independent accessibility review was performed"
+  ]
+}

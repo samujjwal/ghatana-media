@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
 const toolsRequire = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url));
@@ -23,6 +23,7 @@ const journeyCatalog = parse(await readFile('.product-experience/pdp-0-product-t
 const journeyActorResolutions = parse(await readFile('.product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml', 'utf8'));
 const stateModels = parse(await readFile('.product-experience/pdp-0-product-truth/state-models.yaml', 'utf8'));
 const bindingReview = parse(await readFile('.product-experience/pdp-3-product-experience/experience-source-bindings.yaml', 'utf8'));
+const viewPredicates = parse(await readFile('.product-experience/pdp-3-product-experience/view-observation-predicates.yaml', 'utf8'));
 const recoveryContracts = parse(await readFile('.product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml', 'utf8'));
 const simulationFixtureSource = await readFile('libs/media-experience-simulation/src/fixtures.ts', 'utf8');
 
@@ -31,11 +32,21 @@ function assertUniqueKnownRefs(refs, known, label) {
   for (const ref of refs) assert.ok(known.has(ref), `${label} contains stale reference ${ref}`);
 }
 
-test('PDP-3 views project exact component and journey refs while state refs remain unbound', async () => {
+test('PDP-3 views project exact component, journey, and Media-local observation state refs', async () => {
   const sourceViews = [...screenRegistry.screens, ...(screenRegistry.laneViews ?? [])];
   assert.equal(model.views.length, sourceViews.length);
   const components = new Set(componentContracts.components.map(({ id }) => id));
   const journeyIds = new Set(journeyRegistry.journeys.map(({ id }) => id));
+  const p1StateIds = new Set(stateModels.models.flatMap((machine) => (machine.states ?? [])
+    .filter((state) => typeof state === 'object' && typeof state.id === 'string')
+    .map((state) => `${machine.modelId}.${state.id}`)));
+  const predicatesByView = new Map();
+  for (const predicate of viewPredicates.predicates) {
+    const refs = predicatesByView.get(predicate.viewRef) ?? [];
+    refs.push(predicate.id);
+    predicatesByView.set(predicate.viewRef, refs);
+  }
+  const projectedStates = new Map(model.states.map((state) => [state.id, state]));
   const contracts = new Map();
   for (const { sourceRef } of specification.sourceAuthorities.filter(({ sourceRef }) => sourceRef.includes('/screen-contracts/'))) {
     const contract = parse(await readFile(sourceRef, 'utf8'));
@@ -49,15 +60,19 @@ test('PDP-3 views project exact component and journey refs while state refs rema
     const sourceJourneyRefs = sourceViews.find(({ id }) => id === view.id)?.journeyRefs ?? [];
     assertUniqueKnownRefs(sourceJourneyRefs, journeyIds, `${view.id} source journeyRefs`);
     assert.deepEqual(view.journeyRefs, sourceJourneyRefs, `${view.id} projects exact authored journeyRefs`);
-    assert.deepEqual(view.stateRefs, []);
+    assert.deepEqual(view.stateRefs, predicatesByView.get(view.id) ?? [], `${view.id} projects exact local predicate IDs`);
+    for (const stateRef of view.stateRefs) {
+      assert.ok(projectedStates.has(stateRef), `${view.id} local observation state resolves`);
+      assert.ok(!p1StateIds.has(stateRef), `${view.id} does not alias a PDP-1 machine state`);
+      assert.match(projectedStates.get(stateRef).description, /display-only|local display observation/iu);
+    }
   }
   assert.equal(sourceViews.reduce((count, view) => count + (contracts.get(view.id)?.journeyRefs?.length ?? 0), 0), 132);
   assert.equal(model.views.reduce((count, view) => count + view.componentRefs.length, 0), 137);
   const viewsBlocker = specification.fieldMappingBlockers.find(({ field }) => field === 'views');
-  assert.match(viewsBlocker?.reasons?.join(' ') ?? '', /132 source journeyRefs are directly projected/u);
-  assert.doesNotMatch(viewsBlocker?.reasons?.join(' ') ?? '', /no schema-shaped journeys|journey refs remain unresolved/iu);
-  assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /JOURNEY_REF_MAPPING/u);
-  assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /PDP1_STATE_REFS_PENDING/u);
+  assert.equal(viewsBlocker, undefined, 'view IDs and exact local state refs are fully source-mapped');
+  assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /LOCAL_OBSERVATION_STATE_MAPPING_364_PREDICATES/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /CANONICAL_PDP1_STATE_BINDINGS_REMAIN_SEPARATE/u);
 });
 
 test('PDP-3 public resolver rejects a view journey ref after its projected journey target is removed', () => {
@@ -143,6 +158,12 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
     assert.ok(sourceActorIds.has(journey.actorRef), `${journey.id} uses a resolved P0-04 actor`);
     const sourceEntry = journeyRegistry.journeys.find(({ id }) => id === journey.id);
     const contract = contracts.get(journey.id);
+    const expectedScenarioRefs = [...new Set([
+      ...(contract.scenarioRefs ?? []),
+      ...(contract.steps ?? []).flatMap((sourceStep) => sourceStep.scenarioRefs ?? []),
+    ])];
+    assert.deepEqual(journey.scenarioRefs ?? [], expectedScenarioRefs,
+      `${journey.id} scenario links come only from exact contract-level and step-level source refs`);
     const sourceIds = (contract.steps ?? []).map(({ stepId }) => stepId).filter(Boolean);
     const sourceCounts = new Map(sourceIds.map((id) => [id, sourceIds.filter((candidate) => candidate === id).length]));
     for (const [index, step] of journey.steps.entries()) {
@@ -157,9 +178,14 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
       const sourceView = [...screenRegistry.screens, ...(screenRegistry.laneViews ?? [])].find(({ id }) => id === viewRef);
       const expectedIntent = sourceStep.intent ?? sourceStep.viewIntent ?? sourceStep.label ?? sourceView?.purpose;
       assert.equal(step.intent, expectedIntent);
-      assert.deepEqual(step.transitionRefs, [], 'required schema placeholder is not an asserted transition semantics');
+      const expectedTransitions = journey.id === 'J-02' && step.stepId === 'J02-3'
+        ? ['media.pdp3.transition.upload-receiving-to-verifying.v1'] : [];
+      assert.deepEqual(step.transitionRefs, expectedTransitions,
+        'only the exact bounded upload finalization edge is linked; unrelated empty arrays remain placeholders');
     }
   }
+  assert.equal(model.journeys.filter((journey) => (journey.scenarioRefs?.length ?? 0) > 0).length, 4);
+  assert.equal(model.journeys.flatMap((journey) => journey.scenarioRefs ?? []).length, 31);
   assert.ok(model.journeys.every((journey) => journey.steps.every((step) => !contracts.get(journey.id).steps.some((sourceStep) => sourceStep.result === step.intent))),
     'step result prose is never used as intent');
   const journeyBlocker = specification.fieldMappingBlockers.find((entry) => entry.field === 'journeys');
@@ -168,7 +194,7 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.match(journeyBlocker.reasons.join(' '), /step-view 130 linked\/0 unresolved/iu);
   assert.match(journeyBlocker.reasons.join(' '), /step-action 18 linked\/112 unresolved/iu);
   assert.match(journeyBlocker.reasons.join(' '), /128 source transitionRef values are null/u);
-  assert.match(journeyBlocker.reasons.join(' '), /empty arrays are schema placeholders only|empty arrays are schema placeholders/iu);
+  assert.match(journeyBlocker.reasons.join(' '), /One exact P3 binding supplies the P1 RECEIVING-to-VERIFYING upload-finalization edge/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.resolvedCount, 30);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.sourceCount, 30);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.disposition, /PROJECTED_AS_CANDIDATE_ACTOR_REFS/u);
@@ -181,6 +207,7 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 13);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128);
+  assert.deepEqual(model.transitions.map(({ id }) => id), ['media.pdp3.transition.upload-receiving-to-verifying.v1']);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);
 
   const resolvedJourney = journeyRegistry.journeys.find((entry) =>
@@ -229,14 +256,15 @@ test('PDP-3 interactions inherit preconditions from their exact referenced actio
 });
 
 test('PDP-3 report retains only genuinely unresolved specification mappings', () => {
-  const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
+  const reportResult = spawnSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
     encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
-  }));
+  });
+  assert.ok([0, 1].includes(reportResult.status), reportResult.stderr);
+  const report = JSON.parse(reportResult.stdout);
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
-  assert.equal(pdp3.unresolvedFieldCount, 9);
+  assert.equal(pdp3.unresolvedFieldCount, 5);
   assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), [
-    'actions', 'componentContracts', 'effects', 'finality', 'fixtures', 'journeys',
-    'scenarios', 'transitions', 'views',
+    'actions', 'effects', 'finality', 'journeys', 'transitions',
   ]);
   assert.equal(specification.acceptance, 'NOT_CLAIMED');
   assert.match(specification.candidateMappingReview.ownerDecisionStatus, /PENDING/);
@@ -319,7 +347,7 @@ test('PDP-3 action/effect candidate projection preserves original census, review
   assert.deepEqual(historicalIds, ['media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version']);
   assert.deepEqual(model.effects.filter(({ id }) => historicalIds.includes(id)).map(({ id }) => id).sort(), historicalIds);
   const blocker = specification.fieldMappingBlockers.find(({ field }) => field === 'effects');
-  assert.match(blocker.status, /144 BOUNDED ENUM CANDIDATES/u);
+  assert.match(blocker.status, /145[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
   assert.match(blocker.status, /RUNTIME_AND_PHASE_ACCEPTANCE_PENDING/u);
   assert.match(blocker.reasons.join(' '), /2 actions remain unmapped/u);
 });
@@ -330,6 +358,7 @@ test('PDP-3 scenarios and fixture descriptors require exact state, journey, and 
     .map((state) => `${item.modelId}.${state.id}`)));
   const scenarioRecords = new Map(scenarioFixtureRegistry.fixtures.map((fixture) => [fixture.id, fixture]));
   const exactBindings = new Map(bindingReview.scenarioStartingStateBindings.map((binding) => [binding.scenarioRef, binding]));
+  const localBindings = new Map(bindingReview.scenarioStartingContextBindings.records.map((binding) => [binding.scenarioRef, binding]));
   const journeyRefs = new Set();
   for (const entry of specification.sourceAuthorities.filter(({ sourceRef }) => sourceRef.includes('/journey-contracts/'))) {
     const journey = parse(await readFile(entry.sourceRef, 'utf8'));
@@ -337,22 +366,20 @@ test('PDP-3 scenarios and fixture descriptors require exact state, journey, and 
   }
   const actionScenarioRefs = new Set(actionRegistry.actions.flatMap((action) => action.scenarioRefs ?? []));
   const linked = new Set([...journeyRefs, ...actionScenarioRefs]);
-  assert.equal(exactBindings.size, 16, 'source identity links include a consent proposal without a selected state object');
-  const expected = [...exactBindings.values()].filter((binding) => allStates.has(binding.startingStateRef));
-  assert.equal(expected.length, 15);
-  assert.equal(model.scenarios.length, 15);
-  assert.equal(model.fixtures.length, 15);
+  assert.equal(exactBindings.size, 16, 'canonical source-start links retain their original population');
+  assert.equal(localBindings.size, 15, 'remaining starts are typed local fixture contexts, not invented canonical states');
+  assert.equal(model.scenarios.length, 31);
+  assert.equal(model.fixtures.length, 31);
   const scenarioBlocker = specification.fieldMappingBlockers.find(({ field }) => field === 'scenarios');
-  assert.deepEqual(scenarioBlocker.reasons, [
-    `Only ${model.scenarios.length} of ${scenarioRecords.size} registry records have an exact source-fixture state that maps to a canonical PDP-0 state; ${scenarioRecords.size - model.scenarios.length} remain unresolved, and context dimensions are not asserted.`,
-  ]);
+  assert.equal(scenarioBlocker, undefined, 'all fixture records have a canonical or explicitly local source start');
   for (const scenario of model.scenarios) {
     const source = scenarioRecords.get(scenario.id);
     const binding = exactBindings.get(scenario.id);
+    const localBinding = localBindings.get(scenario.id);
     assert.ok(linked.has(scenario.id), `${scenario.id} has a journey or action source link`);
     assert.ok(source, `${scenario.id} has a registry record`);
-    assert.ok(binding && allStates.has(binding.startingStateRef), `${scenario.id} has an exact canonical starting state`);
-    assert.equal(scenario.startingStateRef, binding.startingStateRef);
+    assert.ok((binding && allStates.has(binding.startingStateRef)) || localBinding, `${scenario.id} has an exact canonical or local context start`);
+    assert.equal(scenario.startingStateRef, binding?.startingStateRef ?? localBinding.localContextRef);
     assert.deepEqual(scenario.contextDimensions, {}, 'no source context value is asserted');
     assert.equal(scenario.description, source.initialConditions);
   }
@@ -365,13 +392,13 @@ test('PDP-3 scenarios and fixture descriptors require exact state, journey, and 
     assert.match(simulationFixtureSource, new RegExp(`^[ \\t]*[\"']${fixture.data.sourceFixtureKey}[\"']:[ \\t]*`, 'mu'));
   }
   assert.equal(bindingReview.scenarioStartingStateBindings.length, 16,
-    'source-level links include one consent proposal state that does not project as a canonical state');
-  assert.equal(model.scenarios.some(({ id }) => id === 'media.scenario.consent-revoked'), false,
-    'PDP-0 enumerates the consent axis but does not provide explicit terminal metadata, so the fixture remains unbound');
+    'historical canonical source-start links are preserved');
+  assert.equal(model.scenarios.some(({ id }) => id === 'media.scenario.consent-revoked'), true,
+    'consent-revoked uses a local synthetic context, not an asserted PDP-1 terminal state');
   assert.equal(model.states.some(({ id }) => id === 'media-rights-and-consent.consent.REVOKED'), false,
     'no sink-derived terminal claim is projected for an axis state');
-  assert.equal(model.scenarios.some((scenario) => scenario.id === 'media.scenario.upload-interrupted'), false,
-    'interrupted upload is unresolved because no canonical upload INTERRUPTED state exists');
+  assert.equal(model.scenarios.some((scenario) => scenario.id === 'media.scenario.upload-interrupted'), true,
+    'interrupted upload starts from an explicitly local fixture context; it does not invent a canonical upload state');
 });
 
 test('PDP-3 recovery links reject stale and duplicate action or scenario references', () => {

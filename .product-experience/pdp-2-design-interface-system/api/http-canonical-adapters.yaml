@@ -1,0 +1,499 @@
+schemaVersion: media.http-canonical-adapters.v1
+owner: Media PDP-2 interface definition with PDP-1 operation contracts as semantic authority
+scopeStatus: proposal; canonical adapter contracts are definition-only and transport-owner review remains pending
+acceptance: {criteria: [all owner request/result envelopes resolve, exact trusted-context joins are enforced, unsupported legacy representations fail closed], status: pending owner and independent review}
+sourceAuthority: Media product owner; definition-only selection under the PDP-0–PDP-3 mandate
+runtimeAdmission: NOT_ADMITTED
+independentAcceptance: OPEN
+canonicalOperationSource: .product-experience/pdp-1-domain-data/operations.yaml
+legacyWireSource: contracts/openapi/media.yaml
+summary: >-
+  Versioned, closed canonical HTTP request/result envelopes and exact field-level
+  adapter dispositions for the 13 consent, job, and stream routes. These records
+  define the Media-owned projection contract; they do not activate routes or
+  claim that the current v1 wire can satisfy it. A v1 route is accepted only
+  when every required canonical value is present, trusted, and representable;
+  otherwise the adapter rejects before a command effect or returns an explicit
+  non-success observation. No unowned defaults, guessed identity, synthetic version,
+  dropped finality, or status normalization are permitted.
+
+canonicalEnvelope:
+  id: media.http.canonical-envelope.v2
+  version: 2
+  request:
+    $schema: http://json-schema.org/draft-07/schema#
+    $id: urn:media:http-canonical-request:v2
+    type: object
+    additionalProperties: false
+    required: [operationRef, operationVersion, requestId, trustedContext, ownerRequest]
+    properties:
+      operationRef: { type: string, minLength: 1, maxLength: 192 }
+      operationVersion: { const: 1 }
+      requestId: { type: string, minLength: 1, maxLength: 128 }
+      trustedContext:
+        type: object
+        additionalProperties: false
+        required: [tenantId, principalId, authorityRef]
+        properties:
+          tenantId: { type: string, minLength: 1, maxLength: 128 }
+          principalId: { type: string, minLength: 1, maxLength: 128 }
+          authorityRef: { type: string, minLength: 1, maxLength: 256 }
+      ownerRequest: { $ref: urn:media:http-owner-request-schema:v1 }
+  hostContextAssembly:
+    source: host-authentication-and-authorization-context
+    callerBodyField: forbidden
+    assertedEnvelopeField: trustedContext
+    behavior: assemble from independently host-attested tenantId/principalId/authorityRef; compare any caller assertions and reject mismatch before read or effect
+  result:
+    $schema: http://json-schema.org/draft-07/schema#
+    $id: urn:media:http-canonical-result:v2
+    type: object
+    additionalProperties: false
+    required: [operationRef, operationVersion, outcome, observedAt, authorityRef, ownerResult]
+    properties:
+      operationRef: { type: string, minLength: 1, maxLength: 192 }
+      operationVersion: { const: 1 }
+      outcome: { type: string, enum: [SUCCEEDED, REJECTED, UNKNOWN_OUTCOME, UNKNOWN_OBSERVATION] }
+      observedAt: { type: string, format: date-time }
+      authorityRef: { type: string, minLength: 1, maxLength: 256 }
+      ownerResult: { $ref: urn:media:http-owner-result-schema:v1 }
+      error:
+        type: object
+        additionalProperties: false
+        required: [code]
+        properties:
+          code: { type: string, minLength: 1, maxLength: 128 }
+          retryable: { type: boolean }
+  errorRuleRef: .product-experience/pdp-2-design-interface-system/api/errors.yaml#normativeRuleRecords
+  finalityRuleRef: .product-experience/pdp-2-design-interface-system/api/async-operations.yaml#ownerDefinedAsyncRules
+  identityRuleRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+
+ownerDefinedAdapterSchemas:
+  revokeConsentRequestV1:
+    type: object
+    additionalProperties: false
+    required: [requestId, exactTargetRef, currentAuthorityDecision, explicitConfirmation, declaredScopeRef, consentRef, purposeRef, validityScope, authorityDecisionRef]
+    properties:
+      requestId: { type: string, minLength: 1, maxLength: 128 }
+      exactTargetRef: { type: string, minLength: 1, maxLength: 384 }
+      currentAuthorityDecision: { type: string, minLength: 1, maxLength: 256 }
+      explicitConfirmation: { type: string, minLength: 1, maxLength: 256 }
+      declaredScopeRef: { type: string, minLength: 1, maxLength: 256 }
+      consentRef: { type: string, minLength: 1, maxLength: 256 }
+      purposeRef: { type: string, minLength: 1, maxLength: 256 }
+      validityScope:
+        type: object
+        additionalProperties: false
+        required: [regionRef, validAt]
+        properties:
+          regionRef: { type: string, minLength: 1, maxLength: 256 }
+          validAt: { type: string, format: date-time }
+      authorityDecisionRef: { type: string, minLength: 1, maxLength: 256 }
+  revokeConsentResultV1:
+    type: object
+    additionalProperties: false
+    required: [requestId, consentRef, requestedScope, authorityReceipt, observedAt]
+    properties:
+      requestId: { type: string, minLength: 1, maxLength: 128 }
+      consentRef: { type: string, minLength: 1, maxLength: 256 }
+      requestedScope: { type: string, minLength: 1, maxLength: 256 }
+      authorityReceipt: { type: string, minLength: 1, maxLength: 256 }
+      observedAt: { type: string, format: date-time }
+  revokeConsentSchemaAuthority:
+    sourceRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/requestSchema
+    sourceResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/resultSchema
+    rule: These closed transport-facing schemas refine the action's exact required fields. The owner operation remains authoritative for target and authority semantics.
+
+adapterRules:
+  - id: media.http.adapter-rule.closed-envelope
+    rule: Every canonical request and result is validated against the closed v1 envelope plus the exact operation owner schema. Unknown properties, unsupported versions, missing required facts, and malformed references reject before dispatch.
+  - id: media.http.adapter-rule.trusted-context
+    rule: Tenant, principal, authority, consent, and delegation are derived from host-attested context. Body or header values are assertions only; a mismatch rejects and never replaces trusted context.
+  - id: media.http.adapter-rule.exact-projection
+    rule: Projection preserves exact identity, version, units, scope, state, and finality. An adapter cannot invent request identity, version, authority receipt, currentness, or effect finality, nor discard a canonical-required value while claiming canonical parity.
+  - id: media.http.adapter-rule.legacy-role
+    rule: Existing v1 payloads remain source-exact legacy DTOs. A source-only projection may be labeled LEGACY_OBSERVATION or LEGACY_TRANSPORT, but cannot be returned as a canonical v1 result unless all canonical required facts are representable.
+  - id: media.http.adapter-rule.no-effect-on-reject
+    rule: Any failed projection, schema, authority, currentness, scope, idempotency, or bounds check rejects before mutation, dispatch, stream attachment, or frame acceptance.
+  - id: media.http.adapter-rule.unknown-finality
+    rule: Transport acceptance, 2xx status, connection token, job status spelling, and frame acknowledgement are not canonical effect finality. Ambiguous outcomes remain UNKNOWN_OUTCOME and require exact-identity reconciliation.
+
+normativeRuleRecords:
+  - id: media.p2.rule.http-adapter.closed-envelope.v1
+    ruleRef: '#/adapterRules/0'
+    authorityRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#normativeRuleRecords
+    acceptanceEffect: none
+  - id: media.p2.rule.http-adapter.trusted-context.v1
+    ruleRef: '#/adapterRules/1'
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+    acceptanceEffect: none
+  - id: media.p2.rule.http-adapter.exact-projection.v1
+    ruleRef: '#/adapterRules/2'
+    authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles
+    acceptanceEffect: none
+  - id: media.p2.rule.http-adapter.legacy-role.v1
+    ruleRef: '#/adapterRules/3'
+    authorityRef: contracts/openapi/media.yaml#/paths
+    acceptanceEffect: none
+  - id: media.p2.rule.http-adapter.no-effect-on-reject.v1
+    ruleRef: '#/adapterRules/4'
+    authorityRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary
+    acceptanceEffect: none
+  - id: media.p2.rule.http-adapter.unknown-finality.v1
+    ruleRef: '#/adapterRules/5'
+    authorityRef: .product-experience/pdp-2-design-interface-system/api/async-operations.yaml#ownerDefinedAsyncRules
+    acceptanceEffect: none
+
+records:
+  - identity: grantMediaConsent
+    id: media.http.adapter.grant-consent.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [GRANT_RECORDED] }
+      otherOutcomes: REJECT_WITHOUT_OWNER_SUCCESS_VALUE
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/post
+    sourceRequestSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentGrantRequest
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+    canonicalOperationRef: media.operation.consent-record-grant.v1
+    canonicalHttpOperation: { method: POST, path: /api/v2/consents, operationRef: media.operation.consent-record-grant.v1 }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-grant.v1/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-grant.v1/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-grant.v1/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-grant.v1/resultSchema }
+    sourceProjection:
+      body:
+        purposes: { canonical: ownerRequest.purposes, disposition: EXACT_VALUE }
+        allowedRegions: { canonical: ownerRequest.allowedRegions, disposition: EXACT_VALUE }
+        externalProcessingAllowed: { canonical: ownerRequest.externalProcessingAllowed, disposition: EXACT_VALUE }
+        biometricProcessingAllowed: { canonical: ownerRequest.biometricProcessingAllowed, disposition: EXACT_VALUE }
+        expiresAt: { canonical: ownerRequest.expiresAt, disposition: EXACT_VALUE_OR_EXPLICIT_NULL }
+      hostContext: { tenantId: trustedContext.tenantId, principalId: trustedContext.principalId, authorityRef: trustedContext.authorityRef }
+    rejectBeforeEffect: [requestId-not-present-on-v1-body, source-does-not-carry-consent-authority-delegation, tenant-or-principal-body-assertion-conflicts-with-host-context, scope-or-purpose-not-authorized]
+    legacyResultProjection:
+      disposition: NO_CANONICAL_DOWNGRADE
+      sourceFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
+      canonicalRequiredButUnrepresentable: [requestId, consentRef, authorityRef, observedAt, authority-receipt]
+      rule: A ConsentRecord may be emitted only as the unchanged legacy DTO; it is not a canonical grant receipt.
+    routeDisposition: V1_ADAPTER_NOT_ADMITTED
+
+  - identity: listMediaConsents
+    id: media.http.adapter.list-consents.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: null
+      outerOutcomeSemantics: ADAPTER_OBSERVATION_ONLY_NO_OWNER_OUTCOME_FIELD
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/get
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/get/responses/200/content/application~1json/schema
+    canonicalOperationRef: media.operation.consent-record-list.v1
+    canonicalHttpOperation: { method: GET, path: /api/v2/consents, operationRef: media.operation.consent-record-list.v1 }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-list.v1/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-list.v1/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-list.v1/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-list.v1/resultSchema }
+    sourceProjection:
+      query: { limit: { canonical: ownerRequest.limit, disposition: EXACT_VALUE_OR_OWNER_DEFAULT } }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+      selection: { disposition: SCOPE_ONLY, meaning: principal-and-tenant-record-collection-not-current-permitted-use }
+    rejectBeforeRead: [host-identity-unavailable, query-limit-outside-owner-bounds, unauthorized-scope]
+    legacyResultProjection:
+      disposition: LEGACY_OBSERVATION_ONLY
+      sourceFields: [consents]
+      canonicalRequiredButUnrepresentable: [observedAt, readVersion]
+      rule: Never represent an empty, partial, or unauthorized legacy collection as a canonical no-consent decision.
+    routeDisposition: V1_CANONICAL_PARITY_NOT_ADMITTED
+
+  - identity: getMediaConsent
+    id: media.http.adapter.inspect-consent.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: null
+      outerOutcomeSemantics: ADAPTER_OBSERVATION_ONLY_NO_OWNER_OUTCOME_FIELD
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents~1{consentId}/get
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+    canonicalOperationRef: media.operation.consent-record-inspect.v1
+    canonicalHttpOperation: { method: GET, path: "/api/v2/consents/{consentId}", operationRef: media.operation.consent-record-inspect.v1 }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1/resultSchema }
+    sourceProjection:
+      path: { consentId: { canonical: ownerRequest.consentId, disposition: EXACT_IDENTITY_ONLY } }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+      selection: { disposition: EXACT_RECORD_LOOKUP, purposeDecision: NOT_PERFORMED }
+    rejectBeforeRead: [host-identity-unavailable, malformed-consentId, unauthorized-scope]
+    legacyResultProjection:
+      disposition: LEGACY_OBSERVATION_ONLY
+      sourceFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
+      canonicalRequiredButUnrepresentable: [observedAt, readVersion]
+      rule: A retrieved grant is not a current permitted-use decision; preserve exact source version and do not infer currentness.
+    routeDisposition: V1_CANONICAL_PARITY_NOT_ADMITTED
+
+  - identity: revokeMediaConsent
+    id: media.http.adapter.revoke-consent.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: null
+      outerOutcomeSemantics: ADAPTER_OBSERVATION_ONLY_NO_OWNER_OUTCOME_FIELD
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents~1{consentId}/delete
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
+    canonicalOperationRef: media.operation.action.revoke-authorized-consent
+    canonicalHttpOperation: { method: POST, path: "/api/v2/consents/{consentId}:revoke", operationRef: media.operation.action.revoke-authorized-consent }
+    canonicalRequestSchemaRef: .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#/ownerDefinedAdapterSchemas/revokeConsentRequestV1
+    canonicalResultSchemaRef: .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#/ownerDefinedAdapterSchemas/revokeConsentResultV1
+    ownerSemanticContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/requestSchema, .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent/resultSchema]
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#/ownerDefinedAdapterSchemas/revokeConsentRequestV1, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#/ownerDefinedAdapterSchemas/revokeConsentResultV1 }
+    sourceProjection:
+      path: { consentId: { canonical: ownerRequest.consentRef, disposition: CANDIDATE_ID_ONLY_NOT_AUTHORITY } }
+      body: { disposition: NO_BODY }
+      hostContext: { tenantId: trustedContext.tenantId, principalId: trustedContext.principalId, authorityRef: trustedContext.authorityRef }
+    rejectBeforeEffect: [missing-requestId, missing-explicitConfirmation, missing-currentAuthorityDecision, missing-declaredScope-purpose-and-validity, no-authorityReceipt, consentId-not-proven-to-be-exactTargetRef]
+    legacyResultProjection:
+      disposition: NO_CANONICAL_DOWNGRADE
+      sourceFields: [tenantId, consentId, principalId, revokedAt, version]
+      canonicalRequiredButUnrepresentable: [requestId, authorityReceipt, requestedScope, observedAt, prior-effect-disposition]
+      rule: HTTP 200 or revokedAt is not authority-issued finality evidence.
+    routeDisposition: REJECT_BEFORE_EFFECT
+
+  - identity: submitMediaJob
+    id: media.http.adapter.submit-job.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [REQUEST_ACKNOWLEDGED], REJECTED: [REJECTED], UNKNOWN_OUTCOME: [UNKNOWN_OUTCOME] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/post
+    sourceRequestSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJobRequest
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJob
+    canonicalOperationRef: media.operation.job.submit.v1
+    canonicalHttpOperation: { method: POST, path: /api/v2/jobs, operationRef: media.operation.job.submit.v1 }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema }
+    sourceProjection:
+      body:
+        requestId: { canonical: ownerRequest.requestId, disposition: EXACT_VALUE_IF_VALID }
+        tenantId: { canonical: trustedContext.tenantId, disposition: ASSERT_AND_COMPARE_ONLY }
+        principalId: { canonical: trustedContext.principalId, disposition: ASSERT_AND_COMPARE_ONLY }
+        correlationId: { canonical: null, disposition: REJECT_SOURCE_IDENTITY_WITHOUT_TYPED_RESOLUTION }
+        artifactId: { canonical: null, disposition: REJECT_SOURCE_ARTIFACT_ID_WITHOUT_EXACT_TYPED_INPUT_BINDING }
+        jobType: { canonical: ownerRequest.capabilityRef, disposition: EXPLICIT_FINITE_MAP_REQUIRED }
+        parameters: { canonical: ownerRequest.typedInputs, disposition: LEAF_SCHEMA_REQUIRED }
+        providerHint: { canonical: null, disposition: REJECT_PROVIDER_HINT_WITHOUT_ADMITTED_PROFILE }
+        governanceContext: { canonical: null, disposition: HOST_AUTHORITY_CONTEXT_REQUIRED_OUTSIDE_BODY }
+    rejectBeforeEffect: [tenant-or-principal-mismatch, missing-immutable-artifact-version, no-exact-jobType-to-capability-map, missing-leaf-typed-input-schema, no-profile-version-or-admission, unsupported-parameters, missing-current-rights-and-consent, no-durable-dispatch-intent]
+    legacyResultProjection:
+      disposition: LEGACY_JOB_REGISTRATION_OBSERVATION_ONLY
+      sourceFields: [jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status, createdAt, version, requestFingerprint]
+      canonicalRequiredButUnrepresentable: [canonical-operation-receipt, durable-dispatch-proof, canonical-job-state-evidence]
+      rule: Preserve ACCEPTED and OUTCOME_UNKNOWN literally; never map 202 to completed or accepted to durable queued.
+    routeDisposition: V1_ADAPTER_NOT_ADMITTED
+
+  - identity: listMediaJobs
+    id: media.http.adapter.list-jobs.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: null
+      outerOutcomeSemantics: ADAPTER_OBSERVATION_ONLY_NO_OWNER_OUTCOME_FIELD
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get/responses/200/content/application~1json/schema
+    canonicalOperationRef: media.operation.job-list.v1
+    canonicalHttpOperation: { method: GET, path: /api/v2/jobs, operationRef: media.operation.job-list.v1 }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/resultSchema }
+    sourceProjection:
+      query: { limit: { canonical: ownerRequest.limit, disposition: EXACT_VALUE_OR_OWNER_DEFAULT } }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+      selection: { disposition: PRINCIPAL_AND_TENANT_SCOPED_COLLECTION, pagination: NOT_SUPPORTED_BY_V1 }
+    rejectBeforeRead: [host-identity-unavailable, unsupported-filter-or-pagination-request, unauthorized-scope]
+    legacyResultProjection:
+      disposition: LEGACY_OBSERVATION_ONLY
+      sourceFields: [jobs]
+      canonicalRequiredButUnrepresentable: [observedAt, readVersion, stable-pagination-cursor]
+      rule: Preserve source status spelling and ordering as observations; do not infer completeness, finality, or canonical state from collection membership.
+    routeDisposition: V1_CANONICAL_PARITY_NOT_ADMITTED
+
+  - identity: getMediaJob
+    id: media.http.adapter.inspect-job.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [OBSERVED, NOT_FOUND_IN_CALLER_SCOPE], UNKNOWN_OBSERVATION: [OBSERVATION_UNAVAILABLE] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}/get
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJob
+    canonicalOperationRef: media.operation-slice.inspect-job
+    canonicalHttpOperation: { method: GET, path: "/api/v2/jobs/{jobId}", operationRef: media.operation-slice.inspect-job }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema/resultSchema }
+    sourceProjection:
+      path: { jobId: { canonical: ownerRequest.jobId, disposition: EXACT_IDENTITY_ONLY } }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+      selection: { version: RESPONSE_OBSERVATION_ONLY, sourceVersion: response.version-is-not-a-request-precondition }
+    rejectBeforeRead: [host-identity-unavailable, caller-supplied-tenant-or-principal-mismatch, unscoped-job-identity]
+    legacyResultProjection:
+      disposition: LEGACY_OBSERVATION_ONLY
+      sourceFields: [jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status, createdAt, startedAt, completedAt, result, failureCode, version, requestFingerprint]
+      canonicalRequiredButUnrepresentable: [canonical-state-evidence, attempt-finality, authorityReceipt]
+      rule: Status and version remain exact runtime observations; no canonical state or effect-finality conversion.
+    routeDisposition: V1_CANONICAL_PARITY_NOT_ADMITTED
+
+  - identity: cancelMediaJob
+    id: media.http.adapter.cancel-job.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [SUCCEEDED], REJECTED: [REJECTED], UNKNOWN_OUTCOME: [UNKNOWN_OUTCOME] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel/post
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/ProcessingJob
+    canonicalOperationRef: media.operation-slice.cancel-job
+    canonicalHttpOperation: { method: POST, path: "/api/v2/jobs/{jobId}:cancel", operationRef: media.operation-slice.cancel-job }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema }
+    sourceProjection:
+      path: { jobId: { canonical: ownerRequest.jobId, disposition: EXACT_IDENTITY_ONLY } }
+      body: { disposition: NO_BODY }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+    rejectBeforeEffect: [missing-requestId, missing-exact-job-version-or-CAS, missing-host-authority, cancellation-policy-not-rechecked, already-final-or-unknown-state-not-reconciled]
+    legacyResultProjection:
+      disposition: NO_CANONICAL_DOWNGRADE
+      sourceFields: [jobId, status, version, completedAt, failureCode]
+      canonicalRequiredButUnrepresentable: [cancel-requested-versus-cancelled, authoritative-cancellation-receipt, request-identity]
+      rule: A successful HTTP response is never promoted from cancellation requested to cancellation completed.
+    routeDisposition: REJECT_BEFORE_EFFECT
+
+  - identity: openMediaStream
+    id: media.http.adapter.open-stream.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [SUCCEEDED], REJECTED: [REJECTED], UNKNOWN_OUTCOME: [UNKNOWN_OUTCOME] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams/post
+    sourceRequestSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSessionRequest
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSessionRegistration
+    canonicalOperationRef: media.operation.capability.media-stream-session-open
+    canonicalHttpOperation: { method: POST, path: /api/v2/streams, operationRef: media.operation.capability.media-stream-session-open }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open/resultSchema }
+    sourceProjection:
+      body:
+        streamKind: { canonical: null, disposition: REJECT_UNREPRESENTABLE_STREAM_KIND_AND_TYPED_INPUT }
+        maximumBufferedBytes: { canonical: null, disposition: REJECT_UNREPRESENTABLE_BUFFER_BOUND }
+        leaseDuration: { canonical: null, disposition: REJECT_UNREPRESENTABLE_LEASE_DURATION }
+        correlationId: { canonical: null, disposition: REJECT_CORRELATION_ID_WITHOUT_EXPLICIT_REQUEST_ID }
+        tenantId: { canonical: trustedContext.tenantId, disposition: ASSERT_AND_COMPARE_ONLY }
+        principalId: { canonical: trustedContext.principalId, disposition: ASSERT_AND_COMPARE_ONLY }
+        providerHint: { canonical: null, disposition: REJECT_PROVIDER_HINT_WITHOUT_ADMITTED_PROFILE }
+        metadata: { canonical: null, disposition: REJECT_UNMAPPED_SEMANTIC_FIELDS }
+        governanceContext: { canonical: null, disposition: HOST_AUTHORITY_CONTEXT_REQUIRED_OUTSIDE_BODY }
+    rejectBeforeEffect: [missing-requestId, untrusted-tenant-or-principal, missing-source-version-and-clock-domain, missing-consent-purpose-currentness, unsupported-streamKind, unrepresentable-lease-or-buffer-bound, no-exact-profile-admission]
+    legacyResultProjection:
+      disposition: NO_CANONICAL_DOWNGRADE
+      sourceFields: [session, connectionToken]
+      canonicalRequiredButUnrepresentable: [canonical-session-receipt, source-and-consent-version, stream-clock, request-identity]
+      rule: Treat connectionToken as a one-time transport secret; never expose it as canonical domain data or evidence of media acceptance.
+    routeDisposition: V1_ADAPTER_NOT_ADMITTED
+
+  - identity: getMediaStream
+    id: media.http.adapter.inspect-stream.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: null
+      outerOutcomeSemantics: ADAPTER_OBSERVATION_ONLY_NO_OWNER_OUTCOME_FIELD
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}/get
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+    canonicalOperationRef: media.operation.stream-session.inspect.v1
+    canonicalHttpOperation: { method: GET, path: "/api/v2/streams/{sessionId}", operationRef: media.operation.stream-session.inspect.v1 }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/resultSchema }
+    sourceProjection:
+      path: { sessionId: { canonical: ownerRequest.sessionId, disposition: EXACT_IDENTITY_ONLY } }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+    rejectBeforeRead: [host-identity-unavailable, unauthorized-scope, source-state-or-authority-evidence-unavailable]
+    legacyResultProjection:
+      disposition: LEGACY_OBSERVATION_ONLY
+      sourceFields: [all-explicit-source-response-fields]
+      canonicalRequiredButUnrepresentable: [observedAt, readVersion, exact-state-authority, exact-state-evidence]
+      rule: Open-ended StreamSession is not a canonical state observation and cannot imply connected, closed, or frame-final status.
+    routeDisposition: V1_CANONICAL_PARITY_NOT_ADMITTED
+
+  - identity: connectMediaStream
+    id: media.http.adapter.connect-stream.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [SUCCEEDED], REJECTED: [REJECTED], UNKNOWN_OUTCOME: [UNKNOWN_OUTCOME] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1connect/post
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+    canonicalOperationRef: media.operation.capability.media-stream-session-connect
+    canonicalHttpOperation: { method: POST, path: "/api/v2/streams/{sessionId}:connect", operationRef: media.operation.capability.media-stream-session-connect }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-connect/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-connect/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-connect/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-connect/resultSchema }
+    sourceProjection:
+      path: { sessionId: { canonical: ownerRequest.input1.payload.streamSessionId, disposition: EXACT_IDENTITY_ONLY } }
+      body: { disposition: NO_BODY }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+    rejectBeforeEffect: [missing-requestId, missing-expected-session-version, missing-lease-or-reconnect-proof, host-authority-unavailable, unknown-prior-connect-outcome]
+    legacyResultProjection:
+      disposition: LEGACY_TRANSPORT_OBSERVATION_ONLY
+      sourceFields: [all-explicit-source-response-fields]
+      canonicalRequiredButUnrepresentable: [request-replay-identity, prior-attachment-disposition, authoritative-session-version]
+      rule: Connection establishment does not imply session authorization, accepted media, or durable reconnect finality.
+    routeDisposition: V1_ADAPTER_NOT_ADMITTED
+
+  - identity: submitMediaStreamFrame
+    id: media.http.adapter.submit-stream-frame.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [SUCCEEDED], REJECTED: [REJECTED], UNKNOWN_OUTCOME: [UNKNOWN_OUTCOME] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1frames~1{sequence}/post
+    sourceRequestSchemaRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1frames~1{sequence}/post/requestBody
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamAck
+    canonicalOperationRef: media.operation.capability.media-stream-frame-submit
+    canonicalHttpOperation: { method: POST, path: "/api/v2/streams/{sessionId}/frames/{sequence}", operationRef: media.operation.capability.media-stream-frame-submit }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-frame-submit/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-frame-submit/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-frame-submit/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-frame-submit/resultSchema }
+    sourceProjection:
+      path:
+        sessionId: { canonical: ownerRequest.input1.payload.streamSessionId, disposition: EXACT_IDENTITY_ONLY }
+        sequence: { canonical: ownerRequest.input1.payload.sequenceStart, disposition: EXACT_INTEGER_ONLY, units: zero-based sequence index }
+      header: { X-End-Of-Stream: { canonical: null, disposition: REJECT_UNREPRESENTABLE_END_OF_STREAM_FLAG } }
+      body: { application/octet-stream: { canonical: null, disposition: REJECT_UNREPRESENTABLE_FRAME_BODY_WITHOUT_TYPED_MEDIA_AND_DIGEST } }
+    rejectBeforeEffect: [missing-requestId, missing-session-version, missing-source-time-and-clock-domain, missing-consent-currentness, payload-size-or-type-outside-bounds, conflicting-replay-for-same-sequence]
+    legacyResultProjection:
+      disposition: LEGACY_TRANSPORT_ACK_ONLY
+      sourceFields: [acceptedSequence, bufferedBytes, backpressured]
+      canonicalRequiredButUnrepresentable: [payload-digest-receipt, persisted-frame-version, processed-finality, exact-replay-receipt]
+      rule: HTTP 202 and acceptedSequence confirm only the source acknowledgement, never processing or artifact creation.
+    routeDisposition: V1_ADAPTER_NOT_ADMITTED
+
+  - identity: closeMediaStream
+    id: media.http.adapter.close-stream.v2
+    resultOutcomeBinding:
+      ownerOutcomeField: outcome
+      outerToOwnerValues: { SUCCEEDED: [SUCCEEDED], REJECTED: [REJECTED], UNKNOWN_OUTCOME: [UNKNOWN_OUTCOME] }
+      otherOutcomes: REJECT
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1close/post
+    sourceResultSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+    canonicalOperationRef: media.operation.capability.media-stream-session-close
+    canonicalHttpOperation: { method: POST, path: "/api/v2/streams/{sessionId}:close", operationRef: media.operation.capability.media-stream-session-close }
+    canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-close/requestSchema
+    canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-close/resultSchema
+    envelopeBindings: { requestPayloadField: ownerRequest, requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-close/requestSchema, resultPayloadField: ownerResult, resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-close/resultSchema }
+    sourceProjection:
+      path: { sessionId: { canonical: ownerRequest.input1.payload.streamSessionId, disposition: EXACT_IDENTITY_ONLY } }
+      body: { disposition: NO_BODY }
+      headers: { tenant: trustedContext.tenantId, principal: trustedContext.principalId }
+    rejectBeforeEffect: [missing-requestId, missing-expected-session-version, missing-close-authority, pending-frame-outcome-not-reconciled]
+    legacyResultProjection:
+      disposition: NO_CANONICAL_DOWNGRADE
+      sourceFields: [all-explicit-source-response-fields]
+      canonicalRequiredButUnrepresentable: [close-request-identity, close-receipt, pending-frame-finality]
+      rule: A returned session DTO cannot prove all pending frame effects are final or that close was durably recorded.
+    routeDisposition: V1_ADAPTER_NOT_ADMITTED
+
+scopeBoundary:
+  exactIdentityCount: 13
+  legacyTransportVersion: contracts/openapi/media.yaml#/info/version
+  canonicalVersion: media.http.canonical-envelope.v2
+  sourceRoutesRemainUnchanged: true
+  directRuntimeRouteEquivalence: NOT_ESTABLISHED
+  endpointActivation: NOT_ADMITTED
+  externalAcceptance: OPEN

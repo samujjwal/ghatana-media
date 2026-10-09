@@ -3,6 +3,23 @@ artifactId: media.interface-parity.operation
 productId: media
 authority: .product-experience/pdp-1-domain-data/operations.yaml
 status: source-inventory-reconciliation; no-cross-interface-bindings-owner-accepted
+ownerDefinedSourceTruthMatrix:
+  id: media.interface.source-truth-matrix.v1
+  authority: Media owns semantic dispositions and candidate adapters; protocol implementation owners remain authoritative for observed method behavior.
+  purpose: Every inventoried public method, path, SDK method, and UI action has an exact identity, source owner, implementation/source evidence, and explicit semantic disposition; unknown or unsupported identity is named as a gap rather than inferred from its label.
+  populations:
+    - {surfaceCollectionRef: "#/surfaces", surfaceKeyField: surface, surfaceKey: UI action registry, identitySource: .product-experience/pdp-3-product-experience/action-registry.yaml, ownerSource: .product-experience/pdp-1-domain-data/operations.yaml, dispositionField: bindingStatus}
+    - {surfaceCollectionRef: "#/surfaces", surfaceKeyField: surface, surfaceKey: HTTP, identitySource: contracts/openapi/media.yaml, ownerSource: .product-experience/pdp-1-domain-data/operations.yaml, dispositionField: bindingStatus}
+    - {surfaceCollectionRef: "#/surfaces", surfaceKeyField: surface, surfaceKey: gRPC, identitySource: [modules/speech/stt-service/src/main/proto/stt_service.proto, modules/speech/tts-service/src/main/proto/tts_service.proto, modules/vision/vision-service/src/main/proto/vision_service.proto, modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto], ownerSource: .product-experience/pdp-1-domain-data/operations.yaml, dispositionField: bindingStatus}
+    - {surfaceCollectionRef: "#/surfaces", surfaceKeyField: surface, surfaceKey: SDK registry, identitySource: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml, ownerSource: .product-experience/pdp-1-domain-data/operations.yaml, dispositionField: bindingStatus}
+  requiredPerIdentity: [exact-source-identity, source-owner-or-external-owner, implementation-observation-or-explicit-not-implemented, candidate-or-non-operation-disposition, exact-canonical-reference-or-explained-unresolved-gap, runtime-and-independent-acceptance-state]
+  nonEquivalence: [matching-name-is-not-semantic-equivalence, implementation-observation-is-not-owner-acceptance, transport-only-is-not-domain-operation, owner-adapter-required-is-not-wire-parity, unresolved-is-explicit-not-implied-success]
+  status: OWNER_DEFINED_SOURCE_INVENTORY_AND_DISPOSITION; no cross-interface binding, runtime parity, or independent acceptance is implied.
+normativeRuleRecords:
+  - id: media.p2.rule.interface-source-truth-matrix.v1
+    ruleRef: .product-experience/interface-parity/operation-parity.yaml#ownerDefinedSourceTruthMatrix
+    sourceAuthority: .product-experience/interface-parity/operation-parity.yaml#authority
+    acceptanceEffect: none
 dispositions:
   accepted: 0
   mappedProposal: association-is-plausible-but-not-accepted
@@ -536,26 +553,26 @@ typedHttpCanonicalAdapterAssessments:
       requestFields: [purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, expiresAt]
       responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
       responseFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
-      canonicalOperationRef: null
-      disposition: OWNER_DEFINITION_REQUIRED
-      missingSemantics: [authority-issued-subject-and-principal-binding, exact-purpose-and-region-validity-scope, current-authority-receipt, idempotency-and-replay, explicit-effective-time-and-version, consent-source-of-truth]
+      canonicalOperationRef: media.operation.consent-record-grant.v1
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [canonical-requestId-required-for-owner-idempotency-but-absent-from-http-grant-request, authority-issued-subject-and-principal-binding, exact-purpose-and-region-validity-scope, current-authority-receipt, idempotency-and-replay, explicit-effective-time-and-version, authorityRef-and-observedAt-required-by-owner-result-are-absent-from-http-record, consent-source-of-truth]
       boundary: response shape alone cannot grant current consent or establish that the external authority accepted the record
     - identity: listMediaConsents
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents/get
       requestFields: [tenant-header, principal-header, limit]
       responseFields: ["consents[]"]
-      canonicalOperationRef: media.operation.action.inspect-consent-and-permitted-use
+      canonicalOperationRef: media.operation.consent-record-list.v1
       disposition: ADAPTER_REQUIRED
-      missingSemantics: [subject-or-consent-selection, purpose-and-region-scope, exact-version-selection, scoped-empty-result-versus-unauthorized-or-unavailable, current-authority-observation-time]
+      missingSemantics: [subject-or-consent-selection, purpose-and-region-scope, exact-version-selection, scoped-empty-result-versus-unauthorized-or-unavailable, observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-list-response]
       boundary: a collection read is not equivalent to inspecting one permitted-use decision; do not infer consent from an empty or partial collection
     - identity: getMediaConsent
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents~1{consentId}/get
       pathFields: [consentId]
       responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/ConsentRecord
       responseFields: [tenantId, consentId, principalId, purposes, allowedRegions, externalProcessingAllowed, biometricProcessingAllowed, grantedAt, expiresAt, revokedAt, version]
-      canonicalOperationRef: media.operation.action.inspect-consent-and-permitted-use
+      canonicalOperationRef: media.operation.consent-record-inspect.v1
       disposition: ADAPTER_REQUIRED
-      missingSemantics: [host-attested-tenant-and-principal, exact-consent-version, requested-purpose-and-region-evaluation, scope-safe-absence, current-authority-receipt]
+      missingSemantics: [host-attested-tenant-and-principal, exact-consent-version, requested-purpose-and-region-evaluation, scope-safe-absence, observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-record-response]
       boundary: consent record retrieval does not itself evaluate whether a protected effect is currently permitted
     - identity: revokeMediaConsent
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1consents~1{consentId}/delete
@@ -581,9 +598,9 @@ typedHttpCanonicalAdapterAssessments:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
       requestFields: [tenant-header, principal-header, limit]
       responseFields: ["jobs[]"]
-      canonicalOperationRef: null
-      disposition: OWNER_DEFINITION_REQUIRED
-      missingSemantics: [finite-query-filter-schema, stable-order-and-pagination-cursor, exact-tenant-principal-scope, authorization-safe-empty-versus-unavailable, observation-currentness]
+      canonicalOperationRef: media.operation.job-list.v1
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [finite-query-filter-schema, stable-order-and-pagination-cursor, exact-tenant-principal-scope, authorization-safe-empty-versus-unavailable, observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-job-list-response]
       boundary: collection enumeration cannot be inferred from the single-job inspect operation
     - identity: getMediaJob
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}/get
@@ -618,9 +635,9 @@ typedHttpCanonicalAdapterAssessments:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}/get
       pathFields: [sessionId]
       responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
-      canonicalOperationRef: null
-      disposition: OWNER_DEFINITION_REQUIRED
-      missingSemantics: [exact-session-observation-operation, trusted-host-tenant-principal, session-version-and-currentness, lease-versus-closed-finality, scope-safe-absence]
+      canonicalOperationRef: media.operation.stream-session.inspect.v1
+      disposition: ADAPTER_REQUIRED
+      missingSemantics: [exact-session-observation-operation, trusted-host-tenant-principal, session-version-and-currentness, lease-versus-closed-finality, observedAt-and-readVersion-and-authority-evidence-required-by-owner-query-are-absent-from-open-http-session-schema, scope-safe-absence]
       boundary: do not equate readback with connect, frame acceptance, lease renewal, or session closure
     - identity: connectMediaStream
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}~1connect/post
@@ -3561,9 +3578,9 @@ typedGrpcMethodContracts:
     outputMessageRef: modules/speech/stt-service/src/main/proto/stt_service.proto#message.Transcription
     mediaOwnerAdapterAssessment:
       id: media.interface-adapter-assessment.grpc.stt-stream-transcribe.v1
-      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records/@id=media.operation.capability.media-speech-transcription-stream
-      canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records/@id=media.operation.capability.media-speech-transcription-stream/requestSchema
-      canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records/@id=media.operation.capability.media-speech-transcription-stream/resultSchema
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-stream
+      canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-stream/requestSchema
+      canonicalResultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-stream/resultSchema
       sourceImplementationRef: modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java#streamTranscribe
       disposition: CANDIDATE_ONLY_ADAPTER_NOT_DEFINED; current-stream-method-does-not-satisfy-canonical-stream-contract
       observedWireInput: AudioChunk(audio_data,sample_rate,timestamp_ms,session_id)

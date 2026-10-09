@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
@@ -51,10 +52,15 @@ test("linked PDP source changes remain stale until their migration item claims a
     if (path.endsWith('/goals-jtbd.yaml')) {
       const current = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8'));
       const latestOwnerCut = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json'), 'utf8'));
+      const directCriteria = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json'), 'utf8'));
+      const currentP006Cut = directCriteria.records.find(({ taskId }) => taskId === 'P0-06')?.currentCorrectiveReview;
       assert.equal(record.observedCurrentSha256, '74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2', 'preserve prior impact observation');
       assert.equal(current.decisionRef, '.product-experience/decision-log.md#PXD-081', 'the four-measure observation remains an immutable historical cut');
       assert.equal(latestOwnerCut.decisionRef, '.product-experience/decision-log.md#PXD-090');
-      assert.equal(latestOwnerCut.currentFileSha256, currentHash, 'the latest reviewed goal owner cut binds exact current bytes');
+      assert.equal(latestOwnerCut.currentFileSha256, '28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea', 'PXD-090 remains an immutable historical goal-source cut');
+      assert.equal(currentP006Cut?.status, 'APPROVED_CURRENT_CORRECTION');
+      assert.equal(currentP006Cut?.decisionRef, '.product-experience/decision-log.md#PXD-105');
+      assert.equal(currentP006Cut?.sourceFingerprints[path], currentHash, 'the latest exact P0-06 review binds current goal-source bytes');
     } else {
       const historicalHashes = {
         '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml': '9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1',
@@ -65,11 +71,14 @@ test("linked PDP source changes remain stale until their migration item claims a
     }
     const currentObservation = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/linked-pdp-current-fingerprints.json'), 'utf8'));
     if (path.endsWith('/goals-jtbd.yaml')) {
+      const directCriteria = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json'), 'utf8'));
+      const currentP006Cut = directCriteria.records.find(({ taskId }) => taskId === 'P0-06')?.currentCorrectiveReview;
       assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256,
         JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8')).currentSha256,
-        'the PXD-081 measurement snapshot remains preserved after the PXD-090 owner-source review');
+        'the PXD-081 measurement snapshot remains preserved after later owner-source reviews');
       assert.notEqual(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash,
         'the old current-fingerprint artifact is not silently rewritten to the later reviewed cut');
+      assert.equal(currentP006Cut?.sourceFingerprints[path], currentHash, 'PXD-105 separately records the exact reviewed current correction');
     } else assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash);
     assert.match(currentObservation.authority, /Does not establish migration semantic parity/);
     assert.notEqual(pin, currentHash, `${path} remains stale pending reconciliation`);
@@ -141,18 +150,25 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   assert.equal(goalImpact.additionalCurrentBlocks[0].span[1], 626);
   assert.deepEqual(goalImpact.additionalCurrentBlocks[0].previousReviewedSpan, [477, 539]);
   assert.equal(goalImpact.additionalCurrentBlocks[0].header, "successMeasureContracts:");
-  const goalLines = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"), "utf8").split("\n");
   // The old span records a prior observation, not the later PXD-081 population.
   const currentImpact=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/goal-measure-current-impact.json"),"utf8"));
   const latestOwnerCut=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json"),"utf8"));
   assert.equal(currentImpact.decisionRef,".product-experience/decision-log.md#PXD-081");
   assert.equal(latestOwnerCut.decisionRef,".product-experience/decision-log.md#PXD-090");
-  assert.equal(latestOwnerCut.currentFileSha256,hashFile(currentImpact.source));
+  assert.equal(latestOwnerCut.priorSourceFileSha256,currentImpact.currentSha256,
+    "PXD-090 records the exact PXD-081 goal-source bytes as its prior snapshot");
+  assert.equal(latestOwnerCut.currentFileSha256,"28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+    "PXD-090 remains an immutable historical current-file fingerprint");
+  const directCriteria=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"),"utf8"));
+  const currentP006=directCriteria.records.find(({taskId})=>taskId==="P0-06")?.currentCorrectiveReview;
+  assert.equal(currentP006?.sourceFingerprints[ currentImpact.source ],hashFile(currentImpact.source),
+    "PXD-105 separately binds the exact current goal bytes");
   assert.deepEqual(currentImpact.historicalSuccessMeasureBlock.span,goalImpact.additionalCurrentBlocks[0].span);
-  const [first,last]=currentImpact.currentSuccessMeasureBlock.span;
-  assert.equal(goalLines[first-1],"successMeasureContracts:");
-  assert.equal(last-first+1,currentImpact.currentSuccessMeasureBlock.lineCount);
-  assert.equal(createHash("sha256").update(goalLines.slice(first-1,last).join("\n")+"\n").digest("hex"),currentImpact.currentSuccessMeasureBlock.sha256);
+  const pxd081Source=execFileSync("git",["show",`${latestOwnerCut.priorSourceCommit}:${latestOwnerCut.sourcePath}`],{encoding:"utf8",maxBuffer:16*1024*1024});
+  assert.equal(createHash("sha256").update(pxd081Source).digest("hex"),currentImpact.currentSha256,
+    "the historical PXD-081 goal bytes remain recoverable from PXD-090's prior commit");
+  const historicalMeasures=parse(pxd081Source).successMeasureContracts;
+  assert.equal(createHash("sha256").update(JSON.stringify(historicalMeasures)).digest("hex"),latestOwnerCut.existingSuccessMeasuresPreservedSha256);
   const currentMeasures=readYaml(currentImpact.source).successMeasureContracts;
   assert.equal(currentMeasures.records.length,currentImpact.measurementContracts);
   assert.equal(currentMeasures.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records.length,currentImpact.normativeApplicabilityDispositions);

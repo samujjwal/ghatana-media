@@ -6,3 +6,14 @@ scopeStatus: proposal; compatibility policy requires API owner approval
 acceptance: {criteria: [changes are classified for request and response compatibility, clients tolerate documented additive fields, semantic changes are not disguised as additive], status: pending-review}
 verification: {method: Compare published contract revisions with compatibility tooling and representative generated clients, status: not-run}
 rules: [do not change identifier meaning or state semantics in place without an approved compatibility migration, classify additive response fields against supported client behavior, document enum expansion as potentially breaking for exhaustive clients, define removal migration/deprecation periods through owner-approved policy, breaking changes follow a major-version policy only after that policy is approved]
+ownerDefinedCompatibilityRules:
+  - id: media.api.no-parallel-product-fork.v1
+    rule: Media remains one product with one current semantic owner. Do not create a parallel V2 product or preserve an indefinite compatibility-code fork. A breaking contract change requires an explicit owner-approved migration path, versioned compatibility window, affected-client disposition, and end condition; until those are authored, keep the affected change pending and do not imply compatibility.
+    requiredEvidence: [exact-owner-contract-version, old-and-new-semantic-diff, affected-client-population, migration-and-deprecation-window, explicit-end-condition]
+    negativeCases: [parallel-product-created-to-avoid-migration,compatibility-branch-without-end-condition,unapproved-semantic-change-called-additive]
+    scopeStatus: OWNER_DEFINED_COMPATIBILITY_POLICY; no API owner approval, deployment, or runtime compatibility is asserted.
+normativeRuleRecords:
+  - id: media.p2.rule.api-no-parallel-product-fork.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/compatibility.yaml#/ownerDefinedCompatibilityRules/@id=media.api.no-parallel-product-fork.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/compatibility.yaml#authority
+    acceptanceEffect: none

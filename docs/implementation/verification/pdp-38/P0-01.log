@@ -2,57 +2,63 @@ TAP version 13
 # Subtest: all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
 ok 1 - all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
   ---
-  duration_ms: 1154.153087
+  duration_ms: 1159.260267
   type: 'test'
   ...
 # Subtest: all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
 ok 2 - all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
   ---
-  duration_ms: 6576.911508
+  duration_ms: 10378.162367
   type: 'test'
   ...
 # Subtest: owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
 ok 3 - owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
   ---
-  duration_ms: 843.322414
+  duration_ms: 1114.894758
+  type: 'test'
+  ...
+# Subtest: owner wire base selectors resolve an exact real operation, profile, and bound
+ok 4 - owner wire base selectors resolve an exact real operation, profile, and bound
+  ---
+  duration_ms: 587.111373
   type: 'test'
   ...
 # Subtest: simulation passes reject cross-pass output, missing provenance and wrong source bindings
-ok 4 - simulation passes reject cross-pass output, missing provenance and wrong source bindings
+ok 5 - simulation passes reject cross-pass output, missing provenance and wrong source bindings
   ---
-  duration_ms: 46.987959
+  duration_ms: 85.266989
   type: 'test'
   ...
 # Subtest: edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
-ok 5 - edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
+ok 6 - edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
   ---
-  duration_ms: 44.895012
+  duration_ms: 71.846007
   type: 'test'
   ...
 # Subtest: owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
-ok 6 - owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
+ok 7 - owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
   ---
-  duration_ms: 1.939112
+  duration_ms: 2.916024
   type: 'test'
   ...
 # Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
-ok 7 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+ok 8 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
   ---
-  duration_ms: 1779.386112
+  duration_ms: 1838.915093
   type: 'test'
   ...
 # Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-ok 8 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 9 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
   ---
-  duration_ms: 19760.620631
+  duration_ms: 25250.619627
   type: 'test'
   ...
-1..8
-# tests 8
+1..9
+# tests 9
 # suites 0
-# pass 8
+# pass 9
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 32493.791415
+# duration_ms 42878.262496

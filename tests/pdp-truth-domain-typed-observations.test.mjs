@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
+import { typedObservationRequestFingerprint, validateRetryPolicyCurrentRead } from "../scripts/lib/pdp-truth-domain-observation-currentness.mjs";
 
 const root=resolve(new URL("..",import.meta.url).pathname);
 const parse=createRequire(resolve(root,"../ghatana-tools/package.json"))("yaml").parse;
@@ -32,8 +33,8 @@ function schemaWalk(schema,path){
   // declared by sibling/base schemas.
 }
 
-test("seven observation schemas are stable typed query definitions and never imply runtime binding",()=>{
-  assert.equal(contracts.records.length,7);
+test("eight observation schemas are stable typed query definitions and never imply runtime binding",()=>{
+  assert.equal(contracts.records.length,8);
   assert.match(contracts.status,/existing-runtime-binding-NOT_ESTABLISHED/);
   assert.deepEqual([...byId.keys()].sort(),[
     "media.observation-contract.declared-options.v1",
@@ -42,6 +43,7 @@ test("seven observation schemas are stable typed query definitions and never imp
     "media.observation-contract.provenance-completeness.v1",
     "media.observation-contract.quality-action-plan.v1",
     "media.observation-contract.quality-evidence.v1",
+    "media.observation-contract.retry-policy-current-read.v1",
     "media.observation-contract.rights-decision.v1",
   ]);
   for(const record of contracts.records){
@@ -82,7 +84,8 @@ test("seven observation schemas are stable typed query definitions and never imp
 
 test("raw rights, quality, profile and provenance observations retain their fail-closed material predicates",()=>{
   const validation=new Map(rules.records.map(row=>[row.observationContractRef,row]));
-  assert.equal(validation.size,7);
+  assert.equal(validation.size,8);
+  assert.equal(rules.records.length,8, "each observation contract has exactly one unique validator");
   const rights=byId.get("media.observation-contract.rights-decision.v1");
   assert.deepEqual(rights.requestSchema.required,["queryId","subjectArtifactVersionRef","decisionKind","purposeRef","useRef","regionRef","retentionPolicyRef"]);
   assert.ok(rights.resultSchema.properties.observationStatus.enum.includes("UNKNOWN"));
@@ -135,4 +138,33 @@ test("new declared-options and quality-plan queries have explicit positive and n
   assert.ok(language.resultSchema.allOf.some(row=>row.if?.properties?.uncertaintyDisposition?.const==="UNCERTAIN"&&row.then?.required?.includes("evidenceRefs")));
   assert.ok(language.resultSchema.allOf.some(row=>row.if?.properties?.uncertaintyDisposition?.const==="NOT_UNCERTAIN"&&row.then?.required?.includes("observedLanguageTag")));
   assert.match(JSON.stringify(language),/no numeric confidence threshold/iu);
+  const retry=byId.get("media.observation-contract.retry-policy-current-read.v1");
+  assert.equal(retry.operationKind,"QUERY");
+  assert.equal(retry.scopeStatus.includes("NOT_ADMITTED_OR_UNKNOWN"),true);
+  assert.equal(retry.resultSchema.properties.observation.oneOf.length,2);
+  assert.ok(retry.bindingRules.some(rule=>rule.rightRef==="$.result.observation.jobId"));
+  assert.ok(validation.get(retry.id).predicates.some(row=>row.require.includes("retriesRemaining equals maximumExplicitRetries")));
+  assert.ok(validation.get(retry.id).predicates.some(row=>row.when.includes("EFFECT_UNKNOWN")));
+});
+
+
+test("retry-policy read is exact current evidence and never self-authorizes a retry",()=>{
+  const contract=byId.get("media.observation-contract.retry-policy-current-read.v1");
+  const request={queryId:"query-1",jobId:"job-7",priorAttemptId:"attempt-2"};
+  const trusted={tenantScopeRef:"tenant-1",principalRef:"principal-4",expectedOperationRef:"media.operation.action.inspect-job-retry-policy",expectedReadAuthorityRef:contract.readAuthorityRefs[0],expectedReadVersion:"read-v9"};
+  const result={tenantScopeRef:trusted.tenantScopeRef,principalRef:trusted.principalRef,queryId:request.queryId,operationRef:trusted.expectedOperationRef,requestFingerprint:typedObservationRequestFingerprint(request,trusted),readAuthorityRef:trusted.expectedReadAuthorityRef,currentness:"CURRENT",readVersion:trusted.expectedReadVersion,observedAt:"2026-10-09T12:00:00Z",observation:{kind:"OBSERVED_RETRY_POLICY_AND_ATTEMPT",jobId:request.jobId,priorAttemptId:request.priorAttemptId,jobVersionRef:"job-version-7",attemptVersionRef:"attempt-version-2",capabilityRef:"media.job.retry",retryOperationRef:"media.operation-slice.retry-job",profileRef:"media.capability-profile.media-job",boundsRef:"media.capability-bounds.media-job-retry",policyVersionRef:"policy-version-3",retryability:"NOT_RETRYABLE",outcomeClass:"DEFINITIVE_RETRYABLE_FAILURE",budgetUnit:"ADDITIONAL_ATTEMPTS_PER_LOGICAL_JOB",maximumExplicitRetries:0,retriesUsed:0,retriesRemaining:0}};
+  const args={contract,request,result,trusted,now:"2026-10-09T12:00:05Z",maxAgeMs:60000};
+  assert.deepEqual(validateRetryPolicyCurrentRead(args),{truth:"TRUE",reason:"EXACT_CURRENT_RETRY_POLICY_AND_ATTEMPT_READ"});
+  const wrongJob=structuredClone(result); wrongJob.observation.jobId="job-foreign";
+  assert.deepEqual(validateRetryPolicyCurrentRead({...args,result:wrongJob}),{truth:"UNKNOWN",reason:"OBSERVATION_BINDING_RULE_MISMATCH"});
+  const falseBudget=structuredClone(result); falseBudget.observation.retriesRemaining=1;
+  assert.deepEqual(validateRetryPolicyCurrentRead({...args,result:falseBudget}),{truth:"UNKNOWN",reason:"RETRY_BUDGET_OR_OWNER_BINDING_INCONSISTENT"});
+  const inventedRetry=structuredClone(result); inventedRetry.observation.retryability="RETRYABLE";
+  assert.deepEqual(validateRetryPolicyCurrentRead({...args,result:inventedRetry}),{truth:"UNKNOWN",reason:"RETRYABILITY_CONTRADICTS_OUTCOME_OR_BUDGET"});
+  const stale=structuredClone(result); stale.currentness="STALE";
+  assert.deepEqual(validateRetryPolicyCurrentRead({...args,result:stale}),{truth:"UNKNOWN",reason:"READ_CURRENTNESS_NOT_ESTABLISHED"});
+  const foreignAuthority=structuredClone(result); foreignAuthority.readAuthorityRef=".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.effectBoundary";
+  assert.deepEqual(validateRetryPolicyCurrentRead({...args,result:foreignAuthority}),{truth:"UNKNOWN",reason:"OBSERVATION_RESULT_INVALID_OR_OPEN"});
+  const forgedRequest={...request,tenantId:"tenant-foreign"};
+  assert.deepEqual(validateRetryPolicyCurrentRead({...args,request:forgedRequest}),{truth:"UNKNOWN",reason:"OBSERVATION_REQUEST_INVALID_OR_OPEN"});
 });

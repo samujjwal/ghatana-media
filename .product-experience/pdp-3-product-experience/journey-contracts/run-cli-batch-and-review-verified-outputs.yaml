@@ -176,6 +176,15 @@ steps:
         requirementRefs: []
         scenarioRefs: []
         capabilityRefs: []
+        localEffectContractId: media.local-step-effect.j-24.step-01.v1
+        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-24.step-01.v1
+        localObjectRef: media.local-object.editor-session-draft
+        localDraftSlotRef: media.local-draft.slot.workflow-intent
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         status: not-run
         requiredChecks:
@@ -252,12 +261,12 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/0
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          objectRefs: NO_CANONICAL_PRODUCT_OBJECT; LOCAL_EDITOR_SESSION_DRAFT_ONLY
+          stateRefs: LOCAL_EDITOR_SESSION_REVISION; NOT_PDP1_DOMAIN_STATE
           canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
+          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null
         authorityRefs: []
@@ -265,7 +274,8 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
+          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs: []
         versionIdentityRule: Exact immutable version identity is required whenever the
@@ -273,6 +283,11 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml
         observation: null
         runtimeAdmission: NOT_ADMITTED
+        localObjectRef: media.local-object.editor-session-draft
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Intent/recipe and safe outcome settings
@@ -307,6 +322,7 @@ steps:
           - .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
+      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-24.step-01.v1
     scenarioRefs: []
     capabilityRefs: []
   - view: media.view.review-creation-plan
@@ -680,7 +696,7 @@ steps:
       proposal: Stop watching separately from cancellation; reconcile accepted work
         and continue only unambiguous eligible items.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -788,12 +804,12 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         status: not-run
         requiredChecks:
@@ -943,8 +959,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -958,7 +974,7 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
-    capabilityRefs: [media.job.view-status]
+    capabilityRefs: [ media.job.view-status ]
   - view: media.view.review-outputs
     legacyViewRef: M-OUTPUTS
     screenContractRef: screen-contracts/review-outputs.yaml
@@ -1004,7 +1020,7 @@ steps:
       proposal: Stop watching separately from cancellation; reconcile accepted work
         and continue only unambiguous eligible items.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       status: not-run
       requiredChecks:
@@ -1109,9 +1125,9 @@ steps:
         canonicalOperationRef: media.operation-slice.inspect-artifact
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         scenarioRefs: []
-        capabilityRefs: [media.artifact.inspect]
+        capabilityRefs: [ media.artifact.inspect ]
       verification:
         status: not-run
         requiredChecks:
@@ -1260,8 +1276,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.artifact.inspect]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        capabilityRefs: [ media.artifact.inspect ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
@@ -1271,7 +1287,7 @@ steps:
           - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
     scenarioRefs: []
-    capabilityRefs: [media.artifact.inspect]
+    capabilityRefs: [ media.artifact.inspect ]
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

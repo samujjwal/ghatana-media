@@ -1,0 +1,6 @@
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+ WARN  Issue while reading "/home/samujjwal/Developments/ghatana-tools/.npmrc". Failed to replace env in config: ${GITHUB_TOKEN}
+
+> @ghatana/experience-specification@0.1.0-SNAPSHOT typecheck /home/samujjwal/Developments/ghatana-tools/libs/product-development/experience-specification
+> tsc --noEmit -p tsconfig.json
+

@@ -315,15 +315,36 @@ test("all 14 existing-operation capability bindings resolve to their exact sourc
     .map((row) => [row.ownerWireSchema.operationRef, row.ownerWireSchema]));
   const ajv = buildAjv();
   const validatedWireIds = new Set();
+  const resolveOperationSelector = (ref) => {
+    const prefix = ".product-experience/pdp-1-domain-data/operations.yaml#";
+    assert.ok(typeof ref === "string" && ref.startsWith(prefix), `exact operations source selector: ${ref}`);
+    let value = operations;
+    for (const part of ref.slice(prefix.length).split("/")) {
+      const id = /^@id=(.+)$/u.exec(part);
+      if (id) {
+        assert.ok(Array.isArray(value), `identity selector traverses an array: ${ref}`);
+        const matches = value.filter((row) => row?.id === id[1]);
+        assert.equal(matches.length, 1, `exact identity selector has one match: ${ref}`);
+        [value] = matches;
+      } else value = Array.isArray(value) && /^\d+$/u.test(part) ? value[Number(part)] : value?.[part];
+      assert.notEqual(value, undefined, `selector resolves: ${ref}`);
+    }
+    return value;
+  };
   for (const binding of bindings) {
     assert.deepEqual(binding.canonicalWireSchemaRefs.length, binding.operationRefs.length, `${binding.capabilityRef} has an exact wire-schema ref per canonical source operation`);
     for (let index = 0; index < binding.operationRefs.length; index++) {
       const operationRef = binding.operationRefs[index];
       const source = sourceById.get(operationRef);
       assert.ok(source, `${binding.capabilityRef} unknown source operation ${operationRef}`);
+      const sourceRef = binding.canonicalSourceContractRefs[index];
+      const resolvedSource = resolveOperationSelector(sourceRef);
+      assert.equal(resolvedSource.id, operationRef, `${binding.capabilityRef} selector resolves to declared operation`);
       const wire = sourceWireByOperation.get(operationRef);
       assert.ok(wire, `${operationRef} has no source-owned wire schema`);
-      assert.equal(binding.canonicalWireSchemaRefs[index], `${binding.canonicalSourceContractRefs[index]}.ownerWireSchema`);
+      assert.equal(binding.canonicalWireSchemaRefs[index], `${sourceRef}/ownerWireSchema`);
+      assert.equal(resolveOperationSelector(binding.canonicalWireSchemaRefs[index]), source.ownerWireSchema,
+        `${operationRef} wire-schema reference resolves through source tree`);
       assert.equal(wire.operationRef, operationRef);
       assert.equal(wire.operationKind, source.operationKind ?? source.ownerDefinition?.operationKind ?? source.operationKind);
       if (wire.requestSchema.oneOf) assert.ok(wire.requestSchema.oneOf.every((branch) => branch.additionalProperties === false));
@@ -397,4 +418,7 @@ test("all 14 existing-operation capability bindings resolve to their exact sourc
   const resume = bindings.find(({ capabilityRef }) => capabilityRef === "media.artifact.upload.resume");
   assert.deepEqual(resume.operationRefs, ["media.operation-slice.inspect-upload", "media.operation-slice.append-upload-chunk", "media.operation-slice.complete-upload"],
     "upload resume retains its exact inspect → append → complete sequence");
+  const foreignRef = bindings[0].canonicalSourceContractRefs[0].replace("operations.yaml#", "privacy.yaml#");
+  assert.throws(() => resolveOperationSelector(foreignRef), /exact operations source selector/u,
+    "a valid foreign-file selector cannot satisfy an operation binding");
 });

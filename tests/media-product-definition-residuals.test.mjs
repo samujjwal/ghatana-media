@@ -52,11 +52,11 @@ test("residual report validates exact projection dispositions and pinned sources
     limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
   });
   assert.deepEqual(report.projections.map(({ phase }) => phase), ["PDP-0", "PDP-2", "PDP-3"]);
-  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 9]);
+  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 5]);
   assert.deepEqual(report.projections.map(({ unresolvedFields }) => unresolvedFields.map(({ field }) => field)), [
     [],
     [],
-    ["actions", "componentContracts", "effects", "finality", "fixtures", "journeys", "scenarios", "transitions", "views"],
+    ["actions", "effects", "finality", "journeys", "transitions"],
   ]);
   assert.deepEqual(report.projections[0].intentionalOmissions.map(({ field, status }) => ({ field, status })), [
     { field: "createdAt", status: "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY" },

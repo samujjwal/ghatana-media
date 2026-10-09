@@ -145,7 +145,7 @@ factSchemas:
               type: string
               minLength: 1
     trustBoundary:
-      exactSource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.list-projects
+      exactSource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.list-projects
       completeResult: A null nextPageToken means the owner query returned its final
         page; an empty partial page is not global absence.
       authority: The result readAuthorityRef and readVersion must exactly match
@@ -220,9 +220,9 @@ factSchemas:
           type: string
           minLength: 1
         queryResult:
-          $ref: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema.resultSchema
+          $ref: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema/resultSchema
     trustBoundary:
-      exactSource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema
+      exactSource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema
       trustedContext: Bind tenantId, principalId, jobId, operationRef, readVersion,
         readAuthorityRef, now, and maxAgeMs from the caller/host context, not
         the returned result.
@@ -378,9 +378,9 @@ factSchemas:
           type: string
           minLength: 1
         queryResult:
-          $ref: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema.resultSchema
+          $ref: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema/resultSchema
     trustBoundary:
-      exactSource: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema
+      exactSource: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema
       trustedContext: Tenant, principal, artifact, immutable version, current
         state/read revisions, current authority, evidence reference, now, and
         max age come from separately established context.

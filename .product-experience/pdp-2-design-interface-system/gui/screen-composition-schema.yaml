@@ -36,6 +36,16 @@ fieldRules:
   actions: Each actionRef resolves to media.action; declare preconditions and finalityRef; presentation is not authorization.
   responsive: Changes arrangement and disclosure only; it cannot change semantics or remove critical state.
   status: Proposed contracts do not assert implementation, qualification, or acceptance.
+semanticCoverageRequirement:
+  id: media.gui.composition-semantic-coverage.v1
+  status: OWNER_DEFINED_REQUIREMENT; per-screen source coverage and acceptance remain independently reviewable.
+  categories:
+    - {id: meaning-actors-outcomes-requirements, requiredRefs: [.product-experience/pdp-0-product-truth/goals-jtbd.yaml, .product-experience/pdp-0-product-truth/capabilities.yaml], rule: "Bind each screen to its exact product goal, actors, outcomes, requirement, and applicable capability; do not copy an unrelated family summary as screen meaning."}
+    - {id: domain-time-units, requiredRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml, .product-experience/pdp-1-domain-data/value-objects.yaml], rule: "Bind displayed domain identities and time/unit values to canonical owner definitions and exact conversion profiles; presentation text cannot redefine them."}
+    - {id: authority-and-rights, requiredRefs: [.product-experience/pdp-1-domain-data/authority.yaml, .product-experience/pdp-1-domain-data/privacy.yaml], rule: "Bind each consequential display or action to its authority and rights/consent source; visibility, selection, or confirmation is not permission."}
+    - {id: state-failure-and-finality, requiredRefs: [.product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/operations.yaml], rule: "Bind state, failure, recovery, and effect-finality to their exact owning machine or operation; visual labels and job progress cannot invent completion."}
+    - {id: dependencies-and-nfrs, requiredRefs: [.product-experience/pdp-0-product-truth/dependency-contracts.yaml, .product-experience/pdp-0-product-truth/quality-policy.yaml], rule: "Bind required external dependencies and applicable measurable quality/NFR clauses, preserving unknown or unqualified status instead of promising a quality result."}
+  negativeCases: [missing-product-goal-or-actor-source,domain-or-unit-inferred-from-label,screen-selection-used-as-authority,visual-state-used-as-finality,unqualified-quality-presented-as-guarantee,unbound-dependency-described-as-available]
 example:
   schemaVersion: media.gui-screen-composition.v1
   viewId: media.view.job-status
@@ -50,3 +60,8 @@ example:
       accessibilityOrder: 1
   acceptance: {status: pending-owner-review, criteria: [state-and-finality-remain-distinct]}
   verification: {status: not-run, method: Resolve references and review against the job contract}
+normativeRuleRecords:
+  - id: media.p2.rule.gui-composition-semantic-coverage.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#semanticCoverageRequirement
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml#authority
+    acceptanceEffect: none

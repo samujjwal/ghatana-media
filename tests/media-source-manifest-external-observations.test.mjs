@@ -26,7 +26,10 @@ test("generated external-owner observations pin the current sibling source HEADs
     const generated = generatedById.get(repositoryId);
     assert.ok(generated, `missing generated external observation for ${repositoryId}`);
 
-    if (!existsSync(snapshot.path)) {
+    // Validate the same sibling checkout used by the manifest generator.
+    // The historical crosswalk absolute path belongs to its original inspection.
+    const repositoryRoot = resolve(root, "..", repositoryId);
+    if (!existsSync(repositoryRoot)) {
       assert.equal(generated.available, false, `${repositoryId} absence must be explicit`);
       assert.equal(generated.revision, "UNAVAILABLE");
       t.diagnostic(`${repositoryId}: checkout unavailable; generator records unavailable status`);
@@ -34,9 +37,9 @@ test("generated external-owner observations pin the current sibling source HEADs
     }
 
     assert.equal(generated.available, true, `${repositoryId} exists but manifest says unavailable`);
-    const head = execFileSync("git", ["-C", snapshot.path, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    const head = execFileSync("git", ["-C", repositoryRoot, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
     assert.equal(generated.revision, head, `${repositoryId} HEAD pin is stale`);
-    const currentWorkingTree = execFileSync("git", ["-C", snapshot.path, "status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim()
+    const currentWorkingTree = execFileSync("git", ["-C", repositoryRoot, "status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }).trim()
       ? "MODIFIED"
       : "CLEAN";
     assert.equal(generated.workingTree, currentWorkingTree, `${repositoryId} tracked worktree status is stale`);
@@ -45,7 +48,7 @@ test("generated external-owner observations pin the current sibling source HEADs
     assert.equal(filesByPath.size, generated.files.length, `${repositoryId} has duplicate generated paths`);
 
     for (const path of expectedPaths) {
-      const filePath = resolve(snapshot.path, path);
+      const filePath = resolve(repositoryRoot, path);
       const observation = filesByPath.get(path);
       if (!existsSync(filePath)) {
         assert.equal(observation.state, "UNAVAILABLE", `${repositoryId}:${path} missing without explicit status`);

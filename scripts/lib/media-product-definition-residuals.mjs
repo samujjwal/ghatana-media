@@ -816,19 +816,19 @@ function lifecycleReport(root, diagnostics) {
 function journeyStepReport(root, source, diagnostics) {
   const path = ".product-experience/pdp-3-product-experience/journey-registry.yaml";
   const registry = readText(root, path);
-  const journeySection = topLevelSection(registry, "journeys");
-  const journeyBlocks = journeySection.split(/(?=^- id: J-\d+)/mu).filter((block) => block.startsWith("- id: J-"));
+  const parsedRegistry = parseYaml(registry);
+  const journeyRecords = parsedRegistry.journeys ?? [];
   const coverageObservation = topLevelSection(registry, "coverageObservation");
-  const currentStepObservation = parseYaml(registry).currentStepBindingObservation;
+  const currentStepObservation = parsedRegistry.currentStepBindingObservation;
   const stepBindings = indentedSection(coverageObservation, "stepBindings", 2);
   const rows = [];
   const journeyRefs = [];
   const seenJourneyIds = new Set();
 
-  for (const journey of journeyBlocks) {
-    const id = journey.match(/^- id: (J-\d+)/mu)?.[1];
-    const title = journey.match(/^  title: ([^\n]+)/mu)?.[1]?.trim() ?? null;
-    const contract = journey.match(/^  contract: ([^\n]+)/mu)?.[1]?.trim();
+  for (const journey of journeyRecords) {
+    const id = journey.id;
+    const title = journey.title ?? null;
+    const contract = journey.contract;
     if (!id || !contract || seenJourneyIds.has(id)) {
       diagnostics.push(`${path} has a missing, duplicate, or contract-less journey registry record`);
       continue;

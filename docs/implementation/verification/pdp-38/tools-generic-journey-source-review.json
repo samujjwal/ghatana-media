@@ -1,0 +1,77 @@
+{
+  "decisionId": "PXD-107",
+  "decision": "APPROVED_SOURCE_DEPENDENCY_ONLY",
+  "owner": "Media delegated coordinator",
+  "toolsSourceCommit": "cb4feaeb23afdd00c048fb9014c4b38c9b8fc506",
+  "initialCommit": "19fba7e1c8bb3a779b66412343f1dbeb182a6f7e",
+  "scope": "Optional generic journey scenario references and typed step semantics required by PDP-3 source projection",
+  "review": {
+    "schemaDelta": "Only optional journey.scenarioRefs and journeyStep.semantics added; existing parsed schema fields preserved.",
+    "bindingRules": [
+      "Closed binding dispositions distinguish action choice, ordered commands, passive queries, local-only and no-dispatch steps.",
+      "Action and operation references are unique; choices cover each branch without counting an action and its own operation twice.",
+      "Supporting operations are separate QUERY-only references with paired kinds and no overlap with primary operations.",
+      "Canonical operation kind is checked when the owner resolver callback is supplied; absent callbacks do not prove canonical kind.",
+      "Local references resolve against declared source objects; external references require owner resolver approval."
+    ],
+    "correction": "Concurrent edits entered the initial staging boundary and omitted two supporting-query declarations. Follow-up cb4 restores declarations; the exact corrected source passed all recorded checks.",
+    "excludedFutureWork": "Uncommitted actorRefs/sourceRefs changes are outside this approval.",
+    "schemaDeltaEvidence": {
+      "ref": "docs/implementation/verification/pdp-38/tools-generic-journey-schema-delta.json",
+      "sha256": "74cedacda47145342b000351db06d7d31164cf2ada1b219ca03261cf21d67ed8",
+      "priorCommit": "6ed280283872df7889369b71abb3c9e62cb17f8d",
+      "currentCommit": "cb4feaeb23afdd00c048fb9014c4b38c9b8fc506",
+      "changedParsedPaths": [
+        "definitions.journeyStep.properties.semantics",
+        "definitions.journey.properties.scenarioRefs"
+      ],
+      "existingEffectAndFinalityDefinitions": "UNCHANGED_PARSED_VALUES"
+    }
+  },
+  "verification": {
+    "tests": {
+      "passed": 38,
+      "failed": 0
+    },
+    "typecheck": "PASS",
+    "build": "PASS",
+    "packageConsumer": "PASS",
+    "sourcePinsStableBeforeAfter": true,
+    "sourcePins": {
+      "libs/product-development/experience-specification/CONSUMER_GUIDE.md": "e8f4eac871013563e7dc434f03059c99dc06314474b9fbc51d90431b5210aae4",
+      "libs/product-development/experience-specification/README.md": "7bbe3304e2388e37cbd46c36f3f504092747a15f08e4f021b16e8d48e92bfbb1",
+      "libs/product-development/experience-specification/TESTING.md": "92b4175ad2dae82fddb1f658053a75eb1fb3cdcacea337da983ae281715e33d4",
+      "libs/product-development/experience-specification/docs/REQUIREMENTS.md": "c2bd30a57c7b53eafbec8de864ae2722018fdf8d5cf5fcd5436693a4ce9784ef",
+      "libs/product-development/experience-specification/package.json": "8c3d3a7dece2879eeada603c67fb49f1af4e1b95f864ef72483db8c2e6923b6f",
+      "libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json": "1caa300206fc9395ac1b8b2c110d3d4eab4f35b4d86d74554c3dcd4016c80267",
+      "libs/product-development/experience-specification/scripts/public-type-api.snapshot.json": "78b0607f235020bf148ee90394a958cf56e80964840e9ed8b442e24091b8495e",
+      "libs/product-development/experience-specification/scripts/verify-consumer.mjs": "d7841ba2e46243346d34e8e8e7a68f2c8726fd2091d346303e6a2e24392a6a11",
+      "libs/product-development/experience-specification/src/__tests__/experience-spec-validation.test.ts": "620d5c742e0f8428fb204e4a285224d2c97d40ca844f12bb802c95efe333c290",
+      "libs/product-development/experience-specification/src/__tests__/experience-spec.test.ts": "13418770324216b3b4a554aa795e367dae36d4e927be754fffcd8cb18d4b8336",
+      "libs/product-development/experience-specification/src/index.ts": "585dbf913824dd104d101044650cf68377591429133419438f2d749f1a80c58d",
+      "libs/product-development/experience-specification/tsconfig.build.json": "498e7435636d8c4b35c8a788aa4e323d561de95043b92c8b97338e7ba2d7563f",
+      "libs/product-development/experience-specification/tsconfig.json": "343e4bae3669c0dc459af4e21598873452bba5eb6191997354952926c562c271",
+      "libs/product-development/experience-specification/vitest.config.ts": "93cfe619e80cc8ffa100ef26704d6f3c3a10b01ae0e3d682b967c973981d34ae"
+    },
+    "logs": {
+      "tools-journey-38-tests.log": {
+        "sha256": "e26912ceff04e7a57e70e693f9f030642ab65845f744de9b2b2548bcb784852d"
+      },
+      "tools-journey-typecheck.log": {
+        "sha256": "4e54387760c38aa0cbc3f675b92280faad5aa0fea37e2f672e91572fc7c2cbd8"
+      },
+      "tools-journey-build.log": {
+        "sha256": "da7793c7e9e0a3b22b959596f12afb78d348a230b6c232531992b1b9e7373730"
+      },
+      "tools-journey-consumer.log": {
+        "sha256": "400018a1da4e839bdc1a54abcfaa1f60e94ad73b1fb6379024f7182a1d3ece08"
+      }
+    }
+  },
+  "acceptanceEffect": "none",
+  "pending": [
+    "Repository-wide packed consumer requires missing @ghatana/workflow-runner/process-host dependency.",
+    "Installed publication verification and qualified independent phase acceptance are not established.",
+    "No Lifecycle current receipt or runtime execution qualification is asserted."
+  ]
+}

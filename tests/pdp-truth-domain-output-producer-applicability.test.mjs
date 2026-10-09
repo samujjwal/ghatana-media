@@ -63,7 +63,7 @@ test("trustworthy-output applicability follows output-producer role and preserve
     } else {
       assert.match(row.reason, /incomplete/);
     }
-    assert.ok(row.sourceRefs.some((ref) => ref === `${capPath}#${id}`));
+    assert.ok(row.sourceRefs.some((ref) => ref === `${capPath}#capabilities/@id=${id}`));
   }
 
   for (const id of [
@@ -89,7 +89,7 @@ test("trustworthy-output applicability follows output-producer role and preserve
     assert.equal(row.disposition, excluded, `${id} observes or controls state without producing Media content`);
     assert.equal(row.ownerApplicabilityBasis, "READ_ONLY_OR_NO_MEDIA_CONTENT_OUTPUT");
     assert.match(row.reason, /(?:not produced or delivered Media content|creates or delivers no Media output|creates no new media output|creates no media content|creates no new media content|creates or delivers no media content|produces no new Media content|not an output-producing operation)/i);
-    assert.ok(row.sourceRefs.some((ref) => ref === `${capPath}#${id}`));
+    assert.ok(row.sourceRefs.some((ref) => ref === `${capPath}#capabilities/@id=${id}`));
   }
 
   const projected = crosswalk.measureApplicabilityRecords.records.filter(({ measureRef }) => measureRef === measureId);
@@ -120,7 +120,7 @@ test("job read projections preserve the Java/OpenAPI record and fail closed on u
   ]);
   for (const id of ["media.job.view-status", "media.job.check-outcome"]) {
     const binding = contracts.records.find(({ capabilityRef }) => capabilityRef === id);
-    assert.equal(binding.ownerReadModelRef, ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema");
+    assert.equal(binding.ownerReadModelRef, ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema");
   }
 
   const ajv = new Ajv({ allErrors: true, strict: false });

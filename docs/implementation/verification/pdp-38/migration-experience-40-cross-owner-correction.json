@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "media.pdp38.experience-cross-owner-supplement.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-102",
+  "baseArtifactRef": "docs/implementation/verification/pdp-38/migration-coordinator-experience-review-40.json",
+  "baseArtifactSha256": "ae8b420ce0ed89855888298582831411c649c35abbcfbdaeef3d194f0579cf98",
+  "scope": "Exact additive source-authority correction for two previously reviewed PXD-097 claims; the 40 proposal records, target rules and previous authority fields remain unchanged.",
+  "reviewedChange": {
+    "path": [
+      "processIsolationDoesNotWaiveLicenseRule"
+    ],
+    "prior": null,
+    "current": {
+      "id": "media.reuse.process-isolation-does-not-waive-component-terms.v1",
+      "rule": "Container, process, or adapter isolation narrows execution and authority boundaries but does not waive license, patent, attribution, redistribution, dataset, model-weight, codec, native-library, plugin, font, or asset terms for any included component or transitive dependency.",
+      "requiredEvidence": [
+        "exact component and immutable version or content digest",
+        "authoritative source plus complete direct and transitive build/distribution inventory",
+        "separate applicable license, patent, attribution, redistribution, and use-term review for each included component",
+        "approved profile and execution/deployment scope"
+      ],
+      "unknownDisposition": "DENY_SELECTION_OR_DISTRIBUTION; isolation is not license clearance and package-level NOASSERTION remains unresolved.",
+      "scopeStatus": "OWNER_DEFINED_POLICY_ONLY; exact artifacts and legal review remain pending"
+    },
+    "materialReview": "Process isolation cannot waive any component or transitive license/use terms. Required component/version, SBOM, per-component rights and execution-scope evidence matches PXD-100; unknown rights still deny selection/distribution. No legal clearance is asserted."
+  },
+  "records": [
+    {
+      "claimId": "MPSEM-0458-C002",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary",
+      "priorValueSha256": "1a78ff105ccfd137b3d8940ab375557ecc1aa837d24fb02c05e24e96de9b2816",
+      "currentValueSha256": "f8d5d8e4236ecaf7c71bcb2f71940a5822afcf22bceee0939c74e5e6d96741b6",
+      "reviewStatus": "APPROVED_EXACT_ADDITIVE_AUTHORITY_CORRECTION"
+    },
+    {
+      "claimId": "MPSEM-0458-C006",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.componentLicenseBoundary",
+      "priorValueSha256": "1a78ff105ccfd137b3d8940ab375557ecc1aa837d24fb02c05e24e96de9b2816",
+      "currentValueSha256": "f8d5d8e4236ecaf7c71bcb2f71940a5822afcf22bceee0939c74e5e6d96741b6",
+      "reviewStatus": "APPROVED_EXACT_ADDITIVE_AUTHORITY_CORRECTION"
+    }
+  ],
+  "acceptanceBoundary": "No additional migration claim promotion, independent acceptance, legal qualification, runtime admission or Lifecycle receipt."
+}

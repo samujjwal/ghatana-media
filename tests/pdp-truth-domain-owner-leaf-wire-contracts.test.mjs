@@ -124,6 +124,27 @@ test("owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
   }
 });
 
+test("owner wire base selectors resolve an exact real operation, profile, and bound", () => {
+  for (const record of owner.records) {
+    const resolved = resolveEffectiveOwnerLeafWireContract(operations, record.capabilityRef);
+    assert.equal(resolved.valid, true, `${record.id} resolves its actual base operation selector`);
+    assert.equal(resolved.contract.baseOperation.id, record.operationRef);
+  }
+  const first = owner.records[0];
+  const foreignFile = structuredClone(operations);
+  foreignFile.ownerLeafWireContracts.records[0].baseOperationContractRef = `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilityOperationContracts/records/@id=${first.operationRef}`;
+  assert.equal(resolveEffectiveOwnerLeafWireContract(foreignFile, first.capabilityRef).valid, false,
+    "a syntactically valid selector in a different source file is rejected");
+  const wrongValidOperation = structuredClone(operations);
+  wrongValidOperation.ownerLeafWireContracts.records[0].baseOperationContractRef = `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=${owner.records[1].operationRef}`;
+  assert.equal(resolveEffectiveOwnerLeafWireContract(wrongValidOperation, first.capabilityRef).valid, false,
+    "a different valid operation cannot be substituted by matching only a pointer prefix");
+  const wrongValidProfile = structuredClone(operations);
+  wrongValidProfile.capabilityOperationContracts.records.find(({ id }) => id === first.operationRef).familyProfileRef = operations.capabilityOperationContracts.families.find(({ id }) => id !== operations.capabilityOperationContracts.records.find(({ id }) => id === first.operationRef).familyProfileRef)?.id;
+  assert.equal(resolveEffectiveOwnerLeafWireContract(wrongValidProfile, first.capabilityRef).valid, false,
+    "a different existing profile that does not own the leaf is rejected");
+});
+
 test("simulation passes reject cross-pass output, missing provenance and wrong source bindings", () => {
   const simulation = owner.records.filter((row) => row.capabilityRef.startsWith("media.simulation.output."));
   assert.equal(simulation.length, 11);

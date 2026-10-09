@@ -11,8 +11,8 @@ const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 
 test("P0-04 records delegated representative initiators without reducing requirement actors", () => {
   const base = ".product-experience/pdp-0-product-truth/";
-  const goals = readYaml(`${base}goals-jtbd.yaml`);
-  const decisions = readYaml(`${base}intent-resolutions.yaml`);
+  const goals = readYaml(`${base}/goals-jtbd.yaml`);
+  const decisions = readYaml(`${base}/intent-resolutions.yaml`);
   const requirements = readYaml(`${base}requirements.yaml`).requirements;
   const ambiguousIntentIds = [
     "media.intent.improve",

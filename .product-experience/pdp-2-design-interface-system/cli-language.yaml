@@ -19,6 +19,72 @@ finiteOperationAliasRule:
     Aliases are registered with the canonical command and have exact parity tests;
     unknown aliases fail as unsupported.
   scopeStatus: OWNER_DEFINED_COMMAND_LANGUAGE_RULE; command/runtime admission remains separate.
+ownerDefinedInvocationRules:
+  - id: media.cli.literal-argument-boundary.v1
+    sourceAuthority: Media CLI command language and the selected command's typed argument contract
+    rule: Treat user-supplied values, paths, filter expressions, profile names, and request text as literal data. Never interpolate them into a shell command or executable fragment. Any subprocess boundary uses a fixed executable plus separately passed argument values; parsing and validation happen before invoking the child, and unsupported values fail without dispatch.
+    appliesTo: [CLI command arguments, file paths, query/filter text, configured profile values, child-process invocation]
+    negativeCases:
+      - shell metacharacters remain data and cannot append a command
+      - a path or filter value cannot select an executable or inject an option outside the typed argument contract
+      - invalid or unsupported arguments fail before any child process is launched
+    scopeStatus: OWNER_DEFINED_INTERFACE_DEFINITION; this rule does not admit a CLI runtime or an external executable.
+  - id: media.cli.finite-command-family-registry.v1
+    sourceAuthority: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+    rule: Parameterized command families expand only to a finite set of registered command identities. Where an exact action binding is authored, it is explicit; this current fixture registry has no production action bindings. Wildcards, implicit aliases, or a parameter value cannot introduce a new command, action, operation, or permission; unknown members fail as unsupported.
+    negativeCases:
+      - an unregistered family member fails instead of deriving a command ID by string substitution
+      - an alias resolves only through an explicitly authored canonical action binding and does not duplicate behavior
+      - a parameter cannot widen authority or accepted inputs beyond the registered command
+    scopeStatus: OWNER_DEFINED_COMMAND_LANGUAGE_RULE; the current 11-command registry is a fixture-only population with zero production commands and no action binding; command/runtime admission remains separate.
+  - id: media.cli.cross-channel-canonical-action-identity.v1
+    sourceAuthority: Media canonical action and operation identities; channel adapters own only exact bindings to those identities.
+    rule: Every production CLI command that invokes a Media operation has an explicit canonical action ID and exact operation/version binding equal to the binding used by the corresponding Web/API command. An alias resolves to that same action and operation; command spelling, route shape, provider name, or fixture label never establishes equivalence. A command lacking a complete exact cross-channel binding remains a fixture or NOT_ADMITTED and cannot dispatch.
+    canonicalRegistryRef: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
+    registryCoverageRule: Every command in the one canonical registry has one unique command ID and an explicit actionRef that resolves by exact ID to the Media action registry. A command with a domain effect must additionally carry an exact operation ID/version or an explicit non-domain disposition; no command or alias may be inferred from a family name, path, label, or option. The canonical registry is the sole source for help/completion and channel adapters project its exact bindings.
+    requiredBindingFields: [commandId, canonicalActionId, operationId, operationVersion, webBindingRef, apiBindingRef, cliBindingRef]
+    equalityRules: [cliBindingRef.actionId==canonicalActionId, webBindingRef.actionId==canonicalActionId, apiBindingRef.actionId==canonicalActionId, cliBindingRef.operationId==operationId, webBindingRef.operationId==operationId, apiBindingRef.operationId==operationId, everyBinding.operationVersion==operationVersion]
+    negativeCases:
+      - command-name-matched-to-action-without-source-binding
+      - cli-action-id-differs-from-web-or-api-action-id
+      - same-action-name-but-different-operation-version
+      - unsupported-api-route-invented-to-complete-cli-row
+      - fixture-command-promoted-to-production-admission
+    currentPopulation: The current command registry contains 12 synthetic fixture commands; every command actionRef resolves to an exact Media action whose typed owner definition carries its exact operation or ordered-operation disposition. Two command rows also repeat a direct operationRef, which must agree with the action binding. This does not establish production CLI/Web/API transport binding or runtime admission.
+    scopeStatus: OWNER_DEFINED_CROSS_CHANNEL_IDENTITY_RULE; production command bindings and runtime admission remain NOT_ADMITTED until exact source records exist.
+normativeRuleRecords:
+  - id: media.p2.rule.cli-literal-argument-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.literal-argument-boundary.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#commandPrinciples
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-finite-command-family-registry.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.finite-command-family-registry.v1
+    sourceAuthority: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-cross-channel-canonical-action-identity.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1
+    sourceAuthority: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-machine-output-exit-semantics.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.machine-output-exit-semantics.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput/productExitCodeTaxonomy
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-wait-timeout-semantics.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.wait-timeout-semantics.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-effective-configuration-redaction.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.effective-configuration-redaction.v1
+    sourceAuthority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-jsonl-framing.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.jsonl-record-framing.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#machineOutput
+    acceptanceEffect: none
+  - id: media.p2.rule.cli-local-interruption-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedMachineOutputRules/@id=media.cli.local-interruption-boundary.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/cli-language.yaml#sigintSemantics
+    acceptanceEffect: none
 commandNaming:
   rootCommand: ghatana-media
   rule: Prefer a user-intent verb and a concrete object; stable IDs, exact options, aliases, and effects are owned by the PDP-3 command registry.
@@ -56,6 +122,72 @@ machineOutput:
       - cancellation-request-does-not-prove-confirmed-cancellation
       - production-runtime-exit-code-mapping-remains-owner-review-pending
   sigintSemantics: distinguish-stop-watching-from-request-cancellation-and-confirmed-cancellation
+ownerDefinedMachineOutputRules:
+  - id: media.cli.machine-output-exit-semantics.v1
+    sourceAuthority: Media product result taxonomy and command presentation contract
+    rule: In JSON mode, stdout contains exactly one versioned result or error object; diagnostics and progress use stderr. TTY, color, quiet, and width choices may change presentation only; they cannot change stable JSON keys, reason codes, command effects, or exit-code meaning. Non-TTY output remains line-oriented; color-disabled output contains no ANSI escapes.
+    negativeCases:
+      - progress text or a banner on JSON stdout invalidates the machine-output contract
+      - changing terminal width or NO_COLOR cannot change the result object or exit code
+      - a quiet presentation cannot hide a safety warning, authorization denial, unknown outcome, or next required action
+      - rendering an outcome unknown as ordinary failure or success is invalid
+    scopeStatus: OWNER_DEFINED_INTERFACE_DEFINITION; local fixture mappings do not admit production exit-code behavior.
+  - id: media.cli.wait-timeout-semantics.v1
+    sourceAuthority: Media command identity/finality and client-versus-server deadline definitions
+    rule: A wait option returns the requested final result or an explicit non-success. A client timeout bounds observation unless a command separately declares a server deadline; timeout or interruption of local waiting does not cancel the remote job, prove failure, or authorize a blind resubmission. Reconciliation observes the same job/request identity first.
+    negativeCases:
+      - local wait timeout cannot be reported as remote job failure
+      - interrupting a local poll cannot be reported as confirmed remote cancellation
+      - an unknown outcome cannot trigger a second mutation under a new request identity
+      - only a separately declared server deadline changes remote execution
+    scopeStatus: OWNER_DEFINED_INTERFACE_DEFINITION; it defines no connected CLI runtime behavior.
+  - id: media.cli.effective-configuration-redaction.v1
+    sourceAuthority: Media owns the effective configuration schema and precedence; CLI output consumes the resolved non-secret projection only.
+    rule: >-
+      `config show` reports effective values only for declared configuration fields
+      and reports their safe source category without exposing credentials, tokens,
+      secrets, or protected content. Secret-bearing values are always redacted; if a
+      value cannot be safely classified, omit it and report that the value is
+      redacted or unavailable. The command is read-only and cannot write, activate,
+      authorize, or broaden a configuration value.
+    requiredFields: [effectiveValues, sourceByField, redactedFields]
+    sourceCategories: [explicit-flag, environment, selected-project-or-profile-file, user-config, product-default, unknown]
+    resolutionOrder: [explicit-flag, environment, selected-project-or-profile-file, user-config, product-default]
+    nonOverridablePolicyRule: Policy constraints apply after value-source precedence and cannot be overridden by any flag, environment variable, project/profile file, user config, or product default. Reject unknown or conflicting profile fields; do not silently pick one interpretation.
+    precedenceEvidence: [exact-declared-field, selected-profile-identity-and-version, selected-source-category, applied-policy-constraint, conflict-or-unknown-disposition]
+    negativeCases:
+      - print-secret-value-or-token
+      - claim-unresolved-precedence-source-as-effective
+      - emit-undeclared-configuration-field
+      - mutate-configuration-during-show
+      - treat-displayed-configuration-as-policy-or-authority-grant
+      - higher-precedence-value-overrides-nonoverridable-policy
+      - conflicting-profile-field-silently-selected
+    scopeStatus: OWNER_DEFINED_CLI_CONFIGURATION_OUTPUT; exact configuration fields and precedence are bound only by the owning Media profile source, no CLI runtime/admission is implied.
+  - id: media.cli.jsonl-record-framing.v1
+    sourceAuthority: Media product result taxonomy and command presentation contract
+    rule: In JSONL mode, stdout contains only one complete JSON object per line, each with the exact declared schema version and a finite record kind. Result, error, and progress records retain stable field names and reason codes; records never contain banners, ANSI escapes, or human prose. Diagnostics use stderr, and output format cannot change command effects or exit-code meaning.
+    recordKinds: [result, error, progress]
+    requiredFieldsByKind:
+      result: [schemaVersion, recordKind, commandId, outcome]
+      error: [schemaVersion, recordKind, commandId, reasonCode, safeMessage]
+      progress: [schemaVersion, recordKind, commandId, scope, unit, observedValueOrUnknown]
+    negativeCases:
+      - human-banner-or-ansi-on-jsonl-stdout
+      - unknown-record-kind-or-schema-version
+      - progress-record-reported-as-completion
+      - format-switch-changes-effect-or-exit-code
+    scopeStatus: OWNER_DEFINED_MACHINE_OUTPUT_DEFINITION; current CLI implementation and runtime parity remain NOT_ADMITTED.
+  - id: media.cli.local-interruption-boundary.v1
+    sourceAuthority: Media job finality and CLI client-observation semantics
+    rule: Ctrl-C or another local interruption while waiting stops the local wait only. It does not cancel the remote job, confirm cancellation, establish failure, or authorize a resubmission. Preserve the same request/job identities and report unknown finality when the owner has not supplied an authoritative result; a remote cancellation is a separate explicit operation with its own request and result.
+    requiredSemantics: [local-observation-stopped, original-request-and-job-identities-preserved, unknown-finality-when-unresolved, remote-cancel-operation-remains-distinct]
+    negativeCases:
+      - SIGINT-reported-as-confirmed-server-cancellation
+      - local-interrupt-triggers-blind-new-request
+      - timeout-or-signal-mapped-to-job-failure-without-owner-finality
+      - local-observer-exit-drops-request-identity
+    scopeStatus: OWNER_DEFINED_CLIENT_INTERRUPTION_CONTRACT; no connected CLI runtime or server cancellation admission is implied.
 identityAndFinality:
   bindingRef: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
   fields:

@@ -49,3 +49,20 @@ review:
   ownerBindings: pending
   accessibility: pending
   implementation: pending
+ownerDefinedAttentionNotificationScope:
+  id: media.gui.attention-notification-scope.v1
+  allowedReasons: [action-required, material-degradation, approval-required, long-running-work-completed, delivery-outcome, critical-security-or-rights-issue]
+  requiredEvidence: [exact-source-identity, authoritative-current-fact-or-event, affected-job-or-resource-identity, observedTimeWhenProvided, recipientAndAuthorityScope, safeNextActionWhenOneExists]
+  rules:
+    - Emit an attention item only for one listed reason supported by an authoritative current fact or event; a workflow label, elapsed age, missing event, model inference, or unverified status is insufficient.
+    - Keep the exact affected job/resource and source reference visible. Material degradation, approval need, and delivery outcome retain their source-defined meaning and are not collapsed into generic completion.
+    - A notification or opening its item grants no action authority; each consequential next action rechecks current access, policy, rights, and finality.
+    - Do not imply that delivery, display, read state, or omission is an acknowledgment, receipt, completion, or cancellation. Notification delivery/acknowledgment remains unimplemented unless an exact owner contract establishes it.
+  nonGoals: [invent-priority-or-due-time,create-read-unread-or-dismiss-action-without-owner-contract,imply-job-cancellation,derive-material-degradation-from-unqualified-score]
+  status: OWNER_DEFINED_ATTENTION_DEFINITION; event publisher, notification transport, and independent usability/accessibility review remain open.
+  negativeCases: [notify-from-unverified-status,age-alone-creates-urgency,approval-and-degradation-collapsed,notification-opened-as-action-authority,delivery-treated-as-completion,dismissal-treated-as-cancellation]
+normativeRuleRecords:
+  - id: media.p2.rule.gui-attention-notification-scope.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#ownerDefinedAttentionNotificationScope
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/gui/patterns/activity-attention.yaml#authority
+    acceptanceEffect: none

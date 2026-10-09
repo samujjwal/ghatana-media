@@ -2,21 +2,27 @@ TAP version 13
 # Subtest: all 130 PDP-3 journey steps preserve their exact source facts and action disposition
 ok 1 - all 130 PDP-3 journey steps preserve their exact source facts and action disposition
   ---
-  duration_ms: 942.47038
+  duration_ms: 1431.101092
   type: 'test'
   ...
 # Subtest: ambiguous live-session steps are not rebound to unrelated generic job actions
 ok 2 - ambiguous live-session steps are not rebound to unrelated generic job actions
   ---
-  duration_ms: 42.790941
+  duration_ms: 61.811155
   type: 'test'
   ...
-1..2
-# tests 2
+# Subtest: first-use identity step binds the approved Media adapter definition without claiming Shared wire or runtime acceptance
+ok 3 - first-use identity step binds the approved Media adapter definition without claiming Shared wire or runtime acceptance
+  ---
+  duration_ms: 5.894386
+  type: 'test'
+  ...
+1..3
+# tests 3
 # suites 0
-# pass 2
+# pass 3
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2027.771662
+# duration_ms 3301.096518

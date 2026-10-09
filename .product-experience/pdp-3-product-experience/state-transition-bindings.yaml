@@ -24,3 +24,31 @@ bindings:
     includedStates: [DRAFT, REQUESTED, IN_REVIEW, CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, SUPERSEDED, EXPIRED]
     projectionRule: formal-review-is-bound-to-an-exact-immutable-caption-version-and-purpose; read-only-transcript-inspection-is-not-a-review-decision
     laneDisposition: not-instantiated-in-the-current-audio-transcription-and-caption-correction-simulation
+ownerTransitionProjectionCandidates:
+  status: OWNER_DEFINED_BOUNDED_CANDIDATE; INDEPENDENT_PDP1_AND_PDP3_REVIEW_OPEN
+  records:
+    - id: media.pdp3.transition-candidate.upload-receiving-to-verifying.v1
+      sourceTransitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01
+      operationEdgeRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/operationEdgeBounds
+      stepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#steps/2
+      actionRef: media.action.resume-artifact-upload
+      operationRef: media.operation-slice.complete-upload
+      workflowOperationRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+      fromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING
+      toStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING
+      sourceGuardRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/ownerGuardDefinition
+      sourceConditionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/operationEdgeBounds/acceptedEdge
+      excludedEdgesRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01/operationEdgeBounds/excludedEdges
+      notTransitionedWhen: [CONFLICT, OUTCOME_UNKNOWN, INCOMPLETE_BYTES, DIGEST_MISMATCH, STALE_AUTHORITY]
+      sourceMeaning: Only successful complete-upload finalization after exact expected bytes and SHA-256 verification permits RECEIVING to VERIFYING; conflict or unknown outcome does not imply REJECTED or EXPIRED.
+      decisionRef: .product-experience/decision-log.md#PXD-049
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+      publicTransition:
+        id: media.pdp3.transition.upload-receiving-to-verifying.v1
+        fromStateRef: media-upload-and-artifact.RECEIVING
+        toStateRef: media-upload-and-artifact.VERIFYING
+        actionRef: media.action.resume-artifact-upload
+        guards:
+          - upload-bounds-and-current-authority-remain-valid
+          - RECEIVING-to-VERIFYING-after-required-upload-bytes-and-SHA-256-are-verified

@@ -3,58 +3,84 @@ artifactId: media.pdp-1.state-adjudication
 productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/state-models.yaml
-status: bounded-canonical-policy-owner-approved; implementation-and-independent-PDP-1-review-pending
+status: bounded-canonical-policy-owner-approved;
+  implementation-and-independent-PDP-1-review-pending
 machineDimensions:
   - machineId: media-job
     dimension: logical-job-outcome-and-observation
     proposedMeanings:
       QUEUED: accepted-for-scheduling; does-not-prove-worker-claim-or-dispatch
       RUNNING: execution-observed-in-progress; does-not-prove-current-worker-lease
-      RETRY_PENDING: prior-attempt-ended-or-was-abandoned-and-another-attempt-may-be-eligible; does-not-mean-retry-dispatched
+      RETRY_PENDING: prior-attempt-ended-or-was-abandoned-and-another-attempt-may-be-eligible;
+        does-not-mean-retry-dispatched
       OUTCOME_UNKNOWN: effect-or-commit-may-have-occurred-but-authoritative-outcome-is-not-known
       RECONCILING: evidence-gathering-to-resolve-an-unknown-outcome; not-a-terminal-result
-      COMPLETED: job-contract-defined-success-finality; exact-success-criteria-remain-operation-specific
-      PARTIALLY_SUCCEEDED: some-declared-sub-effects-succeeded-and-others-did-not-or-remain-unknown; exact-accounting-contract-required
+      COMPLETED: job-contract-defined-success-finality;
+        exact-success-criteria-remain-operation-specific
+      PARTIALLY_SUCCEEDED: some-declared-sub-effects-succeeded-and-others-did-not-or-remain-unknown;
+        exact-accounting-contract-required
       FAILED: job-contract-defined-failure-finality; does-not-imply-safe-retry
-      CANCELLED: cancellation-confirmed-under-job-contract; a-request-alone-is-not-confirmation
+      CANCELLED: cancellation-confirmed-under-job-contract;
+        a-request-alone-is-not-confirmation
     spellingConflict:
-      RETRYING: legacy attempt-in-progress-or-UI-label; not-equivalent-to-job-RETRY_PENDING; retain-raw-spelling-and-require-observation-evidence
+      RETRYING: legacy attempt-in-progress-or-UI-label;
+        not-equivalent-to-job-RETRY_PENDING;
+        retain-raw-spelling-and-require-observation-evidence
       ACCEPTED: ingress-request-receipt-only; not-equivalent-to-durable-job-QUEUED
   - machineId: media-attempt
     dimension: one-execution-attempt-and-its-dispatch-evidence
     proposedMeanings:
       CLAIMED: worker or scheduler has claimed an attempt under the execution contract
-      DISPATCH_INTENT_RECORDED: durable intent is recorded before external dispatch if persistence guarantee is accepted
+      DISPATCH_INTENT_RECORDED: durable intent is recorded before external dispatch if
+        persistence guarantee is accepted
       DISPATCHED: dispatch was recorded; provider effect may still be unknown
       RUNNING: execution progress has been observed for this attempt
       CANCEL_REQUESTED: cancellation request was issued; provider cancellation is unconfirmed
       CANCEL_CONFIRMED: provider or execution authority confirmed cancellation
-      SUCCEEDED: attempt result succeeded; logical job success may still require aggregation
+      SUCCEEDED: attempt result succeeded; logical job success may still require
+        aggregation
       FAILED: attempt failed; logical job finality/retry eligibility remains separate
       OUTCOME_UNKNOWN: attempt effect or completion cannot currently be determined
-      SUPERSEDED: a later fenced attempt or authoritative resolution supersedes this attempt observation
+      SUPERSEDED: a later fenced attempt or authoritative resolution supersedes this
+        attempt observation
     spellingConflict:
-      CANCELLING: legacy-observer-label-only; no-canonical-job-state; attempt-level-CANCEL_REQUESTED-is-distinct-and-unconfirmed
+      CANCELLING: legacy-observer-label-only; no-canonical-job-state;
+        attempt-level-CANCEL_REQUESTED-is-distinct-and-unconfirmed
   - machineId: media-upload-and-artifact
     dimension: product-artifact-lifecycle-not-upload-session-transport-state
     sourceRef: .product-experience/pdp-0-product-truth/state-models.yaml#media-upload-and-artifact
     boundedDecisionRef: .product-experience/decision-log.md#PXD-049
     acceptedBoundedMeanings:
-      RECEIVING: bounded-upload-session-is-accepting-ordered-parts; does-not-establish-an-artifact-or-availability
+      RECEIVING: bounded-upload-session-is-accepting-ordered-parts;
+        does-not-establish-an-artifact-or-availability
       VERIFYING: completed-upload-is-being-checked-for-required-integrity-format-security-rights-and-policy-dispositions
       AVAILABLE: all-applicable-verification-checks-currently-positive-for-the-exact-artifact-version-and-current-use-scope
-      QUARANTINED: required-evidence-is-missing-stale-unsupported-or-ambiguous; use-is-denied-pending-reconciliation
+      QUARANTINED: required-evidence-is-missing-stale-unsupported-or-ambiguous;
+        use-is-denied-pending-reconciliation
       REJECTED: an-authoritative-format-security-rights-consent-or-policy-check-denied-the-artifact-or-intended-use
-    remainingStateIds: [EXPIRED, ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED]
-    remainingStateDisposition: source-proposal-retained; only-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meaning-guards-accepted-bounded-by-PXD-049
+    remainingStateIds:
+      [
+        EXPIRED,
+        ERASURE_REQUESTED,
+        ACCESS_REVOKED,
+        PHYSICAL_ERASURE_PENDING,
+        BLOCKED_BY_HOLD,
+        ERASURE_CONFIRMED,
+        EXTERNAL_ERASURE_UNCONFIRMED
+      ]
+    remainingStateDisposition: source-proposal-retained;
+      only-RECEIVING-VERIFYING-AVAILABLE-QUARANTINED-REJECTED-meaning-guards-accepted-bounded-by-PXD-049
     uploadSessionProjection:
       source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadStatus
       runtimeStates:
         OPEN: receiving-session; progress-observation-only
         FINALIZING: completion-is-being-reconciled; does-not-prove-artifact-availability
-        COMPLETED: session-finalization-and-artifact-identity-observed; product-artifact-remains-VERIFYING-until-separate-required-disposition
-        ABORTED: upload-session-stopped; no-equivalent-artifact-REJECTED-transition-is-inferred
-        EXPIRED: upload-session-expired; no-artifact-expiry-or-erasure-is-inferred-without-artifact-identity-and-retention-evidence
+        COMPLETED: session-finalization-and-artifact-identity-observed;
+          product-artifact-remains-VERIFYING-until-separate-required-disposition
+        ABORTED: upload-session-stopped;
+          no-equivalent-artifact-REJECTED-transition-is-inferred
+        EXPIRED: upload-session-expired;
+          no-artifact-expiry-or-erasure-is-inferred-without-artifact-identity-and-retention-evidence
       explicitNonMappings:
         - UploadSession-COMPLETED-is-not-artifact-AVAILABLE
         - UploadSession-EXPIRED-is-not-physical-erasure
@@ -66,15 +92,40 @@ machineDimensions:
       runtimeAdmission: NOT_ADMITTED
       availableRequiresAll:
         - exact-tenantId-artifactId-and-stable-opaque-immutable-versionId-match
-        - exact-byte-size-and-full-content-digest-match-for-that-version; sha256-lowercase-64-hex-digits
+        - exact-byte-size-and-full-content-digest-match-for-that-version;
+          sha256-lowercase-64-hex-digits
         - detected-format-and-required-format-policy-check-record
         - security-scan-and-parser-validation-check-record
         - current-tenant-and-principal-scoped-rights-decision-for-intended-use
         - current-consent-decision-where-required
         - applicable-policy-decision-and-retention-disposition
-      checkRecordFields: [tenantId, subjectArtifactId, subjectArtifactVersionId, byteSize, fullContentDigest, intendedUseOrNotApplicable, evaluatedPrincipalIdOrNotApplicable, checkKind, authorityRef, decision, observedAt, policyOrMethodVersion, evidenceRef, expiresAtOrNotApplicable]
-      digestFormat: sha256-lowercase-64-hex-digits; compared-as-full-digest-not-prefix-or-sampled-content
-      policySourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy, .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints, .product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline, docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#41-mandatory-consent, docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#5-retention-and-physical-erasure]
+      checkRecordFields:
+        [
+          tenantId,
+          subjectArtifactId,
+          subjectArtifactVersionId,
+          byteSize,
+          fullContentDigest,
+          intendedUseOrNotApplicable,
+          evaluatedPrincipalIdOrNotApplicable,
+          checkKind,
+          authorityRef,
+          decision,
+          observedAt,
+          policyOrMethodVersion,
+          evidenceRef,
+          expiresAtOrNotApplicable
+        ]
+      digestFormat: sha256-lowercase-64-hex-digits;
+        compared-as-full-digest-not-prefix-or-sampled-content
+      policySourceRefs:
+        [
+          .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy,
+          .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints,
+          .product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline,
+          docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#41-mandatory-consent,
+          docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#5-retention-and-physical-erasure
+        ]
       policyCheckSourceRecords:
         formatAndAdmission: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints[point=upload-and-import-admission]
         securityAndRights: .product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline
@@ -84,49 +135,77 @@ machineDimensions:
       dispositionRules:
         AVAILABLE: every-applicable-check-has-current-positive-authority-record-bound-to-exact-tenant-artifact-versionId-size-and-full-digest
         VERIFYING: required-check-is-in-progress-or-authoritative-result-is-not-yet-available
-        QUARANTINED: evidence-is-missing-stale-unsupported-ambiguous-or-cannot-be-safely-evaluated; deny-use-pending-reconciliation
+        QUARANTINED: evidence-is-missing-stale-unsupported-ambiguous-or-cannot-be-safely-evaluated;
+          deny-use-pending-reconciliation
         REJECTED: authoritative-format-security-rights-consent-or-policy-decision-denies-the-artifact-or-intended-use
-      expiryBoundary: EXPIRED-is-a-separate-authoritative-retention-lifecycle-disposition-outside-T02; expired-check-evidence-leaves-artifact-QUARANTINED-or-REJECTED-until-the-governed-lifecycle-action-is-recorded
-      expiryAndFreshness: every-currentness-check-is-revalidated-at-use; expiresAt-is-authority-supplied; no-self-issued-or-inferred-verification-authority
-      issuerBoundary: use-existing-format-security-rights-consent-retention-and-policy-authorities-referenced-by-pdp0-and-MEDIA_PRIVACY_AND_RETENTION_POLICY; no-new-issuer-or-operation-is-defined
-    boundedStatus: bounded-upload-admission-verification-availability-and-quarantine-disposition-meanings-under-PXD-049; implementation-independent-qualification-and-all-other-lifecycle-state-meanings-remain-open
+      expiryBoundary: EXPIRED-is-a-separate-authoritative-retention-lifecycle-disposition-outside-T02;
+        expired-check-evidence-leaves-artifact-QUARANTINED-or-REJECTED-until-the-governed-lifecycle-action-is-recorded
+      expiryAndFreshness: every-currentness-check-is-revalidated-at-use;
+        expiresAt-is-authority-supplied;
+        no-self-issued-or-inferred-verification-authority
+      issuerBoundary: use-existing-format-security-rights-consent-retention-and-policy-authorities-referenced-by-pdp0-and-MEDIA_PRIVACY_AND_RETENTION_POLICY;
+        no-new-issuer-or-operation-is-defined
+    boundedStatus: bounded-upload-admission-verification-availability-and-quarantine-disposition-meanings-under-PXD-049;
+      implementation-independent-qualification-and-all-other-lifecycle-state-meanings-remain-open
   - machineId: media-delivery
     dimension: external-delivery-effect-and-recipient-evidence
     proposedMeanings:
       OUTCOME_UNKNOWN: remote submission or effect is not authoritatively known
       RECONCILING: destination evidence is being gathered
       PARTIALLY_DELIVERED: only declared subset of intended delivery is acknowledged
-    separation: same spelling in media-job or media-attempt is not same state identity; retain machine id
+    separation: same spelling in media-job or media-attempt is not same state
+      identity; retain machine id
 crossProjectionDispositions:
   - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#JobStatus
-    observation: Media runtime emits ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED; it has no RETRY_PENDING, RECONCILING, or PARTIALLY_SUCCEEDED value
-    disposition: current-runtime-enum-observed; per-state canonical and wire mapping unresolved; ACCEPTED is not evidence of durable job queueing
+    observation: Media runtime emits ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED,
+      FAILED, CANCELLED; it has no RETRY_PENDING, RECONCILING, or
+      PARTIALLY_SUCCEEDED value
+    disposition: current-runtime-enum-observed; per-state canonical and wire mapping
+      unresolved; ACCEPTED is not evidence of durable job queueing
   - source: Java AvJobLifecycleAdapter.mapStatus
-    observation: AvTranscriptionJob.JobStatus has CREATED, QUEUED, PROCESSING, COMPLETED, FAILED, CANCELLED, RETRYING; it has no OUTCOME_UNKNOWN or RECONCILING values for this adapter to map
-    disposition: external-runtime-contract-is-too-narrow-to-represent-these-canonical-states; no mapping or runtime support inferred; Ghatana media owner decision required
+    observation: AvTranscriptionJob.JobStatus has CREATED, QUEUED, PROCESSING,
+      COMPLETED, FAILED, CANCELLED, RETRYING; it has no OUTCOME_UNKNOWN or
+      RECONCILING values for this adapter to map
+    disposition: external-runtime-contract-is-too-narrow-to-represent-these-canonical-states;
+      no mapping or runtime support inferred; Ghatana media owner decision
+      required
   - source: ../ghatana/services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaJobLifecycleAdapter.java#mapStatus
-    observation: MediaProcessingJob.RETRYING maps to canonical RUNNING; BLOCKED and REQUIRES_REVIEW map to canonical FAILED
-    disposition: lossy-external-projection; semantic mappings are not adopted; Ghatana Data Cloud owner must preserve raw source state or emit an explicit unmapped/unknown disposition
+    observation: MediaProcessingJob.RETRYING maps to canonical RUNNING; BLOCKED and
+      REQUIRES_REVIEW map to canonical FAILED
+    disposition: lossy-external-projection; semantic mappings are not adopted;
+      Ghatana Data Cloud owner must preserve raw source state or emit an
+      explicit unmapped/unknown disposition
   - source: libs/audio-video-types/src/contracts.ts#normalizeLegacyMediaJobState
-    observation: observeMediaJobState preserves raw CANCELLING/RETRYING with media-job machine identity and null canonicalState; the scalar compatibility wrapper returns the original raw value
-    disposition: safe-local-observation; legacy state mapping remains unresolved and must not authorize cancel/retry
+    observation: observeMediaJobState preserves raw CANCELLING/RETRYING with
+      media-job machine identity and null canonicalState; the scalar
+      compatibility wrapper returns the original raw value
+    disposition: safe-local-observation; legacy state mapping remains unresolved and
+      must not authorize cancel/retry
   - source: contracts/openapi/media.yaml#/components/schemas/PlatformOperation/properties/state
     observation: ACCEPTED, QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED
     disposition: narrower-transport-enum; each mapping unresolved
   - source: inspected active Media protobuf service declarations
-    observation: no matching shared job-lifecycle enum found; engine and health enums represent other dimensions
+    observation: no matching shared job-lifecycle enum found; engine and health
+      enums represent other dimensions
     disposition: inventory-absence-only; not a support or exclusion decision
 externalOwnerDependencies:
-  - taskRefs: [P1-02, X-06]
+  - taskRefs: [ P1-02, X-06 ]
     ownerRepository: ghatana
     ownerArea: Data Cloud delivery API
     target: ../ghatana/services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaJobLifecycleAdapter.java#mapStatus
-    observedProblem: RETRYING is coerced to RUNNING and BLOCKED/REQUIRES_REVIEW are coerced to FAILED, erasing the source state dimension.
-    requestedChange: Preserve the exact source status plus a loss/disposition record, or add an owner-admitted canonical mapping that retains retry-pending, blocked, and review-required distinctions. Do not map these values to execution-in-progress or terminal failure by convenience.
-    requiredOwnerEvidence: Data Cloud contract-owner decision, consumer compatibility assessment, and negative tests showing unknown/raw values cannot authorize retry, finality, or execution claims.
+    observedProblem: RETRYING is coerced to RUNNING and BLOCKED/REQUIRES_REVIEW are
+      coerced to FAILED, erasing the source state dimension.
+    requestedChange: Preserve the exact source status plus a loss/disposition
+      record, or add an owner-admitted canonical mapping that retains
+      retry-pending, blocked, and review-required distinctions. Do not map these
+      values to execution-in-progress or terminal failure by convenience.
+    requiredOwnerEvidence: Data Cloud contract-owner decision, consumer
+      compatibility assessment, and negative tests showing unknown/raw values
+      cannot authorize retry, finality, or execution claims.
     admissionStatus: external-owner-change-required; no cross-repository acceptance claimed
 invariantsProposed:
-  - state-identity-is-machine-plus-state-id; identical spelling-across-machines-does-not-imply-equivalence
+  - state-identity-is-machine-plus-state-id; identical
+    spelling-across-machines-does-not-imply-equivalence
   - request-acceptance-queueing-dispatch-running-and-effect-finality-are-distinct-observations
   - cancellation-request-and-confirmation-are-distinct
   - unknown-outcome-and-reconciliation-are-not-success-failure-or-running
@@ -137,7 +216,11 @@ negativeCases:
   status: canonical-policy-tests; does-not-verify-runtime-or-provider-behavior
   cases:
     - id: state-identity.same-spelling-different-machine
-      given: [{machineId: media-job, stateId: RUNNING}, {machineId: media-attempt, stateId: RUNNING}]
+      given:
+        [
+          { machineId: media-job, stateId: RUNNING },
+          { machineId: media-attempt, stateId: RUNNING }
+        ]
       mustNot: infer-state-equivalence
     - id: ingress.ACCEPTED-is-not-job.QUEUED
       given: request-acceptance-receipt
@@ -165,8 +248,10 @@ ownerAcceptedPolicyDecisions:
   legacyCancellingIsCanonicalJobState: false
   machineScopedStateIdentity: true
   partialSuccessRule: terminal-only-if-declared-sub-effects-have-explicit-closed-dispositions-and-no-consequential-unknown-effect
-  completedRule: exact-output-set-integrity-authority-and-durable-result-commit-required; not-delivery-acknowledgement
-  cancelledRule: authoritative-no-dispatch-or-confirmed-fenced-effects-finality; request-and-observer-detach-insufficient
+  completedRule: exact-output-set-integrity-authority-and-durable-result-commit-required;
+    not-delivery-acknowledgement
+  cancelledRule: authoritative-no-dispatch-or-confirmed-fenced-effects-finality;
+    request-and-observer-detach-insufficient
   durableAttemptRule: append-only-attempt-history-with-unique-id-monotonic-fencing-and-restart-reconciliation
   unknownOutcomeRule: never-conflate-with-running-failure-or-safe-retry
   policyDispositionRefs:
@@ -181,3 +266,110 @@ remainingImplementationAndIndependentProof:
   - storage-and-runtime-durable-command-attempt-history-fencing-and-recovery-must-be-proven
   - cancellation-and-finality-provider-observer-oracles-must-be-reconciled
   - full-PDP-1-semantic-and-independent-acceptance-remains-open
+ownerDefinedProductDefinitionDomainRules:
+  id: media.pdp1.product-definition-domain-rules.v1
+  authorityRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+  decisionRef: .product-experience/decision-log.md#PXD-035
+  status: SIX_BOUNDED_ACCEPTED_RULES; projection-only;
+    runtime-and-independent-P0-010-review-pending
+  ruleAuthority: PDP-1 ownerAcceptedPolicyDecisions remains semantic authority;
+    this collection supplies the exact PDP-0 ProductDefinition projection fields
+    and adds no state, transition, runtime, transport, provider, or phase
+    acceptance.
+  records:
+    - id: MEDIA-DOMAIN-RULE-001
+      sourceDecisionRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/machineScopedStateIdentity
+      expectedDecisionValue: true
+      statement: A state identifier is meaningful only together with its machine;
+        equal spellings across job, attempt, upload, stream, or delivery
+        machines do not establish equivalent state or behavior.
+      violation: Reject a state mapping or action decision that omits machine identity
+        or relies on spelling alone.
+      trustScope: Every tenant and principal context; apply at state interpretation
+        and effect authorization boundaries.
+      trustContextRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+      accountableOwner: media
+      ownerRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+      failClosedResponse: Preserve the source observation and return
+        blocked-or-review-required; do not normalize or execute an inferred
+        action.
+      projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-001
+    - id: MEDIA-DOMAIN-RULE-002
+      sourceDecisionRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/requestReceiptIsQueuedJob
+      expectedDecisionValue: false
+      statement: A request receipt or ACCEPTED response proves receipt only; it does
+        not prove durable queueing, worker claim, dispatch, or execution.
+      violation: Reject a queue, claim, dispatch, or execution assertion that is
+        supported only by request acknowledgment.
+      trustScope: Every submission boundary, tenant and principal context.
+      trustContextRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+      accountableOwner: media
+      ownerRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+      failClosedResponse: Report receipt-only or unknown outcome; do not expose a
+        durable-queued claim or enable execution-dependent actions.
+      projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-002
+    - id: MEDIA-DOMAIN-RULE-003
+      sourceDecisionRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/unknownOutcomeRule
+      expectedDecisionValue: never-conflate-with-running-failure-or-safe-retry
+      statement: OUTCOME_UNKNOWN is neither running nor failure nor safe-to-retry;
+        preserve uncertainty until an authoritative reconciliation resolves the
+        effect.
+      violation: Reject conversion of an unresolved outcome into running, failure,
+        completion, or safe replay.
+      trustScope: Every potentially effectful operation and its tenant, provider and
+        recipient context.
+      trustContextRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+      accountableOwner: media
+      ownerRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+      failClosedResponse: Retain OUTCOME_UNKNOWN and require authoritative
+        reconciliation before retry or finality claims.
+      projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-003
+    - id: MEDIA-DOMAIN-RULE-004
+      sourceDecisionRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/completedRule
+      expectedDecisionValue: exact-output-set-integrity-authority-and-durable-result-commit-required;
+        not-delivery-acknowledgement
+      statement: A completed job requires the operation-defined output set, integrity,
+        authority, and durable result commit; it does not establish recipient
+        delivery acknowledgment.
+      violation: Reject a delivered or recipient-acknowledged claim without the
+        destination's defined acknowledgment evidence.
+      trustScope: Every output-producing operation and each named destination/recipient.
+      trustContextRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+      accountableOwner: media
+      ownerRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+      failClosedResponse: Report result completion separately and retain delivery as
+        unacknowledged or unknown.
+      projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-004
+    - id: MEDIA-DOMAIN-RULE-005
+      sourceDecisionRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/cancelledRule
+      expectedDecisionValue: authoritative-no-dispatch-or-confirmed-fenced-effects-finality;
+        request-and-observer-detach-insufficient
+      statement: A cancellation request or observer detachment does not establish
+        cancellation; cancellation requires authoritative no-dispatch or
+        confirmed fenced-effects finality under the operation contract.
+      violation: Reject terminal cancellation when only a request, timeout, or
+        observer detachment is known.
+      trustScope: Every cancellable job, attempt and effect boundary under current
+        tenant, requester, and provider context.
+      trustContextRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+      accountableOwner: media
+      ownerRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+      failClosedResponse: Keep cancellation pending or outcome unknown until
+        authoritative no-dispatch or fenced-effects finality is established.
+      projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-005
+    - id: MEDIA-DOMAIN-RULE-006
+      sourceDecisionRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/partialSuccessRule
+      expectedDecisionValue: terminal-only-if-declared-sub-effects-have-explicit-closed-dispositions-and-no-consequential-unknown-effect
+      statement: PARTIALLY_SUCCEEDED is terminal only when every declared sub-effect
+        has an explicit closed disposition and no consequential effect remains
+        unknown.
+      violation: Reject terminal partial success while any declared sub-effect is
+        missing a closed disposition or has consequential unknown finality.
+      trustScope: Every multi-effect job and its tenant, provider, destination, and
+        output-version context.
+      trustContextRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+      accountableOwner: media
+      ownerRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+      failClosedResponse: Keep the aggregate nonterminal or outcome-unknown and expose
+        unresolved sub-effects for reconciliation.
+      projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#domainRules/records/@id=MEDIA-DOMAIN-RULE-006

@@ -292,7 +292,7 @@ export function evaluateStoredJobStatus(predicate, fact, trusted) {
   if (!predicate.factScope?.operationRefs?.includes("media.operation-slice.inspect-job") ||
       trusted.operationRef !== "media.operation-slice.inspect-job" ||
       predicate.jobStatusObservation.queryOperationRef !== "media.operation-slice.inspect-job" ||
-      predicate.jobStatusObservation.ownerReadModelRef !== ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records.media.operation-slice.inspect-job.ownerWireSchema") return unknown("JOB_QUERY_OPERATION_UNBOUND");
+      predicate.jobStatusObservation.ownerReadModelRef !== ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-job/ownerWireSchema") return unknown("JOB_QUERY_OPERATION_UNBOUND");
   const result = fact.queryResult;
   if (!exactKeys(result, JOB_RESULT_KEYS) || result.outcome !== "OBSERVED" ||
       result.operationRef !== "media.operation-slice.inspect-job" || result.operationVersion !== 1 ||
@@ -343,7 +343,7 @@ export function evaluateStoredJobStatus(predicate, fact, trusted) {
 export function evaluateArtifactLifecycleObservation(predicate, fact, trusted) {
   const unknown = (reason) => ({ truth: "UNKNOWN", reason, canonicalStateRef: null });
   const operationRef = "media.operation.artifact.lifecycle.observe.v1";
-  const ownerReadModelRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.lifecycle.observe.v1.ownerWireSchema";
+  const ownerReadModelRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/ownerWireSchema";
   const stateRef = (state) => `.product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/${state}`;
   const meaningRef = (state) => `${stateRef(state)}/meaning`;
   if (!plainRecord(predicate) || !plainRecord(predicate.artifactLifecycleObservation) ||

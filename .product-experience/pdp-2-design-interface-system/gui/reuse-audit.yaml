@@ -1165,3 +1165,20 @@ ecosystemReuseReview:
     sourceReview: Local sibling package source/manifests/exports and current Media/AI Voice consumer source; not package registry resolution, release verification, or external owner acceptance.
     styleBoundary: Explorer CSP enforces style-src-attr 'none'; local Media CSS remains structural/system-color fallback, not Shared visual qualification.
     acceptanceBoundary: No new component, package, theme, shell, auth/session, form, table/filter, loading/error, accessibility, or token binding is admitted by this review. Existing owner/accessibility and visual review gates remain open.
+grammarCoverageInventory:
+  authority: Media P2 design-source inventory; entries identify source authorities and do not assert that their grammar is accepted or independently reviewed.
+  dimensions:
+    visual:
+      sources: [media-token-aliases.yaml, gui/semantic-component-bindings.yaml, typography-layout.yaml, gui/primitives.yaml]
+    interaction:
+      sources: [action-finality-grammar.yaml, semantic-state-grammar.yaml, media-editing-grammar.yaml, animation-simulation-grammar.yaml, motion.yaml]
+    content:
+      sources: [localization-content.yaml]
+    accessibility:
+      sources: [accessibility.yaml]
+    responsive:
+      sources: [responsive-adaptive.yaml, typography-layout.yaml]
+    terminal:
+      sources: [cli-language.yaml]
+  status: SOURCE_INVENTORY_ONLY; P0-010, relevant external specialist review, rendering, and conformance remain separate.
+  nonClaims: [grammar-acceptance, accessibility-certification, Shared-token-binding, rendered-conformance, runtime-CLI-admission]

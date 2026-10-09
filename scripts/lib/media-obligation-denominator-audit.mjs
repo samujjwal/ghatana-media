@@ -16,8 +16,47 @@ function readSourceEntry(absolutePath, parseYaml) {
 }
 
 const SOURCE_ENUMERATORS = [
-  ['PDP-3', '.product-experience/pdp-3-product-experience/migration-semantic-rules.yaml', 'records', 'journey-contract'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/privacy.yaml', 'ownerDefinedErasureInventoryContract', 'domain-object', undefined, 'id', false, true],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/experience-source-bindings.yaml', 'scenarioStartingContextBindings.records', 'action-contract'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/policy-authority-model.yaml', 'productPolicy.inputAndExecutionThreats.browserToLocalWorkerBoundary', 'product-truth', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'mediaArchitectureRules.enabledCodecBuildEvidenceRule', 'product-truth', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'mediaArchitectureRules.historicalCandidateInventoryDisposition', 'product-truth', undefined, 'id', false, true],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/motion.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/correlation.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-guard-specialized-fact-contracts.yaml', 'records', 'transition'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/quality-policy.yaml', 'personAndIdentityInferenceRule.anonymousTrackIdsByDefault', 'product-truth', undefined, 'id', false, true],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedWorkflowContracts.records', 'operation-family'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml', 'normativeRuleRecords', 'component-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/localization-content.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/authority.yaml', 'ownerDefinedPdp05TrustAndOwnership.trustProjectionExclusions', 'domain-object'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'requirements', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/applications-channels.yaml', 'ownerFeatureReviewApplicability.dimensions', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/applications-channels.yaml', 'ownerFeatureReviewApplicability.dimensions.*.applicableRequirementBindings', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/applications-channels.yaml', 'ownerFeatureReviewApplicability.dimensions.*.reviewClauseContracts', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/applications-channels.yaml', 'ownerFeatureReviewApplicability.dimensions.*.notApplicableRequirementDecisions', 'product-truth'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/state-adjudication.yaml', 'ownerDefinedProductDefinitionDomainRules.records', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/privacy.yaml', 'ownerDefinedPdp05InvariantMappings.records', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/authority.yaml', 'ownerDefinedPdp05TrustAndOwnership.trustContexts', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/authority.yaml', 'ownerDefinedPdp05TrustAndOwnership.ownershipRules', 'domain-object'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedJourneyOperationBindings.records', 'operation-family'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml', 'records', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml', 'records', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml', 'guardContracts.records', 'transition'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml', 'predicateDefinitions', 'transition'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml', 'stepBindings.records', 'transition'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/typography-layout.yaml', 'normativeRuleRecords', 'layout'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/trust-provenance-grammar.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/component-contracts.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/events/conventions.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/async-operations.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/cancellation.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/errors.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/idempotency.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml', 'records', 'action-contract'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml', 'ownerCapabilityLeafAdjudication.records', 'product-truth'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml', 'ownerMeasurementDefinitions.records', 'product-truth'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml', 'successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records', 'product-truth'],
@@ -44,6 +83,8 @@ const SOURCE_ENUMERATORS = [
   ['PDP-1', '.product-experience/pdp-1-domain-data/interoperability.yaml', 'packageCompatibilityBoundary', 'value-object', undefined, 'id', false, true],
   ['PDP-1', '.product-experience/pdp-1-domain-data/domain-objects.yaml', 'ownerOutputArtifactTypeCrosswalk.records', 'value-object'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'operations', 'operation-family'],
+  ['PDP-1', '.product-experience/interface-parity/operation-parity.yaml', 'typedGrpcMethodContracts', 'operation-family', 'mediaOwnerImplementationAssessment'],
+  ['PDP-1', '.product-experience/interface-parity/operation-parity.yaml', 'typedGrpcMethodContracts', 'operation-family', 'mediaOwnerSemanticAdapter'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'individualOperationContracts.records', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerTypedObservationContracts.records', 'operation-family'],
@@ -62,6 +103,8 @@ const SOURCE_ENUMERATORS = [
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.outputPayloadSchemas', 'value-object'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'capabilityOperationContracts.scalarTypeRecords', 'value-object'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/events.yaml', 'ownerEventContracts.records', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/events.yaml', 'ownerEventContracts.deliveryProtocol', 'operation-family', undefined, 'id', false, true],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/events.yaml', 'ownerEventContracts.deliveryProtocol.externalOwnerReviewRequest', 'operation-family', undefined, 'id', false, true],
   ['PDP-1', '.product-experience/pdp-1-domain-data/events.yaml', 'ownerEventContracts.notificationRecords', 'operation-family'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/relationships.yaml', 'relationships', 'relationship'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/value-objects.yaml', 'values', 'value-object'],
@@ -74,11 +117,14 @@ const SOURCE_ENUMERATORS = [
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.hostInvocationContext', 'value-object', undefined, 'id', false, true],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.invocationSemantics', 'action-contract', undefined, 'id', false, true],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml', 'normativeRuleRecords', 'component-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/conventions.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/cli-language.yaml', 'normativeRuleRecords', 'action-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/layout.yaml', 'layouts', 'layout'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml', 'patterns', 'interaction-pattern'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml', 'templates', 'view-template'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/media-token-aliases.yaml', 'aliases', 'semantic-token-alias'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/journey-registry.yaml', 'journeys', 'journey-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/migration-semantic-rules.yaml', 'records', 'journey-contract'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/handoff-bindings.yaml', 'handoffs', 'action-contract', 'mediaOwnerDefinition'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/action-registry.yaml', 'actions', 'action-contract'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/action-registry.yaml', 'ownerDefinedActions', 'action-contract'],
@@ -90,6 +136,12 @@ const SOURCE_ENUMERATORS = [
   ['PDP-3', '.product-experience/pdp-3-product-experience/screen-registry.yaml', 'screens', 'screen-contract'],
   ['PDP-3', '.product-experience/pdp-3-product-experience/screen-registry.yaml', 'laneViews', 'screen-contract'],
 ];
+
+// Read-only descriptors let isolated tests build complete synthetic source
+// fixtures without copying the production collection inventory.
+export function getMediaSourceEnumerationDescriptors() {
+  return Object.freeze(SOURCE_ENUMERATORS.map((descriptor) => Object.freeze([...descriptor])));
+}
 
 export function enumerateExpectedMediaObligations({ root, parseYaml }) {
   const records = [];
@@ -145,7 +197,7 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
         issues.push({ code: 'SOURCE_ENUMERATION_ID', detail: `${sourcePath}#/${collection} has a record without a stable ID` });
         continue;
       }
-      const sourceRecordId = sourceRecord?.id ?? sourceRecord?.machineId;
+      const sourceRecordId = sourceRecord?.id ?? sourceRecord?.machineId ?? sourceRecord?.identity;
       if (childField && !nested && (typeof sourceRecordId !== 'string' || !sourceRecordId.trim())) {
         issues.push({ code: 'SOURCE_ENUMERATION_ID', detail: `${sourcePath}#/${collection} has an anonymous parent for ${recordId}` });
         continue;
@@ -188,7 +240,7 @@ function resolveAnchor(document, anchor) {
         for (let end = tokens.length; end > index && !match; end -= 1) {
           const identity = tokens.slice(index, end).join('/');
           const candidate = value.find(item => item?.id === identity || item?.key === identity
-            || item?.recordId === identity || item?.machineId === identity || item?.sourceMachineId === identity);
+            || item?.recordId === identity || item?.machineId === identity || item?.sourceMachineId === identity || item?.identity === identity);
           if (candidate) { match = candidate; index = end - 1; }
         }
         value = match;

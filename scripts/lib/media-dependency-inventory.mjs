@@ -342,7 +342,7 @@ export function buildMediaDependencyInventory(rootPath = process.cwd()) {
   const assets = tracked.filter((path) => assetKind(path) || isFixturePath(path)).map((path) => {
     const content = readFileSync(join(root, path));
     const kind = assetKind(path) ?? "SOURCE_FIXTURE_OR_TEST_DATA";
-    return { path, kind, bytes: content.length, sha256: sha256(content), distributionProfile: path.startsWith("archive/") ? "ARCHIVE_NOT_CURRENT_DISTRIBUTION" : kind === "SOURCE_FIXTURE_OR_TEST_DATA" ? "TEST_ONLY_UNLESS_SEPARATELY_PACKAGED" : "REVIEW_DISTRIBUTION_PROFILE", declaredLicense: "UNKNOWN_FROM_FILE_BYTES", licenseReview: "REVIEW_REQUIRED", patentReview: "REVIEW_REQUIRED", transitiveLicenseReview: "REVIEW_REQUIRED_WHERE_DEPENDENT", sourceRef: path };
+    return { path, kind, bytes: content.length, sha256: sha256(content), distributionProfile: path.startsWith("archive/") ? "ARCHIVE_NOT_CURRENT_DISTRIBUTION" : (kind === "SOURCE_FIXTURE_OR_TEST_DATA" || path.startsWith("docs/implementation/verification/pdp-38/responsive-reference-captures/")) ? "TEST_ONLY_UNLESS_SEPARATELY_PACKAGED" : "REVIEW_DISTRIBUTION_PROFILE", declaredLicense: "UNKNOWN_FROM_FILE_BYTES", licenseReview: "REVIEW_REQUIRED", patentReview: "REVIEW_REQUIRED", transitiveLicenseReview: "REVIEW_REQUIRED_WHERE_DEPENDENT", sourceRef: path };
   });
 
   const gradleLockfiles = tracked.filter((path) => /(?:^|\/)(?:gradle\.lockfile|verification-metadata\.xml)$/u.test(path));

@@ -1,0 +1,35 @@
+{
+  "snapshot": "/home/samujjwal/Developments/media-pdp38-next-review-t93ynj29",
+  "sourceFingerprints": {
+    ".product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml": "98807dd39ddb1537acad28027df96ddb5804fc54f79ad03acc1f9f9946ddf4ea",
+    ".product-experience/pdp-2-design-interface-system/api/conventions.yaml": "c2df9b25b8974b76880139ad8ab5a6807272f7476af2203cbc5cb64f54f1a7b3",
+    ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "f8f74a52428c1f575c5de66b66be60b26bcf67511c90ef1efd316d9b4b80ae76",
+    ".product-experience/interface-parity/operation-parity.yaml": "ab96bbe72a091bf894f33f4540483eeef7100a22a7c28f943b025ee51b96bd2f",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "ec8b196e10d84aff2fef57273cbfcba9d84f19585d654f58d38528a301d78178",
+    ".product-experience/pdp-3-product-experience/screen-registry.yaml": "8b3f6431821bd66ded7d265e5311338acd42dd9618875112d121b24a4bca0336",
+    "scripts/lib/pdp-http-canonical-envelope-validation.mjs": "420a3674c8bf199253067d7cab37561f1d68b6d82b15313a61d37427e2dd0629",
+    "tests/pdp-http-versioned-adapter-definitions.test.mjs": "d7e969cc16c27cbe5d5aa07979e4aa147795fad1ff7b09a6574038e9f0b17588",
+    "tests/pdp-design-responsive-comprehension.test.mjs": "2425420ad5e587125c3ed312d34d9bae40b132afeabb9f533d6285afc80b86e1"
+  },
+  "exitCode": 0,
+  "acceptanceEffect": "NONE",
+  "schemaVersion": "media.pdp38-http-responsive-owner-definition-review.v1",
+  "status": "APPROVED_BOUNDED_SOURCE_DEFINITION",
+  "decisionRef": ".product-experience/decision-log.md#PXD-095",
+  "authority": "User-delegated Media definition ownership; coordinator material review",
+  "scope": [
+    "13 exact source-only HTTP adapter definitions with closed owner payload schemas, host-only context assembly, duplicate identity and explicit result-outcome bindings",
+    "four representative responsive source-reference contracts and a comprehension review protocol"
+  ],
+  "verification": {
+    "passed": 9,
+    "failed": 0,
+    "log": "docs/implementation/verification/pdp-38/http-responsive-owner-definition-review.log",
+    "outputSha256": "e759c4b721a3610b0bff749a44bbf6b332cf0c69618e510339d7ace965a34a9d"
+  },
+  "wholeTaskCriterionEstablished": false,
+  "renderedReferenceConformance": "NOT_EVALUATED",
+  "independentVisualComprehensionAndAssistiveTechnologyReview": "NOT_EVALUATED",
+  "canonicalRuntimeOrTransportParity": "NOT_ADMITTED",
+  "LifecyclePhaseReceipt": null
+}

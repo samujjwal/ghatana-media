@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
+ok 1 - all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
+  ---
+  duration_ms: 1127.311123
+  type: 'test'
+  ...
+# Subtest: all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
+ok 2 - all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
+  ---
+  duration_ms: 7720.556448
+  type: 'test'
+  ...
+# Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
+ok 3 - every declared NFR has one complete owner measurement method without implying observation or acceptance
+  ---
+  duration_ms: 12393.585597
+  type: 'test'
+  ...
+# Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
+ok 4 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
+  ---
+  duration_ms: 0.843211
+  type: 'test'
+  ...
+# Subtest: missing method material and attempted qualification promotion fail validation
+ok 5 - missing method material and attempted qualification promotion fail validation
+  ---
+  duration_ms: 3.073622
+  type: 'test'
+  ...
+# Subtest: SLO and human/specialist methods remain gated on their real external evidence
+ok 6 - SLO and human/specialist methods remain gated on their real external evidence
+  ---
+  duration_ms: 0.271038
+  type: 'test'
+  ...
+# Subtest: trustworthy-output applicability follows output-producer role and preserves incomplete candidates
+ok 7 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
+  ---
+  duration_ms: 4550.997808
+  type: 'test'
+  ...
+# Subtest: job read projections preserve the Java/OpenAPI record and fail closed on unmapped state/finality
+ok 8 - job read projections preserve the Java/OpenAPI record and fail closed on unmapped state/finality
+  ---
+  duration_ms: 9539.98943
+  type: 'test'
+  ...
+# Subtest: provider and recovery populations include exact local compute and unknown asynchronous operations
+ok 9 - provider and recovery populations include exact local compute and unknown asynchronous operations
+  ---
+  duration_ms: 3436.130445
+  type: 'test'
+  ...
+# Subtest: owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
+ok 10 - owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
+  ---
+  duration_ms: 636.165423
+  type: 'test'
+  ...
+# Subtest: owner wire base selectors resolve an exact real operation, profile, and bound
+ok 11 - owner wire base selectors resolve an exact real operation, profile, and bound
+  ---
+  duration_ms: 386.897178
+  type: 'test'
+  ...
+# Subtest: simulation passes reject cross-pass output, missing provenance and wrong source bindings
+ok 12 - simulation passes reject cross-pass output, missing provenance and wrong source bindings
+  ---
+  duration_ms: 51.430797
+  type: 'test'
+  ...
+# Subtest: edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
+ok 13 - edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
+  ---
+  duration_ms: 37.398005
+  type: 'test'
+  ...
+# Subtest: owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
+ok 14 - owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
+  ---
+  duration_ms: 1.781535
+  type: 'test'
+  ...
+# Subtest: quality crosswalk covers every leaf against all six dimensions and 16 metrics
+ok 15 - quality crosswalk covers every leaf against all six dimensions and 16 metrics
+  ---
+  duration_ms: 182.191292
+  type: 'test'
+  ...
+# Subtest: modality-specific applicability follows exact typed subjects and AV sync requires both modalities
+ok 16 - modality-specific applicability follows exact typed subjects and AV sync requires both modalities
+  ---
+  duration_ms: 2.608145
+  type: 'test'
+  ...
+# Subtest: intents, analysis/transcript evidence and conditional references cannot masquerade as produced media signals
+ok 17 - intents, analysis/transcript evidence and conditional references cannot masquerade as produced media signals
+  ---
+  duration_ms: 0.889793
+  type: 'test'
+  ...
+# Subtest: identity and domain applicability keep required authority and qualification gates explicit
+ok 18 - identity and domain applicability keep required authority and qualification gates explicit
+  ---
+  duration_ms: 1.674265
+  type: 'test'
+  ...
+# Subtest: all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
+ok 19 - all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
+  ---
+  duration_ms: 12656.064292
+  type: 'test'
+  ...
+# Subtest: all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
+ok 20 - all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
+  ---
+  duration_ms: 1156.78589
+  type: 'test'
+  ...
+# Subtest: rational frame-rate limits use the exact BigInt validator and fail closed
+ok 21 - rational frame-rate limits use the exact BigInt validator and fail closed
+  ---
+  duration_ms: 23.792591
+  type: 'test'
+  ...
+# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+ok 22 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+  ---
+  duration_ms: 1589.336736
+  type: 'test'
+  ...
+# Subtest: PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
+ok 23 - PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
+  ---
+  duration_ms: 145.946558
+  type: 'test'
+  ...
+# Subtest: PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
+ok 24 - PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
+  ---
+  duration_ms: 150.307336
+  type: 'test'
+  ...
+# Subtest: all 146 action identities have a source-backed operation or non-operation disposition
+ok 25 - all 146 action identities have a source-backed operation or non-operation disposition
+  ---
+  duration_ms: 7968.15765
+  type: 'test'
+  ...
+# Subtest: P0 exact capability-to-operation decisions resolve only fully classified action slices
+ok 26 - P0 exact capability-to-operation decisions resolve only fully classified action slices
+  ---
+  duration_ms: 10862.314269
+  type: 'test'
+  ...
+# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+ok 27 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+  ---
+  duration_ms: 20726.987112
+  type: 'test'
+  ...
+# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+ok 28 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+  ---
+  duration_ms: 8071.483082
+  type: 'test'
+  ...
+# Subtest: P1-08 distinguishes nine durable event definitions from fifteen local notifications
+ok 29 - P1-08 distinguishes nine durable event definitions from fifteen local notifications
+  ---
+  duration_ms: 159.804676
+  type: 'test'
+  ...
+# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
+ok 30 - P0-06 enumerates exact capability applicability without inventing a measured population
+  ---
+  duration_ms: 20903.494643
+  type: 'test'
+  ...
+# Subtest: P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
+ok 31 - P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
+  ---
+  duration_ms: 15685.977076
+  type: 'test'
+  ...
+# Subtest: P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
+ok 32 - P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
+  ---
+  duration_ms: 13316.728983
+  type: 'test'
+  ...
+# Subtest: P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
+ok 33 - P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
+  ---
+  duration_ms: 33.622667
+  type: 'test'
+  ...
+# Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
+ok 34 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
+  ---
+  duration_ms: 39.17796
+  type: 'test'
+  ...
+# Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
+ok 35 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
+  ---
+  duration_ms: 558.700213
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 157447.072331

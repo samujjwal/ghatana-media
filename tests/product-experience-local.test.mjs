@@ -83,7 +83,7 @@ test("screen requirement references must equal the direct action-capability cros
 
 test("journey step requirement references must equal the direct action-capability crosswalk", () => {
   const result = checkWithScreenMutation((source) => source.replace(
-    /^\s+requirementRefs: \[MEDIA-REQ-CAP-ARTIFACT\]$/mu,
+    /^\s+requirementRefs: \[\s*MEDIA-REQ-CAP-ARTIFACT\s*\]$/mu,
     "        requirementRefs: []",
   ), "journey-contracts/transcribe-and-correct-captions.yaml");
   assert.notEqual(result.status, 0);

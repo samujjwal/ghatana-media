@@ -14,14 +14,15 @@ const hash = (value) => createHash("sha256").update(value).digest("hex");
 const reviewedGoalCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json"), "utf8"));
 const reviewedOperationCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/owner-query-current-cut-review.json"), "utf8"));
 const reviewedIdentityCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/identity-current-cut-review.json"), "utf8"));
+const directCriteriaReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"), "utf8"));
+const currentP006Cut = directCriteriaReview.records.find(({ taskId }) => taskId === "P0-06")?.currentCorrectiveReview;
+assert.equal(currentP006Cut?.decisionRef, ".product-experience/decision-log.md#PXD-105");
 
 function reviewedCurrentHash(path, currentOwnerSource) {
-  const reviewedHash = path.endsWith("/operations.yaml")
-    ? reviewedOperationCut.sourceFingerprints[path]
-    : path.endsWith("/domain-objects.yaml")
+  const reviewedHash = path.endsWith("/domain-objects.yaml")
       ? reviewedIdentityCut.sourceFingerprints[path]
-      : path.endsWith("/goals-jtbd.yaml")
-        ? reviewedGoalCut.currentFileSha256
+      : path.endsWith("/goals-jtbd.yaml") || path.endsWith("/operations.yaml")
+        ? currentP006Cut.sourceFingerprints[path]
         : currentOwnerSource.currentSha256;
   return reviewedHash;
 }
@@ -64,7 +65,9 @@ test("capability review source pin changes are reconciled to the reviewed goal s
   assert.ok(currentOwnerSource, "the current owner-definition overlay is separate from the historical source pin");
   assert.equal(reviewedGoalCut.decisionRef, ".product-experience/decision-log.md#PXD-090");
   assert.equal(reviewedGoalCut.sourcePath, goalPath);
-  assert.equal(reviewedGoalCut.currentFileSha256, hash(goalsText), "the latest reviewed goal owner cut binds the complete current bytes");
+  assert.equal(reviewedGoalCut.currentFileSha256, "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
+    "the PXD-090 source-impact observation remains the immutable historical cut");
+  assert.equal(currentP006Cut.sourceFingerprints[goalPath], hash(goalsText), "PXD-105 binds the separately reviewed current goal cut");
   assertCurrentCutIsReviewed(goalPath, currentOwnerSource, goalsText);
   assert.equal(currentOwnerSource.currentSha256, "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
     "the earlier source overlay remains an immutable historical observation, not a silently refreshed pin");
@@ -126,6 +129,9 @@ test("operation source changes reconcile affected leaf links without promoting c
   const reviewedOperationHash = reviewedOperationCut.sourceFingerprints[path];
   assert.equal(reviewedOperationCut.decisionRef, ".product-experience/decision-log.md#PXD-094");
   assert.equal(reviewedOperationHash, "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54");
+  assert.equal(reviewedOperationCut.sourceFingerprints[path], "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+    "PXD-094 remains an immutable historical operation cut");
+  assert.equal(currentP006Cut.sourceFingerprints[path], hash(sourceText), "PXD-105 binds the separately reviewed current operation cut");
   assert.equal(currentOwnerSource.currentSha256, "f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d",
     "the prior owner-definition overlay is preserved as history");
   assertCurrentCutIsReviewed(path, currentOwnerSource, sourceText);

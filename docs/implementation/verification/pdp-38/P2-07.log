@@ -1,142 +1,148 @@
 TAP version 13
-# Subtest: HTTP health and diagnostic identities have exact source-backed transport dispositions
-ok 1 - HTTP health and diagnostic identities have exact source-backed transport dispositions
+# Subtest: current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
+ok 1 - current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
   ---
-  duration_ms: 53.872167
+  duration_ms: 251.837705
+  type: 'test'
+  ...
+# Subtest: HTTP health and diagnostic identities have exact source-backed transport dispositions
+ok 2 - HTTP health and diagnostic identities have exact source-backed transport dispositions
+  ---
+  duration_ms: 42.332913
   type: 'test'
   ...
 # Subtest: HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
-ok 2 - HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
+ok 3 - HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
   ---
-  duration_ms: 5116.365579
+  duration_ms: 7163.358412
   type: 'test'
   ...
 # Subtest: HTTP crosswalk rejects semantic drift even when an identity and route still exist
-ok 3 - HTTP crosswalk rejects semantic drift even when an identity and route still exist
+ok 4 - HTTP crosswalk rejects semantic drift even when an identity and route still exist
   ---
-  duration_ms: 26.92095
+  duration_ms: 25.783007
   type: 'test'
   ...
 # Subtest: gRPC transport and provider administration methods partition the exact observed service inventory
-ok 4 - gRPC transport and provider administration methods partition the exact observed service inventory
+ok 5 - gRPC transport and provider administration methods partition the exact observed service inventory
   ---
-  duration_ms: 7618.601966
+  duration_ms: 6713.051435
   type: 'test'
   ...
 # Subtest: gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
-ok 5 - gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
+ok 6 - gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
   ---
-  duration_ms: 1.529519
+  duration_ms: 2.687286
   type: 'test'
   ...
 # Subtest: gRPC identities retain every exact request/result field while leaving semantic field parity open
-ok 6 - gRPC identities retain every exact request/result field while leaving semantic field parity open
+ok 7 - gRPC identities retain every exact request/result field while leaving semantic field parity open
   ---
-  duration_ms: 6615.708702
+  duration_ms: 8512.742349
   type: 'test'
   ...
 # Subtest: TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
-ok 7 - TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
+ok 8 - TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
   ---
-  duration_ms: 5.62146
+  duration_ms: 9.578219
   type: 'test'
   ...
 # Subtest: STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
-ok 8 - STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
+ok 9 - STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
   ---
-  duration_ms: 0.796404
+  duration_ms: 1.006596
   type: 'test'
   ...
 # Subtest: STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
-ok 9 - STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
+ok 10 - STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
   ---
-  duration_ms: 0.730643
+  duration_ms: 0.925116
   type: 'test'
   ...
 # Subtest: STT correction acknowledgement stub cannot be promoted to a canonical correction effect
-ok 10 - STT correction acknowledgement stub cannot be promoted to a canonical correction effect
+ok 11 - STT correction acknowledgement stub cannot be promoted to a canonical correction effect
   ---
-  duration_ms: 0.820115
+  duration_ms: 0.598939
   type: 'test'
   ...
 # Subtest: STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
-ok 11 - STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
+ok 12 - STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
   ---
-  duration_ms: 0.771016
+  duration_ms: 0.693277
   type: 'test'
   ...
 # Subtest: TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
-ok 12 - TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
+ok 13 - TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
   ---
-  duration_ms: 0.534804
+  duration_ms: 0.528383
   type: 'test'
   ...
 # Subtest: TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
-ok 13 - TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
+ok 14 - TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
   ---
-  duration_ms: 0.518944
+  duration_ms: 0.561841
   type: 'test'
   ...
 # Subtest: parity inventory fails closed on duplicate or stale disposition identities
-ok 14 - parity inventory fails closed on duplicate or stale disposition identities
+ok 15 - parity inventory fails closed on duplicate or stale disposition identities
   ---
-  duration_ms: 0.772454
+  duration_ms: 0.625641
   type: 'test'
   ...
 # Subtest: Media interface grammar resolves every source and preserves the complete finality safety vocabulary
-ok 15 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
+ok 16 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
   ---
-  duration_ms: 0.5793
+  duration_ms: 0.546422
   type: 'test'
   ...
 # Subtest: legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
-ok 16 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
+ok 17 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
   ---
-  duration_ms: 0.503113
+  duration_ms: 0.426764
   type: 'test'
   ...
 # Subtest: remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
-ok 17 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
+ok 18 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
   ---
-  duration_ms: 68.824963
+  duration_ms: 77.56432
   type: 'test'
   ...
 # Subtest: client callbacks and UI action intents are not canonical lifecycle events
-ok 18 - client callbacks and UI action intents are not canonical lifecycle events
+ok 19 - client callbacks and UI action intents are not canonical lifecycle events
   ---
-  duration_ms: 2.232348
+  duration_ms: 2.346283
   type: 'test'
   ...
 # Subtest: all UI action effect contracts are source-exact and stay separate from operation acceptance
-ok 19 - all UI action effect contracts are source-exact and stay separate from operation acceptance
+ok 20 - all UI action effect contracts are source-exact and stay separate from operation acceptance
   ---
-  duration_ms: 8.439056
+  duration_ms: 9.011343
   type: 'test'
   ...
 # Subtest: runtime lifecycle events and client notifications keep their distinct exact source roles
-ok 20 - runtime lifecycle events and client notifications keep their distinct exact source roles
+ok 21 - runtime lifecycle events and client notifications keep their distinct exact source roles
   ---
-  duration_ms: 0.53504
+  duration_ms: 0.533488
   type: 'test'
   ...
 # Subtest: fixture CLI crosswalk rejects a different parser action and production-scope promotion
-ok 21 - fixture CLI crosswalk rejects a different parser action and production-scope promotion
+ok 22 - fixture CLI crosswalk rejects a different parser action and production-scope promotion
   ---
-  duration_ms: 0.441081
+  duration_ms: 0.464291
   type: 'test'
   ...
 # Subtest: SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
-ok 22 - SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
+ok 23 - SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
   ---
-  duration_ms: 0.520205
+  duration_ms: 0.484764
   type: 'test'
   ...
-1..22
-# tests 22
+1..23
+# tests 23
 # suites 0
-# pass 22
+# pass 23
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 20611.425514
+# duration_ms 29898.065239

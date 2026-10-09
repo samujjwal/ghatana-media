@@ -241,10 +241,10 @@ note(outcomeIds.size + " PDP-0 vision outcomes have journey/supporting-view cove
 note(`${capabilityIds.size} PDP-0 capability leaves resolve to ${familyIds.size} families and ${requirementIds.size} requirement IDs. Historical inline-field observation: ${capabilityCoreComplete} legacy inline shapes and ${operationSpecificParameterProposals} inline parameter proposals; this parser does not evaluate the additive owner capability/operation contracts or their reviewed bounds`);
 
 const componentSource = read(join(productRoot, "pdp-2-design-interface-system/component-contracts.yaml"));
-const componentIdList = idsFrom(componentSource, /^\s*- id: (media\.component\.[A-Za-z0-9._-]+)$/gmu);
+const componentSection = componentSource.split(/^components:\s*$/mu)[1]?.split(/^masterPlanCoverage:\s*$/mu)[0] ?? "";
+const componentIdList = idsFrom(componentSection, /^\s*- id: (media\.component\.[A-Za-z0-9._-]+)$/gmu);
 unique(componentIdList, "PDP-2 component ID");
 const componentIds = new Set(componentIdList);
-const componentSection = componentSource.split(/^components:\s*$/mu)[1]?.split(/^masterPlanCoverage:\s*$/mu)[0] ?? "";
 const componentCoreFields = ["purpose", "anatomy", "variants", "states", "actions", "keyboard", "accessibility", "localization", "prohibitedUse", "semanticRole", "capabilityRefs", "actionBindingState", "sourceRef"];
 const componentCoreComplete = assertBlocksHaveFields(topLevelBlocks(componentSection), componentCoreFields, "Component");
 const componentCapabilityGaps = topLevelBlocks(componentSection).filter((block) => /capabilityRefs:\s*\[\s*\]/u.test(block)).length;

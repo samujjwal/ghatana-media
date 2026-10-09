@@ -116,7 +116,7 @@ test('best-effort diagnostics do not decide business outcome or replace required
   assert.equal(record.acceptanceEffect, 'none');
 });
 
-test('model, worker, recipe, and isolation claims target exact owner boundaries without admission promotion', () => {
+test('model, worker, recipe, and isolation claims target exact owner boundaries without admission promotion', async () => {
   const expected = {
     'MPSEM-0030-C001': '.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback',
     'MPSEM-0387-C002': '.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/hardwareFootprintDoesNotWaiveAdmission',
@@ -130,7 +130,21 @@ test('model, worker, recipe, and isolation claims target exact owner boundaries 
     assert.ok(record, `review record ${claimId} exists`);
     assert.equal(record.proposedTargetRef, target);
     assert.equal(record.semanticReviewStatus, 'SEMANTIC_PARITY_VERIFIED');
-    assert.equal(record.targetValueSha256, digest(sourceRef(target)));
+    if (claimId === 'MPSEM-0039-C003') {
+      const impact = JSON.parse(await readFile('docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json', 'utf8'));
+      const observed = impact.records.find(({ targetRef }) => targetRef === target);
+      assert.ok(observed, 'exact reviewed browser-boundary additive observation exists');
+      const current = sourceRef(target);
+      const previousProjection = structuredClone(current);
+      delete previousProjection.browserToLocalWorkerBoundary;
+      assert.equal(record.targetValueSha256, observed.historicalTargetValueSha256, 'immutable fragment target hash remains exact');
+      assert.equal(digest(previousProjection), record.targetValueSha256, 'every earlier parsed target field is preserved');
+      assert.equal(digest(current), observed.currentTargetValueSha256, 'current whole target hash is exact');
+      assert.equal(current.browserToLocalWorkerBoundary.id, 'media.policy.browser-to-local-worker-boundary.v1');
+      assert.equal(observed.semanticPromotion, false);
+    } else {
+      assert.equal(record.targetValueSha256, digest(sourceRef(target)));
+    }
     assert.equal(record.acceptanceEffect, 'none');
     assert.ok(record.negativeCases.length >= 2);
     assert.ok(record.testSources.includes('tests/pdp-migration-capability-material-claims.test.mjs'));

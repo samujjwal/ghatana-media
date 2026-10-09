@@ -12,3 +12,52 @@ limits:
   auto-playing-previews: require-user-intent
   looping-preview: off-by-default
   status-animation: bounded-and-nonessential
+ownerDefinedPhotosensitivitySafePlayback:
+  id: media.motion.photosensitivity-safe-playback.v1
+  rule: >-
+    Before playback of media with potentially hazardous flashing or motion, expose
+    an applicable content-risk check and a safe-playback disposition. Use only an
+    explicitly selected and bounded assessment method; do not invent a universal
+    numeric threshold or treat missing, stale, or unsupported analysis as a clean
+    result. If risk is detected or cannot be determined, block automatic or
+    uninterrupted playback, provide a clear warning before playback, and make a
+    safe alternative available where the exact source permits one (such as reduced
+    motion, reduced flashing, or user-controlled frame stepping). Preserve the
+    user's ability to stop playback and do not claim the alternative is universally
+    safe without qualified evidence.
+  requiredFacts:
+    - exact-media-version-and-playback-profile
+    - assessment-method-and-threshold-profile-when-applicable
+    - detected-risk-or-explicit-unknown-disposition
+    - warning-and-safe-playback-choice-before-automatic-playback
+  unknownBehavior: warn-and-disable-automatic-or-uninterrupted-playback
+  nonClaims:
+    - no-universal-safe-flashing-threshold-is-defined-here
+    - a warning-or-transformation-does-not-certify-accessibility-or-clinical-safety
+    - no-runtime-detector-or-player-behavior-is-claimed
+  acceptanceEffect: none
+ownerDefinedDisruptiveAudioPlayback:
+  id: media.motion.disruptive-audio-playback.v1
+  rule: >-
+    Disruptive audio previews do not start automatically. Playback requires an
+    explicit user action for the exact preview. If the preview's disruptive
+    status is unknown, automatic playback remains disabled; missing or unknown
+    classification is not evidence that playback is non-disruptive.
+  requiredFacts:
+    - exact-audio-preview-version
+    - disruptive-status-or-explicit-unknown
+    - user-initiated-playback-action
+  unknownBehavior: disable-automatic-playback
+  nonClaims:
+    - no-audio-disruption-detector-or-player-runtime-is-claimed
+    - no-clinical-or-accessibility-safety-certification-is-claimed
+  acceptanceEffect: none
+normativeRuleRecords:
+  - id: media.p2.rule.motion-photosensitivity-safe-playback.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/motion.yaml#ownerDefinedPhotosensitivitySafePlayback
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/motion.yaml#rules
+    acceptanceEffect: none
+  - id: media.p2.rule.motion-disruptive-audio-playback.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/motion.yaml#ownerDefinedDisruptiveAudioPlayback
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/motion.yaml#limits
+    acceptanceEffect: none

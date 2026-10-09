@@ -36,8 +36,18 @@ const validateFinality = ajv.getSchema(`${schema.$id}#/definitions/finality`);
 const printErrors = (validate) => JSON.stringify(validate.errors ?? []);
 
 test('Media enum candidates validate against the exact current Tools source schema without using the installed snapshot', () => {
-  assert.equal(sourceCommit, taxonomy.toolsSchemaBoundary.sourceCommit);
-  assert.equal(sourceCommit, '6ed280283872df7889369b71abb3c9e62cb17f8d');
+  assert.equal(taxonomy.toolsSchemaBoundary.sourceCommit, '6ed280283872df7889369b71abb3c9e62cb17f8d', 'historical enum grammar source pin remains unchanged');
+  const current = taxonomy.toolsSchemaBoundary.currentSourceCompatibilityReview;
+  assert.equal(current.decisionRef, '.product-experience/decision-log.md#PXD-107');
+  assert.equal(current.existingEffectFinalitySchemaUnchanged, true);
+  assert.equal(sourceCommit, current.sourceCommit);
+  assert.equal(sourceCommit, 'cb4feaeb23afdd00c048fb9014c4b38c9b8fc506');
+  const historicalSchema = JSON.parse(execFileSync('git', ['-C', toolsRoot.pathname, 'show',
+    '6ed280283872df7889369b71abb3c9e62cb17f8d:libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json'], { encoding: 'utf8' }));
+  assert.deepEqual(schema.definitions.effect, historicalSchema.definitions.effect,
+    'current reviewed grammar preserves the complete historical effect contract');
+  assert.deepEqual(schema.definitions.finality, historicalSchema.definitions.finality,
+    'current reviewed grammar preserves the complete historical finality contract');
   assert.equal(taxonomy.toolsSchemaBoundary.installedSnapshotDisposition.includes('predates the enum extension'), true);
   assert.equal(taxonomy.toolsSchemaBoundary.candidateValidation.includes('does not claim the package is published'), true);
 

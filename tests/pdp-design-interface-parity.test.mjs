@@ -8,6 +8,8 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const parity = readYaml(".product-experience/interface-parity/operation-parity.yaml");
+const operationDefinitionsPath = ".product-experience/pdp-1-domain-data/operations.yaml";
+const operationDefinitions = readYaml(operationDefinitionsPath);
 const grammar = readYaml(".product-experience/pdp-2-design-interface-system/interface-grammar.yaml");
 const actionRegistryPath = ".product-experience/pdp-3-product-experience/action-registry.yaml";
 const actionRegistry = readYaml(actionRegistryPath);
@@ -39,6 +41,40 @@ function assertPartition(inventory, groups, label) {
   }
   assert.deepEqual([...seen.keys()].sort(), [...inventory].sort(), `${label} inventory must have one explicit disposition each`);
 }
+
+function sourceTruthMatrixValid(source) {
+  const matrix = source.ownerDefinedSourceTruthMatrix;
+  const requiredFields = ["exact-source-identity", "source-owner-or-external-owner", "implementation-observation-or-explicit-not-implemented", "candidate-or-non-operation-disposition", "exact-canonical-reference-or-explained-unresolved-gap", "runtime-and-independent-acceptance-state"];
+  if (!matrix || matrix.id !== "media.interface.source-truth-matrix.v1") return false;
+  if (!requiredFields.every((field) => matrix.requiredPerIdentity.includes(field))) return false;
+  if (!["matching-name-is-not-semantic-equivalence", "implementation-observation-is-not-owner-acceptance", "unresolved-is-explicit-not-implied-success"].every((field) => matrix.nonEquivalence.includes(field))) return false;
+  return matrix.populations.length === 4 && matrix.populations.every((population) => {
+    const surface = source.surfaces.find((item) => item[population.surfaceKeyField] === population.surfaceKey);
+    return surface && JSON.stringify(surface.source) === JSON.stringify(population.identitySource)
+      && typeof surface[population.dispositionField] === "string"
+      && typeof population.ownerSource === "string";
+  });
+}
+
+test("current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion", () => {
+  const source = readYaml(".product-experience/interface-parity/operation-parity.yaml");
+  const matrix = source.ownerDefinedSourceTruthMatrix;
+  assert.equal(sourceTruthMatrixValid(source), true);
+  assert.match(matrix.status, /no cross-interface binding, runtime parity, or independent acceptance is implied/u);
+  assert.equal(source.normativeRuleRecords.find(({ id }) => id === "media.p2.rule.interface-source-truth-matrix.v1")?.acceptanceEffect, "none");
+  const weakCases = [
+    (copy) => { copy.ownerDefinedSourceTruthMatrix.requiredPerIdentity = copy.ownerDefinedSourceTruthMatrix.requiredPerIdentity.filter((field) => field !== "implementation-observation-or-explicit-not-implemented"); },
+    (copy) => { copy.ownerDefinedSourceTruthMatrix.nonEquivalence = copy.ownerDefinedSourceTruthMatrix.nonEquivalence.filter((field) => field !== "matching-name-is-not-semantic-equivalence"); },
+    (copy) => { copy.ownerDefinedSourceTruthMatrix.populations[0].identitySource = "some action registry"; },
+    (copy) => { copy.ownerDefinedSourceTruthMatrix.populations.pop(); },
+    (copy) => { copy.ownerDefinedSourceTruthMatrix.populations[1].surfaceKey = "gRPC"; },
+  ];
+  for (const mutate of weakCases) {
+    const weakened = structuredClone(source);
+    mutate(weakened);
+    assert.equal(sourceTruthMatrixValid(weakened), false, "missing exact owner/implementation population or name-based parity cannot pass the matrix");
+  }
+});
 
 function openApiOperationIds(spec) {
   return Object.values(spec.paths).flatMap((path) => Object.values(path ?? {}))
@@ -560,7 +596,13 @@ test("STT streaming candidate separates transport chunks from canonical versione
   const identity = parity.typedGrpcMethodContracts.find((entry) => entry.identity === "STTService.StreamTranscribe");
   assert.ok(identity);
   const assessment = identity.mediaOwnerAdapterAssessment;
-  assert.equal(assessment.canonicalOperationRef, ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records/@id=media.operation.capability.media-speech-transcription-stream");
+  assert.equal(assessment.canonicalOperationRef, ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-stream");
+  const operationRef = assessment.canonicalOperationRef;
+  const operationId = operationRef.split("@id=")[1];
+  assert.equal(operationDefinitions.capabilityOperationContracts.records.find(({ id }) => id === operationId)?.id, operationId,
+    "the exact array selector resolves to the canonical owner operation");
+  assert.equal(assessment.canonicalRequestSchemaRef, `${operationRef}/requestSchema`);
+  assert.equal(assessment.canonicalResultSchemaRef, `${operationRef}/resultSchema`);
   assert.equal(assessment.disposition, "CANDIDATE_ONLY_ADAPTER_NOT_DEFINED; current-stream-method-does-not-satisfy-canonical-stream-contract");
 
   const implementation = readFileSync(resolve(root, "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java"), "utf8");

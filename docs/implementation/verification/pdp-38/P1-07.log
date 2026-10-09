@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: tool registry records the exact four handler-observed contracts without implying admission
+ok 1 - tool registry records the exact four handler-observed contracts without implying admission
+  ---
+  duration_ms: 4.102665
+  type: 'test'
+  ...
+# Subtest: all four entries inventory validated inputs while retaining output and operation admission gates
+ok 2 - all four entries inventory validated inputs while retaining output and operation admission gates
+  ---
+  duration_ms: 0.917308
+  type: 'test'
+  ...
+# Subtest: tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
+ok 3 - tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
+  ---
+  duration_ms: 2.237398
+  type: 'test'
+  ...
+# Subtest: each handler input/error source drift is rejected independently
+ok 4 - each handler input/error source drift is rejected independently
+  ---
+  duration_ms: 8.184301
+  type: 'test'
+  ...
+# Subtest: registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
+ok 5 - registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
+  ---
+  duration_ms: 0.651108
+  type: 'test'
+  ...
+# Subtest: registry rejects accidental runtime, operation, authority, or finality promotion
+ok 6 - registry rejects accidental runtime, operation, authority, or finality promotion
+  ---
+  duration_ms: 2.709861
+  type: 'test'
+  ...
+# Subtest: runtime source observation does not turn Tools build resolution into Shared owner acceptance
+ok 7 - runtime source observation does not turn Tools build resolution into Shared owner acceptance
+  ---
+  duration_ms: 1.900617
+  type: 'test'
+  ...
+# Subtest: owner-selected operation families remain definition-only until handler bindings and admission are proved
+ok 8 - owner-selected operation families remain definition-only until handler bindings and admission are proved
+  ---
+  duration_ms: 1.131865
+  type: 'test'
+  ...
+# Subtest: adapter input validation and generic unknown outcome support do not admit Media tool execution
+ok 9 - adapter input validation and generic unknown outcome support do not admit Media tool execution
+  ---
+  duration_ms: 0.789634
+  type: 'test'
+  ...
+# Subtest: Media Agent Tool contracts resolve exact canonical source records and stay definition-only
+ok 10 - Media Agent Tool contracts resolve exact canonical source records and stay definition-only
+  ---
+  duration_ms: 8519.839653
+  type: 'test'
+  ...
+# Subtest: contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
+ok 11 - contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
+  ---
+  duration_ms: 151.595411
+  type: 'test'
+  ...
+# Subtest: input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
+ok 12 - input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
+  ---
+  duration_ms: 484.997001
+  type: 'test'
+  ...
+# Subtest: host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
+ok 13 - host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
+  ---
+  duration_ms: 67.785143
+  type: 'test'
+  ...
+# Subtest: pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
+ok 14 - pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
+  ---
+  duration_ms: 155.750587
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9581.618624

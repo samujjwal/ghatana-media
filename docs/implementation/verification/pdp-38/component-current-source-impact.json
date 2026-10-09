@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "media.pdp38.component-current-source-impact.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-104",
+  "baseReviewArtifactRef": "docs/implementation/verification/pdp-38/component-source-review.json",
+  "baseReviewArtifactSha256": "12cee47097123d10fb7f39d8312bd2f71c0f930d5fa4f483081e529979a0de39",
+  "sourcePath": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+  "priorSourceSha256": "5d5eb8711b84b2666b1a593a00e62c4ec935966d6f9e4f65f19385aade6ea290",
+  "currentSourceSha256": "e5ae2177fe08fe5ffe69ec7e47eb2d9446c792f35a3cb659c8c257f31b08bc93",
+  "unchangedPriorParsedTreeSha256": "931077173d57613734e957f364b0074758563ab8da11b8e3a2aae80785dfb2a4",
+  "scope": "All31 original component definitions and every prior field remain byte-equivalent as parsed records. Only twelve source-owned behavioral rules and twelve exact obligation routing records were added.",
+  "materialReview": "PXD-100 reviewed finite repair bounds, erasure/provenance separation, navigation/safety visibility, typed parameters, measured-risk planning, durable acceptance identity, contextual navigation, local undo boundaries, source-change/evidence separation, upstream authority order, explicit job finality, and optional planner isolation. Each rule carries falsifiers and separate runtime/independent acceptance limitations.",
+  "addedRuleRecords": [
+    {
+      "id": "media.component.bounded-repair-loop.v1",
+      "recordSha256": "8d8b948ee2d0c212ac1ed19709527b54750ff122f4980dbe17d269c0d209b903",
+      "negativeCases": [
+        "unbounded-repeat",
+        "new-request-after-unknown",
+        "bound-widened-by-provider",
+        "report-loop-success-after-exhaustion"
+      ]
+    },
+    {
+      "id": "media.component.erasure-retention-provenance.v1",
+      "recordSha256": "a0d4b42bc2f1ff32d9a8157be09ae3d6a58447b9f39c1317b6bc29ab5d03384a",
+      "negativeCases": [
+        "immutability-used-to-deny-erasure",
+        "provenance-copy-retains-source-bytes",
+        "deletion-claim-without-downstream-copy-inventory",
+        "legal-hold-inferred-from-missing-evidence"
+      ]
+    },
+    {
+      "id": "media.component.navigation-and-safety-visibility.v1",
+      "recordSha256": "84850015bdf1c4dc76b6fb1cbddb85a432e632e445aa8c3de06df9193db979f0",
+      "negativeCases": [
+        "primary-navigation-hidden-to-simplify",
+        "cancel-or-undo-hidden-as-secondary",
+        "rights-denial-reduced-to-color-only",
+        "safety-warning-hidden-by-quiet-layout"
+      ]
+    },
+    {
+      "id": "media.component.typed-parameter-boundaries.v1",
+      "recordSha256": "379d79d3ad36b36358e1eb79f5432bef9edda1623609eb2bd059561fd1f61499",
+      "negativeCases": [
+        "unknown-field-silently-ignored",
+        "unitless-value-assumed",
+        "out-of-range-value-clamped-without-disclosure",
+        "provider-field-overrides-policy"
+      ]
+    },
+    {
+      "id": "media.component.risk-bounded-analysis-selection.v1",
+      "recordSha256": "8251f73c5620e6ee75b457e665378f4491f804eddab600c2966e5d536137fb39",
+      "negativeCases": [
+        "all-enhancers-applied-by-default",
+        "estimated-improvement-treated-as-measured",
+        "operation-selected-without-rights-or-profile",
+        "source-overwritten-before-review"
+      ]
+    },
+    {
+      "id": "media.component.acceptance-after-durable-identity.v1",
+      "recordSha256": "7b8c72c76488fdb6fb26b1203f54555c06ffc72b44b98c54849dc181ff9caf37",
+      "negativeCases": [
+        "accepted-before-identity-persisted",
+        "optimistic-ui-treated-as-durable-acceptance",
+        "provider-start-treated-as-job-receipt",
+        "unknown-commit-reported-as-rejected"
+      ]
+    },
+    {
+      "id": "media.component.contextual-workspace-navigation.v1",
+      "recordSha256": "a51f789147f60111cca24e6476a8be2266b8a4f7b2a7378c3b0174a0e14191de",
+      "negativeCases": [
+        "all-sections-assumed-applicable",
+        "hidden-section-treated-as-deleted",
+        "navigation-visibility-grants-access",
+        "stale-workspace-context-reused"
+      ]
+    },
+    {
+      "id": "media.component.undo-redo-effect-boundary.v1",
+      "recordSha256": "1227f38739c08208dcfe3a1c7ea777721dd92b2a3202dd3d2339384a8477d629",
+      "negativeCases": [
+        "published-effect-reported-undone",
+        "external-provider-effect-erased-from-history",
+        "undo-without-exact-source-version",
+        "compensation-inferred-from-local-history"
+      ]
+    },
+    {
+      "id": "media.component.source-change-and-evidence-boundary.v1",
+      "recordSha256": "40442fbb9db2f9df9a12ba3d7008fbc9ea349d776f359686a770c674d7111b1d",
+      "negativeCases": [
+        "feature-change-hidden-as-relocation",
+        "component-selected-by-name-only",
+        "safety-critical-rule-left-implicit",
+        "quality-target-presented-as-guaranteed"
+      ]
+    },
+    {
+      "id": "media.component.upstream-owner-source-first.v1",
+      "recordSha256": "106fbe734fc97ab24f162d5bcf0081c7e9ea622fd209537d6f8b0e90f513d800",
+      "negativeCases": [
+        "explorer-local-rule-substitutes-for-product-truth",
+        "screen-override-masks-missing-domain-rule",
+        "generated-projection-edited-as-source-fix",
+        "duplicate-downstream-rule-creates-second-authority"
+      ]
+    },
+    {
+      "id": "media.component.job-outcome-and-safe-next-action.v1",
+      "recordSha256": "1853799e97ef1a7a06d4d21f3da99740a71f1ba4d34dc30f619156061e3ad641",
+      "negativeCases": [
+        "success-means-output-safe",
+        "missing-observation-means-not-running",
+        "job-completion-means-artifact-accepted",
+        "partial-output-reported-as-full-success",
+        "unknown-finality-hidden",
+        "action-inferred-from-label"
+      ]
+    },
+    {
+      "id": "media.component.optional-ai-planner-isolation.v1",
+      "recordSha256": "616e9afe5e4b7c3679a9b1ffc2a063c664f7df6a7ae8dd3b576e0451ff4a0b04",
+      "negativeCases": [
+        "optional-planner-outage-disables-unrelated-deterministic-edit",
+        "unqualified-planner-substituted-silently",
+        "generated-suggestion-labeled-deterministic",
+        "planner-availability-grants-edit-authority"
+      ]
+    }
+  ],
+  "normativeRoutingRecords": [
+    {
+      "id": "media.p2.rule.component-bounded-repair-loop.v1",
+      "recordSha256": "181966d8ab9a9d2cb5ddeac6d5ae32101e76f9bd1bac1698db32a5227e1b5976",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.bounded-repair-loop.v1"
+    },
+    {
+      "id": "media.p2.rule.component-erasure-retention-provenance.v1",
+      "recordSha256": "e5ab93ea37079d137770d515665f4781ba1512bc5e503c69901bcfb84d1c7924",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.erasure-retention-provenance.v1"
+    },
+    {
+      "id": "media.p2.rule.component-navigation-safety-visibility.v1",
+      "recordSha256": "3cadb02acfe750fb0ac685b45fd63196ca8064fdfa2af5f9eafbbe84420ccbd5",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.navigation-and-safety-visibility.v1"
+    },
+    {
+      "id": "media.p2.rule.component-typed-parameter-boundaries.v1",
+      "recordSha256": "619d308dbdfe4c2947cefb33f56d27098a95cd2301e9ab29e4f0360d87d7ace9",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.typed-parameter-boundaries.v1"
+    },
+    {
+      "id": "media.p2.rule.component-risk-bounded-analysis-selection.v1",
+      "recordSha256": "20083d8806db236d9cc19af5954882d92ede350f77c71d2bd910d5eb8681a1bf",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.risk-bounded-analysis-selection.v1"
+    },
+    {
+      "id": "media.p2.rule.component-durable-acceptance-identity.v1",
+      "recordSha256": "4b2381baeb5629b335e554e40de0816466bf2b1fc6833fa15008465d9d75cfe6",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.acceptance-after-durable-identity.v1"
+    },
+    {
+      "id": "media.p2.rule.component-workspace-navigation.v1",
+      "recordSha256": "3c80366268e17959bc28da23c1178fa5950694bc235b65195a5512c852000a2a",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.contextual-workspace-navigation.v1"
+    },
+    {
+      "id": "media.p2.rule.component-undo-redo-effect-boundary.v1",
+      "recordSha256": "cc6ff6db5787d3f6cfacbfe83cd04f578c28dba556b3fc930249503a8ba19e12",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.undo-redo-effect-boundary.v1"
+    },
+    {
+      "id": "media.p2.rule.component-source-change-and-evidence-boundary.v1",
+      "recordSha256": "35e7992d2c01c2658e017bcdc33e473761d833f68fcc3b1dcd9dbb784bdbe8b0",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.source-change-and-evidence-boundary.v1"
+    },
+    {
+      "id": "media.p2.rule.component-upstream-owner-source-first.v1",
+      "recordSha256": "6043a67657d25b682d5c84c97f9e17bea2c1d7ecf72a0e4e16fc2b5843e027e8",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.upstream-owner-source-first.v1"
+    },
+    {
+      "id": "media.p2.rule.component-job-outcome-safe-next-action.v1",
+      "recordSha256": "b0711465605e69bd2759ab02a0ba85cc3d51c511c2da593c4e1abf59c25f1d10",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.job-outcome-and-safe-next-action.v1"
+    },
+    {
+      "id": "media.p2.rule.component-optional-ai-planner-isolation.v1",
+      "recordSha256": "327e9d7c93f2982d8a25d1dab4a918dd8323f1f9283e2255768dc13bdcd41023",
+      "ruleRef": ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.optional-ai-planner-isolation.v1"
+    }
+  ],
+  "supportingReviewArtifactRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json",
+  "supportingReviewArtifactSha256": "a597387dff0b49118cf552ee0ccb487d48edad52eec5fcb8228366768734061a",
+  "wholeTaskCriterionEstablished": false,
+  "nativeLifecycleReceipt": null,
+  "acceptanceEffect": "none; current source impact review only"
+}

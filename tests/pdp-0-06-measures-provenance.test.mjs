@@ -1,5 +1,6 @@
 import test from "node:test";
 import { validateBusinessMeasureDefinitions } from "../scripts/lib/product-definition-domain-rule-mapping.mjs";
+import { validateProductDefinitionTimestampProvenance } from "../scripts/lib/product-definition-authored-timestamp-provenance.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -192,6 +193,19 @@ test("P0-06 omits authored ProductDefinition timestamps when Media has no timest
   }
   assert.equal(candidate.candidateMappingReview.fieldDispositions.timestamps.status, "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY");
   assert.match(candidate.candidateMappingReview.fieldDispositions.timestamps.source, /generation time is not authored metadata/u);
+  assert.equal(validateProductDefinitionTimestampProvenance(candidate.candidateModel, candidate.candidateFieldSources, {}), true);
+  const generatedTime = structuredClone(candidate.candidateModel);
+  generatedTime.createdAt = new Date().toISOString();
+  assert.throws(() => validateProductDefinitionTimestampProvenance(generatedTime, candidate.candidateFieldSources, {}), /no reviewed canonical authored timestamp source/u,
+    "projection generation time cannot be promoted to authored ProductDefinition metadata");
+  const forgedSource = structuredClone(candidate.candidateModel);
+  forgedSource.updatedAt = "2026-10-09T12:00:00.000Z";
+  const forgedFields = structuredClone(candidate.candidateFieldSources);
+  forgedFields.updatedAt = { sourceRef: ".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePath: ["updatedAt"] };
+  assert.throws(() => validateProductDefinitionTimestampProvenance(forgedSource, forgedFields, {
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": { updatedAt: "2026-10-09T12:00:00.000Z" },
+  }), /no reviewed canonical authored timestamp source/u,
+  "a matching timestamp-shaped field is insufficient without an exact reviewed canonical source selector");
 });
 
 

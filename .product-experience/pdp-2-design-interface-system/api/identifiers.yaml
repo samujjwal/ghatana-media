@@ -10,3 +10,15 @@ rules:
   - Proposed rule: keep uploadId, jobId, artifactId, projectId, and projectRevisionId distinct wherever an approved operation uses them.
   - Proposed rule: machine identifiers and display labels are separate; identifier stability and serialization remain subject to API-owner approval.
   - A projectRevisionId may identify a project snapshot under the proposed domain model; it is not artifact bytes or an artifact version. Immutability and wire representation are not established by this proposal.
+ownerDefinedIdentityReconciliation:
+  id: media.api.reconcile-existing-owner-identities.v1
+  sourceRefs: [.product-experience/pdp-0-product-truth/glossary.yaml, .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects, .product-experience/pdp-1-domain-data/operations.yaml#/capabilityOperationContracts/records]
+  rule: Before defining a new Media API, SDK, event, CLI, or adapter identity, resolve the exact existing owning glossary/domain/operation identity. Reuse and register an equivalent authority instead of inventing a duplicate alias or second semantic owner. Preserve distinct identities for distinct objects and versions; identifiers remain opaque and never grant authorization. If no existing owner identity has the required meaning, define a new versioned Media identity with its owner and exact distinction before projecting it to a transport. External service schema identities remain owned by that service and are referenced rather than copied as a competing authority.
+  requiredEvidence: [exact-existing-owner-identity-search, identity-kind-and-version, owner-source-reference, equivalence-or-distinction-rationale, external-schema-owner-when-applicable]
+  negativeCases: [duplicate-alias-created-for-equivalent-authority, identifiers-conflated-by-similar-name, opaque-id-parsed-for-authorization, external-schema-copied-as-media-authority, identity-without-owner-or-version]
+  scopeStatus: OWNER_DEFINED_IDENTITY_RECONCILIATION; serialization, wire compatibility, external owner acceptance, and runtime admission remain separate.
+normativeRuleRecords:
+  - id: media.p2.rule.api-reconcile-existing-identities.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedIdentityReconciliation
+    sourceAuthority: .product-experience/pdp-0-product-truth/glossary.yaml
+    acceptanceEffect: none

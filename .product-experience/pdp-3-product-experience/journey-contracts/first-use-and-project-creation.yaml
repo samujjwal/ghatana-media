@@ -447,6 +447,7 @@ steps:
       journeyRef: J-01
       actionRef: null
       bindingStatus: PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH
+      observationDefinitionRef: .product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml#records/media.project-list-observation.v1
       selectionBasis: The step is a read-only authorized project collection observation; no separate Media
         interaction action is needed to bind its query semantics.
       candidateActionRefs: []
@@ -536,7 +537,7 @@ steps:
         actionChoiceRefs: []
         actionChoiceDisposition: PASSIVE_CANONICAL_QUERY; NO_ACTION_DISPATCH
       operationContractBinding:
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.list-projects
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/media.operation-slice.list-projects
         operationRef: media.operation-slice.list-projects
         operationKind: QUERY
         domainObjectRefs:

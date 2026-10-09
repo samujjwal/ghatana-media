@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: typed contract binding catalog exhaustively covers source roles without implying support
 ok 1 - typed contract binding catalog exhaustively covers source roles without implying support
   ---
-  duration_ms: 2.931392
+  duration_ms: 2.815599
   type: 'test'
   ...
 # Subtest: catalog negative checks reject duplicate and stale schema identities
 ok 2 - catalog negative checks reject duplicate and stale schema identities
   ---
-  duration_ms: 2.447217
+  duration_ms: 2.32029
   type: 'test'
   ...
 # Subtest: catalog negative checks reject unsupported PDP-1 references and missing new bindings
 ok 3 - catalog negative checks reject unsupported PDP-1 references and missing new bindings
   ---
-  duration_ms: 1.060756
+  duration_ms: 0.819921
   type: 'test'
   ...
 # Subtest: catalog negative checks prevent admission of specialized unqualified operations
 ok 4 - catalog negative checks prevent admission of specialized unqualified operations
   ---
-  duration_ms: 1.361715
+  duration_ms: 1.107017
   type: 'test'
   ...
 # Subtest: client contract imports resolve to the same catalog without upgrading legacy routes
 ok 5 - client contract imports resolve to the same catalog without upgrading legacy routes
   ---
-  duration_ms: 3.471114
+  duration_ms: 3.27328
   type: 'test'
   ...
 1..5
@@ -37,4 +37,4 @@ ok 5 - client contract imports resolve to the same catalog without upgrading leg
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 153.784192
+# duration_ms 141.594294

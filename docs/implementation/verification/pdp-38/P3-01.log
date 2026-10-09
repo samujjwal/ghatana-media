@@ -2,13 +2,13 @@ TAP version 13
 # Subtest: PDP-3 typed action semantics project only exact owner definitions
 ok 1 - PDP-3 typed action semantics project only exact owner definitions
   ---
-  duration_ms: 6.473652
+  duration_ms: 5.875763
   type: 'test'
   ...
 # Subtest: PDP-3 typed action mapping rejects stale decision, effect, role, and operation identities
 ok 2 - PDP-3 typed action mapping rejects stale decision, effect, role, and operation identities
   ---
-  duration_ms: 27.231605
+  duration_ms: 26.80778
   type: 'test'
   ...
 1..2
@@ -19,4 +19,4 @@ ok 2 - PDP-3 typed action mapping rejects stale decision, effect, role, and oper
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 786.291848
+# duration_ms 715.453494

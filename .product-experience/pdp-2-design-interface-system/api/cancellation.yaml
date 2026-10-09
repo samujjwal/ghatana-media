@@ -6,3 +6,27 @@ scopeStatus: proposal; cancellation guarantees are operation-specific and unboun
 acceptance: {criteria: [where cancellation is supported, it is a request with an explicit operation-specific outcome, repeated requests do not imply duplicate effects, completed effects are not misreported as cancelled], status: pending-runtime-owner-review}
 verification: {method: Exercise cancellation before, during, and after irreversible effect boundaries and after response loss, status: not-run}
 rules: [requesting cancellation does not mean cancellation completed, report state/finality only to the extent the operation can establish them, distinguish too-late from accepted-for-processing and unknown where the wire contract supports those outcomes, stopping a client wait is not server cancellation, no cancellation availability or effect-termination guarantee is established here]
+ownerDefinedCancellationSemantics:
+  id: media.api.cancellation-request-finality.v1
+  canonicalOperationRef: media.operation-slice.cancel-job
+  canonicalStateAuthority: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job
+  rules:
+    - cancellation is a request against the exact tenant/principal-scoped job and current attempt set; host identity is not accepted from mutable caller fields
+    - the request uses the operation's stable request identity and version when available; duplicate matching requests reconcile to the same request record and changed payload conflicts
+    - persist the cancellation request before reporting acceptance; request persistence does not mean any worker/provider stopped
+    - retain the canonical job/attempt states and finality vocabulary; transport status or client-side timeout cannot introduce a second cancellation state taxonomy
+    - confirmed cancellation requires authoritative evidence that the relevant effect boundary is final; unknown dispatch or external-provider outcome remains UNKNOWN_OUTCOME
+    - a completed or otherwise terminal effect is never rewritten as cancelled; prior effects and partial outputs require their own disposition
+    - stopping or timing out a local poll only ends observation and does not issue a server cancellation request
+  negativeCases:
+    - response to cancel request represented as confirmed cancellation without owner finality evidence
+    - cancellation request against another tenant or owning principal scope
+    - stale observed job version treated as a current cancellation decision
+    - detached client or expired lease represented as cancelled work
+    - already completed effects rewritten as though they never occurred
+  runtimeAdmission: NOT_ADMITTED
+normativeRuleRecords:
+  - id: media.p2.rule.api-cancellation-request-finality.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/cancellation.yaml#ownerDefinedCancellationSemantics
+    sourceAuthority: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job
+    acceptanceEffect: none

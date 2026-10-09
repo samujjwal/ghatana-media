@@ -82,3 +82,103 @@ layoutRules:
   - Use contextual drawers for optional technical details instead of compressing the primary transcript region.
   - Long localized labels wrap; they do not clip, overlap controls, or change meaning.
   - The source-versus-caption distinction remains visible without relying on color.
+
+responsiveCompositionReferences:
+  status: OWNER_DEFINED_REFERENCE_CONTRACTS; no rendered conformance or comprehension result is implied
+  widthBands:
+    narrow: { widthsCssPx: [320, 390], arrangement: single-column-reading-order }
+    medium: { widthsCssPx: [768, 1024], arrangement: primary-work-region-with-contextual-support }
+    wide: { widthsCssPx: [1280, 1536], arrangement: parallel-regions-with-explicit-reading-order }
+  representativeViews:
+    - viewRef: media.view.review-rights-and-consent
+      sourceContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml
+      requiredVisibleFacts: [affected-source-identity-and-version, requested-purpose, rights-and-consent-scope, validity-and-revocation, decision-and-safe-next-action]
+      factBindings:
+        - { fact: affected-source-identity-and-version, sourcePointer: '#/anatomy/0' }
+        - { fact: requested-purpose, sourcePointer: '#/contextGoalNowNext/context' }
+        - { fact: rights-and-consent-scope, sourcePointer: '#/anatomy/2' }
+        - { fact: validity-and-revocation, sourcePointer: '#/anatomy/3' }
+        - { fact: decision-and-safe-next-action, sourcePointer: '#/contextGoalNowNext/next' }
+    - viewRef: media.view.job-status
+      sourceContractRef: .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
+      requiredVisibleFacts: [job-and-attempt-identity, observed-state, effect-finality, unknown-outcome-warning, safe-recovery-action]
+      factBindings:
+        - { fact: job-and-attempt-identity, sourcePointer: '#/anatomy/0' }
+        - { fact: observed-state, sourcePointer: '#/anatomy/2' }
+        - { fact: effect-finality, sourcePointer: '#/anatomy/5' }
+        - { fact: unknown-outcome-warning, sourcePointer: '#/anatomy/5' }
+        - { fact: safe-recovery-action, sourcePointer: '#/anatomy/6' }
+    - viewRef: media.view.review-transcript
+      sourceContractRef: .product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml
+      requiredVisibleFacts: [source-version, transcript-version, source-time-reference, recognition-uncertainty, edit-and-review-actions]
+      factBindings:
+        - { fact: source-version, sourcePointer: '#/contextGoalNowNext/context' }
+        - { fact: transcript-version, sourcePointer: '#/domainObjectRefs/0' }
+        - { fact: source-time-reference, sourcePointer: '#/anatomy/3' }
+        - { fact: recognition-uncertainty, sourcePointer: '#/contextGoalNowNext/now' }
+        - { fact: edit-and-review-actions, sourcePointer: '#/contextGoalNowNext/next' }
+    - viewRef: media.view.work-in-project
+      sourceContractRef: .product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml
+      requiredVisibleFacts: [project-identity-and-version, source-and-output-identities, pending-work-finality, primary-safe-action, recovery-path]
+      factBindings:
+        - { fact: project-identity-and-version, sourcePointer: '#/anatomy/1' }
+        - { fact: source-and-output-identities, sourcePointer: '#/anatomy/2' }
+        - { fact: pending-work-finality, sourcePointer: '#/anatomy/3' }
+        - { fact: primary-safe-action, sourcePointer: '#/contextGoalNowNext/next' }
+        - { fact: recovery-path, sourcePointer: '#/anatomy/5' }
+  invariants:
+    - Every width band presents the same source identities, domain state, permissions, actions, and finality; layout may only change arrangement and optional-detail disclosure.
+    - Keyboard traversal and assistive reading order follow the same declared hierarchy at all widths; no essential action or critical fact is reachable only by horizontal scrolling, pointer hover, or color interpretation.
+    - The advanced-detail disclosure control remains discoverable at every width and exposes the same declared detail without changing defaults or authority.
+
+comprehensionRubric:
+  status: REVIEW_PROTOCOL_DEFINED; participant study NOT_RUN
+  taskPrompts:
+    - id: media.comprehension.identify-source-and-version
+      measures: Participant identifies the exact selected source and immutable version before acting.
+    - id: media.comprehension.distinguish-request-from-effect
+      measures: Participant distinguishes a requested action, observed acknowledgement, completed effect, and unknown finality.
+    - id: media.comprehension.find-rights-boundary
+      measures: Participant identifies affected material, purpose, scope, expiry/revocation and the applicable decision.
+    - id: media.comprehension.find-safe-recovery
+      measures: Participant identifies whether work may still run and the next permitted recovery action without blind resubmission.
+    - id: media.comprehension.locate-advanced-detail
+      measures: Participant finds advanced typed controls and provenance while recognizing that detail does not grant new authority.
+  evidenceRecordFields: [viewRef, viewportWidthCssPx, zoomPercent, inputMethod, assistiveTechnology, participantRole, taskId, firstAction, answerByCriticalFact, promptCount, observedFailure, severity, retestDecision]
+  passRule: Every safety-critical fact is identified accurately without facilitator prompting; any error concerning source/version, rights, effect finality, authority, or recovery is a blocking design finding until retested.
+  nonClaims: [No participant study completed, no measured usability or comprehension acceptance, no independent visual or accessibility approval]
+
+repeatSafeStepDisclosure:
+  id: media.disclosure.repeat-safe-step-scope.v1
+  rule: A repeated technical step that is read-only or otherwise explicitly classified as safe by its exact owner operation does not require a second confirmation dialog when the operation, source/object versions, authority, purpose, profile, destination, and material risk facts remain unchanged and current. Re-evaluate and request the operation-defined confirmation whenever one of those facts changes, authority or consent may have expired or been revoked, the effect is irreversible or externally visible, or the operation does not establish that repetition is safe. A prior confirmation is scoped to the exact action and facts shown; it is not a reusable blanket authorization.
+  unchangedFacts: [canonicalActionId, operationIdAndVersion, exactSourceAndObjectVersions, trustedTenantAndPrincipal, purposeAndConsentScope, profileAndVersion, destination, declaredEffectRiskAndBudget]
+  recheckBeforeRepeat: [currentAuthority, currentConsentAndRights, currentEligibility, exactOperationIdempotencyOrReadOnlyClassification]
+  negativeCases:
+    - reuse-confirmation-after-source-version-change
+    - repeat-after-consent-expiry-or-revocation
+    - repeat-destructive-or-external-effect-under-read-only-classification
+    - suppress-operation-required-confirmation
+    - infer-safety-from-prior-success-or-display-label
+  scopeStatus: OWNER_DEFINED_INTERACTION_CONFIRMATION_SCOPE; it removes redundant prompts only for unchanged, owner-classified safe steps and does not establish operation safety or runtime admission.
+
+normativeRuleRecords:
+  - id: media.p2.rule.responsive-content-and-order.v1
+    ruleRef: '#/responsiveCompositionReferences/invariants/0'
+    authorityRef: '#/responsiveCompositionReferences'
+    acceptanceEffect: none
+  - id: media.p2.rule.responsive-keyboard-equivalence.v1
+    ruleRef: '#/responsiveCompositionReferences/invariants/1'
+    authorityRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.advanced-detail-discoverability.v1
+    ruleRef: '#/responsiveCompositionReferences/invariants/2'
+    authorityRef: '#/density'
+    acceptanceEffect: none
+  - id: media.p2.rule.comprehension-rubric.v1
+    ruleRef: '#/comprehensionRubric/passRule'
+    authorityRef: '#/comprehensionRubric'
+    acceptanceEffect: none
+  - id: media.p2.rule.repeat-safe-step-disclosure.v1
+    ruleRef: '#/repeatSafeStepDisclosure'
+    authorityRef: '#/repeatSafeStepDisclosure'
+    acceptanceEffect: none

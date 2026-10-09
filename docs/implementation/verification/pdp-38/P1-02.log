@@ -2,147 +2,117 @@ TAP version 13
 # Subtest: PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
 ok 1 - PDP-1 state inventory preserves the PDP-0 proposal without accepting its semantics
   ---
-  duration_ms: 118.358858
+  duration_ms: 272.245477
   type: 'test'
   ...
 # Subtest: PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
 ok 2 - PDP-1 transition extraction preserves every source edge and leaves guards and bindings unresolved
   ---
-  duration_ms: 117.127532
+  duration_ms: 224.680694
   type: 'test'
   ...
 # Subtest: PDP-1 adapter observations point to live methods and remain unresolved projections
 ok 3 - PDP-1 adapter observations point to live methods and remain unresolved projections
   ---
-  duration_ms: 30.607473
+  duration_ms: 75.462472
   type: 'test'
   ...
 # Subtest: PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
 ok 4 - PDP-1 records runtime stream-state and store-transition observations without promoting the proposal
   ---
-  duration_ms: 72.762998
+  duration_ms: 97.249276
   type: 'test'
   ...
-# Subtest: PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
-ok 5 - PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence
+# Subtest: owner race contract has stable IDs, exact machine refs and explicit non-runtime status
+ok 5 - owner race contract has stable IDs, exact machine refs and explicit non-runtime status
   ---
-  duration_ms: 161.350741
+  duration_ms: 4.496756
   type: 'test'
   ...
-# Subtest: PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
-ok 6 - PDP-1 state meanings and transitions preserve all source dimensions, guards, and endpoints
+# Subtest: fence, process death, unknown result and cancel race fail closed
+ok 6 - fence, process death, unknown result and cancel race fail closed
   ---
-  duration_ms: 178.718162
+  duration_ms: 1.123541
   type: 'test'
   ...
-# Subtest: all 146 action identities have a source-backed operation or non-operation disposition
-ok 7 - all 146 action identities have a source-backed operation or non-operation disposition
+# Subtest: process death reconciles only a current verified receipt bound to the durable dispatch tuple
+ok 7 - process death reconciles only a current verified receipt bound to the durable dispatch tuple
   ---
-  duration_ms: 5894.163676
+  duration_ms: 0.761823
   type: 'test'
   ...
-# Subtest: P0 exact capability-to-operation decisions resolve only fully classified action slices
-ok 8 - P0 exact capability-to-operation decisions resolve only fully classified action slices
+# Subtest: retry requires current typed outcome and policy evidence, remaining budget, a new attempt and a greater fence
+ok 8 - retry requires current typed outcome and policy evidence, remaining budget, a new attempt and a greater fence
   ---
-  duration_ms: 9742.879859
+  duration_ms: 1.543084
   type: 'test'
   ...
-# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-ok 9 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+# Subtest: authoritative job outcome reconciliation requires current exact subject and authority
+ok 9 - authoritative job outcome reconciliation requires current exact subject and authority
   ---
-  duration_ms: 14264.263899
+  duration_ms: 0.697205
   type: 'test'
   ...
-# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
-ok 10 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+# Subtest: delivery acknowledgment requires a current verified destination receipt bound to the exact output and request
+ok 10 - delivery acknowledgment requires a current verified destination receipt bound to the exact output and request
   ---
-  duration_ms: 4294.26731
+  duration_ms: 0.876102
   type: 'test'
   ...
-# Subtest: P1-08 distinguishes nine durable event definitions from fifteen local notifications
-ok 11 - P1-08 distinguishes nine durable event definitions from fifteen local notifications
+# Subtest: race applicability accounts for all 11 machines, 87 states and 55 source/owner edges
+ok 11 - race applicability accounts for all 11 machines, 87 states and 55 source/owner edges
   ---
-  duration_ms: 52.155215
+  duration_ms: 6.513609
   type: 'test'
   ...
-# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
-ok 12 - P0-06 enumerates exact capability applicability without inventing a measured population
+# Subtest: all 55 transitions allow each declared legal edge and reject every forbidden source pair
+ok 12 - all 55 transitions allow each declared legal edge and reject every forbidden source pair
   ---
-  duration_ms: 13593.489161
-  type: 'test'
-  ...
-# Subtest: P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
-ok 13 - P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope
-  ---
-  duration_ms: 5951.428515
-  type: 'test'
-  ...
-# Subtest: P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
-ok 14 - P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests
-  ---
-  duration_ms: 6541.208469
-  type: 'test'
-  ...
-# Subtest: P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
-ok 15 - P1-10 owner boundaries fail closed while leaving enforcement and qualification unclaimed
-  ---
-  duration_ms: 8.120823
-  type: 'test'
-  ...
-# Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
-ok 16 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
-  ---
-  duration_ms: 21.388398
-  type: 'test'
-  ...
-# Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
-ok 17 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
-  ---
-  duration_ms: 25.900254
+  duration_ms: 302.073265
   type: 'test'
   ...
 # Subtest: all 55 transition identities bind typed, source-current, explicit edge contracts
-ok 18 - all 55 transition identities bind typed, source-current, explicit edge contracts
+ok 13 - all 55 transition identities bind typed, source-current, explicit edge contracts
   ---
-  duration_ms: 30.078449
+  duration_ms: 46.386227
   type: 'test'
   ...
 # Subtest: each edge fails when its material positive predicate is missing or false
-ok 19 - each edge fails when its material positive predicate is missing or false
+ok 14 - each edge fails when its material positive predicate is missing or false
   ---
-  duration_ms: 46.598313
+  duration_ms: 157.229806
   type: 'test'
   ...
 # Subtest: tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
-ok 20 - tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
+ok 15 - tenant, compare-and-swap, finality, and consent revocation use concrete fail-closed oracles
   ---
-  duration_ms: 0.652704
+  duration_ms: 1.095819
   type: 'test'
   ...
 # Subtest: competing multi-target outcomes require distinct evidence and contradictory classifications fail
-ok 21 - competing multi-target outcomes require distinct evidence and contradictory classifications fail
+ok 16 - competing multi-target outcomes require distinct evidence and contradictory classifications fail
   ---
-  duration_ms: 0.568281
+  duration_ms: 0.961256
   type: 'test'
   ...
 # Subtest: unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
-ok 22 - unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
+ok 17 - unknown predicates, source drift, and malformed ASTs fail closed without runtime effects
   ---
-  duration_ms: 7.766019
+  duration_ms: 11.571664
   type: 'test'
   ...
 # Subtest: three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
-ok 23 - three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
+ok 18 - three-valued NOT and Boolean nodes never turn unknown or malformed predicates into permission
   ---
-  duration_ms: 13.860642
+  duration_ms: 27.557711
   type: 'test'
   ...
-1..23
-# tests 23
+1..18
+# tests 18
 # suites 0
-# pass 23
+# pass 18
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 60992.273954
+# duration_ms 1231.220647

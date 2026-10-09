@@ -16,3 +16,24 @@ fixtureLocale:
 copyReview:
   requiresNativeOrQualifiedLanguageReviewer: true
   machineTranslationMayBePresentedAsApprovedCopy: false
+ownerDefinedLocalizationRules:
+  - id: media.localization.original-and-intermediate-precision.v1
+    rule: Preserve the exact original value and every retained intermediate value when localizing or transforming text, numbers, units, or media time. Locale-specific separators and display formatting are presentation only and cannot overwrite the canonical value. A conversion that changes precision must produce a separately identified derived value with the exact conversion, rounding mode, and disclosed loss; unknown precision or conversion history remains unknown rather than reconstructed from display text.
+    requiredEvidence: [sourceValueAndVersion, retainedIntermediateValueAndVersion, canonicalUnitOrTimebase, exactConversionAndRoundingWhenChanged, disclosedPrecisionLoss]
+    negativeCases: [localized-display-round-tripped-into-canonical-value, intermediate-precision-discarded, unit-inferred-from-locale, rounding-loss-hidden, missing-conversion-history-reconstructed]
+    scopeStatus: OWNER_DEFINED_LOCALIZATION_AND_PRECISION_RULE; source-specific scientific or measurement qualification remains separate.
+  - id: media.localization.direction-and-reflow.v1
+    sourceRefs: [.product-experience/pdp-2-design-interface-system/typography-layout.yaml#responsiveCompositionReferences, .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.readability-reflow]
+    rule: Resolve presentation direction only from the selected locale's explicit direction metadata (`ltr` or `rtl`); do not infer it from translated text or user identity. Apply direction to reading and layout order while isolating canonical Media identifiers, field names, reason codes, version refs, time values, and code so bidirectional text cannot reorder or rewrite machine identity. At each supported layout width, long localized strings wrap or expand within their content region without clipping, overlap, hiding required facts, or making controls unreachable. Text resizing to 200% and reflow at the narrow 320 CSS-pixel reference preserve the same content, identity, state, and available actions; horizontal scrolling is allowed only for a specifically identified intrinsically two-dimensional media surface with an equivalent structured or numeric control. Missing or unsupported locale-direction metadata remains unresolved and cannot silently select a direction or be treated as runtime locale support.
+    invariants: [direction-is-explicit-ltr-or-rtl,canonical-identifiers-are-bidi-isolated,localized-copy-wraps-without-loss,text-resize-preserves-all-required-content,320-css-pixel-reflow-preserves-controls-and-actions,unsupported-direction-does-not-imply-runtime-locale-support]
+    negativeCases: [rtl-direction-inferred-from-script,canonical-id-reordered-by-bidirectional-copy,long-label-clipped-at-narrow-width,200-percent-text-resize-hides-required-fact,control-becomes-unreachable-after-reflow,unsupported-locale-marked-runtime-supported]
+    scopeStatus: OWNER_DEFINED_LOCALIZATION_AND_REFLOW_RULE; browser, assistive-technology, native-language, and runtime locale acceptance remain separate and unclaimed.
+normativeRuleRecords:
+  - id: media.p2.rule.localization-original-intermediate-precision.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/localization-content.yaml#/ownerDefinedLocalizationRules/@id=media.localization.original-and-intermediate-precision.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/localization-content.yaml#authority
+    acceptanceEffect: none
+  - id: media.p2.rule.localization-direction-and-reflow.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/localization-content.yaml#/ownerDefinedLocalizationRules/@id=media.localization.direction-and-reflow.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/typography-layout.yaml#responsiveCompositionReferences
+    acceptanceEffect: none

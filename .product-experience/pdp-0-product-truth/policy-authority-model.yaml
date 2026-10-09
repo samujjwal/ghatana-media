@@ -151,6 +151,24 @@ productPolicy:
       - admit-engine-plugin-model-font-and-code-by-version-digest-license-and-security-review
     executionBounds: [ cpu, ram, vram, scratch-storage, process-count, open-files, decoded-pixels, frames, samples, shader-complexity, particles, solver-substeps, retries, wall-clock, monetary-budget ]
     cancellationTruth: gpu-or-remote-work-remains-requested-until-authority-confirms-termination
+    browserToLocalWorkerBoundary:
+      id: media.policy.browser-to-local-worker-boundary.v1
+      rule: >-
+        Binding a local worker to loopback is not authentication or authorization. Before any browser-originated request can read a local file, inspect local state, or dispatch work, the worker and browser client must complete an authenticated pairing bound to the current tenant, principal, browser origin, worker instance, and narrowly scoped file grant. The worker must enforce an explicit origin allowlist and anti-CSRF/rebinding controls on every request; reject missing, opaque, changed, or untrusted origins, stale/replayed pairing proofs, and requests whose authenticated principal or grant differs from the paired tuple. Origin metadata alone is never identity proof. Do not expose ambient service credentials or unrestricted local paths. If the browser origin or paired authority cannot be verified, reject before reading files or causing effects.
+      requiredChecks:
+        - authenticated-pairing-proof-is-current-and-bound-to-tenant-principal-origin-worker-and-grant
+        - request-origin-is-explicitly-allowlisted-and-matches-the-paired-origin
+        - anti-csrf-and-dns-rebinding-controls-are-enforced-per-request
+        - file-grant-is-narrowly-scoped-and-revalidated-before-read
+        - no-caller-controlled-destination-or-ambient-service-credential-is-forwarded
+      rejectionCases:
+        - loopback-bind-without-authenticated-pairing
+        - missing-null-opaque-or-unallowlisted-browser-origin
+        - origin-or-principal-changed-after-pairing
+        - expired-or-replayed-pairing-proof
+        - requested-path-outside-current-file-grant
+      failure: reject-before-local-file-read-or-effect
+      runtimeStatus: DEFINITION_ONLY_NOT_RUNTIME_EVIDENCE
 
   dataHandling:
     defaults:

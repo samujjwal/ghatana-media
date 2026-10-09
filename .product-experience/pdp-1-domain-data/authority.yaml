@@ -84,3 +84,134 @@ ownerDefinedPdp10AuthorityScopes:
     rule: Media preconditions are mandatory inputs to external privileged mechanics; mechanism acceptance does not make a Media outcome successful.
   scopeStatus: OWNER_DEFINED_SOURCE_POLICY; no production trust binding or enforcement claim
   independentSecurityReview: PENDING
+ownerDefinedPdp05TrustAndOwnership:
+  id: media.pdp1.trust-ownership-contracts.v1
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  status: OWNER_DEFINED_DEFINITION_ONLY; identity-provider-binding-and-independent-P0-010-review-pending
+  sourceRefs:
+  - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes
+  - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary
+  trustContexts:
+  - id: media.trust.host-identity
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#trustContexts/contexts/@id=media.trust.authenticated
+    expectedTrustLevel: authenticated
+    expectedDataSensitivity: private-tenant-scoped-content-or-metadata
+    expectedEffectScope: read-or-process-within-current-verified-tenant-and-delegation
+    expectedAuditRequired: true
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+    trustLevel: HOST_ATTESTED_CONTEXT
+    establishes: tenant-principal-current-delegation-and-authorized-workspace-only
+    forbiddenCoercions: [caller-supplied-tenant-or-principal, role-label-to-grant, workspace-selector-to-wider-scope]
+    missingOrMismatch: DENY_BEFORE_LOOKUP_OR_EFFECT
+  - id: media.trust.current-policy-decision
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#trustContexts/contexts/@id=media.trust.privileged
+    expectedTrustLevel: privileged
+    expectedDataSensitivity: governed-content-with-consequential-external-effect
+    expectedEffectScope: provider-dispatch-sharing-export-publication-or-other-privileged-effect
+    expectedAuditRequired: true
+    sourceRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation
+    trustLevel: AUTHORITY_ISSUED_SCOPED_DECISION
+    establishes: exact-subject-purpose-operation-and-scope-disposition-only
+    requiredCurrentness: exact-subject-and-scope; issuer-ref; authority-version; observed-at; expiry-or-unknown
+    forbiddenCoercions: [user-attestation-to-verified-consent, provider-success-to-rights-approval, stale-decision-to-current]
+    missingOrMismatch: DENY_NEW_GOVERNED_EFFECT; preserve-unknown-if-effect-already-crossed
+  - id: media.trust.canonical-state-observation
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#trustContexts/contexts/@id=media.trust.authenticated
+    expectedTrustLevel: authenticated
+    expectedDataSensitivity: private-tenant-scoped-content-or-metadata
+    expectedEffectScope: read-or-process-within-current-verified-tenant-and-delegation
+    expectedAuditRequired: true
+    sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions
+    trustLevel: MACHINE_SCOPED_SOURCE_OBSERVATION
+    establishes: exact-machine-state-and-versioned-observation-only
+    forbiddenCoercions: [same-state-spelling-to-cross-machine-equivalence, receipt-to-queued, outcome-unknown-to-running-or-failure]
+    missingOrMismatch: PRESERVE_RAW_OBSERVATION_AND_FAIL_CLOSED
+  - id: media.trust.effect-finality-evidence
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#trustContexts/contexts/@id=media.trust.privileged
+    expectedTrustLevel: privileged
+    expectedDataSensitivity: governed-content-with-consequential-external-effect
+    expectedEffectScope: provider-dispatch-sharing-export-publication-or-other-privileged-effect
+    expectedAuditRequired: true
+    sourceRef: .product-experience/pdp-1-domain-data/state-adjudication.yaml#ownerAcceptedPolicyDecisions/unknownOutcomeRule
+    trustLevel: EFFECT_OWNER_AUTHORITATIVE_EVIDENCE
+    establishes: exact-effect-finality-only-when-current-subject-and-authority-match
+    forbiddenCoercions: [timeout-to-failure, cancellation-request-to-cancelled, provider-status-string-to-authoritative-outcome]
+    missingOrMismatch: OUTCOME_UNKNOWN; NO_BLIND_REPLAY
+  trustProjectionExclusions:
+  - id: media.trust.projection-exclusion.public
+    p0TargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#trustContexts/contexts/@id=media.trust.public
+    disposition: NOT_APPLICABLE_TO_PDP1_TRUST_CONTEXTS
+    reason: PDP-1 owner trust contexts define host-attested identity, current policy, machine-scoped observation, and effect-finality evidence. Public unauthenticated reading is defined directly in PDP-0 and is outside these PDP-1 authenticated/effect-source contracts.
+  - id: media.trust.projection-exclusion.admin
+    p0TargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#trustContexts/contexts/@id=media.trust.admin
+    disposition: NOT_APPLICABLE_TO_PDP1_TRUST_CONTEXTS
+    reason: PDP-1 trust contexts do not define an administrator grant. Administration remains scoped to separately authenticated host/policy authority and is not inferred from the four PDP-1 data/effect evidence classes.
+  ownershipRules:
+  - id: media.owner.product-semantics
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#ownershipRules/rules/@id=media.ownership.product-semantics
+    expectedAccountableRoleRef: media.role.product-manager
+    expectedConcern: product-scope-and-constitution
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/mediaProductSemantics
+    accountableOwner: media
+    owns: [job-artifact-consent-quality-fidelity-and-lifecycle-meaning, operation-preconditions-and-outcomes]
+    mustNotDelegateMeaningTo: [provider-success, transport-acceptance, generic-workflow-mechanics]
+  - id: media.owner.identity-and-delegation
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#ownershipRules/rules/@id=media.ownership.identity
+    expectedAccountableRoleRef: media.role.security-privacy-lead
+    expectedConcern: authentication-tenant-and-delegation-mechanics
+    projectionDisposition: NOT_PROJECTED_EXTERNAL_MECHANICS_OWNER
+    nonProjectionReason: PDP-0 ownership rows record product accountability and selected dependency owners only; the exact PDP-0 identity owner row describes an external surface, not an accountable Media product owner.
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/identityAuthenticationAndDelegation
+    accountableOwner: ghatana-shared-and-identity-service
+    owns: [authentication, tenant-principal-identity, current-delegation]
+    MediaBoundary: Media-consumes-host-attested-identity-but-does-not-claim-to-authenticate-it
+  - id: media.owner.privileged-effects
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#ownershipRules/rules/@id=media.ownership.privileged-effects
+    expectedAccountableRoleRef: media.role.security-privacy-lead
+    expectedConcern: privileged-external-effect-mechanics
+    projectionDisposition: NOT_PROJECTED_EXTERNAL_MECHANICS_OWNER
+    nonProjectionReason: PDP-0 ownership rows do not duplicate external action-plane mechanics ownership; the Media boundary remains in this PDP-1 record.
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/privilegedEffects
+    accountableOwner: ghatana-action-plane
+    owns: [generic-privileged-effect-mechanics]
+    MediaBoundary: privileged-mechanism-acceptance-does-not-accept-Media-policy-or-outcome
+  - id: media.owner.model-execution
+    projectionDisposition: NOT_PROJECTED_EXTERNAL_MECHANICS_OWNER
+    nonProjectionReason: PDP-0 ownership rows do not assign provider/model execution mechanics as Media accountability; Media meaning remains separately owned.
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/genericModelExecution
+    accountableOwner: ghatana-ai-inference
+    owns: [generic-model-execution-mechanics]
+    MediaBoundary: Media-owns-intent-rights-quality-fidelity-and-output-meaning
+  - id: media.owner.audit-mechanics
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#ownershipRules/rules/@id=media.ownership.audit
+    expectedAccountableRoleRef: media.role.security-privacy-lead
+    expectedConcern: audit-mechanics-and-required-media-action-facts
+    projectionDisposition: NOT_PROJECTED_EXTERNAL_MECHANICS_OWNER
+    nonProjectionReason: PDP-0 ownership rows do not duplicate Shared audit-mechanics ownership; Media-required audit intent remains a product precondition.
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/genericAuditMechanics
+    accountableOwner: ghatana-shared
+    owns: [generic-audit-mechanics]
+    MediaBoundary: required-Media-audit-intent-is-a-precondition-and-is-not-replaced-by-telemetry
+  - id: media.owner.event-transport
+    projectionDisposition: NOT_PROJECTED_EXTERNAL_MECHANICS_OWNER
+    nonProjectionReason: PDP-0 ownership rows do not assert event-plane delivery ownership; Media owns event meaning and the platform owns transport mechanics.
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/eventTransport
+    accountableOwner: platform-event-plane
+    owns: [event-transport-durability-and-delivery-mechanics]
+    MediaBoundary: Media-owns-event-meaning-and-does-not-infer-transport-durability
+  - id: media.owner.storage-and-erasure
+    projectionDisposition: NOT_PROJECTED_EXTERNAL_MECHANICS_OWNER
+    nonProjectionReason: PDP-0 ownership rows do not assert platform storage/replica deletion ownership; Media owns retention and erasure policy meaning.
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership/storageMechanics
+    accountableOwner: platform-storage-owner
+    owns: [storage-and-replica-deletion-mechanics]
+    MediaBoundary: Media-owns-artifact-lifecycle-retention-and-erasure-policy-meaning
+  - id: media.owner.domain-state-semantics
+    projectionTargetRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#ownershipRules/rules/@id=media.ownership.domain-state
+    expectedAccountableRoleRef: media.role.media-domain-lead
+    expectedConcern: canonical-media-domain-states-and-transitions
+    sourceRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+    accountableOwner: media
+    owns: [canonical-media-state-identities, lifecycle-finality-and-precondition-meaning]
+    mustNotDelegateMeaningTo: [provider-status-spelling, transport-acceptance, generic-workflow-state]
+  failClosedRule: A source owner, trust level, grant, currentness, or outcome that is missing, conflicting, stale, or outside its declared scope cannot be promoted; deny the new effect or preserve blocked/unknown state as specified above.

@@ -4,10 +4,11 @@ journeyId: J-18
 pdp0JourneyRef: J-18
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Compose clips, captions, exact graphics, color, and audio master
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact
-  action/state transitions, per-channel behavior, scenarios, wire bindings, and runtime commitments
-  remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
   - media.goal.finished-asset
   - media.goal.preserve-source
@@ -18,11 +19,11 @@ actors:
   - media.reviewer
 channels:
   - media.channel.web
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and
-  accessibility equivalence remain unbound.
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
-  - Exact assets/fonts/brand claims, timeline mapping, color profile, and output destination are
-    authorized.
+  - Exact assets/fonts/brand claims, timeline mapping, color profile, and output
+    destination are authorized.
 steps:
   - view: media.view.compose-media
     legacyViewRef: M-COMPOSER
@@ -49,35 +50,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: Versioned composition renders with deterministic exact graphics and declared
-        audiovisual/color profile.
+      summary: Versioned composition renders with deterministic exact graphics and
+        declared audiovisual/color profile.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights
-          approval expired.
+        - Stale asset/version, unsupported font/codec, color/alpha
+          interpretation unknown, or rights approval expired.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Preserve composition and source versions; replace/review only affected assets and
-        regenerate approval where material output changed.
+      summary: Preserve composition and source versions; replace/review only affected
+        assets and regenerate approval where material output changed.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-          revision.
+        - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+          approvals, and output revision.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -92,16 +95,17 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/0
       journeyRef: J-18
       actionRef: null
       bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
-      selectionBasis: Exact action identities are drawn from this step view screen contract; each is an
-        independent user-selected interaction, with no default or implied dispatch.
+      selectionBasis: Exact action identities are drawn from this step view screen
+        contract; each is an independent user-selected interaction, with no
+        default or implied dispatch.
       candidateActionRefs:
         - media.action.reorder-track
         - media.action.trim-track
@@ -140,8 +144,8 @@ steps:
             semanticRole: DOMAIN_OPERATION
             operationRefs:
               - media.operation-slice.inspect-artifact
-            capabilityRefs: [media.artifact.inspect]
-            requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+            capabilityRefs: [ media.artifact.inspect ]
+            requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
             selection: EXPLICIT_USER_SELECTION_REQUIRED
             runtimeAdmission: NOT_ADMITTED
           - actionRef: media.action.validate-composition
@@ -162,35 +166,36 @@ steps:
         success:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         degradedBehavior:
           status: not-specified
           sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and
-              output revision.
+            - Keep clip order, timeline/PTS maps, captions, color settings,
+              fonts, approvals, and output revision.
         contextPreservation: null
       action:
         actionRef: null
         bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
-        selectionBasis: Screen lists exact available user interactions; each interaction requires explicit
-          user selection and the set has no default.
+        selectionBasis: Screen lists exact available user interactions; each interaction
+          requires explicit user selection and the set has no default.
         candidateActionRefs:
           - media.action.reorder-track
           - media.action.trim-track
@@ -223,7 +228,8 @@ steps:
         scenarioRefs: []
         scenarios: []
         executable: false
-        reason: No exact source scenario is allocated to this step; no seeded execution is inferred.
+        reason: No exact source scenario is allocated to this step; no seeded execution
+          is inferred.
     scenarioRefs: []
     canonicalBindings:
       actionChoiceRefs:
@@ -239,7 +245,8 @@ steps:
     screenContractRef: screen-contracts/edit-media.yaml
     viewIntent: Region/track operations, exact constraints and undo
     actionRef: media.action.edit-admitted-adjustment
-    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs: []
@@ -254,35 +261,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: Versioned composition renders with deterministic exact graphics and declared
-        audiovisual/color profile.
+      summary: Versioned composition renders with deterministic exact graphics and
+        declared audiovisual/color profile.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights
-          approval expired.
+        - Stale asset/version, unsupported font/codec, color/alpha
+          interpretation unknown, or rights approval expired.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Preserve composition and source versions; replace/review only affected assets and
-        regenerate approval where material output changed.
+      summary: Preserve composition and source versions; replace/review only affected
+        assets and regenerate approval where material output changed.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-          revision.
+        - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+          approvals, and output revision.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -297,8 +306,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/1
@@ -317,11 +326,12 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Change only the current local draft or selection; keep committed source and versioned
-          objects unchanged until a separately specified commit.
+        effect: Change only the current local draft or selection; keep committed source
+          and versioned objects unchanged until a separately specified commit.
         reversibilityDisposition: REVERSIBLE
         finality: local-draft-only; not-a-committed-result
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
         exactOperationRefs: []
@@ -329,37 +339,39 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: NOT_APPLICABLE_WITH_REASON
-        noMutationReason: Change only the current local draft or selection; keep committed source and
-          versioned objects unchanged until a separately specified commit.
+        noMutationReason: Change only the current local draft or selection; keep
+          committed source and versioned objects unchanged until a separately
+          specified commit.
       stepSourceFacts:
         intent: Region/track operations, exact constraints and undo
         result: null
         success:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         degradedBehavior:
           status: not-specified
           sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and
-              output revision.
+            - Keep clip order, timeline/PTS maps, captions, color settings,
+              fonts, approvals, and output revision.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/1
       canonicalBindings:
@@ -373,14 +385,24 @@ steps:
         requirementRefs: []
         scenarioRefs: []
         capabilityRefs: []
+        localEffectContractId: media.local-step-effect.j-18.step-02.v1
+        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-18.step-02.v1
+        localObjectRef: media.local-object.editor-session-draft
+        localDraftSlotRef: media.local-draft.slot.admitted-adjustments
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -390,19 +412,19 @@ steps:
         positiveBranch:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
@@ -414,10 +436,10 @@ steps:
           intendedResult:
             status: candidate-proposal
             sourceRef: journey.terminalSuccess
-            summary: Versioned composition renders with deterministic exact graphics and declared
-              audiovisual/color profile.
-          effect: Change only the current local draft or selection; keep committed source and versioned
-            objects unchanged until a separately specified commit.
+            summary: Versioned composition renders with deterministic exact graphics and
+              declared audiovisual/color profile.
+          effect: Change only the current local draft or selection; keep committed source
+            and versioned objects unchanged until a separately specified commit.
           finality: local-draft-only; not-a-committed-result
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-admitted-adjustment
@@ -425,11 +447,13 @@ steps:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.edit-admitted-adjustment
-          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
@@ -443,27 +467,33 @@ steps:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/1
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: OBJECT_BINDING_UNRESOLVED
-          stateRefs: STATE_BINDING_UNRESOLVED
+          objectRefs: NO_CANONICAL_PRODUCT_OBJECT; LOCAL_EDITOR_SESSION_DRAFT_ONLY
+          stateRefs: LOCAL_EDITOR_SESSION_REVISION; NOT_PDP1_DOMAIN_STATE
           canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: AUTHORITY_BINDING_UNRESOLVED
-          transitionRef: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
-          requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
+          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
+          requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: null
         authorityRefs: []
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
+        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
+          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs: []
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml
         observation: null
         runtimeAdmission: NOT_ADMITTED
+        localObjectRef: media.local-object.editor-session-draft
+        localStateRef: media.local-state.editor-session-draft-revision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
+          session draftRevision
+        canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Region/track operations, exact constraints and undo
@@ -487,12 +517,14 @@ steps:
         operationRefs: []
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
         capabilityRefs: []
         requirementRefs: []
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
+      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-18.step-02.v1
     scenarioRefs: []
     capabilityRefs: []
   - view: media.view.adjust-color
@@ -520,35 +552,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: Versioned composition renders with deterministic exact graphics and declared
-        audiovisual/color profile.
+      summary: Versioned composition renders with deterministic exact graphics and
+        declared audiovisual/color profile.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights
-          approval expired.
+        - Stale asset/version, unsupported font/codec, color/alpha
+          interpretation unknown, or rights approval expired.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Preserve composition and source versions; replace/review only affected assets and
-        regenerate approval where material output changed.
+      summary: Preserve composition and source versions; replace/review only affected
+        assets and regenerate approval where material output changed.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-          revision.
+        - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+          approvals, and output revision.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -563,16 +597,17 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/2
       journeyRef: J-18
       actionRef: null
       bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
-      selectionBasis: Exact action identities are drawn from this step view screen contract; each is an
-        independent user-selected interaction, with no default or implied dispatch.
+      selectionBasis: Exact action identities are drawn from this step view screen
+        contract; each is an independent user-selected interaction, with no
+        default or implied dispatch.
       candidateActionRefs:
         - media.action.select-shot-or-region
         - media.action.inspect-input-output-color-interpretation
@@ -634,35 +669,36 @@ steps:
         success:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         degradedBehavior:
           status: not-specified
           sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and
-              output revision.
+            - Keep clip order, timeline/PTS maps, captions, color settings,
+              fonts, approvals, and output revision.
         contextPreservation: null
       action:
         actionRef: null
         bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
-        selectionBasis: Screen lists exact available user interactions; each interaction requires explicit
-          user selection and the set has no default.
+        selectionBasis: Screen lists exact available user interactions; each interaction
+          requires explicit user selection and the set has no default.
         candidateActionRefs:
           - media.action.select-shot-or-region
           - media.action.inspect-input-output-color-interpretation
@@ -695,7 +731,8 @@ steps:
         scenarioRefs: []
         scenarios: []
         executable: false
-        reason: No exact source scenario is allocated to this step; no seeded execution is inferred.
+        reason: No exact source scenario is allocated to this step; no seeded execution
+          is inferred.
     scenarioRefs: []
     canonicalBindings:
       actionChoiceRefs:
@@ -711,7 +748,8 @@ steps:
     screenContractRef: screen-contracts/edit-captions.yaml
     viewIntent: Edit caption wording, timing, and language for accessibility and review.
     actionRef: media.action.correct-caption
-    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs:
@@ -731,35 +769,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: Versioned composition renders with deterministic exact graphics and declared
-        audiovisual/color profile.
+      summary: Versioned composition renders with deterministic exact graphics and
+        declared audiovisual/color profile.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights
-          approval expired.
+        - Stale asset/version, unsupported font/codec, color/alpha
+          interpretation unknown, or rights approval expired.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Preserve composition and source versions; replace/review only affected assets and
-        regenerate approval where material output changed.
+      summary: Preserve composition and source versions; replace/review only affected
+        assets and regenerate approval where material output changed.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-          revision.
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+          approvals, and output revision.
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -774,8 +814,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3
@@ -796,7 +836,8 @@ steps:
           - expected-session-draft-revision
         effect: apply-an-explicit-text-only-edit-to-one-existing-segment-in-a-session-local-draft-derived-from-the-exact-immutable-source-and-typed-parent
         reversibilityDisposition: CONDITIONAL
-        finality: one-session-local-draft-revision-only; no-registration-approval-or-publication
+        finality: one-session-local-draft-revision-only;
+          no-registration-approval-or-publication
         failureRecovery: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
         domainOperationDisposition: EXACT_OPERATION_REFERENCE
         exactOperationRefs:
@@ -810,29 +851,30 @@ steps:
         success:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         degradedBehavior:
           status: not-specified
           sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and
-              output revision.
+            - Keep clip order, timeline/PTS maps, captions, color settings,
+              fonts, approvals, and output revision.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3
       canonicalBindings:
@@ -843,17 +885,18 @@ steps:
         canonicalOperationRef: media.operation.caption-draft-write
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         scenarioRefs: []
-        capabilityRefs: [media.artifact.derive]
+        capabilityRefs: [ media.artifact.derive ]
       verification:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -863,19 +906,19 @@ steps:
         positiveBranch:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
@@ -887,10 +930,11 @@ steps:
           intendedResult:
             status: candidate-proposal
             sourceRef: journey.terminalSuccess
-            summary: Versioned composition renders with deterministic exact graphics and declared
-              audiovisual/color profile.
+            summary: Versioned composition renders with deterministic exact graphics and
+              declared audiovisual/color profile.
           effect: apply-an-explicit-text-only-edit-to-one-existing-segment-in-a-session-local-draft-derived-from-the-exact-immutable-source-and-typed-parent
-          finality: one-session-local-draft-revision-only; no-registration-approval-or-publication
+          finality: one-session-local-draft-revision-only;
+            no-registration-approval-or-publication
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.correct-caption
           guards:
@@ -923,14 +967,14 @@ steps:
         operationContractRef: null
         authorityRefs: []
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
         operationContractRef: null
         objectRefs: []
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml
         observation: null
         runtimeAdmission: NOT_ADMITTED
@@ -963,21 +1007,23 @@ steps:
           - media.operation.caption-draft-write
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.artifact.derive]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        capabilityRefs: [ media.artifact.derive ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
     scenarioRefs: []
-    capabilityRefs: [media.artifact.derive]
+    capabilityRefs: [ media.artifact.derive ]
   - view: media.view.prepare-render
     legacyViewRef: M-RENDER
     screenContractRef: screen-contracts/prepare-render.yaml
     viewIntent: Snapshot/profile, validation, cost and submission
     actionRef: media.action.submit-render
-    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
     stateRefs:
       - .product-experience/pdp-1-domain-data/states.yaml#media-job
       - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -997,35 +1043,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: Versioned composition renders with deterministic exact graphics and declared
-        audiovisual/color profile.
+      summary: Versioned composition renders with deterministic exact graphics and
+        declared audiovisual/color profile.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights
-          approval expired.
+        - Stale asset/version, unsupported font/codec, color/alpha
+          interpretation unknown, or rights approval expired.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Preserve composition and source versions; replace/review only affected assets and
-        regenerate approval where material output changed.
+      summary: Preserve composition and source versions; replace/review only affected
+        assets and regenerate approval where material output changed.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-          revision.
+        - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+          approvals, and output revision.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -1040,8 +1088,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/4
@@ -1060,11 +1108,13 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Request the explicitly named operation for the exact target only after fresh actor,
-          capability, policy, and target checks.
+        effect: Request the explicitly named operation for the exact target only after
+          fresh actor, capability, policy, and target checks.
         reversibilityDisposition: NOT_REVERSIBLE
-        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+        finality: external-effect-or-request; owner-acknowledgment-required;
+          unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
@@ -1078,29 +1128,30 @@ steps:
         success:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         degradedBehavior:
           status: not-specified
           sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and
-              output revision.
+            - Keep clip order, timeline/PTS maps, captions, color settings,
+              fonts, approvals, and output revision.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/4
       canonicalBindings:
@@ -1126,10 +1177,11 @@ steps:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -1139,19 +1191,19 @@ steps:
         positiveBranch:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
@@ -1169,8 +1221,9 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.async-job-command.v1
-        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
-          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
@@ -1181,22 +1234,25 @@ steps:
           intendedResult:
             status: candidate-proposal
             sourceRef: journey.terminalSuccess
-            summary: Versioned composition renders with deterministic exact graphics and declared
-              audiovisual/color profile.
-          effect: Request the explicitly named operation for the exact target only after fresh actor,
-            capability, policy, and target checks.
-          finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+            summary: Versioned composition renders with deterministic exact graphics and
+              declared audiovisual/color profile.
+          effect: Request the explicitly named operation for the exact target only after
+            fresh actor, capability, policy, and target checks.
+          finality: external-effect-or-request; owner-acknowledgment-required;
+            unknown-is-not-failure
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
           guards:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
-          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
@@ -1224,8 +1280,8 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
@@ -1233,8 +1289,8 @@ steps:
           - media.domain.processing-job
           - media.domain.job-attempt
           - media.domain.resolved-plan
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-render
         observation: null
         runtimeAdmission: NOT_ADMITTED
@@ -1262,7 +1318,8 @@ steps:
           - media.operation.action.submit-render
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
         capabilityRefs: []
         requirementRefs: []
         sourceRefs:
@@ -1278,7 +1335,8 @@ steps:
     screenContractRef: screen-contracts/inspect-output.yaml
     viewIntent: Playback/download/review/provenance and delivery action
     actionRef: media.action.inspect-output-preview-and-version
-    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs:
@@ -1297,35 +1355,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: Versioned composition renders with deterministic exact graphics and declared
-        audiovisual/color profile.
+      summary: Versioned composition renders with deterministic exact graphics and
+        declared audiovisual/color profile.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or rights
-          approval expired.
+        - Stale asset/version, unsupported font/codec, color/alpha
+          interpretation unknown, or rights approval expired.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Preserve composition and source versions; replace/review only affected assets and
-        regenerate approval where material output changed.
+      summary: Preserve composition and source versions; replace/review only affected
+        assets and regenerate approval where material output changed.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-          revision.
+        - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+          approvals, and output revision.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -1340,8 +1400,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/5
@@ -1360,11 +1420,12 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-          permission from its presence.
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
         reversibilityDisposition: REVERSIBLE
         finality: read-only-or-navigation; no-write-finality
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
@@ -1373,37 +1434,38 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: NOT_APPLICABLE_WITH_REASON
-        noMutationReason: Read or navigate using the exact selected context; do not mutate a source object
-          or infer permission from its presence.
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Playback/download/review/provenance and delivery action
         result: null
         success:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         degradedBehavior:
           status: not-specified
           sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          reason: No distinct degraded-behavior contract is explicitly declared for this
+            step.
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and
-              output revision.
+            - Keep clip order, timeline/PTS maps, captions, color settings,
+              fonts, approvals, and output revision.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/5
       canonicalBindings:
@@ -1426,10 +1488,11 @@ steps:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -1439,19 +1502,19 @@ steps:
         positiveBranch:
           status: candidate-proposal
           sourceRef: journey.terminalSuccess
-          summary: Versioned composition renders with deterministic exact graphics and declared
-            audiovisual/color profile.
+          summary: Versioned composition renders with deterministic exact graphics and
+            declared audiovisual/color profile.
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-              rights approval expired.
+            - Stale asset/version, unsupported font/codec, color/alpha
+              interpretation unknown, or rights approval expired.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Preserve composition and source versions; replace/review only affected assets and
-            regenerate approval where material output changed.
+          summary: Preserve composition and source versions; replace/review only affected
+            assets and regenerate approval where material output changed.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
@@ -1466,8 +1529,9 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.scoped-query.v1
-        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
-          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
@@ -1478,10 +1542,10 @@ steps:
           intendedResult:
             status: candidate-proposal
             sourceRef: journey.terminalSuccess
-            summary: Versioned composition renders with deterministic exact graphics and declared
-              audiovisual/color profile.
-          effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-            permission from its presence.
+            summary: Versioned composition renders with deterministic exact graphics and
+              declared audiovisual/color profile.
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
@@ -1489,15 +1553,18 @@ steps:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
-          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.action.inspect-output-preview-and-version
@@ -1511,7 +1578,8 @@ steps:
           stateRefs: STATE_BINDING_UNRESOLVED
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
@@ -1519,16 +1587,16 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
         objectRefs:
           - media.domain.render-outcome
           - media.domain.artifact-version
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
         observation: null
         runtimeAdmission: NOT_ADMITTED
@@ -1558,7 +1626,8 @@ steps:
           - media.operation.action.inspect-output-preview-and-version
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
         capabilityRefs: []
         requirementRefs: []
         sourceRefs:
@@ -1569,43 +1638,45 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: []
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one
-  registered intent-based screen. Null actionRef and empty stateRefs are deliberate open bindings,
-  not no-op actions or completed transitions.
-terminalSuccess: Versioned composition renders with deterministic exact graphics and declared
-  audiovisual/color profile.
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
+terminalSuccess: Versioned composition renders with deterministic exact graphics
+  and declared audiovisual/color profile.
 criticalNonhappyPaths:
   - id: phase0-critical-exception
-    condition: Stale asset/version, unsupported font/codec, color/alpha interpretation unknown, or
-      rights approval expired.
-    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action
-      bindings remain pending.
-recovery: Preserve composition and source versions; replace/review only affected assets and
-  regenerate approval where material output changed.
+    condition: Stale asset/version, unsupported font/codec, color/alpha
+      interpretation unknown, or rights approval expired.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Preserve composition and source versions; replace/review only affected
+  assets and regenerate approval where material output changed.
 contextPreserved:
-  - Keep clip order, timeline/PTS maps, captions, color settings, fonts, approvals, and output
-    revision.
+  - Keep clip order, timeline/PTS maps, captions, color settings, fonts,
+    approvals, and output revision.
 channelEquivalents:
   - web
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: Versioned composition renders with deterministic exact graphics and declared
-    audiovisual/color profile.
-  criticalNonhappyIntent: Stale asset/version, unsupported font/codec, color/alpha interpretation
-    unknown, or rights approval expired.
+  successIntent: Versioned composition renders with deterministic exact graphics
+    and declared audiovisual/color profile.
+  criticalNonhappyIntent: Stale asset/version, unsupported font/codec, color/alpha
+    interpretation unknown, or rights approval expired.
 scenarioRefs: []
 unresolvedProductDecisions:
-  - Bind each view transition to an owner-approved action, state, and finality contract; no action
-    identifier or state transition is inferred by this proposal.
-  - Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed
-    channel.
-  - Author deterministic fixtures with owner-approved expected results for success, critical
-    exceptions, recovery, and preserved context.
-  - Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner
-    and independent review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.
 conditionalHandoffRefs:
   - digital-marketing-creative-brief
   - action-plane-publication
-handoffCondition: Marketing applies only when using its approved brand/campaign references; Action
-  Plane only for external publication.
+handoffCondition: Marketing applies only when using its approved brand/campaign
+  references; Action Plane only for external publication.

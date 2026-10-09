@@ -145,20 +145,29 @@ test("PXD-090 reconciliation counters are derived from the live 884-unit ledger"
 test("the goal-rule addition is isolated and does not rewrite prior goal measures", () => {
   const impactPath = "docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json";
   const impact = JSON.parse(readFileSync(resolve(root, impactPath), "utf8"));
-  const currentText = readFileSync(resolve(root, impact.sourcePath), "utf8");
-  const current = parse(currentText);
-  const withoutRules = structuredClone(current);
+  const historicalText = execFileSync("git", ["show", `6ccc7b6eeb1bad91905014c4d6775c2aa95f7cdc:${impact.sourcePath}`], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+  const historical = parse(historicalText);
+  const withoutRules = structuredClone(historical);
   delete withoutRules.ownerDefinedMigrationRules;
   assert.equal(impact.decisionRef, approval.decisionRef);
   assert.equal(impact.changedScalarPaths.length, 1);
   assert.equal(impact.changedScalarPaths[0], "#/ownerDefinedMigrationRules");
-  assert.equal(impact.currentFileSha256, sha(currentText));
-  assert.equal(impact.currentOwnerDefinedMigrationRulesSha256, jsonSha(current.ownerDefinedMigrationRules));
+  assert.equal(impact.currentFileSha256, sha(historicalText), "PXD-090 remains bound to its immutable historical source bytes");
+  assert.equal(impact.currentOwnerDefinedMigrationRulesSha256, jsonSha(historical.ownerDefinedMigrationRules));
   assert.equal(impact.currentParsedTreeWithoutOwnerRulesSha256, jsonSha(withoutRules));
   assert.equal(impact.currentParsedTreeWithoutOwnerRulesSha256, impact.priorCommittedParsedTreeSha256);
   const priorText = execFileSync("git", ["show", `${impact.priorSourceCommit}:${impact.sourcePath}`], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
   assert.equal(sha(priorText), impact.priorSourceFileSha256);
   assert.deepEqual(withoutRules, parse(priorText));
-  assert.equal(impact.existingSuccessMeasuresPreservedSha256, jsonSha(current.successMeasureContracts));
-  assert.deepEqual(current.successMeasureContracts, parse(priorText).successMeasureContracts);
+  assert.equal(impact.existingSuccessMeasuresPreservedSha256, jsonSha(historical.successMeasureContracts));
+  assert.deepEqual(historical.successMeasureContracts, parse(priorText).successMeasureContracts);
+
+  const currentText = readFileSync(resolve(root, impact.sourcePath), "utf8");
+  const current = parse(currentText);
+  const criteria = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"), "utf8"));
+  const p006 = criteria.records.find(({ taskId }) => taskId === "P0-06")?.currentCorrectiveReview;
+  assert.equal(p006?.status, "APPROVED_CURRENT_CORRECTION");
+  assert.equal(p006?.decisionRef, ".product-experience/decision-log.md#PXD-105");
+  assert.equal(p006?.sourceFingerprints[impact.sourcePath], sha(currentText), "the current goal source is checked against the separate PXD-105 correction");
+  assert.equal(current.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records.length, 1848);
 });

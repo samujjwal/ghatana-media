@@ -47,6 +47,31 @@ const expectedIdentities = [
   "submitMediaJob", "listMediaJobs", "getMediaJob", "cancelMediaJob",
   "openMediaStream", "getMediaStream", "connectMediaStream", "submitMediaStreamFrame", "closeMediaStream",
 ];
+const expectedCanonicalOperations = new Map([
+  ["grantMediaConsent", "media.operation.consent-record-grant.v1"],
+  ["listMediaConsents", "media.operation.consent-record-list.v1"],
+  ["getMediaConsent", "media.operation.consent-record-inspect.v1"],
+  ["revokeMediaConsent", "media.operation.action.revoke-authorized-consent"],
+  ["submitMediaJob", "media.operation.job.submit.v1"],
+  ["listMediaJobs", "media.operation.job-list.v1"],
+  ["getMediaJob", "media.operation-slice.inspect-job"],
+  ["cancelMediaJob", "media.operation-slice.cancel-job"],
+  ["openMediaStream", "media.operation.capability.media-stream-session-open"],
+  ["getMediaStream", "media.operation.stream-session.inspect.v1"],
+  ["connectMediaStream", "media.operation.capability.media-stream-session-connect"],
+  ["submitMediaStreamFrame", "media.operation.capability.media-stream-frame-submit"],
+  ["closeMediaStream", "media.operation.capability.media-stream-session-close"],
+]);
+const ownerDefinedOperationIdentities = new Set([
+  "grantMediaConsent", "listMediaConsents", "getMediaConsent", "listMediaJobs", "getMediaStream",
+]);
+const materialWireGaps = new Map([
+  ["grantMediaConsent", ["canonical-requestId-required-for-owner-idempotency-but-absent-from-http-grant-request", "authorityRef-and-observedAt-required-by-owner-result-are-absent-from-http-record"]],
+  ["listMediaConsents", ["observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-list-response"]],
+  ["getMediaConsent", ["observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-record-response"]],
+  ["listMediaJobs", ["observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-job-list-response"]],
+  ["getMediaStream", ["observedAt-and-readVersion-and-authority-evidence-required-by-owner-query-are-absent-from-open-http-session-schema"]],
+]);
 
 function materialAssessmentIsValid(rows) {
   if (rows.length !== expectedIdentities.length) return false;
@@ -58,8 +83,24 @@ function materialAssessmentIsValid(rows) {
     if (operation?.operationId !== record.identity || !record.disposition || !record.boundary?.trim()) return false;
     if (record.disposition === "OWNER_DEFINITION_REQUIRED" && record.canonicalOperationRef !== null) return false;
     if (record.disposition === "ADAPTER_REQUIRED" && (!record.canonicalOperationRef || !operationRecords().some(({ id }) => id === record.canonicalOperationRef))) return false;
+    if (record.disposition === "ADAPTER_REQUIRED" && record.canonicalOperationRef !== expectedCanonicalOperations.get(record.identity)) return false;
     if (record.disposition === "OWNER_DEFINITION_REQUIRED" && !(record.missingSemantics?.length > 0)) return false;
     if (record.disposition === "ADAPTER_REQUIRED" && !(record.missingRequestSemantics?.length || record.missingSemantics?.length)) return false;
+    if (ownerDefinedOperationIdentities.has(record.identity)) {
+      const canonical = operationRecords().find(({ id }) => id === record.canonicalOperationRef);
+      const gapText = (record.missingSemantics ?? []).join(" ");
+      if (!canonical || materialWireGaps.get(record.identity).some((gap) => !gapText.includes(gap))) return false;
+      const wireFields = new Set([...(record.requestFields ?? []), ...(record.responseFields ?? []), ...(record.pathFields ?? [])]);
+      if (record.identity === "grantMediaConsent") {
+        if (!canonical.requestSchema?.required?.includes("requestId") || wireFields.has("requestId")) return false;
+        if (!canonical.resultSchema?.required?.includes("authorityRef") || !canonical.resultSchema?.required?.includes("observedAt")) return false;
+        if (wireFields.has("authorityRef") || wireFields.has("observedAt")) return false;
+      } else {
+        if (!canonical.resultSchema?.required?.includes("readVersion") || !canonical.resultSchema?.required?.includes("observedAt")) return false;
+        if (wireFields.has("readVersion") || wireFields.has("observedAt")) return false;
+        if (record.identity === "getMediaStream" && Object.keys(schemaAt(record.responseSchemaRef)?.properties ?? {}).length !== 0) return false;
+      }
+    }
     if (record.requestSchemaRef) {
       const schema = schemaAt(record.requestSchemaRef);
       if (!schema || !operation.requestBody || operation.requestBody.content?.["application/json"]?.schema?.$ref !== record.requestSchemaRef.slice(record.requestSchemaRef.indexOf("#"))) return false;
@@ -91,8 +132,18 @@ test("all 13 HTTP consent, job, and stream candidates have exact adapter gaps an
   assert.equal(contracts.status.includes("crossInterfaceAcceptance: OPEN"), true);
   assert.equal(materialAssessmentIsValid(contracts.records), true);
   assert.deepEqual(contracts.records.map(({ identity }) => identity), expectedIdentities);
-  assert.equal(contracts.records.filter(({ disposition }) => disposition === "OWNER_DEFINITION_REQUIRED").length, 3);
-  assert.equal(contracts.records.filter(({ disposition }) => disposition === "ADAPTER_REQUIRED").length, 10);
+  assert.equal(contracts.records.filter(({ disposition }) => disposition === "OWNER_DEFINITION_REQUIRED").length, 0);
+  assert.equal(contracts.records.filter(({ disposition }) => disposition === "ADAPTER_REQUIRED").length, 13);
+  for (const [identity, operationId] of expectedCanonicalOperations) {
+    const operation = operationRecords().find(({ id }) => id === operationId);
+    const row = contracts.records.find((candidate) => candidate.identity === identity);
+    assert.ok(operation, `${identity} binds an exact canonical operation owner definition`);
+    assert.equal(row.canonicalOperationRef, operation.id);
+    if (ownerDefinedOperationIdentities.has(identity)) {
+      assert.ok(operation.sourceRefs?.includes(row.sourceRef), `${identity} owner contract cites the exact OpenAPI operation`);
+    }
+    assert.notEqual(operation.executionAdmission, "ADMITTED", `${identity} has no execution-admission claim`);
+  }
 });
 
 test("adapter assessment rejects omission, wrong route, invented operation, and lost consent/finality gaps", () => {
@@ -103,6 +154,9 @@ test("adapter assessment rejects omission, wrong route, invented operation, and 
   const invented = structuredClone(contracts.records);
   invented.find(({ identity }) => identity === "grantMediaConsent").canonicalOperationRef = "media.operation.consent-grant.v1";
   assert.equal(materialAssessmentIsValid(invented), false, "a nonexistent canonical leaf cannot be inferred from a route name");
+  const nameMatch = structuredClone(contracts.records);
+  nameMatch.find(({ identity }) => identity === "listMediaConsents").canonicalOperationRef = "media.operation.action.inspect-consent-and-permitted-use";
+  assert.equal(materialAssessmentIsValid(nameMatch), false, "a similarly named permitted-use operation cannot substitute for consent-record enumeration");
   const falseFinality = structuredClone(contracts.records);
   falseFinality.find(({ identity }) => identity === "cancelMediaJob").missingResultSemantics = [];
   assert.equal(materialAssessmentIsValid(falseFinality), false, "cancel-requested versus confirmed-cancelled remains a required gap");

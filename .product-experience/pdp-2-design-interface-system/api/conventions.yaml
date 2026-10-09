@@ -1,7 +1,7 @@
 schemaVersion: media.api-conventions.v1
 owner: ghatana-media-product-api
 authority: Proposed Media product API semantics; Shared owns generic transport and language-neutral contracts. This directory is not an accepted API contract.
-sourceRefs: [.product-experience/pdp-0-product-truth/glossary.yaml, .product-experience/pdp-0-product-truth/dependency-contracts.yaml, .product-experience/pdp-3-product-experience/api-experience-mapping.yaml]
+sourceRefs: [.product-experience/pdp-0-product-truth/glossary.yaml, .product-experience/pdp-0-product-truth/dependency-contracts.yaml, .product-experience/pdp-3-product-experience/api-experience-mapping.yaml, .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml]
 scopeStatus: proposal-only; wire routes, schemas, operation bindings, and runtime behavior remain owner-unbound
 acceptance: {criteria: [API operations map to canonical Media intents and domain contracts, no API shape asserts an unqualified capability, errors and finality remain explicit], status: pending-API-owner-review}
 verification: {method: Trace each operation to Product Truth and validate wire examples against the eventual OpenAPI contract, status: not-run}
@@ -20,4 +20,62 @@ authorityAndProjection:
     - Preserve unknown outcome, authorization, idempotency, concurrency, and finality distinctions when projecting to HTTP.
     - Generated or hand-maintained OpenAPI parity does not itself constitute semantic, runtime, or owner acceptance.
   nonGoals: [select-current-route-family, bind-unaccepted-PDP1-operations, claim-runtime-conformance, grant-API-owner-acceptance]
-relatedConventions: [errors.yaml, auth.yaml, identifiers.yaml, pagination.yaml, filtering-sorting.yaml, idempotency.yaml, concurrency.yaml, async-operations.yaml, cancellation.yaml, retry-timeout-unknown-outcome.yaml, correlation.yaml, compatibility.yaml, versioning.yaml]
+relatedConventions: [errors.yaml, auth.yaml, identifiers.yaml, pagination.yaml, filtering-sorting.yaml, idempotency.yaml, concurrency.yaml, async-operations.yaml, cancellation.yaml, retry-timeout-unknown-outcome.yaml, correlation.yaml, compatibility.yaml, versioning.yaml, http-canonical-adapters.yaml]
+ownerDefinedProjectionRules:
+  - id: media.api.authored-source-projection-authority.v1
+    sourceAuthority: accepted Media Product Truth and exact owner-approved interface definitions; external schemas remain with their service owner
+    rule: Authored owner sources and explicitly versioned overlays are the only inputs to generated API/client/fixture projections. Generated files are outputs, never the primary place to change semantics; a generated or hand-maintained projection cannot add an operation, field, status, authority, or finality rule that its accepted inputs do not contain.
+    currentAggregateStatus: No active aggregate service-contract.yaml is established by this P2 rule; any aggregate must be separately registered with exact authored source and generator bindings before it can be treated as a current contract.
+    negativeCases:
+      - a generated file edited without changing its authored source is not a semantic update
+      - service-contract.yaml presence or historical plan text alone does not establish an active aggregate
+      - a local copy of an external service schema does not become its authoritative source
+    scopeStatus: OWNER_DEFINED_DEFINITION_ONLY; generated projection, wire/runtime parity, and independent owner acceptance remain separate.
+  - id: media.api.http-v2-canonical-adapter-boundary.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#canonicalEnvelope
+    sourceRefs: [.product-experience/interface-parity/operation-parity.yaml#typedHttpCanonicalAdapterAssessments, contracts/openapi/media.yaml#/paths]
+    rule: The versioned HTTP v2 owner definitions compose exact closed operation request/result schemas and field-level legacy projections. A v1 route may project only source-evidenced values; missing authority, request identity, version, currentness, or finality rejects before an effect or returns a clearly labeled legacy observation. The definition does not activate v2 endpoints, accept v1 wire equivalence, or qualify a runtime.
+    negativeCases: [name-similarity-used-as-operation-binding,tenant-or-principal-body-assertion-used-as-trusted-context,requestId-synthesized-for-command-replay,legacy-status-promoted-to-canonical-finality,opaque-open-response-treated-as-closed-canonical-result]
+    scopeStatus: OWNER_DEFINED_DEFINITION_ONLY; endpoint activation, legacy adapter implementation, runtime parity, and independent acceptance remain open.
+  - id: media.api.contract-generation-and-transport-verification.v1
+    sourceAuthority: Media API owner contract and exact transport implementation; generated clients and fixtures consume the authored contract.
+    rule: Endpoint paths, methods, status/result meanings, schemas, and operation bindings are authored in the versioned owner contract before generation. SDKs and fixtures are generated or checked against that exact contract; an independent transport conformance test sends valid and invalid contract cases through the actual bound transport and verifies request projection, authority context, response fields, errors, and finality. A passing schema-only test or generated fixture test is not actual transport parity; if the transport or test is absent, status remains NOT_EVALUATED and no wire/runtime conformance is claimed.
+    requiredEvidence: [exact-owner-contract-version, generated-or-checked-sdk-fixture-source-binding, actual-transport-test-source, valid-request-response-cases, invalid-request-authority-and-finality-cases, observed-test-result]
+    negativeCases: [route-or-status-invented-in-generated-client, schema-validation-only-reported-as-transport-test, fixture-roundtrip-reported-as-runtime-parity, missing-transport-test-marked-passing]
+    scopeStatus: OWNER_DEFINED_API_VERIFICATION_REQUIREMENT; this rule does not assert that the current runtime or transport test has passed.
+ownerDefinedExecutionBoundary:
+  id: media.api.product-execution-and-tools-development-boundary.v1
+  sourceRefs: [.product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary]
+  productExecutionOwner: Ghatana Media; product operation meaning, policy, state, and effect ownership remain Media-defined
+  developmentMechanicsOwner: Ghatana Tools; authoring, validation, local development, and task orchestration do not imply production execution
+  rule: The product-native execution boundary is owned by Media and consumes exact Media operation, state, policy, and authority contracts. Tools may provide development and authoring mechanics, but a task, workflow, tool invocation, generated specification, or local fixture is not production execution, durable dispatch, or product finality. This is a product-definition responsibility boundary only; it selects no deployment technology, service topology, or runtime and does not claim runtime implementation, qualification, or admission.
+  negativeCases: [tools-authoring-treated-as-production-runtime,generated-operation-treated-as-dispatch,local-fixture-treated-as-runtime-evidence,media-domain-meaning-delegated-to-generic-tool-engine,definition-boundary-treated-as-runtime-admission]
+  scopeStatus: OWNER_DEFINED_PRODUCT_EXECUTION_BOUNDARY; deployment, runtime implementation, qualification, and admission are outside this definition and remain open.
+ownerDefinedHealthAndDiagnosticsBoundary:
+  id: media.api.health-readiness-diagnostics-separation.v1
+  sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/enforcementPoints, .product-experience/pdp-2-design-interface-system/api/auth.yaml]
+  rule: Define liveness, readiness, and detailed diagnostics as three independently named contracts. Liveness answers only whether the process can continue; readiness answers whether the explicitly required dependencies for the declared service role are available; detailed diagnostics expose only separately authorized, authenticated, redacted information. A liveness or readiness response does not establish capability qualification, provider admission, user authorization, or job finality. Missing, stale, or unobservable dependency state is UNKNOWN and cannot be rendered ready. Do not place credentials, protected media, or personal content in unauthenticated health responses.
+  requiredSemantics: [separate-liveness-meaning,role-scoped-readiness-dependencies,authenticated-detailed-diagnostics,redaction-of-secrets-and-protected-content,unknown-readiness-remains-unknown,no-capability-or-provider-qualification-inference]
+  negativeCases: [liveness-promoted-to-readiness,readiness-promoted-to-provider-qualification,unauthenticated-detail-exposed,unknown-dependency-treated-ready,job-finality-inferred-from-health]
+  scopeStatus: OWNER_DEFINED_API_HEALTH_AND_DIAGNOSTICS_REQUIREMENT; no current endpoint, runtime health behavior, or authentication acceptance is claimed.
+normativeRuleRecords:
+  - id: media.p2.rule.api-authored-source-projection-authority.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#authorityAndProjection
+    acceptanceEffect: none
+  - id: media.p2.rule.api-http-v2-canonical-adapter-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.http-v2-canonical-adapter-boundary.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml#canonicalEnvelope
+    acceptanceEffect: none
+  - id: media.p2.rule.api-contract-generation-and-transport-verification.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.contract-generation-and-transport-verification.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#authorityAndProjection
+    acceptanceEffect: none
+  - id: media.p2.rule.api-product-execution-and-tools-development-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedExecutionBoundary
+    sourceAuthority: .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary
+    acceptanceEffect: none
+  - id: media.p2.rule.api-health-readiness-diagnostics-separation.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedHealthAndDiagnosticsBoundary
+    sourceAuthority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/enforcementPoints
+    acceptanceEffect: none

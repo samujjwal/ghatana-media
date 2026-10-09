@@ -20,16 +20,43 @@
         "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
       },
       "currentCorrectiveReview": {
-        "status": "OPEN_MATERIAL_SOURCE_REFERENCE_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-096",
-        "scope": "Canonical leaf operation references must resolve exact array record selectors through the actual consumer resolver. Prior strip-prefix lookups did not verify source pointer resolvability.",
-        "remainingCriteria": [
-          "Repair all current capability and leaf-review operation references to exact /records/@id= selectors",
-          "Update every source consumer and reject old dotted/unresolvable and valid-but-foreign record substitutions",
-          "Independently reverify current source fingerprint cut before renewed direct criterion approval"
-        ],
-        "priorApprovedCorrectionDecision": ".product-experience/decision-log.md#PXD-093",
-        "runtimeAndIndependentAcceptance": "NOT_CLAIMED"
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-106",
+        "scope": "All462 active capability and leaf-adjudication source joins resolve actual ID-selected operation, wrapper, channel and canonical authority records. Existing14 wire-schema bindings resolve real nested ownerWireSchema records. Exact PXD-101/103 supplements preserve original materially reviewed clauses; stream consent selectors remain exact and valid-but-foreign authority substitutions reject. Prior simulation/edit output corrections and UNKNOWN/NOT_EVALUATED/NOT_ADMITTED boundaries remain intact.",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+          ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+          "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+          "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json": "3f3fff501a396a38ca964b265ec31112484a7c0c41931bb7997e0ca46df87f85",
+          "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json": "c8ccf42f82e7567b5316cb0bfb047030b5f18d0a39a40fb8f0fd885302508d50",
+          "scripts/lib/pdp-owner-leaf-wire-validation.mjs": "718dbe5cf14a28a79dce0049bdbed161a899dfc571347ed81a15dbf283feafc7",
+          "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+          "scripts/lib/pdp0-feature-review-applicability.mjs": "cec4e500fde68274e11f61b8ceeafffaf22a19b75d26a59a6c758ab9bab25097",
+          "tests/pdp-migration-capability-leaf-narrowing.test.mjs": "3f50e3ea4a877b76759669c65739dc466fa73105f2e795c7220b85ab6fbff0aa",
+          "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "5fe7a43861383fec3ed2cd3e2035f8706b3b281a849168aab6581d2df3d652f0",
+          "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7",
+          "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "e332e3129ff905930231b1e1e31d7cbe7c94092c9d2330b298213b10b676b09e",
+          "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs": "b128a0774fd3a2bb6b3f10e0bc7ea9faf0173bd9d252174c4b18a6a6c9dcf0f0",
+          "tests/pdp-truth-domain-quality-applicability.test.mjs": "f0cf2c514adfac9a2214ed7fe01fc5a70814f0888f997c1b515c327aeb948439",
+          "tests/pdp-truth-domain-schema-validation.test.mjs": "ea14d4912e4a35a4e73b6e59c62a2684d70f0af90139045d41175015d720be26",
+          "tests/pdp-truth-domain.test.mjs": "a75019c2b381c743b8adb38620ea4161bddb74cc5c27b5f650158db60c71107b"
+        },
+        "verification": {
+          "status": "PASS",
+          "tests": 35,
+          "passed": 35,
+          "failed": 0,
+          "evidenceRef": "docs/implementation/verification/pdp-38/current-p001-p002-35-tests.log",
+          "applicabilityTests": 5,
+          "applicabilityEvidenceRef": "docs/implementation/verification/pdp-38/current-p007-5-tests.log",
+          "productDefinitionSchema": "VALID",
+          "productDefinitionPublicValidator": "PASS"
+        },
+        "acceptanceBoundary": "Bounded direct definition criterion renewed only; migration-semantic task completion, task dependencies, historical ledger, qualified independent acceptance, runtime qualification and Lifecycle receipts remain separate."
       },
       "historicalCorrectiveReviews": [
         {
@@ -69,6 +96,18 @@
             "passedTests": 44,
             "evidenceRef": "docs/implementation/verification/pdp-38/corrective-criterion-review.json"
           }
+        },
+        {
+          "status": "OPEN_MATERIAL_SOURCE_REFERENCE_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-096",
+          "scope": "Canonical leaf operation references must resolve exact array record selectors through the actual consumer resolver. Prior strip-prefix lookups did not verify source pointer resolvability.",
+          "remainingCriteria": [
+            "Repair all current capability and leaf-review operation references to exact /records/@id= selectors",
+            "Update every source consumer and reject old dotted/unresolvable and valid-but-foreign record substitutions",
+            "Independently reverify current source fingerprint cut before renewed direct criterion approval"
+          ],
+          "priorApprovedCorrectionDecision": ".product-experience/decision-log.md#PXD-093",
+          "runtimeAndIndependentAcceptance": "NOT_CLAIMED"
         }
       ]
     },
@@ -89,16 +128,43 @@
         "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
       },
       "currentCorrectiveReview": {
-        "status": "OPEN_MATERIAL_SOURCE_REFERENCE_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-096",
-        "scope": "Canonical leaf operation references must resolve exact array record selectors through the actual consumer resolver. Prior strip-prefix lookups did not verify source pointer resolvability.",
-        "remainingCriteria": [
-          "Repair all current capability and leaf-review operation references to exact /records/@id= selectors",
-          "Update every source consumer and reject old dotted/unresolvable and valid-but-foreign record substitutions",
-          "Independently reverify current source fingerprint cut before renewed direct criterion approval"
-        ],
-        "priorApprovedCorrectionDecision": ".product-experience/decision-log.md#PXD-093",
-        "runtimeAndIndependentAcceptance": "NOT_CLAIMED"
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-106",
+        "scope": "All462 active capability and leaf-adjudication source joins resolve actual ID-selected operation, wrapper, channel and canonical authority records. Existing14 wire-schema bindings resolve real nested ownerWireSchema records. Exact PXD-101/103 supplements preserve original materially reviewed clauses; stream consent selectors remain exact and valid-but-foreign authority substitutions reject. Prior simulation/edit output corrections and UNKNOWN/NOT_EVALUATED/NOT_ADMITTED boundaries remain intact.",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+          ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+          "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+          "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json": "3f3fff501a396a38ca964b265ec31112484a7c0c41931bb7997e0ca46df87f85",
+          "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json": "c8ccf42f82e7567b5316cb0bfb047030b5f18d0a39a40fb8f0fd885302508d50",
+          "scripts/lib/pdp-owner-leaf-wire-validation.mjs": "718dbe5cf14a28a79dce0049bdbed161a899dfc571347ed81a15dbf283feafc7",
+          "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+          "scripts/lib/pdp0-feature-review-applicability.mjs": "cec4e500fde68274e11f61b8ceeafffaf22a19b75d26a59a6c758ab9bab25097",
+          "tests/pdp-migration-capability-leaf-narrowing.test.mjs": "3f50e3ea4a877b76759669c65739dc466fa73105f2e795c7220b85ab6fbff0aa",
+          "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "5fe7a43861383fec3ed2cd3e2035f8706b3b281a849168aab6581d2df3d652f0",
+          "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7",
+          "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "e332e3129ff905930231b1e1e31d7cbe7c94092c9d2330b298213b10b676b09e",
+          "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs": "b128a0774fd3a2bb6b3f10e0bc7ea9faf0173bd9d252174c4b18a6a6c9dcf0f0",
+          "tests/pdp-truth-domain-quality-applicability.test.mjs": "f0cf2c514adfac9a2214ed7fe01fc5a70814f0888f997c1b515c327aeb948439",
+          "tests/pdp-truth-domain-schema-validation.test.mjs": "ea14d4912e4a35a4e73b6e59c62a2684d70f0af90139045d41175015d720be26",
+          "tests/pdp-truth-domain.test.mjs": "a75019c2b381c743b8adb38620ea4161bddb74cc5c27b5f650158db60c71107b"
+        },
+        "verification": {
+          "status": "PASS",
+          "tests": 35,
+          "passed": 35,
+          "failed": 0,
+          "evidenceRef": "docs/implementation/verification/pdp-38/current-p001-p002-35-tests.log",
+          "applicabilityTests": 5,
+          "applicabilityEvidenceRef": "docs/implementation/verification/pdp-38/current-p007-5-tests.log",
+          "productDefinitionSchema": "VALID",
+          "productDefinitionPublicValidator": "PASS"
+        },
+        "acceptanceBoundary": "Bounded direct definition criterion renewed only; migration-semantic task completion, task dependencies, historical ledger, qualified independent acceptance, runtime qualification and Lifecycle receipts remain separate."
       },
       "historicalCorrectiveReviews": [
         {
@@ -138,8 +204,210 @@
             "passedTests": 44,
             "evidenceRef": "docs/implementation/verification/pdp-38/corrective-criterion-review.json"
           }
+        },
+        {
+          "status": "OPEN_MATERIAL_SOURCE_REFERENCE_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-096",
+          "scope": "Canonical leaf operation references must resolve exact array record selectors through the actual consumer resolver. Prior strip-prefix lookups did not verify source pointer resolvability.",
+          "remainingCriteria": [
+            "Repair all current capability and leaf-review operation references to exact /records/@id= selectors",
+            "Update every source consumer and reject old dotted/unresolvable and valid-but-foreign record substitutions",
+            "Independently reverify current source fingerprint cut before renewed direct criterion approval"
+          ],
+          "priorApprovedCorrectionDecision": ".product-experience/decision-log.md#PXD-093",
+          "runtimeAndIndependentAcceptance": "NOT_CLAIMED"
         }
       ]
+    },
+    {
+      "taskId": "P0-05",
+      "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "decisionRef": ".product-experience/decision-log.md#PXD-099",
+      "scope": "Six exact accepted PDP-1 rule decisions, seven constitutional invariant projections, four owner trust definitions with two explicit projection exclusions, and eight accountable-owner rows map through the production resolver. Exact owner, trust, source and fail-closed substitutions are rejected; illegal transitions remain checked by owner guard/race definition evaluators. No second domain authority is created.",
+      "sourceFingerprints": {
+        "scripts/generate-media-phase-projections.mjs": "847bc8109b266b5f587db00969e4e2f4a7b79cc0e018015b2b8e3ea1a0de4616",
+        "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
+        ".product-experience/pdp-0-product-truth/constitution.yaml": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "be8913ba3edce70ee7eed739f5585e677fe372ccbd36aa710ccfd801209d8824",
+        ".product-experience/pdp-1-domain-data/authority.yaml": "46a779a44a0d63bde3eea68807d718a59bfa58233a12fe26d0db8184277cf1f6",
+        ".product-experience/pdp-1-domain-data/privacy.yaml": "684693cf3da78ab0d387391d1bfe2289f03c742dfd0e164e58cfbd4dfe864e62",
+        ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "ea45b40ccc4e36fac24778adf1125dc15afc882e2073b0b334edcfc947fb7b6c",
+        "tests/pdp-truth-domain-policy-projection.test.mjs": "14233cc88b987b120cde066a6009d3040838a738ffe66061168860cc1e1892d8",
+        "tests/product-definition-domain-rule-mapping.test.mjs": "19da17cef4c1ce59bd3dd727639ca0dd34ca99a2bac790bf875227ab218191ed",
+        "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "326db58811730baa8128b299f6eaf4d47a7cf2d5b093150536a116a8a199e7c6",
+        "tests/pdp-truth-domain-race-semantics.test.mjs": "10c90d0151b4ba5fca660e3d03a9643da6a8f4efb4a4bb9afe8bc309e9d650d2",
+        "scripts/lib/pdp1-transition-guard-definition-evaluator.mjs": "586c66119975cbae62b94795be9c01480c84da8091fc00355f30def3351fa0ef",
+        "scripts/lib/pdp-truth-domain-race-oracle.mjs": "765eab144031d5a920455f670919b0611d672177a63e561af26c5dd2dad73f4b",
+        ".product-experience/pdp-1-domain-data/transitions.yaml": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
+        ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+        ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "c5c9d68f03f14745d9594ac7cadca09e943a61b1a1e7fc58c5b9f35612198226"
+      },
+      "verification": {
+        "status": "PASS",
+        "reviewedSourceBase": "11eb14ea9059045ca4d983383d36c01f9a08bc8f",
+        "focusedTestCount": 36,
+        "focusedPassed": 36,
+        "focusedFailed": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/p0-05-06-coordinator-review-tests.log",
+        "projectionPublicValidator": "PASS",
+        "projectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-05-06-coordinator-review-projection.log"
+      },
+      "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged.",
+      "currentCorrectiveReview": {
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-105",
+        "scope": "Current-cut revalidation of the unchanged direct definition criterion after exact canonical source-selector repairs, explicit reviewed feature referent corrections, additive owner erasure policy and generator source-closure/caller wiring. Historical fingerprints remain unchanged.",
+        "sourceFingerprints": {
+          "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
+          "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
+          ".product-experience/pdp-0-product-truth/constitution.yaml": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
+          ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
+          ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "a553a79da537517a1380bd686eed2db73ba29ce6ace64f4a2f9f880e296dff80",
+          ".product-experience/pdp-1-domain-data/authority.yaml": "46a779a44a0d63bde3eea68807d718a59bfa58233a12fe26d0db8184277cf1f6",
+          ".product-experience/pdp-1-domain-data/privacy.yaml": "68cf5efe8c0cbc710aba9cb05aa35f1ac84dfa10503475d57f01af054e625d5b",
+          ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "ea45b40ccc4e36fac24778adf1125dc15afc882e2073b0b334edcfc947fb7b6c",
+          "tests/pdp-truth-domain-policy-projection.test.mjs": "14233cc88b987b120cde066a6009d3040838a738ffe66061168860cc1e1892d8",
+          "tests/product-definition-domain-rule-mapping.test.mjs": "19da17cef4c1ce59bd3dd727639ca0dd34ca99a2bac790bf875227ab218191ed",
+          "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "326db58811730baa8128b299f6eaf4d47a7cf2d5b093150536a116a8a199e7c6",
+          "tests/pdp-truth-domain-race-semantics.test.mjs": "10c90d0151b4ba5fca660e3d03a9643da6a8f4efb4a4bb9afe8bc309e9d650d2",
+          "scripts/lib/pdp1-transition-guard-definition-evaluator.mjs": "586c66119975cbae62b94795be9c01480c84da8091fc00355f30def3351fa0ef",
+          "scripts/lib/pdp-truth-domain-race-oracle.mjs": "765eab144031d5a920455f670919b0611d672177a63e561af26c5dd2dad73f4b",
+          ".product-experience/pdp-1-domain-data/transitions.yaml": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
+          ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+          ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "c5c9d68f03f14745d9594ac7cadca09e943a61b1a1e7fc58c5b9f35612198226"
+        },
+        "verification": {
+          "status": "PASS",
+          "tests": 33,
+          "passed": 33,
+          "failed": 0,
+          "evidenceRef": "docs/implementation/verification/pdp-38/current-p005-p006-33-tests.log",
+          "productDefinitionSchema": "VALID",
+          "productDefinitionPublicValidator": "PASS",
+          "projectionEvidenceRef": "docs/implementation/verification/pdp-38/current-criteria-projections.log"
+        },
+        "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged."
+      }
+    },
+    {
+      "taskId": "P0-06",
+      "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "decisionRef": ".product-experience/decision-log.md#PXD-099",
+      "scope": "Four honest source measure contracts and all 1,848 leaf-by-measure applicability records bind exact capability, leaf-wrapper, canonical operation, selected profile and bounds selectors; same-count, valid-foreign and forged admission/measurement substitutions are rejected. Optional authored timestamps remain omitted because no reviewed canonical timestamp source exists; generation-time and arbitrary matching-source timestamps are rejected.",
+      "sourceFingerprints": {
+        "scripts/generate-media-phase-projections.mjs": "847bc8109b266b5f587db00969e4e2f4a7b79cc0e018015b2b8e3ea1a0de4616",
+        "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
+        "scripts/lib/product-definition-authored-timestamp-provenance.mjs": "3f2a0527e7a9957db9fa823da3eb522369ef830ccfc43677f3df7eb8ccd8e048",
+        "tests/pdp-0-06-measures-provenance.test.mjs": "c14ca4404ae01280ae92b52b9cf49c4d94897b70a1c30d8726c579590a60226b",
+        "tests/media-measure-applicability-crosswalk.test.mjs": "29f912f51f8bb9dae30a039789c9d42e60e4e7810559be0e41e8dacc079bc62c",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "1d32763a43c7e8cd198c803972022277672cd203d341830b106e74bef4a3ffac",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "7180ee2313296adf51153711b6be819b33b9ff3a8f0d5612b7ecf6a9e69c4f8f",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+        ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+        ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "4829dfe4772df58d9af2fbade33ae5ce049514d4f37ee4f783842c545b0e6469",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af"
+      },
+      "verification": {
+        "status": "PASS",
+        "reviewedSourceBase": "11eb14ea9059045ca4d983383d36c01f9a08bc8f",
+        "focusedTestCount": 36,
+        "focusedPassed": 36,
+        "focusedFailed": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/p0-05-06-coordinator-review-tests.log",
+        "projectionPublicValidator": "PASS",
+        "projectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-05-06-coordinator-review-projection.log"
+      },
+      "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged.",
+      "currentCorrectiveReview": {
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-105",
+        "scope": "Current-cut revalidation of the unchanged direct definition criterion after exact canonical source-selector repairs, explicit reviewed feature referent corrections, additive owner erasure policy and generator source-closure/caller wiring. Historical fingerprints remain unchanged.",
+        "sourceFingerprints": {
+          "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
+          "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
+          "scripts/lib/product-definition-authored-timestamp-provenance.mjs": "3f2a0527e7a9957db9fa823da3eb522369ef830ccfc43677f3df7eb8ccd8e048",
+          "tests/pdp-0-06-measures-provenance.test.mjs": "c14ca4404ae01280ae92b52b9cf49c4d94897b70a1c30d8726c579590a60226b",
+          "tests/media-measure-applicability-crosswalk.test.mjs": "29f912f51f8bb9dae30a039789c9d42e60e4e7810559be0e41e8dacc079bc62c",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+          ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+          ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+          ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af"
+        },
+        "verification": {
+          "status": "PASS",
+          "tests": 33,
+          "passed": 33,
+          "failed": 0,
+          "evidenceRef": "docs/implementation/verification/pdp-38/current-p005-p006-33-tests.log",
+          "productDefinitionSchema": "VALID",
+          "productDefinitionPublicValidator": "PASS",
+          "projectionEvidenceRef": "docs/implementation/verification/pdp-38/current-criteria-projections.log"
+        },
+        "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged."
+      }
+    },
+    {
+      "taskId": "P0-07",
+      "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
+      "decisionRef": ".product-experience/decision-log.md#PXD-105",
+      "scope": "All15 mandatory dimensions carry45 materially reviewed clauses with224 exact referent occurrences. The complete15\u00d738 requirement decisions and462 leaf\u00d711 channel/profile decisions resolve exact current sources or explicit source-backed exclusions; machine-only/event/agent/legacy channel differences and non-admission remain explicit. PXD-098 remains immutable, supplemented only by PXD-101/103 exact reference corrections.",
+      "sourceFingerprints": {
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+        ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "a553a79da537517a1380bd686eed2db73ba29ce6ace64f4a2f9f880e296dff80",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+        ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+        ".product-experience/pdp-0-product-truth/quality-policy.yaml": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+        ".product-experience/pdp-1-domain-data/authority.yaml": "46a779a44a0d63bde3eea68807d718a59bfa58233a12fe26d0db8184277cf1f6",
+        ".product-experience/pdp-1-domain-data/decisions.yaml": "b10580f89fc80936b4ed1b4af115df87c3f6f472bffabdab24fd7abf8bf0d4a2",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+        ".product-experience/pdp-1-domain-data/events.yaml": "0eb92d2e1068c3f11f95baaa8e3d5ae7dc3cb30551649e1a8ff09ef9a28c5d14",
+        ".product-experience/pdp-1-domain-data/evidence.yaml": "2f477abea3a58b86b2f5a79460d34cee173e65649eb1e589496d3edcfdfa10a5",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "cbc3d729ccf6a53ced0ac76cc102c48e40465b22a7ac85f40b59e23287d6621d",
+        ".product-experience/pdp-1-domain-data/offline-sync.yaml": "530ca18cb42107f4feb2f00e71f5fa1085d871cbbde2ce13388810afd34c3ea9",
+        ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+        ".product-experience/pdp-1-domain-data/privacy.yaml": "68cf5efe8c0cbc710aba9cb05aa35f1ac84dfa10503475d57f01af054e625d5b",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df",
+        ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+        ".product-experience/pdp-1-domain-data/transitions.yaml": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "b21bcab8675dbd21e200aef9ba181fe535fa55c27920b7f27ce79d095c55a916",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "77dce60266fb72b7ac324e81aa8289ceaa9026a777aeb1b1308dcef3180835ac",
+        ".product-experience/pdp-2-design-interface-system/accessibility.yaml": "1cec53c4f6e7f3cb00aab47f14f2c49e6b58653b2a87268e4afcdebb7c3d0f6a",
+        ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml": "e861c34672f8e8508ea12a66bb011d479773bc7e4beb795efcf007c218d9852f",
+        ".product-experience/pdp-2-design-interface-system/localization-content.yaml": "2578c50565ec9c8041093b963866cba8dc7816eef5af4c44790e0fe40a89b994",
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
+        "docs/PRODUCT-DEFINITION-COVERAGE.md": "78032cc1c683496532483a1acc8dccb31a6908db90ad77dfcf09418e1897bc05",
+        "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+        "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json": "3f3fff501a396a38ca964b265ec31112484a7c0c41931bb7997e0ca46df87f85",
+        "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json": "c8ccf42f82e7567b5316cb0bfb047030b5f18d0a39a40fb8f0fd885302508d50",
+        "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
+        "scripts/lib/pdp0-feature-review-applicability.mjs": "cec4e500fde68274e11f61b8ceeafffaf22a19b75d26a59a6c758ab9bab25097",
+        "tests/media-p0-07-feature-channel-review.test.mjs": "0c388c4b408c50859829a070d3b12042b38629b5e3626fc77178c4216e6817be",
+        "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "5fe7a43861383fec3ed2cd3e2035f8706b3b281a849168aab6581d2df3d652f0"
+      },
+      "verification": {
+        "status": "PASS",
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/current-p007-5-tests.log",
+        "productDefinitionSchema": "VALID",
+        "productDefinitionPublicValidator": "PASS"
+      },
+      "acceptanceBoundary": "Direct source criterion only; P0-01/02 task dependencies, original full-task ledger, qualified independent acceptance, runtime admission and authoritative Lifecycle receipts remain separate."
     }
   ],
   "verification": {

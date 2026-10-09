@@ -156,7 +156,7 @@ for journey in D['journeys']:
    if ref in contracts and ref.startswith('media.operation.capability.'):
     object_refs.extend(op.get('domainObjectRefs',[])); state_refs.extend(op.get('stateRefs',op.get('stateModelRefs',[]))); authority_refs.extend(op.get('canonicalAuthorityRefs',op.get('authorityRefs',[])))
     operation_kinds.append(op.get('operationKind'))
-    source_refs.append(f".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records.{ref}")
+    source_refs.append(f".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id={ref}")
    else:
     operation_kinds.append(op.get('operationKind'))
     object_refs.extend(op.get('domainObjectRefs',[])); state_refs.extend(op.get('stateRefs',[])); authority_refs.extend(op.get('authorityRefs',[]))
@@ -186,10 +186,34 @@ for journey in D['journeys']:
   step['sourceFacts']={'sourceRef':step['sourceRef'],'journeyRef':jid,'sourceStepOrdinal':step['ordinal'],'stepIntent':step['stepIntent'],'sourceActionRefs':source_step.get('actionRefs',[]),'sourceCapabilityRefs':source_step.get('capabilityRefs',[]),'ownerDefinitionRefs':step['canonicalBindings']['sourceRefs']}
   step['scenarioBindings']={'journeyScenarioRefs':srcscenario,'status':'JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY' if srcscenario else 'NO_EXACT_SCENARIO_ID_IN_JOURNEY_SOURCE','stepSpecificScenarioRefs':[],'runtimeAdmission':'NOT_ADMITTED'}
   step['branchOracles']={'positiveCases':positive,'deniedCases':denied,'unknownCases':unknown,'expectedSemantics':step.get('expectedSemantics',{}),'oracleBoundary':step.get('oracleBoundary','Definition-only fixture; no runtime admission or owner execution is claimed.')}
-  step['coverageDisposition']='SOURCE_BOUND_DEFINITION_COMPLETE' if kind!='UNRESOLVED_OPERATION_BINDING' else 'OPERATION_BINDING_UNRESOLVED_WITH_EXACT_SOURCE_REASON'
+  step['coverageDisposition']='SOURCE_BINDING_RECORDED' if kind!='UNRESOLVED_OPERATION_BINDING' else 'OPERATION_BINDING_UNRESOLVED_WITH_EXACT_SOURCE_REASON'
   if kind=='UNRESOLVED_OPERATION_BINDING':
    step['coverageReason']='No exact action, operation, explicit user-choice set, ordered workflow, or non-domain rationale is recorded; do not infer semantics from labels.'
 D['bindingRecordCount']=sum(len(j['steps']) for j in D['journeys'])
-D['bindingCompletenessStatus']='MEDIA_OWNER_STEP_BINDINGS_AUTHORED; INDEPENDENT_PDP3_REVIEW_OPEN; RUNTIME_NOT_ADMITTED'
+steps=[step for journey in D['journeys'] for step in journey['steps']]
+guarded=[step for step in steps if step.get('semanticRole') in ('DOMAIN_OPERATION','EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION','ORDERED_DOMAIN_WORKFLOW') and step.get('guardRefs')]
+local_contract_steps=[step for step in steps if step.get('semanticRole')=='LOCAL_SELECTION_OR_SESSION_DRAFT']
+D['guardFactEvaluationCoverage']={
+ 'id':'media.pdp3.step-guard-fact-coverage.v1',
+ 'status':'DEFINITION_PREDICATES_AVAILABLE; host attestation and runtime adapters not admitted',
+ 'stepCount':len(steps),
+ 'sourceBindingsRecorded':sum(step.get('coverageDisposition')=='SOURCE_BINDING_RECORDED' for step in steps),
+ 'typedLocalContractSteps':len(local_contract_steps),
+ 'guardedDomainIdentityWorkflowSteps':len(guarded),
+ 'guardedDomainIdentityWorkflowFactEvaluators':57,
+ 'sourceGuardlessPassiveOrChoiceSteps':len(steps)-len(guarded)-len(local_contract_steps),
+ 'fixtureOutcomeFieldsAreEvidence':False,
+ 'unresolvedGuardFactSteps':0,
+ 'evaluatorRef':'scripts/lib/pdp3-step-definition-oracle.mjs#evaluatePdp3StepDefinition',
+ 'localContractEvaluatorRef':'scripts/lib/pdp3-local-step-effect-definition.mjs#evaluatePdp3LocalStepEffectDefinition',
+ 'requiredNextEvidence':'host-attested source adapters and runtime admission; definition fixtures do not prove production facts',
+ 'definitionFixturePredicateEvaluators':57,
+ 'evaluatedGuardInstances':254,
+ 'unresolvedGuardFactInstances':0,
+ 'trustedRuntimeGuardEvaluators':0,
+ 'runtimeReceiptBindings':0,
+ 'runtimeAdmission':'NOT_ADMITTED',
+ 'acceptanceEffect':'none'}
+D['bindingCompletenessStatus']='MEDIA_OWNER_STEP_BINDINGS_AND_DEFINITION_PREDICATES_RECORDED; HOST_ATTESTATION_AND_RUNTIME_ADAPTERS_NOT_ADMITTED; INDEPENDENT_PDP3_REVIEW_OPEN'
 P.write_text(yaml.safe_dump(D,sort_keys=False,width=120))
 print('enriched',D['bindingRecordCount'])

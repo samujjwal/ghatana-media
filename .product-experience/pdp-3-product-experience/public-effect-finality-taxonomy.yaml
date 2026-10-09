@@ -8,6 +8,11 @@ toolsSchemaBoundary:
   package: "@ghatana/experience-specification"
   version: 0.1.0-SNAPSHOT
   sourceCommit: 6ed280283872df7889369b71abb3c9e62cb17f8d
+  currentSourceCompatibilityReview:
+    sourceCommit: cb4feaeb23afdd00c048fb9014c4b38c9b8fc506
+    decisionRef: .product-experience/decision-log.md#PXD-107
+    existingEffectFinalitySchemaUnchanged: true
+    scope: Parsed schema comparison preserves every prior field; only optional journey semantics and scenarioRefs were added. Source compatibility only; installed publication and phase acceptance remain pending.
   sourceSchemaRef: ghatana-tools/libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json#/definitions
   installedSnapshotDisposition: Installed Media workspace package snapshot predates the enum
     extension; it is not used to validate these candidates.

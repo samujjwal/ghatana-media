@@ -28,8 +28,10 @@ test("experience candidate projects the exact PXD-083 Media required-prop source
   assert.match(generated.candidateMappingReview.fieldDispositions.componentContracts.status, /PXD-083-BOUNDED-MEDIA-SOURCE/u);
   assert.equal(generated.candidateFieldSources.componentContracts.decisionRef,
     ".product-experience/decision-log.md#PXD-083");
-  assert.match(generated.fieldMappingBlockers.find(({ field }) => field === "componentContracts").reasons[0],
-    /public component implementation, Shared binding, renderer behavior, and runtime admission remain separate/u);
+  assert.equal(generated.fieldMappingBlockers.some(({ field }) => field === "componentContracts"), false,
+    "PXD-083 clears the source projection blocker; public implementation and admission remain separately gated");
+  assert.match(generated.candidateMappingReview.fieldDispositions.componentContracts.status,
+    /^PXD-083-BOUNDED-MEDIA-SOURCE-REQUIRED-PROP-CANDIDATES/u);
 });
 
 test("existing public prop projection remains exactly source-bound", () => {

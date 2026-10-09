@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-referent-correction.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-103",
+  "baseArtifactRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseArtifactSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "scope": "Two reviewed operation-binding referents; four actual canonical contract/wire-schema selectors repaired only. All operation semantics, capability identities, payload semantics, bounds and admission fields remain unchanged.",
+  "authority": "User-delegated Media coordinator material source-selector review",
+  "acceptanceBoundary": "No additional clause or whole-task approval, runtime qualification, independent review or Lifecycle receipt.",
+  "records": [
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-import",
+      "identity": "media.capability-binding.media-artifact-import",
+      "priorContentSha256": "80fb81e2900d4f00c711dfa70bc23834814c9be9c21b518572665dcf6d812fe2",
+      "currentContentSha256": "27ee0bfc15056aa664640c16b1bda472261c3baac582561545a9067269dbe48d",
+      "reviewStatus": "APPROVED_EXACT_REFERENCE_ONLY_CORRECTION",
+      "reviewedReferenceChanges": [
+        {
+          "path": [
+            "canonicalSourceContractRefs",
+            "0"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.import.v1",
+          "current": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.import.v1"
+        },
+        {
+          "path": [
+            "canonicalWireSchemaRefs",
+            "0"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records.media.operation.artifact.import.v1.ownerWireSchema",
+          "current": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.import.v1/ownerWireSchema"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file",
+      "identity": "media.capability-binding.media-speech-transcription-file",
+      "priorContentSha256": "a7f8b30cc7e822254d68cf61371dff51d2b6e70670a6db8f9f285a6e790c9999",
+      "currentContentSha256": "88c92fb567bf956e18f0f2dd772e7f41a0f08acbc296c3a4124f92852f88edba",
+      "reviewStatus": "APPROVED_EXACT_REFERENCE_ONLY_CORRECTION",
+      "reviewedReferenceChanges": [
+        {
+          "path": [
+            "canonicalSourceContractRefs",
+            "0"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/operations.yaml#operations.media.operation.transcription-submission",
+          "current": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission"
+        },
+        {
+          "path": [
+            "canonicalWireSchemaRefs",
+            "0"
+          ],
+          "prior": ".product-experience/pdp-1-domain-data/operations.yaml#operations.media.operation.transcription-submission.ownerWireSchema",
+          "current": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/ownerWireSchema"
+        }
+      ]
+    }
+  ]
+}

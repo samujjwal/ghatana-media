@@ -6,3 +6,40 @@ scopeStatus: proposal; per-operation policy and budgets await runtime binding
 acceptance: {criteria: [timeouts do not imply failure, unknown outcomes have a read-only resolution path, retry requires explicit safe classification and fresh policy checks], status: pending-runtime-owner-review}
 verification: {method: Simulate lost acknowledgments, deadline expiry, and retry at each effect boundary; verify no duplicate effects, status: not-run}
 rules: [a client wait deadline is distinct from a server-side processing deadline and cancellation, do not blindly retry a mutation after timeout, resolve the original operation by an operation identity or idempotency key only where the accepted operation contract provides one, retry only when the specific operation is classified safe and authority/policy/budget are re-evaluated, unknown is neither failure nor success, this proposal establishes no automatic retry, persistence, or reconciliation mechanism]
+ownerDefinedRetrySemantics:
+  id: media.api.retry-timeout-unknown-outcome.v1
+  sourceAuthority: Media operation-specific idempotency, effect finality, cancellation, and budget definitions
+  rules:
+    - on a lost acknowledgement, resolve the same request or operation identity by a read-only observation before considering any resubmission
+    - never mint a new request identity merely to retry an expensive or externally visible mutation whose outcome is unknown
+    - replay requires the operation's persisted idempotency key and exact canonical request fingerprint; a matching replay returns the prior receipt, while a changed request conflicts
+    - retry is allowed only when that exact operation declares safe replay and current authority, rights/consent, budget, profile, and dependency checks still pass
+    - a client wait timeout or local interrupt ends observation only; it does not cancel server work, establish failure, or prove provider finality
+    - a server execution deadline is a separate operation input with explicit effect semantics; it is not synthesized from a client timeout
+    - cancellation request, cancellation acknowledgement, confirmed cancellation, and already-final work remain distinct states; a response to a request is not finality evidence by itself
+    - provider-supplied parameters cannot override reserved tenant, principal, authorization, budget, routing, profile-version, or idempotency fields
+    - use the canonical operation/state/finality vocabulary; an interface may add transport status but cannot create a conflicting operation taxonomy
+  rejectionConditions:
+    - no operation-specific idempotency or safe-replay definition
+    - original request identity is unavailable or payload fingerprint differs
+    - current authority, policy, rights, consent, quota, or budget cannot be revalidated
+    - remote outcome or cancellation remains unknown
+    - provider parameters collide with a reserved host-owned field
+  runtimeAdmission: NOT_ADMITTED
+ownerDefinedReplayPersistenceRequirement:
+  id: media.api.mutation-replay-persistence-prerequisite.v1
+  rule: A mutation may claim persisted-key replay only when an owner-scoped record durably commits the trusted tenant and applicable principal, exact canonical operation and version, client request key, canonical effect-bearing request fingerprint, replay fence, and prior result/receipt before the first externally visible effect. The record's retention boundary and expiry are explicit and cover only its declared retry window. After restart or response loss, readback and reconciliation return the same prior receipt for an exact replay; a changed fingerprint conflicts. Concurrent duplicates share one effect under the fence. If persistence, readback, retention, or fence state is absent or uncertain, reject replay or return UNKNOWN_OUTCOME and perform no second effect. This is a required definition and verification boundary, not a claim that any current runtime implements it.
+  requiredPersistedFields: [trustedTenantId, trustedPrincipalWhenScoped, exactCanonicalOperationId, operationVersion, clientRequestKey, canonicalEffectBearingRequestFingerprint, replayFence, priorResultOrReceipt, retentionBoundary]
+  verificationCases: [persist-before-effect, concurrent-duplicate-single-effect, restart-readback-same-receipt, response-loss-same-key-reconciliation, changed-fingerprint-conflict, expired-record-no-blind-replay, missing-or-uncertain-fence-no-second-effect]
+  runtimeStatus: NOT_EVALUATED
+  runtimeAdmission: NOT_ADMITTED
+  negativeCases: [in-memory-key-called-persisted, effect-before-record-commit, restart-loses-key-but-retries-effect, changed-payload-reuses-prior-result, expired-retention-replays-blindly, uncertain-fence-allows-second-effect]
+normativeRuleRecords:
+  - id: media.p2.rule.api-retry-timeout-unknown-outcome.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedRetrySemantics
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/idempotency.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.api-mutation-replay-persistence-prerequisite.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedReplayPersistenceRequirement
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml#ownerDefinedRetrySemantics
+    acceptanceEffect: none

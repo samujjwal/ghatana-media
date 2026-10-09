@@ -1,0 +1,285 @@
+[
+  {
+    "path": [
+      "definitions",
+      "journeyStep",
+      "properties",
+      "semantics"
+    ],
+    "current": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingDisposition",
+        "actionRefs",
+        "operationRefs",
+        "operationKinds",
+        "objectRefs",
+        "objectVersionRefs",
+        "stateRefs",
+        "guardRefs",
+        "authorityRefs",
+        "requirementRefs",
+        "effectRefs",
+        "finalityRefs",
+        "recoveryRefs"
+      ],
+      "properties": {
+        "bindingDisposition": {
+          "enum": [
+            "SINGLE_ACTION",
+            "ACTION_CHOICE",
+            "ORDERED_WORKFLOW",
+            "PASSIVE_QUERY",
+            "LOCAL_ONLY",
+            "NO_DISPATCH",
+            "UNRESOLVED"
+          ]
+        },
+        "actionRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "operationRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "operationKinds": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "COMMAND",
+              "QUERY"
+            ]
+          }
+        },
+        "objectRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "objectVersionRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "stateRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "guardRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "authorityRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "requirementRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "effectRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "finalityRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "recoveryRefs": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "choiceAlternatives": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "actionRefs",
+              "operationRefs"
+            ],
+            "properties": {
+              "actionRefs": {
+                "$ref": "#/definitions/stringArray"
+              },
+              "operationRefs": {
+                "$ref": "#/definitions/stringArray"
+              }
+            },
+            "anyOf": [
+              {
+                "properties": {
+                  "actionRefs": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "operationRefs": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "bindingDisposition": {
+                "const": "SINGLE_ACTION"
+              }
+            },
+            "required": [
+              "bindingDisposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "actionRefs": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "bindingDisposition": {
+                "const": "ACTION_CHOICE"
+              }
+            },
+            "required": [
+              "bindingDisposition"
+            ]
+          },
+          "then": {
+            "required": [
+              "choiceAlternatives"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "bindingDisposition": {
+                "const": "ORDERED_WORKFLOW"
+              }
+            },
+            "required": [
+              "bindingDisposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "operationRefs": {
+                "minItems": 2
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "bindingDisposition": {
+                "const": "PASSIVE_QUERY"
+              }
+            },
+            "required": [
+              "bindingDisposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "actionRefs": {
+                "maxItems": 0
+              },
+              "operationRefs": {
+                "minItems": 1
+              },
+              "operationKinds": {
+                "items": {
+                  "const": "QUERY"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "bindingDisposition": {
+                "const": "LOCAL_ONLY"
+              }
+            },
+            "required": [
+              "bindingDisposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "operationRefs": {
+                "maxItems": 0
+              },
+              "operationKinds": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "bindingDisposition": {
+                "const": "NO_DISPATCH"
+              }
+            },
+            "required": [
+              "bindingDisposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "actionRefs": {
+                "maxItems": 0
+              },
+              "operationRefs": {
+                "maxItems": 0
+              },
+              "operationKinds": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "bindingDisposition": {
+                  "const": "ACTION_CHOICE"
+                }
+              },
+              "required": [
+                "bindingDisposition"
+              ]
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "choiceAlternatives"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": [
+      "definitions",
+      "journey",
+      "properties",
+      "scenarioRefs"
+    ],
+    "current": {
+      "$ref": "#/definitions/stringArray"
+    }
+  }
+]

@@ -138,3 +138,15 @@ patterns:
     sourceRef: .product-experience/pdp-2-design-interface-system/gui/patterns/destructive-lifecycle-action.yaml#media.gui.pattern.destructive-lifecycle-action
     componentDisposition: SHARED_PRIMITIVES_ONLY
     noMediaComponentRationale: The pattern documents exact-scope confirmation and unknown-outcome constraints; no artifact-delete operation is admitted, and Shared dialog/button primitives own generic interaction.
+ownerDefinedPatternRules:
+  - id: media.gui.rights-consent-currentness-before-effect.v1
+    patternRef: media.gui.pattern.rights-and-consent-review
+    rule: Display the exact right/consent identity, subject, purpose, scope, source, version, effective/expiry facts, and current observation status from its authoritative owner. Before each affected consequential operation, revalidate current admission, consent, and rights under the same tenant/principal and operation scope. Stale, revoked, expired, missing, or unavailable evidence remains unresolved/denied; a prior screen review, cached valid label, or user confirmation does not authorize a later effect.
+    requiredFields: [exactRightOrConsentIdentity, subjectAndScope, sourceAndVersion, effectiveAndExpiryFacts, currentObservationStatus, affectedOperationRef]
+    negativeCases: [cached-valid-consent-used-after-expiry,scope-changed-after-review,prior-screen-confirmation-reused-for-new-operation,missing-currentness-treated-as-admitted,revoked-consent-displayed-as-valid]
+    scopeStatus: OWNER_DEFINED_PRESENTATION_AND_RECHECK_REQUIREMENT; no consent authority or runtime revalidation implementation is claimed.
+normativeRuleRecords:
+  - id: media.p2.rule.gui-rights-consent-currentness-before-effect.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#/ownerDefinedPatternRules/@id=media.gui.rights-consent-currentness-before-effect.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#compositionOwnerDecision
+    acceptanceEffect: none

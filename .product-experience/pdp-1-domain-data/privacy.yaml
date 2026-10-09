@@ -260,3 +260,189 @@ ownerDefinedPdp10Boundary:
     providerWithoutReplayProtection: Do not automatically repeat a consequential external effect.
   nonClaims:
   - This definition does not assert implementation, provider-side deletion, authorization integration, storage-wide inventory, qualified policy enforcement, or independent review.
+ownerDefinedPdp05InvariantMappings:
+  id: media.pdp1.privacy-invariants.v1
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  status: OWNER_DEFINED_DEFINITION_ONLY; security-rights-specialist-and-independent-P0-010-review-pending
+  mappingRule: Every row is an explicit owner invariant; sourceRefs identify the supporting PDP-1 rules. These rows define no external identity/consent authority and claim no runtime enforcement.
+  records:
+  - id: media.invariant.private-local-authorized-are-independent
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-001
+    sourceRefs: [.product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/classificationAndDisclosure/locality, .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope]
+    statement: A private context does not imply local processing, and local processing does not imply authorized use.
+    violation: If processing locality or authorization is missing or conflicting, return blocked or review-required; make no locality claim without a binding and observation.
+    ownerElaboration: Private context, processing locality, and authorization remain independent properties; none proves either of the others.
+    trustScope: Every request, artifact, profile, provider route, and consequential effect.
+    accountableOwner: media
+    failClosedResponse: Block the new effect or retain locality and authorization as unknown until each exact scoped authority is present.
+  - id: media.invariant.attestation-is-not-authority
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-002
+    sourceRefs: [.product-experience/pdp-1-domain-data/privacy.yaml#consentModel, .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity]
+    statement: User attestation is not verified consent or license.
+    violation: Do not admit governed processing or distribution when required consent or license evidence is absent, expired, revoked, or unverified; return blocked or review-required with the reason.
+    ownerElaboration: User or model attestation is not verified identity, consent, rights, or license authority.
+    trustScope: Exact tenant, principal, subject version, purpose, operation, region, and intended effect.
+    accountableOwner: media
+    failClosedResponse: Deny new governed effects and preserve the decision as unknown or review-required; never promote an assertion to a grant.
+  - id: media.invariant.classification-floor
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-003
+    sourceRefs: [.product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/classificationAndDisclosure]
+    statement: Source classification is a floor for derived data until an authorized deidentification promotion.
+    violation: Do not persist or promote metadata whose classification, tenant ownership, retention, or provenance checks fail.
+    ownerElaboration: Derived data retains the source sensitivity floor unless a separately authorized and evidenced declassification applies.
+    trustScope: Every derivative, observation, log, export, cache, and provider disclosure linked to a source.
+    accountableOwner: media
+    failClosedResponse: Preserve the source classification and block disclosure or persistence pending a current exact-scope decision.
+  - id: media.invariant.untrusted-content-cannot-authorize
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-004
+    sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/invariants/4, .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority]
+    statement: Model-generated content or assertions cannot authorize themselves.
+    violation: Reject model output as approval or privileged authority; require current policy and a separately authorized decision at the effect boundary.
+    ownerElaboration: User-controlled or model-generated content cannot modify policy, grant privilege, or select an authorized effect by itself.
+    trustScope: Prompt, transcript, media metadata, model output, imported data, tool input, and privileged-action boundary.
+    accountableOwner: media
+    failClosedResponse: Treat content as untrusted data and require an independently authorized decision at the effect boundary.
+  - id: media.invariant.audit-intent-precedes-effect
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-005
+    sourceRefs: [.product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/platformMechanics/audit, .product-experience/pdp-1-domain-data/authority.yaml#ownership/genericAuditMechanics]
+    statement: Required audit intent must be recorded before crossing an external effect boundary.
+    violation: Do not dispatch or publish when required audit intent cannot be recorded; if an effect may already have occurred, preserve outcome uncertainty and do not replay to repair the audit record.
+    ownerElaboration: Required durable audit intent is an effect precondition; optional diagnostics cannot substitute for it.
+    trustScope: Every operation that crosses a consequential or external effect boundary.
+    accountableOwner: media
+    failClosedResponse: Block before dispatch when durable intent is unavailable; after possible dispatch, preserve outcome uncertainty and reconcile.
+  - id: media.invariant.revocation-stops-future-effects
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-006
+    sourceRefs: [.product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation, .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority]
+    statement: Policy revocation stops future dispatch and restricts outputs at the next enforcement point.
+    violation: Re-check current authority at effect boundaries; stop future dispatch and restrict outputs when policy has been revoked, without claiming an in-flight effect was terminated.
+    ownerElaboration: Current revocation blocks future governed dispatch and restricts outputs at the next enforcement point; it does not prove in-flight termination or recall.
+    trustScope: Exact consent, subject version, job/session/effect, provider, and output boundary.
+    accountableOwner: media
+    failClosedResponse: Stop future dispatch, restrict affected outputs, and keep any in-flight effect unresolved until its authority supplies current evidence.
+  - id: media.invariant.tenant-isolation
+    projectionTargetRef: .product-experience/pdp-0-product-truth/constitution.yaml#invariants/records/@id=MEDIA-INV-007
+    sourceRefs: [.product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/tenantIsolation, .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope]
+    statement: Cross-tenant access and reuse are denied.
+    violation: Deny read, reuse, or effect when tenant ownership does not match the verified request context, even when content digests match.
+    ownerElaboration: Read, reuse, mutation, and effect are scoped to the host-attested tenant and exact object identity; content digest equality does not grant cross-tenant access.
+    trustScope: Every read, deduplication key, cache, relationship, mutation, and external effect.
+    accountableOwner: media
+    failClosedResponse: Deny before data lookup or effect; do not fall back to global scope or disclose cross-tenant existence.
+ownerDefinedErasureInventoryContract:
+  id: media.privacy.erasure-inventory-and-tombstone.v1
+  scopeStatus: OWNER_DEFINED_DEFINITION_ONLY
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure/notEstablished/0
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.artifact
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.artifact-version
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.provenance-manifest
+    - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+  copyInventory:
+    requiredCopyClasses:
+      - PRIMARY
+      - REPLICA
+      - DERIVED_ARTIFACT
+      - CACHE
+      - EXPORT
+      - BACKUP_SNAPSHOT
+      - EXTERNAL_PROVIDER_COPY
+    entryIdentity: Each copy entry has its own opaque copyRef plus exact tenantRef, objectRef, optional artifactVersionRef, storageOwnerRef, copyClass, retentionRuleRef, lifecycle state, and evidenceRefs.
+    completeness: Inventory completeness is explicit COMPLETE, PARTIAL, or UNKNOWN for one tenant/object/version and observation time; missing stores, copies, or owner acknowledgements keep it PARTIAL or UNKNOWN.
+    noSyntheticCopies: Do not claim a copy exists or is absent from a package name, deployment label, artifact digest, or provider capability declaration; the responsible storage/provider owner supplies the observed inventory.
+    observationSchema:
+      type: object
+      additionalProperties: false
+      required: [tenantRef, objectRef, artifactVersionRef, inventoryStatus, readAuthorityRef, readVersionRef, observedAt, copyEntries, evidenceRefs]
+      $defs:
+        copyInventoryEntry:
+          type: object
+          additionalProperties: false
+          required: [copyRef, tenantRef, objectRef, artifactVersionRef, storageOwnerRef, copyClass, retentionRuleRef, copyDisposition, evidenceRefs]
+          properties:
+            copyRef: {type: string, minLength: 1, pattern: "\\S"}
+            tenantRef: {type: string, minLength: 1, pattern: "\\S"}
+            objectRef: {type: string, minLength: 1, pattern: "\\S"}
+            artifactVersionRef: {type: string, minLength: 1, pattern: "\\S"}
+            storageOwnerRef: {type: string, minLength: 1, pattern: "\\S"}
+            copyClass: {enum: [PRIMARY, REPLICA, DERIVED_ARTIFACT, CACHE, EXPORT, BACKUP_SNAPSHOT, EXTERNAL_PROVIDER_COPY]}
+            retentionRuleRef: {type: string, minLength: 1, pattern: "\\S"}
+            copyDisposition: {enum: [PRESENT, OWNER_CONFIRMED_ABSENT, DELETED, PROVIDER_DELETION_PENDING, DELETION_UNKNOWN]}
+            evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1, pattern: "\\S"}}
+      properties:
+        tenantRef: {type: string, minLength: 1, pattern: "\\S"}
+        objectRef: {type: string, minLength: 1, pattern: "\\S"}
+        artifactVersionRef: {type: string, minLength: 1, pattern: "\\S"}
+        inventoryStatus: {enum: [COMPLETE, PARTIAL, UNKNOWN]}
+        readAuthorityRef: {type: string, minLength: 1, pattern: "\\S"}
+        readVersionRef: {type: string, minLength: 1, pattern: "\\S"}
+        observedAt: {type: string, format: date-time}
+        copyEntries: {type: array, items: {$ref: "#/$defs/copyInventoryEntry"}}
+        evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1, pattern: "\\S"}}
+  holds:
+    requiredTuple: Each hold binds holdRef, issuerAuthorityRef, tenantRef, exact object/version scope, purpose, issuedAt, validUntilExclusive, and current read evidence.
+    activeRule: A hold is active only when an authoritative current observation matches the exact tenant and object/version scope and now is before validUntilExclusive.
+    unknownRule: Missing, stale, malformed, or conflicting hold evidence is UNKNOWN and blocks irreversible deletion; a caller-provided hold status is not authority.
+    releaseRule: A hold is released only by a current issuer-authorized release observation for the same holdRef and scope; elapsed time alone is not a release receipt.
+    observationSchema:
+      type: object
+      additionalProperties: false
+      required: [holdRef, issuerAuthorityRef, tenantRef, objectRef, artifactVersionRef, purposeRef, disposition, issuedAt, validUntilExclusive, readAuthorityRef, readVersionRef, observedAt, evidenceRefs]
+      properties:
+        holdRef: {type: string, minLength: 1}
+        issuerAuthorityRef: {type: string, minLength: 1}
+        tenantRef: {type: string, minLength: 1}
+        objectRef: {type: string, minLength: 1}
+        artifactVersionRef: {type: string, minLength: 1}
+        purposeRef: {type: string, minLength: 1}
+        disposition: {enum: [ACTIVE, RELEASED, UNKNOWN]}
+        issuedAt: {type: string, format: date-time}
+        validUntilExclusive: {type: string, format: date-time}
+        readAuthorityRef: {type: string, minLength: 1}
+        readVersionRef: {type: string, minLength: 1}
+        observedAt: {type: string, format: date-time}
+        evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+  tombstones:
+    identity: A tombstone binds erasureRequestRef, tenantRef, exact objectRef/versionRef, affected copyRef set, policyDecisionRef, createdAt, and durable store revision.
+    restoreRule: Before restored data becomes readable or dispatchable, replay applicable tombstones against every restored copy and deny access until reconciliation finishes.
+    retentionRule: Keep a tombstone while any backup, replica, cache, export, or provider copy can still be restored or can reappear; removal requires a separately evidenced owner rule after the last restoration path expires.
+    replayFailure: Missing, stale, or failed tombstone replay leaves the affected scope ACCESS_RESTRICTED or ERASURE_OUTCOME_UNKNOWN; never expose restored bytes as current.
+    recordSchema:
+      type: object
+      additionalProperties: false
+      required: [tombstoneRef, erasureRequestRef, tenantRef, objectRef, artifactVersionRef, copyRefs, policyDecisionRef, createdAt, durableStoreRevision]
+      properties:
+        tombstoneRef: {type: string, minLength: 1}
+        erasureRequestRef: {type: string, minLength: 1}
+        tenantRef: {type: string, minLength: 1}
+        objectRef: {type: string, minLength: 1}
+        artifactVersionRef: {type: string, minLength: 1}
+        copyRefs: {type: array, minItems: 1, uniqueItems: true, items: {type: string, minLength: 1}}
+        policyDecisionRef: {type: string, minLength: 1}
+        createdAt: {type: string, format: date-time}
+        durableStoreRevision: {type: string, minLength: 1}
+    restoreReplaySchema:
+      type: object
+      additionalProperties: false
+      required: [tombstoneRef, tenantRef, objectRef, artifactVersionRef, copyRef, replayDisposition, restoreAuthorityRef, restoreRevisionRef, observedAt, evidenceRefs]
+      properties:
+        tombstoneRef: {type: string, minLength: 1}
+        tenantRef: {type: string, minLength: 1}
+        objectRef: {type: string, minLength: 1}
+        artifactVersionRef: {type: string, minLength: 1}
+        copyRef: {type: string, minLength: 1}
+        replayDisposition: {enum: [REPLAYED, NOT_RESTORED, UNKNOWN]}
+        restoreAuthorityRef: {type: string, minLength: 1}
+        restoreRevisionRef: {type: string, minLength: 1}
+        observedAt: {type: string, format: date-time}
+        evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+  erasureFinality:
+    states: [REQUESTED, ACCESS_RESTRICTED, DELETION_PENDING, PARTIALLY_ERASED, ERASURE_CONFIRMED, ERASURE_BLOCKED_BY_HOLD, ERASURE_OUTCOME_UNKNOWN]
+    confirmedRequires:
+      - inventoryStatus: COMPLETE for the exact tenant/object/version and all declared copy classes
+      - holdsStatus: CURRENT_AND_RELEASED or NOT_APPLICABLE with an exact current evidence basis
+      - everyCopy: exact copyRef is deleted, provider-confirmed, or independently established as not materialized by its responsible owner
+      - restoreSafety: tombstones are durable and replayed by every declared restore path
+    externalProviderRule: A local delete or request acknowledgement never proves remote/provider-side erasure; absent an exact current provider receipt, retain the copy as PENDING or UNKNOWN and do not emit ERASURE_CONFIRMED.
+    independentProofBoundary: This contract defines Media's required semantics. It does not establish that deployment storage inventories are complete, provider deletion is available, tombstones are durable, or legal retention requirements have been approved.

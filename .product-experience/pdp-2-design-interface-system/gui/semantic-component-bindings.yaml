@@ -170,6 +170,45 @@ definitionBindingReview:
   componentDenominator: 31
   implementationAdmission: NOT_ADMITTED
   independentConformance: NOT_RUN
+packagingClassificationBoundary:
+  id: media.gui.packaging-classification-boundary.v1
+  proposal: STANDALONE_CLOSURE
+  proposalStatus: PROPOSED_INITIAL_CLASSIFICATION_ONLY
+  resolution: PXD-047 defines Media-owned component roles and exact reuse dispositions for the existing 31 contracts; it does not establish a package schema, new Shared export, published artifact, consumer binding, or implementation admission.
+  currentSourcePopulation: {componentDefinitions: 31, exactObservedPublicSourceContracts: 3, retainedContractOnlyCompositions: 28}
+  actualOwnerSchema: NOT_ESTABLISHED_BY_THIS_CLASSIFICATION
+  requiredBeforePackageUse: [exact-owner-schema-and-version, exact-public-export-for-each-bound-family, typed-consumer-props-and-behavior-contract, package-and-transitive-license-disposition, independent-consumer-conformance]
+  prohibitedInference: [proposal-label-as-actual-package-schema, visual-similarity-as-public-export, contract-only-family-as-implemented, source-observation-as-package-admission]
+  status: OWNER_DEFINED_CLASSIFICATION_BOUNDARY; Shared package publication, consumer binding, implementation admission, and independent conformance remain open.
+dependencyGapResolutionRule:
+  id: media.gui.dependency-gap-resolution.v1
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceRefs: [.product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary, .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/componentLicenseBoundary]
+  rule: >-
+    Resolve each exact Ghatana dependency gap using one explicit path: extend that dependency owner's public contract with its approval; extract only genuinely reusable mechanics with owner approval while Media retains its domain and policy meaning; use a bounded integration against an exact public artifact/version and verified consumer contract; or select an external component only after recording why the internal candidate is inadequate and its independent version, license, and supply-chain disposition. Never fork or copy Shared, Tools, or Kernel merely to bypass a dependency boundary. Scope a blocker to its exact capability, profile, channel, and deployment boundary; record the missing criterion and either choose a separately qualified permitted alternative or isolate/disable that feature instead of blocking unrelated defined Media work indefinitely.
+  requiredEvidence: [exact-dependency-owner-and-public-contract, owner-approval-when-contract-or-mechanics-change, exact-artifact-version-and-consumer-boundary-for-integration, internal-candidate-gap-for-external-selection, independent-license-and-supply-chain-disposition, exact-blocked-capability-profile-channel-and-deployment-scope]
+  negativeCases: [copied-platform-mechanics-as-shortcut,unbounded-integration-with-name-only-match,external-selection-without-internal-gap,license-of-wrapper-used-to-clear-transitive-components,unrelated-ecosystem-hardening-blocks-all-media-capabilities]
+  status: OWNER_DEFINED_DEPENDENCY_RESOLUTION_POLICY; integration, package publication, qualification, and runtime admission remain separate.
+architectureIdentityBoundary:
+  id: media.gui.no-duplicate-business-state-or-external-schema.v1
+  sourceRefs: [.product-experience/pdp-1-domain-data/states.yaml#stateMachines, .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords, .product-experience/pdp-2-design-interface-system/api/conventions.yaml#authorityAndProjection]
+  rule: >-
+    Media-owned business state machines and transitions have one canonical PDP-1 authority. API, GUI component, adapter, event, SDK, and command schemas are typed projections of the exact owner records and may not create independent business state machines, duplicate external service schemas, new transition meaning, or alternate finality. An adapter is separately versioned and declares field-level projection, loss/rejection, error/finality mapping, and exact owner references; an absent external owner contract or unrepresentable field remains an explicit dependency or rejected mapping.
+  negativeCases: [component-state-label-treated-as-new-business-state,api-schema-copied-as-external-authority,adapter-adds-transition-or-finality,missing-owner-field-silently-defaulted]
+  status: OWNER_DEFINED_SINGLE_AUTHORITY_AND_SCHEMA_PROJECTION; external contract acceptance and wire conformance remain separate.
+normativeRuleRecords:
+  - id: media.p2.rule.gui-packaging-classification-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#packagingClassificationBoundary
+    sourceAuthority: .product-experience/decision-log.md#PXD-047
+    acceptanceEffect: none
+  - id: media.p2.rule.gui-dependency-gap-resolution.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#dependencyGapResolutionRule
+    sourceAuthority: .product-experience/decision-log.md#PXD-047
+    acceptanceEffect: none
+  - id: media.p2.rule.gui-no-duplicate-business-state-or-external-schema.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#architectureIdentityBoundary
+    sourceAuthority: .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+    acceptanceEffect: none
 definitionBindings:
 - componentRef: media.component.identity-context-boundary
   contractRef: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.identity-context-boundary

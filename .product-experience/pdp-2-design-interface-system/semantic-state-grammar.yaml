@@ -41,3 +41,41 @@ states:
     label: Processing stopped by consent change
     explanation: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy.
     safeActionRefs: [media.action.view-job-status]
+ownerDefinedStatePresentationRules:
+  - id: media.ui.state-presentation-not-state-machine.v1
+    rule: A UI state is a typed reference to the owning PDP-1 state machine; its label and explanation are presentation only. Brand strings, CSS classes, screen names, and localized labels never create states, transitions, finality, or scheduling policy. Media owns state meaning, transition, scheduling, and persistence; Shared and UI consumers render the exact owner state without a parallel lifecycle.
+    authorityRefs: [.product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/transitions.yaml, .product-experience/pdp-1-domain-data/authority.yaml#ownership]
+    negativeCases:
+      - a localized brand label cannot be parsed as a state or transition identity
+      - a UI badge cannot report finality that the owner state and receipt do not establish
+      - a Shared visual component cannot persist, schedule, or mutate Media job state
+    scopeStatus: OWNER_DEFINED_PRESENTATION_GRAMMAR; state-machine and runtime acceptance remain separate.
+  - id: media.ui.no-semantic-dummy-input.v1
+    rule: A command contract does not require a placeholder artifact, source file, or dummy input merely to fit a transport handler. Required inputs must be necessary to the selected Media operation and have a declared type, purpose, authority, and version rule; optional source references remain absent when the operation has no source.
+    authorityRefs: [.product-experience/pdp-1-domain-data/operations.yaml, .product-experience/pdp-1-domain-data/authority.yaml#ownership]
+    negativeCases:
+      - adding a dummy file to satisfy an unconditional multipart field does not make the operation valid
+      - absence of an optional source cannot be replaced by an unrelated artifact
+      - operation-specific requiredness cannot be inferred from a shared transport envelope
+    scopeStatus: OWNER_DEFINED_INTERFACE_GRAMMAR; no route or runtime compatibility is implied.
+  - id: media.ui.behavior-preserving-relocation.v1
+    rule: A source relocation preserves the prior behavior, identities, authorization checks, side effects, error/finality semantics, and persistence boundaries independently of feature additions. New behavior is a separately identified change with its own operation and tests; source presence or successful compilation does not prove behavior equivalence.
+    authorityRefs: [.product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml, .product-experience/pdp-1-domain-data/operations.yaml, .product-experience/pdp-1-domain-data/transitions.yaml]
+    negativeCases:
+      - a new feature cannot be counted as proof that legacy behavior was preserved
+      - removing an authorization or effect boundary during relocation is not behavior-preserving
+      - source relocation or compilation alone cannot establish semantic equivalence
+    scopeStatus: OWNER_DEFINED_MIGRATION_CONSTRAINT; historical implementation verification remains separately evidenced.
+normativeRuleRecords:
+  - id: media.p2.rule.ui-state-presentation-not-state-machine.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.state-presentation-not-state-machine.v1
+    sourceAuthority: .product-experience/pdp-1-domain-data/states.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.ui-no-semantic-dummy-input.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.no-semantic-dummy-input.v1
+    sourceAuthority: .product-experience/pdp-1-domain-data/operations.yaml
+    acceptanceEffect: none
+  - id: media.p2.rule.ui-behavior-preserving-relocation.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.behavior-preserving-relocation.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
+    acceptanceEffect: none

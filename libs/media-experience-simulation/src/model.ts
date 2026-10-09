@@ -22,6 +22,7 @@ export type FixtureId =
   | "alignment-required"
   | "consent-revoked"
   | "job-outcome-unknown"
+  | "job-retry-eligible"
   | "job-retry-ineligible"
   | "caption-conflict"
   | "caption-corrected"
@@ -38,6 +39,7 @@ export type JobState =
   | "RUNNING"
   | "OUTCOME_UNKNOWN"
   | "RECONCILING"
+  | "RETRY_PENDING"
   | "COMPLETED"
   | "PARTIALLY_SUCCEEDED"
   | "FAILED"
@@ -155,6 +157,27 @@ export interface CaptionVersionRecord {
   readonly segments: readonly TimedTextSegment[];
 }
 
+/** Synthetic, pre-dispatch facts used only to evaluate the retry guard. */
+export interface RetryEligibilityEvidence {
+  readonly tenantId: string;
+  readonly principalId: string;
+  readonly jobId: string;
+  readonly jobVersion: number;
+  readonly priorAttemptId: string;
+  readonly priorAttemptFencingToken: number;
+  readonly priorAttemptDisposition: "RETRYABLE" | "NON_RETRYABLE" | "UNKNOWN";
+  readonly priorEffectDisposition: "NO_EFFECT_CONFIRMED" | "EFFECT_CONFIRMED" | "UNKNOWN";
+  readonly authorityDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
+  readonly policyDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
+  readonly rightsDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
+  readonly consentDisposition: "CURRENT_ACTIVE" | "REVOKED" | "UNKNOWN";
+  readonly profileDisposition: "CURRENT_QUALIFIED" | "UNQUALIFIED" | "UNKNOWN";
+  readonly retryBudgetRemaining: number;
+  readonly retryBudgetRef: string;
+  readonly observedAt: string;
+  readonly evidenceRefs: readonly string[];
+}
+
 interface MediaExperienceCommonState {
   readonly scenarioId: ScenarioId;
   readonly actor: "creator" | "editor" | "reviewer" | "operator";
@@ -174,6 +197,7 @@ interface MediaExperienceCommonState {
     readonly attemptState: AttemptState | null;
     readonly finality: "NOT_DISPATCHED" | "PENDING" | "CONFIRMED" | "UNKNOWN";
   };
+  readonly retryEligibility: RetryEligibilityEvidence | null;
   readonly transcript: {
     readonly versionId: string | null;
     readonly languageTag: string | null;

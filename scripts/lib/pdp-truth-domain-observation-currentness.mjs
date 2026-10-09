@@ -189,3 +189,36 @@ export function validateTypedObservationCurrentRead({ contract, request, result,
   if (!validateBindingRules(contract, request, result)) return fail("OBSERVATION_BINDING_RULE_MISMATCH");
   return { truth: "TRUE", reason: "EXACT_CURRENT_READ_RECEIPT" };
 }
+
+/** Validate the retry-policy specialization without treating it as a command authorization. */
+export function validateRetryPolicyCurrentRead(args) {
+  const { contract, request, result } = args;
+  const current = validateTypedObservationCurrentRead(args);
+  if (current.truth !== "TRUE") return current;
+  const observation = result.observation;
+  if (observation?.kind !== "OBSERVED_RETRY_POLICY_AND_ATTEMPT") {
+    return { truth: "UNKNOWN", reason: "RETRY_POLICY_OBSERVATION_UNAVAILABLE" };
+  }
+  const bounds = source.capabilityOperationContracts?.bounds?.find((row) => row.id === observation.boundsRef);
+  const profile = source.capabilityOperationContracts?.families?.find((row) => row.id === observation.profileRef);
+  if (!bounds || !profile || bounds.capabilityRef !== observation.capabilityRef
+      || bounds.profileRef !== observation.profileRef || !profile.capabilityRefs?.includes(observation.capabilityRef)
+      || observation.retryOperationRef !== "media.operation-slice.retry-job"
+      || observation.budgetUnit !== "ADDITIONAL_ATTEMPTS_PER_LOGICAL_JOB"
+      || !Number.isSafeInteger(observation.maximumExplicitRetries) || observation.maximumExplicitRetries < 0
+      || !Number.isSafeInteger(observation.retriesUsed) || observation.retriesUsed < 0
+      || !Number.isSafeInteger(observation.retriesRemaining) || observation.retriesRemaining < 0
+      || observation.maximumExplicitRetries !== bounds.maximumExplicitRetries
+      || observation.retriesRemaining !== observation.maximumExplicitRetries - observation.retriesUsed) {
+    return { truth: "UNKNOWN", reason: "RETRY_BUDGET_OR_OWNER_BINDING_INCONSISTENT" };
+  }
+  const retryableOutcome = ["DEFINITIVE_NO_EFFECT", "DEFINITIVE_RETRYABLE_FAILURE"].includes(observation.outcomeClass);
+  if (observation.retryability === "RETRYABLE" && (!retryableOutcome || observation.retriesRemaining === 0)) {
+    return { truth: "UNKNOWN", reason: "RETRYABILITY_CONTRADICTS_OUTCOME_OR_BUDGET" };
+  }
+  if (["EFFECT_UNKNOWN", "TERMINAL", "UNKNOWN"].includes(observation.outcomeClass)
+      && observation.retryability === "RETRYABLE") {
+    return { truth: "UNKNOWN", reason: "UNCERTAIN_OR_TERMINAL_OUTCOME_CANNOT_BE_RETRYABLE" };
+  }
+  return { truth: "TRUE", reason: "EXACT_CURRENT_RETRY_POLICY_AND_ATTEMPT_READ" };
+}
