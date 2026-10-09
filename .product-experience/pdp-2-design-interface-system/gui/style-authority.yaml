@@ -15,7 +15,7 @@ currentProjection:
   explorerFixtureSource: apps/media-experience-explorer/src/styles.css
   explorerFixtureSemanticAuthority: false
   systemColorFallback: true
-  localGeometryValues: candidate-implementation; Shared-spacing-binding-pending
+  localGeometryValues: remaining-component-local-geometry-only; selected-font-spacing-and-target-roles-bind-to-Shared-public-CSS-variables
   exceptionPolicy: >-
     Raw values in the Explorer fixture stylesheet remain Explorer-owned and
     carry no Media product meaning. Candidate Media presentation bindings name
@@ -41,3 +41,135 @@ conformance:
     - keyboard-focus-for-all-actions
     - forced-colors-zoom-reflow-and-screen-reader-review
   status: NOT_RUN
+
+# Exact current public-package consumer boundary. This is a source observation,
+# not a new token/theme authority or Shared acceptance receipt.
+currentConsumerBindingObservation:
+  observationKind: CURRENT_PUBLIC_EXPORT_AND_IMPORT_SOURCE_FACTS
+  mediaPackage:
+    manifest: libs/audio-video-ui/package.json
+    lockImporter: pnpm-lock.yaml#importers/libs/audio-video-ui
+    declaredVersions:
+      "@ghatana/tokens": 0.1.0-SNAPSHOT
+      "@ghatana/theme": 0.1.0-SNAPSHOT
+      "@ghatana/design-system": 0.1.0-SNAPSHOT
+    resolutionBoundary: workspace-link-to-local-source-snapshot; no-registry-publication-claim
+  tokenConsumers:
+    semanticRoleTypeApi:
+      importSite: libs/audio-video-ui/src/index.tsx#export*-from-@ghatana/tokens
+      publicExport: "@ghatana/tokens#./semantic-roles"
+      tokenSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts
+      meanings: semanticColorRoles.light-and-dark
+    structuralCss:
+      importSite: libs/audio-video-ui/src/styles.css
+      publicExport: "@ghatana/tokens#./tokens.css"
+      purpose: Shared token CSS required by Media structural stylesheet
+  designSystemConsumers:
+    selectedControls:
+      importSite: libs/audio-video-ui/src/foundations/index.ts
+      publicExport: "@ghatana/design-system#.:atoms-and-molecules"
+      exports: [Badge, Button, EmptyState, FileUpload]
+      consumedAt:
+        - libs/audio-video-ui/src/components/MediaComponentFamilies.tsx
+        - libs/audio-video-ui/src/screens/FirstUseProjectScreen.tsx
+        - libs/audio-video-ui/src/screens/ArtifactIntakeScreen.tsx
+      structuralCss:
+        importSite: libs/audio-video-ui/src/styles.css
+        publicExport: "@ghatana/design-system#./strict-csp-controls.css"
+    selectedControlsOnly: true
+  themeConsumer:
+    declaredDependency: "@ghatana/theme@0.1.0-SNAPSHOT"
+    currentImportSites: []
+    disposition: DECLARED_BUT_NO_CURRENT_MEDIA_SOURCE_CONSUMER
+    prohibits: [claiming-a-Theme-runtime-binding, inferring-theme-provider-or-mode-parity-from-token-css]
+  excludedStyles:
+    "@ghatana/ui-styles": { currentDependency: false, currentImportSites: [], disposition: NOT_CONSUMED }
+  evidenceLimit: >-
+    Public export paths, workspace source versions, and import sites are statically verified. This does not establish
+    immutable release identity, published distribution, complete transitive license disposition, Shared owner approval,
+    visual qualification, or independent accessibility acceptance.
+
+# Media-owned rules for applying the selected public semantic roles. The host
+# Theme package is not currently consumed by Media source and is not assumed.
+hostPresentationContract:
+  id: media.gui.host-theme-and-semantic-fallback.v1
+  authority: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+  status: OWNER_DEFINED_PRESENTATION_CONTRACT; RENDERED_CONFORMANCE_NOT_RUN
+  hostInputs:
+    colorMode: [light, dark, forced-colors, system]
+    colorModeMeaning: presentation-only; cannot change Media state, permission, action, effect, finality, or reason identity
+    textDirection: [ltr, rtl]
+    reducedMotion: system-preference; remove-decorative-motion-and-transitions-without-hiding-state-or-progress
+  roleResolution:
+    source: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#aliases
+    requiredModes: [light, dark]
+    missingOrUnsupportedRole: fall-back-to-native-semantic-system-colors; do-not-invent-a-private-token-or-hex-substitute
+    redundancy: state-and-selection-remain-readable-through-text, shape, accessible-name, and programmatic-state; color-is-not-the-only-signal
+  nativeFallback:
+    stylesheet: libs/audio-video-ui/src/styles.css
+    allowedPublicCssColors: [Canvas, CanvasText, GrayText, Highlight, HighlightText, ButtonFace, ButtonText, Field, FieldText, LinkText, Mark, MarkText]
+    rule: Preserve the user agent's forced/system colors; do not set forced-color-adjust:none without separate reviewed justification.
+    cssImports:
+      - "@ghatana/tokens/tokens.css"
+      - "@ghatana/design-system/strict-csp-controls.css"
+    inlineStyles: forbidden-by-current-consumer-CSP
+  themeRuntime:
+    package: "@ghatana/theme"
+    sourceConsumer: NONE
+    rule: >-
+      A host may apply its own theme provider, but this Media source does not consume or validate that runtime. Theme state
+      is presentation context only; Media semantic role aliases and system-color fallback remain authoritative for this
+      consumer until an exact public Theme adapter and source import are separately defined and tested.
+  typographyAndGeometry:
+    tokenAuthority: Shared-public-token-exports; Media-selects-semantic-roles-and-structural-application
+    typography:
+      package: "@ghatana/tokens"
+      publicSubpath: "./tokens.css"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography
+      roleBindings:
+        body: { sharedRole: body, cssVariables: [--gh-semantic-typography-body-font-size, --gh-semantic-typography-body-font-weight, --gh-semantic-typography-body-line-height], application: root-copy-and-control-default }
+        pageTitle: { sharedRole: pageTitle, cssVariables: [--gh-semantic-typography-page-title-font-size, --gh-semantic-typography-page-title-line-height], application: h1 }
+        sectionTitle: { sharedRole: sectionTitle, cssVariables: [--gh-semantic-typography-section-title-font-size, --gh-semantic-typography-section-title-font-weight], application: h2-and-emphasis }
+        supporting: { sharedRole: supporting, cssVariables: [--gh-semantic-typography-supporting-font-size, --gh-semantic-typography-supporting-line-height], application: supporting-navigation-text }
+        metadata: { sharedRole: metadata, cssVariables: [--gh-semantic-typography-metadata-font-size, --gh-semantic-typography-metadata-line-height], application: descriptive-metadata-only }
+      rules:
+        - preserve-user-text-zoom-and-host-font-rendering; do-not-fix-font-size-in-pixels
+        - wrapping-and-reflow-must-remain-available-at-200-percent-text-zoom; no-clipping-or-horizontal-page-scroll
+        - simple-guided-expert-change-information-density-only; they-do-not-change-semantic-type-role-or-font-size
+    geometry:
+      package: "@ghatana/tokens"
+      publicSubpath: "./tokens.css"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry
+      units: Shared-semantic-gutter-and-rhythm-values-are-numeric-pixels; Media-CSS-projects-them-to-px-through-calc
+      roleBindings:
+        compactGutter: { sharedRole: geometry.gutter.compact, cssVariable: --gh-semantic-geometry-gutter-compact, application: inline-control-and-local-stack-gap }
+        standardGutter: { sharedRole: geometry.gutter.standard, cssVariable: --gh-semantic-geometry-gutter-standard, application: section-padding-and-standard-grid-gap }
+        comfortableGutter: { sharedRole: geometry.gutter.comfortable, cssVariable: --gh-semantic-geometry-gutter-comfortable, application: primary-content-inset }
+        compactRhythm: { sharedRole: geometry.sectionRhythm.compact, cssVariable: --gh-semantic-geometry-section-rhythm-compact, application: workflow-header-and-navigation-rhythm }
+        minimumInteractiveTarget: { sharedRole: breakpoints.touchTargets.minimum, cssVariable: --gh-breakpoints-touch-targets-minimum, application: action-button-and-input-min-height }
+      layoutApplicability:
+        narrow: use-logical-properties-and-single-column-at-existing-breakpoint; wrap-content-and-facts
+        medium: retain-standard-token-gutters-and-auto-fit-content
+        wide: retain-standard-token-gutters-and-current-max-width
+        zoom: token-px-values-follow-browser-page-zoom; text-remains-relative-and-flow-layout-recomputes
+        direction: logical-inline-and-block-properties-preserve-spacing-in-ltr-and-rtl
+      density: >-
+        Media uses the Shared compact/standard/comfortable semantic spacing roles where selected above. Density is a
+        presentation-only host input; absent a supported explicit density projection, standard selected roles apply.
+        Density never changes a content meaning, action, permission, state, or finality.
+    noCompetingAuthority: Media defines role selection only; primitive values and public CSS variable spellings remain owned by Shared.
+  negativeCases:
+    - claim-current-Media-Theme-runtime-consumption-from-package-dependency-only
+    - replace-a-missing-semantic-role-with-an-unreviewed-hex-or-private-token
+    - remove-text-or-programmatic-state-because-color-is-present
+    - suppress-forced-colors-with-forced-color-adjust-none
+    - reduce-motion-by-hiding-progress-or-changing-action-finality
+    - replace-the-selected-public-typography-or-geometry-role-with-an-unreviewed-local-primitive
+    - treat-density-or-viewport-reflow-as-changing-domain-state-or-action-meaning
+  runtimeAdmission: NOT_ADMITTED
+  acceptanceEffect: none
+normativeRuleRecords:
+  - id: media.p2.rule.host-theme-and-semantic-fallback.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/gui/style-authority.yaml#hostPresentationContract
+    authorityRef: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#sharedPublicContract
+    acceptanceEffect: none
