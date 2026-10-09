@@ -18,10 +18,21 @@ commands:
     sdkMethod: libs/audio-video-client/src/operations.ts#MediaOperationClient.getArtifact
     operationRef: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-artifact
     actionRef: media.action.inspect-artifact
-    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-040, .product-experience/decision-log.md#PXD-044]
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-040, .product-experience/decision-log.md#PXD-044, .product-experience/decision-log.md#PXD-051]
     options: [--endpoint, --tenant, --principal, --artifact]
     credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
     output: exact-CanonicalMediaArtifactObservation-in-media.cli-result.v1-JSON-envelope
     notEstablished: [global-absence, rights, consent, byte-retrieval, publication, downstream-availability, production-host-qualification]
     readSemantics: scope-safe-point-in-time-observation; GET-only; no-domain-mutation
+    interactionDefinition:
+      decisionRef: .product-experience/decision-log.md#PXD-051
+      operationRef: media.operation-slice.inspect-artifact
+      actionRef: media.action.inspect-artifact
+      scope: explicit-endpoint-and-tenant-principal-artifact-identities; principal-argument-is-scope-not-authentication
+      credential: bearer-token-from-GHATANA_MEDIA_BEARER_TOKEN-only; never-command-argument
+      success: JSON-on-stdout-with-schemaVersion-commandId-and-exact-artifact-observation
+      errors: [INVALID_INVOCATION, MISSING_AUTH_TOKEN, INVALID_ENDPOINT, ARTIFACT_NOT_FOUND, MEDIA_REQUEST_FAILED, INVALID_MEDIA_RESPONSE, OBSERVATION_UNAVAILABLE]
+      unknownOutcome: read-unavailable-does-not-imply-absent-or-failed; this-command-has-no-domain-mutation-to-replay
+      runtimeAdmission: host-configured-source-consumer-only; production-host-identity-and-qualification-open
+      missingCommands: [begin-upload, append-upload-chunk, complete-upload, inspect-upload-session, compound-resume]
     status: implemented-source-bound-consumer; owner-integration-review-pending

@@ -62,6 +62,20 @@ perToolContract:
     - Unknown outcome blocks automatic retry of a consequential effect until the original operation is resolved or an authorized recovery decision is recorded.
     - Logs and results exclude secrets and sensitive payloads; evidence references are scoped and access-controlled.
 
+# Bounded J-02 interaction-slice disposition. No current registered Agent Tool
+# exposes upload-session begin/append/complete or scoped artifact inspection.
+# These are domain reads/effects and cannot be inferred from an analysis tool
+# accepting an artifact ID.
+mediaUploadArtifactSlice:
+  status: no-current-registered-tool-matches-the-bounded-slice
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  registeredToolIds: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+  matchingToolIds: []
+  operationRefs: []
+  runtimeAdmission: NOT_ADMITTED
+  reason: Existing handlers perform delegated inference or synthesis; none exposes the exact PDP-1 upload command or scoped metadata query with its required authority, finality, and reconciliation semantics.
+  prohibitedInference: Artifact-reference-input-on-an-analysis-tool-does-not-bind-that-tool-to-media.operation-slice.inspect-artifact-or-upload-actions.
+
 # Observed handler IDs below are an inventory seed only. The source handlers
 # currently validate only subsets of their inputs and delegate execution; this
 # file does not promote those observations into canonical admitted contracts.

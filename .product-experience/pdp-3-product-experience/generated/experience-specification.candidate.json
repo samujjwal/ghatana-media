@@ -131,8 +131,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sha256": "0b1a5af2848a6bca767e94aff0363dbc045d470eec8090ebc5a50f8d96d88f98",
-      "bytes": 253811,
+      "sha256": "b2c39d7dc1141a22a7c7b73611811dac01462757ff13a8cd3fdcfddd55865073",
+      "bytes": 257328,
       "format": "yaml",
       "schemaVersion": "media.action-registry.v1",
       "authority": null,
@@ -289,7 +289,9 @@
         "media.action.validate-processing-profile",
         "media.action.validate-scene-references",
         "media.action.validate-simulation-plan",
-        "media.action.view-job-status"
+        "media.action.view-job-status",
+        "media.effect.attach-source-version",
+        "media.finality.attach-source-version"
       ]
     },
     {
@@ -379,8 +381,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-      "sha256": "68933ff43a115210b8e448663ec286ec571243910effd811bdefd96ec4a08549",
-      "bytes": 1247,
+      "sha256": "630c2b4f0d9301795625d33719836a30680c61043e314570c5c13afc842a2df9",
+      "bytes": 5304,
       "format": "yaml",
       "schemaVersion": "media.recovery-finality-contracts.v1",
       "authority": null,
@@ -401,8 +403,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
-      "sha256": "dd0249680f1fc87b83cfacbe99ab38ea4e01d877f421a2e77e9919b3a0094cbf",
-      "bytes": 11125,
+      "sha256": "06ffc7ff0705c9bfd5d9b01c2a56e92c65c23d4e730535f2d740d41b14b2794e",
+      "bytes": 13146,
       "format": "yaml",
       "schemaVersion": "media.experience-source-bindings.v1",
       "authority": "Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals",
@@ -410,6 +412,7 @@
       "topLevelFields": [
         "authority",
         "inspectionBindings",
+        "j02RecoveryApplicability",
         "productId",
         "recoveryCrossReferences",
         "scenarioStartingStateBindings",
@@ -8053,7 +8056,9 @@
           "current-project-write-authority",
           "current-artifact-read-authority"
         ],
-        "producesEffectRefs": []
+        "producesEffectRefs": [
+          "media.effect.attach-source-version"
+        ]
       },
       {
         "id": "media.action.choose-intent",
@@ -9733,7 +9738,15 @@
         "producesEffectRefs": []
       }
     ],
-    "effects": [],
+    "effects": [
+      {
+        "id": "media.effect.attach-source-version",
+        "name": "Attach source version",
+        "kind": "state-change",
+        "description": "Create a new project revision that references the exact immutable artifact version without changing its bytes.",
+        "reversible": false
+      }
+    ],
     "finality": [
       {
         "id": "media.action.apply-admitted-edit.finality",
@@ -9860,9 +9873,52 @@
         "description": "external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure",
         "confirmationRequired": true,
         "undoable": false
+      },
+      {
+        "id": "media.finality.attach-source-version",
+        "actionRef": "media.action.attach-source-asset",
+        "description": "Confirm only when the new project revision records the exact artifact-version reference.",
+        "confirmationRequired": true,
+        "undoable": false
       }
     ],
-    "recovery": [],
+    "recovery": [
+      {
+        "id": "media.recovery.language-uncertain",
+        "errorKind": "TRANSCRIPT_LANGUAGE_UNCERTAIN",
+        "recoveryPath": "Allow manual correction or preserve the draft; do not label uncertain recognition as verified.",
+        "automaticRecovery": false,
+        "userActionRequired": true
+      },
+      {
+        "id": "media.recovery.alignment-incomplete",
+        "errorKind": "CAPTION_ALIGNMENT_INCOMPLETE",
+        "recoveryPath": "Enter explicit time ranges or retain the draft; never present estimated timing as measured.",
+        "automaticRecovery": false,
+        "userActionRequired": true
+      },
+      {
+        "id": "media.recovery.consent-revoked",
+        "errorKind": "RIGHTS_OR_CONSENT_REVOKED",
+        "recoveryPath": "Block new work and reconcile in-flight effects; resume only after the rights authority records restored applicable permission.",
+        "automaticRecovery": false,
+        "userActionRequired": true
+      },
+      {
+        "id": "media.recovery.outcome-unknown",
+        "errorKind": "JOB_OUTCOME_UNKNOWN",
+        "recoveryPath": "Inspect or check the outcome of the same stable job identity; preserve unknown and do not submit a duplicate request or report cancellation as confirmed.",
+        "automaticRecovery": false,
+        "userActionRequired": true
+      },
+      {
+        "id": "media.recovery.version-conflict",
+        "errorKind": "CAPTION_VERSION_CONFLICT",
+        "recoveryPath": "Preserve local and current versions; require the user to choose the version to keep before registering a new version.",
+        "automaticRecovery": false,
+        "userActionRequired": true
+      }
+    ],
     "scenarios": [
       {
         "id": "media.scenario.source-available",
@@ -10191,8 +10247,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-08T23:49:18.478Z",
-    "updatedAt": "2026-10-08T23:49:18.478Z"
+    "createdAt": "2026-10-09T00:12:54.618Z",
+    "updatedAt": "2026-10-09T00:12:54.618Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",
@@ -10266,16 +10322,16 @@
         "source": "action-registry.yaml#actions"
       },
       "effects": {
-        "status": "BLOCKED_EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_MAPPING",
-        "source": "action-registry.yaml#actions[].effect/reversible"
+        "status": "DIRECT_EXPLICIT_UNCONDITIONAL_DEFINITION_SUBSET; REMAINDER_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED",
+        "source": "action-registry.yaml#actions[].actionDefinitionSemantics.publicEffect"
       },
       "finality": {
         "status": "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED",
-        "source": "action-registry.yaml#actions[].confirmation/finality/reversible"
+        "source": "action-registry.yaml#actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible"
       },
       "recovery": {
-        "status": "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED",
-        "source": "recovery-finality-contracts.yaml#contracts; experience-source-bindings.yaml#recoveryCrossReferences"
+        "status": "OWNER_ACCEPTED_DEFINITION_RECORDS; RUNTIME_AND_INDEPENDENT_ACCEPTANCE_NOT_ADMITTED",
+        "source": "recovery-finality-contracts.yaml#contracts[].definitionSemantics.publicRecovery; experience-source-bindings.yaml#recoveryCrossReferences"
       },
       "scenarios": {
         "status": "DIRECT_LINKED_FIXTURE_AND_CANONICAL_START_STATE_SUBSET; CONTEXT_AND_REMAINDER_UNRESOLVED",
@@ -10309,7 +10365,7 @@
       "registryActions": 146,
       "registryInteractions": 20,
       "projectedStates": 49,
-      "explicitFinalityCandidates": 18,
+      "explicitFinalityCandidates": 19,
       "linkedScenarioCandidates": 15,
       "linkedFixtureCandidates": 15,
       "searchContracts": 3,
@@ -12164,6 +12220,19 @@
       "remainingGap": "A partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view 130 linked/0 unresolved; step-action 18 linked/112 unresolved. Remaining gaps: 0 step rows lack an exact intent source (including J-29's four rows); 128 source transitionRef values are null; 3 have explicit source no-mutation reasons. These source dispositions do not resolve the public transition projection. Public transitionRefs empty arrays are schema placeholders only and do not assert no transitions. Other P3 step bindings remain open: objectRefs empty 125, stateRefs empty 125, authorityRef null 125, requirementRefs empty 112, verification not-run 130. 3/30 journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending."
     },
     "ownerDecisionStatus": "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
+    "definitionSemantics": {
+      "projectedEffects": 1,
+      "projectedExplicitFinality": 1,
+      "conditionalOrUnknownActions": [
+        "media.action.begin-artifact-upload",
+        "media.action.resume-artifact-upload",
+        "media.action.inspect-artifact"
+      ],
+      "projectedRecoveries": 5,
+      "recoverySourceCount": 5,
+      "recoveryMappingComplete": true,
+      "admission": "NOT_ADMITTED; DEFINITION_ONLY"
+    },
     "recoverySourceProposals": [
       {
         "id": "media.recovery.language-uncertain",
@@ -12402,18 +12471,18 @@
     },
     "effects": {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sourcePath": "actions[].effect/reversible",
-      "mapping": "not projected until effect kind and boolean reversibility semantics are directly classifiable"
+      "sourcePath": "actions[].actionDefinitionSemantics.publicEffect",
+      "mapping": "only explicit owner-reviewed unconditional public effect definitions; conditional or unknown reversibility is retained as unmappable review metadata"
     },
     "finality": {
       "sourceRef": ".product-experience/pdp-3-product-experience/action-registry.yaml",
-      "sourcePath": "actions[].finality/confirmation/reversible",
-      "mapping": "direct subset only when confirmation prose explicitly requires confirmation and reversible is a source boolean; other actions remain unresolved"
+      "sourcePath": "actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible",
+      "mapping": "direct explicit reviewed public finality definitions and legacy subset with explicit confirmation and source boolean reversibility; conditional and unknown mappings remain unresolved"
     },
     "recovery": {
       "sourceRef": ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-      "sourcePath": "contracts plus experience-source-bindings.yaml#recoveryCrossReferences",
-      "mapping": "retain source narratives and exact action/scenario links in candidate review metadata; do not emit public records until automaticRecovery/userActionRequired booleans and canonical state bindings are explicit"
+      "sourcePath": "contracts[].definitionSemantics.publicRecovery plus experience-source-bindings.yaml#recoveryCrossReferences",
+      "mapping": "exact owner-reviewed public recovery definitions with authored booleans; source applicability and blocked behavior remain in review metadata, not runtime or evidence admission"
     },
     "scenarios": {
       "sourceRef": ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
@@ -12888,7 +12957,7 @@
       "status": "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED",
       "sourceDisposition": "action-registry.yaml#actions",
       "reasons": [
-        "The 146 UI action records supply exact labels, prose, and preconditions, but do not select canonical PDP-1 operationRefs or exact action-to-effect bindings for producesEffectRefs."
+        "Only 1 of 146 existing actions have directly mapped effect references; remaining canonical operation/effect relationships stay open."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -12994,10 +13063,10 @@
     },
     {
       "field": "effects",
-      "status": "BLOCKED_EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_MAPPING",
-      "sourceDisposition": "action-registry.yaml#actions[].effect/reversible",
+      "status": "DIRECT_EXPLICIT_UNCONDITIONAL_DEFINITION_SUBSET; REMAINDER_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED",
+      "sourceDisposition": "action-registry.yaml#actions[].actionDefinitionSemantics.publicEffect",
       "reasons": [
-        "The action source does not classify each effect into the public effect-kind enum; six reversible values are conditional prose while the schema requires a boolean, so those cannot be narrowed without owner decisions."
+        "1 exact unconditional effect definitions are projected; conditional or unknown reversibility remains unrepresentable as a public boolean, and the remaining action population is unresolved."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",
@@ -13104,118 +13173,9 @@
     {
       "field": "finality",
       "status": "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED",
-      "sourceDisposition": "action-registry.yaml#actions[].confirmation/finality/reversible",
+      "sourceDisposition": "action-registry.yaml#actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible",
       "reasons": [
         "Only actions whose confirmation prose explicitly requires confirmation and whose reversible field is a boolean have a candidate finality record; other confirmation wording and conditional reversibility remain unresolved."
-      ],
-      "sourceAuthoritiesReviewed": [
-        ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-        ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-        ".product-experience/pdp-3-product-experience/action-registry.yaml",
-        ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
-        ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
-        ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
-        ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml",
-        ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml",
-        "libs/media-experience-simulation/src/fixtures.ts",
-        ".product-experience/pdp-3-product-experience/screen-contract-schema.yaml",
-        ".product-experience/pdp-3-product-experience/application-channel-registry.yaml",
-        ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
-        ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
-        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
-        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
-        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-        ".product-experience/pdp-0-product-truth/state-models.yaml",
-        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-        ".product-experience/pdp-1-domain-data/states.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/adjust-color.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/animate-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/artifact-verification-job-family.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/authenticate-and-select-context.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-options.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/check-processing-readiness.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/choose-eligible-processing-option.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-caption-versions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compare-results.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/compose-scene.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-audio.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-captions.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media-region.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/edit-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/explore-simulation.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-projects.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/import-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-output.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/prepare-render.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/resume-work.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-creation-plan.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-dubbing.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-exact-version.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-quality.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-rights-and-consent.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-transcript.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/review-workspace-settings.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/select-source.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/transcription-progress.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/use-authorized-voice.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-in-project.yaml",
-        ".product-experience/pdp-3-product-experience/screen-contracts/work-with-speech.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
-        ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml"
-      ]
-    },
-    {
-      "field": "recovery",
-      "status": "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED",
-      "sourceDisposition": "recovery-finality-contracts.yaml#contracts; experience-source-bindings.yaml#recoveryCrossReferences",
-      "reasons": [
-        "Five recovery narratives and exact action/scenario cross-references are retained in source review metadata; the source does not provide the public automaticRecovery/userActionRequired booleans or all canonical state/finality references."
       ],
       "sourceAuthoritiesReviewed": [
         ".product-experience/pdp-3-product-experience/screen-registry.yaml",

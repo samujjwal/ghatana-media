@@ -35,7 +35,7 @@ test("PDP-3 overview reports the registered baseline and extension journey denom
   assert.match(overview, /30 journey records with 130 of 130 source\s+steps/u);
   assert.match(overview, /Four J-29 step intents and all eight J-29\/J-30 step-view links are now explicit/u);
   assert.match(overview, /Empty\s+`transitionRefs` arrays are schema placeholders/u);
-  assert.match(overview, /ten semantic blockers/u);
+  assert.match(overview, /nine semantic blockers/u);
   assert.match(overview, /does not imply full PDP-3 acceptance, owner or\s+independent review, or Lifecycle currentness and closure/u);
   assert.doesNotMatch(overview, /0 schema-shaped journeys|no schema-shaped journey is emitted/u);
 });

@@ -19,6 +19,42 @@ acceptanceAuthority:
   blockerRef: GAP-MEDIA-TOOLS-SCHEMA-BINDING
   currentnessGenerationGapRef: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION
 recordedHumanDecisionInputs:
+- id: ACCEPT-INPUT-MEDIA-HISTORIC-JOURNEY-HEADER-20261008
+  phase: PDP-0
+  phaseTask: P0-02
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  evidenceRefs: [.product-experience/decision-log.md#PXD-053, .product-experience/pdp-0-product-truth/migration-semantics-review.yaml]
+  acceptedScope: [Exact MPSEM-0558 header-only structural classification outside the original 349 observations.]
+  exclusions: [Original denominator changes, neighboring journey meaning, semantic equivalence, historical-pin freshness, runtime or phase acceptance.]
+- id: ACCEPT-INPUT-MEDIA-J02-CAPABILITY-DEFINITIONS-20261008
+  phase: PDP-0
+  phaseTask: P0-01
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  evidenceRefs: [.product-experience/decision-log.md#PXD-050, .product-experience/pdp-0-product-truth/capability-leaf-review.yaml]
+  acceptedScope: [Three exact J-02 capability-to-step and individual-operation definition bindings.]
+  exclusions: [Broader leaf coverage, remote import, qualified profiles, runtime or independent acceptance, Lifecycle receipts and phase closure.]
+- id: ACCEPT-INPUT-MEDIA-J02-INTERFACE-DEFINITIONS-20261008
+  phase: PDP-2
+  phaseTask: P1-05
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  evidenceRefs: [.product-experience/decision-log.md#PXD-051, .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml]
+  acceptedScope: [Five existing HTTP and SDK identities, existing artifact-inspect CLI and explicit absence of matching registered Agent Tool.]
+  exclusions: [Full behavioral parity, runtime admission, fabricated interfaces, host qualification, independent acceptance and phase closure.]
+- id: ACCEPT-INPUT-MEDIA-RECOVERY-DEFINITIONS-20261008
+  phase: PDP-3
+  phaseTask: P3-04
+  decisionInput: accepted
+  sourceOfDecision: explicit-user-delegated-media-owner-product-definition-only
+  decisionDate: '2026-10-08'
+  evidenceRefs: [.product-experience/decision-log.md#PXD-052, .product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml]
+  acceptedScope: [Selected typed action semantics and all five existing manual recovery definitions; conditional reversibility retained without boolean coercion.]
+  exclusions: [Actual recovery execution, automatic external replay, canonical attachment operation binding, independent review, Lifecycle receipts and phase closure.]
 - id: ACCEPT-INPUT-MEDIA-COMPONENT-DEFINITIONS-20261008
   phase: PDP-2
   phaseTask: P2-03

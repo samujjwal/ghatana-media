@@ -58,6 +58,24 @@ ownerDecisionOverlay:
           exactText: "The API contract must specify:"
           rationale: This is an API-specification lead-in; it contains no operation fields or behavior itself.
           excludes: all following operation rows and API behavior assertions
+  additionalSourceClassificationsOutsideOriginalStructuralDenominator:
+    - decisionRef: .product-experience/decision-log.md#PXD-053
+      reviewStatus: BOUNDED_SOURCE_REVIEWED
+      denominatorDisposition: OUTSIDE_ORIGINAL_349_STRUCTURAL_OBSERVATIONS
+      classification: EVIDENCE_REFERENCE
+      reviewMethod: exact-current-and-historical-source-span; Markdown table-header-only
+      authority: user-delegated Media owner classification for the exact MPSEM-0558 header unit
+      classificationEffect: The selected header names a table column and only identifies the following journey rows' shape; it asserts no journey behavior or acceptance.
+      acceptanceEffect: none
+      item:
+        id: MPSEM-0558
+        historicalSourceLines: [1295, 1295]
+        currentSourceLines: [1309, 1309]
+        historicalSourceRef: docs/migration/expert-reviewed-master-plan.md@e62514f94c45a4ecbc438d26298bf82b6a6f3d69
+        sourceRef: docs/migration/expert-reviewed-master-plan.md@c2d9d1f1fcc35b0804f69335657c3b8058ff5163ac1eefb78c6b9bc7d9ab11da
+        exactText: "| Journey ID | Complete outcome and critical exceptional path |"
+        rationale: The exact unit is a Markdown table header; journey outcomes and exceptional-path claims are in individually inventoried following MPSEM rows.
+        excludes: the separator row, MPSEM-0557 journey-requirement paragraph, and every following J-01 through J-30 row including unresolved MPSEM-0560.
   partialMappingItems: [MPSEM-0178, MPSEM-0211]
 reviewedClaimSlices:
 - sliceId: MPSEM-0001-META-04-05
@@ -109,29 +127,51 @@ reviewedClaimSlices:
   currentSourceLines: [1312, 1312]
   exactText: '| J-02 | Upload/import → inspect → usable artifact; interrupted parts, checksum mismatch and quarantine recovery |'
   classification: MIXED_PRODUCT_JOURNEY_INTENT_AND_EXECUTION_RECOVERY
-  disposition: map-only-the-existing-J02-outcome-and-exceptional-path-claims-to-current-proposals
+  disposition: map-supported-claims-to-bounded-J02-owner-definition; retain-import-and-wire-version-gaps
   productSemanticClaims:
-    - sourcePhrase: Upload/import → inspect → usable artifact
-      target: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/J-02
-      targetField: title
+    - sourcePhrase: Upload
+      status: owner-defined-for-J02-source-upload-only; runtime-not-admitted
+      targets:
+        - .product-experience/decision-log.md#PXD-049
+        - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/0
+        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+      limit: Bounded upload receipt/recovery semantics do not establish a production transfer or available artifact.
+    - sourcePhrase: import
+      status: unresolved; source-provider-and-operation-binding-not-defined
+      targets:
+        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/unresolvedProductDecisions
+      limit: A source path admitted by policy is not proof of an external import integration; do not alias remote import to upload.
+    - sourcePhrase: inspect → usable artifact
+      status: owner-defined-verification-boundary; current-read-version-identity-gap
+      targets:
+        - .product-experience/decision-log.md#PXD-049
+        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/terminalSuccess
+        - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/4
+      limit: Inspection is metadata-only; current inspect-artifact wire identity has artifactId but no versionId. AVAILABLE requires independent T-02 evidence and is not implied by upload or read completion.
     - sourcePhrase: interrupted parts, checksum mismatch and quarantine recovery
-      target: .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/J-02
-      targetFields: [criticalNonhappy, recovery]
+      status: owner-defined-recovery-boundaries; execution-not-evidenced
+      targets:
+        - .product-experience/decision-log.md#PXD-049
+        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/criticalNonhappyPaths
+        - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/0
+        - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/1
+        - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/2
   existingExperienceProposal: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/journeyId=J-02
+  wholeItemDisposition: UNRESOLVED_IMPORT_AND_VERSION_IDENTITY
   basis: >-
-    The exact current and pinned row contains both a user-visible journey
-    outcome and its critical exception/recovery path, so the whole item is not
-    execution-only. PDP-0 J-02 carries the same title, outcomeRefs,
-    criticalNonhappy, and recovery fields. PDP-3 contains an explicitly
-    proposal-status J-02 contract that expands the same upload/inspect path.
-    These are exact references for claim routing, not accepted semantic
-    equivalence, accepted operation bindings, or execution evidence.
+    The exact current and pinned row contains a product journey outcome and
+    exceptional recovery semantics; it is not execution-only. PXD-049 accepts
+    a bounded J-02 definition for authorized-source upload, same-upload resume,
+    verification gates, quarantine meaning, and recovery. However, the row's
+    `import` alternative has no admitted source-provider operation definition,
+    and the current artifact metadata read does not expose immutable versionId.
+    The supported clauses map to exact owner sources, but these unresolved
+    claims prevent disposition of the whole historical item.
   authorityEffect: >-
-    The original MPSEM item classification and historical pin remain unchanged.
-    This bounded slice corrects only the whole-row execution-only disposition;
-    its two source claims map to existing proposals, which remain pending owner
-    and phase review. It does not accept upload policy, artifact availability,
-    integrity, quarantine, operation transitions, or runtime behavior.
+    The original MPSEM classification and stale historical source pin remain
+    unchanged. This slice records exact owner-source routes and limitations;
+    it does not imply semantic equivalence for remote import, wire version
+    identity, runtime behavior, content availability, or journey acceptance.
   acceptanceEffect: none
 claimDecompositions:
 - claimId: MPSEM-0118-C01

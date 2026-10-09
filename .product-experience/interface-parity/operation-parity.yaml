@@ -43,13 +43,23 @@ surfaces:
     identities: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent, beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact, submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob, openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream, getMediaProviders]
     proposedSemanticCandidates:
       consent: [grantMediaConsent, listMediaConsents, getMediaConsent, revokeMediaConsent]
-      artifact-ingest: [beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact]
+      artifact-ingest: []
       job-lifecycle: [submitMediaJob, listMediaJobs, getMediaJob, cancelMediaJob]
       stream-session: [openMediaStream, getMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
     unresolved: [getMediaHealth, getMediaLiveness, getMediaReadiness, getMediaStartup, getMediaReadyAlias, getMediaMetrics, getMediaInfo, getMediaVersionedHealth, getMediaProviders]
-    dispositionCounts: {mappedProposal: 18, unresolved: 9}
+    boundedDefinitionBindings:
+      decisionRef: .product-experience/decision-log.md#PXD-051
+      runtimeAdmission: NOT_ADMITTED
+      identities:
+        beginMediaUpload: media.operation-slice.begin-upload
+        getMediaUpload: media.operation-slice.inspect-upload
+        appendMediaChunk: media.operation-slice.append-upload-chunk
+        completeMediaUpload: media.operation-slice.complete-upload
+        getMediaArtifact: media.operation-slice.inspect-artifact
+      boundary: exact-HTTP-source-to-PDP1-definition-crosslinks-only; not-production-route-qualification-or-full-cross-interface-parity
+    dispositionCounts: {mappedProposal: 13, boundedDefinition: 5, unresolved: 9}
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/observedBindings.httpOperations
-    bindingStatus: 18-domain-operation-candidates; nine-transport-only-or-provider-admin-identities-remain-semantically-unbound; semantic-owner-acceptance-pending
+    bindingStatus: five-existing-upload-artifact-routes-now-have-individual-bounded-PDP1-definition-crosslinks-under-PXD-051; nine-transport-only-or-provider-admin-identities-remain-semantically-unbound; runtime-and-independent-review-open
   - surface: gRPC
     denominator: 43
     source:
@@ -100,12 +110,12 @@ surfaces:
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
     proposedSemanticCandidates:
       job-lifecycle: [media.sdk.getStatus, media.sdk.cancel, media.sdk.getResult, media.sdk.wait, media.sdk.getOperation, media.sdk.cancelOperation]
-      artifact-ingest: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession]
       transcription: [media.sdk.transcribe]
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
     unresolved: [media.sdk.listProviderCapabilities, media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.getOperationResult]
     boundedCanonicalReads: [media.sdk.getArtifact, media.sdk.getUploadSession]
+    boundedCanonicalOperations: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession]
     sourceBackedNonOperationDispositions:
       TRANSPORT_ONLY: [media.sdk.getServiceStatus, media.sdk.getAllServicesStatus]
       CLIENT_ONLY: [media.sdk.addEventListener, media.sdk.removeEventListener]
@@ -113,10 +123,10 @@ surfaces:
       NOT_ADMITTED: [media.sdk.retry, media.sdk.retryOperation]
     parserArtifactTokensExcludedFromMethodDenominator: [media.sdk.for, media.sdk.if, media.sdk.clearTimeout]
     parserArtifactEvidence: public-declaration-parser-scans-recursively-discovered-production-TypeScript-sources-under-the-SDK-src-tree; none-of-the-three-token-names-has-a-public-method-declaration; raw-records-retained-for-audit
-    dispositionCounts: {mappedProposal: 12, boundedCanonicalRead: 2, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, unresolved: 9}
+    dispositionCounts: {mappedProposal: 9, boundedCanonicalOperation: 3, boundedCanonicalRead: 2, transportOnly: 2, clientOnly: 2, providerAdapter: 1, unadmitted: 2, unresolved: 9}
     legacyClientSource: libs/audio-video-client/src/index.ts
     sourcePairInventory: public-method-pairs-include-source-and-declaring-class; duplicate-transcribe-and-synthesize-identities-are-separated-by-legacy-source-class
-    bindingStatus: twelve family associations remain proposals; two exact SDK reads bind to individually approved bounded queries; six exact source-backed non-operation identities (including two retry methods) are classified below; nine domain-relevant identities remain unresolved; three source-parser artifacts are explicitly excluded; no production reachability or trusted-host identity is implied
+    bindingStatus: three upload SDK methods bind individually to their exact existing PDP1 command slices under PXD-051; two exact SDK reads bind to bounded queries; six exact source-backed non-operation identities (including two retry methods) are classified below; nine domain-relevant identities remain unresolved; three source-parser artifacts are explicitly excluded; no production reachability or trusted-host identity is implied
   - surface: Agent Tool handlers
     denominator: 4
     source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
@@ -129,6 +139,10 @@ surfaces:
       multimodal-analysis: [av.multimodal-inference]
     dispositionCounts: {mappedProposal: 4, unresolved: 0}
     bindingStatus: names align to existing operation family names; handler schema/authority contract and semantic-owner acceptance remain pending
+    selectedUploadArtifactSlice:
+      matchingRegisteredToolIds: []
+      disposition: no-existing-registered-agent-tool-exposes-upload-session-mutation-or-exact-scoped-artifact-observation
+      rule: artifact-ID-input-to-analysis-tool-is-not-an-artifact-inspection-or-upload-operation-binding
   - surface: lifecycle event names
     denominator: 15
     source: .product-experience/pdp-3-product-experience/events/event-registry.yaml
@@ -161,7 +175,7 @@ surfaces:
         httpOperationId: getMediaArtifact
         route: /api/v1/artifacts/{artifactId}
         operationRef: media.operation-slice.inspect-artifact
-        ownerDecisions: [PXD-040, PXD-044]
+        ownerDecisions: [PXD-040, PXD-044, PXD-051]
         bindingEvidence: installed-bin-loopback-HTTP-test; exact-DTO-and-requested-scope-validation; read-only-no-rights-or-global-absence-inference
     dispositionCounts: {boundedCanonicalRead: 1, unresolved: 0}
     populationSeparation: fixture-registry-still-has-11-synthetic-identities; historical-proposal-registry-still-has-12-separate-identities; no-history-entry-is-aliased
@@ -217,22 +231,28 @@ typedMethodDispositions:
   bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
 - identity: media.sdk.createUploadSession
   type: DOMAIN_COMMAND
-  semanticBinding: unresolved
-  basis: upload-session-submission-method
-  openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: createUploadSession-uses-exact-runtime-route-and-DTO; source-wire-behavior-tested; full-authority-and-idempotency-admission-remain-unqualified
+  semanticBinding: bounded-definition-crosswalk-under-PXD-051; runtime-admission-NOT_ADMITTED
+  basis: exact-existing-upload-session-submission-method-and-PDP1-slice
+  openApiBindingDisposition: BOUNDED_CANONICAL_OPERATION
+  openApiOperationId: beginMediaUpload
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  bindingEvidence: source-method-binds-to-exact-active-POST-route-and-PDP1-slice; idempotency-is-defined-under-PXD-046; trusted-host-and-independent-runtime-qualification-open
 - identity: media.sdk.uploadPart
   type: DOMAIN_COMMAND
-  semanticBinding: unresolved
-  basis: upload-part-transfer-method
-  openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: uploadPart-uses-exact-runtime-route-and-DTO; source-wire-behavior-tested; full-authority-and-idempotency-admission-remain-unqualified
+  semanticBinding: bounded-definition-crosswalk-under-PXD-051; runtime-admission-NOT_ADMITTED
+  basis: exact-existing-upload-chunk-method-and-PDP1-slice
+  openApiBindingDisposition: BOUNDED_CANONICAL_OPERATION
+  openApiOperationId: appendMediaChunk
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  bindingEvidence: source-method-binds-to-exact-active-PUT-route-and-PDP1-slice; ordered-index-and-no-auto-replay-rules-retained; trusted-host-and-independent-runtime-qualification-open
 - identity: media.sdk.completeUploadSession
   type: DOMAIN_COMMAND
-  semanticBinding: unresolved
-  basis: upload-completion-method
-  openApiBindingDisposition: NOT_ADMITTED
-  bindingEvidence: completeUploadSession-uses-exact-runtime-route-and-DTO; source-wire-behavior-tested; full-authority-and-idempotency-admission-remain-unqualified
+  semanticBinding: bounded-definition-crosswalk-under-PXD-051; runtime-admission-NOT_ADMITTED
+  basis: exact-existing-upload-completion-method-and-PDP1-slice
+  openApiBindingDisposition: BOUNDED_CANONICAL_OPERATION
+  openApiOperationId: completeMediaUpload
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  bindingEvidence: source-method-binds-to-exact-active-bodyless-POST-route-and-PDP1-slice; session-overload-binds-upload-receipt; legacy-ID-overload-remains-weaker; availability-not-inferred
 - identity: media.sdk.getArtifact
   type: DOMAIN_QUERY
   semanticBinding: accepted-bounded-wire-read; host-identity-and-runtime-qualification-open
@@ -375,7 +395,7 @@ typedInterfaceIdentityDispositions:
     providerAdmin: [getMediaProviders]
     domainCommands: [grantMediaConsent, revokeMediaConsent, beginMediaUpload, appendMediaChunk, completeMediaUpload, submitMediaJob, cancelMediaJob, openMediaStream, connectMediaStream, submitMediaStreamFrame, closeMediaStream]
     domainQueries: [listMediaConsents, getMediaConsent, getMediaUpload, getMediaArtifact, listMediaJobs, getMediaJob, getMediaStream]
-    semanticOperationBinding: unresolved-for-every-identity; these-types-classify-interface-role-only
+    semanticOperationBinding: typed-role-classification-is-not-itself-a-binding; five-existing-upload-artifact-identities-have-separate-bounded-definition-crosslinks; no-full-semantic-or-runtime-binding-is-accepted
   grpc:
     domainCommands: [STTService.Transcribe, STTService.StreamTranscribe, STTService.SubmitCorrection, TTSService.Synthesize, TTSService.StreamSynthesize, TTSService.CloneVoice, VisionService.DetectObjects, VisionService.AnalyzeImage, VisionService.ClassifyImage, VisionService.AnalyzeVideoFile, VisionService.ProcessVideo, MultimodalService.ProcessMultimodal, MultimodalService.AnalyzeVideoWithAudio, MultimodalService.GenerateDescription, MultimodalService.AnalyzeCrossModal, MultimodalService.GetInsights]
     domainQueries: [TTSService.GetVoices]

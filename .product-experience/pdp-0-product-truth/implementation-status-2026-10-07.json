@@ -385,7 +385,7 @@
           "path": ".product-experience/pdp-1-domain-data/operations.yaml"
         }
       ],
-      "verification_or_gap": "Independent source audit found no additional exact leaf targets: of 462 leaves, 79 have evidence-backed dispositions and the remaining 383 have no exact journey, operation, or supporting-view targets; all remain in scope (TARGET). Focused capability/PDP-0 tests pass 9/9 and the local structural check passes. No name-based resolutions were added. A semantic review of the changed PDP-1 domain-object source confirms its added fixture-only CaptionVersionRecord and observed identity wording do not alter leaf coverage; the review pins and records this impact. The local structural checker separately reports 385 empty explicit `journeyRefs`; that narrower counter is distinct from the 383 leaves lacking any exact journey, operation, or supporting-view target. Independent exact-link audit across canonical capability, journey, action, and operation sources found zero additional mappings: unresolved rows have no actionRefs or explicitOperationBindings, and action-to-operation crosswalk IDs do not overlap the unresolved leaf set. Counts remain 79/462 mapped and 383 unresolved. A separate read-only exact-target audit reconfirmed no additional safe matches; the unresolved 383 leaves have no exact journey/operation/supporting-view target and must not be resolved by name similarity. A semantic source-pin follow-on reconciles seven gRPC transport-only health/status/metrics identities removed from domain-operation candidate refs: the operation proposal inventory changes 24\u219217 while unresolved changes 19\u219226. The exact seven identities are now semantically unresolved; all 462 capability leaves retain the same links/dispositions (79 mapped, 383 unresolved, zero machine-operation dispositions). No capability leaf binding or acceptance was promoted; the focused impact test passes 4/4. Continuation exact-target scan covered the changed simulation, runtime/provider tests, and canonical links; it found no new exact leaf binding. Coverage remains 79/462 evidence-backed dispositions and 383 unresolved; 385 empty journeyRefs is a distinct structural count.",
+      "verification_or_gap": "PXD-050 accepts three scoped existing J-02 capability definitions with exact step/actor/channel/individual operation source bindings and profile limitations. Full 462-leaf population unchanged:383 unresolved broader targets,445 without accepted full per-operation bounds. Remote import and wire version identity are not inferred. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: source/owner evidence for exact per-leaf journey or operation targets, P1-03 canonical operation identities/contracts, and independent P0-010 review; do not bulk-resolve by similarity.",
       "plan_section_line": 93,
       "changed_files": [
@@ -396,6 +396,11 @@
       "upload_execution_update_2026_10_08": {
         "result": "No leaf acceptance promoted: exact upload definition source deltas retain462 leaves/383 unresolved.",
         "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      },
+      "definition_continuation_2026_10_08": {
+        "result": "PXD-050 accepts three scoped existing J-02 capability definitions with exact step/actor/channel/individual operation source bindings and profile limitations. Full 462-leaf population unchanged:383 unresolved broader targets,445 without accepted full per-operation bounds. Remote import and wire version identity are not inferred.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
         "statusRetained": "partial"
       }
     },
@@ -422,14 +427,19 @@
           "path": "tests/media-operation-bounds.test.mjs"
         }
       ],
-      "verification_or_gap": "Audit confirms 17 parameter-shape proposals and 445 leaves without enumerated operation-specific bounds. Across all 462 leaves, implementation and runtime availability remain UNKNOWN, license UNKNOWN, and qualification NOT_EVALUATED. Added negative tests to ensure family labels and unqualified NFR targets do not become per-leaf guarantees; focused tests pass 2/2.",
+      "verification_or_gap": "PXD-053 independently classifies the exact MPSEM-0558 header outside the original349 observations; original349=260 semantic unresolved+89 bounded nonnormative classifications remains unchanged. MPSEM-0560 gets exact supported-clause routing while remote import and version identity keep the whole item unresolved; stale pins retained. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: P0-01 exact leaf dispositions, owner-selected inputs/units/constraints and acceptance cases, profile qualification, and non-invented performance/security/quality bounds.",
       "plan_section_line": 98,
       "changed_files": [
         ".product-experience/acceptance.yaml",
         ".product-experience/gaps.yaml",
         "tests/media-operation-bounds.test.mjs"
-      ]
+      ],
+      "definition_continuation_2026_10_08": {
+        "result": "PXD-053 independently classifies the exact MPSEM-0558 header outside the original349 observations; original349=260 semantic unresolved+89 bounded nonnormative classifications remains unchanged. MPSEM-0560 gets exact supported-clause routing while remote import and version identity keep the whole item unresolved; stale pins retained.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P0-03",
@@ -986,7 +996,7 @@
           "path": "tests/media-runtime-openapi-job-status.test.mjs"
         }
       ],
-      "verification_or_gap": "Source-identity crosswalks now cover 27 OpenAPI routes, 43 protobuf RPCs, 11 CLI fixture commands, and 28 SDK source/class/method identities (31 raw rows including 3 parser artifacts); the SDK inventory is recursively discovered and exact-partition tested. Runtime ProcessingJob fields and enums match the current OpenAPI projection. At that earlier checkpoint the full Node suite passed 309/309; final full Node suite is 317/317, targeted Java module suites pass, and the SDK/parity source-impact/residual/authority focused suites pass 48/48. This proves bounded source and wire shape only. Complete HTTP/gRPC/SDK/CLI semantic compatibility, two unresolved parity findings (50 total, 48 dispositioned), owner review, and consumer migration remain open.",
+      "verification_or_gap": "PXD-051 defines exact five HTTP and SDK upload/artifact crosslinks and existing artifact-inspect CLI; explicit no-matching-registered-Agent-tool disposition. Full behavioral parity remains190 unresolved/286 identities with0 accepted full bindings;2 historical gates remain. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: P1-03/P1-04 operation semantics, full wire-to-logical compatibility decisions, owner review, and consumer-migration approval before any SDK route changes.",
       "plan_section_line": 155,
       "changed_files": [
@@ -1012,6 +1022,11 @@
       "upload_execution_update_2026_10_08": {
         "result": "Exact SDK upload read and one host-configured artifact CLI query tested; all12 historical CLI proposals remain individually unresolved.",
         "evidence": "docs/implementation/media-execution-b00-b02-2026-10-08.json",
+        "statusRetained": "partial"
+      },
+      "definition_continuation_2026_10_08": {
+        "result": "PXD-051 defines exact five HTTP and SDK upload/artifact crosslinks and existing artifact-inspect CLI; explicit no-matching-registered-Agent-tool disposition. Full behavioral parity remains190 unresolved/286 identities with0 accepted full bindings;2 historical gates remain.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
         "statusRetained": "partial"
       }
     },
@@ -1838,7 +1853,7 @@
           "test": "journey source-shape and actor resolver guard"
         }
       ],
-      "verification_or_gap": "All130 steps are projected; ten semantic fields remain blocked. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report.",
+      "verification_or_gap": "All five existing recovery definitions now project exact reviewed public records, removing the recovery field blocker. Public mapping blockers0/0/9 for PDP-0/PDP-2/PDP-3; one immutable project-reference effect/finality is directly mapped, and conditional or unknown reversal is unprojected. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: component props, canonical PDP-1 state/operation/action/guard/effect bindings, resolved journey actors and ordered steps, public recovery semantics, and complete scenario/fixture coverage; dependencies include G-03/P1-03/P2-09 and P3-02 through P3-05. Exact source step intent/identity/transition semantics and actor resolver remain unavailable for a schema-valid subset.",
       "plan_section_line": 239,
       "changed_files": [
@@ -1849,7 +1864,12 @@
         "tests/media-experience-specification-projection.test.mjs"
       ],
       "latest_execution_update_2026_10_08": "All130 steps are projected; ten semantic fields remain blocked.",
-      "historical_verification_or_gap_before_owner_execution": "Independent audit confirms the original 14 ExperienceSpecification field blockers are now 10: interactions, states, search and inspections resolve; 10 remain. Candidate has 31 component contracts (including the source-linked progress-indicator proposal), 47 views, 20 interactions, 49 states, 0 journeys, 0 transitions, 146 actions, 0 effects, 18 finality records, 0 recovery records, 14 scenarios/fixtures, 3 searches and 5 inspections. The 132 screen-to-journey refs target 30 registered IDs, but the public resolver rejects them while the candidate has zero journeys; regression tests preserve them out of the candidate and verify the rejection. Focused tests pass 11/11. Additional projection audit: 30 journeys/130 steps contain only 8 authored step IDs, 0 authored step intents, 0 canonical transitionRefs, 122 direct viewRefs (all resolve), and 8 steps without view allocation. Eleven initiators resolve and 19 remain unresolved; outcomes are singular in 5 journeys and multiple in 25. A 9/9 focused regression confirms no schema-shaped subset can currently be emitted and prevents dangling view journeyRefs. A separate read-only review of current screen, journey, action, and fixture relationships found no further source-exact projection delta; current candidate hashes match their source registries. J-29/J-30 account for the eight viewless steps, and unresolved actors/transitions/scenario states remain owner decisions."
+      "historical_verification_or_gap_before_owner_execution": "Independent audit confirms the original 14 ExperienceSpecification field blockers are now 10: interactions, states, search and inspections resolve; 10 remain. Candidate has 31 component contracts (including the source-linked progress-indicator proposal), 47 views, 20 interactions, 49 states, 0 journeys, 0 transitions, 146 actions, 0 effects, 18 finality records, 0 recovery records, 14 scenarios/fixtures, 3 searches and 5 inspections. The 132 screen-to-journey refs target 30 registered IDs, but the public resolver rejects them while the candidate has zero journeys; regression tests preserve them out of the candidate and verify the rejection. Focused tests pass 11/11. Additional projection audit: 30 journeys/130 steps contain only 8 authored step IDs, 0 authored step intents, 0 canonical transitionRefs, 122 direct viewRefs (all resolve), and 8 steps without view allocation. Eleven initiators resolve and 19 remain unresolved; outcomes are singular in 5 journeys and multiple in 25. A 9/9 focused regression confirms no schema-shaped subset can currently be emitted and prevents dangling view journeyRefs. A separate read-only review of current screen, journey, action, and fixture relationships found no further source-exact projection delta; current candidate hashes match their source registries. J-29/J-30 account for the eight viewless steps, and unresolved actors/transitions/scenario states remain owner decisions.",
+      "definition_continuation_2026_10_08": {
+        "result": "All five existing recovery definitions now project exact reviewed public records, removing the recovery field blocker. Public mapping blockers0/0/9 for PDP-0/PDP-2/PDP-3; one immutable project-reference effect/finality is directly mapped, and conditional or unknown reversal is unprojected.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P3-02",
@@ -2010,7 +2030,7 @@
           "path": ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json"
         }
       ],
-      "verification_or_gap": "Selected upload resume action is an explicit inspect/guard/confirm/append/complete compound definition; inspection and job observation cannot infer verification or AVAILABLE. Remaining 146-action population remains open. Original Done criterion and remaining dependencies still control completion.",
+      "verification_or_gap": "PXD-052 defines four selected action semantics with exact effect kinds, guards, finality and nonadmission; all five manual recovery records have explicit public booleans. Three conditional/unknown action meanings are not coerced to undo booleans. Remaining action population and canonical attachment operation remain open. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: bind remaining 132 actions and all guards/effects/finality to canonical behavior; owner review.",
       "plan_section_line": 254,
       "changed_files": [
@@ -2024,7 +2044,12 @@
         "evidence": "docs/implementation/media-product-definition-execution-2026-10-08.json",
         "statusRetained": "partial"
       },
-      "historical_verification_or_gap_before_definition_scope_correction": "Action set reconciles to 146 total, 14 operation proposals, 0 ambiguous, 132 unresolved; no operation bindings are accepted. Candidate has 10 field blockers.\n\nContinuation audit keeps 146 action occurrences; 14 exact operation references are proposal-only, 0 ambiguous, and 132 unresolved. Typed dispositions remain 9 domain commands, 49 domain queries, 48 client-only, 11 navigation/presentation, and 29 not admitted. Candidate has 0 transitions, 0 effects, 18 finality records, 0 recovery records, and 10 field blockers. Focused parity/binding checks pass 26/26; parity checker remains NON-GREEN with 2 semantic findings. No owner-reviewed source-specific action/effect binding was found, so no files changed.\n\n2026-10-08 follow-up: nine additional journey-step operation candidates are copied from explicit PDP-1 action-to-operation IDs, bringing total non-null step refs from 7 to 16 (114 remain null). An independent review confirmed the nine additions and the owner-review-pending proposal status; the broader 146-action operation inventory remains 14 proposed identities / 132 unresolved with no accepted operation binding. Focused crosslink tests pass 7/7."
+      "historical_verification_or_gap_before_definition_scope_correction": "Action set reconciles to 146 total, 14 operation proposals, 0 ambiguous, 132 unresolved; no operation bindings are accepted. Candidate has 10 field blockers.\n\nContinuation audit keeps 146 action occurrences; 14 exact operation references are proposal-only, 0 ambiguous, and 132 unresolved. Typed dispositions remain 9 domain commands, 49 domain queries, 48 client-only, 11 navigation/presentation, and 29 not admitted. Candidate has 0 transitions, 0 effects, 18 finality records, 0 recovery records, and 10 field blockers. Focused parity/binding checks pass 26/26; parity checker remains NON-GREEN with 2 semantic findings. No owner-reviewed source-specific action/effect binding was found, so no files changed.\n\n2026-10-08 follow-up: nine additional journey-step operation candidates are copied from explicit PDP-1 action-to-operation IDs, bringing total non-null step refs from 7 to 16 (114 remain null). An independent review confirmed the nine additions and the owner-review-pending proposal status; the broader 146-action operation inventory remains 14 proposed identities / 132 unresolved with no accepted operation binding. Focused crosslink tests pass 7/7.",
+      "definition_continuation_2026_10_08": {
+        "result": "PXD-052 defines four selected action semantics with exact effect kinds, guards, finality and nonadmission; all five manual recovery records have explicit public booleans. Three conditional/unknown action meanings are not coerced to undo booleans. Remaining action population and canonical attachment operation remain open.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P3-05",
@@ -2164,7 +2189,7 @@
           "path": ".product-experience/artifact-identities.yaml"
         }
       ],
-      "verification_or_gap": "The canonical PDP-3 search/inspection source defines three schema-shaped search entries and five inspection entries; PXD-027 selects the bounded owner semantics, while the additional artifact preserves source observations and exact cross-references without redefining identities. Exact PDP-1 type refs resolve. PDP-1 operation refs remain empty/unresolved; `media.http.listMediaJobs` is protocol observation only. Source-observed job behavior records tenant/auth/operator, limit 1\u20131000 (default 100), jobs array, no count/sort, and limit-only paging; undeclared filters/count/sort/pagination/errors/freshness remain open. Runtime stays NOT_ADMITTED; external/independent acceptance and implementation remain pending. Search/inspection focused suites pass 12/12; the full Node suite passed 244/244 at that historical checkpoint; final full Node suite is 317/317. Continuation audit (2026-10-08) confirmed the existing crosswalk is consistent: three search entries map exact PDP-1 types but have no operationRefs; observed listMediaJobs behavior is tenant/auth/operator scoped with limit 1\u20131000 (default 100) and a jobs array, while filters/count/sort/cursor/error/freshness semantics remain unselected; five inspection entries have exact source authorities but no runtime authorization/evidence-admission semantics. Focused source-contract tests pass 7/7; no safe new mapping or code change was found.\n\nAdded a schema-derived GET /api/v1/jobs example to docs/EXAMPLES.md for the observed OpenAPI transport shape: tenant header, optional limit, and jobs response preserve OUTCOME_UNKNOWN. It is explicitly not a PDP-1 operation binding, execution transcript, complete search behavior, or runnable inspector. Focused search/inspection contracts pass 8/8; canonical operation semantics, filters/pagination/error distinctions, other machine channels, owner review, and independent acceptance remain open.\n\nA source-exact follow-up links authority inspection to the observed getMediaArtifact route and trace inspection to getMediaJob, recording required tenant/operator access, request and 200/404 shapes while leaving PDP-1 operation binding unresolved and making no freshness/finality claim. Focused search/inspection tests pass 9/9; project/artifact search semantics and inspection evidence behavior remain owner dependencies.",
+      "verification_or_gap": "Exact applicable upload/artifact HTTP, SDK and existing CLI definitions specify result/error/authority/unknown-finality grammar. Existing Agent Tool absence explicit; no synthetic tool, gRPC operation, upload CLI command or event identity introduced. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: PDP-1 owner-selected search operations and request/result/error semantics; authorization-safe search behavior; inspection access and evidence admission; runtime integration; independent review and acceptance.",
       "plan_section_line": 269,
       "changed_files": [
@@ -2177,7 +2202,12 @@
         "docs/EXAMPLES.md",
         "tests/media-owner-selection-contracts.test.mjs",
         "tests/media-search-inspection-contracts.test.mjs"
-      ]
+      ],
+      "definition_continuation_2026_10_08": {
+        "result": "Exact applicable upload/artifact HTTP, SDK and existing CLI definitions specify result/error/authority/unknown-finality grammar. Existing Agent Tool absence explicit; no synthetic tool, gRPC operation, upload CLI command or event identity introduced.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "P3-08",
@@ -2772,7 +2802,7 @@
           "path": ".product-experience/acceptance.yaml"
         }
       ],
-      "verification_or_gap": "Definition-only scope and measured batch deltas recorded while retaining all 71 original IDs and Done predicates. Source validity, delegated decisions, independent acceptance and native Lifecycle receipt currentness remain distinct. Original Done criterion and remaining dependencies still control completion.",
+      "verification_or_gap": "Definition continuation records original task integrity, source-only scope, phase residuals and real verification; native provider/case/observer/oracle acceptance and current phase receipts remain unrecorded. Original full Done predicate remains controlling.",
       "remaining_dependencies": "Still required: G-04/L-07.; see verification_or_gap for the unmet portion.",
       "plan_section_line": 353,
       "changed_files": [
@@ -2789,7 +2819,12 @@
         "evidence": "docs/implementation/media-product-definition-execution-2026-10-08.json",
         "statusRetained": "partial"
       },
-      "historical_verification_or_gap_before_definition_scope_correction": "Current ledger and execution report distinguish source definition/release lanes and every denominator. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report."
+      "historical_verification_or_gap_before_definition_scope_correction": "Current ledger and execution report distinguish source definition/release lanes and every denominator. Original Done criterion and remaining_dependencies remain controlling; command outcomes are in the dated batch report.",
+      "definition_continuation_2026_10_08": {
+        "result": "Definition continuation records original task integrity, source-only scope, phase residuals and real verification; native provider/case/observer/oracle acceptance and current phase receipts remain unrecorded.",
+        "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+        "statusRetained": "partial"
+      }
     },
     {
       "id": "X-01",
@@ -7201,5 +7236,28 @@
     "design_open_gates_after": 2,
     "selected_journey_defined_steps": 5,
     "native_phase_receipts": "NOT_EVALUATED; no receipt bound"
+  },
+  "definition_continuation_2026_10_08": {
+    "evidence": "docs/implementation/media-product-definition-continuation-2026-10-08.json",
+    "baseMain": "bc55772d30fedec46c1b15db255515ea7f3ee147",
+    "scope": "PDP-0..PDP-3 definition-only; implementation deferred per latest user instruction",
+    "newlyCompleteOriginalTasks": 0,
+    "projectionBlockersBefore": [
+      0,
+      0,
+      10
+    ],
+    "projectionBlockersAfter": [
+      0,
+      0,
+      9
+    ],
+    "ownerDecisions": [
+      "PXD-050",
+      "PXD-051",
+      "PXD-052",
+      "PXD-053"
+    ],
+    "nativePhaseAcceptance": "NOT_CLAIMED"
   }
 }

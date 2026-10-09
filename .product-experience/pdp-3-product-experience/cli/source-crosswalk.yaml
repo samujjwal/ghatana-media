@@ -19,7 +19,8 @@ populations:
         httpOperation: getMediaArtifact
         route: GET-/api/v1/artifacts/{artifactId}
         canonicalOperation: media.operation-slice.inspect-artifact
-        admission: existing-bounded-query-semantics-PXD-040-and-PXD-044-only
+        ownerDecisions: [PXD-040, PXD-044, PXD-051]
+        admission: exact-existing-bounded-query-definition; runtime-host-identity-and-production-qualification-open
         productionHost: explicitly-supplied-by-caller; no-host-is-qualified
   unresolvedHistoricalAndProposedIdentities:
     source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml

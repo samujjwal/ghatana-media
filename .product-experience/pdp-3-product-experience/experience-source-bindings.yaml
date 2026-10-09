@@ -97,6 +97,37 @@ recoveryCrossReferences:
     scenarioRefs: [media.scenario.caption-conflict]
     actionRefs: [media.action.resolve-caption-conflict]
     rationale: The recovery path preserves both versions and requires an explicit resolution; the linked fixture has concurrent caption versions and a conflicted draft.
+j02RecoveryApplicability:
+  status: SOURCE_DEFINED_OWNER_ACCEPTED
+  journeyRef: J-02
+  sourceDecisionRef: .product-experience/decision-log.md#PXD-049
+  runtimeAdmission: NOT_ADMITTED
+  cases:
+    - trigger: upload-outcome-unknown
+      scenarioRef: media.scenario.upload-outcome-unknown
+      resourceRef: media.domain.upload-session
+      actionRef: media.action.resume-artifact-upload
+      orderedOperationRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+      recovery: Inspect and reconcile the same stable upload identity, then recheck current authority, source binding, and observed state. Require explicit confirmation before any append or completion; inspect after uncertainty and never blindly replay.
+      automaticRecovery: false
+      userActionRequired: true
+      distinctFromRecoveryRef: media.recovery.outcome-unknown
+    - trigger: upload-interrupted
+      scenarioRef: media.scenario.upload-interrupted
+      resourceRef: media.domain.upload-session
+      actionRef: media.action.resume-artifact-upload
+      orderedOperationRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+      recovery: Offer continuation only after inspecting the same session and confirming RECEIVING state, matching immutable request/source binding, current authority, and remaining contiguous parts.
+      automaticRecovery: false
+      userActionRequired: true
+    - trigger: upload-permission-revoked
+      scenarioRef: media.scenario.upload-permission-revoked
+      resourceRef: media.domain.upload-session
+      actionRef: media.action.resume-artifact-upload
+      orderedOperationRefs: [media.operation-slice.inspect-upload]
+      recovery: Do not append or complete until the authoritative rights/workspace source records restored applicable permission; reconcile partial-data disposition under policy.
+      automaticRecovery: false
+      userActionRequired: true
 searchBindings:
   - searchId: media.search.authorized-projects
     searchableTypeRefs: [media.domain.project]

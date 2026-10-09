@@ -408,3 +408,19 @@ definitionBatchObservation20261008:
   selectedJourneyScope: Bounded identity, authority, transition applicability, recovery, and verification definitions; independent acceptance and runtime admission excluded.
   evidenceReport: docs/implementation/media-product-definition-execution-2026-10-08.json
   lifecycleReceipts: NOT_EVALUATED; no receipt bound
+
+definitionContinuation20261008:
+  scope: PDP-0 through PDP-3 normative definitions and their validation; application implementation remains deferred.
+  decisionRefs: [PXD-050, PXD-051, PXD-052, PXD-053]
+  projectionFieldBlockers: {PDP-0: 0, PDP-2: 0, PDP-3: 9}
+  reviewedPublicRecoveryDefinitions: 5
+  projectedUnconditionalEffectDefinitions: 1
+  projectedFinalityRecords: 19
+  conditionalOrUnknownActionDefinitionsUnprojected: 3
+  scopedCapabilityDefinitionBindings: 3
+  fullCapabilityCoverageAdmission: 0
+  originalMigrationObservations: 349
+  semanticMigrationItemsUnresolved: 260
+  fullCrossInterfaceBindingsAccepted: 0
+  evidenceReport: docs/implementation/media-product-definition-continuation-2026-10-08.json
+  phaseAcceptance: NOT_CLAIMED

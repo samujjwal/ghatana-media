@@ -6,6 +6,7 @@ import {
   renderMediaProductDefinitionResidualMarkdown,
   validateProjectionFieldCoverage,
   validateProjectionSourceReferences,
+  validateSdkIdentityPartition,
 } from "../scripts/lib/media-product-definition-residuals.mjs";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -24,11 +25,11 @@ test("residual report validates exact projection dispositions and pinned sources
     limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
   });
   assert.deepEqual(report.projections.map(({ phase }) => phase), ["PDP-0", "PDP-2", "PDP-3"]);
-  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 10]);
+  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 9]);
   assert.deepEqual(report.projections.map(({ unresolvedFields }) => unresolvedFields.map(({ field }) => field)), [
     [],
     [],
-    ["actions", "componentContracts", "effects", "finality", "fixtures", "journeys", "recovery", "scenarios", "transitions", "views"],
+    ["actions", "componentContracts", "effects", "finality", "fixtures", "journeys", "scenarios", "transitions", "views"],
   ]);
   assert.deepEqual(report.projections[0].intentionalOmissions.map(({ field, status }) => ({ field, status })), [
     { field: "createdAt", status: "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY" },
@@ -147,6 +148,34 @@ test("residual report output is deterministic and clearly diagnostic", () => {
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /TOP_LEVEL_SCHEMA_FIELDS_AND_EMPTY_COLLECTION_DECLARATIONS_VALIDATED/u);
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /do not infer nested record completeness/u);
   assert.match(renderMediaProductDefinitionResidualMarkdown(first), /Projection mappings/u);
+});
+
+test("SDK residual partition includes bounded operations and rejects missing, duplicate, or invented members", () => {
+  const sourceIdentities = ["sdk.read", "sdk.begin", "sdk.part", "sdk.complete", "sdk.legacy"];
+  const parserArtifactIdentities = ["sdk.legacy"];
+  const categories = {
+    proposed: [],
+    boundedCanonicalReads: ["sdk.read"],
+    boundedCanonicalOperations: ["sdk.begin", "sdk.part", "sdk.complete"],
+    unresolved: [],
+    transportOnly: [],
+  };
+  assert.deepEqual(validateSdkIdentityPartition({ sourceIdentities, parserArtifactIdentities, categories }), []);
+  assert.ok(validateSdkIdentityPartition({
+    sourceIdentities,
+    parserArtifactIdentities,
+    categories: { ...categories, boundedCanonicalOperations: ["sdk.begin", "sdk.part"] },
+  }).some((diagnostic) => /cover exactly the source identities/u.test(diagnostic)));
+  assert.ok(validateSdkIdentityPartition({
+    sourceIdentities,
+    parserArtifactIdentities,
+    categories: { ...categories, boundedCanonicalOperations: [...categories.boundedCanonicalOperations, "sdk.begin"] },
+  }).some((diagnostic) => /must be unique|must be disjoint/u.test(diagnostic)));
+  assert.ok(validateSdkIdentityPartition({
+    sourceIdentities,
+    parserArtifactIdentities,
+    categories: { ...categories, boundedCanonicalOperations: [...categories.boundedCanonicalOperations, "sdk.forged"] },
+  }).some((diagnostic) => /cover exactly the source identities/u.test(diagnostic)));
 });
 
 test("projection field audit catches missing schema fields and unreported empty collections", () => {

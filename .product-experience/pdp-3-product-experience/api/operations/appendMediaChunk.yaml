@@ -14,6 +14,7 @@ routeManifestObservation:
 parameters:
   refs:
   - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
   - '#/components/parameters/UploadId'
 request:
   schemaRefs: []
@@ -29,17 +30,24 @@ response:
     '409':
     - '#/components/schemas/ErrorEnvelope'
 pdp1SemanticBinding:
-  logicalOperationRef: null
-  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
-  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
-  ownerReview: pending
-contractStatus: proposal-only; owner-review-pending
+  logicalOperationRef: media.operation-slice.append-upload-chunk
+  bindingStatus: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED
+  semanticAuthority: exact PDP-1 operation-slice; no route-name-only equivalence
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  ownerReview: independent-phase-review-open
+interfaceDefinition:
+  actionRef: media.action.resume-artifact-upload
+  actorAndAuthority: authenticated-OPERATOR-required; trusted-host-tenant-and-principal; current upload ownership and mutation authority rechecked
+  request: {uploadId: path-identity, chunkIndex: zero-based-integer-at-least-zero, body: raw-application-octet-stream-bytes}
+  requestIdentity: tenantId-principalId-uploadId-chunkIndex; no-replay-safe-request-key
+  precondition: OPEN-upload-and-current-nextChunkIndex; same-index acknowledgement only for exact persisted matching part receipt
+  result: HTTP-200-UploadSession-progress-observation; remains-RECEIVING; no-completion-or-availability
+  errors: {400: invalid-index-or-request, 409: upload-state-conflict-or-conflicting-part, 404: runtime-observed-UPLOAD_NOT_FOUND-not-declared-by-OpenAPI}
+  unknownOutcome: preserve-unknown; inspect-same-upload-before-any-further-command; automatic-replay-prohibited
+  finality: acknowledged-progress-only; no-chunk-completion-or-artifact-finality
+  runtimeAdmission: NOT_ADMITTED
+contractStatus: bounded-interface-definition; implementation-and-independent-qualification-open
 nonClaims:
-- authentication
-- idempotency
-- retry
-- cancellation
-- finality
-- state-effects
-- privacy
-- event-guarantees
+- production-host-or-identity-qualification
+- automatic-retry-after-ambiguous-ack
+- artifact-completion-or-availability

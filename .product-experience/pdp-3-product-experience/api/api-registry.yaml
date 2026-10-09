@@ -1,11 +1,12 @@
 schemaVersion: media.api-registry.v1
 productId: media
 source: contracts/openapi/media.yaml
-status: source-inventory; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending
-authorityDisposition: OpenAPI-and-runtime-route-manifest-are-implementation-or-projection-observations; no-canonical-wire-authority-selected
-semanticAuthority: PDP-1 operation proposal is intended semantic authority only after phase acceptance
+status: source-inventory; five-bounded-upload-artifact-definition-crosslinks; full-wire-semantics-runtime-admission-and-independent-review-open
+authorityDisposition: OpenAPI-and-runtime-route-manifest-provide-exact-observed-route-identities; bounded-PDP1-operation-slices-own-only-the-crosslinked-product-meaning; neither source-proves-production-host-qualification
+semanticAuthority: exact PDP-1 operation slices govern only the five individually crosslinked upload/artifact identities; other operation bindings remain unresolved
 sourceAlignment: all-27-OpenAPI-operationIds-exactly-match-route-manifest-method-path-operationId
-unresolvedLogicalOperationBindings: 27
+boundedDefinitionBindingCount: 5
+unresolvedLogicalOperationBindings: 22
 operations:
   - id: media.http.getMediaHealth
     contractFile: operations/getMediaHealth.yaml
@@ -123,34 +124,42 @@ operations:
     parameters: []
     requestSchema: "#/components/schemas/UploadRequest"
     responseStatuses: [201, 400, 403]
-    experienceBinding: pending-owner-review
+    pdp1OperationRef: media.operation-slice.begin-upload
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+    experienceBinding: bounded-interface-definition; runtime-admission-NOT_ADMITTED; trusted-host-identity-and-independent-review-open
   - id: media.http.getMediaUpload
     contractFile: operations/getMediaUpload.yaml
     method: GET
     path: "/api/v1/artifacts/uploads/{uploadId}"
     operationId: getMediaUpload
-    parameters: []
+    parameters: [uploadId]
     requestSchema: none
     responseStatuses: [200, 404]
-    experienceBinding: pending-owner-review
+    pdp1OperationRef: media.operation-slice.inspect-upload
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+    experienceBinding: bounded-scoped-read-definition; runtime-admission-NOT_ADMITTED; currentness-and-rights-not-inferred
   - id: media.http.appendMediaChunk
     contractFile: operations/appendMediaChunk.yaml
     method: PUT
     path: "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}"
     operationId: appendMediaChunk
-    parameters: [chunkIndex]
+    parameters: [uploadId, chunkIndex]
     requestSchema: none
     responseStatuses: [200, 400, 409]
-    experienceBinding: pending-owner-review
+    pdp1OperationRef: media.operation-slice.append-upload-chunk
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+    experienceBinding: bounded-compound-resume-step-definition; runtime-admission-NOT_ADMITTED; automatic-replay-prohibited
   - id: media.http.completeMediaUpload
     contractFile: operations/completeMediaUpload.yaml
     method: POST
     path: "/api/v1/artifacts/uploads/{uploadId}/complete"
     operationId: completeMediaUpload
-    parameters: []
+    parameters: [uploadId]
     requestSchema: none
     responseStatuses: [201, 409]
-    experienceBinding: pending-owner-review
+    pdp1OperationRef: media.operation-slice.complete-upload
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+    experienceBinding: bounded-compound-resume-step-definition; runtime-admission-NOT_ADMITTED; integrity-receipt-enters-VERIFYING-only
   - id: media.http.getMediaArtifact
     contractFile: operations/getMediaArtifact.yaml
     method: GET
@@ -159,7 +168,9 @@ operations:
     parameters: [artifactId]
     requestSchema: none
     responseStatuses: [200, 404]
-    experienceBinding: pending-owner-review
+    pdp1OperationRef: media.operation-slice.inspect-artifact
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+    experienceBinding: bounded-scoped-metadata-read-definition; runtime-admission-NOT_ADMITTED; no-versionId-or-bytes-on-wire
   - id: media.http.submitMediaJob
     contractFile: operations/submitMediaJob.yaml
     method: POST

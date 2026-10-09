@@ -23,6 +23,18 @@ actions:
   reversible: not-after-accepted-parts-without-an-explicit-owner-policy-and-recorded-disposition
   finality: upload-receipt-is-not-artifact-availability; verification-must-record-size-digest-format-and-policy-disposition
   failure: preserve-the-stable-upload-identity; inspect-an-unknown-result-before-starting-another-upload
+  actionDefinitionSemantics:
+    actionRef: media.action.begin-artifact-upload
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-049
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+    runtimeAdmission: NOT_ADMITTED
+    effectKind: state-change
+    reversibility:
+      kind: CONDITIONAL
+      scope: Before any accepted part, an unstarted session may be abandoned under applicable policy; after acknowledged parts, disposition depends on retention and owner policy.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
+    finalityScope: A begin receipt establishes an upload identity only; it proves neither accepted bytes nor artifact availability.
+    guards: [current-principal-and-workspace, upload-and-import-authority, applicable-rights-consent-retention-and-format-policy, stable-request-identity]
 - id: media.action.resume-artifact-upload
   label: Resume this upload
   actorRefs: [media.creator, media.editor]
@@ -44,6 +56,19 @@ actions:
   - media.component.artifact-transfer-status
   - media.component.cli-output
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
+  actionDefinitionSemantics:
+    actionRef: media.action.resume-artifact-upload
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-049
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+    runtimeAdmission: NOT_ADMITTED
+    effectKind: state-change
+    reversibility:
+      kind: CONDITIONAL
+      scope: Inspection is read-only; acknowledged appended parts persist subject to owner retention and disposition policy.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
+    finalityScope: Append preserves RECEIVING; complete may enter VERIFYING only after exact size and full digest checks; only current authoritative verification evidence may establish AVAILABLE.
+    orderedOperationRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+    guards: [inspect-same-upload, recheck-authority-source-and-state, explicit-confirmation-before-append-or-complete, append-only-remaining-contiguous-parts, inspect-after-unknown-never-auto-replay, never-append-finalizing-or-terminal-state]
 - id: media.action.inspect-artifact
   label: Inspect this artifact version
   actorRefs: [media.creator, media.editor, media.reviewer]
@@ -58,6 +83,17 @@ actions:
   - media.component.artifact-integrity-summary
   - media.component.cli-output
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
+  actionDefinitionSemantics:
+    actionRef: media.action.inspect-artifact
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-049
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+    runtimeAdmission: NOT_ADMITTED
+    effectKind: external-call
+    reversibility:
+      kind: UNKNOWN
+      scope: The read does not mutate artifact state, but durable access/audit observations may exist and cannot be undone by the caller.
+    publicBooleanDisposition: PUBLIC_BOOLEAN_NOT_REPRESENTABLE
+    operationRef: media.operation-slice.inspect-artifact
 - id: media.action.attach-source-asset
   label: Attach this artifact version to a project
   actorRefs: [media.creator, media.editor]
@@ -71,6 +107,27 @@ actions:
   componentRefs:
   - media.component.artifact-integrity-summary
   componentBindingState: component-use-proposed; interaction-and-owner-binding-pending
+  actionDefinitionSemantics:
+    actionRef: media.action.attach-source-asset
+    reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+    runtimeAdmission: NOT_ADMITTED
+    effectKind: state-change
+    reversibility:
+      kind: NOT_REVERSIBLE
+      scope: The action records a reference in a new project revision; it does not alter the immutable artifact. No undo operation is defined.
+    operationBinding: canonical-operation-unbound
+    publicEffect:
+      id: media.effect.attach-source-version
+      name: Attach source version
+      kind: state-change
+      description: Create a new project revision that references the exact immutable artifact version without changing its bytes.
+      reversible: false
+    publicFinality:
+      id: media.finality.attach-source-version
+      actionRef: media.action.attach-source-asset
+      description: Confirm only when the new project revision records the exact artifact-version reference.
+      confirmationRequired: true
+      undoable: false
 - id: media.action.choose-intent
   label: Choose an outcome
   actorRefs: [media.creator, media.editor]

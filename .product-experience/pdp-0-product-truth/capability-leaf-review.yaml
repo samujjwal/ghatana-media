@@ -20,7 +20,7 @@ sourceInventory:
 - path: .product-experience/pdp-1-domain-data/operations.yaml
   sha256: a7e653096364252f388bee5d06361b2a0472e088ef426b2c3602d80a4a71b8b6
 - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-  sha256: 0b1a5af2848a6bca767e94aff0363dbc045d470eec8090ebc5a50f8d96d88f98
+  sha256: b2c39d7dc1141a22a7c7b73611811dac01462757ff13a8cd3fdcfddd55865073
 - path: .product-experience/pdp-1-domain-data/domain-objects.yaml
   sha256: 348d755cad07ba1fd88976088191c06602d023593ad4cb5b0b818b8a2725185f
 denominatorReconciliation:
@@ -3348,6 +3348,31 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/17
+  ownerDefinitionSlice:
+    status: OWNER_ACCEPTED_J02_DEFINITION_SLICE; broader-leaf-applicability-and-runtime-not-admitted
+    decisionRef: .product-experience/decision-log.md#PXD-050
+    scope: Exact local-source upload path in J-02 only; this does not define remote import or admit any implementation.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyStepRefs: [J02-2]
+    intentRefs: [media.intent.understand]
+    outcomeRefs: [media.goal.understand-media, media.goal.preserve-source, media.goal.resolve-safely]
+    actorRefs: [media.creator, media.editor]
+    channelRefs: [media.channel.web, media.channel.http-api, media.channel.sdk]
+    operationSliceRefs: [media.operation-slice.begin-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+    sourceContractRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/0
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/1
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/2
+    profileApplicability:
+      status: no-content-transformation-profile-selected; transfer-and-execution-bounds-unresolved
+      noProcessingProfileClaim: true
+      notApplicableAxes: [quality-intent, delivery-profile]
+      noTransformationProfileValuesSelected: [preservation-mode]
+      unresolvedAxes: [execution-location, resource, reproducibility]
+      fidelityConstraint: Preserve the selected source bytes and bind expected size/full digest through the owner contract; a declared digest is not itself a verification result.
+      bound: Owner-admitted source path/type and transfer bounds are prerequisites; no format, size, execution-location, resource, or provider profile value is selected by this definition.
+    definitionBoundary: Upload acknowledgement is not immutable artifact-version identity, verification success, AVAILABLE, project attachment, rights grant, or runtime admission.
+
 - id: media.artifact.upload.resume
   sourceIndex: 18
   label: Resume upload
@@ -3502,6 +3527,31 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/18
+  ownerDefinitionSlice:
+    status: OWNER_ACCEPTED_J02_DEFINITION_SLICE; broader-leaf-applicability-and-runtime-not-admitted
+    decisionRef: .product-experience/decision-log.md#PXD-050
+    scope: Exact same-upload guarded resume path in J-02 only; this is not a new upload or arbitrary import.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyStepRefs: [J02-3]
+    intentRefs: [media.intent.understand]
+    outcomeRefs: [media.goal.understand-media, media.goal.preserve-source, media.goal.resolve-safely]
+    actorRefs: [media.creator, media.editor]
+    channelRefs: [media.channel.web, media.channel.http-api, media.channel.sdk]
+    operationSliceRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+    sourceContractRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/3
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/1
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/2
+    profileApplicability:
+      status: no-content-transformation-profile-selected; transfer-and-execution-bounds-unresolved
+      noProcessingProfileClaim: true
+      notApplicableAxes: [quality-intent, delivery-profile]
+      noTransformationProfileValuesSelected: [preservation-mode]
+      unresolvedAxes: [execution-location, resource, reproducibility]
+      fidelityConstraint: Preserve the same selected source bytes, immutable request binding, expected size, and digest; resume does not create a new source or authorize replay beyond the recorded bounds.
+      bound: Resume retains the same owner-issued upload identity and source/request binding; inspect after unknown, recheck current authority/state, require confirmation, append only remaining contiguous parts, and complete only that eligible session; no format, size, execution-location, resource, or provider profile value is selected here.
+    definitionBoundary: No client offset, successor upload, automatic replay after unknown, verification success, AVAILABLE state, rights grant, or runtime admission is implied.
+
 - id: media.artifact.import
   sourceIndex: 19
   label: Import artifact
@@ -3845,6 +3895,29 @@ leaves:
     missingDecision: Per-leaf implementation, license, qualification and deployment evidence plus owner admission; GAP-MEDIA-CAPABILITY-LEAF-DETAIL
       and P0-010.
   sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/20
+  ownerDefinitionSlice:
+    status: OWNER_ACCEPTED_J02_DEFINITION_SLICE; broader-leaf-applicability-and-runtime-not-admitted
+    decisionRef: .product-experience/decision-log.md#PXD-050
+    scope: Exact artifact-version metadata inspection in J-02 only; no verification-job inspection is included in this capability slice.
+    journeyRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyStepRefs: [J02-5]
+    intentRefs: [media.intent.understand]
+    outcomeRefs: [media.goal.understand-media, media.goal.preserve-source, media.goal.resolve-safely]
+    actorRefs: [media.creator, media.editor]
+    channelRefs: [media.channel.web, media.channel.http-api, media.channel.sdk]
+    operationSliceRefs: [media.operation-slice.inspect-artifact]
+    sourceContractRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/4
+    profileApplicability:
+      status: read-only-observation; immutable-version-identity-and-disclosure-contract-incomplete
+      noProcessingProfileClaim: true
+      notApplicableAxes: [quality-intent, delivery-profile]
+      noTransformationProfileValuesSelected: [preservation-mode]
+      unresolvedAxes: [execution-location, resource, reproducibility]
+      identityRequirement: Product semantics require inspection of one exact immutable artifact version. The current inspect-artifact contract binds artifactId only and does not expose versionId; it does not demonstrate satisfaction of the version-identity requirement.
+      bound: Disclose only currently authorized metadata and preserve unknown integrity, rights, and lifecycle values as unknown; exact field-disclosure, execution-location, resource, or provider profile values remain unresolved.
+    definitionBoundary: Metadata inspection does not dereference bytes, prove immutable version identity from the current artifactId-only wire contract, perform T-02 verification, promote availability, alter rights, attach a project, or establish runtime admission.
+
 - id: media.artifact.search
   sourceIndex: 21
   label: Search artifacts
@@ -61770,3 +61843,11 @@ definitionOnlySourceReconciliations:
   capabilityImpact: All existing leaf/action associations remain unchanged; no accepted leaf population or runtime availability
     is inferred.
   acceptanceEffect: Selected J-02 definition only; no full action registry, phase, runtime or Lifecycle admission.
+
+experienceDefinitionSourceReconciliation:
+  path: .product-experience/pdp-3-product-experience/action-registry.yaml
+  previousSha256: 0b1a5af2848a6bca767e94aff0363dbc045d470eec8090ebc5a50f8d96d88f98
+  currentSha256: b2c39d7dc1141a22a7c7b73611811dac01462757ff13a8cd3fdcfddd55865073
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-052
+  scope: Four selected action definition records; preserves all capability IDs, operation associations and historical reconciliation records.
+  coverageEffect: no-full-leaf-admission-or-denominator-reduction

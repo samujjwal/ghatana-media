@@ -6,19 +6,102 @@ contracts:
     state: transcript-language-or-recognition-uncertain
     allowed: correct-manually-or-preserve-draft-under-current-authority
     blocked: label-as-verified-or-commit-when-required-alignment-is-missing
+    stateRef: transcript-language-or-recognition-uncertain
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#media.scenario.language-uncertain
+    actionRefs:
+      - media.action.correct-caption
+    definitionSemantics:
+      runtimeAdmission: NOT_ADMITTED
+      reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+      publicRecovery:
+        id: media.recovery.language-uncertain
+        errorKind: TRANSCRIPT_LANGUAGE_UNCERTAIN
+        recoveryPath: Allow manual correction or preserve the draft; do not label
+          uncertain recognition as verified.
+        automaticRecovery: false
+        userActionRequired: true
   - id: media.recovery.alignment-incomplete
     state: caption-time-range-missing-or-estimated
     allowed: enter-explicit-time-ranges-or-retain-draft
     blocked: present-estimated-timing-as-measured
+    stateRef: caption-time-range-missing-or-estimated
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#media.scenario.alignment-required
+    actionRefs:
+      - media.action.align-caption-timing
+    definitionSemantics:
+      runtimeAdmission: NOT_ADMITTED
+      reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+      publicRecovery:
+        id: media.recovery.alignment-incomplete
+        errorKind: CAPTION_ALIGNMENT_INCOMPLETE
+        recoveryPath: Enter explicit time ranges or retain the draft; never present
+          estimated timing as measured.
+        automaticRecovery: false
+        userActionRequired: true
   - id: media.recovery.consent-revoked
     state: media-rights-and-consent.consent.REVOKED
     allowed: block-new-work-and-reconcile-in-flight-effects
     blocked: restart-or-route-around-consent
+    stateRef: media-rights-and-consent.consent.REVOKED
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-rights-and-consent
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#media.scenario.consent-revoked
+    actionRefs:
+      - media.action.request-transcription
+    definitionSemantics:
+      runtimeAdmission: NOT_ADMITTED
+      reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+      publicRecovery:
+        id: media.recovery.consent-revoked
+        errorKind: RIGHTS_OR_CONSENT_REVOKED
+        recoveryPath: Block new work and reconcile in-flight effects; resume only after
+          the rights authority records restored applicable permission.
+        automaticRecovery: false
+        userActionRequired: true
   - id: media.recovery.outcome-unknown
     state: media-job.OUTCOME_UNKNOWN
     allowed: view-existing-job-status-or-check-its-outcome
     blocked: submit-duplicate-request-or-report-cancellation-as-confirmed
+    stateRef: media-job.OUTCOME_UNKNOWN
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#media.operation-slice.inspect-job
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#media.scenario.job-outcome-unknown
+    actionRefs:
+      - media.action.view-job-status
+      - media.action.check-job-outcome
+    definitionSemantics:
+      runtimeAdmission: NOT_ADMITTED
+      reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+      publicRecovery:
+        id: media.recovery.outcome-unknown
+        errorKind: JOB_OUTCOME_UNKNOWN
+        recoveryPath: Inspect or check the outcome of the same stable job identity;
+          preserve unknown and do not submit a duplicate request or report
+          cancellation as confirmed.
+        automaticRecovery: false
+        userActionRequired: true
   - id: media.recovery.version-conflict
     state: concurrent-caption-revision
-    allowed: preserve-local-and-current-versions; choose-keep-local-or-use-latest-before-registering-a-new-version
+    allowed: preserve-local-and-current-versions;
+      choose-keep-local-or-use-latest-before-registering-a-new-version
     blocked: overwrite-a-committed-version
+    stateRef: concurrent-caption-revision
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+      - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#media.scenario.caption-conflict
+    actionRefs:
+      - media.action.resolve-caption-conflict
+    definitionSemantics:
+      runtimeAdmission: NOT_ADMITTED
+      reviewDecisionRef: .product-experience/decision-log.md#PXD-052
+      publicRecovery:
+        id: media.recovery.version-conflict
+        errorKind: CAPTION_VERSION_CONFLICT
+        recoveryPath: Preserve local and current versions; require the user to choose
+          the version to keep before registering a new version.
+        automaticRecovery: false
+        userActionRequired: true

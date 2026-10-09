@@ -22,6 +22,34 @@ const projectionSources = [
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
+export function validateSdkIdentityPartition({ sourceIdentities, parserArtifactIdentities, categories }) {
+  const diagnostics = [];
+  const source = [...sourceIdentities];
+  const excluded = [...parserArtifactIdentities];
+  const partition = Object.values(categories).flat();
+  const unique = (values) => new Set(values).size === values.length;
+  if (!unique(source)) diagnostics.push("SDK source identities must be unique");
+  if (!unique(excluded)) diagnostics.push("SDK parser artifact identities must be unique");
+  for (const [category, identities] of Object.entries(categories)) {
+    if (!unique(identities)) diagnostics.push(`SDK ${category} identities must be unique`);
+  }
+  if (!unique(partition)) diagnostics.push("SDK identity disposition categories must be disjoint");
+  const excludedSet = new Set(excluded);
+  const expected = source.filter((identity) => !excludedSet.has(identity)).sort();
+  const actual = partition.sort();
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    const actualSet = new Set(actual);
+    const expectedSet = new Set(expected);
+    const missing = expected.filter((identity) => !actualSet.has(identity));
+    const extra = actual.filter((identity) => !expectedSet.has(identity));
+    diagnostics.push(`SDK identity disposition categories must cover exactly the source identities excluding parser artifacts (missing: ${missing.join(",") || "none"}; extra: ${extra.join(",") || "none"})`);
+  }
+  if (excluded.some((identity) => !source.includes(identity))) {
+    diagnostics.push("SDK parser artifacts must exist in the source identity inventory");
+  }
+  return diagnostics;
+}
+
 function topLevelSection(source, key) {
   const marker = new RegExp(`^${key}:\\s*$`, "mu");
   const match = marker.exec(source);
@@ -644,7 +672,22 @@ function operationParityReport(root, diagnostics) {
     } else if (name === "SDK registry") {
       const nonOperationDispositions = nestedInlineArrays(block, "sourceBackedNonOperationDispositions");
       const boundedCanonicalReads = declaredInlineArray(block, "boundedCanonicalReads", 4);
-      observedIdentities = [...new Set([...proposedIdentities, ...boundedCanonicalReads, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
+      const boundedCanonicalOperations = declaredInlineArray(block, "boundedCanonicalOperations", 4);
+      observedIdentities = [...new Set([...proposedIdentities, ...boundedCanonicalReads, ...boundedCanonicalOperations, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
+      const sdkRegistry = readText(root, ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml");
+      const sourceIdentities = [...sdkRegistry.matchAll(/^  - id: (media\.sdk\.[^\n]+)\n    method: [^\n]+\n    visibility: public\n    source: [^\n]+/gmu)].map((match) => match[1].trim());
+      const parserArtifacts = declaredInlineArray(block, "parserArtifactTokensExcludedFromMethodDenominator", 4);
+      const nonOperationGroups = Object.fromEntries([...block.matchAll(/^      (TRANSPORT_ONLY|CLIENT_ONLY|PROVIDER_ADAPTER|NOT_ADMITTED):\s*\[([^\]]*)\]\s*$/gmu)]
+        .map(([, key, values]) => [key, parseInlineArray(values)]));
+      const categories = {
+        proposed: proposedIdentities,
+        boundedCanonicalReads,
+        boundedCanonicalOperations,
+        unresolved: unresolvedIdentities,
+        ...nonOperationGroups,
+      };
+      diagnostics.push(...validateSdkIdentityPartition({ sourceIdentities, parserArtifactIdentities: parserArtifacts, categories })
+        .map((diagnostic) => `${path} ${name}: ${diagnostic}`));
     } else if (name === "Agent Tool handlers") {
       observedIdentities = identities;
     } else if (name === "lifecycle event names") {

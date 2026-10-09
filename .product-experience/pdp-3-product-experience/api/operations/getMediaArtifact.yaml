@@ -14,6 +14,7 @@ routeManifestObservation:
 parameters:
   refs:
   - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
 request:
   schemaRefs: []
 response:
@@ -25,17 +26,22 @@ response:
     '404':
     - '#/components/schemas/ErrorEnvelope'
 pdp1SemanticBinding:
-  logicalOperationRef: null
-  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
-  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
-  ownerReview: pending
-contractStatus: proposal-only; owner-review-pending
+  logicalOperationRef: media.operation-slice.inspect-artifact
+  bindingStatus: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED
+  semanticAuthority: exact PDP-1 operation-slice; observation-only; source wire has no versionId field
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  ownerReview: independent-phase-review-open
+interfaceDefinition:
+  actionRef: media.action.inspect-artifact
+  actorAndAuthority: authenticated-OPERATOR-required; trusted-host-tenant-and-principal; artifact observation is owner scoped
+  request: {artifactId: path-identity, method: GET, mutation: none}
+  result: HTTP-200-MediaArtifact-metadata-and-opaque-objectReference; exact wire does-not-include-canonical-artifact-versionId
+  errors: {404: ARTIFACT_NOT_FOUND-absent-or-inaccessible-within-caller-scope}
+  unknownOutcome: unavailable-read-is-not-global-absence-or-proof-of-prior-effect
+  finality: metadata-observation-only; objectReference-is-not-byte-access-current-rights-or-AVAILABLE-proof
+  runtimeAdmission: NOT_ADMITTED
+contractStatus: bounded-interface-definition; implementation-and-independent-qualification-open
 nonClaims:
-- authentication
-- idempotency
-- retry
-- cancellation
-- finality
-- state-effects
-- privacy
-- event-guarantees
+- content-byte-retrieval
+- artifact-version-identity-not-present-on-this-wire
+- current-rights-consent-verification-or-availability

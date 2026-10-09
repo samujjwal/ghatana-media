@@ -398,7 +398,22 @@ export function analyzeContractParity(input) {
       && /public async getUploadSession\([\s\S]*?Promise<CanonicalMediaUploadSessionObservation>[\s\S]*?\n  \}/u.test(uploadReadSource)
       && /public async getUploadSession\([\s\S]*?"GET"[\s\S]*?\/api\/v1\/artifacts\/uploads\/\$\{encodeURIComponent\(requestedUploadId\)\}[\s\S]*?\n  \}/u.test(uploadReadSource)
       && (input.sdkCalls ?? []).some(call => call.method === 'GET' && call.path === '/api/v1/artifacts/uploads/{parameter}');
-    if (canonicalRead || canonicalUploadRead || (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition))) {
+    const boundedUploadSpecs = {
+      'media.sdk.createUploadSession': { method: 'POST', path: '/api/v1/artifacts/uploads', operationId: 'beginMediaUpload', sourceMethod: 'createUploadSession' },
+      'media.sdk.uploadPart': { method: 'PUT', path: '/api/v1/artifacts/uploads/{parameter}/chunks/{parameter}', operationId: 'appendMediaChunk', sourceMethod: 'uploadPart' },
+      'media.sdk.completeUploadSession': { method: 'POST', path: '/api/v1/artifacts/uploads/{parameter}/complete', operationId: 'completeMediaUpload', sourceMethod: 'completeUploadSession' },
+    };
+    const boundedSpec = boundedUploadSpecs[id];
+    const boundedMethodBody = boundedSpec && uploadReadSource.match(new RegExp(`public async ${boundedSpec.sourceMethod}\\([\\s\\S]*?\\n  \\}`, 'u'))?.[0];
+    const boundedMethodCalls = boundedMethodBody ? parseSdkHttpCalls(boundedMethodBody, 'libs/audio-video-client/src/operations.ts') : [];
+    const boundedCanonicalOperation = Boolean(boundedSpec && disposition?.disposition === 'BOUNDED_CANONICAL_OPERATION'
+      && disposition.type === 'DOMAIN_COMMAND' && disposition.operationId
+      && disposition.operationId === boundedSpec.operationId && operationIds.has(disposition.operationId)
+      && disposition.ownerDecisionRef === '.product-experience/decision-log.md#PXD-051'
+      && boundedMethodCalls.some(call => call.method === boundedSpec.method && normalizeRoutePath(call.path) === normalizeRoutePath(boundedSpec.path))
+      && (input.sdkCalls ?? []).some(call => call.source === 'libs/audio-video-client/src/operations.ts'
+        && call.method === boundedSpec.method && normalizeRoutePath(call.path) === normalizeRoutePath(boundedSpec.path)));
+    if (canonicalRead || canonicalUploadRead || boundedCanonicalOperation || (disposition && ["CLIENT_ONLY", "TRANSPORT_ONLY", "PROVIDER_ADMIN", "NOT_ADMITTED"].includes(disposition.disposition))) {
       reconciledFindings.push({ finding, disposition: disposition.disposition });
     } else {
       gaps.push(finding);

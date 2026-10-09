@@ -14,6 +14,7 @@ routeManifestObservation:
 parameters:
   refs:
   - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
   - '#/components/parameters/UploadId'
 request:
   schemaRefs: []
@@ -26,17 +27,24 @@ response:
     '409':
     - '#/components/schemas/ErrorEnvelope'
 pdp1SemanticBinding:
-  logicalOperationRef: null
-  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
-  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
-  ownerReview: pending
-contractStatus: proposal-only; owner-review-pending
+  logicalOperationRef: media.operation-slice.complete-upload
+  bindingStatus: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED
+  semanticAuthority: exact PDP-1 operation-slice; no route-name-only equivalence
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  ownerReview: independent-phase-review-open
+interfaceDefinition:
+  actionRef: media.action.resume-artifact-upload
+  actorAndAuthority: authenticated-OPERATOR-required; trusted-host-tenant-and-principal; same upload owner and current mutation authority
+  request: {uploadId: path-identity, body: absent, requestIdempotencyKey: absent}
+  requestIdentity: tenantId-principalId-uploadId; persisted full request fingerprint and original artifact association govern repeat reconciliation
+  precondition: same-session-read-and-authority-source-state-recheck-then-explicit-user-confirmation-before-finalization
+  result: HTTP-201-MediaArtifact-receipt-for-exact-upload-size-and-digest; artifact enters VERIFYING-only
+  errors: {409: upload-not-completable-or-integrity-conflict, 404: runtime-observed-UPLOAD_NOT_FOUND-not-declared-by-OpenAPI}
+  unknownOutcome: inspect-the-same-upload-and-artifact-identities; no-new-artifact-or-inferred-availability
+  finality: successful upload finalization and integrity receipt only; T02 verification evidence is a separate unimplemented/unbound transition
+  runtimeAdmission: NOT_ADMITTED
+contractStatus: bounded-interface-definition; implementation-and-independent-qualification-open
 nonClaims:
-- authentication
-- idempotency
-- retry
-- cancellation
-- finality
-- state-effects
-- privacy
-- event-guarantees
+- request-key-or-body-idempotency-not-present-on-this-route
+- artifact-availability-rights-or-policy-clearance
+- automatic-replay-or-production-durability

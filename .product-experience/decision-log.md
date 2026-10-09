@@ -909,6 +909,38 @@ constitute runtime or phase acceptance.
 - **Alternatives rejected:** treating a receipt as a usable artifact would bypass required verification; matching operation names would obscure compound action effects; leaving a delegated Media definition undecided solely because a production host is absent would confuse definition and implementation.
 - **Excludes:** actual verification issuers or rights clearance, trusted authentication, runtime/transport admission, production host, durability/security qualification, independent phase assessment, native Lifecycle evidence/receipts and release. PXD-026 through PXD-039 retain their original scopes.
 
+## PXD-050 — Bounded J-02 capability definition bindings
+
+**Decision:** Accept the exact source mapping for the existing `media.artifact.upload`, `media.artifact.upload.resume`, and `media.artifact.inspect` leaves to J02-2, J02-3 and J02-5 and their individual PDP-1 slices. Authority is the user's delegated Media product semantic ownership, limited to product definition. Same-upload resume is inspect, recheck current authority/source/state, explicit confirmation, remaining contiguous parts, then completion. Metadata inspection is read-only and does not perform verification.
+
+**Sources:** `pdp-0-product-truth/capability-leaf-review.yaml#leaves[].ownerDefinitionSlice`; `pdp-1-domain-data/operations.yaml#individualOperationContracts`; `pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml`; `tests/media-j02-capability-leaf-definition.test.mjs`.
+
+**Alternatives and exclusions:** Reject treating remote import as local upload or artifact inspection as verification-job observation. Exact immutable version identity remains required product meaning; the observed artifactId-only wire response does not prove versionId. Transfer preservation constraints remain applicable while transformation quality/delivery profiles are not selected. Resource, execution, reproducibility qualification and broader leaf applicability remain open. This accepts three scoped definition bindings, not full leaf coverage, runtime, independent review, phase closure or a denominator reduction.
+
+## PXD-051 — Bounded upload/artifact interface definition grammar
+
+**Decision:** Accept source-specific interaction definitions for five existing HTTP upload/artifact identities and their exact SDK methods, plus the existing artifact-inspect CLI read. Require exact tenant/principal/request binding, scoped result/error meaning, same-identity unknown-outcome reconciliation and separate transfer/verification/availability finality. Resume is a user-confirmed compound workflow, not another route. Authority is delegated Media definition ownership.
+
+**Sources:** `pdp-2-design-interface-system/action-finality-grammar.yaml#boundedUploadArtifactSlice`; `pdp-3-product-experience/api/operations/{beginMediaUpload,getMediaUpload,appendMediaChunk,completeMediaUpload,getMediaArtifact}.yaml`; SDK and production CLI registries; current OpenAPI and SDK declarations. Exact interaction tests and adversarial parity checks remain required.
+
+**Alternatives and exclusions:** Reject route-name-only equivalence and mapping the unrelated registered inference Agent Tools to upload or artifact reads. No current registered Agent Tool matches this slice; no upload CLI command, gRPC identity or event equivalence is invented. No artifact wire versionId or content-access/rights/AVAILABLE proof is inferred. Source-defined interface support does not admit runtime, host identity, durability, immutable package distribution, independent parity or full PDP acceptance.
+
+## PXD-052 — Explicit effect, finality and manual recovery definitions
+
+**Decision:** Accept typed definition semantics for the selected existing upload/artifact actions and the five existing recovery narratives. Project only directly authored effect kinds, unconditional boolean reversibility and confirmation/finality meaning. Retain conditional or unknown reversal guards without narrowing them to a public boolean. Manual correction, alignment, rights restoration, uncertain-job reconciliation and version-conflict resolution require explicit user/authority action and never automatically replay an external effect.
+
+**Sources:** `pdp-3-product-experience/action-registry.yaml#actions[].actionDefinitionSemantics`; `recovery-finality-contracts.yaml#contracts[].definitionSemantics`; `experience-source-bindings.yaml`; exact public ExperienceSpecification effect/finality/recovery schema; `scripts/lib/media-experience-definition-mapping.mjs` and its adversarial tests.
+
+**Alternatives and exclusions:** Reject claiming that a remote read, its disclosure or audit trail can be undone merely because the user can leave an observation view. Reject merging unknown upload recovery with unknown job recovery. Attachment defines an immutable new project reference/revision and has no accepted canonical operation binding in this slice. The public definition projection is not executable behavior, scenario qualification, rights approval, independent acceptance, Lifecycle admission or phase closure. The original action, recovery and journey populations are preserved.
+
+## PXD-053 — Exact historical journey table-header classification
+
+**Decision:** Classify only MPSEM-0558's complete header unit `| Journey ID | Complete outcome and critical exceptional path |` as structural evidence with no normative product assertion. The exact unit occurs at pinned historical line 1295 and current line 1309 of `docs/migration/expert-reviewed-master-plan.md`. It is already outside the original 349 structural observations and the 260 unresolved semantic items; this separate bounded review does not increment the original 89 classifications or reduce unresolved semantics.
+
+**Sources:** `pdp-0-product-truth/migration-semantics-review.yaml#ownerDecisionOverlay`; `tests/media-migration-j02-source-claim.test.mjs`; historic master-plan commit `e62514f94c45a4ecbc438d26298bf82b6a6f3d69` and current source digest recorded in the register.
+
+**Alternatives and exclusions:** Reject accepting neighboring journey requirements or all J-02 meaning from this table header. MPSEM-0557 and MPSEM-0560 remain independently unresolved; the latter retains remote-import and wire-version-identity gaps despite bounded upload/recovery definition sources. Historical source pins stay stale. No semantic equivalence, runtime behavior, independent review or phase acceptance is inferred.
+
 ## Governance decisions for this authority root
 
 ### GOV-AUTH-001 — Use authored partial relations for traceability

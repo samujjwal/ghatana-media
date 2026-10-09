@@ -61,7 +61,7 @@ and Explorer bindings remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING` and
 `GAP-11`. The generated ExperienceSpecification v1
 (`ghatana.experience-specification.v1`) candidate passes structural schema
 validation and the available public `@ghatana/experience-specification`
-validator. It still reports ten
+validator. It still reports nine
 semantic field blockers and does not constitute full PDP-3 validation or
 acceptance.
 
@@ -89,12 +89,16 @@ acceptance.
   candidate that passes its available public validator. It projects 31
   component contracts, 47 views, 30 journey records with 130 of 130 source
   steps, 20 interactions,
-  49 states, 0 transitions, 146 actions, 0 effects, 18 finality candidates,
-  0 recovery records, 15 scenarios, 15 fixture descriptors, 3 search
-  definitions, and 5 inspection definitions. Its ten semantic blockers are
+  49 states, 0 transitions, 146 actions, 1 effect, 19 finality candidates,
+  5 recovery records, 15 scenarios, 15 fixture descriptors, 3 search
+  definitions, and 5 inspection definitions. Its nine semantic blockers are
   `componentContracts`, `views`,
-  `journeys`, `transitions`, `actions`, `effects`, `finality`, `recovery`,
+  `journeys`, `transitions`, `actions`, `effects`, `finality`,
   `scenarios`, and `fixtures`; the file records exact reasons and source refs.
+  PXD-052 supplies the exact public mapping for all five existing manual recovery
+  records and one immutable project-reference effect/finality definition. Conditional
+  upload reversal and unknown read reversibility remain explicitly unprojected; no
+  executable recovery or canonical attachment operation is admitted.
   Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
   Media owner selections from the source intent and view inventories. All 130
   steps project as partial proposals; these links do not admit screens or

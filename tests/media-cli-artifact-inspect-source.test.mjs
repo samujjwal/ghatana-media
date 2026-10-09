@@ -65,5 +65,12 @@ test('source crosswalk rejects claims that the fixture CLI is production or that
   assert.equal(crosswalk.identityRule, 'matching-command-words-do-not-establish-operation-or-runtime-parity');
   assert.match(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.reconciliation, /individually-unresolved/u);
   assert.match(crosswalk.populations.hostConfiguredRuntimeConsumers.identities[0].productionHost, /no-host-is-qualified/u);
-  assert.match(crosswalk.populations.hostConfiguredRuntimeConsumers.identities[0].admission, /PXD-040-and-PXD-044-only/u);
+  const hostConsumer = crosswalk.populations.hostConfiguredRuntimeConsumers.identities[0];
+  assert.deepEqual(hostConsumer.ownerDecisions, ["PXD-040", "PXD-044", "PXD-051"]);
+  assert.match(hostConsumer.admission, /exact-existing-bounded-query-definition/u);
+  assert.match(hostConsumer.admission, /runtime-host-identity-and-production-qualification-open/u);
+  assert.equal(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.sourcePopulation, 12);
+  assert.match(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.reconciliation,
+    /all-12-identities-remain-individually-unresolved/u,
+    "the host-configured read does not resolve any historical CLI identity");
 });

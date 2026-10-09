@@ -115,9 +115,9 @@ test('residual report drops mapped PDP-2 and search/inspection fields while reta
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
   assert.equal(pdp2.unresolvedFieldCount, 0);
   assert.deepEqual(pdp2.unresolvedFields.map(({ field }) => field), []);
-  assert.equal(pdp3.unresolvedFieldCount, 10);
+  assert.equal(pdp3.unresolvedFieldCount, 9);
   assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), [
     'actions', 'componentContracts', 'effects', 'finality', 'fixtures',
-    'journeys', 'recovery', 'scenarios', 'transitions', 'views',
+    'journeys', 'scenarios', 'transitions', 'views',
   ]);
 });

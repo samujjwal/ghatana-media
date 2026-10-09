@@ -67,7 +67,8 @@ function assertExactPartition(sourceIds, partitionIds, label) {
 test("HTTP and gRPC proposal/unresolved crosswalks partition exact current source identities", () => {
   const http = surface("HTTP", "gRPC");
   const httpSource = httpSourceIds(openApi);
-  const httpCrosswalk = [...candidateIds(http), ...inlineList(http, "unresolved")];
+  const boundedHttpIds = [...http.matchAll(/^        (\w+): media\.operation-slice\.[^\n]+$/gmu)].map(([, identity]) => identity);
+  const httpCrosswalk = [...candidateIds(http), ...boundedHttpIds, ...inlineList(http, "unresolved")];
   assert.equal(httpSource.length, 27);
   assertExactPartition(httpSource, httpCrosswalk, "HTTP");
 
@@ -125,13 +126,15 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
   const providerAdapterIds = inlineList(sdkSurface, "PROVIDER_ADAPTER");
   const notAdmittedIds = inlineList(sdkSurface, "NOT_ADMITTED");
   const boundedCanonicalReadIds = inlineList(sdkSurface, "boundedCanonicalReads");
+  const boundedCanonicalOperationIds = inlineList(sdkSurface, "boundedCanonicalOperations");
   assert.deepEqual(providerAdapterIds, ["media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame"]);
   assert.deepEqual(notAdmittedIds.sort(), ["media.sdk.retry", "media.sdk.retryOperation"]);
   assert.deepEqual(boundedCanonicalReadIds.sort(), ["media.sdk.getArtifact", "media.sdk.getUploadSession"]);
+  assert.deepEqual(boundedCanonicalOperationIds.sort(), ["media.sdk.completeUploadSession", "media.sdk.createUploadSession", "media.sdk.uploadPart"]);
   const nonOperationIds = [...transportOnlyIds, ...clientOnlyIds];
   assert.deepEqual(transportOnlyIds.sort(), ["media.sdk.getAllServicesStatus", "media.sdk.getServiceStatus"]);
   assert.deepEqual(clientOnlyIds.sort(), ["media.sdk.addEventListener", "media.sdk.removeEventListener"]);
-  const semanticPartition = [...candidateIds(sdkSurface), ...boundedCanonicalReadIds, ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...notAdmittedIds];
+  const semanticPartition = [...candidateIds(sdkSurface), ...boundedCanonicalOperationIds, ...boundedCanonicalReadIds, ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...notAdmittedIds];
   assert.equal(new Set(sdkRows.map(({ id }) => id)).size, sdkRows.length, "SDK registry identities are unique");
   assertExactPartition(
     sdkRows.filter(({ id }) => !artifactIds.has(id)).map(({ id }) => id),

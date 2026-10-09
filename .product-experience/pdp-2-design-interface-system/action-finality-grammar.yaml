@@ -37,6 +37,49 @@ recoveryPatterns:
     name: Reconcile concurrent or stale revisions
     description: Preserve both identities and edits, display the conflicting changes and require an explicit approved merge.
     automaticRecovery: false
+boundedUploadArtifactSlice:
+  status: bounded-interface-definition-under-PXD-051; independent-PDP-review-and-runtime-admission-open
+  decisionRef: .product-experience/decision-log.md#PXD-051
+  domainRefs: [media.domain.upload-session, media.domain.artifact, media.domain.artifact-version]
+  actions:
+    media.action.begin-artifact-upload:
+      operationRef: media.operation-slice.begin-upload
+      resultMeaning: upload-session-receipt-only; product-artifact-is-RECEIVING-not-AVAILABLE
+    media.action.resume-artifact-upload:
+      kind: compound-user-confirmed-workflow; not-a-single-operation-or-route
+      orderedOperationRefs: [media.operation-slice.inspect-upload, media.operation-slice.append-upload-chunk, media.operation-slice.complete-upload]
+      prerequisites: inspect-same-upload; recheck-current-tenant-principal-authority-source-and-state; explicit-user-confirmation-before-appending
+      appendRule: OPEN-session-and-contiguous-current-nextChunkIndex-only; append-remaining-parts-only
+      unknownOutcome: stop-mutation-and-inspect-same-identity; no-automatic-append-or-completion-replay
+      finality: completion-returns-integrity-checked-artifact-receipt-and-enters-VERIFYING-only
+      prohibited: [append-after-FINALIZING, append-after-COMPLETED, infer-AVAILABLE-from-completion, create-new-operation-or-route]
+    media.action.inspect-artifact:
+      operationRef: media.operation-slice.inspect-artifact
+      resultMeaning: scoped-metadata-observation-and-opaque-objectReference; not-content-retrieval-or-current-rights-proof
+  interfaces:
+    http:
+      status: exact-existing-route-shapes-cross-linked-to-PDP1; runtimeAdmission-NOT_ADMITTED
+      operationIds: [beginMediaUpload, getMediaUpload, appendMediaChunk, completeMediaUpload, getMediaArtifact]
+      source: contracts/openapi/media.yaml
+      identityRule: exact-method-path-operationId-plus-PDP1-source-ref; names-alone-never-establish-equivalence
+    sdk:
+      status: exact-existing-method-crosswalk; no-compound-resume-method; runtimeAdmission-NOT_ADMITTED
+      methods: [media.sdk.createUploadSession, media.sdk.getUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession, media.sdk.getArtifact]
+      source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
+      caveat: completeUploadSession-id-only-overload-cannot-bind-response-to-expected-upload-payload; session-overload-does
+    cli:
+      status: one-installed-host-configured-read-only-consumer; no-upload-or-resume-command
+      commandId: media.cli.artifact.inspect
+      operationRef: media.operation-slice.inspect-artifact
+      source: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
+      caveat: explicit-host-and-principal-arguments-are-not-host-identity-or-production-qualification
+    agentTool:
+      status: no-current-registered-tool-matches-upload-artifact-slice
+      observedToolIds: [av.speech-to-text, av.text-to-speech, av.vision-analysis, av.multimodal-inference]
+      source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml
+      prohibition: do-not-map-a-media-artifact-reference-input-in-an-unrelated-analysis-tool-to-upload-or-artifact-inspection
+  runtimeAdmission: NOT_ADMITTED
+  phaseAdmission: pending-independent-PDP2-review
 outcomes:
   - id: media.action-outcome.applied
     label: Request recorded

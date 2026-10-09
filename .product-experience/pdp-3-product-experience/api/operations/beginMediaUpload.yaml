@@ -14,6 +14,8 @@ routeManifestObservation:
 parameters:
   refs:
   - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
+  - '#/components/parameters/IdempotencyKeyHeader'
 request:
   schemaRefs:
   - mediaType: application/json
@@ -30,17 +32,23 @@ response:
     '403':
     - '#/components/schemas/ErrorEnvelope'
 pdp1SemanticBinding:
-  logicalOperationRef: null
-  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
-  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
-  ownerReview: pending
-contractStatus: proposal-only; owner-review-pending
+  logicalOperationRef: media.operation-slice.begin-upload
+  bindingStatus: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED
+  semanticAuthority: exact PDP-1 operation-slice; no route-name-only equivalence
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  ownerReview: independent-phase-review-open
+interfaceDefinition:
+  actionRef: media.action.begin-artifact-upload
+  actorAndAuthority: authenticated-OPERATOR-required; tenant-and-principal-must-come-from-trusted-host-context; body-and-headers-do-not-authenticate
+  requestIdentity: Idempotency-Key-scoped-by-tenantId-and-principalId; bound-to-canonical-full-upload-request; changed-payload-under-key-is-400-without-mutation
+  requestBodyFields: [tenantId, principalId, fileName, contentType, expectedSizeBytes, expectedSha256, classification, retention, metadata]
+  result: HTTP-201-UploadSession-receipt; OPEN-session-and-product-RECEIVING-only; does-not-create-available-artifact
+  errors: {400: invalid-request-or-idempotency-key-payload-mismatch, 403: authenticated-operation-or-policy-denial}
+  unknownOutcome: reconcile-the-same-tenant-principal-idempotency-key-before-new-upload-identity; no-blind-resubmission
+  finality: receipt-and-current-session-projection-only; not-byte-completion-verification-or-artifact-availability
+  runtimeAdmission: NOT_ADMITTED
+contractStatus: bounded-interface-definition; implementation-and-independent-qualification-open
 nonClaims:
-- authentication
-- idempotency
-- retry
-- cancellation
-- finality
-- state-effects
-- privacy
-- event-guarantees
+- production-host-or-identity-qualification
+- artifact-availability-or-verification
+- automatic-replay-or-durability-beyond-qualified-runtime-evidence

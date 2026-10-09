@@ -14,6 +14,7 @@ routeManifestObservation:
 parameters:
   refs:
   - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
   - '#/components/parameters/UploadId'
 request:
   schemaRefs: []
@@ -26,17 +27,22 @@ response:
     '404':
     - '#/components/schemas/ErrorEnvelope'
 pdp1SemanticBinding:
-  logicalOperationRef: null
-  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
-  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
-  ownerReview: pending
-contractStatus: proposal-only; owner-review-pending
+  logicalOperationRef: media.operation-slice.inspect-upload
+  bindingStatus: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED
+  semanticAuthority: exact PDP-1 operation-slice; observation-only
+  ownerDecisionRef: .product-experience/decision-log.md#PXD-051
+  ownerReview: independent-phase-review-open
+interfaceDefinition:
+  actionRef: media.action.resume-artifact-upload
+  actorAndAuthority: authenticated-OPERATOR-required; trusted-host-tenant-and-principal; upload observation is owner scoped
+  request: {uploadId: path-identity, method: GET, mutation: none}
+  result: HTTP-200-UploadSession-stored-projection-at-read
+  errors: {404: UPLOAD_NOT_FOUND-absent-or-inaccessible-within-caller-scope}
+  unknownOutcome: unavailable-read-is-not-global-absence-or-proof-of-prior-effect; resume-workflow-stops-until-same-identity-can-be-reconciled
+  finality: point-in-time-session-observation-only; no-current-authority-freshness-completion-or-artifact-availability-inference
+  runtimeAdmission: NOT_ADMITTED
+contractStatus: bounded-interface-definition; implementation-and-independent-qualification-open
 nonClaims:
-- authentication
-- idempotency
-- retry
-- cancellation
-- finality
-- state-effects
-- privacy
-- event-guarantees
+- global-absence-or-no-prior-effect
+- current-rights-or-currentness
+- mutation-or-automatic-replay

@@ -16,6 +16,8 @@ import { resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateBusinessMeasureDefinitions, resolveAcceptedDomainRuleRecords } from "./lib/product-definition-domain-rule-mapping.mjs";
 
+import { resolveExperienceDefinitionSemantics } from "./lib/media-experience-definition-mapping.mjs";
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const toolsRequire = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = toolsRequire("yaml");
@@ -797,13 +799,14 @@ const definitions = [
           stateRefs: [],
         })),
       ];
+      const definedSemantics = resolveExperienceDefinitionSemantics(actions.actions ?? [], recovery.contracts ?? []);
       const candidateActions = (actions.actions ?? []).map((action) => ({
         id: action.id,
         name: action.label,
         kind: "user",
         description: action.effect,
         preconditions: action.preconditions ?? [],
-        producesEffectRefs: [],
+        producesEffectRefs: definedSemantics.effectRefsByAction.get(action.id) ?? [],
       }));
       const allStates = (stateModels.models ?? []).flatMap((model) => (model.states ?? [])
         .filter((state) => state && typeof state === "object" && typeof state.id === "string" && typeof state.terminal === "boolean" && typeof state.meaning === "string")
@@ -854,7 +857,7 @@ const definitions = [
         allowedProposal: contract.allowed,
         blockedProposal: contract.blocked,
       }));
-      const finalityMappings = (actions.actions ?? [])
+      const legacyFinalityMappings = (actions.actions ?? [])
         .filter((action) => typeof action.finality === "string" && typeof action.reversible === "boolean"
           && typeof action.confirmation === "string"
           && /require a separate explicit confirmation before dispatch/iu.test(action.confirmation))
@@ -865,6 +868,9 @@ const definitions = [
           confirmationRequired: true,
           undoable: action.reversible,
         }));
+      const explicitFinalityActions = new Set(definedSemantics.finality.map((entry) => entry.actionRef));
+      const finalityMappings = [...legacyFinalityMappings.filter((entry) => !explicitFinalityActions.has(entry.actionRef)), ...definedSemantics.finality];
+      const recoveryMappingComplete = (recovery.contracts ?? []).length > 0 && definedSemantics.recoveries.length === recovery.contracts.length;
       return {
         id: "media.experience-definition.candidate",
         subjectId: screenRegistry.productId,
@@ -901,9 +907,9 @@ const definitions = [
         states: allStates,
         transitions: [],
         actions: candidateActions,
-        effects: [],
+        effects: definedSemantics.effects,
         finality: finalityMappings,
-        recovery: [],
+        recovery: definedSemantics.recoveries,
         scenarios: scenarioRecords.map((record) => record.scenario),
         fixtures: scenarioRecords.map((record) => record.fixture),
         search: (searchInspection.search ?? []).map((entry) => ({
@@ -935,9 +941,9 @@ const definitions = [
             states: { status: "DIRECT_PDP-0_STATE_PROPOSAL_MAPPING; PDP-1_RECONCILIATION_AND_OWNER_ACCEPTANCE_PENDING", source: "state-models.yaml#models[].states; pdp-1-domain-data/states.yaml#stateMachines" },
             transitions: { status: "BLOCKED_CANONICAL_ACTION_AND_GUARD_BINDINGS", source: "state-models.yaml#models[].transitions" },
             actions: { status: "DIRECT_UI_PROPOSAL_MAPPING; EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED", source: "action-registry.yaml#actions" },
-            effects: { status: "BLOCKED_EFFECT_KIND_AND_CONDITIONAL_REVERSIBILITY_MAPPING", source: "action-registry.yaml#actions[].effect/reversible" },
-            finality: { status: "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED", source: "action-registry.yaml#actions[].confirmation/finality/reversible" },
-            recovery: { status: "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED", source: "recovery-finality-contracts.yaml#contracts; experience-source-bindings.yaml#recoveryCrossReferences" },
+            effects: { status: "DIRECT_EXPLICIT_UNCONDITIONAL_DEFINITION_SUBSET; REMAINDER_AND_CONDITIONAL_REVERSIBILITY_UNRESOLVED", source: "action-registry.yaml#actions[].actionDefinitionSemantics.publicEffect" },
+            finality: { status: "DIRECT_EXPLICIT_CONFIRMATION_AND_BOOLEAN_REVERSIBILITY_SUBSET; REMAINDER_UNRESOLVED", source: "action-registry.yaml#actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible" },
+            recovery: { status: recoveryMappingComplete ? "OWNER_ACCEPTED_DEFINITION_RECORDS; RUNTIME_AND_INDEPENDENT_ACCEPTANCE_NOT_ADMITTED" : "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED", source: "recovery-finality-contracts.yaml#contracts[].definitionSemantics.publicRecovery; experience-source-bindings.yaml#recoveryCrossReferences" },
             scenarios: { status: "DIRECT_LINKED_FIXTURE_AND_CANONICAL_START_STATE_SUBSET; CONTEXT_AND_REMAINDER_UNRESOLVED", source: "scenario-fixture-registry.yaml#fixtures; experience-source-bindings.yaml#scenarioStartingStateBindings; journey-contracts/*.yaml#scenarioRefs; state-models.yaml#models[].states" },
             fixtures: { status: "DIRECT_SCENARIO_AND_SOURCE_SEED_REFERENCE_SUBSET; INLINE_PAYLOAD_AND_REMAINDER_UNRESOLVED", source: "scenario-fixture-registry.yaml#fixtures; libs/media-experience-simulation/src/fixtures.ts" },
             search: { status: "DIRECT_SOURCE_PROPOSAL; TYPE_OWNER_AND_QUERY_REVIEW_PENDING", source: "search-inspection-contracts.yaml#search and sourceBindings.searches" },
@@ -992,6 +998,7 @@ const definitions = [
             remainingGap: journeyProjectionBlocker,
           },
           ownerDecisionStatus: "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
+          definitionSemantics: { projectedEffects: definedSemantics.effects.length, projectedExplicitFinality: definedSemantics.finality.length, conditionalOrUnknownActions: definedSemantics.conditionalActions, projectedRecoveries: definedSemantics.recoveries.length, recoverySourceCount: (recovery.contracts ?? []).length, recoveryMappingComplete, admission: "NOT_ADMITTED; DEFINITION_ONLY" },
           recoverySourceProposals,
           recoverySourceCrossReferences: experienceBindings.recoveryCrossReferences ?? [],
         },
@@ -1017,9 +1024,9 @@ const definitions = [
       states: { sourceRef: ".product-experience/pdp-0-product-truth/state-models.yaml", sourcePath: "models[].states; PDP-1 states.yaml stateMachines", mapping: "direct proposed state IDs, meaning, terminality, and invariants; identity extraction does not accept PDP-1 semantics" },
       transitions: { sourceRef: ".product-experience/pdp-0-product-truth/state-models.yaml", sourcePath: "models[].transitions", mapping: "not projected because legal PDP-1 actionRef and guard bindings remain unresolved" },
       actions: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions", mapping: "direct UI action identity, label, effect prose, and preconditions; user kind is a proposal classification" },
-      effects: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].effect/reversible", mapping: "not projected until effect kind and boolean reversibility semantics are directly classifiable" },
-      finality: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].finality/confirmation/reversible", mapping: "direct subset only when confirmation prose explicitly requires confirmation and reversible is a source boolean; other actions remain unresolved" },
-      recovery: { sourceRef: ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml", sourcePath: "contracts plus experience-source-bindings.yaml#recoveryCrossReferences", mapping: "retain source narratives and exact action/scenario links in candidate review metadata; do not emit public records until automaticRecovery/userActionRequired booleans and canonical state bindings are explicit" },
+      effects: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].actionDefinitionSemantics.publicEffect", mapping: "only explicit owner-reviewed unconditional public effect definitions; conditional or unknown reversibility is retained as unmappable review metadata" },
+      finality: { sourceRef: ".product-experience/pdp-3-product-experience/action-registry.yaml", sourcePath: "actions[].actionDefinitionSemantics.publicFinality plus explicit legacy confirmation/finality/reversible", mapping: "direct explicit reviewed public finality definitions and legacy subset with explicit confirmation and source boolean reversibility; conditional and unknown mappings remain unresolved" },
+      recovery: { sourceRef: ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml", sourcePath: "contracts[].definitionSemantics.publicRecovery plus experience-source-bindings.yaml#recoveryCrossReferences", mapping: "exact owner-reviewed public recovery definitions with authored booleans; source applicability and blocked behavior remain in review metadata, not runtime or evidence admission" },
       scenarios: { sourceRef: ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml", sourcePath: "scenarioStartingStateBindings plus exact journey/action scenarioRefs", mapping: "project only scenario IDs with an exact source fixture seed and a resolvable canonical startingStateRef; leave contextDimensions empty when none are asserted" },
       fixtures: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures plus libs/media-experience-simulation/src/fixtures.ts", mapping: "linked fixture descriptor references exact scenario, fixture key, source path and authored conditions; source payload is not copied or treated as runtime evidence" },
       search: { sourceRef: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml", sourcePath: "search[] and sourceBindings.searches", mapping: "schema-shaped search records with exact PDP-1 type refs; query execution and owner acceptance remain pending" },
@@ -1239,6 +1246,11 @@ for (const definition of definitions) {
     const registeredScenarioCount = scenarioFixtureRegistry?.fixtures?.length ?? 0;
     const projectedScenarioCount = candidateModel.scenarios?.length ?? 0;
     fieldMappingBlockersForProjection.journeys = [candidateModel._mappingReview.journeyBindingAudit.remainingGap];
+    const definitionReview = candidateModel._mappingReview.definitionSemantics;
+    if (definitionReview.recoveryMappingComplete) delete fieldMappingBlockersForProjection.recovery;
+    else fieldMappingBlockersForProjection.recovery = [`${definitionReview.recoverySourceCount - definitionReview.projectedRecoveries} existing recovery records lack reviewed typed definition mappings; no booleans inferred from prose.`];
+    fieldMappingBlockersForProjection.actions = [`Only ${candidateModel.actions.filter((action) => action.producesEffectRefs.length).length} of ${candidateModel.actions.length} existing actions have directly mapped effect references; remaining canonical operation/effect relationships stay open.`];
+    fieldMappingBlockersForProjection.effects = [`${definitionReview.projectedEffects} exact unconditional effect definitions are projected; conditional or unknown reversibility remains unrepresentable as a public boolean, and the remaining action population is unresolved.`];
     fieldMappingBlockersForProjection.scenarios = [
       `Only ${projectedScenarioCount} of ${registeredScenarioCount} registry records have an exact source-fixture state that maps to a canonical PDP-0 state; ${Math.max(0, registeredScenarioCount - projectedScenarioCount)} remain unresolved, and context dimensions are not asserted.`,
     ];

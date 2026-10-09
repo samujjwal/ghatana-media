@@ -229,6 +229,63 @@ test("binds the exact existing upload-session SDK read to the individually appro
   assert.ok(wrongAuthority.gaps.includes("SDK operation has no explicit OpenAPI binding: media.sdk.getUploadSession"));
 });
 
+test("maps each existing SDK upload command only to its exact method, active route, operation ID, and bounded decision", () => {
+  const parity = readFileSync(".product-experience/interface-parity/operation-parity.yaml", "utf8");
+  const dispositions = parseSdkOpenApiDispositions(parity);
+  const cases = [
+    {
+      id: "media.sdk.createUploadSession", method: "POST", path: "/api/v1/artifacts/uploads", operationId: "beginMediaUpload",
+      sourceMethod: "createUploadSession", source: 'public async createUploadSession() {\n    return this.request("POST", "/api/v1/artifacts/uploads", body);\n  }',
+    },
+    {
+      id: "media.sdk.uploadPart", method: "PUT", path: "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}", operationId: "appendMediaChunk",
+      sourceMethod: "uploadPart", source: 'public async uploadPart() {\n    return this.fetchImpl(`/api/v1/artifacts/uploads/${encodeURIComponent(uploadId)}/chunks/${chunkIndex}`, { method: "PUT" });\n  }',
+    },
+    {
+      id: "media.sdk.completeUploadSession", method: "POST", path: "/api/v1/artifacts/uploads/{uploadId}/complete", operationId: "completeMediaUpload",
+      sourceMethod: "completeUploadSession", source: 'public async completeUploadSession() {\n    return this.request("POST", `/api/v1/artifacts/uploads/${encodeURIComponent(uploadId)}/complete`, undefined);\n  }',
+    },
+  ];
+  const createInput = (entry, overrides = {}) => {
+    const disposition = dispositions.find(item => item.identity === entry.id);
+    const source = `export class MediaOperationClient { ${entry.source} }`;
+    return validStructuralInput({
+      openapi: `  ${entry.path}:\n    ${entry.method.toLowerCase()}:\n      operationId: ${entry.operationId}\n`,
+      runtimeManifest: JSON.stringify({ routes: [{ method: entry.method, path: entry.path, operationId: entry.operationId }] }),
+      httpRegistry: `    method: ${entry.method}\n    path: "${entry.path}"\n    operationId: ${entry.operationId}\n`,
+      sdkOperationIds: [entry.id],
+      sdkCalls: [{ source: "libs/audio-video-client/src/operations.ts", method: entry.method, path: entry.path.replaceAll("{uploadId}", "{parameter}").replaceAll("{chunkIndex}", "{parameter}") }],
+      sdkSourceFiles: { "libs/audio-video-client/src/operations.ts": source },
+      sdkOpenApiDispositions: [disposition],
+      ...overrides,
+    });
+  };
+  for (const entry of cases) {
+    const disposition = dispositions.find(item => item.identity === entry.id);
+    assert.equal(disposition?.disposition, "BOUNDED_CANONICAL_OPERATION");
+    assert.equal(disposition?.operationId, entry.operationId);
+    assert.equal(disposition?.ownerDecisionRef, ".product-experience/decision-log.md#PXD-051");
+    const result = analyzeContractParity(createInput(entry));
+    assert.equal(result.gaps.some(gap => gap.startsWith("SDK operation has no explicit OpenAPI binding:")), false, entry.id);
+    assert.equal(result.reconciledFindings.some(row => row.disposition === "BOUNDED_CANONICAL_OPERATION"), true, entry.id);
+
+    const swapped = analyzeContractParity(createInput(entry, {
+      sdkOpenApiDispositions: [{ ...disposition, operationId: cases.find(other => other !== entry).operationId }],
+    }));
+    assert.ok(swapped.gaps.includes(`SDK operation has no explicit OpenAPI binding: ${entry.id}`), `${entry.id} rejects another existing operation ID`);
+
+    const wrongRoute = analyzeContractParity(createInput(entry, {
+      sdkCalls: [{ source: "libs/audio-video-client/src/operations.ts", method: "GET", path: "/api/v1/artifacts/{parameter}" }],
+    }));
+    assert.ok(wrongRoute.gaps.includes(`SDK operation has no explicit OpenAPI binding: ${entry.id}`), `${entry.id} rejects route/method drift`);
+
+    const wrongAuthority = analyzeContractParity(createInput(entry, {
+      sdkOpenApiDispositions: [{ ...disposition, ownerDecisionRef: ".product-experience/decision-log.md#PXD-045" }],
+    }));
+    assert.ok(wrongAuthority.gaps.includes(`SDK operation has no explicit OpenAPI binding: ${entry.id}`), `${entry.id} rejects unrelated owner decision`);
+  }
+});
+
 test("reports stale route dispositions instead of silently changing the parity denominator", () => {
   const result = analyzeContractParity(validStructuralInput({
     sdkCalls: [],
@@ -496,7 +553,7 @@ test("semantic candidates never contradict the HTTP and gRPC typed role disposit
   assert.deepEqual(httpUnresolved.sort(), httpRoleOnly.sort(), "all role-only HTTP identities remain unresolved as operation bindings");
   assert.equal(httpRoleOnly.some((identity) => candidateIds(httpSurface).includes(identity)), false,
     "transport-only/provider-admin HTTP identities cannot be proposed as domain operations");
-  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 18, unresolved: 9\}/u);
+  assert.match(httpSurface, /dispositionCounts: \{mappedProposal: 13, boundedDefinition: 5, unresolved: 9\}/u);
 
   const grpcRoleOnly = [...inlineList(typedGrpc, "transportOnly"), ...inlineList(typedGrpc, "providerAdmin")];
   const grpcCandidateIds = candidateIds(grpcSurface);

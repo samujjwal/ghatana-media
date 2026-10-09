@@ -331,3 +331,16 @@ test("non-inventoried constitution and actor records are not misrepresented as c
     assert.match(item.disposition, /not-a-capability-review-source/u);
   }
 });
+
+test('selected action definition source change retains historical pins without promoting capability coverage', () => {
+  const delta = review.experienceDefinitionSourceReconciliation;
+  const historical = review.definitionOnlySourceReconciliations.find(({ path }) => path === delta.path);
+  const sourcePin = review.sourceInventory.find(({ path }) => path === delta.path);
+  assert.equal(delta.previousSha256, historical.currentSha256);
+  assert.equal(delta.currentSha256, hash(readFileSync(resolve(root, delta.path))));
+  assert.equal(sourcePin.sha256, delta.currentSha256);
+  assert.equal(delta.ownerDecisionRef, '.product-experience/decision-log.md#PXD-052');
+  assert.equal(delta.coverageEffect, 'no-full-leaf-admission-or-denominator-reduction');
+  assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
+  assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383);
+});

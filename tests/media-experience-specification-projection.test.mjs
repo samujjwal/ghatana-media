@@ -228,10 +228,10 @@ test('PDP-3 interactions inherit preconditions from their exact referenced actio
 test('PDP-3 report retains only genuinely unresolved specification mappings', () => {
   const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], { encoding: 'utf8' }));
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
-  assert.equal(pdp3.unresolvedFieldCount, 10);
+  assert.equal(pdp3.unresolvedFieldCount, 9);
   assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), [
     'actions', 'componentContracts', 'effects', 'finality', 'fixtures', 'journeys',
-    'recovery', 'scenarios', 'transitions', 'views',
+    'scenarios', 'transitions', 'views',
   ]);
   assert.equal(specification.acceptance, 'NOT_CLAIMED');
   assert.match(specification.candidateMappingReview.ownerDecisionStatus, /PENDING/);
@@ -243,11 +243,18 @@ test('PDP-3 finality projects only explicit confirmations and source boolean rev
     && typeof action.reversible === 'boolean'
     && typeof action.confirmation === 'string'
     && /require a separate explicit confirmation before dispatch/iu.test(action.confirmation));
-  assert.equal(model.finality.length, expected.length);
-  assert.equal(model.finality.length, 18);
+  const explicit = actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicFinality ? [action.actionDefinitionSemantics.publicFinality] : []);
+  const explicitActions = new Set(explicit.map((entry) => entry.actionRef));
+  assert.equal(model.finality.length, expected.filter((action) => !explicitActions.has(action.id)).length + explicit.length);
+  assert.equal(model.finality.length, 19);
   for (const finality of model.finality) {
     const action = sourceById.get(finality.actionRef);
     assert.ok(action, `finality action ${finality.actionRef} is exact`);
+    if (explicitActions.has(action.id)) {
+      assert.deepEqual(finality, action.actionDefinitionSemantics.publicFinality);
+      assert.equal(action.actionDefinitionSemantics.runtimeAdmission, "NOT_ADMITTED");
+      continue;
+    }
     assert.equal(finality.description, action.finality);
     assert.equal(finality.confirmationRequired, true);
     assert.equal(finality.undoable, action.reversible);
@@ -260,9 +267,12 @@ test('PDP-3 preserves exact action prose while leaving unsupported effect taxono
   assert.equal(projectedActions.size, actionRegistry.actions.length);
   for (const source of actionRegistry.actions) {
     assert.equal(projectedActions.get(source.id).description, source.effect);
-    assert.deepEqual(projectedActions.get(source.id).producesEffectRefs, []);
+    const definedEffect = source.actionDefinitionSemantics?.publicEffect;
+    assert.deepEqual(projectedActions.get(source.id).producesEffectRefs, definedEffect ? [definedEffect.id] : []);
+    if (["CONDITIONAL", "UNKNOWN"].includes(source.actionDefinitionSemantics?.reversibility.kind)) assert.equal(definedEffect, undefined);
   }
-  assert.equal(model.effects.length, 0, 'no source classifies actions into the public effect-kind enum');
+  assert.deepEqual(model.effects, actionRegistry.actions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect] : []));
+  assert.equal(model.effects.length, 1, 'only the unconditional attachment definition has a directly representable effect');
   const blocker = specification.fieldMappingBlockers.find(({ field }) => field === 'effects');
   assert.ok(blocker?.reasons?.some((reason) => /effect kind|reversib/iu.test(reason)));
 });
@@ -322,7 +332,9 @@ test('PDP-3 recovery links reject stale and duplicate action or scenario referen
   const scenarios = new Set(scenarioFixtureRegistry.fixtures.map((fixture) => fixture.id));
   const recoveryIds = new Set(recoveryContracts.contracts.map((contract) => contract.id));
   assert.equal(bindingReview.recoveryCrossReferences.length, recoveryIds.size);
-  assert.deepEqual(model.recovery, [], 'the public recovery record requires booleans absent from proposal prose');
+  assert.deepEqual(model.recovery, recoveryContracts.contracts.map((contract) => contract.definitionSemantics.publicRecovery), 'recovery booleans come from individually reviewed typed definitions, never inferred prose');
+  assert.ok(!specification.fieldMappingBlockers.some(({ field }) => field === 'recovery'));
+  assert.ok(model.recovery.every((entry) => !entry.automaticRecovery && entry.userActionRequired));
   assert.equal(specification.candidateMappingReview.recoverySourceProposals.length, recoveryIds.size);
   for (const binding of bindingReview.recoveryCrossReferences) {
     assert.ok(recoveryIds.has(binding.recoveryRef));
