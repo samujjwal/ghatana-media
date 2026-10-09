@@ -1,0 +1,802 @@
+{
+  "schemaVersion": "media.blocker-audit.domain.v1",
+  "auditDate": "2026-10-08",
+  "repository": "samujjwal/ghatana-media",
+  "auditedCommit": "b46f1de29cb440c017d79e5ec2ef2f0bfbfa846f",
+  "branch": "main",
+  "scope": "G-01..G-06, P0-01..P0-08, P1-01..P1-11 only; audit of original task criteria vs current source; no task status or source semantics changed by this report.",
+  "authorityBoundary": "Current direct execution lane is PDP-0..PDP-3 product definition only. This scope can finish source definitions and acceptance inputs; it does not satisfy runtime implementation, external owner qualification, independent reviews, Lifecycle admission/currentness, deployment or release criteria. Never infer approval from this audit.",
+  "method": [
+    "Read the full authoritative execution prompt and ledger task rows; preserve the ledger Done text verbatim and cross-reference the master prompt Exit text.",
+    "Compared each row with its named source files, current generated projections, focused tests, and latest available batch evidence; distinguish local owner decisions/source tests from admitted runtime proof and independent authority.",
+    "Classify each unmet predicate using only unfinished-definition, independent-authority, runtime-outside-current-scope, or measurement-or-stale-ledger. Do not infer proof from a source name, green checker, historical batch, or owner-authored acceptance input.",
+    "Current residuals are reported as evidence observations, not as task closure; denominators are preserved."
+  ],
+  "statusSnapshot": {
+    "ledgerCounts": {
+      "complete": 6,
+      "partial": 51,
+      "blockedExternalOrIndependent": 14,
+      "total": 71
+    },
+    "auditedSubset": {
+      "tasks": 25,
+      "complete": 4,
+      "partial": 19,
+      "blockedExternalOrIndependent": 2
+    },
+    "note": "Counts are ledger status, not independently recomputed task satisfaction. This audit finds no basis to increase completed count within the audited set."
+  },
+  "currentEvidenceSnapshot": {
+    "projectionFieldBlockers": {
+      "PDP0": 0,
+      "PDP2": 0,
+      "PDP3": 9
+    },
+    "capabilityLeaves": {
+      "total": 462,
+      "classifiedDisposition": 79,
+      "unresolved": 383,
+      "acceptedCoverage": 0
+    },
+    "migration": {
+      "originalStructuralObservations": 349,
+      "ownerClassifiedNonNormative": 89,
+      "semanticUnresolved": 260,
+      "mixedUnresolved": 124,
+      "masterPlanPin": "STALE",
+      "recordedAndCurrentLineCounts": [
+        2815,
+        2829
+      ]
+    },
+    "interfaceParity": {
+      "surfaces": 9,
+      "identities": 286,
+      "unresolved": 190,
+      "ownerAcceptedBindings": 0,
+      "historicalFindingsOpen": 2
+    },
+    "experience": {
+      "journeys": 30,
+      "steps": 130,
+      "screenLinkedSteps": 130,
+      "actionLinkedSteps": 18,
+      "stepsWithoutActionBindings": 112,
+      "transitionRefsNull": 128
+    },
+    "designGates": {
+      "total": 7,
+      "resolvedOwner": 5,
+      "externalPending": 1,
+      "independentPending": 1
+    },
+    "lifecycle": {
+      "obligations": 348,
+      "withCaseIds": 99,
+      "withoutCaseIds": 249,
+      "sourceCaseCandidateLinks": 65,
+      "linkedObligations": 44,
+      "unmappedObligations": 304,
+      "observerAssignments": 0,
+      "oracleAssignments": 0,
+      "providerBindings": 0,
+      "boundNativePhaseReceipts": 0,
+      "receiptCurrentness": "NOT_EVALUATED"
+    },
+    "verification": "Latest submission batch reports 495/495 Node tests pass and all three public schema/validators PASS; residual report reports diagnostics []; two semantic parity findings and two design gates remain open. These checks validate source structure/selected definitions, not all Done criteria."
+  },
+  "tasks": [
+    {
+      "id": "G-01",
+      "title": "Freeze a truthful post-merge baseline (`VERIFY_MERGED_WORK`)",
+      "ledgerStatus": "complete",
+      "fullDone": "every authored file has a pinned artifact ID; no stale/duplicate IDs or missing files; baseline text distinguishes source observation from admitted currentness. **Dependency:** none.",
+      "masterPromptExit": "Fresh source hashes and correctly dated snapshot; no inferred clean workspace/currentness.",
+      "planDependencies": "none.",
+      "auditDisposition": "met",
+      "remainingUnmetPredicates": [],
+      "evidenceSources": [
+        ".product-experience/source-manifest.yaml",
+        ".product-experience/artifact-identities.yaml",
+        "tests/product-definition-authority.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "G-02",
+      "title": "Regenerate all sources and fail on drift",
+      "ledgerStatus": "complete",
+      "fullDone": "public schema and validator checks pass, source digests correspond to merged files, `--check --strict` passes twice with no new changes except intentionally normalized generation metadata. Recompute the **actual residual 12/6/14 mapping list** rather than assuming 2/6/2 reductions passed. **Dependency:** G-01.",
+      "masterPromptExit": "Manifest, Explorer index, public validators and drift checks agree without hand-edited generated JSON.",
+      "planDependencies": "G-01.",
+      "auditDisposition": "met",
+      "remainingUnmetPredicates": [],
+      "evidenceSources": [
+        "scripts/generate-media-product-manifest.mjs",
+        "scripts/generate-media-phase-projections.mjs",
+        "tests/product-definition-authority.test.mjs",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "G-03",
+      "title": "Make schema mappings direct and error-detecting",
+      "ledgerStatus": "partial",
+      "fullDone": "deterministic mapper rejects stale cross-phase IDs, illegal enum conversion, missing required props/guards, arbitrary owner inference and empty-schema green. **Dependency:** G-02.",
+      "masterPromptExit": "All applicable public-field links source-backed; zero unresolved semantic mapping diagnostics.",
+      "planDependencies": "G-02.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "PDP-3 projections still report nine field-level semantic blockers: actions, componentContracts, effects, finality, fixtures, journeys, scenarios, transitions, and views. The 30 journeys/130 steps project as candidates, but 112 steps still lack action bindings and 128 lack transitionRefs; empty object/state/authority/verification placeholders remain.",
+          "category": "unfinished-definition",
+          "evidence": "scripts/lib/media-product-definition-residuals.mjs; .product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
+          "owner": "Media PDP-1/PDP-3 source owners",
+          "nextClosureEvidence": "Resolve each field from canonical source definitions, rerun generator and public validators; no placeholder may be treated as an accepted semantic mapping."
+        }
+      ],
+      "evidenceSources": [
+        "scripts/generate-media-phase-projections.mjs",
+        "scripts/lib/media-product-definition-residuals.mjs",
+        "tests/pdp-0-final.test.mjs",
+        "tests/media-product-definition-residuals.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "G-04",
+      "title": "Create one deterministic Media residual-work report (not a closure engine)",
+      "ledgerStatus": "complete",
+      "fullDone": "reporter is reproducible, changes only for affected sources, fails when denominators silently shrink, and can show a clear distance-to-goal delta after each implementation pass. **Dependency:** G-02.",
+      "masterPromptExit": "Deterministic current report; injected stale/missing sources fail.",
+      "planDependencies": "G-02.",
+      "auditDisposition": "met",
+      "remainingUnmetPredicates": [],
+      "evidenceSources": [
+        "scripts/report-media-definition-residuals.mjs",
+        "scripts/lib/media-product-definition-residuals.mjs",
+        "tests/media-product-definition-residuals.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "G-05",
+      "title": "Normalize acceptance/decision status without fabricating signoff",
+      "ledgerStatus": "partial",
+      "fullDone": "the same decision has the same status and identifier in all active phase documents, and no downstream file claims broader acceptance than its source. **Dependency:** G-01/G-03.",
+      "masterPromptExit": "No contradictory status/acceptance mirrors; exact decision scope and exclusions retained.",
+      "planDependencies": "G-01/G-03.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "The current decision set is not uniformly mirrored with identical scope/status in all active phase documents; latest PXD-070–073 records are owner decisions and source-definition acceptance inputs, not PDP phase acceptance or Lifecycle acceptance. Reconciliation of earlier/current decision mirrors and each active overview remains incomplete.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/decision-log.md; .product-experience/acceptance.yaml; .product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+          "owner": "Media decision/phase-document owners",
+          "nextClosureEvidence": "Compare every active PXD status/scope against acceptance, traceability, gaps, closure dashboard, and PDP overviews; update only authoritative mirrors and add stale/conflicting mirror negatives."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/decision-log.md",
+        ".product-experience/acceptance.yaml",
+        ".product-experience/gaps.yaml",
+        ".product-experience/closure-dashboard.yaml",
+        "tests/media-owner-decision-dispositions.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "G-06",
+      "title": "Make every phase self-contained and current",
+      "ledgerStatus": "partial",
+      "fullDone": "an implementer can reconstruct each phase from its own current authority sources and public dependencies without reading the historical plan; no two active semantic owners. **Dependency:** G-05, then revisited in each phase. ## 3. W1 — PDP-0 Product Truth completion",
+      "masterPromptExit": "All four self-contained phase pages match current authorities and explicit evidence states.",
+      "planDependencies": "G-05, then revisited in each phase.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "The phase overview documents do not yet reconstruct the complete current phase from active authorities and expose all source identities, open definition/projection gaps, and evidence states. PDP-3 retains nine projected semantic blockers, while unresolved capability, migration, parity and Lifecycle populations require more than the selected PXD slices.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md; .product-experience/pdp-1-domain-data/DOMAIN-MODEL.md; .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md; .product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md; tests/pdp-overview-currentness.test.mjs",
+          "owner": "Media PDP overview owners",
+          "nextClosureEvidence": "Bring each overview into sync with current source IDs and explicitly scoped unresolved predicates; verify an implementer can reconstruct its phase without relying on stale plan prose."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+        ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+        "tests/pdp-overview-currentness.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P0-01",
+      "title": "Resolve the remaining 383 capability leaves individually",
+      "ledgerStatus": "partial",
+      "fullDone": "462/462 leaves have exact valid dispositions, 0 unjustified unresolved; invalid/stale references fail a generated coverage test. **Dependency:** G-03, P1-03 for semantic operation IDs (workstreams can advance in parallel).",
+      "masterPromptExit": "462/462 stable leaf identities; no unsupported channel-name equivalence or silent denominator drops.",
+      "planDependencies": "G-03, P1-03 for semantic operation IDs (workstreams can advance in parallel).",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "383 of 462 leaves remain unresolved; only 79 have a disposition and the current full accepted coverage count is zero. The submitted project/transcript/caption/transcription slices add bounded source review but do not resolve their entire applicability/profile/channel population.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-0 capability owner",
+          "nextClosureEvidence": "For each unchanged leaf ID, bind exact journey step, operation, read model, platform contract, or justified exclusion; crosswalk actor/source/profile/channel and prove no denominator shrink with generated negative tests."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "tests/media-capability-review-source-impact.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P0-02",
+      "title": "Define operation-specific requirement bounds and availability",
+      "ledgerStatus": "partial",
+      "fullDone": "all applicable leaves are testable; `DEFINED` never implies `IMPLEMENTED/QUALIFIED/AVAILABLE`; NFR targets have owned measurement methods. **Dependency:** P0-01, can proceed family-by-family.",
+      "masterPromptExit": "Every applicable operation leaf has falsifiable bounds and explicit unqualified/unavailable state.",
+      "planDependencies": "P0-01, can proceed family-by-family.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "445 capability leaves still lack complete parameter/bound/profile definitions; the current residual source lists 77 journey-step leaves, 0 machine-operation leaves, 2 platform dependencies and 383 unresolved targets. No full applicable leaf population or per-operation falsifiable bounds is available.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/requirements.yaml; .product-experience/pdp-0-product-truth/profile-semantics.yaml; scripts/lib/media-product-definition-residuals.mjs",
+          "owner": "Media PDP-0 requirements/profile owners",
+          "nextClosureEvidence": "Complete applicability first per P0-01, then define units, range/default, selected profile and DEFINED/IMPLEMENTED/QUALIFIED/AVAILABLE distinctions for each applicable leaf; include falsifiable bounds tests."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+        ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+        "tests/media-operation-bounds.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P0-03",
+      "title": "Decompose and own all migration semantic claims",
+      "ledgerStatus": "partial",
+      "fullDone": "zero unexplained normative claims, zero active double ownership, all superseded/historical blocks explicitly justified, independent migration semantic reconciliation passes. **Dependency:** G-05; can run parallel to P0-01.",
+      "masterPromptExit": "Every normative claim belongs to one PDP authority; 349 structural statuses and 263 actionable semantic items are reported separately.",
+      "planDependencies": "G-05; can run parallel to P0-01.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "260 semantic migration items remain unresolved (124 mixed); the master-plan pin remains stale at recorded/current line counts 2815/2829. Only 89 of the 349 original structural observations have bounded non-normative dispositions. Recent claim-level reconciliations do not disposition full parent claims.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml; docs/migration/expert-reviewed-master-plan.md; scripts/lib/media-product-definition-residuals.mjs",
+          "owner": "Media migration semantic owner; independent migration reviewer for review criterion",
+          "nextClosureEvidence": "Resolve remaining full claim units against exact historical and current source, preserve MPSEM denominator/pins, assign one normative PDP owner or justified structural disposition, then obtain independent migration semantic review."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
+        "docs/migration/expert-reviewed-master-plan.md",
+        "tests/media-migration-semantics-ledger.test.mjs",
+        "scripts/lib/media-product-definition-residuals.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P0-04",
+      "title": "Resolve ProductDefinition actor, user intent, requirement and journey mappings",
+      "ledgerStatus": "partial",
+      "fullDone": "`userIntents`, `requirements`, `journeys` direct mapping blockers eliminated with role, priority and cross-ref negative tests. **Dependency:** P0-01/P0-03.",
+      "masterPromptExit": "No orphan user intents or journey traces; independent P0-010 review of actor selection.",
+      "planDependencies": "P0-01/P0-03.",
+      "auditDisposition": "task-specific-done-pending-dependencies",
+      "remainingUnmetPredicates": [],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/intent-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "tests/pdp-0-final.test.mjs",
+        "tests/media-product-definition-resolved-intents.test.mjs"
+      ],
+      "statusReview": null,
+      "taskDoneAssessment": "The ledger acceptance criterion is met by 19/19 intent actor/priority resolutions, 30/30 journey initiating-actor resolutions, 66/66 requirement intent traces, zero current PDP-0 field blockers, and role/priority/cross-reference negative tests. Ledger status remains partial because its explicit P0-01/P0-03 dependencies are unresolved; this is not a failure of the direct-mapping Done predicates.",
+      "unmetPlanDependencies": [
+        {
+          "dependency": "P0-01",
+          "evidence": "383 of 462 capability leaves remain unresolved.",
+          "nextClosureEvidence": "Complete applicable leaf disposition."
+        },
+        {
+          "dependency": "P0-03",
+          "evidence": "260 migration semantic units remain unresolved.",
+          "nextClosureEvidence": "Resolve normative migration claim ownership."
+        }
+      ],
+      "masterPromptExitUnmet": [
+        {
+          "predicate": "Independent P0-010 review of actor selection remains outstanding; this is the broader master-prompt exit, not an extra condition in this ledger row’s verbatim acceptance criterion.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/authority-map.yaml",
+          "owner": "Independent PDP-0 reviewer",
+          "nextClosureEvidence": "Record attributed independent outcome after its complete review scope is ready."
+        }
+      ]
+    },
+    {
+      "id": "P0-05",
+      "title": "Resolve ProductDefinition rules, invariants, trust and ownership",
+      "ledgerStatus": "partial",
+      "fullDone": "`domainRules`, `invariants`, `trustContexts`, `ownershipRules` fields directly mapped; illicit state transitions, incorrect owners and unsafe trust-level coercions are rejected. **Dependency:** P1-01/P1-02 and G-05.",
+      "masterPromptExit": "ProductDefinition.domainRules populated only from accepted source IDs; violations and ownership independently reviewable.",
+      "planDependencies": "P1-01/P1-02 and G-05.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "The cross-phase rule/invariant/trust/ownership population is not fully mapped to accepted PDP-1 semantic owners; state/transition meanings remain pending and projections cannot safely claim complete ProductDefinition rules from unresolved or proposed IDs.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json; .product-experience/pdp-1-domain-data/states.yaml; .product-experience/pdp-1-domain-data/transitions.yaml; .product-experience/pdp-1-domain-data/state-adjudication.yaml; .product-experience/pdp-1-domain-data/authority.yaml; tests/product-definition-authority.test.mjs",
+          "owner": "Media PDP-0/PDP-1 owners",
+          "nextClosureEvidence": "Adjudicate every applicable rule with accepted source ID, scope, owner, violation response and trust context; validate no duplicate authority, invented mapping or unsafe transition."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/constitution.yaml",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+        ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        "scripts/generate-media-phase-projections.mjs",
+        "tests/product-definition-authority.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P0-06",
+      "title": "Resolve measures, timestamps, policy/profiles and quality applicability",
+      "ledgerStatus": "partial",
+      "fullDone": "`successMeasures`, `createdAt`, `updatedAt` have honest semantics/accepted mappings; metric-to-capability crosswalk and timestamp-provenance negative tests pass. **Dependency:** P0-01, X-01 where Tools schema changes are required.",
+      "masterPromptExit": "Zero successMeasure semantic blockers without invented numerical results or model certification.",
+      "planDependencies": "P0-01, X-01 where Tools schema changes are required.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "The four metric source definitions and public successMeasures mapping are present with no field blocker, but the capabilityRefs intentionally trace a bounded set and do not yet prove the complete applicable capability population; 383 P0-01 leaves remain unresolved. This is the remaining source-crosswalk dependency, not a missing measured baseline or target.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml; .product-experience/pdp-0-product-truth/capability-leaf-review.yaml; .product-experience/pdp-0-product-truth/generated/product-definition.candidate.json; tests/pdp-0-06-measures-provenance.test.mjs",
+          "owner": "Media PDP-0 measurement and capability owners",
+          "nextClosureEvidence": "Complete P0-01 applicability and verify every applicable measure-to-capability relation; preserve baseline, target and calibration as NOT_EVALUATED until qualified observations exist."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+        "tests/pdp-0-06-measures-provenance.test.mjs",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "statusReview": "Potentially stale/over-gated only if the ledger treats missing baseline, target, or independent calibration as a reason the definitions themselves are incomplete: the task exit is zero successMeasure semantic blockers without invented results, the four source definitions are mapped, and the master prompt says calibrate targets/baselines only with qualified observations. The remaining conservative blocker is the P0-01 applicability/capability crosswalk, not measured performance."
+    },
+    {
+      "id": "P0-07",
+      "title": "Reconcile complete product feature and channel scope",
+      "ledgerStatus": "partial",
+      "fullDone": "all mandatory review dimensions have an accepted requirement/contract or a source-backed exclusion, with explicit profile applicability and no invented GUI. **Dependency:** P0-01/P0-02.",
+      "masterPromptExit": "Complete type-specific channel applicability and referenced contract coverage.",
+      "planDependencies": "P0-01/P0-02.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Feature-by-channel applicability is not complete across Web, CLI, SDK, HTTP, gRPC, event and Agent. The 462-leaf population includes 383 unresolved leaves, and accepted source-backed exclusions/contract references are not complete for all product types.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-0-product-truth/capabilities.yaml; .product-experience/pdp-0-product-truth/applications-channels.yaml; .product-experience/pdp-0-product-truth/requirements.yaml; tests/media-p0-07-feature-channel-review.test.mjs",
+          "owner": "Media PDP-0 channel/scope owner",
+          "nextClosureEvidence": "Reconcile every applicable feature against each channel with exact requirement/contract identity or reasoned exclusion; preserve machine-only capabilities as non-GUI and prove completeness against all 462 leaves."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+        ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
+        ".product-experience/vision-requirements-coverage.yaml",
+        ".product-experience/surface-registry.yaml",
+        "tests/media-p0-07-feature-channel-review.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P0-08",
+      "title": "Conduct independent PDP-0 semantic acceptance (P0-010)",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDone": "acceptance ledger has actual reviewer outcomes and complete denominator; PDP-0 semantic acceptance inputs are ready for Lifecycle and no unexplained applicable requirement remains. **Dependency:** P0-01 through P0-07. ## 4. W2 — PDP-1 canonical domain/data/state/interface truth",
+      "masterPromptExit": "Independent P0-010 acceptance record; not a self-signed owner projection pass.",
+      "planDependencies": "P0-01 through P0-07.",
+      "auditDisposition": "partial-with-independent-gate",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Prerequisite input is incomplete: P0-01 through P0-07 are not all complete (notably 383 unresolved leaves and 260 semantic migration items). No actual independent PDP-0/P0-010 reviewer outcome is recorded.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/gaps.yaml; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-0 owners",
+          "nextClosureEvidence": "Complete P0-01..07 and assemble exact acceptance packet before seeking signoff."
+        },
+        {
+          "predicate": "Independent P0-010 authority is absent; do not infer review from Media owner decisions or green source validators.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/authority-map.yaml",
+          "owner": "Independent PDP-0 reviewer / Lifecycle authority",
+          "nextClosureEvidence": "Record an attributed independent decision with reviewer, scope, disagreements and objective oracles; only then record acceptance."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/acceptance.yaml",
+        ".product-experience/traceability.yaml",
+        ".product-experience/gaps.yaml",
+        "tests/pdp-0-final.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-01",
+      "title": "Adjudicate all canonical domain entities and immutable identities",
+      "ledgerStatus": "partial",
+      "fullDone": "no unnamed cross-entity references; immutable artifact/caption/project revisions and source lineage have fail-closed tests; PDP-0 rules have one PDP-1 meaning owner. **Dependency:** P0-02/P0-05 (initial review may proceed in parallel).",
+      "masterPromptExit": "Every selected object has stable typed tenant/resource/version IDs and collision/lineage tests.",
+      "planDependencies": "P0-02/P0-05 (initial review may proceed in parallel).",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Only bounded object slices (project/revision, upload/artifact, transcript version, caption version/draft) have recent source definitions/tests; the full 38-object identity/relationship inventory, persistence/wire DTO exact matches, collision and lineage coverage is not reconciled. Existing old transcription UUID is explicitly not equivalent to canonical transcript-version identity.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/domain-objects.yaml; .product-experience/pdp-1-domain-data/operations.yaml; libs/audio-video-types/src/contracts.ts; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-1 domain owner",
+          "nextClosureEvidence": "Enumerate all 38 objects and exact typed identities/tenant scope/version lineage; compare wire/persisted DTOs and add collision/lineage negatives for each selected object."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml",
+        ".product-experience/pdp-1-domain-data/relationships.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        "libs/audio-video-types/src/contracts.ts",
+        "tests/media-domain-identity-reconciliation.test.mjs",
+        "tests/media-caption-version-operation-definitions.test.mjs",
+        "tests/media-transcript-version-definition.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-02",
+      "title": "Finish job/attempt/stream/delivery state machines and finality",
+      "ledgerStatus": "partial",
+      "fullDone": "all valid/invalid transition edges are tested; stale fencing, process death, unknown outcome, cancel race, duplicate retry and delivery uncertainty fail safely; owner signs canonical semantics, runtime implementation proof remains separate. **Dependency:** P1-01.",
+      "masterPromptExit": "Unknown is never success/failure; no unsafe replay or state aliasing; restart tests prove invariants.",
+      "planDependencies": "P1-01.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "State and transition inventory is not fully adjudicated: several machine meanings/edges remain pending, and current source definitions (including submission) explicitly avoid asserting QUEUED/RUNNING or job-state finality. Existing restart tests cover bounded scenarios, not all job/attempt/stream/delivery crash, fencing, cancellation race, duplicate retry and delivery uncertainty cases.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/states.yaml; .product-experience/pdp-1-domain-data/transitions.yaml; .product-experience/pdp-1-domain-data/state-adjudication.yaml; tests/media-state-machine-extraction.test.mjs; tests/media-runtime-openapi-job-status.test.mjs",
+          "owner": "Media PDP-1 state/runtime owners",
+          "nextClosureEvidence": "Define every valid/invalid edge and finality semantics, then run durable runtime tests for process death, fencing, retries, cancellation races and delivery uncertainty; preserve UNKNOWN as distinct."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-1-domain-data/state-adjudication.yaml",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java",
+        "tests/media-state-machine-extraction.test.mjs",
+        "tests/media-runtime-openapi-job-status.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-03",
+      "title": "Establish canonical operations below the nine family headings",
+      "ledgerStatus": "partial",
+      "fullDone": "every applicable interface can reference an **exact** logical operation (not only a family), or an explicitly source-backed non-operation disposition. Reject name-based presumed equivalence. **Dependency:** P0-01, P1-02.",
+      "masterPromptExit": "All selected UI/machine actions reference a source-grounded canonical operation or explicit non-domain role.",
+      "planDependencies": "P0-01, P1-02.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Recent project, upload, caption/transcript, and file-audio submission definitions are selected slices, not all existing operations/actions. Exact per-operation request/result/error/authority/effect/finality meanings and non-operation dispositions remain missing for a broad source population; no claim follows merely from nine family labels or matching names.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/operations.yaml; .product-experience/pdp-3-product-experience/action-registry.yaml; .product-experience/interface-parity/operation-parity.yaml; residual report",
+          "owner": "Media PDP-1 operation owner",
+          "nextClosureEvidence": "Enumerate all existing applicable UI/machine actions and bind each to exact command/query operation and complete guards/effects/finality/errors or a justified non-domain role; add name-equivalence negatives."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/pdp-1-domain-data/action-contracts.yaml",
+        ".product-experience/pdp-1-domain-data/transitions.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        ".product-experience/interface-parity/operation-parity.yaml",
+        "tests/media-caption-version-operation-parity.test.mjs",
+        "tests/media-transcription-submission-definition.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-04",
+      "title": "Reconcile the historical 47 parity findings and all individual interfaces",
+      "ledgerStatus": "partial",
+      "fullDone": "zero unreviewed structural source findings and zero unexplained applicable semantic operation links; method/path/schema, auth, idempotency and finality parity tests prove each mapping or explicit non-admission. **Dependency:** P1-03; parallel protocol slices allowed.",
+      "masterPromptExit": "47/47 historical findings dispositioned and exact authoritative identity mappings accepted; negative drift tests pass.",
+      "planDependencies": "P1-03; parallel protocol slices allowed.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Two historical semantic parity findings remain open; current census contains 286 identities with 190 unresolved and zero owner-accepted full interface bindings. Do not treat source name equality or partial operation grammar as accepted behavioral parity.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/interface-parity/operation-parity.yaml; tests/media-contract-parity.test.mjs; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media interface owners",
+          "nextClosureEvidence": "Disposition both historical findings with source evidence and reconcile each applicable identity’s method/path/schema, authority, idempotency and finality; run negative drift tests."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/interface-parity/operation-parity.yaml",
+        "tests/media-contract-parity.test.mjs",
+        "scripts/check-media-contract-parity.mjs",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-05",
+      "title": "Complete canonical HTTP/gRPC/SDK/CLI contract and compatibility crosswalk",
+      "ledgerStatus": "partial",
+      "fullDone": "exact wire ↔ logical operation ↔ typed result/error ↔ SDK/CLI/Agent/consumer mapping verified and invalid routes rejected; no client broken by silent endpoint removal. **Dependency:** P1-03/P1-04.",
+      "masterPromptExit": "Cross-transport operation/DTO parity and compatibility decisions; legacy routes remain explicit NOT_ADMITTED where appropriate.",
+      "planDependencies": "P1-03/P1-04.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Observed 27 HTTP, 43 gRPC, 11 fixture CLI and 28 typed SDK identities need exact crosswalks to canonical operation/request/result/error/version and verified runtime reachability. Latest definition-only batch changed no runtime implementation; candidate mappings/source identities alone do not show all interfaces behave equivalently or preserve legacy consumers.",
+          "category": "unfinished-definition",
+          "evidence": "contracts/openapi/media.yaml; .product-experience/interface-parity/operation-parity.yaml; libs/audio-video-client/src/operations.ts; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media transport/SDK owners",
+          "nextClosureEvidence": "Reconcile every observed identity individually, run wire-level behavior and invalid-route tests, and verify compatibility/NOT_ADMITTED disposition without silently removing a consumer."
+        }
+      ],
+      "evidenceSources": [
+        "contracts/openapi/media.yaml",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto",
+        "modules/speech/stt-service/src/main/proto/stt_service.proto",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto",
+        "libs/audio-video-client/src/operations.ts",
+        "libs/audio-video-client/src/index.ts",
+        "libs/audio-video-client/src/canonical-routes.ts",
+        "tests/media-grpc-projection-crosswalk.test.mjs",
+        "tests/media-runtime-openapi-job-status.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-06",
+      "title": "Verify exhaustive TypeScript contract-role catalog (`VERIFY_MERGED_WORK`)",
+      "ledgerStatus": "complete",
+      "fullDone": "type/schema-source role finding independently green; other two historic parity findings still visible until qualified; new types immediately require new bindings. **Dependency:** G-02/P1-01.",
+      "masterPromptExit": "Focused exact-bound role regression remains green after type/API changes.",
+      "planDependencies": "G-02/P1-01.",
+      "auditDisposition": "met",
+      "remainingUnmetPredicates": [],
+      "evidenceSources": [
+        ".product-experience/interface-parity/typed-contract-bindings.json",
+        "libs/audio-video-types/src/contracts.ts",
+        "tests/media-typed-contract-bindings.test.mjs",
+        "scripts/check-media-contract-parity.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-07",
+      "title": "Define real Agent Tool contracts for all four handlers",
+      "ledgerStatus": "partial",
+      "fullDone": "full schema/adversarial/authority and handler parity for each tool; no prompt/media injection authority bypass or fictitious model/output support. **Dependency:** P1-03/P1-05, X-03 and X-05 for public services.",
+      "masterPromptExit": "Handler/runtime adversarial consumer tests; executionAdmitted remains false until Shared contract qualified.",
+      "planDependencies": "P1-03/P1-05, X-03 and X-05 for public services.",
+      "auditDisposition": "partial-with-independent-gate",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "The four Java handlers and adversarial tests were hardened, but admission is intentionally false because the public Shared invocation contract/runtime qualification dependency is not accepted. Definition-side closed schemas and source tests do not prove Shared’s qualified authority/context, deadline, cancellation and provenance envelope is available to the consumer.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml; .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml; tests/media-agent-tool-contracts.test.mjs",
+          "owner": "Shared contract owner plus Media integration owner",
+          "nextClosureEvidence": "Obtain a versioned qualified Shared public invocation contract with required context fields, and prove installed consumer tests against it; keep executionAdmitted=false until qualification."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
+        "libs/common/src/main/java/com/ghatana/audio/video/tools",
+        "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+        "tests/media-agent-tool-contracts.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-08",
+      "title": "Finish Media event taxonomy and safe delivery semantics",
+      "ledgerStatus": "partial",
+      "fullDone": "generated/observed event contracts and negative replay/duplication/stale-order tests pass; no notification counts as authoritative provider finality. **Dependency:** P1-02/P1-03, X-06.",
+      "masterPromptExit": "No notification inferred as canonical event; tested outbox/replay/partial failure semantics.",
+      "planDependencies": "P1-02/P1-03, X-06.",
+      "auditDisposition": "partial",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Nine runtime event and 15 client notification identities are not all reconciled to producers, schema, order, deduplication, privacy and durable delivery. Existing publisher/event tests cover only implemented source paths and do not qualify Event Plane delivery or prove outbox/replay/partial failure across all events.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/events.yaml; .product-experience/pdp-3-product-experience/events/event-registry.yaml; launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java",
+          "owner": "Media PDP-1 event owner and Event Plane integration owner",
+          "nextClosureEvidence": "Map all nine events and 15 notifications individually; implement durable outbox/replay/ordering/dedup behavior and failure tests; verify public Event Plane contract without treating notifications as authoritative finality."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/events.yaml",
+        ".product-experience/pdp-1-domain-data/states.yaml",
+        ".product-experience/pdp-1-domain-data/provenance.yaml",
+        ".product-experience/pdp-1-domain-data/evidence.yaml",
+        ".product-experience/pdp-2-design-interface-system/events/conventions.yaml",
+        ".product-experience/pdp-3-product-experience/events/event-registry.yaml",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java",
+        "tests/media-event-source-parity.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-09",
+      "title": "Complete temporal/spatial/media scientific data semantics",
+      "ledgerStatus": "partial",
+      "fullDone": "precision/overflow/drift/round-trip, source mapping and representative temporal/spatial interchange tests, with loss accounting. **Dependency:** P1-01, P0-06.",
+      "masterPromptExit": "Typed unit/clock conversion tests and qualified domain-expert review.",
+      "planDependencies": "P1-01, P0-06.",
+      "auditDisposition": "partial-with-independent-gate",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Typed time/clock/coordinate conversion and loss disclosures are only partially defined and tested per selected profile. Qualification of scientific fidelity and representative transformations is absent; unqualified source clock/provider timing cannot be promoted to scientifically aligned data.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/pdp-1-domain-data/value-objects.yaml; .product-experience/pdp-1-domain-data/interoperability.yaml; .product-experience/pdp-1-domain-data/provenance.yaml; tests/media-temporal-spatial-semantics.test.mjs",
+          "owner": "Media PDP-1 value-semantics owner",
+          "nextClosureEvidence": "Define exact source/target units, precision/overflow/drift/loss and round-trip behavior for each supported profile, then add representative interchange tests."
+        },
+        {
+          "predicate": "Independent scientific/domain-expert qualification is not recorded.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/pdp-0-product-truth/qualification-policy.yaml",
+          "owner": "Independent scientific/domain expert",
+          "nextClosureEvidence": "Submit defined transform profiles and test evidence for attributed expert qualification; do not claim scientific quality before this review."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/value-objects.yaml",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/provenance.yaml",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml",
+        "tests/media-temporal-spatial-semantics.test.mjs",
+        "libs/media-experience-simulation/tests/simulation.test.mjs"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-10",
+      "title": "Close identity/tenant, consent, privacy, revision and offline consistency contracts",
+      "ledgerStatus": "partial",
+      "fullDone": "independent security/privacy review plus denial, cross-tenant, revocation, legal hold, stale edit, partial erasure and duplicate-effect negative cases pass. **Dependency:** P1-02/P1-03, X-03.",
+      "masterPromptExit": "Adversarial cross-tenant, stale revision, replay and erasure tests; public Shared trust integration.",
+      "planDependencies": "P1-02/P1-03, X-03.",
+      "auditDisposition": "partial-with-independent-gate",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Source policy definitions and selected tests do not prove every effect boundary enforces trusted tenant/principal, live rights/consent, revocation, offline conflict, retention/legal hold, partial erasure, and duplicate-effect prevention. Shared public trust integration is not qualified; definition-only task boundary explicitly defers such app/runtime work.",
+          "category": "runtime-outside-current-scope",
+          "evidence": ".product-experience/pdp-1-domain-data/privacy.yaml; .product-experience/pdp-1-domain-data/authority.yaml; .product-experience/pdp-1-domain-data/offline-sync.yaml; .product-experience/pdp-1-domain-data/versioning.yaml; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media runtime/security owner and Shared trust owner",
+          "nextClosureEvidence": "Implement current policy checks at each effect boundary; add denial/cross-tenant/revocation/legal-hold/stale-edit/partial-erasure/replay tests and qualify public Shared trust integration."
+        },
+        {
+          "predicate": "Independent security/privacy review is required before claiming complete review acceptance.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/pdp-1-domain-data/privacy.yaml",
+          "owner": "Independent security/privacy reviewer",
+          "nextClosureEvidence": "Review the implemented threat model and adversarial evidence; record attributed scope, findings, and acceptance."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/privacy.yaml",
+        ".product-experience/pdp-1-domain-data/authority.yaml",
+        ".product-experience/pdp-1-domain-data/offline-sync.yaml",
+        ".product-experience/pdp-1-domain-data/versioning.yaml",
+        ".product-experience/pdp-1-domain-data/evidence.yaml",
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+        "tests/media-privacy-consistency-source.test.mjs",
+        "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeRestartReconciliationTest.java"
+      ],
+      "statusReview": null
+    },
+    {
+      "id": "P1-11",
+      "title": "Obtain independent PDP-1 domain/interface semantic acceptance",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDone": "PDP-1 domain/data authority has actual accepted specialist decisions and no unexplained applicable invariants or interface semantic mappings; qualified proofs can proceed to Lifecycle. **Dependency:** P1-01 through P1-10. ## 5. W3 — PDP-2 reusable design and machine-interface system",
+      "masterPromptExit": "Recorded scoped approval with all P1-01–10 applicable blockers resolved.",
+      "planDependencies": "P1-01 through P1-10.",
+      "auditDisposition": "partial-with-independent-gate",
+      "remainingUnmetPredicates": [
+        {
+          "predicate": "Prerequisites P1-01 through P1-10 remain open, including unresolved object/operation populations, parity identities, state/event/runtime behavior, and security/scientific review evidence.",
+          "category": "unfinished-definition",
+          "evidence": ".product-experience/gaps.yaml; current PDP-1 source/tests; docs/implementation/media-product-definition-submission-batch-2026-10-08.json",
+          "owner": "Media PDP-1 owners",
+          "nextClosureEvidence": "Resolve all applicable P1-01..10 blockers and prepare an exact, source-linked domain/interface acceptance packet."
+        },
+        {
+          "predicate": "No independent PDP-1 semantic acceptance record is present; Media owner choices and source tests are not independent approval.",
+          "category": "independent-authority",
+          "evidence": ".product-experience/acceptance.yaml; .product-experience/authority-map.yaml",
+          "owner": "Independent domain/interface reviewers / Lifecycle authority",
+          "nextClosureEvidence": "Record scoped reviewer decisions only after prerequisite inputs are complete; do not mark phase accepted from local validations."
+        }
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+        ".product-experience/pdp-1-domain-data/operations.yaml",
+        ".product-experience/acceptance.yaml",
+        ".product-experience/gaps.yaml"
+      ],
+      "statusReview": null
+    }
+  ],
+  "processCauses": [
+    {
+      "cause": "Task Done criteria mix independent owner-authored definitions with runtime implementation, public dependency qualification, independent approval and Lifecycle receipt issuance; rows remain partial until entire composite exit is met.",
+      "evidence": [
+        "docs/implementation/IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "impact": "Green source suites and many incremental PXD decisions produce substantial source progress but zero newly complete rows when implementation/approval predicates are intentionally deferred."
+    },
+    {
+      "cause": "The active scope was narrowed to PDP-0..3 definitions; application/runtime/SDK code changes were preserved in stash dd69e97b095b7ef5abc9b8b157e1a0d2561736da and are not part of current main proof.",
+      "evidence": [
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "impact": "P1 runtime/security and product host/release predicates cannot close in the definition lane."
+    },
+    {
+      "cause": "Historical ledgers and execution plans use earlier denominators and counters; the 71-task status snapshot is not refreshed by partial definition batches.",
+      "evidence": [
+        ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "docs/implementation/IMPLEMENTER-MASTER-PROMPT-ALL-71-TASKS.md",
+        "docs/implementation/media-product-definition-submission-batch-2026-10-08.json"
+      ],
+      "impact": "Readers can mistake 6/51/14 for current measured proof status; keep original task IDs/status while root decides evidence-backed status updates and use current counters separately."
+    }
+  ],
+  "potentiallyMisgatedRows": [
+    {
+      "id": "P0-06",
+      "finding": "Source-defined success measure contracts and generated mapping are present with zero field blocker; focused test proves source crosswalk/calculation/provenance while baseline, target, and quality calibration remain NOT_EVALUATED absent qualified observations. The master prompt explicitly says calibrate targets/baselines only with qualified observations, and exit is zero semantic blockers without invented results.",
+      "whyItMayBeMisgated": "Treating missing measured baseline or independent calibration as a blanket blocker to defining the four metrics would exceed the task’s exit. However P0-01 applicability dependency is still unresolved (383 leaves); do not claim exhaustive capability applicability until that dependency is addressed.",
+      "recommendedAuditAction": "Root should adjudicate whether P0-06 can be marked complete at the task level after the exact P0-01 applicability crosswalk is resolved, while preserving measured baseline/target/qualification as NOT_EVALUATED. Do not change ledger solely from this observation."
+    }
+  ],
+  "historicalCountCaution": "Master prompt action-matrix counters (for example migration 263, identities 283, Lifecycle 319) are historical. Current batch/residual source counters are 260 migration semantics, 286 interface identities and 348 Lifecycle obligations. Preserve each denominator’s own source population; do not subtract across snapshots.",
+  "completionClaims": "This audit does not claim completion of 71/71, PDP phase closure, independent approval, native Lifecycle acceptance, public package qualification, deployment or commercial release."
+}

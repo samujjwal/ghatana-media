@@ -1,0 +1,821 @@
+{
+  "schemaVersion": "media.interface-release-blocker-audit.v1",
+  "auditDate": "2026-10-08",
+  "scope": "P2-01..P2-09, X-01..X-09, R-01..R-05 only; source audit, not acceptance or status mutation",
+  "authorityBoundary": "The current execution is definition-only for Media-owned PDP sources. Original task Done criteria include implementation, external authority, runtime qualification, or release gates where stated. Do not reinterpret current scope as satisfying those predicates.",
+  "method": [
+    "Read each original task row and preserve its Done predicate verbatim.",
+    "Compared current Media source and targeted checks with latest available implementation ledger/batch, dependency worktrees, authority and qualification records.",
+    "Classified each unmet predicate as Media-actionable, independent/external authority, runtime/release outside current definition scope, not-selected applicability, or stale/incomplete ledger evidence.",
+    "No external approval, native Lifecycle receipt, package publication, deployed runtime, or release authorization is inferred."
+  ],
+  "statusCaution": "Implementation-status-2026-10-07.json and owner batch summaries are historical/currentness-limited snapshots; task status labels are not fresh proof. External observations cite their recorded commit/date and may be stale.",
+  "tasks": [
+    {
+      "id": "P2-01",
+      "ledgerStatus": "complete",
+      "fullDonePredicate": "prior six candidate field issues demonstrably resolved after regeneration, or exact residual source blockers output. **Dependency:** G-02/X-01.",
+      "originalTaskRow": "| **P2-01 — Recompute six ExperienceLanguage mappings (`VERIFY_MERGED_WORK`)** (complete) | pdp-2-design-interface-system/generated/experience-language.candidate.json; typography-layout.yaml | Preserve existing 0 field blockers and exact enum/recipe/recovery/a11y source mappings. | Public ExperienceLanguage schema/validator and negative owner-source tests pass. |",
+      "auditDisposition": "met",
+      "unmetPredicates": [],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json"
+      ],
+      "nextConcreteClosureEvidence": "Preserve this as complete only if current generated artifact remains source-current; the broader P2 source authority remains open.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Public ExperienceLanguage schema/validator and negative owner-source tests pass.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-01",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media Product Experience + Ghatana Tools public schema owner",
+      "blockerCategories": [
+        "stale-ledger-proof-check"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Re-run the public Tools ExperienceLanguage validator against the current generated candidate and preserve exact residual output; do not count that alone as P2-09 acceptance."
+    },
+    {
+      "id": "P2-02",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "immutable or pinned development-artifact public consumer proof, no unresolved aliases, exact cross-owner acceptance and nonmisleading package-license classification; release publication is tracked separately. **Dependency:** X-03, can start W0.",
+      "originalTaskRow": "| **P2-02 — Qualify public Shared token/theme/design primitives** (partial) | pdp-2-design-interface-system/media-token-aliases.yaml; gui/primitives.yaml; @ghatana/tokens/@ghatana/theme | Bind exact versioned public Shared exports, light/dark/forced-colors tokens, theme and CSP-safe primitives; no private source import. | Clean installed artifact consumer + token/visual/keyboard checks; Shared package owner records acceptance. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Existing isolated public-artifact consumer tests pass against locally packed Shared source-snapshot artifacts, and Media consumes the strict-CSP stylesheet for selected controls; the whole required token/theme/profile population still lacks complete alias resolution, exact cross-owner acceptance, and nonmisleading license classification.",
+        "The candidate @ghatana/ui-styles stylesheet audit records unresolved references and no admitted complete token/unit bridge; this is scoped to that recipe stylesheet and does not negate the passing installed-snapshot consumer or selected-control stylesheet use.",
+        "Complete light/dark token/theme alias, focus/keyboard/forced-colors/reduced-motion and semantic qualification plus package license/distribution classification remain."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/primitives.yaml",
+        "../ghatana-shared/platform/typescript/design-system/package.json",
+        "../ghatana-shared/platform/typescript/tokens/package.json",
+        ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml#sharedStylesheetBindingReview.uiStylesRecipeCandidate.variableAudit",
+        "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+        "tests/media-ui-reuse-inventory.test.mjs"
+      ],
+      "nextConcreteClosureEvidence": "Extend the passing source-snapshot consumer proof to the complete required token/theme/profile population, resolve every applicable alias, and record exact Shared owner acceptance and license classification. The canonical criterion accepts a pinned development artifact; publication is not required for this criterion.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Clean installed artifact consumer + token/visual/keyboard checks; Shared package owner records acceptance.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-02",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media design-system consumer + Ghatana Shared owner + dependency/license reviewers",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "shared-owner-approval",
+        "dependency-license-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Produce a development-artifact consumer pinned to a precise Shared revision/package and resolve each alias against that export; the criterion permits a pinned development artifact, not only a published immutable release.",
+      "evidenceQualification": "The owner-batch log records pnpm test:shared-media-consumer PASS_WITHIN_RECORDED_SCOPE: nine locally packed 0.1.0-SNAPSHOT Shared artifacts installed from tarballs, consumer type/runtime entrypoints resolved. It is a bounded source-snapshot result, not Shared owner acceptance. The separate 50 unresolved recipe references apply only to candidate @ghatana/ui-styles variable references in reuse-audit.yaml; Media uses the strict-CSP design-system stylesheet for selected controls."
+    },
+    {
+      "id": "P2-03",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "seven-of-seven gates have real accepted source/reviewer disposition; zero unexplained applicable findings; stale tokens and fake/duplicated approval statuses fail tests. **Dependency:** P2-01/P2-02/P2-04/P2-05/P2-08.",
+      "originalTaskRow": "| **P2-03 — Resolve the seven design-governance gates explicitly** (partial) | pdp-2-design-interface-system/design-governance.json; gui/style-authority.yaml; semantic-component-bindings.yaml | Keep four Media-owned gate decisions accepted; finish one concrete-component source binding, Shared-public binding and independent conformance. | Seven design gates individually supported; no fake passing conformance or package qualification. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Governance has seven gates, with five Media-owned gates RESOLVED_OWNER; shared-artifact-binding is EXTERNAL_PENDING and conformance-and-specialist-review is INDEPENDENT_PENDING.",
+        "No conformance/visual/accessibility review evidence closes those two gates."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/design-governance.json",
+        "tests/media-design-conformance.test.mjs",
+        ".product-experience/pdp-2-design-interface-system/gui/style-authority.yaml"
+      ],
+      "nextConcreteClosureEvidence": "Source-backed Media gate dispositions are largely complete. Remaining authority cannot be represented by another local status edit; obtain Shared artifact binding and independent conformance evidence.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Seven design gates individually supported; no fake passing conformance or package qualification.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-03",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media design authority; Shared package owner and independent conformance reviewer for external gates",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "shared-owner-approval",
+        "independent-conformance"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Refresh the seven-gate table against current source/tests and record exact evidence for each gate; the two remaining external/independent dispositions cannot be locally marked accepted."
+    },
+    {
+      "id": "P2-04",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "every applicable component family has exported public implementation or explicit contract-only status; `@audio-video/ui` and AI Voice consumers compile and behave identically with same props; inaccessible state/style variants fail tests. **Dependency:** P2-02/P2-03.",
+      "originalTaskRow": "| **P2-04 — Qualify all genuinely reusable components** (partial) | pdp-2-design-interface-system/component-contracts.yaml; gui/reuse-audit.yaml; libs/audio-video-ui/src/ | Use only confirmed Shared EmptyState and Media/AI Voice component reuse; repair CSP-blocked inline styles at Shared owner, not by weakening CSP. | Typed prop/port/version reachability; no duplicate local generic component; specialist a11y checks. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "31 definition bindings include selected source mappings, but only bounded components have tested public-source reuse; no complete implementation reachability/version/artifact qualification for every reusable family.",
+        "Shared package and independent specialist accessibility/design acceptance are absent."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml",
+        "../ghatana-shared/platform/typescript/design-system/src"
+      ],
+      "nextConcreteClosureEvidence": "Media-owned source bindings still finishable where local exports already exist. Shared compatibility and specialist a11y evidence are external gates.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Typed prop/port/version reachability; no duplicate local generic component; specialist a11y checks.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-04",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media component owners + Ghatana Shared owner + accessibility specialist",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "shared-owner-approval",
+        "independent-accessibility"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Complete the Media-owned applicability/export-or-contract-only row for every component family and verify actual @audio-video/ui and AI Voice consumer parity for selected components."
+    },
+    {
+      "id": "P2-05",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "all template/layout/recipe references resolve bidirectionally; schema and composition tests reject missing pattern/region/keyboard/focus/unknown-finality semantics. **Dependency:** P2-01/P2-04.",
+      "originalTaskRow": "| **P2-05 — Finish central templates, layouts and recipes, recompose screens** (partial) | pdp-2-design-interface-system/gui/{templates,recipes}/catalog.yaml; gui/layout.yaml; screen-composition-schema.yaml | Reconcile six withheld template/layout purpose mismatches by exact semantics; normalize shared grammar, not 47 screen-local patches. | Every applicable screen resolves a legitimate template, layout, pattern and component or explicit justified no-reuse. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Source catalogs are admitted as Media-owned definitions, but the latest owner batch still records six withheld template/layout purpose mismatches and unresolved per-screen recipe/behavior bindings.",
+        "All screen compositions remain unadmitted; current local checks do not prove rendered behavior or keyboard/focus/unknown-finality semantics."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/layout.yaml"
+      ],
+      "nextConcreteClosureEvidence": "Exact catalog reconciliation is Media-owned and can continue without new approval; independent rendering/accessibility and Shared admission remain separate.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Every applicable screen resolves a legitimate template, layout, pattern and component or explicit justified no-reuse.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-05",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media Product Experience/design-system owner",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "current-source-validation",
+        "independent-accessibility"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Resolve the remaining source-backed template/layout/recipe mismatches and add bidirectional reference plus keyboard/focus/unknown-finality negatives for each applicable composition."
+    },
+    {
+      "id": "P2-06",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "visually coherent across screens, no local competing color/typography/layout authority, critical controls remain discoverable at narrow widths, verified by references and cross-viewport review. **Dependency:** P2-04/P2-05.",
+      "originalTaskRow": "| **P2-06 — Define consistent, low-cognitive-load visual presentation** (partial) | pdp-2-design-interface-system/typography-layout.yaml; gui/patterns/; libs/audio-video-ui/ | Apply task-first hierarchy, progressive disclosure, predictable rhythm/typography, context-preserving responsive/focus design. | Representative narrow/medium/wide reference compositions reviewed for comprehension without hidden advanced power. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Typography/layout source remains proposal with Shared token binding and P0-010 review pending.",
+        "No fresh documented representative comprehension review for narrow/medium/wide compositions is identified; browser audits are structural/rendering evidence, not comprehension review."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
+        ".product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml",
+        ".product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml",
+        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+        "docs/implementation/verification/media-experience-browser-audit-2026-10-08"
+      ],
+      "nextConcreteClosureEvidence": "Media can produce source-defined review cases and test actual layouts now; human comprehension and Shared typography/token authority remain unproven.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Representative narrow/medium/wide reference compositions reviewed for comprehension without hidden advanced power.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-06",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media Product Experience/design-system owner + independent visual reviewer",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "human-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Create representative narrow/standard/wide references and document a human comprehension review of the exact current compositions."
+    },
+    {
+      "id": "P2-07",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "all applicable protocol grammar contracts are internally consistent and accepted; per-channel consumer conformance and negative examples, no fake GUI. **Dependency:** P1-03/P1-05/P1-07/P1-08.",
+      "originalTaskRow": "| **P2-07 — Complete machine interface conventions independently of GUI** (partial) | pdp-2-design-interface-system/{api,cli,sdk,events,agent-tools}/ | Define equal-quality CLI/API/SDK/event/Agent interfaces with source-backed errors/authority/progress, not UI-only metaphors. | Each selected machine interface independently typed, browsable in Explorer, and contract-tested. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "PDP-2 conventions contain definitions, but P1 operation semantics, channel applicability and parity remain unaccepted for many identities.",
+        "Current source audit has zero accepted full cross-interface bindings; matching method/route names do not prove request/result/error/authority equivalence.",
+        "Selected HTTP/SDK/CLI source bindings remain definition-only and runtime NOT_ADMITTED."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/api/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/sdk/conventions.yaml",
+        ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "tests/media-transcription-submission-interface-grammar.test.mjs"
+      ],
+      "nextConcreteClosureEvidence": "Continue individually reconciling applicable exact operation identities/field and error contracts and negative source tests. Runtime/channel admission and unresolved owner APIs remain separate.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Each selected machine interface independently typed, browsable in Explorer, and contract-tested.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-07",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media API/SDK/CLI/event/tool owners + applicable external interface owners",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "cross-interface-owner-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Select the next existing applicable channel operation and add exact request/result/error/authority source crosswalk plus negative examples; leave non-current channels explicitly unresolved."
+    },
+    {
+      "id": "P2-08",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "signed/auditable applicable specialist findings resolved; screenshots/semantic-tree/regressions and responsible approvals attached to exact version; no fabricated screen-reader PASS. **Dependency:** P2-05/P2-06, X-03.",
+      "originalTaskRow": "| **P2-08 — Run independent visual and assistive-technology reviews** (blocked-external/independent) | pdp-2-design-interface-system/accessibility.yaml; tests/experience-browser-audit.test.mjs | Obtain independent human visual and supported screen-reader/keyboard WCAG 2.2 AA review; test zoom, forced colors, labels, time-based editors. | Real reviewer identities, environment and findings, with defects fixed at shared component/layout causes. |",
+      "auditDisposition": "blocked-independent",
+      "unmetPredicates": [
+        "No independent human visual and supported screen-reader/keyboard WCAG 2.2 AA review record with reviewer identity, environment, findings, and disposition.",
+        "Automated browser/CSP/keyboard checks are not independent AT certification; Shared component owner review remains open."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
+        "tests/experience-browser-audit.test.mjs",
+        "docs/implementation/verification/media-experience-browser-audit-2026-10-08",
+        "../ghatana-shared/platform/typescript/design-system"
+      ],
+      "nextConcreteClosureEvidence": "Media can prepare exact review build/cases and resolve found defects; independent human reviewer and supported screen-reader environment are required for Done.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Real reviewer identities, environment and findings, with defects fixed at shared component/layout causes.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-08",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Independent visual/accessibility reviewer and Ghatana Shared component owner",
+      "blockerCategories": [
+        "independent-human-review",
+        "shared-owner-approval"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Prepare a versioned reviewer packet with applicable views, keyboard/screen-reader cases, screenshots/semantic tree, findings template and exact build/source fingerprint."
+    },
+    {
+      "id": "P2-09",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "zero PDP-2 semantic/resolver/authority findings and qualified independent review for applicable design claims; actual closure receipt remains Lifecycle-owned. **Dependency:** P2-01 through P2-08. ## 6. W4 — PDP-3 complete product experiences",
+      "originalTaskRow": "| **P2-09 — Accept final ExperienceLanguage source authority** (blocked-external/independent) | pdp-2-design-interface-system/DESIGN-LANGUAGE.md; acceptance.yaml | Approve accepted Design Language source only after P2-01–08 and external/independent gates. | Product-definition conformance approval, not product deployment certification. |",
+      "auditDisposition": "blocked-prerequisite",
+      "unmetPredicates": [
+        "Final Design Language source authority cannot be accepted until P2-01–08 are complete, including Shared and independent review.",
+        "Acceptance.yaml records PDP-2/phase authority pending; no external authority receipt."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+        ".product-experience/pdp-2-design-interface-system/design-governance.json"
+      ],
+      "nextConcreteClosureEvidence": "Resolve Media-owned P2 gaps first; final source-authority review must be recorded by the authorized independent/design reviewer.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Product-definition conformance approval, not product deployment certification.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "P2-09",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Authorized independent PDP-2/Design Language reviewer and Lifecycle authority",
+      "blockerCategories": [
+        "independent-phase-review",
+        "lifecycle-authority"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Close Media-owned P2-01..07 source findings and obtain the independent reviewer decision; then submit phase closure only through Lifecycle."
+    },
+    {
+      "id": "X-01",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "verified isolated public package consumers, exact contracts, no stale private imports or duplicate generic product framework. **Parallel start:** W0.",
+      "originalTaskRow": "| **X-01 — Ghatana Tools: public PDP schemas, projections and Explorer adapter (`EXTERNAL_OWNER`)** (blocked-external/independent) | ghatana-tools/libs/product-development; Tools #30 | Get versioned public Tools schemas, validators, Explorer/adapters and consumer acceptance; fix missing provider reference under rightful owner. | Exact packed installed consumer, owner decision and schema-drift negatives. |",
+      "auditDisposition": "blocked-external-owner",
+      "unmetPredicates": [
+        "The bounded pnpm test:tools-media-consumer passes for the locally packed Tools consumer and exact exercised API; full criterion still requires exact contracts, no stale private imports/duplicate framework, and authoritative public package/owner acceptance beyond that run.",
+        "The isolated consumer log is from a bounded dirty worktree snapshot, not an immutable publication or current-main owner receipt; exact package/schema drift scope must be checked against the current public owner artifact."
+      ],
+      "evidenceSources": [
+        "../ghatana-tools/libs/product-development",
+        "../ghatana-tools/README.md",
+        "../ghatana-tools/package.json",
+        "docs/implementation/media-owner-execution-batch-2026-10-08.json",
+        "docs/implementation/verification/media-owner-execution-2026-10-08/tools-consumer.log",
+        "docs/implementation/media-owner-execution-batch-2026-10-08.json"
+      ],
+      "nextConcreteClosureEvidence": "Media-owned installed-consumer/source-drift test can proceed against an immutable public package if available; schema/provider/owner decision must come from Tools owner.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Exact packed installed consumer, owner decision and schema-drift negatives.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-01",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Ghatana Tools product-development/package owner",
+      "blockerCategories": [
+        "external-owner",
+        "public-package-evidence"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Build an isolated Media consumer against the currently available public Tools artifact and add schema-drift/private-import negatives; request external owner acceptance for the package itself.",
+      "evidenceQualification": "The current recorded tools consumer run is PASS_WITHIN_RECORDED_SCOPE, including tarball installs and a Media load/render/inspect/dispatch test. Do not report absence of all consumer proof; remaining owner/publication/currentness and unexercised schema-drift criteria remain."
+    },
+    {
+      "id": "X-02",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "Media's 318 obligations can be admitted and evaluated through public Lifecycle contracts; real receipts generated and independently verified. **Parallel start:** W0.",
+      "originalTaskRow": "| **X-02 — Ghatana Lifecycle: provider registry, package policy, native closure (`EXTERNAL_OWNER`)** (blocked-external/independent) | ghatana-lifecycle/libs/evidence-contracts; Lifecycle #1 | Deliver public provider, distribution policy, admission, currentness and native proof outputs via Lifecycle. | No UNLICENSED publication ambiguity or forged Media receipts. |",
+      "auditDisposition": "blocked-external-authority",
+      "unmetPredicates": [
+        "Lifecycle public provider/distribution/admission/currentness outputs and authoritative native receipts are not available as accepted Media evidence.",
+        "Sibling Lifecycle checkout contains an untracked dist directory; that is not public package or current receipt evidence."
+      ],
+      "evidenceSources": [
+        "../ghatana-lifecycle/libs/evidence-contracts",
+        "../ghatana-lifecycle/package.json",
+        "../ghatana-lifecycle/libs/evidence-contracts/dist",
+        "config/closure/media-product-definition/obligations.json"
+      ],
+      "nextConcreteClosureEvidence": "Media can prepare genuine source cases and inputs. Lifecycle provider/publication policy and native receipt issuance are nondelegable Lifecycle authority.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "No UNLICENSED publication ambiguity or forged Media receipts.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-02",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Ghatana Lifecycle evidence-contracts/package and native-admission owners",
+      "blockerCategories": [
+        "external-owner",
+        "lifecycle-authority",
+        "public-package-evidence"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Prepare exact source-native cases and package inputs for Lifecycle; verify its public consumer/provider contract independently of the untracked dist directory."
+    },
+    {
+      "id": "X-03",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "version-qualified public exports and owner-approved Media-specific bindings, without semantic ownership duplication. **Parallel start:** W0.",
+      "originalTaskRow": "| **X-03 — Ghatana Shared: public UI/auth/workflow contracts and license-classified consumers (`EXTERNAL_OWNER`)** (blocked-external/independent) | ghatana-shared/platform/typescript/{tokens,theme,design-system}; Shared #234 | Accept CSP-safe Shared tokens/components, versioned artifact, auth/identity and accessibility semantics; resolve shipped/test-only licenses. | Media isolated consumer and independent Shared compatibility/AT evidence. |",
+      "auditDisposition": "blocked-external-owner",
+      "unmetPredicates": [
+        "The bounded pnpm test:shared-media-consumer passes for nine locally packed Shared source-snapshot artifacts and selected Media consumers; complete version-qualified public exports and owner-approved Media-specific bindings remain unaccepted.",
+        "The consumer run does not establish all token/theme/workflow/auth semantics, full component-state compatibility, Shared owner approval, dependency license closure, or independent AT evidence."
+      ],
+      "evidenceSources": [
+        "../ghatana-shared/platform/typescript/tokens",
+        "../ghatana-shared/platform/typescript/theme",
+        "../ghatana-shared/platform/typescript/design-system",
+        "docs/migration/shared-runtime-reuse-observation.md",
+        ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
+        "docs/implementation/verification/media-owner-execution-2026-10-08/shared-consumer.log",
+        "tests/media-ui-reuse-inventory.test.mjs"
+      ],
+      "nextConcreteClosureEvidence": "Media-owned isolated consumer and exact CSS tests are actionable; Shared package/auth/workflow owner and license decisions and independent AT review remain required.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Media isolated consumer and independent Shared compatibility/AT evidence.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-03",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Ghatana Shared tokens/theme/design-system/auth/workflow owners",
+      "blockerCategories": [
+        "external-owner",
+        "public-package-evidence",
+        "independent-accessibility",
+        "license-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Update the Media consumer proof to cite the current Shared worktree revision, resolve selected public CSS/token bindings, and submit exact owner questions without claiming approval.",
+      "evidenceQualification": "A bounded consumer proof exists and must be retained. The current Shared worktree and selected strict-CSP stylesheet evidence are source artifacts, not owner approval or complete package/AT qualification."
+    },
+    {
+      "id": "X-04",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "no duplicated generic OCR engine inside Media, real public client consumer parity, qualification/fixture continuity or explicit blocked profile. **Dependency:** P1-01; independent of unrelated PDP definitions.",
+      "originalTaskRow": "| **X-04 — Document Intelligence: public client and MDI-001 handoff (`EXTERNAL_OWNER`)** (partial) | ghatana/services/document-intelligence; Media adapters/; @ghatana/document-intelligence-client | Align published DI client v0.1.0 with SNAPSHOT peer constraints and MDI-001 ownership; implement source/version-aware scene-text adapter. | Versioned public DI consumer passes Media integration; no duplicate generic OCR engine. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Typed adapter source and negative tests exist, but the public published DI client/version peer compatibility and installed dependency consumption are not qualified.",
+        "MDI-001 ownership handoff and owner acceptance, exact source/frame/version/locale/span/time, tenant/consent/error mapping, and runtime admission remain open."
+      ],
+      "evidenceSources": [
+        "docs/migration/decisions/MDI-001-document-intelligence-ownership.md",
+        "docs/migration/document-intelligence-media-crosswalk.md",
+        "docs/migration/external-platform-contract-observation.json",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"
+      ],
+      "nextConcreteClosureEvidence": "Media adapter source cases and current dependency compatibility probes are actionable. Published client/MDI owner handoff and runtime integration require DI authority.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Versioned public DI consumer passes Media integration; no duplicate generic OCR engine.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-04",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Document Intelligence public-client/MDI-001 owner + Media adapter owner",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "external-owner",
+        "runtime-qualification"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Run the adapter compatibility test against the current public DI client contract/version and preserve source/version/locale/span negative cases; then obtain MDI-001 owner response."
+    },
+    {
+      "id": "X-05",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "exact typed modality contract and negative provider/model/consent/cost tests in installed consumer, no unqualified downloads. **Dependency:** P1-03 and security profiles.",
+      "originalTaskRow": "| **X-05 — AI Inference: typed modality-governance integration (`EXTERNAL_OWNER`)** (partial) | ghatana/services/ai-inference; media STT/TTS/vision/multimodal adapters | Define typed Media modality contract extensions or separate qualified provider; never send modalities to text/embedding-only API. | Accepted per-modality request/result/rights/qualification and negative integration tests. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Media typed modality observation/schema and negative tests are present, but AI Inference owner/public-contract acceptance and per-modality runtime model/provider qualification are not.",
+        "No accepted modality execution, rights, model-weight/license, privacy, or quality profile."
+      ],
+      "evidenceSources": [
+        "docs/migration/external-platform-contract-observation.json",
+        "docs/migration/external-platform-contract-observation.json",
+        ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "tests/media-ai-inference-modality-boundary.test.mjs",
+        "tests/media-external-platform-contract-observation.test.mjs"
+      ],
+      "nextConcreteClosureEvidence": "Media source schema/negative tests are complete bounded definition work; external AI Inference schema snapshot/acceptance and separate model/provider rights/quality review remain.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Accepted per-modality request/result/rights/qualification and negative integration tests.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-05",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "AI Inference public-contract/model owners + Media modality adapter owner",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "external-owner",
+        "model-rights-and-qualification"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Finish current Media typed modality schema/source negatives and send the exact contract review input to AI Inference owner; provider/model admission remains separate."
+    },
+    {
+      "id": "X-06",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "exact platform operation/DTO/public package binding and context/permission parity; no product-to-platform private internals. **Dependency:** P1-01/P1-08.",
+      "originalTaskRow": "| **X-06 — Ghatana Data Cloud / Action Plane / Event Plane handoff (`EXTERNAL_OWNER`)** (partial) | ghatana Data Cloud, Action Plane, Event Plane public API; Media events.yaml | Qualify object/command/event handoffs, actual 201 event append contract, correlation/idempotency and tenant privacy. | Test authenticated payload/error/ordering and owner-approved bounded handoff. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "No accepted public Data Cloud/Action Plane/Event Plane package/API binding, authenticated consumer conformance, actual durable 201 event append guarantee, or platform owner acceptance.",
+        "Media event taxonomy, delivery, ownership, ordering, replay, privacy, correlation, and recovery remain source/owner gaps."
+      ],
+      "evidenceSources": [
+        ".product-experience/pdp-1-domain-data/events.yaml",
+        ".product-experience/pdp-2-design-interface-system/events/conventions.yaml",
+        "docs/implementation/media-owner-execution-batch-2026-10-08.json",
+        "docs/migration/external-platform-contract-observation.json"
+      ],
+      "nextConcreteClosureEvidence": "Media can define bounded event semantics and negative contracts where source-backed; public APIs, durable event guarantees, and owner approval require the platform repositories/owners.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Test authenticated payload/error/ordering and owner-approved bounded handoff.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-06",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Data Cloud, Action Plane, Event Plane owners + Media lifecycle/event owner",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "external-owner",
+        "runtime-qualification"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Write the exact bounded existing event/command source contracts and negative tenant/correlation cases for one selected handoff; do not infer public package or append semantics."
+    },
+    {
+      "id": "X-07",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "isolated package consumer + unit/fidelity/timebase/interchange tests; or explicit `NOT_REQUIRED` with reason if current Media profile needs no simulation runtime. **Dependency:** accepted spatial use cases; not a default PDP closure blocker.",
+      "originalTaskRow": "| **X-07 — TutorPutor reusable simulation/animation mechanics (`EXTERNAL_OWNER`)** (blocked-external/independent) | TutorPutor @tutorputor/simulation public API; Media simulation specs | Select concrete spatial/physics/animation reusable mechanics only where a current Media capability requires them. | Reviewed dependency or justified outside current selected release profile; no compulsory phase gate by default. |",
+      "auditDisposition": "not-selected-dependency",
+      "unmetPredicates": [
+        "No current Media capability/use case justifies the TutorPutor simulation dependency, and TutorPutor repository/package is not available in the inspected workspace.",
+        "No dependency approval should be fabricated merely to close the row; explicit release-profile applicability disposition remains required."
+      ],
+      "evidenceSources": [
+        "config/release/internal-validation-only.json"
+      ],
+      "nextConcreteClosureEvidence": "Media can author a source-backed applicability decision for the selected profile if current product requirements show no use; external mechanics review only if an applicable use case is selected.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Reviewed dependency or justified outside current selected release profile; no compulsory phase gate by default.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-07",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media profile owner; TutorPutor owner only if a current use case is selected",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "not-selected-applicability",
+        "external-owner-if-selected"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Record whether the currently selected Media profile has a spatial/simulation use case, with requirement IDs; if none, create a justified NOT_REQUIRED profile disposition."
+    },
+    {
+      "id": "X-08",
+      "ledgerStatus": "blocked-external/independent",
+      "fullDonePredicate": "admitted deployment-profile SBOM/license/security/compatibility evidence, zero unreviewed shipped dependency, safe rejection for unqualified codecs/models/assets. **Dependency:** specific profile/implementation decision; does not block definition-only phases.",
+      "originalTaskRow": "| **X-08 — External dependency inventory and license/security decision (`EXTERNAL_OWNER` as applicable)** (blocked-external/independent) | scripts/report-media-dependency-inventory.mjs; package/Gradle/Cargo/Docker locks | Audit license/SBOM/provenance for selected shipped code, model weights, fonts, assets and native binaries separately from tests. | Owner/legal-qualified distribution profile; unlicensed artifacts NOT_ADMITTED, unrelated definitions not blocked. |",
+      "auditDisposition": "blocked-profile-authority",
+      "unmetPredicates": [
+        "No profile-specific immutable SBOM/provenance/license/security inventory and no legal/licensing decision for shipped code, assets, model weights, native binaries, fonts, or codecs.",
+        "Internal validation profile deliberately disables external/provider/release dependencies and is not a distribution clearance."
+      ],
+      "evidenceSources": [
+        "scripts/report-media-dependency-inventory.mjs",
+        "config/release/internal-validation-only.json",
+        "docs/qualification/R-05-release-profile-admission.md",
+        "docs/qualification/R-01-codec-profile-observations.md",
+        "review/r02-model-quality-observations.yaml"
+      ],
+      "nextConcreteClosureEvidence": "Media can generate candidate inventory for an exact build/profile. Legal and release owners must classify and authorize the selected artifacts; do not generalize package license metadata.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Owner/legal-qualified distribution profile; unlicensed artifacts NOT_ADMITTED, unrelated definitions not blocked.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-08",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media release owner, security/licensing/legal specialists, selected dependency owners",
+      "blockerCategories": [
+        "release-profile",
+        "independent-license-security-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Generate a candidate SBOM/license inventory for the exact internal-validation build without declaring legal clearance."
+    },
+    {
+      "id": "X-09",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "all consumer contracts version-migrated, no stale source reference at runtime, production cutover/rollback rehearsed, old paths retired only after proof. **Dependency:** X-04/05/06 and implementation readiness; not a blanket PDP gate. ## 10. Separate post-PDP implementation / release qualification — not hidden phase blockers",
+      "originalTaskRow": "| **X-09 — Finish Media source migration, compatibility and obsolete build paths (`EXTERNAL_OWNER` for other repos)** (partial) | docs/migration/; BOUNDARY.md; service Docker/Gradle files | Use branch/environment consumer inventory, versioned dual-run, route/client parity, rollback and cleanup after approved cutover. | Authoritative cutover receipt and tested rollback; no unreviewed legacy source deletion. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Cutover observation explicitly NOT_VERIFIED and release owner approval, production cutover, rollback rehearsal, and branch/consumer coverage UNKNOWN.",
+        "Consumer inventory and exact migration/version/rollback proof are not current authoritative receipts; external changes remain."
+      ],
+      "evidenceSources": [
+        "docs/migration/compatibility-cutover-observation.json",
+        "docs/migration/master-plan-source-change-claims.yaml",
+        "docs/migration/repository-preparation-status.md",
+        "BOUNDARY.md"
+      ],
+      "nextConcreteClosureEvidence": "Media can complete current consumer inventory and reversible migration/cutover rehearsal preparation. Actual cutover and rollback authorization require release owner and each external consumer owner.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Authoritative cutover receipt and tested rollback; no unreviewed legacy source deletion.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "X-09",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media release/migration owner and every affected external consumer owner",
+      "blockerCategories": [
+        "media-definition-actionable",
+        "external-owner",
+        "release-cutover"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Refresh consumer/branch inventory and versioned dual-run/rollback rehearsal inputs; no retirement before owner-authorized cutover evidence."
+    },
+    {
+      "id": "R-01",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "profile-level correctness, security, performance, licensing and hardware requirements proven; unsupported formats fail explicitly.",
+      "originalTaskRow": "| **R-01 — Qualify media codec/container/transcode profiles** (partial) | docs/qualification/R-01-codec-profile-observations.md; transcode providers | Select exact codec/container/transcode deployment profiles; test color/time/encryption/metadata preservation and rights. | Per-profile compatibility/security/performance/codec licensing evidence; unsupported profiles disabled. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "No codec/container/transcode deployment profile selected and qualified end-to-end.",
+        "Parser hardening tests establish narrow malformed-input behavior only; codec correctness, native closure, hostile-input sandbox, performance/hardware, patent/license and operations review remain NOT_EVALUATED."
+      ],
+      "evidenceSources": [
+        "docs/qualification/R-01-codec-profile-observations.md",
+        "libs/java/common/src/main/java/com/ghatana/media/common/validation/MediaFormatValidator.java",
+        "libs/java/common/src/test/java/com/ghatana/media/common/validation/MediaFormatValidatorQualificationTest.java",
+        "modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java"
+      ],
+      "nextConcreteClosureEvidence": "Media can maintain fail-closed unsupported behavior and select a candidate profile only from requirements; codec/runtime/security/performance/licensing specialists must qualify before support claims.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Per-profile compatibility/security/performance/codec licensing evidence; unsupported profiles disabled.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "R-01",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media codec/runtime owner + security, hardware/performance, licensing specialists",
+      "blockerCategories": [
+        "runtime-qualification",
+        "independent-security-review",
+        "independent-license-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Choose one required candidate format profile from an actual Media requirement and define its exact correctness/security/performance/license test matrix; continue fail-closed unsupported paths."
+    },
+    {
+      "id": "R-02",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "qualified supported deployment profiles and honest unsupported/uncertain cases, with audited performance/quality reports.",
+      "originalTaskRow": "| **R-02 — Qualify specific models and scientific quality claims** (partial) | review/r02-model-quality-observations.yaml; STT/TTS/vision/multimodal providers | Pin model/weight datasets, languages, hardware, calibration, holdout and measured quality with rights and safety qualification. | Only qualified claimed profiles activated; unmeasured results NOT_EVALUATED. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "No exact model/weights/tokenizer/provider identities and digests with rights/provenance for an admitted deployment profile.",
+        "No reproducible holdout/calibration quality results by language/domain/hardware or privacy, safety, and licensing review."
+      ],
+      "evidenceSources": [
+        "review/r02-model-quality-observations.yaml",
+        "docs/migration/external-platform-contract-observation.json",
+        "modules/speech/stt-service",
+        "modules/speech/tts-service",
+        "modules/vision/vision-service",
+        "config/release/internal-validation-only.json"
+      ],
+      "nextConcreteClosureEvidence": "Model identities, dataset rights, safety and quality evidence are independent specialist/provider requirements; Media may instrument exact evaluation protocols after choosing candidate profile.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Only qualified claimed profiles activated; unmeasured results NOT_EVALUATED.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "R-02",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media model/provider owner + data-rights, privacy/safety, quality specialists",
+      "blockerCategories": [
+        "runtime-qualification",
+        "independent-quality-rights-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Select one candidate model/profile only when source requirement and rights permit, then bind exact artifact digest and reproducible holdout protocol; until then keep claims NOT_EVALUATED."
+    },
+    {
+      "id": "R-03",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "real-system and durability/performance evidence; not simulated PDP assertions.",
+      "originalTaskRow": "| **R-03 — Harden real runtime durability, security and operations** (partial) | Media runtime state/persistence/upload/stream workers; scripts/conformance/ | Complete S3/DB crash windows, lease/fencing/erasure/retention, tenant security, telemetry, resource and failure tests. | Bounded repeatable real-system and load/soak/security evidence. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Local FFmpeg process bounds and targeted tests are not production sandbox, descendant termination, or deployed binary qualification.",
+        "S3/DB crash window, durable job/outbox/fencing/restart, upload-quarantine promotion, trusted host identity, parser/SSRF policy, backpressure/quotas/telemetry, and real-system failure/soak/load/rollback evidence remain."
+      ],
+      "evidenceSources": [
+        "docs/qualification/R-03-runtime-hardening-observations.md",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java",
+        "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/VideoFrameExtractorProcessTest.java"
+      ],
+      "nextConcreteClosureEvidence": "Media-owned code and repeatable integration/failure tests are actionable, but production infra, threat review, reliability/ops evidence and security owner signoff remain needed.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Bounded repeatable real-system and load/soak/security evidence.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "R-03",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media runtime/operations owner + security/reliability reviewers",
+      "blockerCategories": [
+        "media-runtime-implementation",
+        "production-operations",
+        "independent-security-review"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Close the next Media-owned durability/security predicate with an executable real-store failure test and record infra-dependent tests separately."
+    },
+    {
+      "id": "R-04",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "production-host parity and release smoke/e2e after deployment; separate from definition-grade public renderer tests.",
+      "originalTaskRow": "| **R-04 — Prove production product-host / client integration** (partial) | public @audio-video/ui; actual future Media Web host; SDK/CLI consumers | Implement production Web product host only when selected; compare exact public Media renderer, CSP, auth and telemetry to Explorer. | Production host deployed and integration qualified, independent of PDP semantic acceptance. |",
+      "auditDisposition": "runtime-outside-definition-scope",
+      "unmetPredicates": [
+        "No production Media Web host/deployment is evidenced; current Explorer/product routes and browser audit are source/build previews, not deployed host qualification.",
+        "Renderer/client parity, production identity, routing, CSP, telemetry, cross-browser E2E and release smoke remain."
+      ],
+      "evidenceSources": [
+        "libs/audio-video-ui",
+        "tests/experience-browser-audit.test.mjs",
+        "docs/implementation/verification/media-experience-browser-audit-2026-10-08"
+      ],
+      "nextConcreteClosureEvidence": "Product definition can complete independently. Production host is a release/runtime task; it needs deployment owner, actual consumer integration and release evidence.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Production host deployed and integration qualified, independent of PDP semantic acceptance.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "R-04",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media production-host owner + client/renderer owners and release operations",
+      "blockerCategories": [
+        "production-host",
+        "release-runtime"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Complete the release-profile-independent renderer/client parity test suite and deploy a production host only when a host is selected."
+    },
+    {
+      "id": "R-05",
+      "ledgerStatus": "partial",
+      "fullDonePredicate": "actual owner-authorized release gates green; no manufactured PDP or Lifecycle phase acceptance. ## 11. Exact commands and verification order From a **configured, authorized multi-repo development checkout** of `ghatana-media` with the matching public/packed Ghatana package dependencies (source-composite development and installed-public-artifact verification are **separate** runs): ```bash # Wave 0: always start with authoritative regeneration, NEVER edit generated JSON directly. pnpm generate:product-definition-manifest node scripts/generate-media-phase-projections.mjs node scripts/generate-media-phase-projections.mjs --check --strict # Fast source/semantic regressions introduced in merged owner decisions. pnpm test:owner-source-selections pnpm test:typed-contract-bindings pnpm check:product-definition-authority pnpm check:product-experience-local pnpm test:product-definition-authority pnpm test:product-experience-local # Source-level parity and design gates. Non-zero is an actionable finding until resolved. node --test tests/media-contract-parity.test.mjs tests/media-design-conformance.test.mjs pnpm check:contract-parity pnpm check:design-conformance pnpm check:presentation-architecture pnpm test:presentation-architecture # Public package/host and Lifecycle input consumers. pnpm test:tools-media-consumer pnpm test:shared-media-consumer pnpm check:lifecycle-closure-inputs pnpm test:lifecycle-input-preflight pnpm test:lifecycle-consumer-artifact # Full affected browser smoke and scenario review when GUI/Explorer sources change. pnpm test:experience-browser git diff --check ``` **Do not run these commands assuming every pre-existing task must pass today.** `check:contract-parity`, `check:design-conformance`, and Lifecycle *phase admission* may legitimately be non-green; isolate the failed source identities and fix them. A Lifecycle **input** preflight PASS with `PENDING`, no providers and zero receipts is **not phase closure**. Native Lifecycle proof commands must be obtained from and invoked through its current supported public CLI; do not guess private scripts/flags or import owner-internal files. ### Required negative test matrix | Change/fault injected | What must fail or be preserved | |---|---| | Unregistered/new ProductDefinition field, component, recipe, type, source ID | Public validator/ref closure and exact field mapper reject it | | Capability removed to reduce denominator | Registry/denominator preservation fails | | Multi-actor journey first-actor inferred silently | Actor/priority/authority mapping fails | | Wire route, SDK method or gRPC RPC silently renamed | Method+route+type+consumer parity fails | | Stale job attempt, expired token or wrong tenant | Canonical operation/effect authorizer rejects write/dispatch | | Cancel request or watcher detach mapped to `CANCELLED` | State/finality invariant fails | | Timeout or lost acknowledgment mapped to `FAILED`, automatically replayed | Outcome-unknown/reconciliation oracle fails | | Partial result accepted without sub-effect accounting | Partial finality contract fails | | Unsupported codec/model/voice or unknown rights | Capability admission rejects and UI/API reports reason | | Unknown Shared token, absent template/layout or private import | Design conformance and package consumer reject it | | Fake browser/AT review or empty human signature | Independent acceptance stays not-run | | Missing case/observer/oracle/provider or forged receipt | Lifecycle preflight/admission rejects premature readiness | | Normative source changed but proof reused with stale fingerprint | Lifecycle currentness/reproof rejects it | ## 12. How to split work into bounded implementation batches **Batch discipline:** Each PR addresses one coherent owner and dependency slice and leaves the repository in a locally honest, testable state. Avoid enormous bulk rewrites of 462 leaves/349 blocks/47 screens in one change. Process by capability/operation family or journey, preserve stable IDs, and regenerate affected projections after source edits. Cross-repository PRs should be submitted to their owners, never copied into Media private trees. **Suggested concurrent batches:** | Lane | Initial bounded changes | Other lane dependency | |---|---|---| | A — Regeneration & source truth | G-01/G-02/G-03/G-04, make 306-source manifest and 12/6/14 truth current | None | | B — PDP-0 semantics | P0-03 migration claim extraction in small source slices; P0-04 actor/intent mapping | G-03, later canonical PDP-1 refs | | C — PDP-1 interfaces | P1-06 TS binding tests; P1-03 caption version/read/write operations; P1-04 parity groups | G-02, authority selected | | D — PDP-2 design | P2-01 fresh six-field mapper; P2-05 recipe/template/layout selection; P2-02 Shared consumer | G-02, Shared public contract | | E — PDP-3 first vertical | P3-03 J-01/J-02/J-03/J-20 verified stages; P3-05 negative fixtures and P3-06 shared renderer | PDP-1 action/state and PDP-2 template semantics | | F — Proof system | L-01 exact 318 scope and L-02 case plan adapter from real tests | None to start; proof admission needs owner X-01/X-02 | | G — Owner-bound public packages | X-01 Tools #30, X-02 Lifecycle #1, X-03 Shared #234 | All can start in parallel | ### Immediate first PR checklist - [ ] Run the post-merge regeneration and capture the **new** actual semantic blocker counts and source diff; fix generator/compiler/public schema errors, not generated outputs by hand. - [ ] Run `pnpm test:typed-contract-bindings` and `pnpm test:owner-source-selections`; resolve real failures in source or assertions and confirm correct case sensitivity/unique semantic refs. - [ ] Make source-mapping residual reporting deterministic and list every remaining ID/owner, not just totals. - [ ] Re-run contract parity and design conformance; preserve the non-green reasons, classify them as schema/source/semantic/independent/external. - [ ] Start the Tools/Lifecycle/Shared owner dependencies in parallel (existing issues linked above). - [ ] Select one vertical (caption source upload → job → transcript → corrected caption version) as an *end-to-end semantic acceptance exemplar*, with real state/operation/interface/source proof, and then roll out the same source-owned pattern by family without copying definitions. ## 13. Definition-of-done matrix (actual phase/owner receipts, not source greenwashing) | Phase | Must be complete **before** asking Lifecycle to close it | Does **not** by itself block definition acceptance | |---|---|---| | PDP-0 | Fully reconciled product scope/462 leaves, all normative migration claims, bounded/testable requirements, actors, non-goals/business intents, quality/NFR and exact trace IDs; ProductDefinition owner/schema/semantic validation and P0-010 independent assessment | GPU/model/provider installed, every capability runtime-qualified, release certification, production host | | PDP-1 | Canonical domain/time/version objects, independent state machines, concrete operation+effect+finality/rights semantics and exact machine interface classification, negative invariant proof, independently accepted domain/security/interface assessment | Native encoder available unless a specific **definition claim** requires qualified observed behavior | | PDP-2 | Reusable accepted design/interaction/interface grammar, exact Shared public contract references, central layout/template/recipe/component bindings, WCAG target and independent relevant design/a11y conformance, verified ExperienceLanguage | Full 47-screen production Web implementation or a production-grade simulator engine | | PDP-3 | All 47 applicable view definitions, 30 journeys/130 steps, actions/guards/effects/states/recovery/fixtures and headless API/CLI/SDK/Agent experiences complete and cross-resolved; full ExperienceSpecification semantic validators and independent applicable experience review | Actual deployed Web host, every ML model, codec or native engine activated | | Lifecycle (cross-phase) | Source-current **actual** selected requirement/case/observer/oracle/provider/evidence for every applicable obligation, admitted package/registry, signed qualified review where needed and generated four current receipts | Hand-written green status, copied screenshot, no-console-error audit, generic owner policy comment | **Overall closure:** `PDP-0 CLOSED + PDP-1 CLOSED + PDP-2 CLOSED + PDP-3 CLOSED` requires authoritative Lifecycle receipts, zero unjustified required semantic gaps and complete applicable independent proof. Product release/readiness is an independent later result. ### Expected deliverables from every implementation pass A pass is not finished until it reports: (a) exact files/owners changed; (b) source inventory and denominators before/after; (c) newly accepted vs still proposed/blocked semantic references; (d) affected positive/negative test names with actual outcomes; (e) public package and consumer compatibility if touched; (f) external/independent evidence still outstanding, without manufactured PASS; (g) updated residual task IDs and dependency next actions; (h) whether Lifecycle generated any *actual* currentness/receipt (usually `NOT_RUN` until L-05 onwards). --- **Source references used for this plan:** merged PR #1, merged PR #2, PXD-026/PXD-027, `.product-experience/reviews/2026-10-07-all-gate-unblocking.md`, current checked-in `main` phase registries/projection candidates, `gaps.yaml`, the 318-obligation JSON and the public cross-repository issue descriptions. These are evidence for **current source obligations and remaining work**, not proof that the proposed fixes or external certifications have already passed.",
+      "originalTaskRow": "| **R-05 — Release qualification and consumer migration signoff** (partial) | release profile config; SBOM/license manifest; cutover matrix; immutable build digests | Start an INTERNAL_VALIDATION_ONLY noncommercial reference profile now; author production profile admission checklist without activating unqualified providers. | Explicit versioned release candidates, qualified dependencies, deployment/cutover signoff; no public launch by source-policy approval. |",
+      "auditDisposition": "partial",
+      "unmetPredicates": [
+        "Internal-validation-only v1 profile exists, but source/build/SBOM digests are intentionally null and external effects/providers/codecs/models/distribution are disabled.",
+        "No immutable candidate, profile-specific security/performance/license/SBOM qualification, deployment, consumer cutover, release owner authorization, rollback/SLO evidence."
+      ],
+      "evidenceSources": [
+        "config/release/internal-validation-only.json",
+        "docs/qualification/R-05-release-profile-admission.md",
+        "docs/migration/compatibility-cutover-observation.json"
+      ],
+      "nextConcreteClosureEvidence": "Media can create a reproducible internal validation artifact and candidate SBOM as independent work; release profile authorization, deployment, consumer cutover and rollback are required before production/public claims.",
+      "currentExecutionLane": "PDP-0..3 definition-only does not satisfy implementation/runtime/release predicates unless explicitly limited to source semantics.",
+      "executionPlanExitSummary": "Explicit versioned release candidates, qualified dependencies, deployment/cutover signoff; no public launch by source-policy approval.",
+      "fullDonePredicateSource": {
+        "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+        "taskId": "R-05",
+        "field": "acceptance_criteria_verbatim"
+      },
+      "owner": "Media release owner + dependency owners and independent security/licensing/operations reviewers",
+      "blockerCategories": [
+        "release-profile",
+        "immutable-build-evidence",
+        "release-owner-authorization"
+      ],
+      "smallestUnmetCriterionMediaCanFinishNow": "Build an immutable internal-validation candidate and bind source/build/SBOM digests; this is preparatory evidence, not release authorization."
+    }
+  ],
+  "freshnessEvidence": {
+    "statusLedger": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
+    "taskDetailSnapshot": "docs/implementation/media-owner-execution-batch-2026-10-08.json",
+    "snapshotCaveat": "The ledger filename is dated 2026-10-07 and the execution batch records a bounded worktree branch/implementationBase; neither is a current-main verification receipt. Treat their status labels and remainingDependencies as historical summaries until rechecked against current source and tests. The recorded Tools and Shared consumer commands did pass in their recorded bounded scope; these passes are evidence for those exact local tarball consumers, not whole Done completion.",
+    "observedDependencyWorktrees": [
+      {
+        "repository": "../ghatana-tools",
+        "head": "d1924b5d9",
+        "observation": "available sibling worktree; inspect owner-controlled current package/acceptance before claiming X-01 closed"
+      },
+      {
+        "repository": "../ghatana-lifecycle",
+        "head": "67f02d7",
+        "observation": "available sibling worktree; untracked libs/evidence-contracts/dist/ is not public-package or native-receipt evidence"
+      },
+      {
+        "repository": "../ghatana-shared",
+        "head": "f651aaebf",
+        "observation": "available sibling worktree; current strict-CSP control work is source evidence only, not Shared owner acceptance"
+      },
+      {
+        "repository": "Document Intelligence / AI Inference / Data Cloud / Action Plane / Event Plane / TutorPutor",
+        "head": null,
+        "observation": "not present as sibling repositories in the audited workspace; authority claims require accessible source/package receipts"
+      }
+    ],
+    "staleOrUnprovenLedgerClaims": [
+      {
+        "claim": "P2-05 six withheld mismatches / all 47 selected / zero screen compositions admitted",
+        "whyNotFreshProof": "Owner-batch snapshot is from a bounded branch and current sources have subsequent J03 definition updates; rerun exact composition/schema crosslinks before using the count as current."
+      },
+      {
+        "claim": "P2-02 and X-03 remainingDependencies describe a generic Shared binding gap",
+        "whyNotFreshProof": "Shared now has strict-CSP control stylesheet and selected Media consumption, but installed artifact, unresolved ui-styles token/unit bridge, license closure, Shared acceptance, and independent AT remain distinct; generic snapshot wording is incomplete."
+      },
+      {
+        "claim": "X-04/X-05 external observations imply current owner acceptance",
+        "whyNotFreshProof": "Observation authority is SOURCE_OBSERVATION_ONLY; captured dependency source snapshots may be dirty or not current; no external-owner acceptance or runtime admission is recorded."
+      },
+      {
+        "claim": "X-09 cutover observation is a present-day repository inventory",
+        "whyNotFreshProof": "compatibility-cutover-observation.json records old repository heads and explicitly NOT_VERIFIED/UNKNOWN cutover, branch coverage, release approval, and rollback."
+      },
+      {
+        "claim": "R-01/R-02/R-03 local tests close runtime qualification",
+        "whyNotFreshProof": "Qualification documents explicitly limit observations to narrow source tests; no selected deployment profile, native closure, independent security/licensing review, quality, performance, soak, or production evidence."
+      },
+      {
+        "claim": "R-05 internal-validation-only profile is a releasable artifact",
+        "whyNotFreshProof": "Profile document keeps source/build/SBOM digests null and external effects, codecs, models, distribution, deployment and cutover disabled."
+      }
+    ]
+  },
+  "currentChecksInspected": [
+    {
+      "name": "pnpm check:product-experience-local",
+      "evidence": "Run in preceding source-definition integration batch; passed with 462 leaves, 385 unresolved explicit journey refs, and 445 capability leaves still requiring owner-approved bounds. This is a structural check, not P2 conformance acceptance."
+    },
+    {
+      "name": "tests/media-transcription-submission-interface-grammar.test.mjs",
+      "evidence": "13/13 combined with source-impact checks in preceding integration batch; only bounded J03-2 definition grammar, not external API/runtime acceptance."
+    },
+    {
+      "name": "tests/experience-browser-audit.test.mjs",
+      "evidence": "Existing evidence folder is a source/build preview audit; it is not independent human visual or AT approval."
+    }
+  ],
+  "auditNotes": [
+    "fullDonePredicate values are copied exactly from the historical canonical ledger field acceptance_criteria_verbatim; executionPlanExitSummary preserves the prior explanatory summary.",
+    "Ledger statuses remain historical labels, not freshly proven Done. The audit records current evidence and exact unmet predicates separately.",
+    "P2-02 canonical criterion permits either immutable artifact or pinned development-artifact consumer proof; publication is separately tracked.",
+    "The Shared stylesheet variable count is scoped only to the candidate ui-styles CSS variable audit and must not be generalized to tokens or the strict-CSP design-system CSS.",
+    "Existing bounded `pnpm test:shared-media-consumer` and `pnpm test:tools-media-consumer` PASS_WITHIN_RECORDED_SCOPE results are retained explicitly; residuals concern completeness/currentness/owner admission, not absence of consumer work."
+  ]
+}
