@@ -7,70 +7,160 @@ surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.job-observation
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.job-observation]
+layoutIds:
+  - media.gui.layout.job-observation
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.job-status-card
   - media.component.activity-recovery-feed
-componentBindingStatus: Media-owned job observation composition selected from the exact job/finality/recovery anatomy; renderer and acceptance pending
+componentBindingStatus: Media-owned job observation composition selected from
+  the exact job/finality/recovery anatomy; renderer and acceptance pending
 patternIds:
   - media.gui.pattern.job-status-and-recovery
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: [media.domain.artifact-version, media.domain.processing-job]
+domainObjectRefs:
+  - media.domain.artifact-version
+  - media.domain.processing-job
 domainObjectRefsBindingStatus: source-defined exact submission context; screen-admission-pending
-operationRefs: [media.operation.transcription-submission]
-requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+operationRefs:
+  - media.operation.transcription-submission
+  - media.operation.action.view-job-status
+  - media.operation-slice.cancel-job
+  - media.operation.action.check-job-outcome
+requirementRefs:
+  - MEDIA-REQ-CAP-JOB
+  - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-operationRefsBindingStatus: submission operation bound for request action; other job actions remain unresolved
+operationRefsBindingStatus: submission operation bound for request action; other
+  job actions remain unresolved
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 entry:
-  - exact immutable audio artifact version and current scoped source visibility are required; selected source identity is workflow context, not a source-picker operation claim
-  - requestMode selects an exact payload branch: SUBMIT_OR_REPLAY requires all submission fields; RECONCILE accepts only requestId and requestFingerprint beyond requestMode; reject unknown, mixed-branch, caller-identity, and ignored fields
-  - explicit EXPLICIT(languageTag) or explicit AUTO_REQUESTED(mode-only) language intent plus exact qualified profile identity/version/configuration digest are required; no inferred default; languageIntent is canonicalized as a fixed ordered tuple
-  - nonempty required request/source/profile/purpose/rights/retention/location strings and lowercase 64-hex digests are required; consent null is valid only when current authoritative policy says consent is not required
-  - current rights, consent when applicable, purpose, retention, processing location, license, budget, and audit policy are rechecked before dispatch
-  - prepare and retain the complete immutable request snapshot and full fingerprint before first dispatch; request key is scoped to trusted tenant, principal, operation, and requestId
-  - submission acknowledgement shows the original request receipt and logical job identity only; do not display an inferred queued/running state
-  - after ambiguity reconcile the same requestId and full fingerprint under fresh scoped receipt-read authority; revoked processing permission blocks replay but does not itself block authorized reconciliation; missing evidence remains UNKNOWN_OUTCOME with no blind replay or new key
+  - "The caller must satisfy the exact screen context and subject scope in this
+    contract: follow one submitted transcription job and decide its safe next
+    action."
+  - Before the corresponding action, require the source-defined guard
+    “source-available”; absent or stale context leaves the action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “explicit-language-intent”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-rights-and-consent”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “admitted-capability-and-policy”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “stable-job-reference”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-cancellation-authority”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “existing-job-is-outcome-unknown”; absent or stale context leaves the action
+    unavailable.
 entryBindingStatus: bounded definition under PXD-072; runtime-admission-pending
-exit: []
+exit:
+  - "media.action.request-transcription:
+    stable-submission-receipt-and-logical-job-identity-only;
+    no-job-state-or-recognition-finality.
+    show-classified-state-and-safe-next-action;
+    never-submit-duplicate-on-unknown"
+  - "media.action.view-job-status: read-only.
+    keep-last-known-state-labelled-stale"
+  - "media.action.request-cancellation:
+    pending-until-authoritative-stop-or-racing-result-is-recorded.
+    keep-job-visible-as-running-or-unknown"
+  - "media.action.check-job-outcome:
+    remains-unknown-until-evidence-classifies-outcome.
+    preserve-unknown-state-and-disable-resubmission"
+  - A local or read-only result does not imply a domain transition; an unknown
+    owner outcome stays UNKNOWN and retains the exact subject for
+    reconciliation.
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
   - actionId: media.action.request-transcription
-    capabilityRefs: [media.job.submit, media.speech.transcription.file]
-    requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.job.submit
+      - media.speech.transcription.file
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+      - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.transcription-submission
-    effectRef: null
-    consequence: stable logical job identity and submission receipt only; no current job state or recognition completion is implied
-    bindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-072; runtime-and-screen-admission-pending
+    operationRefs:
+      - media.operation.transcription-submission
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-transcription/actionDefinitionSemantics/typedDefinition
+    consequence: submit-one-logical-transcription-request-for-the-exact-source-version
+    finality: stable-submission-receipt-and-logical-job-identity-only;
+      no-job-state-or-recognition-finality
+    reversibilityDisposition: UNKNOWN
+    guardRefs:
+      - source-available
+      - explicit-language-intent
+      - current-rights-and-consent
+      - admitted-capability-and-policy
+    failureRecovery: show-classified-state-and-safe-next-action;
+      never-submit-duplicate-on-unknown
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.view-job-status
-    capabilityRefs: [media.job.view-status]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.view-status
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.view-job-status
+    operationRefs:
+      - media.operation.action.view-job-status
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+    consequence: read-current-job-and-attempt-evidence
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - stable-job-reference
+    failureRecovery: keep-last-known-state-labelled-stale
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.request-cancellation
-    capabilityRefs: [media.job.cancel]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.cancel
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation-slice.cancel-job
+    operationRefs:
+      - media.operation-slice.cancel-job
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinition
+    consequence: request-cancellation-for-the-existing-logical-job
+    finality: pending-until-authoritative-stop-or-racing-result-is-recorded
+    reversibilityDisposition: NOT_REVERSIBLE
+    guardRefs:
+      - stable-job-reference
+      - current-cancellation-authority
+    failureRecovery: keep-job-visible-as-running-or-unknown
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.check-job-outcome
-    capabilityRefs: [media.job.check-outcome]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.check-outcome
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.check-job-outcome
+    operationRefs:
+      - media.operation.action.check-job-outcome
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition
+    consequence: collect-evidence-for-the-existing-job-identity-without-new-dispatch
+    finality: remains-unknown-until-evidence-classifies-outcome
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - existing-job-is-outcome-unknown
+    failureRecovery: preserve-unknown-state-and-disable-resubmission
+    status: Media-owner-definition; runtime NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
@@ -81,7 +171,8 @@ fixtures:
     - media.scenario.job-running
     - media.scenario.job-outcome-unknown
     - media.scenario.job-outcome-confirmed
-  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+  status: linked-to-deterministic-simulation-seeds;
+    owner-review-and-behavior-verification-pending
 fixturesBindingStatus: exact-registry-ids-linked; expected-results-and-owner-review-pending
 verification:
   status: not-run
@@ -98,7 +189,8 @@ fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
+  componentIds: exact-selected-Media-component-composition;
+    renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared
@@ -113,36 +205,39 @@ fieldBindingStatus:
   verification: not-run; no-evidence-refs
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.understand
 purpose: follow one submitted transcription job and decide its safe next action
 contextGoalNowNext:
-  context: Exact source version, language intent, consent scope, and stable job reference.
+  context: Exact source version, language intent, consent scope, and stable job
+    reference.
   goal: Understand progress and finality.
-  now: Render the owning job and attempt states, known progress, and current limitation.
-  next: Review a completed transcript, observe active work, or check an uncertain job outcome.
+  now: Render the owning job and attempt states, known progress, and current
+    limitation.
+  next: Review a completed transcript, observe active work, or check an uncertain
+    job outcome.
 anatomy:
-- source-reference
-- job-purpose
-- job-state
-- progress-if-known
-- finality
-- safe-next-action
+  - source-reference
+  - job-purpose
+  - job-state
+  - progress-if-known
+  - finality
+  - safe-next-action
 states:
-- queued
-- running
-- completed
-- partially-succeeded
-- failed
-- outcome-unknown
-- reconciling
-- cancelled
+  - queued
+  - running
+  - completed
+  - partially-succeeded
+  - failed
+  - outcome-unknown
+  - reconciling
+  - cancelled
 actions:
-- media.action.request-transcription
-- media.action.view-job-status
-- media.action.request-cancellation
-- media.action.check-job-outcome
+  - media.action.request-transcription
+  - media.action.view-job-status
+  - media.action.request-cancellation
+  - media.action.check-job-outcome
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -169,10 +264,16 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
+authorityRefs: []
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-transcription/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition

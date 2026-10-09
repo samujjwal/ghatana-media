@@ -2,6 +2,18 @@
  * Pure PDP-1 transition definition oracle. It evaluates only the explicit typed
  * Media guard contracts. It has no runtime mutation, effect, or admission path.
  */
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { resolve } from "node:path";
+import { validateTypedConsentRevisionCurrentRead, validateTypedObservationCurrentRead } from "./pdp-truth-domain-observation-currentness.mjs";
+
+const yaml = createRequire(resolve(process.cwd(), "../ghatana-tools/package.json"))("yaml");
+const operationSource = yaml.parse(readFileSync(resolve(process.cwd(), ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const RIGHTS_DECISION_CONTRACT = operationSource.ownerTypedObservationContracts?.records?.find((record) => record.id === "media.observation-contract.rights-decision.v1");
+const CONSENT_REVISION_CONTRACT = operationSource.ownerConsentRevisionObservationContract;
+const RIGHTS_DECISION_CONTRACT_REF = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1";
+const RIGHTS_READ_AUTHORITY_REF = ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation";
+const CONSENT_READ_AUTHORITY_REF = ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope";
 
 function recordsOf(transitions) {
   return [...(transitions.transitionRecords ?? []), ...(transitions.ownerDefinedTransitionRecords ?? [])];
@@ -12,6 +24,108 @@ function definitionsFor(states, machineId, dimension) {
   if (!machine) return [];
   if (machine.stateDefinitionsByDimension) return machine.stateDefinitionsByDimension[dimension] ?? [];
   return machine.stateDefinitions ?? [];
+}
+
+const canonicalUtc = (value) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(value)
+  && Number.isFinite(Date.parse(value)) && new Date(Date.parse(value)).toISOString() === value;
+const exactKeys = (value, expected) => value !== null && typeof value === "object" && !Array.isArray(value)
+  && JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...expected].sort());
+
+function evaluateConsentPerEffectCurrent(facts) {
+  const trusted = facts.trustedConsentContext;
+  const read = facts.typedOwnerFacts?.consentPerEffectCurrent;
+  if (!trusted || !Array.isArray(read?.effectReads) || !RIGHTS_DECISION_CONTRACT || !CONSENT_REVISION_CONTRACT || read.effectReads.length === 0) {
+    return { value: "UNKNOWN", failures: ["CONSENT_TYPED_CURRENT_READ_MISSING"] };
+  }
+  const nowMs = Date.parse(trusted.now);
+  if (typeof trusted.tenantScopeRef !== "string" || !trusted.tenantScopeRef || typeof trusted.principalRef !== "string" || !trusted.principalRef ||
+      typeof trusted.subjectArtifactVersionRef !== "string" || !trusted.subjectArtifactVersionRef || typeof trusted.purposeRef !== "string" || !trusted.purposeRef ||
+      typeof trusted.regionRef !== "string" || !trusted.regionRef || typeof trusted.retentionPolicyRef !== "string" || !trusted.retentionPolicyRef ||
+      !Array.isArray(trusted.expectedEffects) || trusted.expectedEffects.length === 0 || !canonicalUtc(trusted.now) ||
+      !Number.isSafeInteger(trusted.maxAgeMs) || trusted.maxAgeMs < 0 || trusted.expectedRightsAuthorityRef !== RIGHTS_READ_AUTHORITY_REF ||
+      typeof trusted.expectedRightsReadVersion !== "string" || !trusted.expectedRightsReadVersion ||
+      trusted.expectedConsentReadAuthorityRef !== CONSENT_READ_AUTHORITY_REF || typeof trusted.expectedConsentReadVersion !== "string" ||
+      !trusted.expectedConsentReadVersion || !trusted.expectedEffects.every((row) => row && typeof row.effectRef === "string" && row.effectRef &&
+        typeof row.consentId === "string" && row.consentId && typeof row.consentRef === "string" && row.consentRef &&
+        typeof row.consentRevisionRef === "string" && row.consentRevisionRef &&
+        Number.isSafeInteger(row.consentRevisionVersion) && row.consentRevisionVersion > 0 &&
+        typeof row.decisionAuthorityVersionRef === "string" && row.decisionAuthorityVersionRef &&
+        ["REQUIRED", "NOT_REQUIRED"].includes(row.externalProcessingRequirement) &&
+        ["REQUIRED", "NOT_REQUIRED"].includes(row.biometricProcessingRequirement)) ||
+      new Set(trusted.expectedEffects.map((row) => row.effectRef)).size !== trusted.expectedEffects.length ||
+      read.effectReads.length !== trusted.expectedEffects.length) {
+    return { value: "UNKNOWN", failures: ["CONSENT_TYPED_CURRENT_READ_SCOPE_AUTHORITY_VERSION_OR_FRESHNESS_MISMATCH"] };
+  }
+  const wanted = new Map(trusted.expectedEffects.map((row) => [row.effectRef, row]));
+  const seen = new Set();
+  let denied = false;
+  for (const entry of read.effectReads) {
+    const request = entry?.rightsRequest;
+    const result = entry?.rightsResult;
+    const consentRequest = entry?.consentRequest;
+    const consentResult = entry?.consentResult;
+    const effectRef = request?.useRef;
+    const expected = wanted.get(effectRef);
+    if (!expected || seen.has(effectRef) || !request || !result || !consentRequest || !consentResult) {
+      return { value: "UNKNOWN", failures: ["CONSENT_EFFECT_REVISION_OR_VALIDITY_BINDING_MISMATCH"] };
+    }
+    const expectedRightsRequest = { subjectArtifactVersionRef: trusted.subjectArtifactVersionRef, decisionKind: "CONSENT",
+      purposeRef: trusted.purposeRef, useRef: expected.effectRef, regionRef: trusted.regionRef, retentionPolicyRef: trusted.retentionPolicyRef };
+    const rightsTrusted = { tenantScopeRef: trusted.tenantScopeRef, principalRef: trusted.principalRef,
+      expectedOperationRef: "media.operation.action.inspect-consent-and-permitted-use",
+      expectedReadAuthorityRef: trusted.expectedRightsAuthorityRef, expectedReadVersion: trusted.expectedRightsReadVersion };
+    const rightsCurrent = validateTypedObservationCurrentRead({ contract: RIGHTS_DECISION_CONTRACT, request, result,
+      trusted: rightsTrusted, now: trusted.now, maxAgeMs: trusted.maxAgeMs });
+    const decision = result.decision;
+    const dispositionMapping = RIGHTS_DECISION_CONTRACT.decisionKindStateMapping?.find((row) =>
+      row.decisionKind === "CONSENT" && row.observationStatus === result.observationStatus);
+    const allowedPair = result.observationStatus === "ALLOWED_FOR_DECLARED_SCOPE" && result.decisionKind === "CONSENT"
+      && decision?.effectDisposition === "PERMITTED";
+    if (rightsCurrent.truth !== "TRUE" || Object.entries(expectedRightsRequest).some(([key, value]) => request[key] !== value) ||
+        result.decisionKind !== "CONSENT" || (!allowedPair && (!dispositionMapping || decision?.effectDisposition !== dispositionMapping.effectDisposition))) {
+      return { value: "UNKNOWN", failures: ["CONSENT_RIGHTS_QUERY_OR_EFFECT_BINDING_MISMATCH"] };
+    }
+    if (!allowedPair) {
+      seen.add(effectRef);
+      denied = true;
+      continue;
+    }
+    if (!decision || decision.tenantScopeRef !== trusted.tenantScopeRef || decision.principalRef !== trusted.principalRef ||
+        Object.entries(expectedRightsRequest).some(([key, value]) => decision[key] !== value) ||
+        decision.authorityVersionRef !== expected.decisionAuthorityVersionRef || !Array.isArray(decision.evidenceRefs) ||
+        !decision.evidenceRefs.includes(expected.consentRevisionRef) || !canonicalUtc(decision.validFrom) || !canonicalUtc(decision.validUntil) ||
+        Date.parse(decision.validFrom) >= Date.parse(decision.validUntil)) {
+      return { value: "UNKNOWN", failures: ["CONSENT_RIGHTS_DECISION_TUPLE_OR_EVIDENCE_MISMATCH"] };
+    }
+    const consent = consentResult.outcome;
+    const consentCurrent = validateTypedConsentRevisionCurrentRead({ contract: CONSENT_REVISION_CONTRACT, request: consentRequest,
+      result: consentResult, trusted: { tenantScopeRef: trusted.tenantScopeRef, principalRef: trusted.principalRef,
+        expectedOperationRef: CONSENT_REVISION_CONTRACT.operationRef, expectedReadAuthorityRef: trusted.expectedConsentReadAuthorityRef,
+        expectedReadVersion: trusted.expectedConsentReadVersion }, now: trusted.now, maxAgeMs: trusted.maxAgeMs });
+    if (!exactKeys(consentRequest, ["queryId", "consentId", "purposeRef"]) ||
+        consentCurrent.truth !== "TRUE" || consentRequest.consentId !== expected.consentId || consentRequest.purposeRef !== trusted.purposeRef ||
+        consent?.kind !== "OBSERVED_CONSENT_REVISION" || consent.consentId !== expected.consentId ||
+        consent.consentRef !== expected.consentRef || consent.consentRevisionRef !== expected.consentRevisionRef || consent.version !== expected.consentRevisionVersion ||
+        consent.tenantScopeRef !== trusted.tenantScopeRef || consent.principalRef !== trusted.principalRef || consent.status !== "ACTIVE" ||
+        !Array.isArray(consent.purposes) || !consent.purposes.includes(trusted.purposeRef) ||
+        !Array.isArray(consent.allowedRegions) || !consent.allowedRegions.includes(trusted.regionRef)) {
+      return { value: "UNKNOWN", failures: ["CONSENT_REVISION_READ_IDENTITY_AUTHORITY_OR_CURRENTNESS_MISMATCH"] };
+    }
+    const grantedAt = Date.parse(consent.grantedAt);
+    if (!canonicalUtc(consent.grantedAt) || !Number.isFinite(grantedAt) || grantedAt > nowMs ||
+        (consent.expiresAt !== null && (!canonicalUtc(consent.expiresAt) || !Number.isFinite(Date.parse(consent.expiresAt))))) {
+      return { value: "UNKNOWN", failures: ["CONSENT_REVISION_GRANT_INTERVAL_INVALID_OR_FUTURE"] };
+    }
+    if (consent.revokedAt !== null && (!canonicalUtc(consent.revokedAt) || !Number.isFinite(Date.parse(consent.revokedAt)))) {
+      return { value: "UNKNOWN", failures: ["CONSENT_REVISION_REVOCATION_TIME_INVALID"] };
+    }
+    if (consent.revokedAt !== null || (consent.expiresAt !== null && Date.parse(consent.expiresAt) <= nowMs) ||
+        (expected.externalProcessingRequirement === "REQUIRED" && consent.externalProcessingAllowed !== true) ||
+        (expected.biometricProcessingRequirement === "REQUIRED" && consent.biometricProcessingAllowed !== true)) denied = true;
+    seen.add(effectRef);
+    if (Date.parse(decision.validFrom) > nowMs || Date.parse(decision.validUntil) <= nowMs) denied = true;
+  }
+  return denied ? { value: "FALSE", failures: ["CONSENT_NOT_CURRENT_PERMITTED_FOR_EVERY_EFFECT"] } : { value: "TRUE", failures: [] };
 }
 
 function evaluateExpression(expression, facts, contracts) {
@@ -50,22 +164,7 @@ function evaluateExpression(expression, facts, contracts) {
         : { value: "FALSE", failures: [operand === "expectedVersionMatches" ? "VERSION_PRECONDITION_STALE" : "VERSION_CONFLICT_NOT_PRESENT"] };
     }
     if (operand === "consentPerEffectCurrent") {
-      const consent = facts.consent;
-      if (!consent || typeof consent.status !== "string" || !Array.isArray(contracts.facts?.consentPerEffectCurrent?.recognizedStatuses)
-          || !contracts.facts.consentPerEffectCurrent.recognizedStatuses.includes(consent.status) || typeof consent.current !== "boolean") {
-        return { value: "UNKNOWN", failures: ["CONSENT_STATUS_OR_CURRENTNESS_MISSING"] };
-      }
-      if (consent.status !== "ACTIVE" || consent.current !== true) return { value: "FALSE", failures: ["CONSENT_NOT_CURRENT_ACTIVE"] };
-      if (typeof consent.tenantId !== "string" || consent.tenantId.trim().length === 0) return { value: "UNKNOWN", failures: ["CONSENT_TENANT_MISSING"] };
-      if (consent.tenantId !== facts.tenant?.requestTenantId) {
-        return { value: "FALSE", failures: ["CONSENT_TENANT_MISMATCH"] };
-      }
-      if (typeof facts.purpose !== "string" || facts.purpose.trim().length === 0 || !Array.isArray(consent.purposes)
-          || consent.purposes.some((purpose) => typeof purpose !== "string" || purpose.trim().length === 0)) {
-        return { value: "UNKNOWN", failures: ["CONSENT_PURPOSE_OR_SCOPE_MISSING"] };
-      }
-      if (!consent.purposes.includes(facts.purpose)) return { value: "FALSE", failures: ["CONSENT_PURPOSE_OUT_OF_SCOPE"] };
-      return { value: "TRUE", failures: [] };
+      return evaluateConsentPerEffectCurrent(facts);
     }
     if (!Object.hasOwn(facts.guardFacts ?? {}, operand)) return { value: "UNKNOWN", failures: [`GUARD_FACT_MISSING:${operand}`] };
     const value = facts.guardFacts[operand];

@@ -27,6 +27,30 @@ ownerDefinedErrorSemantics:
     partialOutput: [exact-output-version-ref, per-output-state, provenance-when-authorized]
     unknownOutcome: [explicit-unknown-state, original-request-identity, read-only-reconciliation-action]
     fieldViolation: [input-path, safe-constraint]
+  ownerDefinedReasonFamilyDispositions:
+    id: media.api.error-reason-family-dispositions.v1
+    sourceAuthority: Media owns reason meaning and operation-specific retry/finality; the transport maps the typed category without broadening it.
+    families:
+      AUTHORITY_PRIVACY_RIGHTS_POLICY:
+        materialMeaning: The request is denied because current identity, tenant scope, purpose, consent, rights, privacy, egress, or policy does not authorize this exact operation and resource. It is not a capacity or local configuration failure.
+        retryRule: Do not automatically retry. A new request is eligible only after the exact denied authority or policy fact is corrected and rechecked under a fresh/current operation decision.
+        effectRule: A rejection before the owning effect boundary creates no accepted effect; if the result after a boundary is uncertain, report UNKNOWN_OUTCOME rather than this pre-effect rejection.
+      CAPACITY_QUOTA_DEPENDENCY_ADMISSION:
+        materialMeaning: Identify separately whether bounded capacity, an owner quota, or an exact dependency/profile admission fact prevents this operation. Do not call an unsupported capability or unqualified provider a transient capacity failure.
+        retryRule: Retry only when the exact operation declares replay safe, the specific temporary condition is current, the owner-defined retry window/budget permits it, and the same request identity can be reconciled. Quota exhaustion is not automatically transient.
+        effectRule: No dispatch or provider crossing is inferred from the admission denial. After possible crossing, preserve the exact attempt and UNKNOWN_OUTCOME until read-only reconciliation resolves it.
+      LOCAL_CONFIGURATION:
+        materialMeaning: The client cannot construct a valid invocation from its local configuration or input before sending the request; identify the safe configuration field or required correction without exposing secrets.
+        retryRule: Do not resend unchanged invalid local configuration; retry only after a user or administrator changes the identified local value and the command is reconstructed.
+        effectRule: A proven pre-send local failure has no remote effect. If request transmission may have started, local diagnostics cannot erase the remote outcome and the client must reconcile the same request identity.
+    negativeCases:
+      - policy-denial-relabelled-as-capacity-or-retryable-unavailable
+      - quota-exhaustion-relabelled-as-transient-capacity-without-owner-window
+      - unsupported-provider-relabelled-as-dependency-outage
+      - invalid-local-configuration-reported-as-remote-job-failure
+      - possible-request-transmission-reported-as-no-effect-from-local-error
+      - post-effect-uncertainty-relabelled-as-pre-effect-authorization-denial
+    runtimeAdmission: NOT_ADMITTED
   negativeCases:
     - retryable true on UNKNOWN_OUTCOME without operation-specific replay proof
     - HTTP 503 treated as retry permission for a non-idempotent command
@@ -38,5 +62,9 @@ ownerDefinedErrorSemantics:
 normativeRuleRecords:
   - id: media.p2.rule.api-error-semantics.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/errors.yaml#contract
+    acceptanceEffect: none
+  - id: media.p2.rule.api-error-reason-family-dispositions.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics/ownerDefinedReasonFamilyDispositions
     sourceAuthority: .product-experience/pdp-2-design-interface-system/api/errors.yaml#contract
     acceptanceEffect: none

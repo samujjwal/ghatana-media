@@ -10,6 +10,8 @@ const base = ".product-experience/pdp-3-product-experience";
 const contracts = parse(await readFile(`${base}/local-step-effect-contracts.yaml`, "utf8"));
 const stepOracles = parse(await readFile(`${base}/step-definition-oracles.yaml`, "utf8"));
 const componentTypes = parse(await readFile(".product-experience/pdp-2-design-interface-system/component-value-types.yaml", "utf8"));
+const actionRegistry = parse(await readFile(`${base}/action-registry.yaml`, "utf8"));
+const actionById = new Map(actionRegistry.actions.map((action) => [action.id, action]));
 const byStep = new Map(contracts.records.map((record) => [record.sourceRef, record]));
 const localSteps = [];
 for (const filename of (await readdir(`${base}/journey-contracts`)).filter((name) => name.endsWith(".yaml") && name !== "local-step-effect-contracts.yaml").sort()) {
@@ -86,13 +88,13 @@ function positiveInput(contract) {
 
 test("each local step has a distinct exact session-local contract, never a canonical product mutation", () => {
   assert.equal(contracts.schemaVersion, "media.pdp-3-local-step-effect-contracts.v1");
-  assert.equal(contracts.recordCount, 27);
-  assert.equal(contracts.records.length, 27);
-  assert.equal(localSteps.length, 27);
+  assert.equal(contracts.recordCount, 25);
+  assert.equal(contracts.records.length, 25);
+  assert.equal(localSteps.length, 25);
   const oracleSteps = stepOracles.journeys.flatMap(({ steps }) => steps);
   assert.equal(oracleSteps.length, 130);
-  assert.equal(byStep.size, 27);
-  assert.equal(new Set(contracts.records.map(({ id }) => id)).size, 27);
+  assert.equal(byStep.size, 25);
+  assert.equal(new Set(contracts.records.map(({ id }) => id)).size, 25);
   for (const item of localSteps) {
     const contract = byStep.get(item.sourceRef);
     assert.ok(contract, `${item.journey.journeyId}/${item.index + 1} exact local contract`);
@@ -135,6 +137,25 @@ test("each local step has a distinct exact session-local contract, never a canon
     assert.equal(result.nextDraftRevision, request.expectedDraftRevision + 1);
     assert.equal(result.retryAuthorized, false);
   }
+});
+
+test("local effect contracts cannot absorb consequential source actions", async () => {
+  for (const contract of contracts.records) {
+    const typedAction = actionById.get(contract.actionRef)?.actionDefinitionSemantics?.typedDefinition;
+    assert.equal(typedAction?.semanticRole, "LOCAL_SELECTION_OR_SESSION_DRAFT", `${contract.id} source action is not local`);
+    assert.deepEqual(typedAction?.exactOperationRefs, [], `${contract.id} must not bind a canonical operation`);
+    assert.deepEqual(typedAction?.actorRefs, contract.actorRefs, `${contract.id} actor scope must match the source action`);
+  }
+  const j08 = parse(await readFile(`${base}/journey-contracts/repair-video-with-measured-quality.yaml`, "utf8"));
+  assert.equal(j08.steps[1].stepDefinitionSemantics.action.semanticRole, "DOMAIN_OPERATION");
+  assert.equal(j08.steps[1].stepDefinitionSemantics.action.actionRef, "media.action.submit-validated-request");
+  const contract = contracts.records[0];
+  const fixture = positiveInput(contract);
+  const forged = { ...contract, actionRef: "media.action.submit-validated-request" };
+  assert.equal(evaluateLocalStepEffect(forged, {
+    ...fixture.request,
+    actionRef: "media.action.submit-validated-request",
+  }, fixture.trustedSession).disposition, "HOLD_UNKNOWN");
 });
 
 test("local effects fail closed for stale, mismatched, malformed, and unknown session/catalog evidence", () => {

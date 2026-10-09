@@ -3,12 +3,12 @@
   "productId": "media",
   "semanticOwner": "media",
   "authorityStatus": "owner-defined guard predicate grammar; independent-PDP1-review-open; runtime-NOT_ADMITTED",
-  "factsAuthority": "Caller supplies observed or asserted definition facts; this file defines predicates and does not prove their truth.",
+  "factsAuthority": "Source-typed predicates are derived from their closed owner observation contracts; caller-supplied booleans alone are not evidence. Other definition facts remain explicit model inputs and do not prove runtime truth.",
   "expressionGrammar": {
     "all": "every child expression must pass",
     "any": "at least one child expression must pass",
     "not": "child expression must fail",
-    "fact": "exact key in supplied facts.guardFacts; only boolean true passes; missing/unknown fails closed"
+    "fact": "exact key in the declared fact catalog; source-typed predicates are derived from their closed owner-observation contracts, and caller-supplied booleans alone are not evidence"
   },
   "commonFacts": {
     "tenant.matches": "tenant request and state subject are in same trusted tenant; source .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication"
@@ -84,7 +84,23 @@
       "valueType": "boolean",
       "unknown": "deny",
       "recognizedStatuses": ["PENDING_VERIFICATION", "ACTIVE", "REVOKED", "EXPIRED", "SUPERSEDED"],
-      "statusSource": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent"
+      "statusSource": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent",
+      "typedEvaluation": {
+        "inputPath": "facts.typedOwnerFacts.consentPerEffectCurrent",
+        "trustedContextPath": "facts.trustedConsentContext",
+        "adapterContractRef": ".product-experience/pdp-3-product-experience/consent-observation-adapter-contracts.yaml#records/@id=media.pdp3.consent-per-effect-current-read-adapter.v1",
+        "sourceContractRefs": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1",
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract"
+        ],
+        "authorityRefs": [
+          ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+          ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope"
+        ],
+        "requiredJoins": ["tenantId", "principalId", "subjectArtifactVersionRef", "purposeRef", "effectRef", "queryId", "requestFingerprint", "operationRef", "consentId", "consentRef", "consentRevisionRef", "consentRevisionVersion", "decisionAuthorityVersionRef", "readAuthorityRef", "readVersion", "currentness", "observedAt", "grantedAt", "expiresAt", "revokedAt", "validFrom", "validUntil", "externalProcessingRequirement", "biometricProcessingRequirement"],
+        "legacyBooleanInputDisposition": "IGNORED; typed observation required",
+        "runtimeAdmission": "NOT_ADMITTED"
+      }
     },
     "consentScopeCurrent": {
       "description": "consentScopeCurrent",

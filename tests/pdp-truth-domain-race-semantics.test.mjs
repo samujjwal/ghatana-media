@@ -4,10 +4,13 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { resolveAttemptRace, RaceResolutionError } from "../scripts/lib/pdp-truth-domain-race-oracle.mjs";
+import { validateOwnerMachineRaceApplicability } from "../scripts/lib/pdp1-machine-race-applicability.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const parse = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml").parse;
 const transitions = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/transitions.yaml"), "utf8"));
+const states = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/states.yaml"), "utf8"));
+const guardContracts = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml"), "utf8"));
 const contract = transitions.ownerRaceResolutionContract;
 const now = "2026-10-09T12:00:00Z";
 const validEvidence = { verificationStatus: "VERIFIED", currentness: "CURRENT", authorityRef: "media.authority.test", evidenceRef: "media.evidence.test.v1", observedAt: "2026-10-09T11:59:00Z", validUntil: "2026-10-09T12:10:00Z" };
@@ -41,6 +44,32 @@ test("owner race contract has stable IDs, exact machine refs and explicit non-ru
     if (scenario === "retry-same-attempt") assert.throws(() => resolveAttemptRace(scenario, row.facts), /RETRY_IDENTITY_OR_FENCE_INVALID/);
     else assert.equal(resolveAttemptRace(scenario, row.facts), row.disposition, row.id);
   }
+});
+
+test("race applicability covers every exact state machine, edge, guard and race axis", () => {
+  assert.deepEqual(validateOwnerMachineRaceApplicability({ states, transitions, guardContracts }), {
+    machineCount: 11, stateCount: 87, transitionCount: 55, axisCount: 6,
+  });
+  const axes = transitions.ownerMachineRaceApplicability.records.flatMap((row) => Object.entries(row.raceApplicability));
+  assert.ok(axes.every(([, decision]) => ["APPLICABLE", "NOT_APPLICABLE"].includes(decision.disposition)));
+  for (const machineId of ["media-job", "media-attempt", "media-stream-session", "media-delivery"]) {
+    const row = transitions.ownerMachineRaceApplicability.records.find((item) => item.machineId === machineId);
+    assert.ok(row, `${machineId} has an explicit race applicability row`);
+    assert.ok(Object.values(row.raceApplicability).some((decision) => decision.disposition === "APPLICABLE"));
+  }
+
+  const foreignState = structuredClone(transitions);
+  foreignState.ownerMachineRaceApplicability.records[0].stateRefs[0] = transitions.ownerMachineRaceApplicability.records[1].stateRefs[0];
+  assert.throws(() => validateOwnerMachineRaceApplicability({ states, transitions: foreignState, guardContracts }), /RACE_STATE_POPULATION_MISMATCH/);
+  const omittedAxis = structuredClone(transitions);
+  delete omittedAxis.ownerMachineRaceApplicability.records[0].raceApplicability.deliveryAck;
+  assert.throws(() => validateOwnerMachineRaceApplicability({ states, transitions: omittedAxis, guardContracts }), /RACE_AXIS_POPULATION_MISMATCH/);
+  const alteredGuard = structuredClone(transitions);
+  alteredGuard.ownerMachineRaceApplicability.records[0].transitionGuardContractRefs[0] = guardContracts.records.at(-1).id;
+  assert.throws(() => validateOwnerMachineRaceApplicability({ states, transitions: alteredGuard, guardContracts }), /RACE_GUARD_POPULATION_MISMATCH/);
+  const duplicateMachine = structuredClone(transitions);
+  duplicateMachine.ownerMachineRaceApplicability.records[1].machineId = duplicateMachine.ownerMachineRaceApplicability.records[0].machineId;
+  assert.throws(() => validateOwnerMachineRaceApplicability({ states, transitions: duplicateMachine, guardContracts }), /RACE_MACHINE_DUPLICATE/);
 });
 
 test("fence, process death, unknown result and cancel race fail closed", () => {

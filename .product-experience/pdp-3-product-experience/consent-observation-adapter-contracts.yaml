@@ -1,0 +1,46 @@
+schemaVersion: media.pdp-3-consent-observation-adapter-contracts.v1
+productId: media
+authorityStatus: MEDIA_OWNER_LOGICAL_COMPOSITION_DEFINITION_ONLY
+runtimeAdmission: NOT_ADMITTED
+qualification: NOT_EVALUATED
+records:
+  - id: media.pdp3.consent-per-effect-current-read-adapter.v1
+    status: OWNER_DEFINED_TYPED_COMPOSITION; NO_ENDPOINT_OR_RUNTIME_RECEIPT_ASSERTED
+    authoringDecisionRef: .product-experience/decision-log.md#PXD-119
+    predicate: consentPerEffectCurrent
+    sources:
+      rightsDecisionContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
+      rightsOperationRef: media.operation.action.inspect-consent-and-permitted-use
+      rightsDecisionMappingRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1/decisionKindStateMapping
+      consentRevisionContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
+      consentReadOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1
+      rightsReadAuthorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      consentReadAuthorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+    trustedContext:
+      requiredFields: [tenantScopeRef, principalRef, subjectArtifactVersionRef, purposeRef, regionRef, retentionPolicyRef, expectedRightsAuthorityRef, expectedRightsReadVersion, expectedConsentReadAuthorityRef, expectedConsentReadVersion, now, maxAgeMs, expectedEffects]
+      expectedRightsAuthorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      expectedConsentReadAuthorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+      expectedEffects: Each unique exact use/effect ref binds one consentId, consentRevisionRef, positive integer consentRevisionVersion, decisionAuthorityVersionRef, and explicit REQUIRED or NOT_REQUIRED applicability for external processing and biometric processing.
+      callerBodyCannotSet: [tenantScopeRef, principalRef, expectedRightsAuthorityRef, expectedRightsReadVersion, expectedConsentReadAuthorityRef, expectedConsentReadVersion, now, maxAgeMs, expectedEffects]
+    rightsRead:
+      request: Validate against the exact source requestSchema for subjectArtifactVersionRef, decisionKind=CONSENT, purposeRef, useRef=expected effectRef, regionRef, and retentionPolicyRef.
+      result: Validate source resultSchema and `validateTypedObservationCurrentRead` against host tenant/principal, exact operation, authority, readVersion, and freshness.
+      decisionJoin: Require the nested decision's tenant/principal, subject version, decision kind, purpose, use, region, and retention tuple to equal host/request expectations.
+      permitted: Only ALLOWED_FOR_DECLARED_SCOPE plus PERMITTED is positive.
+      denied: A source-declared exact current DENIED/RESTRICTED/EXPIRED/REVOKED/CONSENT_REQUIRED mapping is FALSE; it never authorizes an effect.
+      unknown: UNKNOWN/NOT_FOUND, unmapped disposition, stale/foreign receipt, or absent required decision is UNKNOWN.
+    consentRevisionRead:
+      request: Exact consentId and purposeRef for the same expected effect; queryId is correlated only.
+      result: Require exact source operation, host expected consent-read authority/version, currentness CURRENT, trusted query fingerprint, timestamp within maxAgeMs, and an OBSERVED_CONSENT_REVISION result.
+      identityJoin: Match consentId, consentRevisionRef, numeric version, tenantScopeRef, principalRef, ACTIVE status, requested purpose, and region to the host expected tuple.
+      temporalAndProcessingScope: grantedAt must be canonical and no later than trusted now; non-null expiresAt and revokedAt must be canonical, and an expired or revoked grant cannot satisfy the predicate. Check externalProcessingAllowed and biometricProcessingAllowed only when the exact effect binding declares that processing dimension REQUIRED; unrelated dimensions do not constrain the effect.
+    crossQueryJoin:
+      - The rights decision evidenceRefs contain the exact expected consentRevisionRef.
+      - The rights decision authorityVersionRef equals the exact host expected decisionAuthorityVersionRef.
+      - Each expected effect occurs exactly once; missing, duplicated, or foreign effects are UNKNOWN.
+      - Consent and rights query requests/results remain separate; neither query alone substitutes for the other.
+    output:
+      TRUE: Every exact effect has current, permitted rights and a matching current active consent revision.
+      FALSE: At least one exact current source decision explicitly denies/restricts/expires/revokes the requested use.
+      UNKNOWN: Any required tuple, query, fingerprint, authority, version, freshness, consent identity, or cross-query relation is missing or mismatched.
+      admission: NOT_ADMITTED; this definition does not establish a live query endpoint, authenticated authority, or runtime enforcement.

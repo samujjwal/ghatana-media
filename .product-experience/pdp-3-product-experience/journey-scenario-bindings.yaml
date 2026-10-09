@@ -1,0 +1,360 @@
+schemaVersion: media.pdp3.journey-scenario-bindings.v1
+productId: media
+status: Media-owned exact scenario-to-journey links copied from authored journey-contract scenarioRefs; source mapping only
+authority: Media PDP-3 owner definition; no runtime, independent acceptance, or lifecycle receipt is implied.
+records:
+  - id: media.pdp3.journey-scenario-binding.first-use-empty.v1
+    scenarioRef: media.scenario.first-use-empty
+    journeyRef: J-01
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/1
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/1
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.first-use-empty
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.identity-required.v1
+    scenarioRef: media.scenario.identity-required
+    journeyRef: J-01
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.identity-required
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.workspace-access-denied.v1
+    scenarioRef: media.scenario.workspace-access-denied
+    journeyRef: J-01
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.workspace-access-denied
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.project-create-outcome-unknown.v1
+    scenarioRef: media.scenario.project-create-outcome-unknown
+    journeyRef: J-01
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.project-create-outcome-unknown
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.project-created-empty.v1
+    scenarioRef: media.scenario.project-created-empty
+    journeyRef: J-01
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.project-created-empty
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.intent-unavailable.v1
+    scenarioRef: media.scenario.intent-unavailable
+    journeyRef: J-01
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.intent-unavailable
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-interrupted.v1
+    scenarioRef: media.scenario.upload-interrupted
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/1
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-interrupted
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-checksum-mismatch.v1
+    scenarioRef: media.scenario.upload-checksum-mismatch
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-checksum-mismatch
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-format-unsupported.v1
+    scenarioRef: media.scenario.upload-format-unsupported
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-format-unsupported
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-quarantined.v1
+    scenarioRef: media.scenario.upload-quarantined
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-quarantined
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-verified-available.v1
+    scenarioRef: media.scenario.upload-verified-available
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-verified-available
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-outcome-unknown.v1
+    scenarioRef: media.scenario.upload-outcome-unknown
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-outcome-unknown
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.upload-permission-revoked.v1
+    scenarioRef: media.scenario.upload-permission-revoked
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.upload-permission-revoked
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.artifact-verification-running.v1
+    scenarioRef: media.scenario.artifact-verification-running
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.artifact-verification-running
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.artifact-verification-outcome-unknown.v1
+    scenarioRef: media.scenario.artifact-verification-outcome-unknown
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.artifact-verification-outcome-unknown
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.artifact-verification-completed.v1
+    scenarioRef: media.scenario.artifact-verification-completed
+    journeyRef: J-02
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.artifact-verification-completed
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.source-available.v1
+    scenarioRef: media.scenario.source-available
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/0
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/0
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.source-available
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.source-quarantined.v1
+    scenarioRef: media.scenario.source-quarantined
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.source-quarantined
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.transcript-ready.v1
+    scenarioRef: media.scenario.transcript-ready
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.transcript-ready
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.language-uncertain.v1
+    scenarioRef: media.scenario.language-uncertain
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.language-uncertain
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.alignment-required.v1
+    scenarioRef: media.scenario.alignment-required
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.alignment-required
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.consent-revoked.v1
+    scenarioRef: media.scenario.consent-revoked
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.consent-revoked
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.job-running.v1
+    scenarioRef: media.scenario.job-running
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.job-running
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.job-outcome-unknown.v1
+    scenarioRef: media.scenario.job-outcome-unknown
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.job-outcome-unknown
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.job-outcome-confirmed.v1
+    scenarioRef: media.scenario.job-outcome-confirmed
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/2
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.job-outcome-confirmed
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.caption-corrected.v1
+    scenarioRef: media.scenario.caption-corrected
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-corrected
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.caption-conflict.v1
+    scenarioRef: media.scenario.caption-conflict
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/4
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/5
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/6
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-conflict
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.caption-version-comparison.v1
+    scenarioRef: media.scenario.caption-version-comparison
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/7
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/7
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-version-comparison
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.caption-source-mismatch.v1
+    scenarioRef: media.scenario.caption-source-mismatch
+    journeyRef: J-03
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/7
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/3
+      - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/7
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.caption-source-mismatch
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.job-retry-eligible.v1
+    scenarioRef: media.scenario.job-retry-eligible
+    journeyRef: J-20
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.job-retry-eligible
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none
+  - id: media.pdp3.journey-scenario-binding.job-retry-ineligible.v1
+    scenarioRef: media.scenario.job-retry-ineligible
+    journeyRef: J-20
+    journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml
+    journeyContractStepRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/6
+    sourceRefs:
+      - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#scenarioRefs
+      - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/6
+    fixtureRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/@id=media.scenario.job-retry-ineligible
+    scopeStatus: OWNER_DEFINED_EXACT_SCENARIO_TO_JOURNEY_LINK; definition-only; runtime NOT_ADMITTED; acceptance effect none

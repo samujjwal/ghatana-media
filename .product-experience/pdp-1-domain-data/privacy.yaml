@@ -340,6 +340,26 @@ ownerDefinedErasureInventoryContract:
     - .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.provenance-manifest
     - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
   copyInventory:
+    managedContentClasses:
+      id: media.privacy.managed-content-classes.v1
+      classes:
+        - ORIGINAL_MEDIA
+        - DERIVED_MEDIA
+        - THUMBNAIL
+        - PROXY
+        - CAPTION
+        - TRANSCRIPT
+        - MASK_OR_GEOMETRY
+        - EMBEDDING
+        - VOICE_MODEL
+        - SOURCE_REQUEST
+        - TEMPORARY_FILE
+        - CACHED_INTERMEDIATE
+        - EXPORT
+        - EXTERNAL_PROVIDER_COPY
+        - BACKUP
+        - AUDIT_OR_PROVENANCE
+      bindingRule: Every inventoried copy records both its managed content class and its storage copyClass. A content class describes what data is held; copyClass describes the storage/ownership position. If the exact family is unknown or not in this list, inventory completeness is PARTIAL or UNKNOWN; do not omit it or infer erasure.
     requiredCopyClasses:
       - PRIMARY
       - REPLICA
@@ -351,6 +371,12 @@ ownerDefinedErasureInventoryContract:
     entryIdentity: Each copy entry has its own opaque copyRef plus exact tenantRef, objectRef, optional artifactVersionRef, storageOwnerRef, copyClass, retentionRuleRef, lifecycle state, and evidenceRefs.
     completeness: Inventory completeness is explicit COMPLETE, PARTIAL, or UNKNOWN for one tenant/object/version and observation time; missing stores, copies, or owner acknowledgements keep it PARTIAL or UNKNOWN.
     noSyntheticCopies: Do not claim a copy exists or is absent from a package name, deployment label, artifact digest, or provider capability declaration; the responsible storage/provider owner supplies the observed inventory.
+    sharedReferenceRule: >-
+      Physical deletion of shared bytes is permitted only after exact versioned-reference inventory
+      proves no retained authorized artifact, job, derived result, legal hold, or other policy-valid
+      owner still references those bytes. Removing one logical reference does not authorize deleting
+      bytes needed by another authorized retained reference; missing or stale reference inventory
+      keeps deletion PARTIAL or UNKNOWN.
     observationSchema:
       type: object
       additionalProperties: false
@@ -359,13 +385,14 @@ ownerDefinedErasureInventoryContract:
         copyInventoryEntry:
           type: object
           additionalProperties: false
-          required: [copyRef, tenantRef, objectRef, artifactVersionRef, storageOwnerRef, copyClass, retentionRuleRef, copyDisposition, evidenceRefs]
+          required: [copyRef, tenantRef, objectRef, artifactVersionRef, storageOwnerRef, contentClass, copyClass, retentionRuleRef, copyDisposition, evidenceRefs]
           properties:
             copyRef: {type: string, minLength: 1, pattern: "\\S"}
             tenantRef: {type: string, minLength: 1, pattern: "\\S"}
             objectRef: {type: string, minLength: 1, pattern: "\\S"}
             artifactVersionRef: {type: string, minLength: 1, pattern: "\\S"}
             storageOwnerRef: {type: string, minLength: 1, pattern: "\\S"}
+            contentClass: {enum: [ORIGINAL_MEDIA, DERIVED_MEDIA, THUMBNAIL, PROXY, CAPTION, TRANSCRIPT, MASK_OR_GEOMETRY, EMBEDDING, VOICE_MODEL, SOURCE_REQUEST, TEMPORARY_FILE, CACHED_INTERMEDIATE, EXPORT, EXTERNAL_PROVIDER_COPY, BACKUP, AUDIT_OR_PROVENANCE]}
             copyClass: {enum: [PRIMARY, REPLICA, DERIVED_ARTIFACT, CACHE, EXPORT, BACKUP_SNAPSHOT, EXTERNAL_PROVIDER_COPY]}
             retentionRuleRef: {type: string, minLength: 1, pattern: "\\S"}
             copyDisposition: {enum: [PRESENT, OWNER_CONFIRMED_ABSENT, DELETED, PROVIDER_DELETION_PENDING, DELETION_UNKNOWN]}
@@ -437,6 +464,10 @@ ownerDefinedErasureInventoryContract:
         restoreRevisionRef: {type: string, minLength: 1}
         observedAt: {type: string, format: date-time}
         evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+  externalCopyBoundary:
+    revocation: Revoke local authority immediately for new reads and uses; revocation is not remote recall or proof that a provider deleted a copy.
+    remoteDeletion: Record the exact provider copy, request identity, owner acknowledgement, and current evidence. Until authoritative provider deletion evidence covers the exact copy and version, retain PROVIDER_DELETION_PENDING or DELETION_UNKNOWN and do not report ERASURE_CONFIRMED.
+    unknown: Lost connection, accepted deletion request, or provider timeout does not prove deletion; reconcile the same request identity with the provider owner before any retry.
   erasureFinality:
     states: [REQUESTED, ACCESS_RESTRICTED, DELETION_PENDING, PARTIALLY_ERASED, ERASURE_CONFIRMED, ERASURE_BLOCKED_BY_HOLD, ERASURE_OUTCOME_UNKNOWN]
     confirmedRequires:
@@ -446,3 +477,13 @@ ownerDefinedErasureInventoryContract:
       - restoreSafety: tombstones are durable and replayed by every declared restore path
     externalProviderRule: A local delete or request acknowledgement never proves remote/provider-side erasure; absent an exact current provider receipt, retain the copy as PENDING or UNKNOWN and do not emit ERASURE_CONFIRMED.
     independentProofBoundary: This contract defines Media's required semantics. It does not establish that deployment storage inventories are complete, provider deletion is available, tombstones are durable, or legal retention requirements have been approved.
+ownerNormativeRuleRecords:
+  - id: media.privacy.managed-content-classes.v1
+    ruleRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/copyInventory/managedContentClasses
+    sourceRole: stable-identifier-index-only; managed content roster and binding rule remain in owner erasure inventory
+  - id: media.privacy.shared-copy-reference-erasure.v1
+    ruleRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/copyInventory/sharedReferenceRule
+    sourceRole: stable-identifier-index-only; rule-body-remains-in-owner-erasure-contract
+  - id: media.privacy.external-copy-revocation-boundary.v1
+    ruleRef: .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/externalCopyBoundary
+    sourceRole: stable-identifier-index-only; rule-body-remains-in-owner-erasure-contract

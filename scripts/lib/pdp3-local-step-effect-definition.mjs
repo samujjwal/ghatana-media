@@ -8,6 +8,8 @@ const addFormats = require("ajv-formats");
 const { parse } = require("yaml");
 const componentTypes = parse(readFileSync(resolve(process.cwd(), ".product-experience/pdp-2-design-interface-system/component-value-types.yaml"), "utf8"));
 const localContracts = parse(readFileSync(resolve(process.cwd(), ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml"), "utf8"));
+const actionRegistry = parse(readFileSync(resolve(process.cwd(), ".product-experience/pdp-3-product-experience/action-registry.yaml"), "utf8"));
+const actionById = new Map(actionRegistry.actions.map((action) => [action.id, action]));
 const schemaValidator = new Ajv2020({ allErrors: true, strict: false, validateFormats: true });
 addFormats(schemaValidator);
 schemaValidator.addSchema(componentTypes);
@@ -46,6 +48,8 @@ const hold = (reason) => ({
 });
 
 function validateContract(contract) {
+  const action = isRecord(contract) ? actionById.get(contract.actionRef) : undefined;
+  const typedAction = action?.actionDefinitionSemantics?.typedDefinition;
   if (!isRecord(contract) || contract.runtimeAdmission !== "NOT_ADMITTED" ||
       !nonEmpty(contract.id) || !nonEmpty(contract.sourceRef) || !nonEmpty(contract.actionRef) ||
       !Array.isArray(contract.actorRefs) || contract.actorRefs.length === 0 ||
@@ -56,7 +60,11 @@ function validateContract(contract) {
       !isRecord(contract.effect) || contract.effect.remoteDispatch !== "none" ||
       contract.effect.committedMediaObjects !== "unchanged" ||
       contract.finality !== "LOCAL_DRAFT_REVISION_ONLY; no project revision, artifact version, job, remote effect, or committed result is established" ||
-      contract.trustedContextContract?.notCallerSupplied !== true) return false;
+      contract.trustedContextContract?.notCallerSupplied !== true ||
+      typedAction?.semanticRole !== "LOCAL_SELECTION_OR_SESSION_DRAFT" ||
+      !Array.isArray(typedAction.exactOperationRefs) || typedAction.exactOperationRefs.length !== 0 ||
+      !Array.isArray(typedAction.actorRefs) ||
+      JSON.stringify(typedAction.actorRefs) !== JSON.stringify(contract.actorRefs)) return false;
   if (!contract.localScopeRequirements || !nonEmpty(contract.localScopeRequirements.tenantId) ||
       !contract.localScopeRequirements.workspaceRef?.startsWith("required,") ||
       (contract.effectMode === "DRAFT_PATCH" && !contract.localScopeRequirements.projectRef?.startsWith("required and non-null")) ||

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { evaluatePdpTransition } from "../scripts/lib/pdp1-transition-guard-definition-evaluator.mjs";
+import { typedObservationRequestFingerprint } from "../scripts/lib/pdp-truth-domain-observation-currentness.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const parse = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml").parse;
@@ -13,6 +14,9 @@ const guards = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domai
 const matrix = transitions.ownerMachineRaceApplicability;
 const allTransitions = [...transitions.transitionRecords, ...transitions.ownerDefinedTransitionRecords];
 const byId = new Map(guards.records.map((record) => [record.transitionId, record]));
+const operations = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const rightsContract = operations.ownerTypedObservationContracts.records.find(({ id }) => id === "media.observation-contract.rights-decision.v1");
+const consentRevisionContract = operations.ownerConsentRevisionObservationContract;
 
 function setPositiveFacts(expression, facts = {}) {
   if (expression.fact) setFact(facts,expression.fact,true);
@@ -25,7 +29,21 @@ function setFact(facts,fact,value){
   if(fact==="tenant.matches"){facts.tenant={requestTenantId:value?"tenant-a":"tenant-a",resourceTenantId:value?"tenant-a":"tenant-b"};return;}
   if(fact==="expectedVersionMatches"){facts.version={expected:"rev-2",current:value?"rev-2":"stale"};return;}
   if(fact==="expectedVersionConflicts"){facts.version={expected:"rev-2",current:value?"stale":"rev-2"};return;}
-  if(fact==="consentPerEffectCurrent"){facts.consent={status:value?"ACTIVE":"REVOKED",current:value,tenantId:"tenant-a",purposes:["media.process"]};return;}
+  if(fact==="consentPerEffectCurrent"){
+    const allowed = value === true;
+    const tenantScopeRef=facts.tenant?.requestTenantId??"tenant-a",principalRef="media.principal/principal-a";
+    const rightsAuthority=".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation";
+    const consentAuthority=".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope";
+    const effectRef="media.effect.stream-frame.submit", consentId="consent-record-9", consentRevisionRef="media.consent-revision/consent-record-9/v9";
+    const subjectArtifactVersionRef="media.artifact-version/session-7-v4", purposeRef="media.purpose.live-capture", regionRef="media.region.us", retentionPolicyRef="media.retention.stream-24h.v1";
+    const trustedConsentContext={tenantScopeRef,principalRef,subjectArtifactVersionRef,purposeRef,regionRef,retentionPolicyRef,expectedRightsAuthorityRef:rightsAuthority,expectedRightsReadVersion:"rights-read-v8",expectedConsentReadAuthorityRef:consentAuthority,expectedConsentReadVersion:"consent-read-v8",now:"2026-10-09T12:00:00.000Z",maxAgeMs:60000,expectedEffects:[{effectRef,consentId,consentRevisionRef,consentRevisionVersion:9,decisionAuthorityVersionRef:"media.policy-decision/decision-8/v1"}]};
+    const rightsRequest={queryId:"query-rights-1",subjectArtifactVersionRef,decisionKind:"CONSENT",purposeRef,useRef:effectRef,regionRef,retentionPolicyRef};
+    const rightsTrusted={tenantScopeRef,principalRef,expectedOperationRef:rightsContract.operationRefs[0],expectedReadAuthorityRef:rightsAuthority,expectedReadVersion:"rights-read-v8"};
+    const rightsResult={tenantScopeRef,principalRef,queryId:rightsRequest.queryId,operationRef:rightsContract.operationRefs[0],requestFingerprint:typedObservationRequestFingerprint(rightsRequest,rightsTrusted),readAuthorityRef:rightsAuthority,currentness:"CURRENT",decisionKind:"CONSENT",observationStatus:allowed?"ALLOWED_FOR_DECLARED_SCOPE":"REVOKED",observedAt:"2026-10-09T11:59:30.000Z",readVersion:"rights-read-v8",decision:{tenantScopeRef,principalRef,subjectArtifactVersionRef,decisionKind:"CONSENT",purposeRef,useRef:effectRef,regionRef,retentionPolicyRef,authorityRef:rightsAuthority,authorityVersionRef:"media.policy-decision/decision-8/v1",effectDisposition:allowed?"PERMITTED":"REVOKED",validFrom:"2026-10-09T11:00:00.000Z",validUntil:"2026-10-09T13:00:00.000Z",evidenceRefs:[consentRevisionRef,"media.evidence/decision-8"]}};
+    const consentRequest={queryId:"query-consent-1",consentId,purposeRef},consentTrusted={tenantScopeRef,principalRef};
+    const consentResult={queryId:consentRequest.queryId,requestFingerprint:typedObservationRequestFingerprint(consentRequest,consentTrusted),operationRef:consentRevisionContract.operationRef,readAuthorityRef:consentAuthority,currentness:"CURRENT",readVersion:"consent-read-v8",observedAt:"2026-10-09T11:59:30.000Z",outcome:{kind:"OBSERVED_CONSENT_REVISION",consentId,consentRef:"media.consent-reference/consent-9",consentRevisionRef,tenantScopeRef,principalRef,purposes:[purposeRef],allowedRegions:[regionRef],externalProcessingAllowed:true,biometricProcessingAllowed:false,status:allowed?"ACTIVE":"REVOKED",authorityRef:rightsAuthority,evidenceRef:"media.evidence/consent-9",grantedAt:"2026-10-09T11:00:00.000Z",expiresAt:"2026-10-09T13:00:00.000Z",revokedAt:allowed?null:"2026-10-09T11:30:00.000Z",version:9}};
+    facts.trustedConsentContext=trustedConsentContext;facts.typedOwnerFacts={consentPerEffectCurrent:{effectReads:[{rightsRequest,rightsResult,consentRequest,consentResult}]}};return;
+  }
   facts.guardFacts[fact]=value;
 }
 function setFalseFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},guardFacts:{}}){
@@ -51,18 +69,18 @@ function clearFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourc
 }
 function collectOperators(node,found=[]){if(!node||typeof node!=="object")return found;if(node.any)found.push({kind:"any",node});if(node.not)found.push({kind:"not",node});for(const value of Object.values(node)){if(Array.isArray(value))value.forEach(child=>collectOperators(child,found));else if(value&&typeof value==="object")collectOperators(value,found);}return found;}
 function fixture(edge) {
-  const facts = setPositiveFacts(edge.when,{tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},version:{expected:"rev-2",current:"rev-2"},consent:{status:"ACTIVE",current:true,tenantId:"tenant-a",purposes:["media.process"]},purpose:"media.process",guardFacts:{}});
+  const facts = setPositiveFacts(edge.when,{tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},version:{expected:"rev-2",current:"rev-2"},guardFacts:{}});
   return facts;
 }
 function falseFact(facts, fact) {
   if (fact === "expectedVersionMatches") facts.version.current = "stale";
   else if (fact === "expectedVersionConflicts") facts.version.current = facts.version.expected;
-  else if (fact === "consentPerEffectCurrent") { facts.consent.status="REVOKED"; facts.consent.current=false; }
+  else if (fact === "consentPerEffectCurrent") setFact(facts,fact,false);
   else facts.guardFacts[fact]=false;
 }
 function removeFact(facts, fact) {
   if (fact === "expectedVersionMatches" || fact === "expectedVersionConflicts") delete facts.version;
-  else if (fact === "consentPerEffectCurrent") delete facts.consent;
+  else if (fact === "consentPerEffectCurrent") delete facts.typedOwnerFacts;
   else delete facts.guardFacts[fact];
 }
 function mandatoryFacts(expression, found = new Set(), optional=false) {

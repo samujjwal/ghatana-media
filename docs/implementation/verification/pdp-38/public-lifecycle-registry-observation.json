@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "media.pdp-public-lifecycle-registry-observation.v1",
+  "observedAtUtc": "2026-10-09 15:47:46 UTC",
+  "scope": "Exact public Lifecycle route needed for PDP-0 through PDP-3 only",
+  "sourceBaseSha": "f9b4df6139ce6d5a3d886a00aa0785547ed8ab5a",
+  "observations": [
+    {
+      "package": "@ghatana/workflow-runner",
+      "version": "0.1.0-rc.1",
+      "command": [
+        "npm",
+        "view",
+        "@ghatana/workflow-runner@0.1.0-rc.1",
+        "version",
+        "dist.integrity",
+        "--json",
+        "--fetch-retries=0",
+        "--fetch-timeout=15000"
+      ],
+      "exitCode": 1,
+      "errorCode": "E404",
+      "registry": "https://npm.pkg.github.com",
+      "observedSummary": "Not Found - GET https://npm.pkg.github.com/@ghatana%2fworkflow-runner - npm package \"workflow-runner\" does not exist under owner \"ghatana\"",
+      "status": "NOT_AVAILABLE_OR_NOT_VISIBLE_THROUGH_CONFIGURED_REGISTRY_ROUTE"
+    },
+    {
+      "package": "@ghatana/verification-planner",
+      "version": "0.1.0-rc.1",
+      "command": [
+        "npm",
+        "view",
+        "@ghatana/verification-planner@0.1.0-rc.1",
+        "version",
+        "dist.integrity",
+        "--json",
+        "--fetch-retries=0",
+        "--fetch-timeout=15000"
+      ],
+      "exitCode": 1,
+      "errorCode": "E404",
+      "registry": "https://npm.pkg.github.com",
+      "observedSummary": "Not Found - GET https://npm.pkg.github.com/@ghatana%2fverification-planner - npm package \"verification-planner\" does not exist under owner \"ghatana\"",
+      "status": "NOT_AVAILABLE_OR_NOT_VISIBLE_THROUGH_CONFIGURED_REGISTRY_ROUTE"
+    }
+  ],
+  "interpretation": "The configured route and credentials did not expose these versions. E404 does not establish global package absence, independent owner rejection or authoritative phase status. No alternate sibling/local-source/tarball override was attempted.",
+  "authorityBoundary": "Read-only registry observation; no package publication, producer/oracle admission, native execution, phase acceptance or Lifecycle receipt claimed."
+}

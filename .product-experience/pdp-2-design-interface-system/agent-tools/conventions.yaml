@@ -687,6 +687,233 @@ mediaOwnedToolDefinitionContracts:
     scopeStatus: MEDIA_OWNER_DEFINITION_ONLY; host verification, public binding, and
       runtime admission pending
     rulesRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/invocationSemantics
+  boundedPlanningSemantics:
+    id: media.agent-tool-bounded-planning.v1
+    scopeStatus: MEDIA_OWNER_DEFINITION_ONLY; planner/runtime binding and execution
+      admission pending
+    planningUnit: A plan is a bounded ordered list of declared Media action
+      references. It is not an agent-runtime graph, tool capability, or dispatch
+      receipt.
+    allowedMemberSchema: &boundedPlanMember
+      type: object
+      additionalProperties: false
+      required:
+        - actionRef
+        - actionDefinitionRef
+        - operationRefs
+        - operationContractRefs
+        - purposeRef
+        - resourceBindings
+        - preconditionRefs
+        - expectedResultDisposition
+      properties:
+        actionRef:
+          type: string
+          minLength: 1
+          maxLength: 512
+        actionDefinitionRef:
+          type: string
+          pattern: '^\.product-experience/pdp-3-product-experience/action-registry\.yaml#actions/@id=media\.action\.[a-z0-9.-]+$'
+        operationRefs:
+          type: array
+          minItems: 1
+          maxItems: 8
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 512
+        operationContractRefs:
+          type: array
+          minItems: 1
+          maxItems: 8
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 1024
+        purposeRef:
+          type: string
+          minLength: 1
+          maxLength: 256
+        resourceBindings:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items:
+            type: object
+            additionalProperties: false
+            required: [objectRef, versionRef]
+            properties:
+              objectRef:
+                type: string
+                minLength: 1
+                maxLength: 512
+              versionRef:
+                type: string
+                minLength: 1
+                maxLength: 512
+        preconditionRefs:
+          type: array
+          minItems: 1
+          maxItems: 32
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 1024
+        expectedResultDisposition:
+          enum: [SUCCEEDED, ACCEPTED, OUTCOME_UNKNOWN, FAILED, CANCELLED]
+    planEnvelopeSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - planId
+        - planVersion
+        - members
+        - budget
+        - authorityContextRef
+      properties:
+        planId:
+          type: string
+          minLength: 1
+          maxLength: 256
+        planVersion:
+          type: string
+          pattern: '^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$'
+        members:
+          type: array
+          minItems: 1
+          maxItems: 16
+          items: *boundedPlanMember
+        budget:
+          type: object
+          additionalProperties: false
+          required:
+            - budgetRef
+            - policyVersionRef
+            - maxPlanningSteps
+            - maxToolInvocations
+            - maxReasoningTokens
+            - deadline
+          properties:
+            budgetRef:
+              type: string
+              minLength: 1
+              maxLength: 1024
+            policyVersionRef:
+              type: string
+              minLength: 1
+              maxLength: 512
+            maxPlanningSteps:
+              type: integer
+              minimum: 1
+              maximum: 16
+            maxToolInvocations:
+              type: integer
+              minimum: 0
+              maximum: 16
+            maxReasoningTokens:
+              type: integer
+              minimum: 1
+              maximum: 100000
+            deadline:
+              type: string
+              format: date-time
+        authorityContextRef:
+          type: string
+          minLength: 1
+          maxLength: 1024
+    rules:
+      - Every member must resolve its exact actionRef, ordered operationRefs, and
+        versioned Media definition contract; display names, descriptions,
+        handler names, or inferred family membership do not resolve identity.
+      - The planner may order only the exact declared members. It cannot add a
+        tool, operation, resource, purpose, authority, or delegation edge that
+        the caller and host context did not provide.
+      - Tool and reasoning coordination is limited to bounded planning over
+        declared actions. It does not create an agent graph, recursive planner,
+        dynamic tool authority, or implicit tool invocation.
+      - Every plan is bounded by one host-issued budget and authority context.
+        A child step cannot reset, enlarge, or delegate those limits; exhausting
+        or losing either context stops further dispatch.
+      - Observation, inspection, search, and status-resolution members are
+        read-only. Their results can inform a later explicitly declared action,
+        but observation itself never dispatches that action.
+      - Each consequential member is checked independently against its exact
+        current resource/version, purpose, authority, policy, and consent
+        preconditions immediately before dispatch.
+      - ACCEPTED, UNKNOWN, cancellation-requested, or incomplete results do not
+        satisfy a later member's precondition. Continue only from the exact
+        typed result and recovery rule declared for that member; unresolved
+        effects stop the plan and prohibit blind retry.
+      - Planning or reasoning output is advisory until validated against this
+        closed envelope. Prompt, media, observation text, and model-generated
+        plans cannot change the envelope or grant authority.
+    prohibitedInference:
+      - A sequence or conditional branch is not evidence of an admitted agent
+        runtime or workflow executor.
+      - A named tool or operation in a plan is not evidence that its handler,
+        transport, identity context, or runtime is bound or admitted.
+      - A planner decision, observation, or accepted receipt is not proof that
+        a consequential effect completed.
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+    decisionRef: PXD-PENDING-PDP38-EXPERIENCE
+    acceptanceEffect: none
+    rulesRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/boundedPlanningSemantics
+  untrustedMediaDataBoundary:
+    id: media.agent-tool-untrusted-media-data-boundary.v1
+    scopeStatus: MEDIA_OWNER_DEFINITION_ONLY; runtime input filtering and execution admission pending
+    untrustedInputClasses:
+      - transcript-text-and-recognized-speech
+      - OCR-and-scene-text
+      - captions-subtitles-and-user-authored-media-notes
+      - media-metadata-and-embedded-descriptions
+      - raw-image-audio-video-and-frame-content
+      - model-generated labels, summaries, recommendations, and plans
+    authorityRule: >-
+      Every value in an untrusted input class is data to inspect or quote, not an
+      instruction source. A quoted or embedded request to change tools, operation,
+      principal, tenant, target/version, purpose, rights, consent, policy, scope,
+      resource bounds, confirmation, or result finality has no authority to do so.
+      It cannot add an action or operation to a plan, select an unlisted target,
+      satisfy a guard, or turn an observation into a dispatch.
+    envelopeSourceRule: >-
+      The invocation envelope and host context are built from the authenticated
+      caller, exact registry identity, closed validated request, host-selected
+      tenant/resource scope, and current owner policy. Untrusted media content,
+      transcript/OCR, metadata, and model output cannot supply or override those
+      fields. A direct user selection may choose only among the exact branches
+      already declared by the action contract and must pass its own guards.
+    handling:
+      - Preserve untrusted input as bounded, provenance-labelled content.
+      - Pass it to a declared read/analysis operation only as a typed input slot.
+      - Treat embedded tool names, commands, URLs, credentials, claims, or policy
+        directives as inert content; do not execute, dereference, or promote them.
+      - If content would alter a closed envelope or exceed a declared target,
+        purpose, or budget, reject that requested expansion and keep the original
+        scoped operation unchanged.
+    adversarialCases:
+      - id: media.agent-tool-untrusted-case.transcript-tool-injection.v1
+        inputClass: transcript-text-and-recognized-speech
+        attack: Transcript says to call a different tool and export another tenant's artifact.
+        expected: Preserve as transcript data; retain the host-selected tool and exact tenant/version or reject.
+      - id: media.agent-tool-untrusted-case.ocr-policy-override.v1
+        inputClass: OCR-and-scene-text
+        attack: A frame contains text claiming that consent and human review are already approved.
+        expected: Do not satisfy consent, rights, review, or approval guards from OCR content.
+      - id: media.agent-tool-untrusted-case.model-target-expansion.v1
+        inputClass: model-generated labels, summaries, recommendations, and plans
+        attack: A model result proposes an unlisted operation, target, or larger budget.
+        expected: Reject the expansion; only a separately selected exact declared action can proceed.
+    sourceAuthorityRefs:
+      - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#defaultSafeBehavior
+      - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/boundedPlanningSemantics
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
   contracts:
     - id: media.agent-tool-contract.speech-to-text.v1
       toolId: av.speech-to-text

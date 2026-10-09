@@ -16,6 +16,55 @@ function readSourceEntry(absolutePath, parseYaml) {
 }
 
 const SOURCE_ENUMERATORS = [
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.untrustedMediaDataBoundary', 'action-contract', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/policy-authority-model.yaml', 'ownerNormativeRuleRecords', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedProductMissionCapabilityMaps', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedImportAdapterConversionRule', 'product-truth', undefined, 'id', false, true],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml', 'records', 'journey-contract'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'ownerDefinedPackagePublicationEvidenceRule', 'product-truth', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'ownerDefinedDistributionSourceOfferRule', 'product-truth', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'ownerDefinedTutorPutorReuseReviewRule', 'product-truth', undefined, 'id', false, true],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/privacy.yaml', 'ownerDefinedErasureInventoryContract.copyInventory.managedContentClasses', 'domain-object', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'mediaArchitectureRules.externalStackSelectionRule.additionalImplementationRule', 'product-truth', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedDeploymentAvailabilityRules', 'product-truth'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml', 'records', 'journey-contract'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/applications-channels.yaml', 'ownerNormativeRuleRecords', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedExternalWorkerBoundaryRules', 'product-truth'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerDefinedTransitionTriggerSemantics.producerRoles', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerDefinedTransitionTriggerSemantics.guardFactContracts', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerDefinedTransitionTriggerSemantics.records', 'transition'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/transitions.yaml', 'ownerDefinedTransitionTriggerSemantics.records.*.triggerCases', 'transition'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/privacy.yaml', 'ownerNormativeRuleRecords', 'domain-object'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml', 'records', 'transition'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml', 'records.*.edgeBindings', 'transition'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml', 'records.*.versionFieldBindings', 'journey-contract'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml', 'ownerTrustReconstructionDispositions.records', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedLeafTrustReconstructionPolicy', 'product-truth', undefined, 'id', false, true],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml', 'normativeRuleRecords', 'component-contract'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/information-architecture.yaml', 'ownerNormativeRuleRecords', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/quality-policy.yaml', 'ownerNormativeRuleRecords', 'product-truth'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerNormativeRuleRecords', 'operation-family'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'operation-family', 'auditIntentBoundary'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'operation-family', 'parameterBindingRule'],
+  ['PDP-1', '.product-experience/pdp-1-domain-data/operations.yaml', 'ownerDefinedOperationContracts.records', 'operation-family', 'targetApplicabilityRule'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml', 'records', 'journey-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/accessibility.yaml', 'accessibilityRules', 'action-contract'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/qualification-policy.yaml', 'workerOutputRegistrationBoundary', 'product-truth', undefined, 'id', false, true],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/identifiers.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml', 'records', 'journey-contract'],
+  ['PDP-3', '.product-experience/pdp-3-product-experience/navigation-contracts.yaml', 'informationArchitecture.normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml', 'mediaOwnedToolDefinitionContracts.boundedPlanningSemantics', 'action-contract', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/reuse-decisions.yaml', 'mediaArchitectureRules.genericMechanicsBoundary.gpuSchedulerBoundary', 'product-truth', undefined, 'id', false, true],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedCrossMediaMechanicsRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedRecipeTemplateBindingRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedCapabilityNamingRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedDeploymentPartitionRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedProjectionAuthorityRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedIdentifierRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedInputInspectionRules', 'product-truth'],
+  ['PDP-0', '.product-experience/pdp-0-product-truth/requirements.yaml', 'ownerDefinedSimulationScopeRules', 'product-truth'],
   ['PDP-1', '.product-experience/pdp-1-domain-data/privacy.yaml', 'ownerDefinedErasureInventoryContract', 'domain-object', undefined, 'id', false, true],
   ['PDP-3', '.product-experience/pdp-3-product-experience/experience-source-bindings.yaml', 'scenarioStartingContextBindings.records', 'action-contract'],
   ['PDP-0', '.product-experience/pdp-0-product-truth/policy-authority-model.yaml', 'productPolicy.inputAndExecutionThreats.browserToLocalWorkerBoundary', 'product-truth', undefined, 'id', false, true],
@@ -119,6 +168,7 @@ const SOURCE_ENUMERATORS = [
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml', 'normativeRuleRecords', 'component-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/api/conventions.yaml', 'normativeRuleRecords', 'action-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/cli-language.yaml', 'normativeRuleRecords', 'action-contract'],
+  ['PDP-2', '.product-experience/pdp-2-design-interface-system/cli-language.yaml', 'ownerDefinedCanonicalCommandContracts.contracts', 'action-contract'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/layout.yaml', 'layouts', 'layout'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml', 'patterns', 'interaction-pattern'],
   ['PDP-2', '.product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml', 'templates', 'view-template'],
@@ -145,6 +195,9 @@ export function getMediaSourceEnumerationDescriptors() {
 
 export function enumerateExpectedMediaObligations({ root, parseYaml }) {
   const records = [];
+  const selectedSourceByObligation = new Map();
+  const selectedObligationBySource = new Map();
+  const selectedOriginByObligation = new Map();
   const issues = [];
   const sourceDocuments = new Map();
   const sourceDigests = {};
@@ -202,18 +255,65 @@ export function enumerateExpectedMediaObligations({ root, parseYaml }) {
         issues.push({ code: 'SOURCE_ENUMERATION_ID', detail: `${sourcePath}#/${collection} has an anonymous parent for ${recordId}` });
         continue;
       }
+      let sourceRef = nested
+        ? `${sourcePath}#/${[...entries[index].pointer, ...(childField ? [childField] : [])].join('/')}`
+        : singleton ? `${sourcePath}#/${collectionPath.join('/')}`
+        : `${sourcePath}#/${collectionPath.join('/')}/${childField ? `${sourceRecordId}/${childField}` : recordId}`;
+      let semanticRecord = record;
+      // Stable rule indexes name their existing owner clause; they do not
+      // introduce a second normative obligation or replace that clause.
+      if (collection.endsWith('ownerNormativeRuleRecords')) {
+        if (typeof record.ruleRef !== 'string' || !record.ruleRef.trim()) {
+          issues.push({ code: 'SOURCE_ENUMERATION_RULE_INDEX', detail: `${sourceRef} has no exact owner rule reference` });
+          continue;
+        }
+        const [ownerPath, anchor] = record.ruleRef.split('#');
+        const ownerClause = ownerPath === sourcePath && anchor ? resolveAnchor(document, anchor) : undefined;
+        if (ownerClause === undefined || (ownerClause?.id !== undefined && ownerClause.id !== recordId)) {
+          issues.push({ code: 'SOURCE_ENUMERATION_RULE_INDEX', detail: `${sourceRef} does not resolve its exact owner rule ${record.ruleRef}` });
+          continue;
+        }
+        sourceRef = record.ruleRef;
+        semanticRecord = ownerClause;
+      } else if (collection === 'normativeRuleRecords' && Object.hasOwn(record, 'ruleRef')) {
+        // Older P2 indexes have their own persisted index identities. Preserve
+        // those identities and pointers, but inspect the actual owner meaning.
+        const [ownerPath, anchor] = typeof record.ruleRef === 'string' ? record.ruleRef.split('#') : [];
+        const ownerClause = (ownerPath === '' || ownerPath === sourcePath) && anchor
+          ? resolveAnchor(document, anchor) : undefined;
+        if (ownerClause === undefined) {
+          issues.push({ code: 'SOURCE_ENUMERATION_RULE_INDEX', detail: `${sourceRef} does not resolve its exact owner rule ${String(record.ruleRef)}` });
+          continue;
+        }
+        semanticRecord = ownerClause;
+      }
+      const obligationId = `media.${phase.toLowerCase()}.requirement.${recordId.toLowerCase()}`;
+      const canonicalRef = sourceRef.replace('#/', '#').replaceAll('/@id=', '/');
+      const previousRef = selectedSourceByObligation.get(obligationId);
+      const enumerationOrigin = `${sourcePath}|${collection}|${childField ?? ''}`;
+      if (previousRef !== undefined) {
+        if (previousRef !== canonicalRef || selectedOriginByObligation.get(obligationId) === enumerationOrigin) {
+          issues.push({ code: 'SOURCE_ENUMERATION_DUPLICATE_OWNER', detail: `${obligationId} has duplicate source records or selects both ${previousRef} and ${canonicalRef}` });
+        }
+        continue;
+      }
+      const previousOwner = selectedObligationBySource.get(canonicalRef);
+      if (previousOwner !== undefined && previousOwner !== obligationId) {
+        issues.push({ code: 'SOURCE_ENUMERATION_DUPLICATE_OWNER', detail: `${canonicalRef} is indexed as both ${previousOwner} and ${obligationId}` });
+        continue;
+      }
+      selectedSourceByObligation.set(obligationId, canonicalRef);
+      selectedObligationBySource.set(canonicalRef, obligationId);
+      selectedOriginByObligation.set(obligationId, enumerationOrigin);
       records.push({
         phase,
         dimension,
         sourcePath,
-        sourceRef: nested
-          ? `${sourcePath}#/${[...entries[index].pointer, ...(childField ? [childField] : [])].join('/')}`
-          : singleton ? `${sourcePath}#/${collectionPath.join('/')}`
-          : `${sourcePath}#/${collectionPath.join('/')}/${childField ? `${sourceRecordId}/${childField}` : recordId}`,
+        sourceRef,
         recordId,
-        obligationId: `media.${phase.toLowerCase()}.requirement.${recordId.toLowerCase()}`,
-        sourceSummary: record.statement ?? record.purpose ?? record.useFor ?? record.domainIntent
-          ?? record.meaning ?? record.statusDimension ?? record.name ?? record.id,
+        obligationId,
+        sourceSummary: typeof semanticRecord === 'string' ? semanticRecord : semanticRecord.statement ?? semanticRecord.purpose ?? semanticRecord.useFor ?? semanticRecord.domainIntent
+          ?? semanticRecord.meaning ?? semanticRecord.statusDimension ?? semanticRecord.name ?? semanticRecord.rule ?? record.id,
       });
     }
   }
@@ -226,7 +326,7 @@ function addIssue(issues, code, detail) {
 
 function resolveAnchor(document, anchor) {
   const tokens = anchor.replace(/^\//u, '').split('/').filter(Boolean)
-    .map((token) => token.replaceAll('~1', '/').replaceAll('~0', '~'));
+    .map((token) => token.replaceAll('~1', '/').replaceAll('~0', '~').replace(/^@id=/u, ''));
   let value = document;
   for (let index = 0; index < tokens.length; index += 1) {
     const token = tokens[index];

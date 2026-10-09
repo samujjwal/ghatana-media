@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import test from "node:test";
 import { evaluatePdpTransition, transitionGuardFactRequirements } from "../scripts/lib/pdp1-transition-guard-definition-evaluator.mjs";
+import { typedObservationRequestFingerprint } from "../scripts/lib/pdp-truth-domain-observation-currentness.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
@@ -13,6 +14,55 @@ const states = readYaml(".product-experience/pdp-1-domain-data/states.yaml");
 const guardContracts = readYaml(".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml");
 const allTransitions = [...transitions.transitionRecords, ...transitions.ownerDefinedTransitionRecords];
 const byId = new Map(guardContracts.records.map((record) => [record.transitionId, record]));
+const operationSource = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+const rightsContract = operationSource.ownerTypedObservationContracts.records.find(({ id }) => id === "media.observation-contract.rights-decision.v1");
+const consentRevisionContract = operationSource.ownerConsentRevisionObservationContract;
+const consentAdapter = readYaml(".product-experience/pdp-3-product-experience/consent-observation-adapter-contracts.yaml");
+const rightsAuthority = ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation";
+const consentAuthority = ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope";
+
+function setConsentRead(facts, decision = "PERMITTED") {
+  facts.trustedConsentContext = {
+    tenantScopeRef: "tenant-media-a", principalRef: "media.principal/principal-a", subjectArtifactVersionRef: "media.artifact-version/session-7-v4",
+    purposeRef: "media.purpose.live-capture", regionRef: "media.region.us", retentionPolicyRef: "media.retention.stream-24h.v1",
+    expectedRightsAuthorityRef: rightsAuthority, expectedRightsReadVersion: "rights-read-v8",
+    expectedConsentReadAuthorityRef: consentAuthority, expectedConsentReadVersion: "consent-read-v8",
+    now: "2026-10-09T12:00:00.000Z", maxAgeMs: 60_000,
+    expectedEffects: [{ effectRef: "media.effect.stream-frame.submit", consentId: "consent-record-9", consentRef: "media.consent-reference/consent-9",
+      consentRevisionRef: "media.consent-revision/consent-record-9/v9", consentRevisionVersion: 9,
+      decisionAuthorityVersionRef: "media.policy-decision/decision-8/v1", externalProcessingRequirement: "NOT_REQUIRED",
+      biometricProcessingRequirement: "NOT_REQUIRED" }],
+  };
+  const rightsRequest = { queryId: "query-rights-1", subjectArtifactVersionRef: facts.trustedConsentContext.subjectArtifactVersionRef,
+    decisionKind: "CONSENT", purposeRef: facts.trustedConsentContext.purposeRef, useRef: "media.effect.stream-frame.submit",
+    regionRef: facts.trustedConsentContext.regionRef, retentionPolicyRef: facts.trustedConsentContext.retentionPolicyRef };
+  const rightsTrusted = { tenantScopeRef: facts.trustedConsentContext.tenantScopeRef, principalRef: facts.trustedConsentContext.principalRef,
+    expectedOperationRef: rightsContract.operationRefs[0], expectedReadAuthorityRef: rightsAuthority, expectedReadVersion: "rights-read-v8" };
+  const effectDisposition = decision === "PERMITTED" ? "PERMITTED" : decision;
+  const observationStatus = decision === "PERMITTED" ? "ALLOWED_FOR_DECLARED_SCOPE" : decision;
+  const rightsResult = { tenantScopeRef: rightsTrusted.tenantScopeRef, principalRef: rightsTrusted.principalRef, queryId: rightsRequest.queryId,
+    operationRef: rightsContract.operationRefs[0], requestFingerprint: typedObservationRequestFingerprint(rightsRequest, rightsTrusted),
+    readAuthorityRef: rightsAuthority, currentness: "CURRENT", decisionKind: "CONSENT", observationStatus,
+    observedAt: "2026-10-09T11:59:30.000Z", readVersion: "rights-read-v8",
+    decision: { tenantScopeRef: rightsTrusted.tenantScopeRef, principalRef: rightsTrusted.principalRef,
+      subjectArtifactVersionRef: rightsRequest.subjectArtifactVersionRef, decisionKind: "CONSENT", purposeRef: rightsRequest.purposeRef,
+      useRef: rightsRequest.useRef, regionRef: rightsRequest.regionRef, retentionPolicyRef: rightsRequest.retentionPolicyRef,
+      authorityRef: rightsAuthority, authorityVersionRef: "media.policy-decision/decision-8/v1", effectDisposition,
+      validFrom: "2026-10-09T11:00:00.000Z", validUntil: "2026-10-09T13:00:00.000Z",
+      evidenceRefs: ["media.consent-revision/consent-record-9/v9", "media.evidence/decision-8"] } };
+  const consentRequest = { queryId: "query-consent-1", consentId: "consent-record-9", purposeRef: facts.trustedConsentContext.purposeRef };
+  const consentTrusted = { tenantScopeRef: facts.trustedConsentContext.tenantScopeRef, principalRef: facts.trustedConsentContext.principalRef,
+    expectedOperationRef: consentRevisionContract.operationRef, expectedReadAuthorityRef: consentAuthority, expectedReadVersion: "consent-read-v8" };
+  const consentResult = { queryId: consentRequest.queryId, requestFingerprint: typedObservationRequestFingerprint(consentRequest, consentTrusted),
+    operationRef: consentRevisionContract.operationRef, readAuthorityRef: consentAuthority, currentness: "CURRENT",
+    readVersion: "consent-read-v8", observedAt: "2026-10-09T11:59:30.000Z",
+    outcome: { kind: "OBSERVED_CONSENT_REVISION", consentId: "consent-record-9", consentRef: "media.consent-reference/consent-9",
+      consentRevisionRef: "media.consent-revision/consent-record-9/v9", tenantScopeRef: consentTrusted.tenantScopeRef,
+      principalRef: consentTrusted.principalRef, purposes: [facts.trustedConsentContext.purposeRef], allowedRegions: [facts.trustedConsentContext.regionRef],
+      externalProcessingAllowed: true, biometricProcessingAllowed: false, status: "ACTIVE", authorityRef: rightsAuthority,
+      evidenceRef: "media.evidence/consent-9", grantedAt: "2026-10-09T11:00:00.000Z", expiresAt: "2026-10-09T13:00:00.000Z", revokedAt: null, version: 9 } };
+  facts.typedOwnerFacts = { consentPerEffectCurrent: { effectReads: [{ rightsRequest, rightsResult, consentRequest, consentResult }] } };
+}
 
 function allFactsTrue(expression, guardFacts = {}) {
   if (expression.fact) {
@@ -31,13 +81,13 @@ function fixture(edge) {
   delete guardFacts.expectedVersionMatches;
   delete guardFacts.expectedVersionConflicts;
   delete guardFacts.consentPerEffectCurrent;
-  return {
+  const facts = {
     tenant: { requestTenantId: "tenant-media-a", resourceTenantId: "tenant-media-a" },
     version: { expected: "head-v7", current: needsVersionConflict ? "head-v6" : "head-v7" },
-    consent: { status: "ACTIVE", current: true, tenantId: "tenant-media-a", purposes: ["media.process"] },
-    purpose: "media.process",
     guardFacts,
   };
+  setConsentRead(facts);
+  return facts;
 }
 function evaluate(id, from, to, facts) {
   return evaluatePdpTransition({ transitions, states, guardContracts, transitionId: id, from, to, facts });
@@ -45,14 +95,12 @@ function evaluate(id, from, to, facts) {
 function makePredicateFalse(facts, id) {
   if (id === "expectedVersionMatches") facts.version.current = "stale-head";
   else if (id === "expectedVersionConflicts") facts.version.current = facts.version.expected;
-  else if (id === "consentPerEffectCurrent") {
-    facts.consent.status = "REVOKED";
-    facts.consent.current = false;
-  } else facts.guardFacts[id] = false;
+  else if (id === "consentPerEffectCurrent") setConsentRead(facts, "DENIED");
+  else facts.guardFacts[id] = false;
 }
 function removePredicate(facts, id) {
   if (id === "expectedVersionMatches" || id === "expectedVersionConflicts") delete facts.version;
-  else if (id === "consentPerEffectCurrent") delete facts.consent;
+  else if (id === "consentPerEffectCurrent") delete facts.typedOwnerFacts;
   else delete facts.guardFacts[id];
 }
 function mandatoryPredicateIds(expression) {
@@ -254,7 +302,7 @@ test("three-valued NOT and Boolean nodes never turn unknown or malformed predica
     not: { fact: "consentPerEffectCurrent" },
   };
   const unknownConsent = fixture(consentEdge);
-  unknownConsent.consent.status = "BOGUS";
+  unknownConsent.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].rightsResult.currentness = "UNKNOWN";
   const unknownConsentResult = evaluatePdpTransition({
     transitions,
     states,
@@ -267,14 +315,78 @@ test("three-valued NOT and Boolean nodes never turn unknown or malformed predica
   assert.equal(unknownConsentResult.allowed, false, "an unknown consent status under NOT must remain unknown and deny");
 
   const consentFact = guardContracts.facts.consentPerEffectCurrent;
-  const consentStates = states.stateMachines.find(({ machineId }) => machineId === "media-rights-and-consent")
-    .stateDefinitionsByDimension.consent.map(({ id }) => id);
-  assert.deepEqual(consentFact.recognizedStatuses, consentStates, "consent guard status vocabulary matches the canonical consent state definition");
+  assert.equal(consentFact.valueType, "boolean", "legacy guard expression remains a Boolean model operand");
+  assert.match(consentFact.unknown, /deny/u);
+  assert.equal(consentFact.typedEvaluation.adapterContractRef, ".product-experience/pdp-3-product-experience/consent-observation-adapter-contracts.yaml#records/@id=media.pdp3.consent-per-effect-current-read-adapter.v1");
+  assert.equal(consentAdapter.records[0].sources.rightsDecisionContractRef, ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1");
+  assert.equal(consentAdapter.records[0].sources.consentRevisionContractRef, ".product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract");
 
   const purposeEdgeContract = guardContracts.records.find(({ edgeRules }) => JSON.stringify(edgeRules).includes("consentPerEffectCurrent"));
   const purposeEdge = purposeEdgeContract.edgeRules.find(({ when }) => JSON.stringify(when).includes("consentPerEffectCurrent"));
   const whitespacePurpose = fixture(purposeEdge);
-  whitespacePurpose.purpose = "  ";
+  whitespacePurpose.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].rightsRequest.purposeRef = "  ";
   assert.equal(evaluate(purposeEdgeContract.transitionId, purposeEdge.from, purposeEdge.to, whitespacePurpose).allowed, false,
     "whitespace-only purpose identity is unknown");
+});
+
+test("consent guards ignore caller booleans and reject foreign or stale typed per-effect revisions", () => {
+  const contract = byId.get("media-stream-session/T02");
+  const edge = contract.edgeRules[0];
+  const legacyBooleanOnly = fixture(edge);
+  delete legacyBooleanOnly.typedOwnerFacts;
+  legacyBooleanOnly.consent = { status: "ACTIVE", current: true, tenantId: "tenant-media-a", purposes: ["media.purpose.live-capture"] };
+  legacyBooleanOnly.guardFacts.consentPerEffectCurrent = true;
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, legacyBooleanOnly).allowed, false,
+    "legacy ACTIVE/current booleans cannot satisfy a per-effect owner observation guard");
+
+  const foreignRevision = fixture(edge);
+  foreignRevision.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.consentRevisionRef = "media.consent-revision/other-session";
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, foreignRevision).allowed, false,
+    "a valid-looking decision for a different consent revision remains unknown/denied");
+
+  const foreignConsent = fixture(edge);
+  foreignConsent.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.consentRef = "media.consent-reference/other-session";
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, foreignConsent).allowed, false,
+    "a valid-looking revision for a different canonical consent reference remains unknown/denied");
+
+  const staleRead = fixture(edge);
+  staleRead.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].rightsResult.readVersion = "rights-read-v9";
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, staleRead).allowed, false,
+    "a stale or foreign read version cannot establish current per-effect consent");
+
+  const forgedFingerprint = fixture(edge);
+  forgedFingerprint.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].rightsResult.requestFingerprint = `sha256:${"f".repeat(64)}`;
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, forgedFingerprint).allowed, false,
+    "a syntactically valid but unrecomputed request fingerprint is rejected");
+
+  const missingExpectedEffects = fixture(edge);
+  missingExpectedEffects.trustedConsentContext.expectedEffects = null;
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, missingExpectedEffects).allowed, false,
+    "malformed trusted expected effect sets fail closed without throwing");
+
+  const futureGrant = fixture(edge);
+  futureGrant.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.grantedAt = "2026-10-09T13:00:00.000Z";
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, futureGrant).allowed, false,
+    "an ACTIVE label cannot make a future-dated consent grant current");
+
+  const expiredGrant = fixture(edge);
+  expiredGrant.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.expiresAt = "2026-10-09T11:00:00.000Z";
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, expiredGrant).allowed, false,
+    "an ACTIVE label cannot override the exact consent expiry time");
+
+  const revokedGrant = fixture(edge);
+  revokedGrant.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.revokedAt = "2026-10-09T11:30:00.000Z";
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, revokedGrant).allowed, false,
+    "an ACTIVE label cannot override a recorded consent revocation");
+
+  const requiredExternalDenied = fixture(edge);
+  requiredExternalDenied.trustedConsentContext.expectedEffects[0].externalProcessingRequirement = "REQUIRED";
+  requiredExternalDenied.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.externalProcessingAllowed = false;
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, requiredExternalDenied).allowed, false,
+    "an effect requiring external processing needs that separately scoped consent permission");
+
+  const unrelatedBiometricPermission = fixture(edge);
+  unrelatedBiometricPermission.typedOwnerFacts.consentPerEffectCurrent.effectReads[0].consentResult.outcome.biometricProcessingAllowed = false;
+  assert.equal(evaluate(contract.transitionId, edge.from, edge.to, unrelatedBiometricPermission).allowed, true,
+    "an unrelated biometric permission does not constrain a non-biometric effect");
 });

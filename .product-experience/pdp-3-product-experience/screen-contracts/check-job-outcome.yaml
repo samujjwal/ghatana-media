@@ -1,39 +1,83 @@
 schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
-surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory; owner-binding-pending
+surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory;
+  owner-binding-pending
 templateId: media.gui.template.job-observation
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.job-observation]
+layoutIds:
+  - media.gui.layout.job-observation
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.job-status-card, media.component.activity-recovery-feed]
+componentIds:
+  - media.component.job-status-card
+  - media.component.activity-recovery-feed
 patternIds:
   - media.gui.pattern.job-status-and-recovery
 tokenDependencies: []
 domainObjectRefs: []
-operationRefs: []
-requirementRefs: [MEDIA-REQ-CAP-JOB]
+operationRefs:
+  - media.operation.action.view-job-status
+  - media.operation.action.check-job-outcome
+requirementRefs:
+  - MEDIA-REQ-CAP-JOB
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
-entry: []
-exit: []
+entry:
+  - "The caller must satisfy the exact screen context and subject scope in this
+    contract: check what happened to a job whose external outcome may be
+    uncertain."
+  - Before the corresponding action, require the source-defined guard
+    “stable-job-reference”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “existing-job-is-outcome-unknown”; absent or stale context leaves the action
+    unavailable.
+exit:
+  - "media.action.view-job-status: read-only.
+    keep-last-known-state-labelled-stale"
+  - "media.action.check-job-outcome:
+    remains-unknown-until-evidence-classifies-outcome.
+    preserve-unknown-state-and-disable-resubmission"
+  - A local or read-only result does not imply a domain transition; an unknown
+    owner outcome stays UNKNOWN and retains the exact subject for
+    reconciliation.
 actionConsequences:
   - actionId: media.action.view-job-status
-    capabilityRefs: [media.job.view-status]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.view-status
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.view-job-status
+    operationRefs:
+      - media.operation.action.view-job-status
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+    consequence: read-current-job-and-attempt-evidence
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - stable-job-reference
+    failureRecovery: keep-last-known-state-labelled-stale
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.check-job-outcome
-    capabilityRefs: [media.job.check-outcome]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.check-outcome
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.check-job-outcome
+    operationRefs:
+      - media.operation.action.check-job-outcome
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition
+    consequence: collect-evidence-for-the-existing-job-identity-without-new-dispatch
+    finality: remains-unknown-until-evidence-classifies-outcome
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - existing-job-is-outcome-unknown
+    failureRecovery: preserve-unknown-state-and-disable-resubmission
+    status: Media-owner-definition; runtime NOT_ADMITTED
 responsiveBehavior:
   reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
   status: proposal-unverified
@@ -55,7 +99,9 @@ fieldBindingStatus:
   surfaceId: candidate-pending-owner-binding
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: Media-owned job outcome composition selected from exact job observation, outcome evidence, and safe recovery anatomy; renderer and acceptance pending
+  componentIds: Media-owned job outcome composition selected from exact job
+    observation, outcome evidence, and safe recovery anatomy; renderer and
+    acceptance pending
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
@@ -73,33 +119,35 @@ screenId: media.view.check-job-outcome
 status: proposal; outcome-evidence-owner-binding-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.operator
-- media.automation-client
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.automation-client
 intentRef: media.intent.resolve-job
 purpose: check what happened to a job whose external outcome may be uncertain
 contextGoalNowNext:
-  context: Stable job identity, source version, prior dispatch state, and available provider evidence.
+  context: Stable job identity, source version, prior dispatch state, and
+    available provider evidence.
   goal: determine what happened before deciding whether more work is safe.
   now: Preserve OUTCOME_UNKNOWN until owner evidence classifies the result.
-  next: Record the confirmed outcome or request the assigned operator; do not submit another request blindly.
+  next: Record the confirmed outcome or request the assigned operator; do not
+    submit another request blindly.
 anatomy:
-- job-identity
-- current-state
-- evidence-timeline
-- outcome-check-result
-- safe-next-action
+  - job-identity
+  - current-state
+  - evidence-timeline
+  - outcome-check-result
+  - safe-next-action
 states:
-- outcome-unknown
-- reconciling
-- completed
-- failed
-- cancelled
-- evidence-unavailable
+  - outcome-unknown
+  - reconciling
+  - completed
+  - failed
+  - cancelled
+  - evidence-unavailable
 actions:
-- media.action.view-job-status
-- media.action.check-job-outcome
+  - media.action.view-job-status
+  - media.action.check-job-outcome
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -126,12 +174,16 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
   - J-20
   - J-27
+authorityRefs: []
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition

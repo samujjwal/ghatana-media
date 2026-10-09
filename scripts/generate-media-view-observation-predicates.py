@@ -132,7 +132,7 @@ for v in d['views']:
 out={
  'schemaVersion':'media.pdp-3-view-observation-predicates.v1',
  'status':'MEDIA_OWNER_DEFINITION; INDEPENDENT_PDP3_REVIEW_OPEN',
- 'decisionRef':'.product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE',
+ 'decisionRef':'.product-experience/decision-log.md#PXD-119',
  'sourceAuthority':'.product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml',
  'factBoundary':'Inputs are definition-oracle observations, not authority evaluation, transport evidence, provider execution, runtime admission, or phase acceptance.',
  'viewCount':len(d['views']),'predicateCount':len(allrows),'predicates':allrows

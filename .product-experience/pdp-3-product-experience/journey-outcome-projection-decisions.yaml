@@ -1,0 +1,364 @@
+schemaVersion: media.pdp3.journey-outcome-projection.v1
+productId: media
+sourceRefs:
+  journeyCatalog: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys
+selectionRule: Select exactly one primary public desiredOutcomeRef from each
+  journey exact P0 outcomeRefs; retain and report the full source outcomeRefs
+  without implication that other outcomes were removed.
+records:
+  - id: media.pdp3.journey-outcome-projection.j01.v1
+    journeyRef: J-01
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-01
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.resolve-safely
+      - media.goal.preserve-source
+    primaryDesiredOutcomeRef: media.goal.resolve-safely
+    rationale: Resolve identity, workspace, and access prerequisites before
+      protected project work.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j02.v1
+    journeyRef: J-02
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-02
+    sourceOutcomeRefs:
+      - media.goal.understand-media
+      - media.goal.preserve-source
+      - media.goal.resolve-safely
+    primaryDesiredOutcomeRef: media.goal.understand-media
+    rationale: Inspect and produce a usable artifact while preserving source and
+      handling intake safely.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j03.v1
+    journeyRef: J-03
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-03
+    sourceOutcomeRefs:
+      - media.goal.understand-media
+      - media.goal.review-trustworthy-output
+    primaryDesiredOutcomeRef: media.goal.review-trustworthy-output
+    rationale: The journey centers on correcting and reviewing the
+      transcript/caption result.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j04.v1
+    journeyRef: J-04
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-04
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The core outcome is an approved generated audio asset.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j05.v1
+    journeyRef: J-05
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-05
+    sourceOutcomeRefs:
+      - media.goal.understand-media
+      - media.goal.review-trustworthy-output
+    primaryDesiredOutcomeRef: media.goal.understand-media
+    rationale: The journey produces source-grounded image/video analysis and
+      geometry observations.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j06.v1
+    journeyRef: J-06
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-06
+    sourceOutcomeRefs:
+      - media.goal.understand-media
+      - media.goal.integrate-repeatably
+    primaryDesiredOutcomeRef: media.goal.integrate-repeatably
+    rationale: The journey returns a grounded typed result to a consumer integration.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j07.v1
+    journeyRef: J-07
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-07
+    sourceOutcomeRefs:
+      - media.goal.improve-with-disclosure
+      - media.goal.preserve-source
+      - media.goal.finished-asset
+    primaryDesiredOutcomeRef: media.goal.improve-with-disclosure
+    rationale: The user seeks cleanup with disclosed changes and preserved source.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j08.v1
+    journeyRef: J-08
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-08
+    sourceOutcomeRefs:
+      - media.goal.improve-with-disclosure
+      - media.goal.preserve-source
+      - media.goal.finished-asset
+    primaryDesiredOutcomeRef: media.goal.improve-with-disclosure
+    rationale: The user seeks measured video repair while preserving the source.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j09.v1
+    journeyRef: J-09
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-09
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.explain-or-demonstrate
+      - media.goal.review-trustworthy-output
+      - media.goal.deliver-approved-output
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The brief-to-storyboard-to-render workflow is centered on producing a
+      reviewable asset.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j10.v1
+    journeyRef: J-10
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-10
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.explain-or-demonstrate
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: Controlled generation produces the requested continuity-preserving asset.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j11.v1
+    journeyRef: J-11
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-11
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.preserve-source
+      - media.goal.improve-with-disclosure
+    primaryDesiredOutcomeRef: media.goal.improve-with-disclosure
+    rationale: The user makes a bounded region/tracking edit with comparison and undo.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j12.v1
+    journeyRef: J-12
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-12
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.explain-or-demonstrate
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The deterministic animation workflow produces the requested asset.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j13.v1
+    journeyRef: J-13
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-13
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.explain-or-demonstrate
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The character/rig/path workflow produces a reviewable animation asset.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j14.v1
+    journeyRef: J-14
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-14
+    sourceOutcomeRefs:
+      - media.goal.explain-or-demonstrate
+      - media.goal.finished-asset
+    primaryDesiredOutcomeRef: media.goal.explain-or-demonstrate
+    rationale: The journey is a domain simulation whose primary result is an
+      explainable measurement.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j15.v1
+    journeyRef: J-15
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-15
+    sourceOutcomeRefs:
+      - media.goal.explain-or-demonstrate
+      - media.goal.improve-with-disclosure
+    primaryDesiredOutcomeRef: media.goal.explain-or-demonstrate
+    rationale: The core requirement is a simulation/procedural pass that preserves
+      protected semantics.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j16.v1
+    journeyRef: J-16
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.review-trustworthy-output
+      - media.goal.deliver-approved-output
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The journey produces translated/dubbed media with reviewed voice and
+      timing.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j17.v1
+    journeyRef: J-17
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-17
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.deliver-approved-output
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The journey produces a music/effects/stem/mix master.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j18.v1
+    journeyRef: J-18
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-18
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.preserve-source
+      - media.goal.review-trustworthy-output
+      - media.goal.deliver-approved-output
+    primaryDesiredOutcomeRef: media.goal.finished-asset
+    rationale: The editing workflow produces an exact media master.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j19.v1
+    journeyRef: J-19
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-19
+    sourceOutcomeRefs:
+      - media.goal.improve-with-disclosure
+      - media.goal.preserve-source
+    primaryDesiredOutcomeRef: media.goal.improve-with-disclosure
+    rationale: The user requests measured quality review and bounded improvement.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j20.v1
+    journeyRef: J-20
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20
+    sourceOutcomeRefs:
+      - media.goal.resolve-safely
+    primaryDesiredOutcomeRef: media.goal.resolve-safely
+    rationale: The journey observes a long-running job and resolves its outcome
+      without unsafe replay.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j21.v1
+    journeyRef: J-21
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21
+    sourceOutcomeRefs:
+      - media.goal.review-trustworthy-output
+      - media.goal.deliver-approved-output
+      - media.goal.resolve-safely
+      - media.goal.preserve-source
+    primaryDesiredOutcomeRef: media.goal.review-trustworthy-output
+    rationale: Review and approval are tied to exact output versions and changed material.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j22.v1
+    journeyRef: J-22
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22
+    sourceOutcomeRefs:
+      - media.goal.deliver-approved-output
+      - media.goal.review-trustworthy-output
+    primaryDesiredOutcomeRef: media.goal.deliver-approved-output
+    rationale: The journey is specifically about delivery/export and destination
+      acknowledgment.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j23.v1
+    journeyRef: J-23
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-23
+    sourceOutcomeRefs:
+      - media.goal.resolve-safely
+    primaryDesiredOutcomeRef: media.goal.resolve-safely
+    rationale: The user must continue safely while disconnected and reconcile after
+      reconnect.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j24.v1
+    journeyRef: J-24
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-24
+    sourceOutcomeRefs:
+      - media.goal.integrate-repeatably
+      - media.goal.deliver-approved-output
+      - media.goal.resolve-safely
+    primaryDesiredOutcomeRef: media.goal.integrate-repeatably
+    rationale: The CLI batch is intended to be repeatable and verifiable.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j25.v1
+    journeyRef: J-25
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-25
+    sourceOutcomeRefs:
+      - media.goal.integrate-repeatably
+    primaryDesiredOutcomeRef: media.goal.integrate-repeatably
+    rationale: The journey defines bounded delegated Media integration.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j26.v1
+    journeyRef: J-26
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26
+    sourceOutcomeRefs:
+      - media.goal.resolve-safely
+      - media.goal.preserve-source
+      - media.goal.review-trustworthy-output
+    primaryDesiredOutcomeRef: media.goal.preserve-source
+    rationale: Deletion, revocation, retention, and hold handling protect source and
+      records.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j27.v1
+    journeyRef: J-27
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-27
+    sourceOutcomeRefs:
+      - media.goal.resolve-safely
+      - media.goal.finished-asset
+      - media.goal.review-trustworthy-output
+      - media.goal.integrate-repeatably
+    primaryDesiredOutcomeRef: media.goal.resolve-safely
+    rationale: The user needs a safe outcome when processing is unavailable.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j28.v1
+    journeyRef: J-28
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28
+    sourceOutcomeRefs:
+      - media.goal.finished-asset
+      - media.goal.explain-or-demonstrate
+      - media.goal.deliver-approved-output
+    primaryDesiredOutcomeRef: media.goal.deliver-approved-output
+    rationale: The specialized spatial/interactive output must be delivered to a
+      declared consumer.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j29.v1
+    journeyRef: J-29
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29
+    sourceOutcomeRefs:
+      - media.goal.resolve-safely
+    primaryDesiredOutcomeRef: media.goal.resolve-safely
+    rationale: The journey is bounded recovery from session loss and consent change.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+  - id: media.pdp3.journey-outcome-projection.j30.v1
+    journeyRef: J-30
+    sourceJourneyRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-30
+    sourceOutcomeRefs:
+      - media.goal.integrate-repeatably
+      - media.goal.resolve-safely
+    primaryDesiredOutcomeRef: media.goal.integrate-repeatably
+    rationale: The user checks which operation options are eligible without
+      dispatching them.
+    selectionStatus: MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none

@@ -14,6 +14,41 @@ ownerDefinedSourceTruthMatrix:
     - {surfaceCollectionRef: "#/surfaces", surfaceKeyField: surface, surfaceKey: SDK registry, identitySource: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml, ownerSource: .product-experience/pdp-1-domain-data/operations.yaml, dispositionField: bindingStatus}
   requiredPerIdentity: [exact-source-identity, source-owner-or-external-owner, implementation-observation-or-explicit-not-implemented, candidate-or-non-operation-disposition, exact-canonical-reference-or-explained-unresolved-gap, runtime-and-independent-acceptance-state]
   nonEquivalence: [matching-name-is-not-semantic-equivalence, implementation-observation-is-not-owner-acceptance, transport-only-is-not-domain-operation, owner-adapter-required-is-not-wire-parity, unresolved-is-explicit-not-implied-success]
+  currentUiActionIdentityResolution:
+    sourceCollections:
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#/actions
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#/ownerDefinedActions
+    currentIdentityCount: 147
+    exactSemanticFields:
+      definition: actionDefinitionSemantics/typedDefinition
+      role: domainOperationDisposition
+      operations: exactOperationRefs
+      effect: effect
+      applicability: applicabilityGuards
+      finality: finality
+      recovery: failureRecovery
+      authorityAndAdmission: [ownerDefinitionDecisionRef, runtimeAdmission]
+    exactDispositionClasses:
+      operationIntent: [EXACT_OPERATION_REFERENCE, EXACT_ORDERED_WORKFLOW, OWNER_DEFINED_EXACT_OPERATION_REFERENCE]
+      localOrSessionOnly: [NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT]
+      sharedIdentityBoundary:
+        - "EXTERNAL_SHARED_IDENTITY_HANDOFF; NO_MEDIA_DOMAIN_MUTATION"
+        - "EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION; NO_MEDIA_DOMAIN_MUTATION"
+    operationResolution: >-
+      Every operationIntent row must resolve each exactOperationRefs entry to one
+      unique operation, individual-operation, owner-defined-operation, or
+      capability-operation source record. This is an owner action-intent link;
+      it does not claim that any UI action is wired to a transport or that the
+      linked operation is executable or admitted.
+    nonOperationResolution: >-
+      A localOrSessionOnly row must have no operation refs and must retain its
+      exact effect, applicability, finality, and failureRecovery semantics. A
+      sharedIdentityBoundary row must have no Media operation refs and must
+      retain its explicit upstream handoff/observation boundary. Do not replace
+      either class with a guessed Media operation based on the action label.
+    dispositionCounts: {operationIntent: 96, localOrSessionOnly: 49, sharedIdentityBoundary: 2}
+    excludedClaims: [transport-equivalence, runtime-reachability, execution-admission, independent-acceptance]
+    sourceStatus: CURRENT_MEDIA_ACTION_IDENTITIES_EXACTLY_DISPOSED; cross-interface bindings remain separately reviewed
   status: OWNER_DEFINED_SOURCE_INVENTORY_AND_DISPOSITION; no cross-interface binding, runtime parity, or independent acceptance is implied.
 normativeRuleRecords:
   - id: media.p2.rule.interface-source-truth-matrix.v1
@@ -59,7 +94,7 @@ surfaces:
         media.operation.caption-version-read: [media.action.compare-caption-versions]
     ambiguous: []
     canonicalRefs: .product-experience/pdp-1-domain-data/operations.yaml#/operations/*/actionRefs
-    bindingStatus: current 147 identities reconcile below; fourteen historical actionRefs remain proposed, six UI action intents retain separate PXD-029 approval, one PXD-077 reconnect action has a source-defined operation intent only, 132 actions lack exact operation refs; zero accepted cross-interface bindings; no runtime reachability implied
+    bindingStatus: the current 147 identities have exact Media-owned operation-intent, local/session-only, or Shared identity-handoff dispositions in currentUiActionIdentityResolution; the 132 unresolved value remains the older cross-interface binding count, not a claim that current action definitions lack operation or non-operation semantics. Historical fourteen candidates, six PXD-029 intent associations, and PXD-077's separate intent disposition remain unchanged; zero cross-interface bindings are accepted and runtime reachability is not implied.
   - surface: HTTP
     denominator: 27
     source: contracts/openapi/media.yaml
@@ -168,6 +203,30 @@ surfaces:
       helpDisposition: fixture-control-path; parseMediaCommand-returns-help-and-bin/ghatana-media.mjs-handles---help; not-a-command-identity-or-12th-command
       priorTwelveFixtureObservation: unresolved-source-discrepancy; inspected-current-registry-and-parser-evidence-support-eleven-fixture-command-identities-only
     bindingStatus: nine-proposals-follow-existing-command/action references or operation intent; caption-version commands remain unresolved; acceptance-pending
+    currentFixtureCommandDefinitions:
+      source: libs/media-experience-simulation/src/cli.ts#parseMediaCommand
+      execution: deterministic-synthetic-fixture-only; no-production-runtime-or-provider-call
+      records:
+        - commandId: media.fixture-cli.caption-save-version
+          argv: [caption, save-version]
+          requiredOptions: [--draft-version, --purpose]
+          optionalOptions: [--format]
+          inputConstraints: draft-version-must-equal-current-fixture-draft-version; purpose-is-nonblank-and-at-most-240-characters
+          emittedActionRef: media.action.save-caption-version
+          currentOwnerOperationRef: media.operation.caption-version-write
+          outcome: fixture-simulator-creates-a-new-caption-version-or-returns-a-fixture-validation-error; no-production-persistence-claim
+          admission: NOT_ADMITTED
+        - commandId: media.fixture-cli.caption-compare-versions
+          argv: [caption, compare-versions]
+          requiredOptions: [--left-version, --right-version]
+          optionalOptions: [--format]
+          inputConstraints: both-version-identifiers-must-be-nonblank; fixture-simulator-resolves-only-present-caption-versions
+          emittedActionRef: media.action.compare-caption-versions
+          currentOwnerOperationRef: media.operation.caption-version-read
+          outcome: fixture-simulator-returns-a-comparison-of-the-two-selected-versions-or-a-fixture-validation-error; no-production-query-or-persistence-claim
+          admission: NOT_ADMITTED
+      nonEquivalence: emitted-action-and-owner-operation-references-classify-intent-only; fixture-parser-does-not-invoke-the-canonical-operation
+      admission: NOT_ADMITTED
   - surface: SDK registry
     denominator: 30
     rawRegistryRecordCount: 33
@@ -178,6 +237,95 @@ surfaces:
       synthesis: [media.sdk.synthesize]
       multimodal-analysis: [media.sdk.analyzeMultimodal]
     unresolved: [media.sdk.trainVoiceModel, media.sdk.convertVoice, media.sdk.processAIVoice, media.sdk.processVision, media.sdk.processMultimodal, media.sdk.legacy.AudioVideoClient.transcribe, media.sdk.legacy.AudioVideoClient.synthesize, media.sdk.getOperationResult]
+    currentSourceMethodDefinitions:
+      sourceStatus: exact-legacy-method-and-type-identity; canonical-wire-equivalence-not-established
+      records:
+        - methodId: media.sdk.trainVoiceModel
+          methodRef: libs/audio-video-client/src/operations.ts#MediaOperationClient.trainVoiceModel
+          requestTypeRef: libs/audio-video-types/src/contracts.ts#VoiceTrainingRequestSchema
+          acceptedResultTypeRef: libs/audio-video-types/src/contracts.ts#OperationAcceptedSchema
+          returnedResultTypeRef: libs/audio-video-types/src/contracts.ts#MediaArtifactSchema
+          observedRoute: POST /api/v1/media/voice-models:train
+          canonicalOwnerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-model.train.v1
+          disposition: LEGACY_REQUEST_RESULT_NOT_EQUIVALENT
+          exactGap: Legacy request contains sampleArtifactIds, rightsAttestation, languageTags, qualityThreshold, and consentReference; owner request requires exact immutable sourceVersionRefs, trainingProfileRef, purposeRef, consentRef, and rightsEvidenceRefs. Legacy accepted/result schemas return OperationAccepted and MediaArtifact, not the owner operation's tri-state versioned-model result. No field or identity conversion is inferred.
+          recoveryAndFinality: the handle observes a job and parser-selected result; neither is the owner operation's registered model-version receipt. Ambiguous submission must reconcile the same idempotency key; no blind new training request.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.convertVoice
+          methodRef: libs/audio-video-client/src/operations.ts#MediaOperationClient.convertVoice
+          requestTypeRef: libs/audio-video-types/src/contracts.ts#VoiceConversionRequestSchema
+          acceptedResultTypeRef: libs/audio-video-types/src/contracts.ts#OperationAcceptedSchema
+          returnedResultTypeRef: libs/audio-video-types/src/contracts.ts#MediaArtifactSchema
+          observedRoute: POST /api/v1/media/voice-conversions
+          canonicalOwnerOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.voice-model.convert.v1
+          disposition: LEGACY_REQUEST_RESULT_NOT_EQUIVALENT
+          exactGap: Legacy request selects sourceArtifactId and voiceModelArtifactId without immutable versions and omits targetProfileRef, purposeRef, and rightsEvidenceRefs. The owner contract requires exact sourceModelVersionRef, targetProfileRef, purposeRef, consentRef, and rightsEvidenceRefs and returns an explicit tri-state versioned-model result rather than MediaArtifact.
+          recoveryAndFinality: legacy accepted job receipt is not a converted model registration receipt; unknown submission requires same-key reconciliation before another request.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.processAIVoice
+          methodRef: libs/audio-video-client/src/index.ts#AudioVideoClient.processAIVoice
+          requestTypeRef: libs/audio-video-types/src/index.ts#AIVoiceRequest
+          resultTypeRef: libs/audio-video-types/src/index.ts#AIVoiceResult
+          observedRoute: POST /api/ai-voice/process
+          responseWrapper: ServiceResponse.success-data-or-error
+          disposition: LEGACY_TEXT_PROCESSING_CONTRACT; NO_CANONICAL_OPERATION_BINDING
+          sourceSemantics: request text plus task enum enhance|translate|summarize|style and optional text-processing options; result carries processedText, originalText, task, processingTimeMs, and confidence.
+          exactGap: No current canonical owner operation with this exact text-processing request/result and task scope is selected. Voice-model train/convert operations are not aliases for this text-processing endpoint.
+          errorsAndFinality: thrown service errors become a failure ServiceResponse and error callback; start/complete/error notifications are in-process only. A success wrapper is a service response, not immutable artifact registration, publication, or a qualified text result.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.processVision
+          methodRef: libs/audio-video-client/src/index.ts#AudioVideoClient.processVision
+          requestTypeRef: libs/audio-video-types/src/index.ts#VisionRequest
+          resultTypeRef: libs/audio-video-types/src/index.ts#DetectionResultSchema
+          observedRoute: POST /api/vision/analyze
+          responseWrapper: ServiceResponse.success-data-or-error
+          disposition: LEGACY_VISION_REQUEST_RESULT; CANONICAL_LEAF_FIELD_CROSSWALK_NOT_ESTABLISHED
+          sourceSemantics: one ImageData plus task detect|classify|segment|analyze and optional threshold/count/class/segmentation controls; result is a DetectionResult with object detections, confidence, processing time, and image size.
+          exactGap: Image bytes, dimensions, task optionals, result provenance, estimation status, and exact output artifact/version are not crosswalked to a selected Media capability leaf. Matching the vision family name is insufficient.
+          errorsAndFinality: source parser validates DetectionResult; failure is a ServiceResponse error callback. Success is an observation/result DTO, not source-linked immutable output registration or scientific/ground-truth acceptance.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.processMultimodal
+          methodRef: libs/audio-video-client/src/index.ts#AudioVideoClient.processMultimodal
+          requestTypeRef: libs/audio-video-types/src/index.ts#MultimodalRequest
+          resultTypeRef: libs/audio-video-types/src/index.ts#MultimodalResultSchema
+          observedRoute: POST /api/multimodal/process
+          responseWrapper: ServiceResponse.success-data-or-error
+          disposition: LEGACY_MULTIMODAL_REQUEST_RESULT; CANONICAL_LEAF_FIELD_CROSSWALK_NOT_ESTABLISHED
+          sourceSemantics: optional audio/video/image/text inputs plus task enum transcribe|synthesize|analyze|translate|summarize and optional modality/output controls; the result contains an unknown-valued result field, confidence, duration, modality names, and optional insights.
+          exactGap: The optional input combination, output discriminator, result payload, source-version linkage, and epistemic role are not bound to one exact canonical leaf schema. The generic unknown result payload cannot establish a typed Media result.
+          errorsAndFinality: source parser validates only the legacy result shape; failures are ServiceResponse errors. Success is not canonical result registration or finality evidence.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.legacy.AudioVideoClient.transcribe
+          methodRef: libs/audio-video-client/src/index.ts#AudioVideoClient.transcribe
+          requestTypeRef: libs/audio-video-types/src/index.ts#STTRequest
+          resultTypeRef: libs/audio-video-types/src/index.ts#STTResult
+          observedRoute: POST /api/stt/transcribe
+          responseWrapper: ServiceResponse.success-data-or-error
+          disposition: LEGACY_STT_METHOD; CANONICAL_TRANSCRIPT_VERSION_READ_OR_SUBMISSION_EQUIVALENCE_NOT_ESTABLISHED
+          exactGap: Legacy AudioData/options and STTResult text/word timestamps lack an exact immutable source version, transcript version, calibrated uncertainty, and source-clock binding. The result is not a TranscriptVersion.
+          errorsAndFinality: source parser validates only legacy STTResult; failure callback and local notification are not owner finality. Success does not register or approve a transcript version.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.legacy.AudioVideoClient.synthesize
+          methodRef: libs/audio-video-client/src/index.ts#AudioVideoClient.synthesize
+          requestTypeRef: libs/audio-video-types/src/index.ts#TTSRequest
+          resultTypeRef: libs/audio-video-types/src/index.ts#TTSResult
+          observedRoute: POST /api/tts/synthesize
+          responseWrapper: ServiceResponse.success-data-or-error
+          disposition: LEGACY_TTS_METHOD; CANONICAL_VOICE_SYNTHESIS_FIELD_CROSSWALK_NOT_ESTABLISHED
+          exactGap: Legacy optional voice/language/options and AudioData result do not bind an exact voice profile/version, purpose, consent/right evidence, source provenance, or registered output ArtifactVersion. No name-based binding to a capability is accepted.
+          errorsAndFinality: source returns a validated TTSResult or ServiceResponse error; callback/notification does not prove output registration or publication.
+          admission: NOT_ADMITTED
+        - methodId: media.sdk.getOperationResult
+          methodRef: libs/audio-video-client/src/operations.ts#MediaOperationClient.getOperationResult
+          requestTypeRef: libs/audio-video-client/src/operations.ts#MediaOperationClient.getOperationResult.operationId
+          resultTypeRef: libs/audio-video-client/src/operations.ts#RuntimeParser<T>
+          observedRoute: GET /api/v1/media/operations/{operationId}/result
+          disposition: LEGACY_UNVALIDATED_RESULT_READ
+          exactGap: The caller supplies a generic RuntimeParser<T>; the method does not select the accepted job's target operation/version/schema digest and cannot establish that arbitrary JSON is a canonical result.
+          canonicalConsumerAdapterRef: scripts/lib/pdp-job-result-observation.mjs#validateJobResultObservation
+          canonicalRule: preserve raw legacy payload only as untrusted UNKNOWN; a typed result requires the trusted accepted-submit snapshot to resolve the exact target output schema and a successful closed-schema validation. Schema-valid output alone does not establish finality or output registration.
+          errorsAndFinality: HTTP/read/parse failure rejects the Promise; cancellation of local read does not cancel the job. Result retrieval is not completion evidence.
+          admission: NOT_ADMITTED
     boundedCanonicalReads: [media.sdk.getArtifact, media.sdk.getUploadSession]
     boundedCanonicalOperations: [media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession]
     sourceBackedNonOperationDispositions:
@@ -220,6 +368,24 @@ surfaces:
     dispositionCounts: {mappedProposal: 12, unresolved: 3}
     runtimePublisherObservation: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEventPublisher.java
     bindingStatus: registry-notifications-and-runtime-publisher-events-are-distinct-populations; trigger-operation-and-delivery-bindings-unresolved
+    currentNotificationDefinitions:
+      source: .product-experience/pdp-1-domain-data/events.yaml#observedEnvelope/clientNotificationInventory/records
+      delivery: in-process-AudioVideoClient-listener-notification; not-durable-and-not-Event-Plane-publication
+      records:
+        - eventName: ai-voice:process:start
+          publisher: AudioVideoClient#processAIVoice
+          payloadFields: [request]
+          meaning: processing-observation-started; not-owner-accepted-job-or-provider-start-receipt
+        - eventName: ai-voice:process:complete
+          publisher: AudioVideoClient#processAIVoice
+          payloadFields: [request, result]
+          meaning: local-service-promise-resolved; not-immutable-artifact-registration-or-qualified-result
+        - eventName: ai-voice:process:error
+          publisher: AudioVideoClient#processAIVoice
+          payloadFields: [request, error]
+          meaning: local-service-promise-rejected; not-owner-job-failure-finality
+      boundary: notification-payloads-remain-client-local-and-untrusted; no-trigger-operation-or-canonical-event-equivalence-is-asserted
+      admission: NOT_ADMITTED
   - surface: internal runtime events
     denominator: 9
     source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java
@@ -227,6 +393,29 @@ surfaces:
     dynamicEventPattern: media.job.<terminal.status-lowercase>
     dispositionCounts: {unresolved: 9}
     bindingStatus: source-callsite-observation-does-not-establish-public-event-contract-or-operation-equivalence
+    currentOwnerEventDefinitionBindings:
+      source: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records
+      disposition: exact-Media-event-schema-and-producer-meaning-binding; not-a-runtime-publisher-or-Event-Plane-equivalence
+      admission: NOT_ADMITTED
+      records:
+        - eventType: media.upload.started
+          contractId: media.event-contract.media-upload-started
+        - eventType: media.artifact.completed
+          contractId: media.event-contract.media-artifact-completed
+        - eventType: media.job.accepted
+          contractId: media.event-contract.media-job-accepted
+        - eventType: media.job.cancelled
+          contractId: media.event-contract.media-job-cancelled
+        - eventType: media.job.cancel_requested
+          contractId: media.event-contract.media-job-cancel-requested
+        - eventType: media.stream.opened
+          contractId: media.event-contract.media-stream-opened
+        - eventType: media.stream.closed
+          contractId: media.event-contract.media-stream-closed
+        - eventType: media.job.completed
+          contractId: media.event-contract.media-job-completed
+        - eventType: media.job.failed
+          contractId: media.event-contract.media-job-failed
   - surface: CLI host-configured runtime consumers
     denominator: 1
     source: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
@@ -254,6 +443,23 @@ crossSurfaceRules:
   - protocol-level-health-readiness-auth-pagination-and-error-mechanics-may-be-classified-transport-only-only-with-explicit-boundary-evidence
   - source-inventories-preserve-unresolved-identities; no-omitted-interface-is-assumed-absent-from-product
   - exact-source-and-compatibility-evidence-is-required-before-changing-a-disposition
+currentLogicalOwnerReadConsumers:
+  status: additive-exact-read-contract-reference; legacy-scalar-observations-remain-non-equivalent
+  operationRef: media.operation.job-status.read-dimensions.v1
+  operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1
+  requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/requestSchema
+  resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-status.read-dimensions.v1/resultSchema
+  validationHelperRef: scripts/lib/pdp-job-status-dimension-observation.mjs#validateJobStatusDimensionObservation
+  consumers:
+    - consumerId: media.cli.command.job-status.v1
+      consumerPath: .product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedCanonicalCommandContracts/contracts/@id=media.cli.command.job-status.v1
+      role: additive-seven-dimension-logical-read; existing-capability-status-read-and-legacy-transport-views-are-not-replaced
+    - consumerId: media.action.view-job-status
+      consumerPath: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status
+      role: typed-status-panel-read-projection; exact query schema is selected by this contract and does not imply an existing wire binding
+  trustBoundary: host constructs trustedContext independently; caller selects only requestSchema-permitted job and dimension refs
+  admission: NOT_ADMITTED
+  transportParity: NOT_ESTABLISHED
 nextEvidenceRequired:
   - owner-reviewed-logical-operation-to-wire-operation-crosswalk
   - SDK-and-CLI-consumer-and-release-inventories

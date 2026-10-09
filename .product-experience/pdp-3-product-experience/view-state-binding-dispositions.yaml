@@ -1,6 +1,6 @@
 schemaVersion: media.pdp-3-view-state-binding-dispositions.v1
 status: MEDIA_OWNER_DEFINITION; INDEPENDENT_PDP3_REVIEW_OPEN
-decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+decisionRef: .product-experience/decision-log.md#PXD-119
 sourceAuthority: .product-experience/pdp-3-product-experience/screen-registry.yaml
 canonicalStateAuthority: .product-experience/pdp-1-domain-data/states.yaml
 viewCount: 47

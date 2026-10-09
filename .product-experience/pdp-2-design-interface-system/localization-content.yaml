@@ -28,6 +28,12 @@ ownerDefinedLocalizationRules:
     invariants: [direction-is-explicit-ltr-or-rtl,canonical-identifiers-are-bidi-isolated,localized-copy-wraps-without-loss,text-resize-preserves-all-required-content,320-css-pixel-reflow-preserves-controls-and-actions,unsupported-direction-does-not-imply-runtime-locale-support]
     negativeCases: [rtl-direction-inferred-from-script,canonical-id-reordered-by-bidirectional-copy,long-label-clipped-at-narrow-width,200-percent-text-resize-hides-required-fact,control-becomes-unreachable-after-reflow,unsupported-locale-marked-runtime-supported]
     scopeStatus: OWNER_DEFINED_LOCALIZATION_AND_REFLOW_RULE; browser, assistive-technology, native-language, and runtime locale acceptance remain separate and unclaimed.
+  - id: media.localization.font-fallback-shaping-and-license.v1
+    sourceRefs: [.product-experience/pdp-2-design-interface-system/typography-layout.yaml#mediaOwnerDefinitionDecision, .product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules]
+    rule: Select fonts from an explicitly ordered, locale/script-compatible fallback list; record the selected face and version for reproducible rendering. Shape each text run with its declared script and direction, preserve grapheme clusters and combining marks, and never split a cluster at line wrapping. A fallback may be selected only when it covers the required glyphs and preserves the declared reading order; a missing glyph or shaping capability is an explicit unsupported-rendering condition, not permission to silently substitute a visually unrelated face or drop text. Before bundling, embedding, converting, or redistributing a font, require source-specific license evidence that covers the exact font/version and intended distribution/use; unknown, conflicting, or insufficient rights block that action. A system-provided font may be used without bundling only when the platform exposes it under its own terms; do not infer redistribution rights from local availability. This is an owner rendering rule, not legal clearance or proof of current font availability.
+    requiredEvidence: [localeAndScript, explicitDirection, orderedFallbackCandidates, selectedFontIdentityAndVersion, glyphCoverageAndShapingDisposition, exactLicenseEvidenceForBundledOrEmbeddedFont, intendedDistributionScope]
+    negativeCases: [implicit-font-substitution,missing-glyph-dropped,grapheme-cluster-split,direction-inferred-from-font,local-font-availability-treated-as-redistribution-license,unknown-font-license-bundled,license-for-different-font-version-reused]
+    scopeStatus: OWNER_DEFINED_FONT_FALLBACK_AND_SHAPING_RULE; legal review, actual font qualification, and runtime availability remain separate and unclaimed.
 normativeRuleRecords:
   - id: media.p2.rule.localization-original-intermediate-precision.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/localization-content.yaml#/ownerDefinedLocalizationRules/@id=media.localization.original-and-intermediate-precision.v1
@@ -36,4 +42,8 @@ normativeRuleRecords:
   - id: media.p2.rule.localization-direction-and-reflow.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/localization-content.yaml#/ownerDefinedLocalizationRules/@id=media.localization.direction-and-reflow.v1
     sourceAuthority: .product-experience/pdp-2-design-interface-system/typography-layout.yaml#responsiveCompositionReferences
+    acceptanceEffect: none
+  - id: media.p2.rule.localization-font-fallback-shaping-and-license.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/localization-content.yaml#/ownerDefinedLocalizationRules/@id=media.localization.font-fallback-shaping-and-license.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/typography-layout.yaml#mediaOwnerDefinitionDecision
     acceptanceEffect: none

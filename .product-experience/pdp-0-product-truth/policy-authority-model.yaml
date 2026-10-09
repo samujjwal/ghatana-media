@@ -149,6 +149,34 @@ productPolicy:
       - disable-imported-scene-script-execution-by-default
       - do-not-run-model-generated-code-on-the-host; require-admitted-restricted-sandbox-if-code-execution-is-later-approved
       - admit-engine-plugin-model-font-and-code-by-version-digest-license-and-security-review
+    archiveExtractionDestinationRule:
+      id: media.policy.archive-extraction-destination-safety.v1
+      rule: >-
+        Resolve every archive member beneath a canonical per-job destination root
+        after normalization. Reject absolute paths, traversal after normalization,
+        duplicate normalized destinations, case/Unicode-colliding names under the
+        destination filesystem rules, symbolic links, hard links, device entries,
+        and platform reparse points that escape or alias the root. Extraction must
+        not overwrite an existing destination by default. An overwrite is permitted
+        only through an explicit owner-defined operation that names the exact target
+        identity and expected revision and performs an atomic compare-and-set;
+        archive metadata itself never grants overwrite authority. On any collision,
+        mismatch, unsupported link type, or unknown filesystem behavior, reject the
+        archive before committing extracted files and preserve the existing target.
+      requiredEvidence:
+        - canonical-destination-root-and-normalized-member-path
+        - exact-collision-policy-for-case-and-unicode-normalization
+        - no-follow-link-and-reparse-point-enforcement
+        - overwrite-denied-by-default
+        - exact-target-revision-and-atomic-cas-for-explicit-overwrite
+      negativeCases:
+        - traversal-and-absolute-member-path
+        - symlink-or-hardlink-outside-destination-root
+        - duplicate-normalized-member-name
+        - preexisting-target-without-explicit-overwrite-authority
+        - stale-target-revision-during-explicit-overwrite
+      failure: REJECT_BEFORE_DESTINATION_MUTATION
+      scopeStatus: OWNER_DEFINED_THREAT_BOUNDARY; filesystem-specific enforcement remains NOT_EVALUATED
     executionBounds: [ cpu, ram, vram, scratch-storage, process-count, open-files, decoded-pixels, frames, samples, shader-complexity, particles, solver-substeps, retries, wall-clock, monetary-budget ]
     cancellationTruth: gpu-or-remote-work-remains-requested-until-authority-confirms-termination
     browserToLocalWorkerBoundary:
@@ -184,6 +212,53 @@ productPolicy:
       audit: accountable-protected-action-records-with-own-retention-and-durability
       provenance: media-derivation-and-origin-records-not-proof-of-truth-or-rights
       redactionFailure: drop-or-quarantine-unsafe-telemetry-never-fallback-to-raw-content
+    auditRecordBoundary:
+      id: media.policy.protected-audit-record-boundary.v1
+      requiredFacts:
+        - stableAuditRecordId
+        - tenantScopeRef
+        - accountablePrincipalOrServiceRef
+        - actionAndOperationRef
+        - subjectObjectAndVersionRefs
+        - authorizationAndPolicyDecisionRefs
+        - requestOrEffectCorrelationRef
+        - outcomeOrUnknownDisposition
+        - observedAtAndOwnerReadVersion
+      rule: >-
+        Audit is a protected accountability record for a consequential action,
+        scoped to the minimum identity, subject/version, authority decision,
+        purpose, request/effect correlation, time and outcome facts needed to
+        reconstruct who did what under which decision. Audit has its own access,
+        integrity, retention and durability policy. It is not raw application
+        logging, a trace dump, prompt/source media archive, or a high-cardinality
+        metrics label. Store sensitive values only by minimized typed field or
+        protected evidence reference; never place credentials, bearer tokens,
+        signed URLs, raw media, prompts or unfiltered provider bodies in an audit
+        record or telemetry sink.
+      separationRule: >-
+        Operational logs, traces, metrics, audit and provenance are distinct
+        record classes with separate schemas and access/retention controls.
+        Telemetry redaction or availability may degrade only under its safe
+        diagnostic rule; required audit intent/durability is a pre-effect
+        invariant and cannot be silently downgraded to a metric or log line.
+      unknownDisposition: >-
+        If protected audit authority, identity, policy decision, or durable record
+        is unavailable, block the consequential effect or preserve the exact
+        outcome as UNKNOWN; do not fabricate audit completion from telemetry.
+      hashChainLimitRule:
+        id: media.policy.audit-hash-chain-trust-limit.v1
+        rule: >-
+          A hash chain detects alteration only relative to an independently
+          protected key, checkpoint, or append-only external anchor and its stated
+          trust assumptions. A chain whose entire state and verification key are
+          controlled by the same administrator is not proof against that
+          administrator rewriting the history. Record the anchoring mechanism,
+          key authority, verification version, and coverage boundary; when any is
+          absent or shares the untrusted administrator's control, report the
+          integrity conclusion as UNKNOWN rather than tamper-proof.
+        requiredEvidence: [ anchorRef, keyAuthorityRef, verificationVersionRef, coverageStartRef, coverageEndRef ]
+        scopeStatus: OWNER_DEFINED_INTEGRITY_LIMIT; no audit store or key custody is claimed
+      scopeStatus: OWNER_DEFINED_POLICY_ONLY; durable audit store and runtime access controls remain NOT_EVALUATED
     deletion:
       states: [ ERASURE_REQUESTED, ACCESS_REVOKED, PHYSICAL_ERASURE_PENDING, BLOCKED_BY_HOLD, ERASURE_CONFIRMED, EXTERNAL_ERASURE_UNCONFIRMED ]
       restoreRule: replay-erasure-tombstones-before-restored-data-is-accessible
@@ -284,10 +359,92 @@ modelAcquisitionAndFallback:
     otherProfiles: Fallback may be considered only when an exact owner-approved profile explicitly lists the alternate provider/version and current consent, rights, locality, residency, retention, cost, quality/fidelity floor and security checks all pass.
     failureBehavior: Do not download, substitute, or dispatch to another provider after unavailable, timeout, unknown outcome or policy error unless an exact pre-authorized fallback branch defines reconciliation and duplicate-effect behavior.
     userDisclosure: Before a separately authorized fallback, surface the exact alternate provider/location, changed data handling, cost and fidelity consequences; otherwise fail closed.
+    compatibilityDecisionRule:
+      id: media.policy.fallback-compatibility-decision.v1
+      rule: >-
+        A fallback is eligible only when the current owner-authorized profile names
+        the exact alternate capability, immutable implementation/profile version,
+        input and output media constraints, and required consent, rights, residency,
+        locality, retention, cost, and fidelity conditions. The selected result
+        contract must accept the alternate output and the user's purpose must remain
+        unchanged. Compatibility is evaluated against those exact typed constraints;
+        a missing, stale, or unknown compatibility fact is not a match.
+      noSilentSubstitution: >-
+        Preserve the requested implementation and report unavailable or UNKNOWN
+        unless the caller's current authority and policy explicitly permit the
+        compatible alternative. Never infer compatibility from a shared capability
+        name, file extension, package presence, or a successful provider response.
+      reauthorization: >-
+        Before crossing the alternate effect boundary, repeat current policy,
+        consent, rights, locality, residency, retention, budget, and output-contract
+        checks for that exact fallback target; a prior authorization for the primary
+        target does not authorize a different target.
+      runtimeStatus: NOT_EVALUATED
+      scopeStatus: OWNER_DEFINED_FALLBACK_POLICY; no alternate is admitted or selected
+  offlineEntitlementWindow:
+    id: media.policy.offline-entitlement-validity-window.v1
+    exactTuple:
+      - tenantScopeRef
+      - principalRef
+      - issuerRef
+      - capabilityRef
+      - profileRef
+      - profileVersionRef
+      - entitlementRef
+      - entitlementVersionRef
+      - policyDecisionRef
+      - purposeRef
+      - allowedOperationRefs
+      - validFrom
+      - validUntil
+      - revocationDisposition
+      - observedAt
+      - readAuthorityRef
+      - readVersion
+    bindingRules:
+      exactTrustedContext: [ tenantScopeRef, principalRef, issuerRef, capabilityRef, profileRef, profileVersionRef, purposeRef ]
+      exactTrustedOwnerReadTuple: [ entitlementRef, entitlementVersionRef, policyDecisionRef, readAuthorityRef, readVersion, currentness, revocationDisposition ]
+      operationMembership: requestedOperationRef must be an exact member of allowedOperationRefs
+      entitlementVersion: entitlementRef and entitlementVersionRef must resolve as one immutable owner identity
+      policyVersion: policyDecisionRef must be current for the exact profileVersionRef and purposeRef
+      revocation: revocationDisposition must be ACTIVE and current; REVOKED, EXPIRED, UNKNOWN, or missing denies
+      observedAuthority: readAuthorityRef and readVersion must equal the trusted host-selected values
+    timeRepresentation: Canonical UTC RFC 3339 with exactly millisecond precision (YYYY-MM-DDTHH:mm:ss.sssZ); invalid calendar dates, 24:00, offsets, and noncanonical precision are UNKNOWN.
+    rule: >-
+      Offline use is eligible only for the exact capability and profile named by a
+      current owner-authorized entitlement whose issuer, immutable version, tenant,
+      principal, purpose, allowed operation set, and policy decision are verified by
+      the trusted owner read. The trusted current time must satisfy the half-open
+      interval validFrom <= now < validUntil; missing, stale, malformed, revoked,
+      expired-at-equality, or untrusted time/authority/version evidence denies new
+      offline work. Reconnect does not extend an entitlement or authorize previously
+      denied work; it requires a new current decision. No grace period is implied.
+    offlineBoundary: >-
+      Cached bytes or a locally present model do not prove a current entitlement.
+      Existing local observation may be shown as stale/UNKNOWN, but no new protected
+      read, processing dispatch, export, or publication occurs outside the window.
+    runtimeStatus: NOT_EVALUATED
+    scopeStatus: OWNER_DEFINED_POLICY_ONLY; no entitlement issuer or offline profile is admitted
   nonClaims:
     - No default provider/model/codec selection
     - No production-host download or cloud inference authorization
     - No admission, license, availability, quality, performance or scientific-fidelity claim
+ownerNormativeRuleRecords:
+  - id: media.policy.protected-audit-record-boundary.v1
+    ruleRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/dataHandling/auditRecordBoundary
+    sourceRole: stable-identifier-index-only; full rule remains in productPolicy.dataHandling
+  - id: media.policy.audit-hash-chain-trust-limit.v1
+    ruleRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/dataHandling/auditRecordBoundary/hashChainLimitRule
+    sourceRole: stable-identifier-index-only; full rule remains in productPolicy.dataHandling
+  - id: media.policy.archive-extraction-destination-safety.v1
+    ruleRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/inputAndExecutionThreats/archiveExtractionDestinationRule
+    sourceRole: stable-identifier-index-only; full rule remains in productPolicy threat controls
+  - id: media.policy.fallback-compatibility-decision.v1
+    ruleRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback/fallback/compatibilityDecisionRule
+    sourceRole: stable-identifier-index-only; full rule remains in modelAcquisitionAndFallback
+  - id: media.policy.offline-entitlement-validity-window.v1
+    ruleRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback/offlineEntitlementWindow
+    sourceRole: stable-identifier-index-only; full rule remains in modelAcquisitionAndFallback
 dataHandling:
   minimization:
     id: media.policy.data-minimization

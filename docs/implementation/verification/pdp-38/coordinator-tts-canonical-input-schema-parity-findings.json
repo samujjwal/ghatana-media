@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "media.pdp38-coordinator-material-observation.v1",
+  "observedAt": "2026-10-09T18:11:16.317733+00:00",
+  "status": "CANONICAL_REQUEST_SCHEMA_PARITY_CORRECTION_REQUIRED",
+  "sourceFingerprints": {
+    ".product-experience/pdp-1-domain-data/operations.yaml": "baca5f8e50c5c8ac9af98bae6ebf0053a4a290a77d48bb66e35502c38e4f029c",
+    "scripts/lib/pdp-tts-request-origin-binding.mjs": "d467e7f5fefa336d869fb275c451af1b9eff49f17a342be04e3c3f00520b5f87",
+    "tests/pdp-tts-request-origin-binding.test.mjs": "8f2fb0d64ba0ebdd5230d03db71ef6a6af9e659da89963c35d63e6602316b246"
+  },
+  "finding": {
+    "canonicalInputSchemaId": "media.typed-input.optional-authorized-speaker-reference",
+    "canonicalDispositions": [
+      "NOT_SELECTED",
+      "USER_CONFIRMED_REFERENCE",
+      "NOT_APPLICABLE"
+    ],
+    "canonicalSelectedRequiredFields": [
+      "disposition",
+      "speakerRef",
+      "consentRef",
+      "rightsEvidenceRefs"
+    ],
+    "helperAllowedPayloadFields": [
+      "artifactId",
+      "versionId",
+      "sourceRef",
+      "declaredMediaType",
+      "declaredByteLength"
+    ],
+    "effect": "The current helper rejects actual canonical selected-speaker payloads and accepts its own fixture payload outside the declared canonical input schema. Exact immutable artifact/version resolution must occur through an owner read adapter of speakerRef, preserving dispositions, rights and consent."
+  },
+  "boundary": "No request-origin criterion approval or runtime transport equivalence is claimed; root notified source owner to reconcile canonical schema, adapter and adversarial tests."
+}

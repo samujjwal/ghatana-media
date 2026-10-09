@@ -18,6 +18,8 @@ import { validateBusinessMeasureDefinitions, resolvePdp05DomainRuleProjection, r
 import { resolvePdp0FeatureReviewApplicability } from "./lib/pdp0-feature-review-applicability.mjs";
 
 import { resolveExperienceDefinitionSemantics } from "./lib/media-experience-definition-mapping.mjs";
+import { isPdp3ReferenceInStepScope, projectPdp3JourneyStepSemantics, resolvePdp1StateReference } from "./lib/pdp3-experience-journey-step-projection.mjs";
+import { resolvePdp3BindingSourceRef } from "./lib/pdp3-journey-operation-binding.mjs";
 import { validateMediaPublicTaxonomyCandidates } from "./lib/media-public-taxonomy-candidates.mjs";
 import { validateTypedComponentContracts } from "./lib/pdp-design-composition-validator.mjs";
 import { validateProductDefinitionTimestampProvenance } from "./lib/product-definition-authored-timestamp-provenance.mjs";
@@ -91,6 +93,7 @@ const definitions = [
       ".product-experience/pdp-1-domain-data/operations.yaml",
       ".product-experience/pdp-1-domain-data/domain-objects.yaml",
       ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
       ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
       ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
       ".product-experience/pdp-0-product-truth/quality-policy.yaml",
@@ -455,6 +458,7 @@ const definitions = [
     ],
     candidate: (sources, generatedAt) => {
       const content = (path) => sources.find((source) => source.sourceRef === path)?.content ?? {};
+      const sourceDocuments = Object.fromEntries(sources.map(({ sourceRef, content: sourceContent }) => [sourceRef, sourceContent]));
       const typography = content(".product-experience/pdp-2-design-interface-system/typography-layout.yaml");
       const masterPlan = sources.find((source) => source.sourceRef === "docs/migration/expert-reviewed-master-plan.md")?.text ?? "";
       const states = content(".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml");
@@ -718,10 +722,16 @@ const definitions = [
     sources: [
       ".product-experience/pdp-3-product-experience/screen-registry.yaml",
       ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+      ".product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml",
+      ".product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml",
+      ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
+      ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+      ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
       ".product-experience/pdp-3-product-experience/action-registry.yaml",
       ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
       ".product-experience/pdp-1-domain-data/operations.yaml",
       ".product-experience/pdp-1-domain-data/transitions.yaml",
+      ".product-experience/pdp-1-domain-data/privacy.yaml",
       ".product-experience/pdp-3-product-experience/state-transition-bindings.yaml",
       ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml",
       ".product-experience/pdp-3-product-experience/simulation-semantics.yaml",
@@ -736,29 +746,61 @@ const definitions = [
       ".product-experience/pdp-3-product-experience/interaction-registry.yaml",
       ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml",
       ".product-experience/pdp-2-design-interface-system/component-contracts.yaml",
+      ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
       ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml",
       ".product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml",
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
       ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
       ".product-experience/pdp-0-product-truth/state-models.yaml",
+      ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+      ".product-experience/pdp-0-product-truth/requirements.yaml",
       ".product-experience/pdp-1-domain-data/domain-objects.yaml",
       ".product-experience/pdp-1-domain-data/states.yaml",
+      ".product-experience/pdp-1-domain-data/authority.yaml",
     ],
     candidate: (sources, generatedAt) => {
       const content = (path) => sources.find((source) => source.sourceRef === path)?.content ?? {};
+      const sourceDocuments = Object.fromEntries(sources.map(({ sourceRef, content: sourceContent }) => [sourceRef, sourceContent]));
       const screenRegistry = content(".product-experience/pdp-3-product-experience/screen-registry.yaml");
       const journeys = content(".product-experience/pdp-3-product-experience/journey-registry.yaml");
+      const journeyOutcomeDecisions = content(".product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml");
+      const journeyScenarioBindings = content(".product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml");
+      const stepDefinitionOracles = content(".product-experience/pdp-3-product-experience/step-definition-oracles.yaml");
+      const stepPurposeBindings = content(".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml");
+      const stepVersionBindings = content(".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml");
       const actions = content(".product-experience/pdp-3-product-experience/action-registry.yaml");
       const publicTaxonomy = content(".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml");
       const domainOperations = content(".product-experience/pdp-1-domain-data/operations.yaml");
       const domainTransitions = content(".product-experience/pdp-1-domain-data/transitions.yaml");
       const transitionBindings = content(".product-experience/pdp-3-product-experience/state-transition-bindings.yaml");
-      const actionRecords = [...(actions.actions ?? []), ...(actions.ownerDefinedActions ?? [])];
-      if (new Set(actionRecords.map(action => action.id)).size !== actionRecords.length) throw new Error("Duplicate action identity across observed and owner-defined action collections");
       const interactions = content(".product-experience/pdp-3-product-experience/interaction-registry.yaml");
       const channels = content(".product-experience/pdp-3-product-experience/application-channel-registry.yaml");
       const recovery = content(".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml");
+      const actionRecords = [...(actions.actions ?? []), ...(actions.ownerDefinedActions ?? [])];
+      if (new Set(actionRecords.map(action => action.id)).size !== actionRecords.length) throw new Error("Duplicate action identity across observed and owner-defined action collections");
+      const definedSemantics = resolveExperienceDefinitionSemantics(actionRecords, recovery.contracts ?? [], publicTaxonomy);
+      const effectRefsByAction = definedSemantics.effectRefsByAction;
+      const finalityRefsByAction = new Map(definedSemantics.finality.map((entry) => [entry.actionRef, [entry.id]]));
+      const recoveryRefsByAction = new Map();
+      const failureRecoverySourceRefsByAction = new Map();
+      for (const contract of recovery.contracts ?? []) {
+        if (!contract.definitionSemantics?.publicRecovery) continue;
+        for (const actionRef of contract.actionRefs ?? []) {
+          recoveryRefsByAction.set(actionRef, [...(recoveryRefsByAction.get(actionRef) ?? []), contract.id]);
+        }
+      }
+      const actionCollectionById = new Map([
+        ...(actions.actions ?? []).map((action) => [action.id, "actions"]),
+        ...(actions.ownerDefinedActions ?? []).map((action) => [action.id, "ownerDefinedActions"]),
+      ]);
+      for (const action of actionRecords) {
+        const collection = actionCollectionById.get(action.id);
+        const recoverySelector = `.product-experience/pdp-3-product-experience/action-registry.yaml#${collection}/@id=${action.id}/actionDefinitionSemantics/typedDefinition/failureRecovery`;
+        if (typeof action.actionDefinitionSemantics?.typedDefinition?.failureRecovery === "string") {
+          failureRecoverySourceRefsByAction.set(action.id, [recoverySelector]);
+        }
+      }
       const experienceBindings = content(".product-experience/pdp-3-product-experience/experience-source-bindings.yaml");
       const viewStateDispositions = content(".product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml");
       const viewObservationInputs = content(".product-experience/pdp-3-product-experience/view-observation-input-contracts.yaml");
@@ -812,13 +854,50 @@ const definitions = [
         .filter((source) => source.sourceRef.startsWith(".product-experience/pdp-3-product-experience/journey-contracts/") && source.content?.journeyId)
         .map((source) => source.content);
       const journeyContractById = new Map(journeyContracts.map((contract) => [contract.journeyId, contract]));
+      const scenarioBindingsByJourney = new Map();
+      for (const binding of journeyScenarioBindings.records ?? []) {
+        if (!scenarioBindingsByJourney.has(binding.journeyRef)) scenarioBindingsByJourney.set(binding.journeyRef, []);
+        scenarioBindingsByJourney.get(binding.journeyRef).push(binding);
+      }
+      const oracleStepBySourceRef = new Map((stepDefinitionOracles.journeys ?? []).flatMap((oracleJourney, journeyIndex) =>
+        (oracleJourney.steps ?? []).map((oracleStep, stepIndex) => [oracleStep.sourceRef, {
+          ...oracleStep,
+          journeyId: oracleJourney.journeyId,
+          sessionRecoveryDefinitionSourceRef: oracleStep.sessionRecoveryDefinition
+            ? `.product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/${journeyIndex}/steps/${stepIndex}/sessionRecoveryDefinition`
+            : undefined,
+        }])));
+      const purposeBindingBySourceRef = new Map((stepPurposeBindings.records ?? []).map((binding) => [binding.stepRef, binding]));
+      const versionBindingBySourceRef = new Map((stepVersionBindings.records ?? []).map((binding) => [binding.stepRef, binding]));
+      const p1JourneyOperationBindings = domainOperations.ownerDefinedJourneyOperationBindings?.records ?? [];
+      const ownerBindingBySourceRef = new Map(p1JourneyOperationBindings.map((binding) => [binding.journeyStepRef.replace(/#\/?steps\//u, "#/steps/"), binding]));
+      const operationKindsByRef = new Map();
+      const addOperationKind = (record, fallbackKind) => {
+        if (!record || typeof record !== "object") return;
+        const kind = record.operationKind ?? record.ownerDefinition?.operationKind ?? fallbackKind;
+        if (kind !== "COMMAND" && kind !== "QUERY") return;
+        for (const ref of [record.id, ...(record.operationRefs ?? [])]) {
+          if (typeof ref !== "string") continue;
+          const prior = operationKindsByRef.get(ref);
+          if (prior && prior !== kind) throw new Error(`Conflicting exact operation kind declarations for ${ref}`);
+          operationKindsByRef.set(ref, kind);
+        }
+      };
+      for (const record of domainOperations.operations ?? []) addOperationKind(record);
+      for (const collectionName of ["individualOperationContracts", "ownerDefinedOperationContracts", "capabilityOperationContracts"]) {
+        for (const record of domainOperations[collectionName]?.records ?? []) addOperationKind(record);
+      }
+      for (const record of domainOperations.ownerTypedObservationContracts?.records ?? []) {
+        if (typeof record.operationRef === "string") operationKindsByRef.set(record.operationRef, "QUERY");
+      }
       const sourceViews = [...(screenRegistry.screens ?? []), ...(screenRegistry.laneViews ?? [])];
       const sourceViewById = new Map(sourceViews.map((view) => [view.id, view]));
       const p0ActorIds = new Set((p0Actors.actors ?? []).map((actor) => actor.id));
       const p0OutcomeIds = new Set((p0Goals.outcomes ?? []).map((outcome) => outcome.id));
       const p0JourneyById = new Map((p0JourneyCatalog.journeys ?? []).map((journey, index) => [journey.id, { journey, index }]));
+      const primaryOutcomeDecisionByJourney = new Map((journeyOutcomeDecisions.records ?? []).map((record) => [record.journeyRef, record]));
       const p0InitiatorByJourneyId = new Map(p0InitiatorResolutions.map((resolution) => [resolution.id, resolution]));
-      const journeyProjectionAudit = { projected: [], omitted: [], sourceNullTransitions: [] };
+      const journeyProjectionAudit = { projected: [], omitted: [], sourceNullTransitions: [], stepSemanticsProjected: 0, stepSemanticsUnresolved: 0, stepBindingDispositionCounts: {}, stepSemanticsFailureCounts: {}, stepSemanticsFailures: [] };
       const projectedJourneys = (journeys.journeys ?? []).flatMap((journey) => {
         const actorResolution = p0InitiatorByJourneyId.get(journey.pdp0JourneyRef);
         const sourceJourneyEntry = p0JourneyById.get(journey.pdp0JourneyRef);
@@ -836,10 +915,16 @@ const definitions = [
         }
         const outcomeRefs = sourceJourneyEntry.journey.outcomeRefs ?? [];
         const contractOutcomes = contract.outcomes ?? [];
-        const desiredOutcomeRef = outcomeRefs.length === 1 && p0OutcomeIds.has(outcomeRefs[0])
-          && contractOutcomes.length === 1 && contractOutcomes[0] === outcomeRefs[0]
-          ? outcomeRefs[0]
-          : undefined;
+        const outcomeDecision = primaryOutcomeDecisionByJourney.get(journey.pdp0JourneyRef);
+        const desiredOutcomeRef = outcomeDecision
+          && outcomeDecision.sourceJourneyRef === `.product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=${journey.pdp0JourneyRef}`
+          && JSON.stringify(outcomeDecision.sourceOutcomeRefs) === JSON.stringify(outcomeRefs)
+          && JSON.stringify(contractOutcomes) === JSON.stringify(outcomeRefs)
+          && p0OutcomeIds.has(outcomeDecision.primaryDesiredOutcomeRef)
+          && outcomeRefs.includes(outcomeDecision.primaryDesiredOutcomeRef)
+          && outcomeDecision.selectionStatus === "MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING"
+          && outcomeDecision.runtimeAdmission === "NOT_ADMITTED" && outcomeDecision.acceptanceEffect === "none"
+          ? outcomeDecision.primaryDesiredOutcomeRef : undefined;
         const projectedSteps = [];
         let projectedExplicitIntentCount = 0;
         let projectedViewPurposeIntentCount = 0;
@@ -871,18 +956,61 @@ const definitions = [
           if (explicitIntent) projectedExplicitIntentCount += 1;
           else projectedViewPurposeIntentCount += 1;
           journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: stepId, sourceTransitionRef: step.transitionRef ?? null, sourceTransitionDisposition: step.transitionDisposition ?? null, projectedTransitionRefs: transitionRefs, disposition: candidateTransition ? "EXACT_PDP1_ACCEPTED_EDGE_BOUNDED_CANDIDATE; EXPLICIT_P3_BINDING_SUPPLIES_EDGE_WHERE_LEGACY_STEP_TRANSITION_REF_IS_NULL" : step.transitionRef == null ? "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY" : "SOURCE_TRANSITION_NOT_MAPPED" });
-          projectedSteps.push({ stepId, intent, ...(view ? { viewRef: view.id } : {}), transitionRefs });
+          const stepSourceRef = `.product-experience/pdp-3-product-experience/${journey.contract}#/steps/${index}`;
+          const oracleStep = oracleStepBySourceRef.get(stepSourceRef);
+          const ownerBinding = ownerBindingBySourceRef.get(stepSourceRef);
+          const purposeBinding = purposeBindingBySourceRef.get(stepSourceRef);
+          const versionBinding = versionBindingBySourceRef.get(stepSourceRef);
+          const domainObjectSource = sources.find((source) => source.sourceRef === ".product-experience/pdp-1-domain-data/domain-objects.yaml")?.content ?? {};
+          const semantics = projectPdp3JourneyStepSemantics({
+            sourceRef: stepSourceRef,
+            oracleStep,
+            ownerBinding: ownerBinding ?? purposeBinding,
+            sourceBindingRef: ownerBinding
+              ? `.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=${ownerBinding.id}`
+              : purposeBinding
+                ? `.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml#records/@id=${purposeBinding.id}`
+                : null,
+            versionBinding,
+            actionIds: new Set(actionRecords.map((action) => action.id)),
+            operationKindsByRef,
+            effectRefsByAction,
+            finalityByAction: finalityRefsByAction,
+            recoveryRefsByAction,
+            failureRecoverySourceRefsByAction,
+            validObjectRefs: new Set((domainObjectSource.objects ?? []).map((record) => record.id)),
+            resolveDefinitionRef: (ref) => resolvePdp3BindingSourceRef(ref, sourceDocuments)
+              ?? ((sources.find((source) => source.sourceRef === ".product-experience/pdp-0-product-truth/requirements.yaml")?.content?.requirements ?? [])
+                .find((requirement) => requirement.id === ref)),
+            onReject: (reason) => {
+              journeyProjectionAudit.stepSemanticsFailureCounts[reason] = (journeyProjectionAudit.stepSemanticsFailureCounts[reason] ?? 0) + 1;
+              journeyProjectionAudit.stepSemanticsFailures.push({ sourceRef: stepSourceRef, reason });
+            },
+          });
+          if (semantics) {
+            journeyProjectionAudit.stepSemanticsProjected += 1;
+            journeyProjectionAudit.stepBindingDispositionCounts[semantics.bindingDisposition] = (journeyProjectionAudit.stepBindingDispositionCounts[semantics.bindingDisposition] ?? 0) + 1;
+          } else {
+            journeyProjectionAudit.stepSemanticsUnresolved += 1;
+          }
+          projectedSteps.push({ stepId, intent, ...(view ? { viewRef: view.id } : {}), transitionRefs, ...(semantics ? { semantics } : {}) });
         }
-        const scenarioRefs = [...new Set([
+        const sourceScenarioRefs = [...new Set([
           ...(contract.scenarioRefs ?? []),
           ...(contract.steps ?? []).flatMap((sourceStep) => sourceStep.scenarioRefs ?? []),
         ])].filter((scenarioRef) => typeof scenarioRef === "string" && scenarioRef.length > 0);
+        const bindings = scenarioBindingsByJourney.get(journey.pdp0JourneyRef) ?? [];
+        const boundScenarioRefs = [...new Set(bindings.map((binding) => binding.scenarioRef))].sort();
+        if (JSON.stringify(boundScenarioRefs) !== JSON.stringify([...sourceScenarioRefs].sort())) {
+          throw new Error(`Journey scenario binding source mismatch for ${journey.pdp0JourneyRef}`);
+        }
+        const scenarioRefs = boundScenarioRefs;
         const projected = { id: journey.id, name: journey.title, actorRef: actorResolution.initiatingActorRef, steps: projectedSteps, ...(desiredOutcomeRef ? { desiredOutcomeRef } : {}), ...(scenarioRefs.length ? { scenarioRefs } : {}) };
-        journeyProjectionAudit.projected.push({ journeyId: journey.id, sourceRef, actorRef: projected.actorRef, projectedStepCount: projectedSteps.length, sourceOutcomeRefs: outcomeRefs, desiredOutcomeRef: desiredOutcomeRef ?? null, intentSources: { explicit: projectedExplicitIntentCount, linkedViewPurposeProposalOnly: projectedViewPurposeIntentCount } });
+        journeyProjectionAudit.projected.push({ journeyId: journey.id, sourceRef, actorRef: projected.actorRef, projectedStepCount: projectedSteps.length, sourceOutcomeRefs: outcomeRefs, desiredOutcomeRef: desiredOutcomeRef ?? null, primaryOutcomeDecisionRef: outcomeDecision ? `.product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml#records/@id=${outcomeDecision.id}` : null, intentSources: { explicit: projectedExplicitIntentCount, linkedViewPurposeProposalOnly: projectedViewPurposeIntentCount } });
         return [projected];
       });
       const projectedJourneyIds = new Set(projectedJourneys.map((journey) => journey.id));
-      const journeyProjectionBlocker = `A partial source-grounded PDP-3 journey projection now includes ${projectedJourneys.length}/${(journeys.journeys ?? []).length} journeys and ${projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0)}/${p3Steps} steps. Exact resolved P0-04 representative actors support actorRef at proposal scope; five singleton source/contract outcomes support desiredOutcomeRef. Step-view ${journeyStepGapCounts.stepViewLinked} linked/${journeyStepGapCounts.stepViewUnresolved} unresolved; step-action ${journeyStepGapCounts.stepActionLinked} linked/${journeyStepGapCounts.stepActionUnresolved} unresolved. Remaining gaps: ${journeyProjectionAudit.omitted.length} step rows lack an exact intent source (including J-29's four rows); ${journeyStepGapCounts.transitionRefsNull} source transitionRef values are null; ${journeyProjectionAudit.sourceNullTransitions.filter((step) => step.sourceTransitionRef == null && step.sourceTransitionDisposition?.status === "NOT_APPLICABLE_WITH_REASON").length} have explicit source no-mutation reasons. One exact P3 binding supplies the P1 RECEIVING-to-VERIFYING upload-finalization edge where the legacy step transitionRef is null; all other source-null steps remain unresolved or explicit non-transition cases. Other P3 step bindings remain open: objectRefs empty ${journeyStepGapCounts.stepObjectRefsEmpty}, stateRefs empty ${journeyStepGapCounts.stepStateRefsEmpty}, authorityRef null ${journeyStepGapCounts.authorityRefsNull}, requirementRefs empty ${journeyStepGapCounts.requirementRefsEmpty}, verification not-run ${journeyStepGapCounts.verificationNotRun}. ${p3JourneysWithScenarioRefs}/${(journeys.journeys ?? []).length} journeys have scenario refs. Projection is candidate-only; P0/PDP-3 semantic acceptance and lifecycle closure remain pending.`;
+      const journeyProjectionBlocker = `The candidate projects ${projectedJourneys.length}/${(journeys.journeys ?? []).length} journeys, ${projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0)}/${p3Steps} steps, and typed step semantics for ${journeyProjectionAudit.stepSemanticsProjected}/${p3Steps} projected steps (${journeyProjectionAudit.stepSemanticsUnresolved} could not be resolved from the exact step-oracle source). Binding dispositions: ${JSON.stringify(journeyProjectionAudit.stepBindingDispositionCounts)}. Step semantics join each exact contract-step sourceRef to step-definition-oracles.yaml and the 19 exact P1 owner operation bindings; source actor/action/operation/guard/effect/finality/recovery references are projected only where declared, and local/session/no-dispatch and unresolved source cases stay explicit. ${journeyProjectionAudit.omitted.length} steps remain omitted for missing exact intent; step-view ${journeyStepGapCounts.stepViewLinked} linked/${journeyStepGapCounts.stepViewUnresolved} unresolved; ${p3JourneysWithScenarioRefs}/${(journeys.journeys ?? []).length} journeys have scenario refs. Candidate source mapping does not evaluate guard facts, dispatch operations, prove runtime observation, or establish independent PDP acceptance or lifecycle phase receipts.`;
       const componentIds = new Set((componentContracts.components ?? []).map((component) => component.id));
       const renderKind = (channelRef) => ({
         "media.channel.web": "web",
@@ -892,7 +1020,6 @@ const definitions = [
         "media.channel.sdk": "other",
       })[channelRef] ?? "other";
       validateMediaPublicTaxonomyCandidates({ taxonomy: publicTaxonomy, actions, operations: domainOperations });
-      const definedSemantics = resolveExperienceDefinitionSemantics(actionRecords, recovery.contracts ?? [], publicTaxonomy);
       const candidateActions = actionRecords.map((action) => ({
         id: action.id,
         name: action.label,
@@ -1130,7 +1257,12 @@ const definitions = [
             sourceJourneyCount: (journeys.journeys ?? []).length,
             projectedJourneyCount: projectedJourneys.length,
             projectedStepCount: projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0),
-            desiredOutcomeProjection: { projectedCount: projectedJourneys.filter((journey) => journey.desiredOutcomeRef).length, omittedMultipleOrMismatchedSourceOutcomeCount: projectedJourneys.filter((journey) => !journey.desiredOutcomeRef).length, source: "PDP-0 and PDP-3 exact singleton outcome intersection" },
+            typedStepSemanticsProjected: journeyProjectionAudit.stepSemanticsProjected,
+            typedStepSemanticsUnresolved: journeyProjectionAudit.stepSemanticsUnresolved,
+            stepBindingDispositionCounts: journeyProjectionAudit.stepBindingDispositionCounts,
+            stepSemanticsFailureCounts: journeyProjectionAudit.stepSemanticsFailureCounts,
+            stepSemanticsFailures: journeyProjectionAudit.stepSemanticsFailures,
+            desiredOutcomeProjection: { projectedCount: projectedJourneys.filter((journey) => journey.desiredOutcomeRef).length, omittedMultipleOrMismatchedSourceOutcomeCount: projectedJourneys.filter((journey) => !journey.desiredOutcomeRef).length, source: "exact PDP-0 full outcomeRefs plus P3 explicit primary-outcome decision; full plural source refs retained in projectedSourceRows; owner review pending" },
             stepIntentProjection: {
               explicitSourceIntentCount: journeyProjectionAudit.projected.reduce((count, item) => count + item.intentSources.explicit, 0),
               linkedViewPurposeProposalOnlyCount: journeyProjectionAudit.projected.reduce((count, item) => count + item.intentSources.linkedViewPurposeProposalOnly, 0),
@@ -1160,12 +1292,164 @@ const definitions = [
       };
     },
     ownerResolvers: (sources) => {
-      const domainObjects = sources.find((source) => source.sourceRef.endsWith("/domain-objects.yaml"))?.content?.objects ?? [];
+      const sourceDocuments = Object.fromEntries(sources.map((source) => [source.sourceRef, source.content]));
+      const domainObjectDocument = sources.find((source) => source.sourceRef.endsWith("/domain-objects.yaml"))?.content ?? {};
+      const domainObjects = domainObjectDocument.objects ?? domainObjectDocument.domainObjects ?? [];
       const searchableTypeIds = new Set(domainObjects.map((object) => object.id));
       const actorIds = new Set(sources.find((source) => source.sourceRef.endsWith("/actors-responsibilities.yaml"))?.content?.actors?.map((actor) => actor.id) ?? []);
       const outcomeIds = new Set(sources.find((source) => source.sourceRef.endsWith("/goals-jtbd.yaml"))?.content?.outcomes?.map((outcome) => outcome.id) ?? []);
+      const requirementIds = new Set(sources.find((source) => source.sourceRef.endsWith("/requirements.yaml"))?.content?.requirements?.map((requirement) => requirement.id) ?? []);
       const transitionGuardIds = new Set(sources.find((source) => source.sourceRef.endsWith("/state-transition-bindings.yaml"))?.content?.ownerTransitionProjectionCandidates?.records?.flatMap((record) => record.publicTransition?.guards ?? []) ?? []);
-      return { resolveReference: (kind, ref) => (kind === "searchable-type" && searchableTypeIds.has(ref)) || (kind === "actor" && actorIds.has(ref)) || (kind === "desired-outcome" && outcomeIds.has(ref)) || (kind === "guard" && transitionGuardIds.has(ref)) };
+      const stepOracle = sources.find((source) => source.sourceRef.endsWith("/step-definition-oracles.yaml"))?.content ?? {};
+      const sourceGuardIds = new Set((stepOracle.journeys ?? []).flatMap((journey) => (journey.steps ?? []).flatMap((step) => step.canonicalBindings?.guardRefs ?? [])));
+      const operationKinds = new Map();
+      const addKind = (record) => {
+        if (!record || typeof record !== "object") return;
+        const kind = record.operationKind ?? record.ownerDefinition?.operationKind;
+        if (kind !== "COMMAND" && kind !== "QUERY") return;
+        for (const ref of [record.id, ...(record.operationRefs ?? [])]) if (typeof ref === "string") operationKinds.set(ref, kind);
+      };
+      const operationDocument = sourceDocuments[".product-experience/pdp-1-domain-data/operations.yaml"] ?? {};
+      const versionBindingDocument = sourceDocuments[".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml"] ?? {};
+      const validationJourneyContractById = new Map(Object.entries(sourceDocuments)
+        .filter(([sourceRef, content]) => sourceRef.startsWith(".product-experience/pdp-3-product-experience/journey-contracts/")
+          && typeof content?.journeyId === "string")
+        .map(([, content]) => [content.journeyId, content]));
+      const publicStepOwner = (binding) => {
+        const match = binding?.stepRef?.match(/#\/steps\/(\d+)$/u);
+        const sourceContract = validationJourneyContractById.get(binding?.journeyRef);
+        if (!match || !Array.isArray(sourceContract?.steps)) return null;
+        const ordinal = Number(match[1]);
+        const step = sourceContract.steps[ordinal];
+        if (!step) return null;
+        const authoredIdCount = typeof step.stepId === "string"
+          ? sourceContract.steps.filter((candidate) => candidate.stepId === step.stepId).length : 0;
+        const stepId = typeof step.stepId === "string" && authoredIdCount === 1
+          ? step.stepId : `${binding.journeyRef}.step-${String(ordinal + 1).padStart(2, "0")}`;
+        return `journey '${binding.journeyRef}' step '${stepId}'`;
+      };
+      const versionBindingByRef = new Map((versionBindingDocument.records ?? []).flatMap((binding) => {
+        const recordRef = `.product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=${binding.id}`;
+        const owner = publicStepOwner(binding);
+        return (binding.versionFieldBindings ?? []).map((field) => {
+          const ref = `${recordRef}/versionFieldBindings/@id=${field.id}`;
+          const resolved = resolvePdp3BindingSourceRef(ref, sourceDocuments);
+          const supported = ["EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND", "EXACT_VERSION_REQUEST_FIELD_BOUND",
+            "EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED"].includes(resolved?.coverageDisposition)
+            || (resolved?.coverageDisposition === "ARTIFACT_VERSION_IS_TRANSITIVE_THROUGH_EXACT_CAPTION_VERSION_IDENTITY; COMPARISON_RESULT_HAS_NO_DIRECT_TYPED_SOURCE_VERSION_FIELD; DO_NOT_INFER_SOURCE_VERSION"
+              && Array.isArray(resolved.transitiveVersionJoins) && resolved.transitiveVersionJoins.length > 0)
+            || (resolved?.applicabilityContract?.disposition === "NOT_YET_ISSUED_AT_THIS_STEP"
+              && resolved.applicabilityContract.runtimeAdmission === "NOT_ADMITTED"
+              && Boolean(resolvePdp3BindingSourceRef(resolved.applicabilityContract.sourceContractRef, sourceDocuments))
+              && Boolean(resolvePdp3BindingSourceRef(resolved.applicabilityContract.exactDeferredResultRef, sourceDocuments)))
+            || (Array.isArray(resolved?.logicalVersionJoin?.canonicalTuple)
+              && resolved.logicalVersionJoin.canonicalTuple.includes("tenantId")
+              && resolved.logicalVersionJoin.runtimeAdmission === "NOT_ADMITTED"
+              && Boolean(resolvePdp3BindingSourceRef(resolved.logicalVersionJoin.candidateObservationContractRef, sourceDocuments)));
+          return [ref, supported ? owner : null];
+        }).filter(([, owner]) => owner !== null);
+      }));
+      const stepScopedSemanticRefs = new Map();
+      for (const oracleJourney of stepOracle.journeys ?? []) {
+        const sourceContract = validationJourneyContractById.get(oracleJourney.journeyId);
+        for (const oracleStep of oracleJourney.steps ?? []) {
+          const match = oracleStep.sourceRef?.match(/#\/steps\/(\d+)$/u);
+          if (!match || !Array.isArray(sourceContract?.steps)) continue;
+          const ordinal = Number(match[1]);
+          const sourceStep = sourceContract.steps[ordinal];
+          if (!sourceStep) continue;
+          const duplicateIdCount = typeof sourceStep.stepId === "string"
+            ? sourceContract.steps.filter((candidate) => candidate.stepId === sourceStep.stepId).length : 0;
+          const stepId = typeof sourceStep.stepId === "string" && duplicateIdCount === 1
+            ? sourceStep.stepId : `${oracleJourney.journeyId}.step-${String(ordinal + 1).padStart(2, "0")}`;
+          const owner = `journey '${oracleJourney.journeyId}' step '${stepId}'`;
+          for (const ref of oracleStep.actorRefs ?? []) {
+            if (!actorIds.has(ref)) continue;
+            const scopedRef = `actor:${ref}`;
+            if (!stepScopedSemanticRefs.has(scopedRef)) stepScopedSemanticRefs.set(scopedRef, new Set());
+            stepScopedSemanticRefs.get(scopedRef).add(owner);
+          }
+        }
+      }
+      for (const versionBinding of versionBindingDocument.records ?? []) {
+        const owner = publicStepOwner(versionBinding);
+        if (!owner) continue;
+        const oracleStep = (stepOracle.journeys ?? []).flatMap((journey) => journey.steps ?? []).find((step) => step.sourceRef === versionBinding.stepRef);
+        const ownerBinding = (operationDocument.ownerDefinedJourneyOperationBindings?.records ?? [])
+          .find((binding) => binding.journeyStepRef.replace("#steps/", "#/steps/") === versionBinding.stepRef);
+        const resolveSourceDefinition = (ref) => resolvePdp3BindingSourceRef(ref, sourceDocuments);
+        const stateRefs = (ownerBinding?.stateRefs ?? oracleStep?.canonicalBindings?.ownerStateRefs ?? oracleStep?.canonicalBindings?.stateRefs ?? [])
+          .map((ref) => resolvePdp1StateReference(ref, resolveSourceDefinition));
+        const authorityRefs = ownerBinding?.authorityRefs ?? oracleStep?.canonicalBindings?.ownerAuthorityRefs ?? oracleStep?.canonicalBindings?.authorityRefs ?? [];
+        const actorRefs = oracleStep?.actorRefs ?? oracleStep?.canonicalBindings?.actorRefs ?? [];
+        for (const [kind, refs] of [["actor", actorRefs], ["state", stateRefs], ["authority", authorityRefs]]) {
+          for (const ref of refs) {
+            const resolved = resolvePdp3BindingSourceRef(ref, sourceDocuments);
+            if (resolved === undefined) continue;
+            const scopedRef = `${kind}:${ref}`;
+            if (!stepScopedSemanticRefs.has(scopedRef)) stepScopedSemanticRefs.set(scopedRef, new Set());
+            stepScopedSemanticRefs.get(scopedRef).add(owner);
+          }
+        }
+      }
+      // Journey-level actor refs are resolved from the exact P0 actor
+      // resolution, while step-level actor refs remain scoped to each source
+      // step. This lets the public Journey.actorRef use the same authored
+      // representative initiator without broadening the step actor set.
+      const journeyActorResolutions = Object.values(sourceDocuments)
+        .find((document) => Array.isArray(document?.journeys)
+          && document.journeys.some((journey) => Object.hasOwn(journey, "initiatingActorRef")))?.journeys ?? [];
+      for (const journey of journeyActorResolutions) {
+        if (journey.actorStatus !== "resolved" || typeof journey.initiatingActorRef !== "string") continue;
+        const owner = `journey '${journey.journeyRef ?? journey.journeyId ?? journey.id}'`;
+        const refs = [journey.initiatingActorRef, ...(journey.collaboratorActorRefs ?? [])];
+        for (const ref of refs) {
+          if (!actorIds.has(ref)) continue;
+          const scopedRef = `actor:${ref}`;
+          if (!stepScopedSemanticRefs.has(scopedRef)) stepScopedSemanticRefs.set(scopedRef, new Set());
+          stepScopedSemanticRefs.get(scopedRef).add(owner);
+        }
+      }
+      for (const record of operationDocument.operations ?? []) addKind(record);
+      for (const name of ["individualOperationContracts", "ownerDefinedOperationContracts", "capabilityOperationContracts"]) {
+        for (const record of operationDocument[name]?.records ?? []) addKind(record);
+      }
+      for (const record of operationDocument.ownerTypedObservationContracts?.records ?? []) {
+        if (typeof record.operationRef === "string") operationKinds.set(record.operationRef, "QUERY");
+      }
+      return {
+        resolveReference: (kind, ref, context) => {
+          if (kind === "searchable-type" || kind === "domain-object") return searchableTypeIds.has(ref);
+          if (kind === "actor") return actorIds.has(ref)
+            && isPdp3ReferenceInStepScope({ ref: `actor:${ref}`, owner: context?.owner, ownersByReference: stepScopedSemanticRefs });
+          if (kind === "desired-outcome") return outcomeIds.has(ref);
+          if (kind === "guard") return transitionGuardIds.has(ref) || sourceGuardIds.has(ref);
+          if (kind === "operation") return operationKinds.has(ref);
+          if (kind === "object-version") {
+            const versionField = resolvePdp3BindingSourceRef(ref, sourceDocuments);
+            const directlyBound = ["EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND", "EXACT_VERSION_REQUEST_FIELD_BOUND",
+              "EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED"].includes(versionField?.coverageDisposition);
+            const transitiveCaptionJoin = versionField?.coverageDisposition === "ARTIFACT_VERSION_IS_TRANSITIVE_THROUGH_EXACT_CAPTION_VERSION_IDENTITY; COMPARISON_RESULT_HAS_NO_DIRECT_TYPED_SOURCE_VERSION_FIELD; DO_NOT_INFER_SOURCE_VERSION"
+              && Array.isArray(versionField.transitiveVersionJoins) && versionField.transitiveVersionJoins.length > 0;
+            const deferredVersionApplicability = versionField?.applicabilityContract?.disposition === "NOT_YET_ISSUED_AT_THIS_STEP"
+              && versionField.applicabilityContract.runtimeAdmission === "NOT_ADMITTED"
+              && Boolean(resolvePdp3BindingSourceRef(versionField.applicabilityContract.sourceContractRef, sourceDocuments))
+              && Boolean(resolvePdp3BindingSourceRef(versionField.applicabilityContract.exactDeferredResultRef, sourceDocuments));
+            const logicalVersionJoin = versionField?.logicalVersionJoin;
+            const logicalTupleDefinition = Array.isArray(logicalVersionJoin?.canonicalTuple)
+              && logicalVersionJoin.canonicalTuple.includes("tenantId")
+              && logicalVersionJoin.runtimeAdmission === "NOT_ADMITTED"
+              && Boolean(resolvePdp3BindingSourceRef(logicalVersionJoin.candidateObservationContractRef, sourceDocuments));
+            return isPdp3ReferenceInStepScope({ ref, owner: context?.owner, ownersByReference: versionBindingByRef })
+              && (directlyBound || transitiveCaptionJoin || deferredVersionApplicability || logicalTupleDefinition);
+          }
+          if (kind === "requirement") return requirementIds.has(ref) || resolvePdp3BindingSourceRef(ref, sourceDocuments) !== undefined;
+          if (kind === "state" || kind === "authority") return resolvePdp3BindingSourceRef(ref, sourceDocuments) !== undefined
+            && isPdp3ReferenceInStepScope({ ref: `${kind}:${ref}`, owner: context?.owner, ownersByReference: stepScopedSemanticRefs });
+          return false;
+        },
+        resolveOperationKind: (ref) => operationKinds.get(ref),
+      };
     },
     candidateFieldSources: {
       id: { sourceRef: null, sourcePath: null, mapping: "deterministic candidate artifact identifier" },
@@ -1175,7 +1459,7 @@ const definitions = [
       renderTargets: { sourceRef: ".product-experience/pdp-3-product-experience/application-channel-registry.yaml", sourcePath: "channels", mapping: "direct channel target records; support disposition remains proposal" },
       componentContracts: { sourceRef: ".product-experience/pdp-2-design-interface-system/component-contracts.yaml", sourcePath: "components[].id, purpose, requiredProps, typedDefinition.props[].{name,required}", decisionRef: ".product-experience/decision-log.md#PXD-083", mapping: "direct identity and purpose; derive required prop names only from the exact validated typedDefinition schema for the 28-family Media-owned population, preserve three existing public-source-bound prop inventories; no public implementation, package consumption, or runtime admission is inferred" },
       views: { sourceRef: ".product-experience/pdp-3-product-experience/view-observation-predicates.yaml", sourcePath: "predicates[].{id,viewRef,label,meaning,factKind,factSchemaRef}, joined to view-observation-input-contracts.yaml#factSchemas and screen-registry.yaml#screens,laneViews", mapping: "project exact Media-local observation predicate IDs as UI stateRefs with closed fact-schema refs and display-only invariants; canonical PDP1 lifecycle states remain a separate namespace and are not inferred from local labels" },
-      journeys: { sourceRef: ".product-experience/pdp-3-product-experience/journey-registry.yaml", sourcePath: "journeys; journey-contracts/*.yaml#steps; P0 journey-actor-resolutions.yaml; journey-catalog.yaml; goals-jtbd.yaml; screen-registry view purposes", mapping: "project source-grounded journey IDs/names and bounded representative actor refs; preserve unique authored step IDs, otherwise derive ordinal projection IDs; use explicit intent or exact linked view purpose as a proposal-only intent; map only matching singleton desired outcomes; preserve null transitions as unresolved review metadata and schema-required empty-array placeholders; withhold steps lacking exact intent" },
+      journeys: { sourceRef: ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml", sourcePath: "exact sourceRef joins to journey-contracts/*.yaml#steps; exact operation kinds from pdp-1 operations.yaml; exact object/state/authority/requirement joins from ownerDefinedJourneyOperationBindings.records; exact primary desiredOutcomeRef from journey-outcome-projection-decisions.yaml with full plural P0 outcomeRefs preserved; exact 31 scenarioRef joins from journey-scenario-bindings.yaml", mapping: "project all source-backed JourneyStep binding dispositions, actors/actions/operations, separate supporting QUERY refs, object/state/authority/requirement refs, and reviewed effect/finality/recovery identities; preserve local/no-domain/unresolved cases explicitly; scenarioRef rows are checked against source contract declarations; candidate-only, guards are not executed and admission/currentness/independent acceptance stay separate" },
       interactions: { sourceRef: ".product-experience/pdp-3-product-experience/interaction-registry.yaml", sourcePath: "interactions[].effectRef; action-registry.yaml#actions[].preconditions", mapping: "direct exact action linkage and the referenced action's authored preconditions" },
       states: { sourceRef: ".product-experience/pdp-3-product-experience/view-observation-predicates.yaml", sourcePath: "PDP0 state-model proposals plus predicates[].{id,meaning,factKind,factSchemaRef} joined to view-observation-input-contracts.yaml#factSchemas", mapping: "project domain proposals and exact Media-local view observation identities in separate ID namespaces; local refs are display-only and do not become PDP1 machine states or runtime proof" },
       transitions: { sourceRef: ".product-experience/pdp-1-domain-data/transitions.yaml", sourcePath: "transitionRecords plus state-transition-bindings.yaml#ownerTransitionProjectionCandidates.records", mapping: "project only the exact RECEIVING→VERIFYING successful-finalization edge after joining its exact P1 transition, edge bounds, P1 states, P3 resume action/workflow, and journey step; all other edges remain unprojected without a complete exact action/guard binding" },
@@ -1183,7 +1467,7 @@ const definitions = [
       effects: { sourceRef: ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml", sourcePath: "records[].publicEffectCandidate", mapping: "project 144 original actions under bounded PXD-078 plus the exact reconnect action under bounded PXD-077 using enum fields; preserve three historical public IDs; two Shared identity handoffs remain unmapped pending external-owner evidence" },
       finality: { sourceRef: ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml", sourcePath: "records[].publicFinalityCandidate", mapping: "project bounded PXD-078 and PXD-077 confirmation and undoability enum dispositions; preserve three historical public IDs; acceptance remains separate" },
       recovery: { sourceRef: ".product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml", sourcePath: "contracts[].definitionSemantics.publicRecovery plus experience-source-bindings.yaml#recoveryCrossReferences", mapping: "exact owner-reviewed public recovery definitions with authored booleans; source applicability and blocked behavior remain in review metadata, not runtime or evidence admission" },
-      scenarios: { sourceRef: ".product-experience/pdp-3-product-experience/experience-source-bindings.yaml", sourcePath: "scenarioStartingStateBindings and scenarioStartingContextBindings.records joined by exact scenarioRef plus journey/action scenarioRefs", mapping: "project exact canonical state starts where source-bound; otherwise use a typed Media-local synthetic scenario-context state with canonicalStateRefs empty, keeping UI/session state distinct from PDP1 state" },
+      scenarios: { sourceRef: ".product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml", sourcePath: "31 exact scenarioRef→journeyRef links copied from journey-contract scenarioRefs; experience-source-bindings.yaml#scenarioStartingStateBindings and #scenarioStartingContextBindings.records joined by exact scenarioRef", mapping: "project only exact owner-declared scenario links; exact canonical state starts where source-bound, otherwise typed Media-local synthetic scenario-context state with canonicalStateRefs empty; no name-based association, runtime evidence, or phase acceptance" },
       fixtures: { sourceRef: ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml", sourcePath: "fixtures joined to exact scenario source key in libs/media-experience-simulation/src/fixtures.ts", mapping: "all 31 linked fixture descriptors reference an executable synthetic seed and exact initial/expected conditions; local context is not canonical domain state or runtime evidence" },
       search: { sourceRef: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml", sourcePath: "search[] and sourceBindings.searches", mapping: "schema-shaped search records with exact PDP-1 type refs; query execution and owner acceptance remain pending" },
       inspections: { sourceRef: ".product-experience/pdp-3-product-experience/search-inspection-contracts.yaml", sourcePath: "inspections[] and sourceBindings.inspections", mapping: "schema-shaped projection-kind records; source review and runtime admission remain pending" },
@@ -1197,7 +1481,11 @@ const definitions = [
       // not report those dependencies as a source-mapping blocker.
       componentContracts: [],
       views: [],
-      journeys: ["All 30 source journey identities and 130 source steps project, with exact scenario links on J-01/J-02/J-03/J-20 (31 scenarios total); 26 journey contracts remain unlinked. Step action/role/guard/object/version/authority/effect/finality/recovery semantics remain in source-only definition oracles until the public journeyStep contract is extended; source projection does not establish runtime or phase acceptance."],
+      // Experience-step blockers are derived below from candidateModel._mappingReview
+      // inside the generation loop. Those builder-local audit variables are not
+      // in scope here; leave this static default empty and let the per-projection
+      // source audit populate the current blocker record.
+      journeys: [],
       interactions: [],
       states: [],
       transitions: ["One exact PDP-1 upload-finalization edge candidate is projected under its bounded owner source. Other PDP-1 transition rows lack a complete operation/action/guard edge binding; local/query steps remain non-transitions and must not be padded with invented states or guards."],

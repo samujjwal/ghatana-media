@@ -483,3 +483,59 @@ outcomes:
   - id: media.action-outcome.blocked
     label: This action is not available
     next: Name the missing authority, rights, integrity, language, or qualification prerequisite.
+changeImpactRule:
+  id: media.action.change-impact.v1
+  authority: Media action and interface definition owner
+  trigger: A new capability is added or any existing action consequence, guard, finality, recovery path, or affected version changes.
+  requiredImpactBindings:
+    - exactCapabilityAndCanonicalOperationIdentitiesAndVersions
+    - affectedActionIdsAndTypedRequestAndResultBranches
+    - authorityRightsConsentAndPolicyGuardsAtTheEffectBoundary
+    - stateTransitionReceiptEventAndUnknownOutcomeSemantics
+    - affectedChannelsViewsAndKeyboardAccessibleControls
+    - recoveryAndIdempotencyConsequencesIncludingRacingOrPartialEffects
+  rule: >-
+    Before describing the changed action as complete, bind every changed consequence to its exact owner source and
+    affected action/view. A missing or ambiguous binding remains an open definition gap; do not infer behavior from a
+    capability name, UI label, route, implementation, or neighboring action. Recheck that status, receipt, event, and
+    recovery descriptions preserve the operation's exact effect finality and authority scope.
+  nonClaims: [no-change-approval-receipt, no-runtime-parity, no-independent-acceptance]
+  status: OWNER_DEFINED_CHANGE_IMPACT_RULE; change review and phase acceptance remain separate
+  acceptanceEffect: none
+  rejectionCases:
+    - new-capability-has-no-exact-operation-or-explicit-non-domain-disposition
+    - changed-action-finality-does-not-update-view-recovery-and-event-language
+    - a-label-or-route-is-used-as-evidence-of-an-action-consequence
+    - a-changed-request-or-result-branch-has-no-exact-authority-and-version-binding
+immutableOutputCorrectionRule:
+  id: media.action-finality.immutable-output-correction.v1
+  authority: Media owner of versioned outputs and exact correction operations
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
+    - .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+  rule: >-
+    A completed output version is immutable. A correction must be a separately
+    authorized Media operation that appends a new version or reconciliation
+    record linked to the exact prior output and correction request; it never
+    overwrites the completed version or silently changes its provenance. Recheck
+    current principal, tenant, resource, rights/consent, and correction authority
+    at the effect boundary. If the exact correction operation, prior version,
+    authority, or commit receipt is missing or uncertain, preserve the prior
+    output and report UNKNOWN rather than claiming a correction.
+  requiredBindings: [exactPriorOutputVersion, correctionOperationAndVersion, currentAuthorityDecision, newVersionOrReconciliationReceipt]
+  negativeCases:
+    - overwrite-completed-output-version
+    - correction-without-current-owner-authority
+    - correction-record-without-exact-prior-version
+    - uncertain-correction-commit-reported-complete
+  status: OWNER_DEFINED_FINALITY_RULE; no runtime or independent acceptance is implied
+  acceptanceEffect: none
+normativeRuleRecords:
+  - id: media.p2.rule.action-change-impact.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#changeImpactRule
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#authority
+    acceptanceEffect: none
+  - id: media.p2.rule.immutable-output-correction.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#immutableOutputCorrectionRule
+    sourceAuthority: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
+    acceptanceEffect: none

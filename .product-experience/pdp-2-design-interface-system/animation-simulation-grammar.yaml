@@ -61,3 +61,36 @@ normativeRuleRecords:
     ruleRef: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#mediaSemanticResponsibilityBoundary
     sourceAuthority: .product-experience/pdp-0-product-truth/domain-model.yaml#authorityBoundary
     acceptanceEffect: none
+  - id: media.p2.rule.visual-vs-scientific-fidelity.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedVisualVsScientificFidelityBoundary
+    sourceAuthority: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions
+    acceptanceEffect: none
+ownerDefinedVisualVsScientificFidelityBoundary:
+  id: media.animation.visual-vs-scientific-fidelity.v1
+  authority: PDP-0 Media/domain owner defines model and solver semantics; PDP-2 presents them without substitution
+  rule: >-
+    A visually polished or photorealistic render is not evidence of scientific
+    correctness, calibrated measurements, physical plausibility, or a selected
+    simulation model. Derive available physics controls from the exact
+    versioned model, solver, initial/boundary conditions, parameters, units,
+    numerical bounds, and applicable fidelity tier. Do not invent or infer a
+    physical control from image appearance, a recipe template, or a renderer
+    option. When the model, solver, parameter, or evidence is missing, expose
+    the corresponding control or validity claim as unresolved; visual level of
+    detail may adapt without changing model fidelity.
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions/records/@id=media.value.simulation-fidelity-definition
+    - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml#simulationFidelity
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.simulation.rigid-body
+  requiredFacts:
+    - exact model and version
+    - solver identity/version/configuration and numerical/time-step bounds or explicit NOT_APPLICABLE
+    - typed units, initial and boundary conditions, and fidelity tier
+    - separate evidence for scientific or physical-validation claims
+  negativeCases:
+    - infer a physics control or validated result from rendered appearance
+    - label photorealism as calibrated, physically plausible, or scientifically validated
+    - change visual level of detail while silently changing model fidelity
+    - default a missing model/solver/units to a successful physics configuration
+  scopeStatus: OWNER_DEFINED_PRESENTATION_BOUNDARY; solver qualification, scientific validation,
+    independent review, and runtime admission remain NOT_EVALUATED

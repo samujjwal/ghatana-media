@@ -1,0 +1,58 @@
+schemaVersion: media.pdp-3-action-reconciliation-contracts.v1
+productId: media
+authorityStatus: MEDIA_OWNER_LOGICAL_HOST_ADAPTER_DEFINITION_ONLY
+runtimeAdmission: NOT_ADMITTED
+qualification: NOT_EVALUATED
+records:
+  - id: media.pdp3.action-reconciliation.host-projection.v1
+    status: OWNER_DEFINED_LOGICAL_CONTRACT; IMPLEMENTATION_PARITY_REVIEW_PENDING
+    runtimeAdmission: NOT_ADMITTED
+    qualification: NOT_EVALUATED
+    sourcePortRefs:
+      - libs/audio-video-ui/src/ports/index.ts#MediaActionPort
+      - libs/audio-video-ui/src/ports/index.ts#MediaActionDispatchContext
+      - libs/audio-video-ui/src/ports/index.ts#MediaActionDispatchResult
+      - libs/audio-video-ui/src/ports/index.ts#MediaActionReconciliation
+      - libs/audio-video-ui/src/ports/index.ts#canonicalMediaActionRequest
+      - libs/audio-video-ui/src/screens/MediaActionDispatchGuard.ts#createMediaActionDispatchGuard
+    actionDefinitionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml
+    localActionAllowlistSourceRef: libs/audio-video-ui/src/screens/MediaLocalActionContracts.ts#MEDIA_LOCAL_ACTION_IDS
+    subjectVersionSourceRefs:
+      - .product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records
+      - .product-experience/decision-log.md#PXD-111
+    invocationRequest:
+      requiredFields: [actionId, payload, subjectRefs]
+      actionIdentity: Exact Media action-registry id; a capability or operation id is not an action id.
+      payload: Closed action-specific flat scalar payload; exact schema comes from the selected action adapter and is not widened here.
+      subjectRefs: Ordered exact subject/version references from the selected action's source binding; preserve order and reject missing, foreign, or mixed-version subjects.
+      canonicalization: Stable JSON serialization of {actionId,payload,subjectRefs}; sort object keys recursively, preserve array order, and bind null payload distinctly from an object.
+      preDispatchSnapshot: Capture the exact matching owner reconciliationRevision set before invoking the host; a projection change alone is not a reconciliation.
+    dispatchResultSemantics:
+      intent-accepted: Accepted local intent only; it does not establish a domain effect or finality.
+      local-applied: Permitted only when the exact action id is in the source local-action allowlist and source finality is local-only; never implies a canonical object transition.
+      request-started: Dispatch request identity only; preserve its exact requestId and await owner reconciliation.
+      request-acknowledged: Transport/host acknowledgment only; preserve its exact requestId and await owner reconciliation.
+      denied: Host-reported denial; no effect is inferred.
+      unavailable: Host-reported unavailability; no effect is inferred.
+      failed: Failure after invocation may be outcome-unknown; retain the same action/request/subject tuple and do not offer blind retry.
+    reconciliation:
+      requiredFields: [actionId, requestId, reconciliationRevision, requestCanonical, subjectRefs, disposition]
+      matching: Exact actionId, nullable requestId, canonical request string, and ordered subjectRefs must equal the invocation tuple.
+      revision: Opaque nonempty immutable owner-reconciliation revision; it must differ from all matching pre-dispatch baseline revisions and must not have been consumed already for this pending invocation.
+      dispositions:
+        pending: Does not unlock or resolve the invocation.
+        unknown: Does not unlock or resolve the invocation.
+        effect-resolved: Resolves only an invocation with a non-null exact requestId; this remains an owner observation, not a presentation-layer completion claim.
+        retry-authorized: May unlock the exact matching invocation only; it is an owner-issued decision and does not itself execute a retry.
+      expiry: Missing, stale, duplicate, foreign, expired, or contradictory reconciliation remains UNKNOWN and keeps consequential retry locked; elapsed local time never authorizes retry.
+    applicability:
+      exactActionAndSubjectBindingsRequired: true
+      localAppliedActionRefsComeOnlyFromSourceAllowlist: true
+      canonicalObjectAndVersionInstanceIdsAreIssuedByOwnerAtExecution: true
+      readOnlyObservationDoesNotDispatch: true
+      operationOrCapabilityIdentityCannotSubstituteForActionIdentity: true
+    notEstablished:
+      - production host implementation or authenticated owner identity
+      - canonical backend persistence or effect finality
+      - retry permission without a matching fresh owner reconciliation
+      - runtime, Shared package, or external provider admission

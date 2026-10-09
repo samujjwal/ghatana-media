@@ -1,6 +1,6 @@
 schemaVersion: media.pdp-3-local-step-effect-contracts.v1
 status: Media owner definition only; local editor-session effects; runtime NOT_ADMITTED
-recordCount: 27
+recordCount: 25
 records:
   - id: media.local-step-effect.j-13.step-01.v1
     sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml#/steps/0
@@ -20,7 +20,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -108,7 +108,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -196,7 +196,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -284,7 +284,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -389,7 +389,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -494,7 +494,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -598,7 +598,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -686,7 +686,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -790,7 +790,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -879,7 +879,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -964,212 +964,6 @@ records:
       canonicalMediaRevision: false
     localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
     canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
-  - id: media.local-step-effect.j-09.step-09.v1
-    sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
-    journeyRef: J-09
-    ordinal: 9
-    actionRef: media.action.choose-named-destination
-    actorRefs:
-      - media.creator
-      - media.editor
-    stepIntent: Destination/format/rights/approval and publication finality
-    effectMode: CATALOG_SELECTION
-    localScopeRequirements:
-      tenantId: required from host editor context; candidate version tenant must match when present
-      workspaceRef: required, exact request-to-host-session and catalog-context match
-      projectRef: exact request-to-host-session and catalog-context match; null is allowed only as the explicit host context for pre-project selection
-    localDraftSlotRef: media.local-draft.slot.named-destination
-    exactOperationRefs: []
-    canonicalDomainObjectRefs: []
-    canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
-    inputContract:
-      requiredKeys:
-        - sessionRef
-        - actorRef
-        - tenantId
-        - workspaceRef
-        - projectRef
-        - expectedDraftRevision
-        - actionRef
-        - draftSlotRef
-        - mutationId
-        - mutation
-      mutationId: unique request identity within one local editor session; never an idempotency key for server work
-      mutation:
-        requiredKeys:
-          - kind
-          - candidateValue
-          - catalogRef
-          - catalogRevision
-        kind: SELECT_CATALOG_ENTRY
-        candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-        identityPaths: &a2 []
-        eligibilityPredicate: exact-current-destination-catalog-member
-      effectBoundary: Accepting this request only makes a local editor-session patch eligible; the evaluator does not mutate
-        the session or dispatch any canonical operation.
-    trustedContextContract:
-      requiredKeys:
-        - sessionRef
-        - actorRef
-        - tenantId
-        - workspaceRef
-        - projectRef
-        - draftRevision
-        - sessionCurrentness
-        - catalogContext
-      source: HOST_EDITOR_SESSION_CONTEXT
-      sessionCurrentnessEnum:
-        - CURRENT
-        - STALE
-        - UNKNOWN
-      catalogContextRequired:
-        tenantId: exact trusted host tenant
-        workspaceRef: exact trusted host workspace
-        projectRef: exact host project; null only for pre-project selection
-        catalogRef: exact catalog identity
-        catalogRevision: nonnegative safe integer
-        catalogCurrentness:
-          - CURRENT
-          - STALE
-          - UNKNOWN
-        candidateValues: closed array of values validated by candidateSchemaRef
-        candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-        authorityRef: null
-      notCallerSupplied: true
-      candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-    guards:
-      - trusted-editor-session-current-and-same-session
-      - actor-exactly-matches-host-session-and-action-actor-set
-      - draft-revision-cas-matches-current-local-revision
-      - action-and-slot-match-this-exact-source-step
-      - catalog-is-current-and-selected-ref-is-visible-and-selectable
-    effect:
-      scope: current local editor-session draft only
-      mutation: replace only the declared local selection slot
-      revision: advance local draft revision exactly once under expectedDraftRevision compare-and-set
-      committedMediaObjects: unchanged
-      remoteDispatch: none
-    finality: LOCAL_DRAFT_REVISION_ONLY; no project revision, artifact version, job, remote effect, or committed result is
-      established
-    reversibility: local session history may restore prior local revision; this does not reverse any remote or committed effect
-    failureRecovery: on denial preserve current local revision; on stale or unknown session/read evidence hold without
-      applying or replaying; refresh the same session/catalog and require a new explicit user action if the revision
-      changed
-    runtimeAdmission: NOT_ADMITTED
-    localObjectRef: media.local-object.editor-session-draft
-    localStateRef: media.local-state.editor-session-draft-revision
-    localRevisionRule:
-      identityRef: media.local-state.editor-session-draft-revision
-      source: HOST_EDITOR_SESSION_CONTEXT
-      precondition: request expectedDraftRevision exactly equals the trusted current session draftRevision
-      eligibleEffect: advance the same local draft revision exactly once
-      canonicalMediaRevision: false
-    localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
-    canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
-  - id: media.local-step-effect.j-22.step-02.v1
-    sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1
-    journeyRef: J-22
-    ordinal: 2
-    actionRef: media.action.choose-named-destination
-    actorRefs:
-      - media.creator
-      - media.editor
-    stepIntent: Destination/format/rights/approval and publication finality
-    effectMode: CATALOG_SELECTION
-    localScopeRequirements:
-      tenantId: required from host editor context; candidate version tenant must match when present
-      workspaceRef: required, exact request-to-host-session and catalog-context match
-      projectRef: exact request-to-host-session and catalog-context match; null is allowed only as the explicit host context for pre-project selection
-    localDraftSlotRef: media.local-draft.slot.named-destination
-    exactOperationRefs: []
-    canonicalDomainObjectRefs: []
-    canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
-    inputContract:
-      requiredKeys:
-        - sessionRef
-        - actorRef
-        - tenantId
-        - workspaceRef
-        - projectRef
-        - expectedDraftRevision
-        - actionRef
-        - draftSlotRef
-        - mutationId
-        - mutation
-      mutationId: unique request identity within one local editor session; never an idempotency key for server work
-      mutation:
-        requiredKeys:
-          - kind
-          - candidateValue
-          - catalogRef
-          - catalogRevision
-        kind: SELECT_CATALOG_ENTRY
-        candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-        identityPaths: *a2
-        eligibilityPredicate: exact-current-destination-catalog-member
-      effectBoundary: Accepting this request only makes a local editor-session patch eligible; the evaluator does not mutate
-        the session or dispatch any canonical operation.
-    trustedContextContract:
-      requiredKeys:
-        - sessionRef
-        - actorRef
-        - tenantId
-        - workspaceRef
-        - projectRef
-        - draftRevision
-        - sessionCurrentness
-        - catalogContext
-      source: HOST_EDITOR_SESSION_CONTEXT
-      sessionCurrentnessEnum:
-        - CURRENT
-        - STALE
-        - UNKNOWN
-      catalogContextRequired:
-        tenantId: exact trusted host tenant
-        workspaceRef: exact trusted host workspace
-        projectRef: exact host project; null only for pre-project selection
-        catalogRef: exact catalog identity
-        catalogRevision: nonnegative safe integer
-        catalogCurrentness:
-          - CURRENT
-          - STALE
-          - UNKNOWN
-        candidateValues: closed array of values validated by candidateSchemaRef
-        candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-        authorityRef: null
-      notCallerSupplied: true
-      candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-    guards:
-      - trusted-editor-session-current-and-same-session
-      - actor-exactly-matches-host-session-and-action-actor-set
-      - draft-revision-cas-matches-current-local-revision
-      - action-and-slot-match-this-exact-source-step
-      - catalog-is-current-and-selected-ref-is-visible-and-selectable
-    effect:
-      scope: current local editor-session draft only
-      mutation: replace only the declared local selection slot
-      revision: advance local draft revision exactly once under expectedDraftRevision compare-and-set
-      committedMediaObjects: unchanged
-      remoteDispatch: none
-    finality: LOCAL_DRAFT_REVISION_ONLY; no project revision, artifact version, job, remote effect, or committed result is
-      established
-    reversibility: local session history may restore prior local revision; this does not reverse any remote or committed effect
-    failureRecovery: on denial preserve current local revision; on stale or unknown session/read evidence hold without
-      applying or replaying; refresh the same session/catalog and require a new explicit user action if the revision
-      changed
-    runtimeAdmission: NOT_ADMITTED
-    localObjectRef: media.local-object.editor-session-draft
-    localStateRef: media.local-state.editor-session-draft-revision
-    localRevisionRule:
-      identityRef: media.local-state.editor-session-draft-revision
-      source: HOST_EDITOR_SESSION_CONTEXT
-      precondition: request expectedDraftRevision exactly equals the trusted current session draftRevision
-      eligibleEffect: advance the same local draft revision exactly once
-      canonicalMediaRevision: false
-    localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
-    canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
   - id: media.local-step-effect.j-11.step-01.v1
     sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml#/steps/0
     journeyRef: J-11
@@ -1188,7 +982,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1276,7 +1070,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1364,7 +1158,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1452,7 +1246,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1540,7 +1334,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1628,7 +1422,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1650,7 +1444,7 @@ records:
           - catalogRevision
         kind: SELECT_CATALOG_ENTRY
         candidateSchemaRef: media.component-value-types.v1#/$defs/VersionedDeliveryProfileRef
-        identityPaths: *a2
+        identityPaths: [profileRef]
         eligibilityPredicate: exact-current-destination-catalog-member
       effectBoundary: Accepting this request only makes a local editor-session patch eligible; the evaluator does not mutate
         the session or dispatch any canonical operation.
@@ -1731,7 +1525,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1819,7 +1613,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1922,7 +1716,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -1994,109 +1788,6 @@ records:
       canonicalMediaRevision: false
     localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
     canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
-  - id: media.local-step-effect.j-08.step-02.v1
-    sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
-    journeyRef: J-08
-    ordinal: 2
-    actionRef: media.action.choose-media-improvement-intent
-    actorRefs:
-      - media.creator
-      - media.editor
-    stepIntent: Preserve/enhance/creative choice, measured defects, safe plan
-    effectMode: CATALOG_SELECTION
-    localScopeRequirements:
-      tenantId: required from host editor context; candidate version tenant must match when present
-      workspaceRef: required, exact request-to-host-session and catalog-context match
-      projectRef: exact request-to-host-session and catalog-context match; null is allowed only as the explicit host context for pre-project selection
-    localDraftSlotRef: media.local-draft.slot.media-improvement-intent
-    exactOperationRefs: []
-    canonicalDomainObjectRefs: []
-    canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
-    inputContract:
-      requiredKeys:
-        - sessionRef
-        - actorRef
-        - tenantId
-        - workspaceRef
-        - projectRef
-        - expectedDraftRevision
-        - actionRef
-        - draftSlotRef
-        - mutationId
-        - mutation
-      mutationId: unique request identity within one local editor session; never an idempotency key for server work
-      mutation:
-        requiredKeys:
-          - kind
-          - candidateValue
-          - catalogRef
-          - catalogRevision
-        kind: SELECT_CATALOG_ENTRY
-        candidateSchemaRef: media.component-value-types.v1#/$defs/IntentOption
-        identityPaths: *a3
-        eligibilityPredicate: availability=available
-      effectBoundary: Accepting this request only makes a local editor-session patch eligible; the evaluator does not mutate
-        the session or dispatch any canonical operation.
-    trustedContextContract:
-      requiredKeys:
-        - sessionRef
-        - actorRef
-        - tenantId
-        - workspaceRef
-        - projectRef
-        - draftRevision
-        - sessionCurrentness
-        - catalogContext
-      source: HOST_EDITOR_SESSION_CONTEXT
-      sessionCurrentnessEnum:
-        - CURRENT
-        - STALE
-        - UNKNOWN
-      catalogContextRequired:
-        tenantId: exact trusted host tenant
-        workspaceRef: exact trusted host workspace
-        projectRef: exact host project; null only for pre-project selection
-        catalogRef: exact catalog identity
-        catalogRevision: nonnegative safe integer
-        catalogCurrentness:
-          - CURRENT
-          - STALE
-          - UNKNOWN
-        candidateValues: closed array of values validated by candidateSchemaRef
-        candidateSchemaRef: media.component-value-types.v1#/$defs/IntentOption
-        authorityRef: null
-      notCallerSupplied: true
-      candidateSchemaRef: media.component-value-types.v1#/$defs/IntentOption
-    guards:
-      - trusted-editor-session-current-and-same-session
-      - actor-exactly-matches-host-session-and-action-actor-set
-      - draft-revision-cas-matches-current-local-revision
-      - action-and-slot-match-this-exact-source-step
-      - catalog-is-current-and-selected-ref-is-visible-and-selectable
-    effect:
-      scope: current local editor-session draft only
-      mutation: replace only the declared local selection slot
-      revision: advance local draft revision exactly once under expectedDraftRevision compare-and-set
-      committedMediaObjects: unchanged
-      remoteDispatch: none
-    finality: LOCAL_DRAFT_REVISION_ONLY; no project revision, artifact version, job, remote effect, or committed result is
-      established
-    reversibility: local session history may restore prior local revision; this does not reverse any remote or committed effect
-    failureRecovery: on denial preserve current local revision; on stale or unknown session/read evidence hold without
-      applying or replaying; refresh the same session/catalog and require a new explicit user action if the revision
-      changed
-    runtimeAdmission: NOT_ADMITTED
-    localObjectRef: media.local-object.editor-session-draft
-    localStateRef: media.local-state.editor-session-draft-revision
-    localRevisionRule:
-      identityRef: media.local-state.editor-session-draft-revision
-      source: HOST_EDITOR_SESSION_CONTEXT
-      precondition: request expectedDraftRevision exactly equals the trusted current session draftRevision
-      eligibleEffect: advance the same local draft revision exactly once
-      canonicalMediaRevision: false
-    localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
-    canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
   - id: media.local-step-effect.j-24.step-01.v1
     sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/0
     journeyRef: J-24
@@ -2115,7 +1806,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -2219,7 +1910,7 @@ records:
     canonicalDomainObjectRefs:
       - media.domain.artifact-version
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -2273,7 +1964,112 @@ records:
           - UNKNOWN
         candidateValues: closed array of values validated by candidateSchemaRef
         candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
-        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+      notCallerSupplied: true
+      candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
+    guards:
+      - trusted-editor-session-current-and-same-session
+      - actor-exactly-matches-host-session-and-action-actor-set
+      - draft-revision-cas-matches-current-local-revision
+      - action-and-slot-match-this-exact-source-step
+      - catalog-is-current-and-selected-ref-is-visible-and-selectable
+    effect:
+      scope: current local editor-session draft only
+      mutation: replace only the declared local selection slot
+      revision: advance local draft revision exactly once under expectedDraftRevision compare-and-set
+      committedMediaObjects: unchanged
+      remoteDispatch: none
+    finality: LOCAL_DRAFT_REVISION_ONLY; no project revision, artifact version, job, remote effect, or committed result is
+      established
+    reversibility: local session history may restore prior local revision; this does not reverse any remote or committed effect
+    failureRecovery: on denial preserve current local revision; on stale or unknown session/read evidence hold without
+      applying or replaying; refresh the same session/catalog and require a new explicit user action if the revision
+      changed
+    runtimeAdmission: NOT_ADMITTED
+    localObjectRef: media.local-object.editor-session-draft
+    localStateRef: media.local-state.editor-session-draft-revision
+    localRevisionRule:
+      identityRef: media.local-state.editor-session-draft-revision
+      source: HOST_EDITOR_SESSION_CONTEXT
+      precondition: request expectedDraftRevision exactly equals the trusted current session draftRevision
+      eligibleEffect: advance the same local draft revision exactly once
+      canonicalMediaRevision: false
+    localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+    canonicalIdentityDisposition: EXACT_CANDIDATE_DOMAIN_IDENTITIES_ONLY; LOCAL_SELECTION_DOES_NOT_MUTATE_THE_CANONICAL_OBJECT
+  - id: media.local-step-effect.j-08.step-01.v1
+    sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
+    journeyRef: J-08
+    ordinal: 1
+    actionRef: media.action.choose-source
+    actorRefs:
+      - media.creator
+      - media.editor
+    stepIntent: Select one exact authorized immutable video source version for bounded repair.
+    effectMode: SOURCE_VERSION_SELECTION
+    localScopeRequirements:
+      tenantId: required from host editor context and exact selected artifact-version tenant match
+      workspaceRef: required, exact request-to-host-session and catalog-context match
+      projectRef: exact request-to-host-session and catalog-context match; required for this repair journey
+    localDraftSlotRef: media.local-draft.slot.source-artifact-version
+    exactOperationRefs: []
+    canonicalDomainObjectRefs:
+      - media.domain.artifact-version
+    canonicalTransitionRef: null
+    decisionRef: .product-experience/decision-log.md#PXD-119
+    inputContract:
+      requiredKeys:
+        - sessionRef
+        - actorRef
+        - tenantId
+        - workspaceRef
+        - projectRef
+        - expectedDraftRevision
+        - actionRef
+        - draftSlotRef
+        - mutationId
+        - mutation
+      mutationId: unique request identity within one local editor session; never an idempotency key for server work
+      mutation:
+        requiredKeys:
+          - kind
+          - candidateValue
+          - catalogRef
+          - catalogRevision
+        kind: SELECT_CATALOG_ENTRY
+        candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
+        identityPaths:
+          - versionRef
+        eligibilityPredicate: access=authorized AND rightsDisposition=permitted-with-scope
+      effectBoundary: Accepting this request only makes a local editor-session patch eligible; the evaluator does not mutate
+        the session or dispatch any canonical operation.
+    trustedContextContract:
+      requiredKeys:
+        - sessionRef
+        - actorRef
+        - tenantId
+        - workspaceRef
+        - projectRef
+        - draftRevision
+        - sessionCurrentness
+        - catalogContext
+      source: HOST_EDITOR_SESSION_CONTEXT
+      sessionCurrentnessEnum:
+        - CURRENT
+        - STALE
+        - UNKNOWN
+      catalogContextRequired:
+        tenantId: exact trusted host tenant
+        workspaceRef: exact trusted host workspace
+        projectRef: exact host project; null only for pre-project selection
+        catalogRef: exact catalog identity
+        catalogRevision: nonnegative safe integer
+        catalogCurrentness:
+          - CURRENT
+          - STALE
+          - UNKNOWN
+        candidateValues: closed array of values validated by candidateSchemaRef
+        candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
       notCallerSupplied: true
       candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
     guards:
@@ -2323,7 +2119,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -2428,7 +2224,7 @@ records:
       - media.domain.artifact
       - media.domain.artifact-version
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef
@@ -2482,7 +2278,7 @@ records:
           - UNKNOWN
         candidateValues: closed array of values validated by candidateSchemaRef
         candidateSchemaRef: media.component-value-types.v1#/$defs/ArtifactVersionCandidate
-        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
       notCallerSupplied: true
       candidateSchemaRef: media.component-value-types.v1#/$defs/ArtifactVersionCandidate
     guards:
@@ -2532,7 +2328,7 @@ records:
     exactOperationRefs: []
     canonicalDomainObjectRefs: []
     canonicalTransitionRef: null
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119
     inputContract:
       requiredKeys:
         - sessionRef

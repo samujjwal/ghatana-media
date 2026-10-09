@@ -63,6 +63,11 @@ test("Media erasure inventory, hold, tombstone, and replay definitions resolve e
   assert.equal(privacy.retentionAndErasure.notEstablished.includes("complete-inventory-of-primary-replica-backup-cache-export-and-provider-held-copies"), true);
   for (const ref of contract.sourceRefs) { requiredRef(ref); assert.notEqual(resolveExact(ref), undefined); }
   assert.deepEqual(contract.copyInventory.requiredCopyClasses, ["PRIMARY", "REPLICA", "DERIVED_ARTIFACT", "CACHE", "EXPORT", "BACKUP_SNAPSHOT", "EXTERNAL_PROVIDER_COPY"]);
+  assert.deepEqual(contract.copyInventory.managedContentClasses.classes, [
+    "ORIGINAL_MEDIA", "DERIVED_MEDIA", "THUMBNAIL", "PROXY", "CAPTION", "TRANSCRIPT",
+    "MASK_OR_GEOMETRY", "EMBEDDING", "VOICE_MODEL", "SOURCE_REQUEST", "TEMPORARY_FILE",
+    "CACHED_INTERMEDIATE", "EXPORT", "EXTERNAL_PROVIDER_COPY", "BACKUP", "AUDIT_OR_PROVENANCE",
+  ]);
   assert.deepEqual(contract.erasureFinality.states, ["REQUESTED", "ACCESS_RESTRICTED", "DELETION_PENDING", "PARTIALLY_ERASED", "ERASURE_CONFIRMED", "ERASURE_BLOCKED_BY_HOLD", "ERASURE_OUTCOME_UNKNOWN"]);
   assert.match(contract.tombstones.restoreRule, /Before restored data becomes readable or dispatchable/u);
   assert.match(contract.erasureFinality.externalProviderRule, /never proves remote\/provider-side erasure/u);
@@ -78,6 +83,7 @@ test("copy inventory entries have a closed typed scope and evidence requirement"
     objectRef: "media.domain.artifact",
     artifactVersionRef: "artifact-version:v7",
     storageOwnerRef: "media.storage.primary",
+    contentClass: "ORIGINAL_MEDIA",
     copyClass: "PRIMARY",
     retentionRuleRef: "media.retention.policy.pending-review",
     copyDisposition: "PRESENT",
@@ -108,8 +114,9 @@ test("inventory observations bind exact subject and current read tuple", () => {
       tenantRef: "tenant:tenant-a",
       objectRef: "media.domain.artifact",
       artifactVersionRef: "artifact-version:v7",
-      storageOwnerRef: "media.storage.primary",
-      copyClass: "PRIMARY",
+    storageOwnerRef: "media.storage.primary",
+    contentClass: "ORIGINAL_MEDIA",
+    copyClass: "PRIMARY",
       retentionRuleRef: "media.retention.policy.pending-review",
       copyDisposition: "PRESENT",
       evidenceRefs: ["evidence:owner-inventory-17"],

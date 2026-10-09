@@ -1,6 +1,6 @@
 schemaVersion: media.pdp-3-view-observation-input-contracts.v1
 status: MEDIA_OWNER_DEFINITION; INDEPENDENT_PDP3_REVIEW_OPEN
-decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+decisionRef: .product-experience/decision-log.md#PXD-119
 factBoundary: These are proposed typed UI observation facts. They do not assert
   actual authority evaluation, backend status fields, runtime behavior, or phase
   acceptance.

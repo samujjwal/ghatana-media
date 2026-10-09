@@ -58,6 +58,39 @@ ownerDefinedHealthAndDiagnosticsBoundary:
   requiredSemantics: [separate-liveness-meaning,role-scoped-readiness-dependencies,authenticated-detailed-diagnostics,redaction-of-secrets-and-protected-content,unknown-readiness-remains-unknown,no-capability-or-provider-qualification-inference]
   negativeCases: [liveness-promoted-to-readiness,readiness-promoted-to-provider-qualification,unauthenticated-detail-exposed,unknown-dependency-treated-ready,job-finality-inferred-from-health]
   scopeStatus: OWNER_DEFINED_API_HEALTH_AND_DIAGNOSTICS_REQUIREMENT; no current endpoint, runtime health behavior, or authentication acceptance is claimed.
+ownerDefinedProfileCapabilityAndProviderDiagnostics:
+  id: media.api.profile-capability-provider-diagnostics.v1
+  authority: Media owns the meaning of profile, capability, provider-readiness, and execution-compatibility observations.
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/requirements.yaml#/requirements/4
+    - .product-experience/pdp-0-product-truth/requirements.yaml#/requirements/5
+    - .product-experience/pdp-0-product-truth/requirements.yaml#/requirements/63
+    - .product-experience/pdp-0-product-truth/profile-semantics.yaml#streamProfileRule
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-profile-discover
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-capability-discover
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-readiness-inspect
+  semantics:
+    profileDiscovery: Return only declared, versioned Media profiles and their exact typed axes/constraints. Discovery does not imply that a profile is compatible with a requested capability, qualified, or currently executable.
+    capabilityDiscovery: Return only exact Media capability identities and their declared input/output/profile constraints. Provider names and labels do not create capability identities or supported combinations.
+    providerDiagnostics: Provider identifiers, capability-profile declarations, streaming-provider identifiers, and health/readiness observations are diagnostics only. They do not qualify an engine, authorize processing, or establish runtime availability for a requested operation.
+    executionCompatibility: Evaluate the exact capability, requested profile/version, provider/binding identity, input/output modality, policy, and compatibility evidence. Return compatible, incompatible, or unknown per requested dimension with reasons; missing or stale evidence is unknown and cannot be silently replaced with another provider or profile.
+    readiness: Keep process liveness, declared-service readiness, capability-specific dependency readiness, profile qualification, and job finality as separate observations. Only dependencies required by the declared service/capability scope gate that scope; an optional provider does not gate unrelated deterministic capabilities.
+  serviceRolePrerequisites:
+    controlPlane:
+      requiredDependencies: [declared-service-identity, durable-stores-explicitly-required-by-the-control-plane-contract]
+      readinessMeaning: The control-plane readiness result covers only its declared identity and required durable stores; it does not certify every provider or media-processing capability.
+    capabilityExecution:
+      requiredDependencies: [exact-profile-bound-streaming-dependency, exact-profile-bound-model-dependency, exact-profile-bound-render-dependency]
+      applicability: Each dependency gates only the capability/profile whose exact operation requires it; absent optional planners or renderers do not block unrelated deterministic operations.
+  requiredBindings: [versioned-profile-identity, exact-capability-identity, provider-or-binding-identity-when-requested, typed-input-and-output-contract, scoped-dependency-set, current-compatibility-evidence, observation-currentness]
+  negativeCases:
+    - profile-discovery-promoted-to-qualified-compatible-profile
+    - provider-list-or-health-promoted-to-provider-admission
+    - missing-provider-rendered-as-capability-absence-without-scope-check
+    - optional-ai-planner-outage-blocks-unrelated-deterministic-editing
+    - unknown-or-stale-compatibility-evidence-rendered-compatible
+    - diagnostic-provider-label-used-to-select-or-authorize-provider
+  scopeStatus: OWNER_DEFINED_PROFILE_AND_PROVIDER_DIAGNOSTIC_SEMANTICS; current transport, provider qualification, and runtime availability remain unverified.
 normativeRuleRecords:
   - id: media.p2.rule.api-authored-source-projection-authority.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#/ownerDefinedProjectionRules/@id=media.api.authored-source-projection-authority.v1
@@ -78,4 +111,8 @@ normativeRuleRecords:
   - id: media.p2.rule.api-health-readiness-diagnostics-separation.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedHealthAndDiagnosticsBoundary
     sourceAuthority: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/enforcementPoints
+    acceptanceEffect: none
+  - id: media.p2.rule.api-profile-capability-provider-diagnostics.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedProfileCapabilityAndProviderDiagnostics
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#authorityAndProjection
     acceptanceEffect: none

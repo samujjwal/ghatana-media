@@ -255,14 +255,15 @@ steps:
           transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
           requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
-        operationContractRef: null
-        authorityRefs: []
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
-          CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
+        status: LOCAL_EDITOR_SESSION_DRAFT_ONLY; CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs: []
         versionIdentityRule: Exact immutable version identity is required whenever the
@@ -1195,7 +1196,7 @@ steps:
         operationRefs:
           - media.operation.action.submit-validated-request
         effectClaim: see-stepOutcomeSemantics
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
       operationContractBinding:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.submit-validated-request
         operationRef: media.operation.action.submit-validated-request
@@ -1609,7 +1610,7 @@ steps:
         - media.action.validate-composition
       choiceSet:
         status: SOURCE_BOUND_ACTION_SET; USER_SELECTION_REQUIRED
-        decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+        decisionRef: .product-experience/decision-log.md#PXD-119
         sourceScreenRef: screen-contracts/compose-media.yaml
         selectedActionRef: null
         defaultActionRef: null
@@ -1654,7 +1655,7 @@ steps:
       runtimeAdmission: NOT_ADMITTED
       ordinal: 6
       viewRef: media.view.compose-media
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: Timeline/graphics/brand/audio/captions/transition assembly
         result: null
@@ -2368,18 +2369,17 @@ steps:
     legacyViewRef: M-DELIVERY
     screenContractRef: screen-contracts/deliver-output.yaml
     viewIntent: Destination/format/rights/approval and publication finality
-    actionRef: media.action.choose-named-destination
-    actionBindingState: journey-specific-action-binding-pending;
-      candidate-refs-come-from-screen-contract-only
+    actionRef: media.action.deliver-exact-version
+    actionBindingState: EXACT_P1_DELIVERY_REQUEST_BOUND; ACKNOWLEDGMENT_SEPARATE
     stateRefs: []
-    stateBindingState: pending-owner-bound-state-reference-and-transition
+    stateBindingState: no-media-transition; delivery outcome requires destination acknowledgment
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
       - media.surface.integrations
-    objectRefs: []
-    canonicalOperationRef: null
-    authorityRef: null
+    objectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+    canonicalOperationRef: media.operation.action.deliver-exact-version
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     decisionRef: null
     transitionRef: null
     handoffRef: null
@@ -2442,8 +2442,8 @@ steps:
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       action:
-        actionRef: media.action.choose-named-destination
-        semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
+        actionRef: media.action.deliver-exact-version
+        semanticRole: DOMAIN_OPERATION
         actorRefs:
           - media.creator
           - media.editor
@@ -2451,22 +2451,19 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Change only the current local draft or selection; keep committed source
-          and versioned objects unchanged until a separately specified commit.
-        reversibilityDisposition: REVERSIBLE
-        finality: local-draft-only; not-a-committed-result
+        effect: Request delivery of the exact immutable artifact version to the exact selected authorized destination under the selected delivery profile; request acceptance does not assert delivery.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: request-accepted-or-unknown; destination acknowledgment required for delivery
         failureRecovery: preserve-the-exact-target-and-current-draft;
           explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
-        domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
-        exactOperationRefs: []
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs: [media.operation.action.deliver-exact-version]
         runtimeAdmission: NOT_ADMITTED
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: NOT_APPLICABLE_WITH_REASON
-        noMutationReason: Change only the current local draft or selection; keep
-          committed source and versioned objects unchanged until a separately
-          specified commit.
+        noMutationReason: null
       stepSourceFacts:
         intent: Destination/format/rights/approval and publication finality
         result: null
@@ -2503,23 +2500,17 @@ steps:
         surfaceRefs:
           - media.surface.web
           - media.surface.integrations
-        objectRefs: []
+        objectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
         stateRefs: []
-        canonicalOperationRef: null
-        authorityRef: null
+        canonicalOperationRef: media.operation.action.deliver-exact-version
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
+        authorityRefs:
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+          - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
         capabilityRefs: []
-        localEffectContractId: media.local-step-effect.j-09.step-09.v1
-        localEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-09.step-09.v1
-        localObjectRef: media.local-object.editor-session-draft
-        localDraftSlotRef: media.local-draft.slot.named-destination
-        localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
-        localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
-        canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
         requiredChecks: []
         evidenceRefs: []
@@ -2555,20 +2546,18 @@ steps:
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
-        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
-        actionRef: media.action.choose-named-destination
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version
+        actionRef: media.action.deliver-exact-version
         positive:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: Exact output version is reviewed, approved as required, and delivered
-              with an accurate external-effect status.
-          effect: Change only the current local draft or selection; keep committed source
-            and versioned objects unchanged until a separately specified commit.
-          finality: local-draft-only; not-a-committed-result
+            status: REQUEST_ACCEPTED_OR_UNKNOWN; DESTINATION_DELIVERY_NOT_ASSERTED
+            exactVersionField: /fields/artifactVersionId
+            summary: Request receipt binds the exact version and destination; only a later destination owner acknowledgment establishes delivery.
+          effect: Request delivery for the exact artifact version and authorized destination; request receipt does not assert destination delivery.
+          finality: request-accepted-or-unknown; destination acknowledgment required for delivery
         nonhappy:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version
           guards:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
@@ -2577,26 +2566,26 @@ steps:
             explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-named-destination
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/sourceRecovery
           recovery: preserve-the-exact-target-and-current-draft;
             explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: LOCAL_SESSION_OR_DRAFT_EFFECT; NO_MEDIA_DOMAIN_TRANSITION
+        status: EXTERNAL_DELIVERY_REQUEST_ONLY; NO_MEDIA_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED
         transitionRef: null
         stateRefs: []
-        operationRef: null
+        operationRef: media.operation.action.deliver-exact-version
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: NO_CANONICAL_PRODUCT_OBJECT; LOCAL_EDITOR_SESSION_DRAFT_ONLY
-          stateRefs: LOCAL_EDITOR_SESSION_REVISION; NOT_PDP1_DOMAIN_STATE
-          canonicalOperationRef: NO_EXACT_OPERATION_BINDING
-          authorityRef: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
+          objectRefs: EXACT_ARTIFACT_VERSION_AND_DELIVERY_OUTCOME_FROM_P1_OPERATION
+          stateRefs: NO_PDP1_TRANSITION; DESTINATION_ACKNOWLEDGMENT_IS_SEPARATE_FINALITY
+          canonicalOperationRef: EXACT_DELIVERY_REQUEST_OPERATION
+          authorityRef: HOST_IDENTITY_AND_PRIVILEGED_EFFECT_RECHECK_REQUIRED
           transitionRef: LOCAL_DRAFT_REVISION_CAS; NO_PDP1_DOMAIN_TRANSITION
           requirementRefs: LOCAL_SESSION_CONTRACT; NO_DOMAIN_CAPABILITY_REQUIREMENT
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
@@ -2608,18 +2597,13 @@ steps:
       versionedObjectObservation:
         status: LOCAL_EDITOR_SESSION_DRAFT_ONLY;
           CANONICAL_MEDIA_OBJECT_EQUIVALENCE_NOT_ASSERTED
-        operationContractRef: null
-        objectRefs: []
-        versionIdentityRule: Exact immutable version identity is required whenever the
-          source action names a version; do not substitute a newer version.
-        sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
+        objectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+        versionIdentityRule: Exact tenant/artifact/version tuple required on the request; request receipt alone does not prove destination delivery.
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
         observation: null
         runtimeAdmission: NOT_ADMITTED
-        localObjectRef: media.local-object.editor-session-draft
-        localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
-        canonicalObjectRefs: []
+        canonicalObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Destination/format/rights/approval and publication finality
@@ -2638,9 +2622,9 @@ steps:
         kind: EXACT_SOURCE_ACTION
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
         screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml#purpose
-        actionRef: media.action.choose-named-destination
+        actionRef: media.action.deliver-exact-version
         candidateActionRefs: []
-        operationRefs: []
+        operationRefs: [media.operation.action.deliver-exact-version]
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
@@ -2650,7 +2634,6 @@ steps:
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
-      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-09.step-09.v1
     scenarioRefs: []
     capabilityRefs: []
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy

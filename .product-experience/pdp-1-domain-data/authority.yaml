@@ -68,6 +68,16 @@ ownerDefinedPdp10AuthorityScopes:
     delegationRef: host-attested, current delegation; caller role labels are not grants
     workspaceRef: host-authorized workspace context; caller selector cannot widen scope
     unknownOrMismatched: DENY before lookup or effect; do not fall back to global scope
+  jobStatusRead:
+    id: media.authority.job-status-dimension-read.v1
+    owner: Media-domain-owner-of-normalized-job-status-meaning
+    purpose: read-only-current-owner-observation-of-seven-independent-job-status-dimensions
+    authenticatedScope: host-attested tenantId, principalId, and exact jobId; caller body never supplies or widens tenant/principal scope
+    trustedReadTuple: [operationRef, queryId, requestFingerprint, tenantId, principalId, jobId, readAuthorityRef, readVersion, observedAt, resultDigest]
+    resultIntegrity: owner read receipt authenticates the canonical digest of the complete normalized result body; a schema-valid body without matching authenticated digest is UNKNOWN
+    freshness: canonical UTC millisecond observedAt must be nonfuture and at most the query contract's 30000 millisecond maximum age
+    negativeObservations: NOT_REQUESTED and NOT_DISPATCHED require a current typed negative owner record scoped to the exact job/read tuple; missing records are UNKNOWN_OBSERVATION
+    notEstablished: no provider transport, endpoint, deployment, signature mechanism, or runtime availability is asserted by this logical owner read definition
   effectAuthority:
     mediaOwns:
     - product operation meaning
@@ -82,6 +92,23 @@ ownerDefinedPdp10AuthorityScopes:
     - provider-side retention and deletion confirmation
     - event transport durability
     rule: Media preconditions are mandatory inputs to external privileged mechanics; mechanism acceptance does not make a Media outcome successful.
+  resourceLocatorAuthorizationRule:
+    id: media.authority.resource-locator-not-grant.v1
+    rule: >-
+      A URL, path, artifact identifier, signed-looking string, or successful locator parse is
+      only a resource locator; it does not authenticate a caller or grant read, write, publish,
+      or approval authority. Resolve access only after host-attested tenant/principal/delegation
+      and current resource policy checks bind the exact resource version and requested purpose.
+    unknownOrDenied: >-
+      Missing, expired, revoked, malformed, or scope-mismatched authority is denied before
+      protected content is returned or any effect is attempted; do not reveal resource
+      existence through an unauthenticated locator response.
+    bearerCredentialBoundary: >-
+      If a separate credential-bearing URL mechanism is explicitly admitted, it must have its
+      own exact issuer, audience, resource/version, operation, expiry, revocation and replay
+      contract. URL form alone never supplies those fields and is not a substitute for the
+      normal principal authorization check.
+    scopeStatus: DEFINITION_ONLY; no URL-authentication mechanism, deployed binding, or runtime enforcement is claimed
   scopeStatus: OWNER_DEFINED_SOURCE_POLICY; no production trust binding or enforcement claim
   independentSecurityReview: PENDING
 ownerDefinedPdp05TrustAndOwnership:
@@ -215,3 +242,8 @@ ownerDefinedPdp05TrustAndOwnership:
     owns: [canonical-media-state-identities, lifecycle-finality-and-precondition-meaning]
     mustNotDelegateMeaningTo: [provider-status-spelling, transport-acceptance, generic-workflow-state]
   failClosedRule: A source owner, trust level, grant, currentness, or outcome that is missing, conflicting, stale, or outside its declared scope cannot be promoted; deny the new effect or preserve blocked/unknown state as specified above.
+
+ownerNormativeRuleRecords:
+  - id: media.authority.resource-locator-not-grant.v1
+    ruleRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/resourceLocatorAuthorizationRule
+    sourceRole: stable-identifier-index-only; rule-body-remains-in-authority-scope

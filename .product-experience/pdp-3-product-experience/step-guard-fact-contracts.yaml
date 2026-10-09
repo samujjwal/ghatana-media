@@ -2,7 +2,7 @@ schemaVersion: media.pdp-3-step-guard-fact-contracts.v1
 status: Definition of exact guard facts and derivation boundaries;
   source/runtime truth not asserted
 sourceAuthority: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml
-decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+decisionRef: .product-experience/decision-log.md#PXD-119
 guardContracts:
   count: 57
   records:

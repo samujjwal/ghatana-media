@@ -1,0 +1,593 @@
+{
+  "schemaVersion": "media.pdp38.coordinator-material-findings.v1",
+  "observedAtUtc": "2026-10-09T16:31:21Z",
+  "scope": "Pending 462-leaf trust reconstruction source definitions; not previously published source acceptance",
+  "decision": "CORRECTION_REQUIRED_BEFORE_SOURCE_APPROVAL",
+  "observationSnapshotSha256": "4c0d68a168624eefbed27e95eab4755de036781d021a1bceef9fc887fdd2ff62",
+  "observations": [
+    {
+      "capabilityRefs": [
+        "media.animation.2d",
+        "media.animation.vector",
+        "media.animation.3d",
+        "media.animation.keyframe",
+        "media.animation.interpolation-easing",
+        "media.animation.procedural",
+        "media.animation.path",
+        "media.animation.skeletal",
+        "media.animation.inverse-kinematics",
+        "media.animation.constraint",
+        "media.animation.morph-target",
+        "media.animation.camera",
+        "media.animation.material",
+        "media.animation.light",
+        "media.animation.particle",
+        "media.animation.drive.physics",
+        "media.animation.drive.audio",
+        "media.animation.drive.speech",
+        "media.animation.drive.pose",
+        "media.animation.facial-expression",
+        "media.animation.gaze",
+        "media.animation.lip",
+        "media.animation.motion-capture.extract",
+        "media.animation.motion.retarget",
+        "media.animation.character"
+      ],
+      "sourceFile": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "finding": "The complete animation creation/edit cohort permits source-free intent with optional source references and returns versioned scene/edit definition references, yet labels all outputs source-derived media. Define the actual reference epistemic scope and separate authored creation/edit provenance from rendered media inference; do not require nonexistent source capture.",
+      "recordSnapshots": [
+        {
+          "id": "media.animation.2d",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.vector",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.3d",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.keyframe",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.interpolation-easing",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.procedural",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.path",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.skeletal",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.inverse-kinematics",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.constraint",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.morph-target",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.camera",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.material",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.light",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.particle",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.drive.physics",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.drive.audio",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.drive.speech",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.drive.pose",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.facial-expression",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.gaze",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.lip",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.motion-capture.extract",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                  "meaning": "The exact typed branch derives a pose or speaker/face association by inference from the bound media versions. Preserve source and version identity, method/model and version, time range, evidence, confidence/uncertainty, and limitations; an association is not an identity fact and a pose estimate is not ground truth. Missing, conflicting, or insufficient evidence remains UNKNOWN or ABSTAINED."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+                  "meaning": "The exact typed branch derives a pose or speaker/face association by inference from the bound media versions. Preserve source and version identity, method/model and version, time range, evidence, confidence/uncertainty, and limitations; an association is not an identity fact and a pose estimate is not ground truth. Missing, conflicting, or insufficient evidence remains UNKNOWN or ABSTAINED."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.motion.retarget",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "media.animation.character",
+          "branches": [
+            {
+              "type": "versioned-animation-scene-or-edit",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].payload.kind=versioned-animation-scene",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                },
+                {
+                  "when": "$.outputs[*].payload.kind=edit",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capabilityRefs": [
+        "media.master.audio.phase-noise-floor-analyze"
+      ],
+      "finding": "An analysis/measurement purpose is bound to generic mastered audio output and source-derived transformation. Select exact measurement result semantics without claiming an applied media transform.",
+      "recordSnapshots": [
+        {
+          "id": "media.master.audio.phase-noise-floor-analyze",
+          "branches": [
+            {
+              "type": "mastered-audio-candidate-with-measurements",
+              "selector": null,
+              "outcomes": [
+                {
+                  "when": "$.outputs[*].artifactType=mastered-audio-candidate-with-measurements",
+                  "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                  "meaning": "The exact typed branch is a derivative of the specifically bound source version; the source remains immutable and separately addressable. The derivative may alter meaning, fidelity, timing, appearance, or other declared properties, so it is not a claim of lossless preservation or recovered truth. Record the exact transformation, effective profile/version, provenance, and known losses/limits; missing source identity or material evidence remains UNKNOWN."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptanceEffect": "none",
+  "boundary": "Immutable observations of a working source window. Later fixes require fresh exact source review; the finding does not assert that subsequent working revisions remain defective."
+}

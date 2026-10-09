@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "media.pdp38.tools-journey-actor-source-review.v1",
+  "decisionId": "PXD-109",
+  "decision": "APPROVED_SOURCE_DEPENDENCY_ONLY",
+  "reviewerRole": "USER_DELEGATED_MEDIA_SEMANTIC_OWNER_COORDINATOR",
+  "toolsSourceCommit": "00618e036ea706d3165e9d8ca53ae14f37fa6f52",
+  "priorToolsSourceCommit": "cb4feaeb23afdd00c048fb9014c4b38c9b8fc506",
+  "scope": "Two optional generic journey-step fields required to project exact actor participation and source provenance without Media-specific schema additions.",
+  "parsedSchemaDelta": {
+    "addedOptionalPaths": [
+      "definitions.journeyStep.properties.semantics.properties.actorRefs",
+      "definitions.journeyStep.properties.semantics.properties.sourceRefs"
+    ],
+    "allOtherParsedValuesUnchanged": true,
+    "legacyRequiredFieldsUnchanged": true
+  },
+  "reviewedRules": [
+    "Every declared step actor uses the existing actor owner resolver; missing, false-returning, throwing, or foreign owner resolution fails.",
+    "Actor and provenance arrays require nonempty strings and reject duplicate values.",
+    "sourceRefs provide provenance only; the neutral library does not authenticate source ownership or derive actor authority from them.",
+    "Absent optional fields preserve the previous source contract and supported legacy payloads."
+  ],
+  "verification": {
+    "testsPassed": 43,
+    "testsFailed": 0,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "builtConsumer": "PASS",
+    "builtConsumerExports": 4,
+    "sourcePinsStableBeforeAfter": true,
+    "sourcePins": {
+      "libs/product-development/experience-specification/CONSUMER_GUIDE.md": "e8f4eac871013563e7dc434f03059c99dc06314474b9fbc51d90431b5210aae4",
+      "libs/product-development/experience-specification/README.md": "7bbe3304e2388e37cbd46c36f3f504092747a15f08e4f021b16e8d48e92bfbb1",
+      "libs/product-development/experience-specification/TESTING.md": "92b4175ad2dae82fddb1f658053a75eb1fb3cdcacea337da983ae281715e33d4",
+      "libs/product-development/experience-specification/docs/REQUIREMENTS.md": "c2bd30a57c7b53eafbec8de864ae2722018fdf8d5cf5fcd5436693a4ce9784ef",
+      "libs/product-development/experience-specification/package.json": "8c3d3a7dece2879eeada603c67fb49f1af4e1b95f864ef72483db8c2e6923b6f",
+      "libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json": "005ac5171fb3cf386e05269401499a01e1514e652f3d33ebc482ab0ee9206d9e",
+      "libs/product-development/experience-specification/scripts/public-type-api.snapshot.json": "d83076c0ffee04f530de466d9bc01c9baec7f13a0fa35c519e153c7b757e8b40",
+      "libs/product-development/experience-specification/scripts/verify-consumer.mjs": "d7841ba2e46243346d34e8e8e7a68f2c8726fd2091d346303e6a2e24392a6a11",
+      "libs/product-development/experience-specification/src/__tests__/experience-spec-validation.test.ts": "90f58877a0385d0523de2271bd7abe222a443697ceb973e424e031624f666580",
+      "libs/product-development/experience-specification/src/__tests__/experience-spec.test.ts": "13418770324216b3b4a554aa795e367dae36d4e927be754fffcd8cb18d4b8336",
+      "libs/product-development/experience-specification/src/index.ts": "f7bbf3b3e6cde24b9e1e320cff5c072faf576ba4c54ba8fc8ef8ba8861368dfb",
+      "libs/product-development/experience-specification/tsconfig.build.json": "498e7435636d8c4b35c8a788aa4e323d561de95043b92c8b97338e7ba2d7563f",
+      "libs/product-development/experience-specification/tsconfig.json": "343e4bae3669c0dc459af4e21598873452bba5eb6191997354952926c562c271",
+      "libs/product-development/experience-specification/vitest.config.ts": "93cfe619e80cc8ffa100ef26704d6f3c3a10b01ae0e3d682b967c973981d34ae"
+    },
+    "logs": {
+      "tests": {
+        "ref": "docs/implementation/verification/pdp-38/tools-journey-actor-source-tests.log",
+        "sha256": "60811aad6d5f8e2d66f9eb2b7a1854c634e1ad0d4e4d76d85ebf6e510f138060"
+      },
+      "typecheck": {
+        "ref": "docs/implementation/verification/pdp-38/tools-journey-actor-source-typecheck.log",
+        "sha256": "749901390dc2ed4d33faea34cf136aa7a49884c7f40810855afa46911fbfc593"
+      },
+      "build": {
+        "ref": "docs/implementation/verification/pdp-38/tools-journey-actor-source-build.log",
+        "sha256": "1cbfcfdf314ada1fdfefc9aa8e249e238c634ed82ac1b571740cf408e0a21406"
+      },
+      "built-consumer": {
+        "ref": "docs/implementation/verification/pdp-38/tools-journey-actor-source-built-consumer.log",
+        "sha256": "400018a1da4e839bdc1a54abcfaa1f60e94ad73b1fb6379024f7182a1d3ece08"
+      }
+    }
+  },
+  "acceptanceEffect": "none",
+  "pending": [
+    "Installed package publication and qualified Tools owner admission are not established.",
+    "The full repository-wide packed consumer route remains gated by the required public Lifecycle dependency; no private or sibling-source bypass was used.",
+    "Media phase acceptance, independent specialist decisions and Lifecycle currentness remain separate."
+  ]
+}

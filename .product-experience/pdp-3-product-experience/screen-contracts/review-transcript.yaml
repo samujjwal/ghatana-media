@@ -7,60 +7,120 @@ surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.workbench
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.media-workbench]
+layoutIds:
+  - media.gui.layout.media-workbench
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.source-player
   - media.component.transcript-review
   - media.component.provenance-summary
-componentBindingStatus: Media-owned read-only transcript composition selected from source playback, exact transcript fields, and provenance anatomy; renderer and acceptance pending
+componentBindingStatus: Media-owned read-only transcript composition selected
+  from source playback, exact transcript fields, and provenance anatomy;
+  renderer and acceptance pending
 patternIds:
   - media.gui.pattern.transcript-and-playback
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: [media.domain.transcript-version, media.domain.artifact-version]
-domainObjectRefsBindingStatus: source-defined-exact-transcript-and-source-version-identities; runtime-materialization-unqualified
-operationRefs: [media.operation.transcript-version-read]
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+domainObjectRefs:
+  - media.domain.transcript-version
+  - media.domain.artifact-version
+domainObjectRefsBindingStatus: source-defined-exact-transcript-and-source-version-identities;
+  runtime-materialization-unqualified
+operationRefs:
+  - media.operation.transcript-version-read
+requirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationRefsBindingStatus: exact-existing-transcript-version-read-query; runtime-admission-pending
 stateRefs: []
 stateRefsBindingStatus: read-only-query; no-domain-state-machine-applies
 entry:
-  - exact-canonical-transcriptVersionId-available-from-an-authoritative-version-producing-boundary
-  - current-trusted-tenant-and-principal-and-scoped-read-policy-confirmed
-entryBindingStatus: definition-source-bound; version-materialization-and-authority-enforcement-unqualified
+  - "The caller must satisfy the exact screen context and subject scope in this
+    contract: review recognized text against the exact source and inspect
+    language, timing, and uncertainty."
+  - Before the corresponding action, require the source-defined guard
+    “exact-canonical-transcript-version-readable”; absent or stale context
+    leaves the action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-scoped-read-authority”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “source-version-readable”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “source-clock-known”; absent or stale context leaves the action unavailable.
+entryBindingStatus: definition-source-bound;
+  version-materialization-and-authority-enforcement-unqualified
 exit:
-  - preserve-exact-transcript-and-source-version-identities-with-field-availability
-  - keep-recognition-unverified-and-separate-from-caption-correction-or-approval
+  - "media.action.review-transcript: read-only;
+    this-action-records-no-separate-review-decision.
+    preserve-unverified-recognition-label-and-explicitly-unavailable-fields"
+  - "media.action.play-source: local-only.
+    keep-transcript-accessible-when-playback-is-unavailable"
+  - "media.action.seek-source: local-only.
+    preserve-current-selection-and-report-unavailable-range"
+  - A local or read-only result does not imply a domain transition; an unknown
+    owner outcome stays UNKNOWN and retains the exact subject for
+    reconciliation.
 exitBindingStatus: source-defined-read-boundary; runtime-admission-pending
 actionConsequences:
   - actionId: media.action.review-transcript
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-064; runtime-admission-pending
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.transcript-version-read
-    effectRef: null
-    consequence: inspect-one-exact-transcript-version-and-linked-source-context; retain-only-supplied-observations-and-explicit-field-availability; no-correction-registration-review-approval-or-publication
-    bindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-064; runtime-admission-pending
+    operationRefs:
+      - media.operation.transcript-version-read
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-transcript/actionDefinitionSemantics/typedDefinition
+    consequence: inspect-one-exact-source-linked-transcript-version-and-its-supplied-uncertainty
+    finality: read-only; this-action-records-no-separate-review-decision
+    reversibilityDisposition: UNKNOWN
+    guardRefs:
+      - exact-canonical-transcript-version-readable
+      - current-scoped-read-authority
+    failureRecovery: preserve-unverified-recognition-label-and-explicitly-unavailable-fields
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.play-source
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    operationRefs: []
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.play-source/actionDefinitionSemantics/typedDefinition
+    consequence: local-playback-of-the-exact-source-version
+    finality: local-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - source-version-readable
+    failureRecovery: keep-transcript-accessible-when-playback-is-unavailable
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.seek-source
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
-actionConsequencesBindingStatus: exact-review-query-linked; playback-and-seeking-remain-local-actions; runtime-admission-pending
+    operationRefs: []
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.seek-source/actionDefinitionSemantics/typedDefinition
+    consequence: change-playback-position-without-changing-the-source
+    finality: local-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - source-version-readable
+      - source-clock-known
+    failureRecovery: preserve-current-selection-and-report-unavailable-range
+    status: Media-owner-definition; runtime NOT_ADMITTED
+actionConsequencesBindingStatus: exact-review-query-linked;
+  playback-and-seeking-remain-local-actions; runtime-admission-pending
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
   status: proposal-unverified
@@ -70,7 +130,8 @@ fixtures:
     - media.scenario.transcript-ready
     - media.scenario.language-uncertain
     - media.scenario.consent-revoked
-  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+  status: linked-to-deterministic-simulation-seeds;
+    owner-review-and-behavior-verification-pending
 fixturesBindingStatus: exact-registry-ids-linked; expected-results-and-owner-review-pending
 verification:
   status: not-run
@@ -87,7 +148,8 @@ fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
+  componentIds: exact-selected-Media-component-composition;
+    renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: candidate-pending-acceptance
@@ -102,34 +164,43 @@ fieldBindingStatus:
   verification: not-run; no-evidence-refs
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.reviewer
+  - media.creator
+  - media.editor
+  - media.reviewer
 intentRef: media.intent.understand
-purpose: review recognized text against the exact source and inspect language, timing, and uncertainty
+purpose: review recognized text against the exact source and inspect language,
+  timing, and uncertainty
 contextGoalNowNext:
-  context: Exact canonical transcript version and linked source version, with only supplied observations and explicit availability. Selected playback time, requested language intent or job provenance are optional separately sourced UI context, never guaranteed query output.
-  goal: Decide whether the transcript is sufficiently aligned and understandable for caption correction.
-  now: Show available supplied text and observations, timing disposition, uncertainty and missing evidence; never synthesize omitted language, confidence, segments or source-clock metadata.
-  next: Preserve exact version and unverified evidence while considering a separately authorized correction; read access alone grants no write authority or qualified caption-parent eligibility.
+  context: Exact canonical transcript version and linked source version, with only
+    supplied observations and explicit availability. Selected playback time,
+    requested language intent or job provenance are optional separately sourced
+    UI context, never guaranteed query output.
+  goal: Decide whether the transcript is sufficiently aligned and understandable
+    for caption correction.
+  now: Show available supplied text and observations, timing disposition,
+    uncertainty and missing evidence; never synthesize omitted language,
+    confidence, segments or source-clock metadata.
+  next: Preserve exact version and unverified evidence while considering a
+    separately authorized correction; read access alone grants no write
+    authority or qualified caption-parent eligibility.
 anatomy:
-- source-player
-- transcript-segments
-- language-status
-- timing-status
-- provenance-summary
-- correction-action
+  - source-player
+  - transcript-segments
+  - language-status
+  - timing-status
+  - provenance-summary
+  - correction-action
 states:
-- ready
-- language-uncertain
-- alignment-required
-- partial
-- read-only
-- consent-revoked
+  - ready
+  - language-uncertain
+  - alignment-required
+  - partial
+  - read-only
+  - consent-revoked
 actions:
-- media.action.review-transcript
-- media.action.play-source
-- media.action.seek-source
+  - media.action.review-transcript
+  - media.action.play-source
+  - media.action.seek-source
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -154,13 +225,14 @@ accessibility:
 localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
-actionBindingState: selected-transcript-review-query-defined-under-PXD-064; playback-and-seek-binding-pending; runtime-admission-pending
+actionBindingState: selected-transcript-review-query-defined-under-PXD-064;
+  playback-and-seek-binding-pending; runtime-admission-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
 journeyDefinitionBindings:
@@ -169,7 +241,15 @@ journeyDefinitionBindings:
   sourceDecisionRef: .product-experience/decision-log.md#PXD-062
   grammarDecisionRef: .product-experience/decision-log.md#PXD-063
   decisionRef: .product-experience/decision-log.md#PXD-064
-  operationRefs: [media.operation.transcript-version-read]
-  domainObjectRefs: [media.domain.transcript-version, media.domain.artifact-version]
+  operationRefs:
+    - media.operation.transcript-version-read
+  domainObjectRefs:
+    - media.domain.transcript-version
+    - media.domain.artifact-version
   transitionDisposition: NOT_APPLICABLE_WITH_REASON
   runtimeAdmission: NOT_ADMITTED
+authorityRefs: []
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-transcript/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.play-source/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.seek-source/actionDefinitionSemantics/typedDefinition

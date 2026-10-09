@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { addPdpTruthDomainKeywords, assertPdpTruthDomainSchemaKeywords } from "../scripts/lib/pdp-truth-domain-schema-validator.mjs";
-import { resolveEffectiveOwnerLeafWireContract } from "../scripts/lib/pdp-owner-leaf-wire-validation.mjs";
+import { resolveEffectiveCapabilityWireSchemas, resolveEffectiveOwnerLeafWireContract } from "../scripts/lib/pdp-owner-leaf-wire-validation.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
@@ -23,18 +23,38 @@ function walk(value, visit, path = "$") {
 }
 
 function example(schema) {
+  schema ??= {};
   if (schema.const !== undefined) return schema.const;
   if (schema.enum?.length) return schema.enum[0];
-  if (schema.oneOf) return example(schema.oneOf[0]);
+  if (schema.oneOf) {
+    // A oneOf on an object property augments the shared base schema. Keep the
+    // base required fields while selecting exactly one discriminator branch.
+    const { oneOf, ...baseSchema } = schema;
+    if (baseSchema.type !== "object" && !baseSchema.properties) return example(oneOf[0]);
+    const base = example(baseSchema);
+    const branch = example(oneOf[0]);
+    return branch && typeof branch === "object" && !Array.isArray(branch) ? { ...base, ...branch } : base;
+  }
   if (schema.anyOf && schema.type !== "object" && !schema.properties) return example(schema.anyOf[0]);
   if (schema.type === "object" || schema.properties) {
     const result = {};
     const required = new Set(schema.required ?? []);
     if (schema.anyOf?.[0]?.required) for (const key of schema.anyOf[0].required) required.add(key);
     for (const key of required) result[key] = example(schema.properties?.[key] ?? {});
+    if (schema.allOf) {
+      for (const branch of schema.allOf) {
+        const value = example(branch);
+        if (value && typeof value === "object" && !Array.isArray(value)) Object.assign(result, value);
+      }
+    }
     return result;
   }
-  if (schema.allOf) return Object.assign({}, ...schema.allOf.map(example));
+  if (schema.allOf) {
+    const values = schema.allOf.map(example);
+    const objectValues = values.filter((value) => value && typeof value === "object" && !Array.isArray(value));
+    if (objectValues.length) return Object.assign({}, ...objectValues);
+    return values[0];
+  }
   if (schema.type === "array") return Array.from({ length: schema.minItems ?? 0 }, () => example(schema.items ?? {}));
   if (schema.type === "integer") return schema.minimum ?? 0;
   if (schema.type === "number") return schema.minimum ?? 0;
@@ -121,26 +141,10 @@ function resolvedSchemas(row) {
     return { request, result, outputSchemas: [item], effectiveOwnerWire: effectiveWire.contract };
   }
   assert.equal(effectiveWire.reason, "OWNER_WIRE_OVERLAY_NOT_BOUND", `${row.id} remains on its canonical base schema`);
-  const inputById = new Map(contract.inputPayloadSchemas.map((item) => [item.id, item]));
-  const outputById = new Map(contract.outputPayloadSchemas.map((item) => [item.id, item]));
-  const request = structuredClone(row.requestSchema);
-  for (const slot of row.inputSlots) {
-    const typed = inputById.get(slot.payloadSchemaRef);
-    assert.ok(typed, `${row.id} unresolved input schema ${slot.payloadSchemaRef}`);
-    const key = slot.slotId;
-    assert.ok(request.properties[key], `${row.id} missing request slot ${key}`);
-    request.properties[key] = structuredClone(typed.schema);
-  }
-  const result = structuredClone(row.resultSchema);
-  const expectedTypes = row.successOutputs.map((output) => {
-    const typed = outputById.get(output.payloadSchemaRef);
-    assert.ok(typed, `${row.id} unresolved output schema ${output.payloadSchemaRef}`);
-    assert.equal(typed.artifactType, output.artifactType, `${row.id} output type ref and discriminator disagree`);
-    return typed.artifactType;
-  });
-  assert.deepEqual(result.properties.outputs.items.oneOf.map((schema) => schema.properties.artifactType.const), expectedTypes,
-    `${row.id} result schema must contain the exact typed output alternatives`);
-  return { request, result, outputSchemas: row.successOutputs.map((entry) => outputById.get(entry.payloadSchemaRef).schema) };
+  const resolved = resolveEffectiveCapabilityWireSchemas(operations, row.capabilityRef);
+  assert.equal(resolved.valid, true, `${row.id} resolves the exact typed base schemas: ${resolved.reason}`);
+  assert.equal(resolved.operation, row, `${row.id} resolver selected exact capability record`);
+  return { request: resolved.requestSchema, result: resolved.resultSchema, outputSchemas: resolved.outputSchemas };
 }
 
 test("all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions", () => {
@@ -225,9 +229,9 @@ test("all 448 canonical capability request and result schemas close against exac
 });
 
 
-test("all 101 input and 69 output type definitions are material, closed, and reject missing required evidence", () => {
+test("all 101 input and 72 output type definitions are material, closed, and reject missing required evidence", () => {
   assert.equal(contract.inputPayloadSchemas.length, 101);
-  assert.equal(contract.outputPayloadSchemas.length, 69);
+  assert.equal(contract.outputPayloadSchemas.length, 72);
   const ajv = buildAjv();
   const all = [...contract.inputPayloadSchemas, ...contract.outputPayloadSchemas];
   for (const row of all) {
@@ -251,6 +255,27 @@ test("all 101 input and 69 output type definitions are material, closed, and rej
   const template = contract.inputPayloadSchemas.find(({ id }) => id === "media.typed-input.typed-operation-request");
   assert.match(template.ownerDefinition, /cannot carry executable caller values/u);
   assert.equal(example(template.schema).payload.executionRole, "NON_EXECUTABLE_SCHEMA_DESCRIPTOR_ONLY");
+});
+
+test("phase-noise-floor is an exact typed measurement result, not a mastered-media output", () => {
+  const operation = contract.records.find(({ capabilityRef }) => capabilityRef === "media.master.audio.phase-noise-floor-analyze");
+  assert.ok(operation, "the exact analysis operation exists");
+  const success = operation.successOutputs.find(({ artifactType }) => artifactType === "phase-noise-floor-measurement-record");
+  assert.ok(success, "success selects the measurement record");
+  const measurement = contract.outputPayloadSchemas.find(({ id }) => id === success.payloadSchemaRef);
+  assert.equal(measurement?.id, "media.typed-output.phase-noise-floor-measurement.v1");
+  assert.equal(measurement.artifactType, "phase-noise-floor-measurement-record");
+  const schema = measurement.schema.properties.payload;
+  assert.equal(schema.properties.metricRef.const, "media.metric.phase-noise-floor.v1");
+  assert.ok(schema.required.includes("measurementWindow"), "the exact sampled interval is required");
+  const resultBranch = operation.resultSchema.properties.outputs.items.oneOf.find(({ properties }) =>
+    properties?.artifactType?.const === measurement.artifactType);
+  assert.ok(resultBranch, "the result envelope has the same exact output discriminator");
+  assert.ok(resultBranch.properties.payload.required.includes("measurementWindow"),
+    "the success-result schema requires the measurement window too");
+  assert.equal(operation.resultSchema.properties.outputs.items.oneOf.some(({ properties }) =>
+    properties?.artifactType?.const === "mastered-audio-candidate-with-measurements"), false,
+  "analysis does not claim a mastered-media artifact");
 });
 
 test("rational frame-rate limits use the exact BigInt validator and fail closed", () => {
@@ -347,26 +372,50 @@ test("all 14 existing-operation capability bindings resolve to their exact sourc
         `${operationRef} wire-schema reference resolves through source tree`);
       assert.equal(wire.operationRef, operationRef);
       assert.equal(wire.operationKind, source.operationKind ?? source.ownerDefinition?.operationKind ?? source.operationKind);
-      if (wire.requestSchema.oneOf) assert.ok(wire.requestSchema.oneOf.every((branch) => branch.additionalProperties === false));
-      else assert.equal(wire.requestSchema.additionalProperties, false);
-      if (wire.resultSchema.oneOf) assert.ok(wire.resultSchema.oneOf.every((branch) => branch.additionalProperties === false));
-      else assert.equal(wire.resultSchema.additionalProperties, false);
+      if (wire.requestSchema.additionalProperties !== undefined) assert.equal(wire.requestSchema.additionalProperties, false, `${operationRef} request root must be closed`);
+      else if (wire.requestSchema.oneOf) assert.ok(wire.requestSchema.oneOf.every((branch) => branch.additionalProperties === false), `${operationRef} request alternatives must be closed`);
+      else assert.fail(`${operationRef} request has no closed root or alternatives`);
+      if (wire.resultSchema.oneOf) assert.ok(wire.resultSchema.oneOf.every((branch) => branch.additionalProperties === false), `${operationRef} result alternatives must be closed`);
+      else assert.equal(wire.resultSchema.additionalProperties, false, `${operationRef} result root must be closed`);
       assertPdpTruthDomainSchemaKeywords(ajv, wire.requestSchema);
       assertPdpTruthDomainSchemaKeywords(ajv, wire.resultSchema);
       const validateRequest = ajv.compile(wire.requestSchema);
-      let validRequest = example(wire.requestSchema);
-      if (wire.id === "media.operation-wire-schema.job-submit-v1") {
-        validRequest = {
-          operationRef: "media.operation.job.submit.v1", operationVersion: 1, capabilityRef: contract.records.find((row) => row.capabilityRef === "media.job.submit").capabilityRef,
-          requestId: "request-1", typedInputs: [example(contract.inputPayloadSchemas[0].schema)],
-          profile: { profileRef: "profile:v1", profileVersion: "1.0.0", configurationDigest: `sha256:${"a".repeat(64)}` },
-          fallbackPolicy: { mode: "DENY", alternatives: [] }, deadline: { maximumDurationMs: 60000 },
-          resourceBudget: { maximumInputBytes: 1048576, maximumOutputBytes: 1048576, maximumAttempts: 2, maximumCostUnits: 100 }, purpose: "requested job",
-        };
+      let validRequests = wire.requestSchema.oneOf
+        ? wire.requestSchema.oneOf.map((branch) => {
+          const branchSchema = { ...wire.requestSchema, ...branch };
+          branchSchema.required = [...new Set([...(wire.requestSchema.required ?? []), ...(branch.required ?? [])])];
+          delete branchSchema.oneOf;
+          return example(branchSchema);
+        })
+        : [example(wire.requestSchema)];
+      if (wire.operationRef === "media.operation.artifact.output.register.v1") {
+        for (const request of validRequests) {
+          request.sourceVersionRefs = ["artifact-version:source-1"];
+          request.originBinding = example(wire.requestSchema.properties.originBinding.oneOf[1]);
+        }
       }
-      assert.equal(validateRequest(validRequest), true, `${operationRef} request: ${ajv.errorsText(validateRequest.errors)}`);
-      assert.equal(validateRequest({ ...validRequest, tenantId: "caller-override" }), false, `${operationRef} rejects body tenant override`);
-      assert.equal(validateRequest({ ...validRequest, unrecognized: true }), false, `${operationRef} rejects unknown caller fields`);
+      if (wire.id === "media.operation-wire-schema.job-submit-v1") {
+        const imageCapability = contract.records.find((row) => row.capabilityRef === "media.generate.image.text-to-image");
+        validRequests = [{
+          operationRef: "media.operation.job.submit.v1", operationVersion: 1, capabilityRef: imageCapability.capabilityRef,
+          targetOperationRef: imageCapability.operationRefs[0],
+          targetOperationVersion: 1,
+          parameters: { outputWidth: 1024, outputHeight: 1024, outputProfileRef: "profile:1" },
+          requestId: "request-1", typedInputs: [example(contract.inputPayloadSchemas[0].schema)],
+          profile: { profileRef: "profile:v1", profileVersion: "1.0.0", profileVersionRef: "profile-version:v1", configurationDigest: `sha256:${"a".repeat(64)}` },
+          fallbackPolicy: { mode: "DENY", alternatives: [] }, deadline: { maximumDurationMs: 60000 },
+          resourceBudget: { maximumInputBytes: 1048576, maximumOutputBytes: 1048576, maximumAttempts: 2, maximumCostUnits: 100 }, purpose: "requested job", purposeRef: "purpose:requested-job",
+        }];
+      }
+      for (const [branchIndex, validRequest] of validRequests.entries()) {
+        assert.equal(validateRequest(validRequest), true, `${operationRef} request branch ${branchIndex}: ${ajv.errorsText(validateRequest.errors)}`);
+        assert.equal(validateRequest({ ...validRequest, tenantId: "caller-override" }), false, `${operationRef} rejects body tenant override`);
+        assert.equal(validateRequest({ ...validRequest, unrecognized: true }), false, `${operationRef} rejects unknown caller fields`);
+      }
+      if (wire.requestSchema.oneOf) {
+        const bothBranches = { ...validRequests[0], ...validRequests[1] };
+        assert.equal(validateRequest(bothBranches), false, `${operationRef} rejects a request satisfying multiple exclusive alternatives`);
+      }
       if (wire.requestHeadersSchema) {
         const validateHeaders = ajv.compile(wire.requestHeadersSchema);
         assert.equal(validateHeaders(example(wire.requestHeadersSchema)), true, `${operationRef} request headers validate`);
@@ -390,8 +439,8 @@ test("all 14 existing-operation capability bindings resolve to their exact sourc
         assert.equal(validateResult(success), true, `${operationRef} typed success: ${ajv.errorsText(validateResult.errors)}`);
         const rejected = example(wire.resultSchema.oneOf[1]);
         const unknown = example(wire.resultSchema.oneOf[2]);
-        assert.equal(validateResult(rejected), true, `${operationRef} rejection has no success output`);
-        assert.equal(validateResult(unknown), true, `${operationRef} unknown outcome has no success output`);
+        assert.equal(validateResult(rejected), true, `${operationRef} rejection has no success output: ${ajv.errorsText(validateResult.errors)}`);
+        assert.equal(validateResult(unknown), true, `${operationRef} unknown outcome has no success output: ${ajv.errorsText(validateResult.errors)}`);
         assert.equal(validateResult({ ...rejected, outputs: success.outputs }), false, `${operationRef} rejects finality/artifacts on REJECTED`);
         assert.equal(validateResult({ ...unknown, outputs: success.outputs }), false, `${operationRef} rejects finality/artifacts on UNKNOWN_OUTCOME`);
         assert.equal(validateResult({ ...success, outputs: [] }), false, `${operationRef} requires exact successful output cardinality`);

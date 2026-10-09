@@ -11,6 +11,8 @@ const file = ".product-experience/pdp-2-design-interface-system/localization-con
 const source = parse(readFileSync(resolve(root, file), "utf8"));
 const rule = source.ownerDefinedLocalizationRules.find(({ id }) => id === "media.localization.direction-and-reflow.v1");
 const norm = source.normativeRuleRecords.find(({ id }) => id === "media.p2.rule.localization-direction-and-reflow.v1");
+const fontRule = source.ownerDefinedLocalizationRules.find(({ id }) => id === "media.localization.font-fallback-shaping-and-license.v1");
+const fontNorm = source.normativeRuleRecords.find(({ id }) => id === "media.p2.rule.localization-font-fallback-shaping-and-license.v1");
 
 function resolveRef(ref) {
   const [path, pointer] = ref.split("#");
@@ -57,5 +59,35 @@ test("Media localization direction and reflow bind explicit RTL, canonical IDs, 
     const candidate = structuredClone(rule);
     mutate(candidate);
     assert.equal(complete(candidate), false, "missing or weakened locale/reflow predicates must fail");
+  }
+});
+
+function fontFallbackComplete(candidate) {
+  const ruleText = candidate?.rule ?? "";
+  return candidate?.id === "media.localization.font-fallback-shaping-and-license.v1"
+    && ["explicitly ordered", "locale/script-compatible", "grapheme clusters", "missing glyph", "license evidence", "exact font/version", "redistribution rights", "unknown, conflicting, or insufficient rights block"].every((fact) => ruleText.includes(fact))
+    && candidate.requiredEvidence?.includes("selectedFontIdentityAndVersion")
+    && candidate.requiredEvidence?.includes("exactLicenseEvidenceForBundledOrEmbeddedFont")
+    && candidate.negativeCases?.includes("grapheme-cluster-split")
+    && candidate.negativeCases?.includes("unknown-font-license-bundled")
+    && candidate.scopeStatus?.includes("legal review, actual font qualification, and runtime availability remain separate")
+    && fontNorm?.acceptanceEffect === "none"
+    && resolveRef(fontNorm.ruleRef)?.id === candidate.id;
+}
+
+test("font fallback, shaping, and license requirements fail closed when material safeguards are removed", () => {
+  assert.ok(fontRule);
+  assert.equal(fontFallbackComplete(fontRule), true);
+  for (const mutate of [
+    (x) => { x.rule = x.rule.replace("explicitly ordered", "implicitly selected"); },
+    (x) => { x.rule = x.rule.replace("grapheme clusters", "characters"); },
+    (x) => { x.rule = x.rule.replace("unknown, conflicting, or insufficient rights block that action", "rights are optional"); },
+    (x) => { x.requiredEvidence = x.requiredEvidence.filter((item) => item !== "exactLicenseEvidenceForBundledOrEmbeddedFont"); },
+    (x) => { x.negativeCases = x.negativeCases.filter((item) => item !== "unknown-font-license-bundled"); },
+    (x) => { x.scopeStatus = "font license and runtime are approved"; },
+  ]) {
+    const candidate = structuredClone(fontRule);
+    mutate(candidate);
+    assert.equal(fontFallbackComplete(candidate), false, "font availability, shaping, and license clauses are normative");
   }
 });

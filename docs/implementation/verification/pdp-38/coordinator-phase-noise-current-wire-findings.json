@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "media.pdp38-coordinator-material-observation.v1",
+  "observedAt": "2026-10-09T18:10:25.158828+00:00",
+  "status": "CORRECTED_ROLE_WITH_REMAINING_MATERIAL_WIRE_GAPS",
+  "decisionRef": ".product-experience/decision-log.md#PXD-117",
+  "sourceFingerprints": {
+    ".product-experience/pdp-1-domain-data/operations.yaml": "a28f0f01c3911e2fff12f0c00ad6ed22a55320da7a4f3acc22db2647a9fd8179"
+  },
+  "findings": [
+    {
+      "field": "capabilityOperationContracts.records/@id=media.operation.capability.media-master-audio-phase-noise-floor-analyze/successOutputs/0/payloadSchemaRef",
+      "observed": "media.typed-output.phase-noise-floor-measurement-record",
+      "actualOwnerSchemaId": "media.typed-output.phase-noise-floor-measurement.v1",
+      "effect": "Dangling exact output-schema join."
+    },
+    {
+      "field": "capabilityOperationContracts.outputPayloadSchemas/@id=media.typed-output.phase-noise-floor-measurement.v1",
+      "observedMetricRef": "media.metric.audio.phase-noise-floor",
+      "ownerMetricDefinitionId": "media.metric.phase-noise-floor.v1",
+      "effect": "The output metric reference and local owner metric identity differ."
+    },
+    {
+      "field": "capabilityOperationContracts.outputPayloadSchemas/@id=media.typed-output.phase-noise-floor-measurement.v1/metricDefinition/measurementScope",
+      "effect": "The source promises a recorded measurement window but its closed output payload has no window field."
+    }
+  ],
+  "boundary": "Current moving-source material inspection only, not a frozen approval. Source owner notified to close exact schema, metric identity and measurement-window meaning before renewed current criterion review."
+}

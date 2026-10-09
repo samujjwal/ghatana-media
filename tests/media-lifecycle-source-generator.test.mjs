@@ -29,7 +29,10 @@ function setFixtureCollection(document, collection, descriptor) {
     }
     const final = index === segments.length - 1;
     if (final) {
-      if (descriptor[7]) value[segment] ??= { [descriptor[5] ?? 'id']: `fixture.${collection.replaceAll('.', '-')}` };
+      if (descriptor[7]) {
+        value[segment] ??= {};
+        value[segment][descriptor[5] ?? 'id'] ??= `fixture.${collection.replaceAll('.', '-')}`;
+      }
       else value[segment] ??= [];
       continue;
     }
@@ -101,7 +104,7 @@ test('generator refuses duplicate source identities without modifying closure in
     const before = snapshot(f.root);
     const result = run(f.root);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /Duplicate enumerated source identity/u);
+    assert.match(result.stderr, /Duplicate enumerated source identity|SOURCE_ENUMERATION_DUPLICATE_OWNER/u);
     assert.deepEqual(snapshot(f.root), before);
   } finally { f.cleanup(); }
 });
@@ -148,7 +151,9 @@ test('check mode detects stale source fingerprints and output drift without writ
   const f = fixture();
   try {
     const source = phaseSourcePaths.find((sourcePath) => sourcePath.endsWith('/requirements.yaml'));
-    f.put(source, 'requirements:\n  - id: requirement.one\n');
+    const document = f.readSource(source);
+    document.requirements = [{ id: 'requirement.one' }];
+    f.writeSource(source, document);
     const generate = run(f.root);
     assert.equal(generate.status, 0, generate.stderr);
     const obligationPath = path.join(f.root, 'config/closure/media-product-definition/obligations.json');

@@ -26,7 +26,7 @@
       "claimId": "MPSEM-0187-C002",
       "sourcePath": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
       "historicalSourceFileSha256": "046932f222691ba17503d520d379df4eb390047eed9752093b8ae58879edd721",
-      "currentSourceFileSha256": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+      "currentSourceFileSha256": "2004b5fc9eed50260b2774a1d171fb0d95ceb258d7495dcec8d32972c9d7f6dd",
       "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#personAndIdentityInferenceRule",
       "historicalTargetValueSha256": "38bf5a4eecaade59696031fbd764da0f5e5671323b0a5538def50c7bb1223624",
       "currentTargetValueSha256": "6532821ab005fe93b1a2ead5ceb245c2ca617c93c6d08589a83ddee566481b0e",
@@ -56,6 +56,7 @@
   "nonClaims": [
     "No historical review artifact or ledger hash is refreshed",
     "No claim semantic status is promoted by this artifact",
-    "No runtime, legal, specialist, independent, or Lifecycle acceptance is implied"
+    "No runtime, legal, specialist, independent, or Lifecycle acceptance is implied",
+    "The separately observed current gpuSchedulerBoundary target is outside this frozen additive-impact artifact and remains unreviewed."
   ]
 }

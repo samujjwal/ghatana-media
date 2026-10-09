@@ -17,8 +17,110 @@ ownerDefinedIdentityReconciliation:
   requiredEvidence: [exact-existing-owner-identity-search, identity-kind-and-version, owner-source-reference, equivalence-or-distinction-rationale, external-schema-owner-when-applicable]
   negativeCases: [duplicate-alias-created-for-equivalent-authority, identifiers-conflated-by-similar-name, opaque-id-parsed-for-authorization, external-schema-copied-as-media-authority, identity-without-owner-or-version]
   scopeStatus: OWNER_DEFINED_IDENTITY_RECONCILIATION; serialization, wire compatibility, external owner acceptance, and runtime admission remain separate.
+ownerDefinedEphemeralAccessReferenceRule:
+  id: media.api.ephemeral-access-reference.v1
+  rule: >-
+    A signed or otherwise bearer access reference is a scoped, expiring access mechanism, not a durable artifact, project,
+    version, or operation identity. Bind it to the exact object version, tenant, authorized action, and expiry; recheck
+    current access and rights at use. Never serialize it as a canonical identity, persist it as a permanent locator, or
+    treat possession, content digest, or prior issuance as current authorization. Missing/expired/revoked scope fails closed.
+  requiredBindings: [canonicalObjectIdentity, immutableVersion, tenantScope, allowedAction, expiry, currentAccessRecheck]
+  negativeCases:
+    - signed_reference_used_after_expiry_or_revocation
+    - bearer_reference_persisted_as_durable_identifier
+    - signed_reference_reused_for_another_tenant_or_object_version
+    - possession_or_digest_treated_as_current_authorization
+  scopeStatus: OWNER_DEFINED_API_IDENTITY_AND_AUTHORITY_BOUNDARY; concrete wire issuance, key management, runtime admission, and security review remain NOT_ADMITTED.
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-download
+    - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/enforcementPoints/4
+ownerDefinedBinaryAndTextRequestBoundary:
+  id: media.api.binary-artifact-and-typed-text-boundary.v1
+  authority: Media owns artifact identity, governed binary access, import authority, and typed generation-request semantics.
+  binaryAccess:
+    rule: >-
+      Binary input and output bytes use a governed Media artifact/version access operation with current tenant, principal,
+      purpose, rights, and object-version checks. API bodies carry bounded typed artifact/version references or a separately
+      admitted upload stream; they do not accept arbitrary public URLs, server filesystem paths, raw S3/object-store keys, or
+      unbounded JSON/base64 media. A short-lived signed access reference may be issued only by the exact authorized download
+      contract, stays bound to one artifact version/action/expiry, and is not a durable identity or authorization grant.
+      Range or resumable download is available only where the bound transport and artifact contract declare it, with exact
+      byte-range and integrity semantics.
+    exactOperationRefs:
+      artifactDownload: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-artifact-download
+      artifactUploadBegin: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload
+      artifactUploadComplete: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload
+    negativeCases: [arbitrary-url-used-as-media-input,server-path-accepted-as-artifact-identity,raw-object-store-key-exposed-as-authority,unbounded-base64-media-body,range-support-inferred-without-transport-contract,signed-ref-reused-after-expiry-or-for-another-version]
+  externalImport:
+    rule: >-
+      External import is an explicit separate bounded operation with exact source identity, current source/use rights,
+      request authority, admission decision, byte/size/time limits, URL scheme/host/redirect policy, private/link-local and
+      metadata-service SSRF denial, DNS-rebinding-safe connection checks, and exact downloaded-content digest before artifact
+      registration. Import is not an implicit side effect of generation or artifact inspection; missing source or rights facts
+      deny the fetch before network access.
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.import.v1
+    negativeCases: [import-triggered-by-inspection-or-generation,missing-rights-fetched-before-denial,redirect-to-private-address,metadata-service-or-loopback-fetch,dns-rebinding-not-rechecked,unbounded-response-registered-as-artifact]
+  typedTextGeneration:
+    rule: >-
+      A pure text-to-media request supplies text through the exact typed text input schema and records its protected request
+      identity and purpose; it does not require a fabricated source media artifact. A protected request document may be
+      persisted only under the exact retention/privacy policy and is classified as request data, never as generated media
+      bytes, a source artifact, or an output version. Reference media is optional only where the exact leaf request schema
+      makes the reference slot optional; present references retain exact tenant and version scope.
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image
+    negativeCases: [text-request-forced-into-fake-media-artifact,request-document-registered-as-generated-image,untyped-free-form-body-substitutes-for-leaf-schema,optional-reference-treated-as-required-or-required-reference-dropped,protected-request-retained-without-policy]
+  status: OWNER_DEFINED_API_IDENTITY_AND_REQUEST_BOUNDARY; transport routes, storage implementation, import admission, and runtime remain NOT_ADMITTED.
+  acceptanceEffect: none
 normativeRuleRecords:
   - id: media.p2.rule.api-reconcile-existing-identities.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedIdentityReconciliation
     sourceAuthority: .product-experience/pdp-0-product-truth/glossary.yaml
     acceptanceEffect: none
+  - id: media.p2.rule.api-ephemeral-access-reference.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedEphemeralAccessReferenceRule
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedIdentityReconciliation
+    acceptanceEffect: none
+  - id: media.p2.rule.api-binary-and-typed-text-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedBinaryAndTextRequestBoundary
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedIdentityReconciliation
+    acceptanceEffect: none
+  - id: media.p2.rule.package-coordinate-boundary.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/identifiers.yaml#ownerDefinedPackageCoordinateBoundary
+    sourceAuthority: .product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary
+    acceptanceEffect: none
+ownerDefinedPackageCoordinateBoundary:
+  id: media.api.package-coordinate-boundary.v1
+  authority: Media API identity and interoperability definition; publication remains a separate owner gate
+  observedCurrentCoordinates:
+    javaNamespacePrefix: com.ghatana.media.*
+    typescriptPackages:
+      - package: '@audio-video/client'
+        manifest: libs/audio-video-client/package.json
+        version: 0.1.0-SNAPSHOT
+      - package: '@audio-video/types'
+        manifest: libs/audio-video-types/package.json
+        version: 0.1.0-SNAPSHOT
+  rule: >-
+    Preserve the observed `com.ghatana.media.*` Java namespace and the exact
+    existing TypeScript package coordinates during repository relocation unless
+    a separately reviewed compatibility map identifies each changed package,
+    symbol, export, and consumer migration. A proposal such as
+    `com.ghatana.media:*` or an approved future Media TypeScript coordinate is
+    not evidence that such a release coordinate exists. Do not invent a Maven
+    artifact, rename a package, or claim publication, API stability, consumer
+    isolation, compatibility, or approval from a namespace, source directory,
+    or package manifest alone.
+  exactSourceRefs:
+    - .product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary
+    - runtime-contracts/src/main/java/com/ghatana/media
+  requiredEvidence:
+    - observed source namespace and exact package manifest/export map
+    - immutable published artifact and version before public-consumption claims
+    - exact compatibility map and consumer migration for any coordinate change
+  negativeCases:
+    - invent a Maven artifact coordinate from the Java namespace
+    - treat a snapshot package manifest as an immutable public release
+    - silently rename package/export identities during relocation
+    - infer downstream consumer compatibility or isolation from repository presence
+  scopeStatus: OWNER_DEFINED_COORDINATE_PRESERVATION; package publication and
+    external consumer acceptance remain unverified

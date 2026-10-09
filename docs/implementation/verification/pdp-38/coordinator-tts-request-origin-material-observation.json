@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "media.pdp38-coordinator-material-observation.v1",
+  "observedAt": "2026-10-09T18:05:16.954458+00:00",
+  "status": "MATERIAL_CORRECTIONS_REQUIRED_NOT_APPROVED",
+  "sourceFingerprints": {
+    "scripts/lib/pdp-tts-request-origin-binding.mjs": "cd919706accd727462889df2e720176bba30ff13b8e4d02b4f0c51ed731482df",
+    "tests/pdp-tts-request-origin-binding.test.mjs": "51cb5c7bf9cfd4c1d2ae06564c76695f3299737d287bf78ff51786fa8da98a30"
+  },
+  "method": "Coordinator read of helper and independent adversarial mutations using the owner positive fixture. This is a moving-source observation, not a frozen acceptance cut.",
+  "probes": [
+    {
+      "name": "foreign-registration-identity",
+      "result": {
+        "status": "VALID_DEFINITIONAL_BINDING",
+        "originKind": "HYBRID",
+        "outputArtifactVersion": {
+          "artifactId": "foreign-artifact",
+          "versionId": "foreign-version"
+        },
+        "runtimeAdmission": "NOT_ADMITTED"
+      }
+    },
+    {
+      "name": "missing-output-rights-consent",
+      "result": {
+        "status": "VALID_DEFINITIONAL_BINDING",
+        "originKind": "HYBRID",
+        "outputArtifactVersion": {
+          "artifactId": "speech-1",
+          "versionId": "v1"
+        },
+        "runtimeAdmission": "NOT_ADMITTED"
+      }
+    },
+    {
+      "name": "ancient-current-read",
+      "result": {
+        "status": "VALID_DEFINITIONAL_BINDING",
+        "originKind": "HYBRID",
+        "outputArtifactVersion": {
+          "artifactId": "speech-1",
+          "versionId": "v1"
+        },
+        "runtimeAdmission": "NOT_ADMITTED"
+      }
+    }
+  ],
+  "requiredCorrections": [
+    "Authoritative registration receipt tuple bound to trusted tenant, principal, artifact/version, authority/read version and current observation.",
+    "Exact per-effect speaker rights and consent plus output rights provenance remain required in the hybrid branch.",
+    "Policy-bound freshness for current owner read evidence; immutable accepted request age remains a separate matter."
+  ],
+  "boundary": "No whole-task criterion, independent acceptance, runtime admission, or Lifecycle receipt is issued."
+}

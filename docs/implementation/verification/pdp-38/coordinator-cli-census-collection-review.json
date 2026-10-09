@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "media.pdp38-census-owner-collection-review.v1",
+  "observedAt": "2026-10-09T18:06:35.934539+00:00",
+  "status": "SOURCE_COLLECTION_REGISTERED",
+  "sourceFingerprints": {
+    "scripts/lib/media-obligation-denominator-audit.mjs": "2cd6994287b54e391a346cdf8755dae303843996317d16d9584cd8ac347163f1",
+    "tests/media-obligation-owner-rule-index.test.mjs": "2199c9a3b29800191a5cdc0d67bf46f5c4877e7a4e319c16a5436da6fc3d25ef",
+    ".product-experience/pdp-2-design-interface-system/cli-language.yaml": "7edf17f4b10bcdf7ee4db178e0945a4839b6e1478ec9b6f24646d9aadec52743"
+  },
+  "collection": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedCanonicalCommandContracts/contracts",
+  "meaning": "Each exact source-owned command contract is a PDP-2 obligation. Unbound migration metadata does not become a completed command contract. Existing normative index IDs and pointers remain preserved.",
+  "focusedVerification": {
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "logPath": "/tmp/pdp38-cli-owner-index-focused.log",
+    "logSha256": "c1ca9ecb896e9db5e7cbcc1cd7f6b5f32452716ca9b7c95b093e932c55d6e2f6"
+  },
+  "liveAuditVerification": {
+    "tests": 15,
+    "passed": 12,
+    "failed": 3,
+    "logPath": "/tmp/pdp38-cli-census-tests.log",
+    "status": "FAILED_PERSISTED_SOURCE_VIEWS_NOT_REGENERATED",
+    "details": [
+      "Persisted6943 obligations differ from current8557 observed in this run.",
+      "Historical operation reconciliation count1405 differs from new1425.",
+      "Missing-digest fixture expects a prior denominator."
+    ]
+  },
+  "boundary": "Collection enumeration only. CLI command meaning, source completeness, independent acceptance and Lifecycle receipts are not approved. Final census is regenerated only from a stable reviewed source cut."
+}

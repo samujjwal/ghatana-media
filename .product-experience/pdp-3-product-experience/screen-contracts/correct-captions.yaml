@@ -4,73 +4,196 @@ surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
 templateId: media.gui.template.workbench
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.media-workbench]
+layoutIds:
+  - media.gui.layout.media-workbench
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.source-player, media.component.caption-track-editor, media.component.transcript-review]
-componentBindingStatus: Media-owned caption editing composition selected from source playback, typed segment/timing/text draft, and transcript context; renderer and acceptance pending
+componentIds:
+  - media.component.source-player
+  - media.component.caption-track-editor
+  - media.component.transcript-review
+componentBindingStatus: Media-owned caption editing composition selected from
+  source playback, typed segment/timing/text draft, and transcript context;
+  renderer and acceptance pending
 patternIds:
   - media.gui.pattern.caption-editor
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version, media.domain.transcription]
+domainObjectRefs:
+  - media.domain.artifact-version
+  - media.domain.transcript-version
+  - media.domain.caption-version
+  - media.domain.transcription
 domainObjectBindingStatus: pending-canonical-domain-object-binding
-operationRefs: [media.operation.caption-draft-write, media.operation.caption-version-write]
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+operationRefs:
+  - media.operation.caption-draft-write
+  - media.operation.caption-version-write
+requirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationBindingStatus: pending-canonical-operation-binding
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
 entry:
-  - exact-media.operation.transcript-version-read-result-from-J03-4-with-transcriptVersionId-and-linked-sourceArtifactId/sourceArtifactVersionId; current scoped source-read authority was checked
-  - host rechecks current derived-edit policy and trusted tenant/principal/activeSessionId; bind typed parent identity to the exact transcriptVersionId
-  - prepare opaque session-bound draftId at revision zero only from faithful ordered segments with stable nonempty unique IDs and explicit availability; absent/unfaithful segments block with DRAFT_INITIALIZATION_BLOCKED unless the user explicitly authors stable IDs/text under the same policy
-  - preserve each segment's exact tagged timing union; never infer IDs, segments, language, speaker, clock, or timing; this host-local preparation is not a new operation or persisted object
-  - existing editor caption-parent entry may use only an already prepared exact source/typed-parent value after the same current read/edit policy and trusted session checks
+  - "The caller must satisfy the exact screen context and subject scope in this
+    contract: edit caption text or source timing in a draft derived from one
+    exact source version."
+  - Before the corresponding action, require the source-defined guard
+    “exact-source-and-typed-parent-readable”; absent or stale context leaves the
+    action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-scoped-source-read-and-derived-edit-authority”; absent or stale
+    context leaves the action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “expected-session-draft-revision”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “exact-source-version-readable”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “authoritative-exact-source-clock-rate-and-duration”; absent or stale
+    context leaves the action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-scoped-derived-edit-authority”; absent or stale context leaves the
+    action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “explicit-user-tick-values”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “local-caption-draft-and-newer-caption-version-exist”; absent or stale
+    context leaves the action unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-edit-authority”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “caption-draft-valid”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “parent-source-current”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-commit-authority”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “rights-and-retention-rechecked”; absent or stale context leaves the action
+    unavailable.
 entryBindingStatus: definition-source-bound; runtime-admission-pending
-exit: []
+exit:
+  - "media.action.correct-caption: one-session-local-draft-revision-only;
+    no-registration-approval-or-publication.
+    preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict"
+  - "media.action.align-caption-timing: one-session-local-draft-revision-only;
+    manual-user-edit-not-forced-alignment-output;
+    no-registration-approval-or-publication.
+    retain-prior-draft-and-require-authoritative-clock-and-in-range-explicit-ti\
+    cks"
+  - "media.action.resolve-caption-conflict: local-draft-resolution-only.
+    preserve-local-edits-and-both-competing-versions"
+  - "media.action.save-caption-version: internal-version-registration-only;
+    no-delivery-or-publication.
+    keep-draft-and-report-whether-registration-finality-is-known"
+  - A local or read-only result does not imply a domain transition; an unknown
+    owner outcome stays UNKNOWN and retains the exact subject for
+    reconciliation.
 exitBindingStatus: pending-canonical-exit-condition-binding
 actionConsequences:
   - actionId: media.action.correct-caption
-    capabilityRefs: [media.artifact.derive]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-068; runtime-admission-pending
+    capabilityRefs:
+      - media.artifact.derive
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.caption-draft-write
-    effectRef: null
-    consequence: explicit text-only correction to one segment in an exact-source session-local draft; preserve unavailable timing and uncertainty
-    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
+    operationRefs:
+      - media.operation.caption-draft-write
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.correct-caption/actionDefinitionSemantics/typedDefinition
+    consequence: apply-an-explicit-text-only-edit-to-one-existing-segment-in-a-session-local-draft-derived-from-the-exact-immutable-source-and-typed-parent
+    finality: one-session-local-draft-revision-only;
+      no-registration-approval-or-publication
+    reversibilityDisposition: CONDITIONAL
+    guardRefs:
+      - exact-source-and-typed-parent-readable
+      - current-scoped-source-read-and-derived-edit-authority
+      - expected-session-draft-revision
+    failureRecovery: preserve-prior-draft-snapshot-on-denial-stale-parent-or-revision-conflict
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.align-caption-timing
-    capabilityRefs: [media.artifact.derive]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-068/PXD-069; runtime-admission-pending
+    capabilityRefs:
+      - media.artifact.derive
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.caption-draft-write
-    effectRef: null
-    consequence: explicit user-entered source-clock tick edit to one session-local draft revision; no forced-alignment output or scientific timing claim
-    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
+    operationRefs:
+      - media.operation.caption-draft-write
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.align-caption-timing/actionDefinitionSemantics/typedDefinition
+    consequence: apply-explicit-user-entered-half-open-source-tick-values-to-one-segment-of-the-session-local-caption-draft
+    finality: one-session-local-draft-revision-only;
+      manual-user-edit-not-forced-alignment-output;
+      no-registration-approval-or-publication
+    reversibilityDisposition: CONDITIONAL
+    guardRefs:
+      - exact-source-version-readable
+      - authoritative-exact-source-clock-rate-and-duration
+      - current-scoped-derived-edit-authority
+      - explicit-user-tick-values
+      - expected-session-draft-revision
+    failureRecovery: retain-prior-draft-and-require-authoritative-clock-and-in-range-explicit-ticks
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.resolve-caption-conflict
-    capabilityRefs: [media.artifact.derive]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.artifact.derive
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    operationRefs: []
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resolve-caption-conflict/actionDefinitionSemantics/typedDefinition
+    consequence: explicitly-keep-local-edits-on-the-new-parent-or-replace-them-with-the-newer-version
+    finality: local-draft-resolution-only
+    reversibilityDisposition: UNKNOWN
+    guardRefs:
+      - local-caption-draft-and-newer-caption-version-exist
+      - current-edit-authority
+    failureRecovery: preserve-local-edits-and-both-competing-versions
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.save-caption-version
-    capabilityRefs: [media.artifact.output.register]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending
+    capabilityRefs:
+      - media.artifact.output.register
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.caption-version-write
-    effectRef: media.effect.register-caption-version
-    consequence: register-a-new-immutable-caption-version-against-the-exact-source-version-and-typed-parent; provenance-is-registration-metadata-not-an-export; no-approval-publication-or-delivery
-    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
+    operationRefs:
+      - media.operation.caption-version-write
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-caption-version/actionDefinitionSemantics/typedDefinition
+    consequence: append-a-new-immutable-caption-version-with-exact-parent-and-required-registration-provenance-metadata;
+      no-provenance-export
+    finality: internal-version-registration-only; no-delivery-or-publication
+    reversibilityDisposition: NOT_REVERSIBLE
+    guardRefs:
+      - caption-draft-valid
+      - parent-source-current
+      - current-commit-authority
+      - rights-and-retention-rechecked
+    failureRecovery: keep-draft-and-report-whether-registration-finality-is-known
+    status: Media-owner-definition; runtime NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
 responsiveBehavior:
   ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
   status: proposal-unverified
   screenOverrides: []
 fixtures:
-  refs: [media.scenario.alignment-required, media.scenario.caption-corrected, media.scenario.caption-conflict]
-  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+  refs:
+    - media.scenario.alignment-required
+    - media.scenario.caption-corrected
+    - media.scenario.caption-conflict
+  status: linked-to-deterministic-simulation-seeds;
+    owner-review-and-behavior-verification-pending
 verification:
   status: not-run
   evidenceRefs: []
@@ -85,7 +208,8 @@ fieldBindingStatus:
   surfaceId: candidate-pending-acceptance
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
+  componentIds: exact-selected-Media-component-composition;
+    renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy-PDP-2-acceptance-pending
   tokenDependencies: pending
   domainObjectRefs: pending
@@ -103,33 +227,37 @@ screenId: media.view.correct-captions
 status: proposal; content-version-and-rights-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.edit
-purpose: edit caption text or source timing in a draft derived from one exact source version
+purpose: edit caption text or source timing in a draft derived from one exact
+  source version
 contextGoalNowNext:
-  context: Source version, transcript version, caption draft version, selected segment, and current consent state.
+  context: Source version, transcript version, caption draft version, selected
+    segment, and current consent state.
   goal: Correct caption content and alignment without overwriting source media.
-  now: Show each caption's text, language, exact time range, and alignment disposition.
-  next: Save a draft, compare it, or register a new immutable caption version if permitted.
+  now: Show each caption's text, language, exact time range, and alignment
+    disposition.
+  next: Save a draft, compare it, or register a new immutable caption version if
+    permitted.
 anatomy:
-- source-player
-- caption-segment-list
-- timing-editor
-- text-editor
-- draft-status
-- save-version-action
+  - source-player
+  - caption-segment-list
+  - timing-editor
+  - text-editor
+  - draft-status
+  - save-version-action
 states:
-- draft
-- needs-alignment
-- conflict
-- read-only
-- consent-revoked
+  - draft
+  - needs-alignment
+  - conflict
+  - read-only
+  - consent-revoked
 actions:
-- media.action.correct-caption
-- media.action.align-caption-timing
-- media.action.resolve-caption-conflict
-- media.action.save-caption-version
+  - media.action.correct-caption
+  - media.action.align-caption-timing
+  - media.action.resolve-caption-conflict
+  - media.action.save-caption-version
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -156,11 +284,11 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
 journeyDefinitionBindings:
@@ -170,7 +298,20 @@ journeyDefinitionBindings:
   grammarDecisionRef: .product-experience/decision-log.md#PXD-059
   runtimeAdmission: NOT_ADMITTED
   applicability: required-J03-step-J03-7
-  operationRefs: [media.operation.caption-draft-write, media.operation.caption-version-write]
-  domainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version, media.domain.caption-version]
+  operationRefs:
+    - media.operation.caption-draft-write
+    - media.operation.caption-version-write
+  domainObjectRefs:
+    - media.domain.artifact-version
+    - media.domain.transcript-version
+    - media.domain.caption-version
   stateRefs: []
-  semanticBoundary: Append-only immutable registration with same-request receipt reconciliation; registration is not approval, export, publication, or delivery.
+  semanticBoundary: Append-only immutable registration with same-request receipt
+    reconciliation; registration is not approval, export, publication, or
+    delivery.
+authorityRefs: []
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.correct-caption/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.align-caption-timing/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resolve-caption-conflict/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-caption-version/actionDefinitionSemantics/typedDefinition

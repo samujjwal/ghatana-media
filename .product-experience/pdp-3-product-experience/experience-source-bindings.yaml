@@ -79,7 +79,7 @@ scenarioStartingStateBindings:
     rationale: The exact outcome-check fixture records job state COMPLETED and finality CONFIRMED after checking the same job.
 scenarioStartingContextBindings:
   status: OWNER_DEFINED_LOCAL_SCENARIO_CONTEXTS; NO_CANONICAL_STATE_INFERENCE
-  decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+  decisionRef: .product-experience/decision-log.md#PXD-119
   runtimeAdmission: NOT_ADMITTED
   records:
     - id: media.pdp3.scenario-context.upload-interrupted.v1

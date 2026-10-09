@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "media.pdp38.offline-material-review.v1",
+  "observedAt": "2026-10-09T17:41:00.299652+00:00",
+  "sourceFiles": {
+    "scripts/lib/pdp-offline-entitlement-definition.mjs": "9977ab31ee445d8291d4b74bf377014e0360027cdbd3ffd39f46a5d4b33e12b0",
+    "tests/pdp-truth-domain-policy-fallback-offline.test.mjs": "e7032ddbdfa8ed32a687633914bc3a5dd8b99112971df30d94800b5ca8f350ed",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "0e45d566ecd3734dbb8f450a796f23b15aea855c2943e57b9be7ea0d4843ec04"
+  },
+  "sourceDrift": [],
+  "status": "BOUNDED_DEFINITION_REVIEW_ONLY",
+  "reviewedPredicates": [
+    "Complete unique operation set equals trusted authority set, with order independence.",
+    "Interval bounds equal trusted authority observation and require canonical millisecond UTC instants.",
+    "Tenant/principal/issuer/capability/profile/version/purpose/entitlement/version/policy/read authority/version/currentness/revocation match trusted observation.",
+    "Requested operation is in that exact set; expiry is exclusive and malformed intervals remain UNKNOWN."
+  ],
+  "verification": {
+    "pass": 2,
+    "fail": 0,
+    "logSha256": "b07498733caa414e5aba87f9100c2fc41c4b4779aaf1131768312c2871b2732a"
+  },
+  "limits": [
+    "Host-attested expected observation is a definition input, not authenticated deployed owner admission.",
+    "No offline runtime entitlement is issued or exercised.",
+    "No complete task, migration cohort, independent acceptance or Lifecycle receipt is approved."
+  ]
+}

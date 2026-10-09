@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "media.pdp38.coordinator-material-findings.v1",
+  "observedAtUtc": "2026-10-09T16:03:34Z",
+  "publishedBaseSha": "f9b4df6139ce6d5a3d886a00aa0785547ed8ab5a",
+  "reviewerRole": "USER_DELEGATED_MEDIA_SEMANTIC_OWNER_COORDINATOR",
+  "boundary": "Review observations against exact captured candidate bytes. Corrections may already be in progress; no candidate is promoted and no independent specialist or Lifecycle acceptance is asserted. Follow-up must compare corrected meaning, not merely refresh hashes.",
+  "candidateFileFingerprints": {
+    "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json": "92ff8f9c7b1c59c66557152b30d9656ab9f40515c9292051bae92758cbcd96b4",
+    "docs/implementation/verification/pdp-38/migration-capability-owner-candidate-163.json": "0e221cbff90df7884513b52d189311e40f8fc0329c64ed5f6cb5ea2428eca449"
+  },
+  "findings": [
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0034-C004",
+      "exactSourceText": "reuse cannot ignore current authorization or policy.",
+      "candidateRecordSha256": "920640c5ab30702951600e9d1c65c83d72a4376424bb643fc7bb7168973e2b39",
+      "materialFinding": "Lifecycle separation does not establish current authorization and policy on reuse.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0026-C003",
+      "exactSourceText": "Inventory and preserve this worker, Office/PDF/OCR paths, and its consumers",
+      "candidateRecordSha256": "bf18bd904d57c4073d670c3783edfbab6877bd8ef4444f4ccc5af3ed27cff30a",
+      "materialFinding": "Generic document-service ownership does not preserve the distinct worker, Office/PDF/OCR inventory, cancellation and admission boundary.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0028-C004",
+      "exactSourceText": "Perform dependency-closure analysis, isolated packaging tests, and owner-approved extraction or public integration.",
+      "candidateRecordSha256": "9b362c4ffd91707de367967b6378fd37bf363e0096cd2893924cddcbb07f5deb",
+      "materialFinding": "Dependency closure warning does not define isolated packaging tests and owner-approved extraction/public integration.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0060-C001",
+      "exactSourceText": "Version schemas and public contracts as needed.",
+      "candidateRecordSha256": "d6084348f661416ac30fd3ecbbb5cf546bc17cc4c665eda0ab370684689baac2",
+      "materialFinding": "Frozen contract ownership does not define schema/public-contract versioning.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0453-C001",
+      "exactSourceText": "Use Shared localization and formatting.",
+      "candidateRecordSha256": "43c018744d7d9909f60659d7e56570a0d70a3bd8bffad43eaec16f4e59d18114",
+      "materialFinding": "Tools ExperienceLanguage is not Shared localization and formatting.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0457-C001",
+      "exactSourceText": "For each selected release record source/version/digest, license expression and files, notices, modification/distribution mode, transitive/native dependencies, compiler/build flags, codecs, plugins, model weights, datasets, fonts/textures/audio assets, patent/trademark concerns, security advisories, supported platforms and replacement path.",
+      "candidateRecordSha256": "7ad8ed78e6779e4fd7ca6603a53be647d9b1dc62e1e79ccb8d64525befd98c30",
+      "materialFinding": "Three general supply-chain references do not cover the full selected-release evidence inventory.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0461-C001",
+      "exactSourceText": "Use available portfolio/build tooling for lockfiles, SBOM, license checks, security scanning and artifact publication",
+      "candidateRecordSha256": "63a79f52de13e5aa7e256efd5064f5562a9a243eb5f85e79012f68cbfbb4fb9c",
+      "materialFinding": "Immutable pinning and reproducible build gates do not establish reuse of the available owner portfolio/build tooling.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0451-C001",
+      "exactSourceText": "Target WCAG 2.2 AA for supported Web processes and assess media-authoring/output accessibility separately [W04].",
+      "candidateRecordSha256": "6d74d5027980a4644bc4516f21cdb564ceb9ad6df955bbd4ac2499f7171f455f",
+      "materialFinding": "Text spacing alone does not state WCAG 2.2 AA target and separate media-authoring/output accessibility scope.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0334-C004",
+      "exactSourceText": "protect against overwrite, traversal and symlink surprises.",
+      "candidateRecordSha256": "caed0ed63f77ae6b0525e41cf88986bb5eec3bfcdd95a554e3371f0b57f94be0",
+      "materialFinding": "Decompression bounds do not establish destination overwrite protection; traversal and symlink scope must be explicit.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0348-C001",
+      "exactSourceText": "Version or idempotency conflict |",
+      "candidateRecordSha256": "2704bfef85b0b433e1f60ee2c02e162ea3e8a01ac572f630465c1c010a5adb60",
+      "materialFinding": "Version conflicts do not cover same idempotency key with different request fingerprints.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0271-C003",
+      "exactSourceText": "Decoder/library versions and encoder threading may matter.",
+      "candidateRecordSha256": "09355fb3dd3ca85544961dac769c7803ee0e95acf5cea83a9636015486d120af",
+      "materialFinding": "Codec build flags do not by themselves bind execution threading and decoder/library determinism context.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0369-C003",
+      "exactSourceText": "Audit records contain necessary protected identity and product facts, not raw operational logs.",
+      "candidateRecordSha256": "9bad90df9162dd6a0125cc3566359f04e67ad087e66451da9eb43b63cc961c79",
+      "materialFinding": "Operational metric redaction does not define protected audit identity/product facts versus raw operational logs.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0373-C003",
+      "exactSourceText": "Stale workers cannot commit progress, register canonical output or publish finality.",
+      "candidateRecordSha256": "810d583d3b3daa4341fa1d6334a687062f07873e35e165cb306b0ff4fccfc091",
+      "materialFinding": "Progress fencing must independently cover canonical output registration and finality publication.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "truth199",
+      "claimId": "MPSEM-0213-C003",
+      "exactSourceText": "Native/Python/Rust/WASM engines run in qualified workers",
+      "candidateRecordSha256": "62835a4fe623ebd56b69b05a1d066caa9a598fb424cc856ef411b80d0acb76f8",
+      "materialFinding": "Worker isolation does not define exact native/Python/Rust/WASM qualification envelope.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0459-C004",
+      "exactSourceText": "add a second only for a demonstrated quality, locality, hardware, interoperability or resilience need.",
+      "candidateRecordSha256": "8d69de7f67638bfedb27b1c2f06d8aa86f81b159f4592a47e9c316b5860ac51f",
+      "materialFinding": "Separately qualified alternative profile needs the original demonstrated quality/locality/hardware/interoperability/resilience reason gate.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0461-C003",
+      "exactSourceText": "Pin runtimes/dependencies and validate updates before promotion.",
+      "candidateRecordSha256": "5e7790ea954399f7636d61a3d321667fa34f7cd477345d184e8a3032e9dc306a",
+      "materialFinding": "Immutable pinning must also bind validation before promotion.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0457-C002",
+      "exactSourceText": "Produce SBOM, attribution and redistribution/source-offer material where required.",
+      "candidateRecordSha256": "fb33b64c91238eda8f9c3cb782880dfb11b837cb68d9bee19a8f01eeebb965e7",
+      "materialFinding": "SBOM/attribution/redistribution requirements must include applicable source-offer material.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0387-C003",
+      "exactSourceText": "Preserve existing owner-approved bounded worker paths, such as document intelligence, within their published restrictions [R15]",
+      "candidateRecordSha256": "50229a91284790335596cc2dd0469f188f9677366029ae234b1c03d78a07aee6",
+      "materialFinding": "Scene/temporal API ownership does not establish bounded worker preservation under published cancellation/admission restrictions.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0080-C001",
+      "exactSourceText": "Advanced fluids, long-form generation, scientific models and spatial workflows remain specified.",
+      "candidateRecordSha256": "492c46accee0123aea28bb529de97a56a59e7935136202ac2f27ddc293c6142f",
+      "materialFinding": "Video generation family presence does not establish long-form generation scope and bounded duration semantics.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0193-C003",
+      "exactSourceText": "Image/video generations can start from text without an existing binary input artifact",
+      "candidateRecordSha256": "d907ed2e7bbfd1b098759a23b31e561ef1b0a2badaba6fd0046c9751b2de9202",
+      "materialFinding": "Both text-to-image and text-to-video must permit text without mandatory binary references, verified against required fields.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    },
+    {
+      "cohort": "design163",
+      "claimId": "MPSEM-0101-C002",
+      "exactSourceText": "Preserve their document-extraction integration",
+      "candidateRecordSha256": "1974a60335cf74c460b946a41278944a3715137499e505c57f69c73f705fc46b",
+      "materialFinding": "Preserved document-extraction consumers must not be silently reduced to scene/temporal recognition scope.",
+      "disposition": "CORRECTION_REQUIRED_AT_REVIEW_OBSERVATION",
+      "resolution": "NOT_EVALUATED_AFTER_AGENT_CORRECTION",
+      "acceptanceEffect": "none"
+    }
+  ]
+}

@@ -74,6 +74,40 @@ rules:
   - Keep recovery available from every job state; never route OUTCOME_UNKNOWN to a new submission.
   - Back navigation returns to the prior view and position without committing a draft or changing source media.
 informationArchitecture:
+  normativeRuleRecords:
+    - id: media.navigation.default-global-and-utility-placement.v1
+      authority: user-delegated-Media-experience-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+      scope: default-product-navigation-placement
+      primaryNavigation:
+        - media.navigation.destination.home
+        - media.navigation.destination.projects
+        - media.navigation.destination.assets
+        - media.navigation.destination.activity
+      utilityNavigation:
+        - media.navigation.utility.settings
+        - media.navigation.utility.account
+        - media.navigation.utility.help
+      rule: The default global primary navigation provides Home, Projects, Assets, and Activity as stable product destinations. Settings, Account, and Help are utility destinations, not project-work destinations. Responsive presentation may change arrangement but must preserve the destination identities and distinguish utility from work navigation.
+      guardrails:
+        - Navigation destinations do not imply access to protected project or asset records; each destination loads only after its own current authorization check.
+        - Provider, model, codec, and runtime catalogs are not global navigation destinations in the ordinary product path.
+        - Navigation changes route and view context only; it does not submit, cancel, retry, publish, or mutate a Media operation.
+        - Host-provided identity and workspace selection remain separate from navigation and are not inferred from the chosen destination.
+      guardrailIds:
+        - media.navigation.guard.authorization-before-protected-load
+        - media.navigation.guard.no-provider-global-destination
+        - media.navigation.guard.navigation-does-not-dispatch
+        - media.navigation.guard.identity-and-workspace-are-separate
+      sourceRefs:
+        - .product-experience/pdp-3-product-experience/navigation-contracts.yaml#entryPoints
+        - .product-experience/pdp-3-product-experience/navigation-contracts.yaml#rules
+        - .product-experience/pdp-0-product-truth/domain-model.yaml#productBoundary
+      negativeCases:
+        - Do not place provider or model selection in the default primary navigation.
+        - Do not classify Settings, Account, or Help as project-work destinations.
+        - Do not reveal projects or assets from navigation presence or route selection alone.
+        - Do not treat navigation as authorization or as an operation dispatch.
+      status: MEDIA_OWNER_DEFINITION_ONLY; independent-PDP3-review-open; runtime-NOT_ADMITTED
   ordinaryPathProviderSelection:
     id: media.navigation.ordinary-path-provider-boundary.v1
     authority: user-delegated-Media-experience-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS

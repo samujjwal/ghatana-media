@@ -83,7 +83,7 @@ for journey in D['journeys']:
    step['canonicalOperationRefs']=[]
    step['operationKinds']=[]
    step['runtimeAdmission']='NOT_ADMITTED'
-   step['decisionRef']='.product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE'
+   step['decisionRef']='.product-experience/decision-log.md#PXD-119'
   if not step.get('actionRef') and sid in NO_ACTION_QUERY:
    op,kind,obj,states,auth,req=NO_ACTION_QUERY[sid]
    step['semanticRole']='PASSIVE_QUERY'
@@ -93,7 +93,7 @@ for journey in D['journeys']:
    step['recovery']='repeat the same scoped query under current identity and authority; preserve request/query identity and label unavailable or stale results honestly'
    step['canonicalOperationRefs']=[op]; step['operationKinds']=[kind]; step['runtimeAdmission']='NOT_ADMITTED'
    step['canonicalObjectRefs']=[obj]; step['canonicalStateRefs']=states; step['canonicalAuthorityRefs']=auth; step['requirementRefs']=req
-   step['decisionRef']='.product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE'
+   step['decisionRef']='.product-experience/decision-log.md#PXD-119'
 
   action=actions.get(step.get('actionRef')) if step.get('actionRef') else None
   sem=((action or {}).get('actionDefinitionSemantics') or {}).get('typedDefinition') or {}

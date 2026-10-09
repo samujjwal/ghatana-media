@@ -14,6 +14,11 @@ const [fragment, baseline, reuse, time, qualification, glossary, navigation] = a
   readFile('.product-experience/pdp-0-product-truth/glossary.yaml', 'utf8').then(yaml.parse),
   readFile('.product-experience/pdp-3-product-experience/navigation-contracts.yaml', 'utf8').then(yaml.parse),
 ]);
+const policyPath = ".product-experience/pdp-0-product-truth/policy-authority-model.yaml";
+const frozenDeltas = JSON.parse(await readFile("docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json", "utf8"));
+const policyAuthority = await readFile(policyPath, "utf8").then(yaml.parse);
+const historicalPolicyText = await import("node:child_process").then(({ execFileSync }) => execFileSync("git", ["show", `${frozenDeltas.priorSourceCommit}:${policyPath}`], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 }));
+const historicalPolicy = yaml.parse(historicalPolicyText);
 const hash = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 test('Tools development workflow migration claim routes to exact Media execution boundary', () => {
@@ -82,6 +87,30 @@ test('untrusted decoder and executable isolation claim routes to the exact secur
   assert.match(qualificationPolicy, /restricted network egress/u);
   assert.match(record.negativeCases.join(' '), /does not establish.*admitted or qualified/u);
   assert.equal(record.acceptanceEffect, 'none');
+});
+
+test("PXD-100 browser/local-worker rule is a single additive current source delta", async () => {
+  const impact = frozenDeltas.records.find(({ claimId }) => claimId === "MPSEM-0388-C005");
+  const current = policyAuthority.productPolicy.inputAndExecutionThreats;
+  const historical = historicalPolicy.productPolicy.inputAndExecutionThreats;
+  const currentWithoutAddition = structuredClone(policyAuthority);
+  delete currentWithoutAddition.productPolicy.inputAndExecutionThreats.browserToLocalWorkerBoundary;
+  const currentReview = JSON.parse(await readFile("docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json", "utf8"));
+  const reviewed = currentReview.records.find(({ claimId }) => claimId === "MPSEM-0388-C005");
+  const boundary = current.browserToLocalWorkerBoundary;
+
+  assert.ok(impact, "the browser boundary has an exact additive impact record");
+  assert.equal(impact.semanticPromotion, false);
+  assert.equal(impact.historicalTargetValueSha256, hash(historical));
+  assert.equal(impact.currentTargetValueSha256, hash(current));
+  assert.deepEqual(currentWithoutAddition, historicalPolicy, "the prior policy tree is intact after removing only the new boundary");
+  assert.deepEqual(reviewed?.currentTargetRef, `${policyPath}#productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary`);
+  assert.equal(hash(boundary), reviewed.currentTargetValueSha256, "PXD-100 pins the current exact target");
+  assert.match(boundary.rule, /loopback is not authentication or authorization/u);
+  assert.ok(boundary.requiredChecks.includes("authenticated-pairing-proof-is-current-and-bound-to-tenant-principal-origin-worker-and-grant"));
+  assert.ok(boundary.rejectionCases.includes("missing-null-opaque-or-unallowlisted-browser-origin"));
+  assert.equal(boundary.failure, "reject-before-local-file-read-or-effect");
+  assert.equal(boundary.runtimeStatus, "DEFINITION_ONLY_NOT_RUNTIME_EVIDENCE");
 });
 
 test('capability availability, invocation, recipe, and document-intelligence claims route to exact owner records', () => {

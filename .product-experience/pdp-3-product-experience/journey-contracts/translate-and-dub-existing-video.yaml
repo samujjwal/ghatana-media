@@ -451,7 +451,7 @@ steps:
         - media.action.review-recognized-or-synthesized-content
       choiceSet:
         status: SOURCE_BOUND_ACTION_SET; USER_SELECTION_REQUIRED
-        decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+        decisionRef: .product-experience/decision-log.md#PXD-119
         sourceScreenRef: screen-contracts/work-with-speech.yaml
         selectedActionRef: null
         defaultActionRef: null
@@ -513,7 +513,7 @@ steps:
       runtimeAdmission: NOT_ADMITTED
       ordinal: 2
       viewRef: media.view.work-with-speech
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: Transcription/TTS/pronunciation/language/voice choices
         result: null
@@ -1507,7 +1507,7 @@ steps:
         operationRefs:
           - media.operation.action.compare-candidate-on-metric
         effectClaim: see-stepOutcomeSemantics
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED

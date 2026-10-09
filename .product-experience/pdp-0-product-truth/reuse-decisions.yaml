@@ -967,6 +967,23 @@ mediaArchitectureRules:
     multiplicity: One qualified implementation is selected for an exact
       capability/profile. An alternative requires a separate versioned profile
       and qualification; do not keep parallel adapters or silently fall back.
+    additionalImplementationRule:
+      id: media.reuse.additional-implementation-justification.v1
+      rule: >-
+        A second implementation for a capability family is considered only when
+        a documented requirement demonstrates a material gap in quality,
+        processing locality, hardware support, interoperability, or resilience
+        that the selected qualified implementation cannot satisfy. Record the
+        exact capability/profile, unmet requirement, evidence, and why a
+        separately versioned profile is needed. A proposed justification does
+        not qualify or admit the alternative implementation.
+      requiredFacts:
+        - exact capability and versioned profile identity
+        - selected implementation identity and limitation
+        - demonstrated unmet quality, locality, hardware, interoperability, or resilience requirement
+        - evidence and consumer impact
+        - separate profile and qualification decision for any alternative
+      scopeStatus: OWNER_DEFINED_SELECTION_RULE; qualification and runtime NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.qualifiedStackRule
       - .product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.externalSelectionRequires
@@ -1026,6 +1043,14 @@ mediaArchitectureRules:
         Media execution, durable provider dispatch, or product finality.
       admission: Any production invocation needs an exact admitted Media operation,
         trusted delegation, current policy, and authoritative receipt.
+    gpuSchedulerBoundary:
+      id: media.reuse.shared-tools-are-not-gpu-scheduler.v1
+      rule: Shared workflow/outbox mechanics and Tools authoring or development
+        workflows do not by themselves establish a complete GPU job scheduler.
+        Media job execution still requires a separately defined Media-owned
+        dispatch, resource admission, durable attempt, cancellation, finality,
+        and reconciliation contract bound to the exact capability and profile.
+      nonClaims: [no-scheduler-implementation, no-GPU-capacity-admission, no-runtime-dispatch]
     scopeStatus: OWNER_DEFINED_REUSE_BOUNDARY; Shared/Tools contract qualification
       and deployment acceptance remain pending
   dependencyBlockScopeRule:
@@ -1042,3 +1067,84 @@ mediaArchitectureRules:
       gate for the affected capability.
     scopeStatus: OWNER_DEFINED_DEPENDENCY_SCOPE_RULE; no dependency or feature
       admission implied
+ownerDefinedPackagePublicationEvidenceRule:
+  id: media.reuse.package-publication-evidence.v1
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  rule: >-
+    A package declaration, source-workspace path, locally generated archive, or
+    successful local build does not establish public publication, stable API,
+    consumer isolation, license clearance, or functional completeness. Before
+    describing a dependency as a reusable public package, identify the exact
+    publisher and immutable released artifact/version; resolve its published
+    export map and supported API surface; verify transitive dependency closure,
+    compatibility range, license and redistribution terms; and exercise a
+    representative isolated consumer against that released artifact. Any
+    missing item remains explicitly unverified and cannot be represented as a
+    completed reuse integration.
+  requiredEvidence:
+    - exact publisher and immutable released package artifact/version
+    - published exports and supported API stability/version policy
+    - isolated consumer import and representative contract tests
+    - direct and transitive dependency closure and compatibility evidence
+    - component-specific license and redistribution review
+    - functional coverage of the exact intended Media use
+  negativeCases:
+    - treat a monorepo package declaration or local build as public publication
+    - infer API stability from source visibility or package naming
+    - infer consumer isolation from a successful in-repository build
+    - infer license clearance from a wrapper or workspace license
+    - treat a partial export or smoke test as functional completeness
+  scopeStatus: OWNER_DEFINED_REUSE_EVIDENCE_REQUIREMENT; publication, legal review,
+    independent acceptance, and runtime admission remain separate
+ownerDefinedDistributionSourceOfferRule:
+  id: media.reuse.distribution-source-offer-material.v1
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  rule: >-
+    For a distribution mode that requires source availability or an offer,
+    preserve the exact corresponding source revision and build recipe together
+    with notices, modification records, scripts and materials needed to rebuild
+    or relink the distributed work, including applicable codec/plugin/native
+    component materials. State the offer's scope, recipient class, delivery
+    method, duration, and fulfillment owner. A generic SBOM, attribution notice,
+    license label, or source-repository URL is not by itself a compliant source
+    offer. If the applicable license or distribution mode is unknown, block
+    distribution pending review; this rule does not make a legal determination.
+  requiredEvidence:
+    - exact distributed binary and immutable source/build revision
+    - applicable license and distribution mode for each included component
+    - complete source, build, relink, notice, and modification materials required by that mode
+    - source-offer scope, recipient, delivery, duration, and fulfillment owner
+    - separate patent, codec, model, and asset rights review where applicable
+  negativeCases:
+    - treat an SBOM or attribution list as the complete corresponding source offer
+    - treat a generic repository URL as sufficient without exact revision and build materials
+    - distribute while the applicable offer duty or fulfillment owner is unknown
+  scopeStatus: OWNER_DEFINED_DISTRIBUTION_EVIDENCE_REQUIREMENT; no legal clearance,
+    publication, or runtime admission implied
+ownerDefinedTutorPutorReuseReviewRule:
+  id: media.reuse.tutorputor-concrete-path-review.v1
+  authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  rule: >-
+    Before adding a new simulation, animation, renderer, export, or accessibility
+    mechanism, inspect the exact existing TutorPutor collaboration paths and
+    their owner-published public contracts. Compare each intended Media use to
+    the concrete boundary and record the exact reuse gap, ownership, compatibility
+    evidence, and required adapter. Preserve TutorPutor's learning purpose,
+    pedagogy, scientific/domain meaning, units, measurements, learner evidence,
+    and assessment as TutorPutor-owned truth. Extract or consume only deliberately
+    product-neutral mechanics behind a reviewed public contract; a broad package
+    import, repository presence, or existing renderer is not itself a reuse
+    decision, public API, compatibility proof, or admission.
+  requiredEvidence:
+    - exact TutorPutor consumer/provider path and public contract/version
+    - exact intended Media capability/profile and comparison against that contract
+    - demonstrated reuse gap or source-backed reason no reuse applies
+    - owner and compatibility boundaries, conversion loss, and adapter requirement
+    - separate evidence for any consumer parity or scientific validation claim
+  negativeCases:
+    - import a broad TutorPutor product barrel to avoid an exact contract review
+    - copy TutorPutor Experience IR, Model IR, Scene IR, pedagogy, or assessment as Media authority
+    - infer public API or compatibility from repository presence
+    - treat a candidate assessment or proposed adapter as completed reuse or admission
+  scopeStatus: OWNER_DEFINED_REUSE_REVIEW_REQUIREMENT; external-owner acceptance,
+    compatibility, scientific validation, and runtime admission remain pending

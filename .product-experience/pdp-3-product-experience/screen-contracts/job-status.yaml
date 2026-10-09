@@ -7,47 +7,90 @@ layoutIds: [media.gui.layout.job-observation]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds: [media.component.job-status-card, media.component.activity-recovery-feed]
 patternIds: [media.gui.pattern.job-status-and-recovery]
-tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+tokenDependencies:
+  - media.token.state.in-progress
+  - media.token.state.needs-review
+  - media.token.state.blocked
+  - media.token.trust.generated
+domainObjectRefs: [media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease]
+operationRefs:
+  - media.operation.job-status.read-dimensions.v1
+  - media.operation-slice.cancel-job
+  - media.operation-slice.retry-job
+  - media.operation.action.inspect-job-retry-policy
 requirementRefs: [MEDIA-REQ-CAP-JOB]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-stateRefs: []
-entry: []
-exit: []
+stateRefs:
+  - media-job/QUEUED
+  - media-job/RUNNING
+  - media-job/RETRY_PENDING
+  - media-job/OUTCOME_UNKNOWN
+  - media-job/RECONCILING
+  - media-job/COMPLETED
+  - media-job/PARTIALLY_SUCCEEDED
+  - media-job/FAILED
+  - media-job/CANCELLED
+  - media-attempt/CLAIMED
+  - media-attempt/DISPATCH_INTENT_RECORDED
+  - media-attempt/DISPATCHED
+  - media-attempt/RUNNING
+  - media-attempt/CANCEL_REQUESTED
+  - media-attempt/SUCCEEDED
+  - media-attempt/FAILED
+  - media-attempt/CANCEL_CONFIRMED
+  - media-attempt/OUTCOME_UNKNOWN
+  - media-attempt/SUPERSEDED
+entry:
+  - Host supplies authenticated tenant and principal context; never infer them from the job ID or request body.
+  - The selected job identity is exact and tenant-scoped; a missing or foreign job is not global absence.
+  - Read dimensions only from the typed `media.operation.job-status.read-dimensions.v1` contract with the exact expected read authority and read version; stale, foreign, malformed, or incomplete observations remain UNKNOWN.
+  - Stage, quality-subject-version, and destination dimensions are selected explicitly by exact IDs; each selector list may be empty (meaning no rows were requested), and the view never expands to all stages, quality subjects, or destinations by default.
+  - Show overall job, attempt/lease, cancellation, remote-outcome certainty, quality, and delivery as separate dimensions; no scalar status or receipt implies another dimension.
+exit:
+  - A dimension may be displayed as observed only when its exact typed source mapping and current read tuple validate; unmapped runtime spellings remain UNKNOWN.
+  - Cancellation request is not cancellation finality, retry acceptance is not processing completion, and a completed job requires registered outputs under the exact result contract.
+  - Preserve the exact job and prior-attempt identity across refresh, denial, interruption, and unknown outcomes; do not enable retry on unknown finality.
+authorityRefs:
+  - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/jobStatusRead
+  - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.retry-job/actionDefinitionSemantics/typedDefinition
 actionConsequences:
   - actionId: media.action.view-job-status
     capabilityRefs: [media.job.view-status]
     requirementRefs: [MEDIA-REQ-CAP-JOB]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    status: pending-owner-binding
+    operationRef: media.operation.job-status.read-dimensions.v1
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+    consequence: Read only the exact tenant-scoped job status dimensions under the current typed read contract; absent or unmapped dimensions remain UNKNOWN.
+    status: Media-owner-definition; read endpoint and runtime observation NOT_ADMITTED
   - actionId: media.action.request-cancellation
     capabilityRefs: [media.job.cancel]
     requirementRefs: [MEDIA-REQ-CAP-JOB]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    status: pending-owner-binding
+    operationRef: media.operation-slice.cancel-job
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinition
+    consequence: Request cancellation for the existing exact logical job after current authority checks; show pending until owner evidence confirms all potentially mutating effects stopped.
+    status: Media-owner-definition; command transport and effect NOT_ADMITTED
   - actionId: media.action.check-job-outcome
     capabilityRefs: [media.job.check-outcome]
     requirementRefs: [MEDIA-REQ-CAP-JOB]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    status: pending-owner-binding
+    operationRef: media.operation.job-status.read-dimensions.v1
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition
+    consequence: Reconcile the same existing job identity under current read authority; do not dispatch or imply that an unknown external effect failed.
+    status: Media-owner-definition; read endpoint and runtime observation NOT_ADMITTED
   - actionId: media.action.retry-job
     capabilityRefs: [media.job.retry]
     requirementRefs: [MEDIA-REQ-CAP-JOB]
     referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    status: pending-owner-binding
+    operationRef: media.operation-slice.retry-job
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.retry-job/actionDefinitionSemantics/typedDefinition
+    consequence: Create at most one new fenced attempt under the same logical job only after the exact current retry-policy observation, prior-attempt classification, actor authority, rights, and bounded budget validate; unknown prior outcome holds retry.
+    status: Media-owner-definition; command transport and effect NOT_ADMITTED
 responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
 fixtures:
   refs: [media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-outcome-confirmed]
@@ -62,14 +105,14 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
-  tokenDependencies: no-canonical-references-declared
-  domainObjectRefs: no-canonical-references-declared
-  operationRefs: no-canonical-references-declared
+  tokenDependencies: exact Media state/trust aliases selected; Shared values remain externally owned
+  domainObjectRefs: exact ProcessingJob, JobAttempt, JobLease identity refs
+  operationRefs: normalized job-dimension read and exact cancel/retry owner operations; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
-  stateRefs: no-PDP1-state-references-declared
-  entry: no-canonical-entry-contract-declared
-  exit: no-canonical-exit-contract-declared
-  actionConsequences: unresolved; owner-effect-binding-pending
+  stateRefs: exact job and attempt state definitions; dimensions remain orthogonal
+  entry: exact host identity, job tuple, read authority and freshness requirements authored
+  exit: exact observation and non-inference rules authored; runtime unknown where no receipt exists
+  actionConsequences: exact operation/effect source bindings authored; runtime NOT_ADMITTED
   responsiveBehavior: proposal-only; unverified
   fixtures: source-proposal; behavior-unverified
   verification: not-run

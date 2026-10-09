@@ -139,6 +139,8 @@ function validateBindingRules(contract, request, result) {
     } else if (rule.operator === "ALL_EXACT_EQUAL") {
       const values = Array.isArray(right.value) ? right.value : [right.value];
       if (values.some((value) => JSON.stringify(canonicalize(value)) !== JSON.stringify(canonicalize(left.value)))) return false;
+    } else if (rule.operator === "EXACT_MEMBER") {
+      if (!Array.isArray(right.value) || !right.value.some((value) => JSON.stringify(canonicalize(value)) === JSON.stringify(canonicalize(left.value)))) return false;
     } else if (rule.operator === "EXACT_SET_EQUAL") {
       if (!Array.isArray(left.value) || !Array.isArray(right.value)) return false;
       const leftSet = new Set(left.value);
@@ -188,6 +190,52 @@ export function validateTypedObservationCurrentRead({ contract, request, result,
   if (age < 0 || age > maxAgeMs) return fail("OBSERVATION_STALE_OR_FUTURE");
   if (!validateBindingRules(contract, request, result)) return fail("OBSERVATION_BINDING_RULE_MISMATCH");
   return { truth: "TRUE", reason: "EXACT_CURRENT_READ_RECEIPT" };
+}
+
+/**
+ * Validate the consent-revision read contract, whose wire record intentionally
+ * has a singular `operationRef` rather than the observation-contract collection
+ * shape. This validates only the owner-defined read envelope/currentness; callers
+ * still have to join the returned consent revision to their exact requested use.
+ */
+export function validateTypedConsentRevisionCurrentRead({ contract, request, result, trusted, now, maxAgeMs }) {
+  const fail = (reason) => ({ truth: "UNKNOWN", reason });
+  if (!contract?.requestSchema || !contract?.resultSchema || !nonempty(contract.operationRef)) return fail("CONSENT_READ_CONTRACT_INVALID");
+  if (!validateClosedRequest(contract.requestSchema, request)) return fail("CONSENT_READ_REQUEST_INVALID_OR_OPEN");
+  if (!result || typeof result !== "object" || Array.isArray(result) || !validateSchema(contract.resultSchema, result)) return fail("CONSENT_READ_RESULT_INVALID_OR_OPEN");
+  if (!trusted || !nonempty(trusted.tenantScopeRef) || !nonempty(trusted.principalRef)
+      || trusted.expectedOperationRef !== contract.operationRef || !nonempty(trusted.expectedReadAuthorityRef)
+      || !nonempty(trusted.expectedReadVersion) || !validInstant(now)
+      || !Number.isSafeInteger(maxAgeMs) || maxAgeMs < 0) return fail("CONSENT_READ_TRUSTED_CONTEXT_INVALID");
+  if (result.queryId !== request.queryId || !nonempty(request.queryId)) return fail("CONSENT_READ_QUERY_CORRELATION_MISMATCH");
+  if (result.operationRef !== trusted.expectedOperationRef) return fail("CONSENT_READ_OPERATION_MISMATCH");
+  if (!contract.resultSchema.properties?.readAuthorityRef?.enum?.includes(trusted.expectedReadAuthorityRef)
+      || result.readAuthorityRef !== trusted.expectedReadAuthorityRef) return fail("CONSENT_READ_AUTHORITY_MISMATCH");
+  if (result.readVersion !== trusted.expectedReadVersion) return fail("CONSENT_READ_VERSION_MISMATCH");
+  if (result.currentness !== "CURRENT") return fail("CONSENT_READ_NOT_CURRENT");
+  if (result.requestFingerprint !== typedObservationRequestFingerprint(request, {
+    tenantScopeRef: trusted.tenantScopeRef,
+    principalRef: trusted.principalRef,
+    expectedOperationRef: trusted.expectedOperationRef,
+    expectedReadAuthorityRef: trusted.expectedReadAuthorityRef,
+    expectedReadVersion: trusted.expectedReadVersion,
+  })) return fail("CONSENT_READ_FINGERPRINT_MISMATCH");
+  if (!validInstant(result.observedAt)) return fail("CONSENT_READ_TIME_INVALID");
+  const age = Date.parse(now) - Date.parse(result.observedAt);
+  if (age < 0 || age > maxAgeMs) return fail("CONSENT_READ_STALE_OR_FUTURE");
+  // This contract contains two executable binding rules and one prose rule
+  // describing the revision-ref -> consent-ref/version identity resolver. The
+  // latter is enforced by the domain consumer, which has the trusted expected
+  // consent tuple; do not make a generic dotted-path evaluator pretend it ran it.
+  const executableRules = contract.bindingRules?.filter((rule) => rule.operator !== undefined);
+  if (executableRules?.length !== 3 || !validateBindingRules({ ...contract, bindingRules: executableRules }, request, result)) {
+    return fail("CONSENT_READ_BINDING_RULE_MISMATCH");
+  }
+  const outcome = result.outcome;
+  if (outcome?.kind === "UNKNOWN") return fail("CONSENT_READ_OUTCOME_UNKNOWN");
+  if (outcome?.kind !== "OBSERVED_CONSENT_REVISION" || outcome.tenantScopeRef !== trusted.tenantScopeRef
+      || outcome.principalRef !== trusted.principalRef) return fail("CONSENT_READ_SUBJECT_SCOPE_MISMATCH");
+  return { truth: "TRUE", reason: "EXACT_CURRENT_CONSENT_REVISION_READ" };
 }
 
 /** Validate the retry-policy specialization without treating it as a command authorization. */

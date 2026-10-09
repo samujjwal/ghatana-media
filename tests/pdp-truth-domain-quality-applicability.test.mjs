@@ -99,11 +99,17 @@ test("quality crosswalk covers every leaf against all six dimensions and 16 metr
       const refTypes=sourceInputTypes.filter(type=>referenceTypes.includes(type));
       const hasRefs=!referenceTypes.length||refTypes.length>0;
       const outputDomainOk=!rule.requiresOutputDomainObjectRef||row.outputDomainObjectRefs.includes(rule.requiresOutputDomainObjectRef);
-      const expected=hasSubject&&hasRefs&&outputDomainOk?"APPLICABLE":"NOT_APPLICABLE";
+      const operationMetricDeclared=row.operationMeasurementMetricRefs===undefined||row.operationMeasurementMetricRefs.includes(metricRef);
+      const expected=operationMetricDeclared&&hasSubject&&hasRefs&&outputDomainOk?"APPLICABLE":"NOT_APPLICABLE";
       assert.equal(metric.status,expected,`${leaf.capabilityRef} / ${metricRef}`);
-      assert.deepEqual(metric.subjectInputSchemaIds,row.typedInputSchemaIds.map(id=>inputById.get(id)).filter(schema=>allowedInputTypes.includes(schema.artifactType)).map(schema=>schema.id));
-      assert.deepEqual(metric.subjectOutputSchemaIds,row.typedOutputSchemaIds.map(id=>outputById.get(id)).filter(schema=>allowedOutputTypes.includes(schema.artifactType)).map(schema=>schema.id));
-      assert.deepEqual(metric.requiredReferenceSchemaIds,row.typedInputSchemaIds.map(id=>inputById.get(id)).filter(schema=>refTypes.includes(schema.artifactType)).map(schema=>schema.id));
+      const admittedByOperation=operationMetricDeclared||row.operationMeasurementMetricRefs===undefined;
+      assert.deepEqual(metric.subjectInputSchemaIds,admittedByOperation?row.typedInputSchemaIds.map(id=>inputById.get(id)).filter(schema=>allowedInputTypes.includes(schema.artifactType)).map(schema=>schema.id):[]);
+      const expectedOutputIds=admittedByOperation?new Set([
+        ...row.typedOutputSchemaIds.map(id=>outputById.get(id)).filter(schema=>allowedOutputTypes.includes(schema.artifactType)).map(schema=>schema.id),
+        ...(row.operationMeasurementMetricRefs?.includes(metricRef)?(row.operationMeasurementSchemaIds??[]):[]),
+      ]):new Set();
+      assert.deepEqual(metric.subjectOutputSchemaIds,[...expectedOutputIds],`${leaf.capabilityRef} / ${metricRef} exact output subjects`);
+      assert.deepEqual(metric.requiredReferenceSchemaIds,admittedByOperation?row.typedInputSchemaIds.map(id=>inputById.get(id)).filter(schema=>refTypes.includes(schema.artifactType)).map(schema=>schema.id):[]);
       if(rule.condition)assert.deepEqual(metric.conditionalPredicates,[rule.condition]);
     }
   }
@@ -171,4 +177,48 @@ test("identity and domain applicability keep required authority and qualificatio
     const source = type.sourceTypeRef;
     assert.ok(operations.inputPayloadSchemas.some((schema) => `${crosswalk.schemaCollectionRefs.inputs}/${schema.id}` === source) || operations.outputPayloadSchemas.some((schema) => `${crosswalk.schemaCollectionRefs.outputs}/${schema.id}` === source), `resolves modality type ${source}`);
   }
+});
+
+test("phase-noise-floor analysis returns a typed measurement record, never a mastered-media result", () => {
+  const capabilityRef = "media.master.audio.phase-noise-floor-analyze";
+  const leaf = leaves.find((row) => row.capabilityRef === capabilityRef);
+  const applicability = rows.get(capabilityRef);
+  const operation = operations.records.find((row) => row.id === "media.operation.capability.media-master-audio-phase-noise-floor-analyze");
+  const measurement = outputById.get("media.typed-output.phase-noise-floor-measurement.v1");
+  assert.ok(leaf);
+  assert.ok(operation);
+  assert.ok(measurement);
+  assert.deepEqual(leaf.exactTypedOutputs, ["phase-noise-floor-measurement-record"]);
+  assert.deepEqual(applicability.typedOutputSchemaIds, [measurement.id]);
+  assert.deepEqual(applicability.operationMeasurementMetricRefs, ["QUALITY-METRIC-AUDIO-SPECTRAL-PHASE"]);
+  assert.deepEqual(applicability.operationMeasurementSchemaIds, [measurement.id]);
+  assert.deepEqual(operation.successOutputs.map((output) => output.artifactType), ["phase-noise-floor-measurement-record"]);
+  assert.equal(operation.successOutputs[0].payloadSchemaRef, measurement.id, "operation points at the exact declared measurement schema");
+  assert.equal(measurement.artifactType, "phase-noise-floor-measurement-record");
+  assert.equal(measurement.payloadKind, "MEASUREMENT_OBSERVATION_NOT_MEDIA_DERIVATIVE");
+  assert.ok(measurement.schema.properties.payload.required.includes("sourceArtifactId"));
+  assert.ok(measurement.schema.properties.payload.required.includes("sourceVersionId"));
+  assert.ok(measurement.schema.properties.payload.required.includes("metricRef"));
+  assert.ok(measurement.schema.properties.payload.required.includes("methodVersionRef"));
+  assert.ok(measurement.schema.properties.payload.required.includes("measurementWindow"));
+  assert.equal(measurement.schema.properties.payload.properties.metricRef.const, measurement.metricDefinition.id);
+  assert.equal(measurement.metricDefinition.id, "media.metric.phase-noise-floor.v1");
+  const payloadSchema = measurement.schema.properties.payload;
+  const validPayload = {
+    artifactId: "measurement-1", versionId: "v1", sourceArtifactId: "audio-1", sourceVersionId: "v7",
+    metricRef: measurement.metricDefinition.id, methodRef: "method://phase/v1", methodVersionRef: "method://phase/v1.2",
+    measurementWindow: { sourceStartSample: 0, sourceSampleCount: 48000, sourceSampleRateHz: 48000 },
+    measuredValue: -90, unitRef: "unit://dBFS", observedAt: "2026-10-09T10:00:00.000Z", evidenceRefs: ["evidence://measurement/v1"],
+  };
+  const Ajv = require("ajv").default ?? require("ajv");
+  const validatePayload = new Ajv({ strict: false, validateFormats: false }).compile(payloadSchema);
+  assert.equal(validatePayload(validPayload), true);
+  assert.equal(validatePayload({ ...validPayload, metricRef: "media.metric.audio.loudness" }), false, "a foreign metric cannot satisfy this measurement result");
+  assert.equal(validatePayload(({ ...validPayload, measurementWindow: undefined })), false, "the required measured interval cannot be omitted");
+  assert.equal(applicability.metricApplicability["QUALITY-METRIC-AUDIO-SPECTRAL-PHASE"].status, "APPLICABLE");
+  assert.deepEqual(applicability.metricApplicability["QUALITY-METRIC-AUDIO-SPECTRAL-PHASE"].subjectOutputSchemaIds, [measurement.id]);
+  for (const metricId of ["QUALITY-METRIC-AUDIO-DEFECTS", "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK", "QUALITY-METRIC-AUDIO-NATURALNESS"]) {
+    assert.equal(applicability.metricApplicability[metricId].status, "NOT_APPLICABLE");
+  }
+  assert.ok(!applicability.typedOutputSchemaIds.includes("media.typed-output.mastered-audio-candidate-with-measurements"));
 });

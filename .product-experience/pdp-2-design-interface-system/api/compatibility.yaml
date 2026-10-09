@@ -12,8 +12,57 @@ ownerDefinedCompatibilityRules:
     requiredEvidence: [exact-owner-contract-version, old-and-new-semantic-diff, affected-client-population, migration-and-deprecation-window, explicit-end-condition]
     negativeCases: [parallel-product-created-to-avoid-migration,compatibility-branch-without-end-condition,unapproved-semantic-change-called-additive]
     scopeStatus: OWNER_DEFINED_COMPATIBILITY_POLICY; no API owner approval, deployment, or runtime compatibility is asserted.
+  - id: media.api.preserved-stream-protocol-and-integration.v1
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-recording-integrate
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-live-processing-integrate
+      - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect
+      - .product-experience/interface-parity/operation-parity.yaml#sourceDenominators.grpcRpcs
+      - .product-experience/interface-parity/operation-parity.yaml#sourceDenominators.httpEndpoints
+    streamIntegration:
+      rule: >-
+        Stream recording and live processing are distinct explicit operation contracts joined to the exact stream-session,
+        consent/purpose, source/version, clock-domain, sequence, and authority context. Recording creates or links a governed
+        immutable artifact only through its exact recording result contract; live processing consumes the ordered session
+        frames under the same session and sequence scope. Neither operation may infer that a frame was accepted from transport
+        connection alone, skip or duplicate frames while reporting contiguous success, or treat stream observation as durable
+        recording or processed-media output.
+      operations:
+        recording: media.operation.capability.media-stream-recording-integrate
+        liveProcessing: media.operation.capability.media-stream-live-processing-integrate
+        reconnect: media.operation.capability.media-stream-session-reconnect
+      negativeCases:
+        - connected-session-reported-as-recorded-artifact
+        - live-processing-reuses-frames-from-another-session-or-clock-domain
+        - dropped-or-duplicated-frame-reported-as-contiguous-success
+        - recording-result-inferred-from-transport-acknowledgement
+    protocolPreservation:
+      rule: >-
+        Preserve every directly observed stream protocol identity and its exact request, response, event, ordering,
+        backpressure, reconnect, error, and finality semantics during the current Media migration. Record an old-to-new
+        field-level mapping for every changed wire field and prove that it preserves the bound canonical operation; an
+        unrepresentable field or effect remains explicitly unsupported until a versioned compatibility path is defined.
+        Protocol presence or a proposed adapter does not establish wire compatibility or runtime availability.
+      requiredEvidence:
+        - exact-observed-protocol-source-and-revision
+        - old-and-new-method-and-message-or-route-fields
+        - field-level-request-response-and-error-mapping
+        - stream-ordering-sequence-and-clock-domain-compatibility
+        - reconnect-backpressure-and-terminal-finality-compatibility
+        - explicit-unrepresentable-field-disposition
+      negativeCases:
+        - protocol-name-match-treated-as-wire-equivalence
+        - missing-stream-sequence-mapped-to-success
+        - reconnect-or-backpressure-loss-hidden-as-additive-change
+        - unsupported-field-silently-dropped
+        - source-contract-presence-treated-as-runtime-conformance
+    scopeStatus: OWNER_DEFINED_STREAM_COMPATIBILITY_REQUIREMENT; actual protocol preservation, transport conformance, runtime availability, and independent acceptance remain unverified.
 normativeRuleRecords:
   - id: media.p2.rule.api-no-parallel-product-fork.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/api/compatibility.yaml#/ownerDefinedCompatibilityRules/@id=media.api.no-parallel-product-fork.v1
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/api/compatibility.yaml#authority
+    acceptanceEffect: none
+  - id: media.p2.rule.api-preserved-stream-protocol-integration.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/compatibility.yaml#/ownerDefinedCompatibilityRules/@id=media.api.preserved-stream-protocol-and-integration.v1
     sourceAuthority: .product-experience/pdp-2-design-interface-system/api/compatibility.yaml#authority
     acceptanceEffect: none

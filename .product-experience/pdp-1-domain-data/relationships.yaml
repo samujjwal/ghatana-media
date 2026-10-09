@@ -4,7 +4,9 @@ productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: proposed-relationship-map; pending-owner-review
-sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+sourceRefs:
+  - .product-experience/pdp-0-product-truth/domain-model.yaml
+  - .product-experience/pdp-0-product-truth/state-models.yaml
 relationships:
   - id: media.rel.project-revision
     from: media.domain.project
@@ -12,112 +14,549 @@ relationships:
     meaning: metadata-change-creates-versioned-revision
     cardinality: one-project-to-many-revisions
     cardinalityBasis: PDP-0 semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.project-revision.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: Project → ProjectRevision
+      fieldBinding: ProjectRevision.projectId
+      parentIdentityContracts:
+        - objectRef: media.domain.project
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project
+          identityTuple: &a1
+            - tenantId
+            - projectId
+      childIdentityContracts:
+        - objectRef: media.domain.project-revision
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision
+          identityTuple:
+            - tenantId
+            - projectId
+            - revisionId
+      sameTenantRequired: true
+      cardinalityRule: Each revision belongs to exactly one project; a project has zero or more immutable revisions and one current-revision selection.
+      exactVersionRule: revisionId is distinct within project identity; edits create a new revision and never mutate a committed revision.
+      lifecycleRule: Draft revisions may be abandoned; committed revisions may be superseded but remain addressable for exact references.
+      deletionRule: Project archival does not cascade-delete revisions; erasure follows the separate retention/hold contract.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.project-asset
     from: media.domain.project
     to: media.domain.media-asset
     meaning: project-revision-references-project-specific-asset-uses
     cardinality: one-to-many
     cardinalityBasis: PDP-0 semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject, .product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProject
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-asset
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.project-asset.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: Project → ProjectRevision → MediaAsset
+      fieldBinding: ProjectRevision.assetRefs[]
+      parentIdentityContracts:
+        - objectRef: media.domain.project
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project
+          identityTuple: *a1
+      childIdentityContracts:
+        - objectRef: media.domain.media-asset
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-asset
+          identityTuple: &a2
+            - tenantId
+            - projectId
+            - assetId
+      sameTenantRequired: true
+      cardinalityRule: A project revision references zero or more project-scoped asset uses; each asset use is keyed by its exact tenant, project, and asset tuple.
+      exactVersionRule: The project revision selects the membership set; each asset separately binds one exact artifact/version, never latest.
+      lifecycleRule: Changing membership creates a new project revision; old revisions retain their referenced membership meaning.
+      deletionRule: Removing a reference from a new revision does not delete the asset or underlying artifact.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.asset-artifact-version
     from: media.domain.media-asset
     to: media.domain.artifact-version
     meaning: asset-references-exact-immutable-artifact-version
     cardinality: many-to-one
     cardinalityBasis: PDP-0 semantic proposal; exact cardinality not established by storage keys; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset, .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-asset
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.asset-artifact-version.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: MediaAsset → ArtifactVersion
+      fieldBinding: MediaAsset.artifactVersionRef
+      parentIdentityContracts:
+        - objectRef: media.domain.media-asset
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-asset
+          identityTuple: *a2
+      childIdentityContracts:
+        - objectRef: media.domain.artifact-version
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+          identityTuple: &a6
+            - tenantId
+            - artifactId
+            - versionId
+      sameTenantRequired: true
+      cardinalityRule: Each asset use references exactly one immutable artifact version; one version may be referenced by many asset uses.
+      exactVersionRule: Both artifactId and versionId are required and tenant-bound; no mutable artifact-only or latest-version reference is canonical.
+      lifecycleRule: Changing the referenced content creates a new asset/revision binding; the prior version remains immutable.
+      deletionRule: Asset removal does not imply artifact erasure; retention and erasure are separately authorized.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.job-plan
     from: media.domain.processing-job
     to: media.domain.resolved-plan
     meaning: job-binds-accepted-request-to-admitted-plan-when-plan-contract-exists
     cardinality: zero-or-one-per-job; exact-cardinality-unbound
     cardinalityBasis: PDP-0 semantic proposal; exact cardinality explicitly unbound; no storage-key inference; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.resolved-plan
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.job-plan.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: ProcessingJob → ResolvedMediaPlan
+      fieldBinding: ProcessingJob.resolvedPlanRef
+      parentIdentityContracts:
+        - objectRef: media.domain.processing-job
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+          identityTuple: &a3
+            - tenantId
+            - jobId
+      childIdentityContracts:
+        - objectRef: media.domain.resolved-plan
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.resolved-plan
+          identityTuple:
+            - tenantId
+            - planId
+      sameTenantRequired: true
+      cardinalityRule: A job has zero or one resolved plan; absence is explicit only before resolution or when the operation contract declares no plan.
+      exactVersionRule: When present, bind exact tenant and planId plus immutable plan fingerprint/version; never resolve by profile name or latest.
+      lifecycleRule: Plan selection is fixed in the accepted request snapshot; changed plan means a different request identity or explicit conflict.
+      deletionRule: Plan unavailability after acceptance yields UNKNOWN/reconciliation; it does not silently detach or substitute a plan.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.job-attempt
     from: media.domain.processing-job
     to: media.domain.job-attempt
     meaning: retry-creates-distinct-attempt-under-same-logical-job
     cardinality: one-to-many
     cardinalityBasis: PDP-0 state-machine semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-job, .product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob]
-    scopeStatus: PDP-0-state-rule; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-job
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#ProcessingJob
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-attempt
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.job-attempt.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: ProcessingJob → JobAttempt
+      fieldBinding: JobAttempt.jobId
+      parentIdentityContracts:
+        - objectRef: media.domain.processing-job
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+          identityTuple: *a3
+      childIdentityContracts:
+        - objectRef: media.domain.job-attempt
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-attempt
+          identityTuple: &a4
+            - tenantId
+            - jobId
+            - attemptId
+      sameTenantRequired: true
+      cardinalityRule: One logical job has zero or more attempts; every attempt belongs to exactly one job.
+      exactVersionRule: Attempt tuple is tenantId, jobId, attemptId; every retry creates a distinct attempt ID under the same logical job and accepted request fingerprint.
+      lifecycleRule: Attempts are append-only execution records; superseded/failed attempts remain distinct and do not overwrite job state.
+      deletionRule: Attempt history follows job retention and audit policy; deleting an attempt cannot erase the logical job outcome.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.attempt-lease
     from: media.domain.job-attempt
     to: media.domain.job-lease
     meaning: current-fenced-lease-authorizes-bounded-attempt-writes; lease identity remains (tenantId,jobId,ownerId,fencingToken) while activeAttemptRef binds one exact attempt
     cardinality: one-current-lease-per-exact-attempt; lease renewal retains attempt; retry creates a distinct attempt and fence
     sourceRefField: JobLease.activeAttemptRef
-    targetIdentityTuple: [tenantId, jobId, attemptId]
-    separateLeaseIdentityTuple: [tenantId, jobId, ownerId, fencingToken]
+    targetIdentityTuple:
+      - tenantId
+      - jobId
+      - attemptId
+    separateLeaseIdentityTuple:
+      - tenantId
+      - jobId
+      - ownerId
+      - fencingToken
     cardinalityBasis: owner-defined logical relationship; source Java lease projection lacks activeAttemptRef; persistence/wire equivalence unverified
-    sourceRefs: [.product-experience/pdp-0-product-truth/state-models.yaml#media-attempt, .product-experience/pdp-1-domain-data/domain-objects.yaml#media.identity-contract.job-lease]
-    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP; runtime-NOT_ADMITTED
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/state-models.yaml#media-attempt
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.identity-contract.job-lease
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-attempt
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-lease
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.attempt-lease.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: JobAttempt ↔ JobLease
+      fieldBinding: JobLease.activeAttemptRef
+      parentIdentityContracts:
+        - objectRef: media.domain.job-attempt
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-attempt
+          identityTuple: *a4
+      childIdentityContracts:
+        - objectRef: media.domain.job-lease
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-lease
+          identityTuple:
+            - tenantId
+            - jobId
+            - ownerId
+            - fencingToken
+      sameTenantRequired: true
+      cardinalityRule: A lease names at most one exact active attempt; an attempt has at most one current lease at a time, with lease history preserved across renewal/fencing changes.
+      exactVersionRule: Attempt tuple is tenantId, jobId, attemptId; lease tuple is separately tenantId, jobId, ownerId, positive fencingToken. activeAttemptRef is not part of lease identity.
+      lifecycleRule: Renewal/replacement changes lease revision/fence but preserves the attempt; retry creates a new attempt and new lease binding. Expiry makes writes stale but does not prove remote work stopped.
+      deletionRule: Lease expiry/release cannot delete the attempt or alter its outcome; stale workers cannot publish progress or outputs.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.upload-session-chunk
     from: media.domain.upload-session
     to: media.domain.upload-chunk
     meaning: each immutable chunk belongs to exactly one tenant-scoped upload session and is keyed by its bounded sequence within that session
     cardinality: one-upload-to-zero-or-many-immutable-chunks
     sourceRefField: UploadChunk.uploadId
-    targetIdentityTuple: [tenantId, uploadId]
-    childIdentityTuple: [tenantId, uploadId, chunkIndex]
+    targetIdentityTuple:
+      - tenantId
+      - uploadId
+    childIdentityTuple:
+      - tenantId
+      - uploadId
+      - chunkIndex
     ordering: chunkIndex is nonnegative and unique within one upload; gaps remain explicit and are not synthesized
     sameTenant: true
-    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP; persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
-    sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk]
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.upload-chunk
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.upload-session
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.upload-chunk
+    ownerDefinition:
+      id: media.relationship-owner.upload-session-chunk.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: UploadSession → UploadChunk
+      fieldBinding: UploadChunk.uploadId
+      parentIdentityContracts:
+        - objectRef: media.domain.upload-session
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.upload-session
+          identityTuple:
+            - tenantId
+            - uploadId
+      childIdentityContracts:
+        - objectRef: media.domain.upload-chunk
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.upload-chunk
+          identityTuple:
+            - tenantId
+            - uploadId
+            - chunkIndex
+      sameTenantRequired: true
+      cardinalityRule: One upload session has zero or more immutable chunks; every chunk belongs to exactly one same-tenant upload.
+      exactVersionRule: Child tuple is tenantId, uploadId, chunkIndex; chunkIndex is a nonnegative unique sequence within the upload. Gaps remain gaps and are never synthesized.
+      lifecycleRule: Chunk append is idempotent only for the same sequence and exact bytes/digest; conflicting reuse rejects. Completion verifies the exact declared chunk set.
+      deletionRule: A chunk cannot be reparented; abort/expiry follows upload retention and does not claim artifact availability.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.stream-session-frame
     from: media.domain.stream-session
     to: media.domain.stream-frame
     meaning: each immutable frame belongs to exactly one exact stream session and occupies one unique sequence in that session
     cardinality: one-session-to-zero-or-many-immutable-frames
     sourceRefField: StreamFrame.sessionId
-    targetIdentityTuple: [tenantId, sessionId]
-    childIdentityTuple: [tenantId, sessionId, sequence]
+    targetIdentityTuple:
+      - tenantId
+      - sessionId
+    childIdentityTuple:
+      - tenantId
+      - sessionId
+      - sequence
     ordering: sequence is nonnegative and unique within one session; missing sequences are gaps, not successful frames
     sameTenant: true
-    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP; frame-storage-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
-    sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame]
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.stream-frame
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame
+    ownerDefinition:
+      id: media.relationship-owner.stream-session-frame.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: StreamSession → StreamFrame
+      fieldBinding: StreamFrame.sessionId
+      parentIdentityContracts:
+        - objectRef: media.domain.stream-session
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session
+          identityTuple:
+            - tenantId
+            - sessionId
+      childIdentityContracts:
+        - objectRef: media.domain.stream-frame
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame
+          identityTuple:
+            - tenantId
+            - sessionId
+            - sequence
+      sameTenantRequired: true
+      cardinalityRule: One session has zero or more immutable frames; every frame belongs to exactly one same-tenant session.
+      exactVersionRule: Child tuple is tenantId, sessionId, sequence; sequence is nonnegative and unique within the session. Missing/out-of-order frames are explicit gaps, not successful delivery.
+      lifecycleRule: Frame acknowledgements bind exact session, sequence, and frame digest; reconnect does not reset or reuse sequence identity.
+      deletionRule: Session close does not rewrite prior frame outcomes; retention/erasure is separate from close.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.run-checkpoint
     from: media.domain.media-run
     to: media.domain.checkpoint
     meaning: append-only-run-observations-and-checkpoints
     cardinality: one-to-many
     cardinalityBasis: PDP-0 semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.checkpoint
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.run-checkpoint.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: MediaRun → Checkpoint
+      fieldBinding: Checkpoint.runId
+      parentIdentityContracts:
+        - objectRef: media.domain.media-run
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run
+          identityTuple: &a7
+            - tenantId
+            - runId
+      childIdentityContracts:
+        - objectRef: media.domain.checkpoint
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.checkpoint
+          identityTuple:
+            - tenantId
+            - runId
+            - checkpointId
+      sameTenantRequired: true
+      cardinalityRule: One run has zero or more checkpoints; each checkpoint belongs to exactly one run.
+      exactVersionRule: Checkpoint tuple is tenantId, runId, checkpointId; sequence is unique and monotonic within the run where present.
+      lifecycleRule: Checkpoints are append-only observations; replay/recovery uses the exact checkpoint and source versions, never a later checkpoint by default.
+      deletionRule: Checkpoint expiry follows run retention; checkpoint loss cannot be interpreted as completed work.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.scene-model-binding
     from: media.domain.scene-graph
     to: media.domain.simulation-world
     meaning: typed-visual-binding-to-model-state-or-observable
     cardinality: many-to-many-through-explicit-binding
     cardinalityBasis: PDP-0 semantic proposal; binding/storage constraint unobserved; unaccepted pending owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph, .product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld]
-    scopeStatus: proposed; binding-contract-unobserved; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.simulation-world
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.scene-model-binding.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: SceneGraph → SimulationWorld
+      fieldBinding: SceneGraph.modelBindingRefs[]
+      parentIdentityContracts:
+        - objectRef: media.domain.scene-graph
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+          identityTuple: &a5
+            - tenantId
+            - projectId
+            - sceneGraphId
+            - semanticVersion
+      childIdentityContracts:
+        - objectRef: media.domain.simulation-world
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.simulation-world
+          identityTuple:
+            - tenantId
+            - worldId
+            - semanticVersion
+      sameTenantRequired: true
+      cardinalityRule: A scene graph may hold zero or more explicit typed bindings to worlds; a world may be referenced by multiple scenes.
+      exactVersionRule: Each binding names exact tenant, worldId, and semanticVersion; no latest-world lookup or name-based match is permitted.
+      lifecycleRule: Binding changes create a new scene graph revision or binding record with explicit source provenance; world edits do not rewrite prior bindings.
+      deletionRule: Removing a binding does not delete the world; missing world/version makes dependent simulation UNKNOWN.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.animation-property-owner
     from: media.domain.animation-graph
     to: media.domain.scene-graph
     meaning: explicit-owner-bridge-when-simulation-also-drives-property
     cardinality: many-to-many-through-explicit-binding
     cardinalityBasis: PDP-0 semantic proposal; binding/storage constraint unobserved; unaccepted pending owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph, .product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.animation-graph
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.animation-property-owner.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: AnimationGraph → SceneGraph
+      fieldBinding: AnimationGraph.propertyOwnerRefs[]
+      parentIdentityContracts:
+        - objectRef: media.domain.animation-graph
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.animation-graph
+          identityTuple:
+            - tenantId
+            - projectId
+            - animationGraphId
+            - semanticVersion
+      childIdentityContracts:
+        - objectRef: media.domain.scene-graph
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+          identityTuple: *a5
+      sameTenantRequired: true
+      cardinalityRule: An animation graph may bind multiple properties to explicit scene-graph owners; a scene property may be driven by multiple declared tracks only where the composition contract permits.
+      exactVersionRule: Each owner ref binds exact tenant, sceneGraphId, and semanticVersion; property and track identifiers are explicit and unique in the binding.
+      lifecycleRule: Changing the owner creates a new animation graph revision; no implicit ownership transfer or name-based rebinding.
+      deletionRule: Removing a binding does not delete either graph; unresolved owners reject or remain UNKNOWN.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.derived-artifact
     from: media.domain.artifact-version
     to: media.domain.artifact-version
     meaning: derived-version-records-parent-lineage-without-source-mutation
     cardinality: directed-many-to-many; acyclicity-contract-unbound
     cardinalityBasis: PDP-0 semantic proposal; acyclicity and storage constraint unbound; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
-    scopeStatus: proposed; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.derived-artifact.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: ArtifactVersion → ArtifactVersion
+      fieldBinding: ArtifactVersion.parentVersionRefs[]
+      parentIdentityContracts:
+        - objectRef: media.domain.artifact-version
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+          identityTuple: *a6
+      childIdentityContracts:
+        - objectRef: media.domain.artifact-version
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+          identityTuple: *a6
+      sameTenantRequired: true
+      cardinalityRule: A derived version may reference zero or more exact parent versions; parent edges are directed and may not self-reference.
+      exactVersionRule: Each endpoint binds exact tenantId, artifactId, and versionId; content digest is integrity evidence, never identity.
+      lifecycleRule: Derivation is immutable and records every declared parent; revisions add new nodes/edges rather than mutate prior lineage.
+      deletionRule: Erasure/holds apply across lineage according to exact retention policy; source deletion is not inferred from derivative deletion. Lineage must be acyclic.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.assessment-subject
     from: media.domain.quality-assessment
-    to: [media.domain.artifact-version, media.domain.processing-job, media.domain.media-run]
+    to:
+      - media.domain.artifact-version
+      - media.domain.processing-job
+      - media.domain.media-run
     meaning: bind-exact-subject-scope-method-and-evidence
     cardinality: one-to-many-explicit-subjects
     cardinalityBasis: PDP-0 quality-policy semantic proposal; not an observed storage constraint; unaccepted pending Media owner review
-    sourceRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml]
-    scopeStatus: proposed-from-quality-policy; pending-owner-review
+    sourceRefs:
+      - .product-experience/pdp-0-product-truth/quality-policy.yaml
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.assessment-subject.v1
+      ownerDecisionId: PXD-119
+      disposition: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY
+      path: QualityAssessment → ArtifactVersion | ProcessingJob | MediaRun
+      fieldBinding: QualityAssessment.subjectRefs[]
+      parentIdentityContracts:
+        - objectRef: media.domain.quality-assessment
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
+          identityTuple:
+            - tenantId
+            - outputArtifactVersionRef
+            - assessmentId
+            - methodVersion
+      childIdentityContracts:
+        - objectRef: media.domain.artifact-version
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+          identityTuple: *a6
+        - objectRef: media.domain.processing-job
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+          identityTuple: *a3
+        - objectRef: media.domain.media-run
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run
+          identityTuple: *a7
+      sameTenantRequired: true
+      cardinalityRule: One assessment may bind one or more explicitly selected typed subjects; one subject may have many assessments across methods, versions, and times. No one-summary-per-job assumption.
+      exactVersionRule: Artifact subjects bind exact artifactId/versionId; job and run subjects bind their exact canonical tuples. Assessment identity also binds methodVersion and output subject scope.
+      lifecycleRule: Assessments are immutable observations; a new method, subject version, or rerun creates a distinct assessment. Supersession never rewrites historical evidence.
+      deletionRule: Assessment records follow subject retention/erasure and legal-hold rules; assessment presence does not make a subject available or authorized.
+      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
+ownerNormativeRuleRecords:
+  - id: media.relationship-owner.project-revision.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.project-asset.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-asset/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.asset-artifact-version.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.asset-artifact-version/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.job-plan.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.job-plan/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.job-attempt.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.job-attempt/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.attempt-lease.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.attempt-lease/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.upload-session-chunk.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.upload-session-chunk/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.stream-session-frame.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.stream-session-frame/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.run-checkpoint.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.run-checkpoint/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.scene-model-binding.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.scene-model-binding/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.animation-property-owner.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.animation-property-owner/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.derived-artifact.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.derived-artifact/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition
+  - id: media.relationship-owner.assessment-subject.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.assessment-subject/ownerDefinition
+    sourceRole: flat-index-to-the-exact-nested-owner-definition

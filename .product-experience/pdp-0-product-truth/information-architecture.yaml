@@ -186,3 +186,35 @@ accessibilityDisposition:
     - Captions/transcripts, visible audio controls, reduced motion, forced colors, zoom/text spacing/reflow, and touch-target review.
     - Generated captions, descriptions, and translations are drafts until reviewed; never imply their correctness from generation alone.
   verification: Human usability and accessibility acceptance review remains pending; importing Shared components is not proof of conformance.
+
+materialChangeDisclosure:
+  id: media.information.material-change-disclosure.v1
+  authority: user-delegated-Media-product-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  discloseBeforeEffect:
+    - exact-operation-and-affected-source-or-output-version
+    - changes-to-fidelity-or-preservation
+    - changes-to-person-or-identity-meaning
+    - changes-to-speech-or-narration-meaning
+    - processing-locality-and-external-egress
+    - requested-and-bounded-cost-or-spend
+    - rights-consent-and-license-scope
+    - recipient-destination-and-publication-effect
+  decisionRule: >-
+    Explain each applicable material change before the user confirms a consequential
+    external effect. Bind the explanation to the exact operation, affected version,
+    destination, current policy decision, and stated uncertainty; a generic consent or
+    completion message cannot stand in for the specific change.
+  unknownRule: >-
+    If a material dimension or its exact affected scope is unknown, say what is unknown
+    and block or request review before the effect; never represent an unobserved dimension
+    as unchanged.
+  setupRule: >-
+    Ask only for the minimum missing identity, permission, rights, policy, capability, or
+    destination prerequisite for the selected task. Do not require unrelated provider,
+    model, engine, queue, or project setup when it is not needed for that task.
+  scopeStatus: DEFINITION_ONLY; no UI implementation, user-comprehension finding, or independent acceptance is claimed
+
+ownerNormativeRuleRecords:
+  - id: media.information.material-change-disclosure.v1
+    ruleRef: .product-experience/pdp-0-product-truth/information-architecture.yaml#/materialChangeDisclosure
+    sourceRole: stable-identifier-index-only; rule-body-remains-in-information-architecture

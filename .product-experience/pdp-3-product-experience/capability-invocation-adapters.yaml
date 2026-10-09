@@ -1,0 +1,445 @@
+schemaVersion: media.pdp3-capability-invocation-adapters.v1
+status: OWNER_DEFINED_DEFINITION_ONLY; no job-submit runtime or leaf execution is admitted
+sourceRefs:
+- .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-05
+- .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema
+- .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+records:
+- id: media.pdp3.invocation-adapter.j05-image-analysis.v1
+  journeyRef: J-05
+  stepRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
+  purposeClass: SOURCE_ANALYSIS
+  outcomeRefs:
+  - media.goal.understand-media
+  - media.goal.review-trustworthy-output
+  userActionRef: media.action.submit-validated-request
+  userActionOperationRef: media.operation.action.submit-validated-request
+  invocationOperationRef: media.operation.job.submit.v1
+  invocationOperationVersion: 1
+  selectionMode: EXPLICIT_USER_CHOICE_REQUIRED; no default capability or operation
+  allowedCapabilityRefs:
+  - media.vision.detect
+  - media.vision.classify
+  - media.vision.segment.image
+  - media.vision.track.object
+  - media.vision.track.point
+  - media.vision.estimate.depth
+  - media.vision.estimate.surface-normals
+  - media.vision.estimate.human-pose
+  - media.vision.estimate.hand-pose
+  - media.vision.estimate.face-landmarks
+  - media.vision.analyze.expression
+  - media.vision.analyze.gaze
+  - media.vision.matte.foreground-background
+  targetOperationSelection:
+    sourceCollectionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    targetMustMatchSelectedCapabilityBinding: true
+    operationKind: COMMAND
+    asyncSubmissionDisposition: COMMAND_MAY_BE_SUBMITTED
+    targetOperationVersionSource: exact-selected-target-operation-record
+    rejectQueriesOrderedWorkflowsAndRecursiveJobSubmit: true
+    rejectMissingOrAmbiguousTargetSchema: true
+  requestConstruction:
+    sourceVersionBinding:
+      required: true
+      source: exact-user-selected-immutable-artifact-version
+      subjectType: image-artifact
+      binding: target-request-schema-input-slot-that-declares-the-selected-artifact-type
+      rejectLatestAliasOrVersionSubstitution: true
+    typedInputs:
+      order: exact-target-request-schema-input-slot-order
+      cardinality: exact-required-target-slots; no omission, duplication, reordering, or extra values
+      schemaSource: exact-selected-capability-operation-requestSchema
+      valueSource: explicit-user-input-or-exact-current-owner-observation; no inferred defaults
+      rejectUnknownFields: true
+    parameters:
+      schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters
+      defaults: none
+      rejectUnknownFields: true
+    profile:
+      required: true
+      selection: explicitly-selected-versioned-profile-compatible-with-exact-capability-and-purpose
+      implicitDefault: forbidden
+    fallbackPolicy:
+      required: true
+      selection: explicit-user-or-policy-bound-choice
+      silentFallback: forbidden
+    deadlineAndResourceBudget:
+      required: true
+      bindTo: current-purpose-and-exact-target-request
+      absentOrStale: HOLD_UNKNOWN
+    purpose:
+      required: true
+      valueSource: exact-P0-journey-outcome-and-user-selected-source-analysis-purpose
+  finality:
+    acceptanceMeans: durable-job-submit-receipt-only
+    completionMeans: none
+    unknownOutcome: retain-same-request-identity-and-reconcile-before-any-retry
+    sourceMutation: none; the selected immutable source version remains unchanged
+  recovery: Reconcile the same submission identity; never blind-retry an unknown outcome or replace the selected
+    source.
+  runtimeAdmission: NOT_ADMITTED
+  independentAcceptance: OPEN
+  decisionRef: .product-experience/decision-log.md#PXD-119
+- id: media.pdp3.invocation-adapter.j06-source-grounded.v1
+  journeyRef: J-06
+  stepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
+  purposeClass: SOURCE_GROUNDED_MULTIMODAL
+  outcomeRefs:
+  - media.goal.understand-media
+  - media.goal.integrate-repeatably
+  userActionRef: media.action.submit-validated-request
+  userActionOperationRef: media.operation.action.submit-validated-request
+  invocationOperationRef: media.operation.job.submit.v1
+  invocationOperationVersion: 1
+  selectionMode: EXPLICIT_SOURCE_GROUNDED_ANALYSIS_REQUEST; target capability is COMMAND and user selection is required
+  allowedCapabilityRefs: [media.multimodal.observe.source-grounded]
+  targetOperationSelection:
+    sourceCollectionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    targetMustMatchSelectedCapabilityBinding: true
+    operationKind: COMMAND
+    asyncSubmissionDisposition: COMMAND_MAY_BE_SUBMITTED
+    targetOperationVersionSource: exact-selected-target-operation-record
+    rejectQueriesOrderedWorkflowsAndRecursiveJobSubmit: true
+    rejectMissingOrAmbiguousTargetSchema: true
+  requestConstruction:
+    sourceVersionBinding:
+      required: true
+      source: exact-user-selected-immutable-artifact-version
+      subjectType: authorized-media-artifacts
+      binding: input1 artifactId/versionId plus trusted tenant context; no latest alias
+      rejectLatestAliasOrVersionSubstitution: true
+    typedInputs:
+      order: [input1: authorized-media-artifacts, input2: analysis-request]
+      cardinality: exactly one selected immutable source and one closed analysis request
+      schemaSource: exact-selected-capability-operation-requestSchema
+      valueSource: explicit user input; no inferred region, time range, dimension, or criteria
+      rejectUnknownFields: true
+    parameters:
+      schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters
+      defaults: none
+      rejectUnknownFields: true
+    profile:
+      required: true
+      selection: explicitly-selected-versioned-profile-compatible-with-exact-capability-and-purpose
+      implicitDefault: forbidden
+    fallbackPolicy:
+      required: true
+      selection: explicit-user-or-policy-bound-choice
+      silentFallback: forbidden
+    deadlineAndResourceBudget:
+      required: true
+      bindTo: selected source version and exact analysis request
+      absentOrStale: HOLD_UNKNOWN
+    purpose:
+      required: true
+      valueSource: J-06 source-grounded typed-result purpose; generic document parsing remains Document Intelligence-owned
+  expectedSuccessOutput:
+    artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+    payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+    required: true
+    requiresExactSourceVersionAndProvenance: true
+  finality:
+    acceptanceMeans: durable-job-submit-receipt-only
+    completionMeans: exact source-grounded output only after typed output observation
+    unknownOutcome: retain same request identity and reconcile before any retry
+    sourceMutation: none; preserve selected source version
+  recovery: Preserve the exact source and analysis request; reconcile unknown submission before retry; never fabricate a result or substitute a newer source.
+  runtimeAdmission: NOT_ADMITTED
+  independentAcceptance: OPEN
+  decisionRef: .product-experience/decision-log.md#PXD-119
+- id: media.pdp3.invocation-adapter.j05-video-analysis.v1
+  journeyRef: J-05
+  stepRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/1
+  purposeClass: SOURCE_ANALYSIS
+  outcomeRefs:
+  - media.goal.understand-media
+  - media.goal.review-trustworthy-output
+  userActionRef: media.action.submit-validated-request
+  userActionOperationRef: media.operation.action.submit-validated-request
+  invocationOperationRef: media.operation.job.submit.v1
+  invocationOperationVersion: 1
+  selectionMode: EXPLICIT_USER_CHOICE_REQUIRED; no default capability or operation
+  allowedCapabilityRefs:
+  - media.vision.segment.video
+  - media.vision.track.object
+  - media.vision.track.point
+  - media.vision.estimate.optical-flow
+  - media.vision.segment.motion
+  - media.vision.detect.shot-boundary
+  - media.vision.estimate.camera-motion
+  targetOperationSelection:
+    sourceCollectionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    targetMustMatchSelectedCapabilityBinding: true
+    operationKind: COMMAND
+    asyncSubmissionDisposition: COMMAND_MAY_BE_SUBMITTED
+    targetOperationVersionSource: exact-selected-target-operation-record
+    rejectQueriesOrderedWorkflowsAndRecursiveJobSubmit: true
+    rejectMissingOrAmbiguousTargetSchema: true
+  requestConstruction:
+    sourceVersionBinding:
+      required: true
+      source: exact-user-selected-immutable-artifact-version
+      subjectType: video-artifact
+      binding: target-request-schema-input-slot-that-declares-the-selected-artifact-type
+      rejectLatestAliasOrVersionSubstitution: true
+    typedInputs:
+      order: exact-target-request-schema-input-slot-order
+      cardinality: exact-required-target-slots; no omission, duplication, reordering, or extra values
+      schemaSource: exact-selected-capability-operation-requestSchema
+      valueSource: explicit-user-input-or-exact-current-owner-observation; no inferred defaults
+      rejectUnknownFields: true
+    parameters:
+      schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters
+      defaults: none
+      rejectUnknownFields: true
+    profile:
+      required: true
+      selection: explicitly-selected-versioned-profile-compatible-with-exact-capability-and-purpose
+      implicitDefault: forbidden
+    fallbackPolicy:
+      required: true
+      selection: explicit-user-or-policy-bound-choice
+      silentFallback: forbidden
+    deadlineAndResourceBudget:
+      required: true
+      bindTo: current-purpose-and-exact-target-request
+      absentOrStale: HOLD_UNKNOWN
+    purpose:
+      required: true
+      valueSource: exact-P0-journey-outcome-and-user-selected-source-analysis-purpose
+  finality:
+    acceptanceMeans: durable-job-submit-receipt-only
+    completionMeans: none
+    unknownOutcome: retain-same-request-identity-and-reconcile-before-any-retry
+    sourceMutation: none; the selected immutable source version remains unchanged
+  recovery: Reconcile the same submission identity; never blind-retry an unknown outcome or replace the selected
+    source.
+  runtimeAdmission: NOT_ADMITTED
+  independentAcceptance: OPEN
+  decisionRef: .product-experience/decision-log.md#PXD-119
+- id: media.pdp3.invocation-adapter.j08-video-repair.v1
+  journeyRef: J-08
+  stepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+  purposeClass: SOURCE_VIDEO_REPAIR
+  outcomeRefs:
+  - media.goal.improve-with-disclosure
+  - media.goal.preserve-source
+  - media.goal.finished-asset
+  userActionRef: media.action.submit-validated-request
+  userActionOperationRef: media.operation.action.submit-validated-request
+  invocationOperationRef: media.operation.job.submit.v1
+  invocationOperationVersion: 1
+  selectionMode: EXPLICIT_USER_CHOICE_REQUIRED; no default capability or operation
+  allowedCapabilityRefs:
+  - media.enhance.video.spatiotemporal-super-resolution
+  - media.enhance.video.interpolation
+  - media.enhance.video.temporal-denoise
+  - media.enhance.video.temporal-deblur
+  - media.enhance.video.compression-repair
+  - media.enhance.video.deflicker
+  - media.enhance.video.temporal-consistency
+  - media.enhance.video.stabilize
+  - media.enhance.video.rolling-shutter
+  - media.enhance.video.frame-repair
+  - media.enhance.video.frame-rate-conversion
+  - media.enhance.video.motion-blur-synthesis
+  - media.enhance.video.grain.adjust
+  - media.enhance.video.deinterlace
+  - media.enhance.video.inverse-telecine-cadence
+  targetOperationSelection:
+    sourceCollectionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    targetMustMatchSelectedCapabilityBinding: true
+    operationKind: COMMAND
+    asyncSubmissionDisposition: COMMAND_MAY_BE_SUBMITTED
+    targetOperationVersionSource: exact-selected-target-operation-record
+    rejectQueriesOrderedWorkflowsAndRecursiveJobSubmit: true
+    rejectMissingOrAmbiguousTargetSchema: true
+  requestConstruction:
+    sourceVersionBinding:
+      required: true
+      source: exact-user-selected-immutable-artifact-version
+      subjectType: video-artifact
+      binding: target-request-schema-input-slot-that-declares-the-selected-artifact-type
+      rejectLatestAliasOrVersionSubstitution: true
+    typedInputs:
+      order: exact-target-request-schema-input-slot-order
+      cardinality: exact-required-target-slots; no omission, duplication, reordering, or extra values
+      schemaSource: exact-selected-capability-operation-requestSchema
+      valueSource: explicit-user-input-or-exact-current-owner-observation; no inferred defaults
+      rejectUnknownFields: true
+    parameters:
+      schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters
+      defaults: none
+      rejectUnknownFields: true
+    profile:
+      required: true
+      selection: explicitly-selected-versioned-profile-compatible-with-exact-capability-and-purpose
+      implicitDefault: forbidden
+    fallbackPolicy:
+      required: true
+      selection: explicit-user-or-policy-bound-choice
+      silentFallback: forbidden
+    deadlineAndResourceBudget:
+      required: true
+      bindTo: current-purpose-and-exact-target-request
+      absentOrStale: HOLD_UNKNOWN
+    purpose:
+      required: true
+      valueSource: exact-P0-journey-outcome-and-user-selected-video-repair-purpose
+  finality:
+    acceptanceMeans: durable-job-submit-receipt-only
+    completionMeans: none
+    unknownOutcome: retain-same-request-identity-and-reconcile-before-any-retry
+    sourceMutation: none; the selected immutable source version remains unchanged
+  recovery: Reconcile the same submission identity; never blind-retry an unknown outcome or replace the selected
+    source.
+  runtimeAdmission: NOT_ADMITTED
+  independentAcceptance: OPEN
+  decisionRef: .product-experience/decision-log.md#PXD-119
+- id: media.pdp3.invocation-adapter.j09-brief-video-generation.v1
+  journeyRef: J-09
+  stepRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/3
+  purposeClass: BRIEF_TO_VIDEO_GENERATION
+  outcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.explain-or-demonstrate
+  - media.goal.review-trustworthy-output
+  - media.goal.deliver-approved-output
+  userActionRef: media.action.submit-validated-request
+  userActionOperationRef: media.operation.action.submit-validated-request
+  invocationOperationRef: media.operation.job.submit.v1
+  invocationOperationVersion: 1
+  selectionMode: EXPLICIT_USER_CHOICE_REQUIRED; no default capability or operation
+  allowedCapabilityRefs:
+  - media.generate.video.text-to-video
+  - media.generate.video.image-to-video
+  - media.generate.video.text-image-to-video
+  targetOperationSelection:
+    sourceCollectionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    targetMustMatchSelectedCapabilityBinding: true
+    operationKind: COMMAND
+    asyncSubmissionDisposition: COMMAND_MAY_BE_SUBMITTED
+    targetOperationVersionSource: exact-selected-target-operation-record
+    rejectQueriesOrderedWorkflowsAndRecursiveJobSubmit: true
+    rejectMissingOrAmbiguousTargetSchema: true
+  requestConstruction:
+    sourceVersionBinding:
+      required: true
+      source: exact-user-selected-immutable-version-for-each-reference-input
+      subjectType: exact-target-schema-declared-reference-subject
+      binding: exact-selected-request-schema-input-slot-and-typed-version-tuple
+      rejectLatestAliasOrVersionSubstitution: true
+    typedInputs:
+      order: exact-target-request-schema-input-slot-order
+      cardinality: exact-required-target-slots; no omission, duplication, reordering, or extra values
+      schemaSource: exact-selected-capability-operation-requestSchema
+      valueSource: explicit brief, user-selected references, and confirmed controls only
+      rejectUnknownFields: true
+    parameters:
+      schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters
+      defaults: none
+      rejectUnknownFields: true
+    profile:
+      required: true
+      selection: explicitly-selected-versioned-profile-compatible-with-exact-capability-and-purpose
+      implicitDefault: forbidden
+    fallbackPolicy:
+      required: true
+      selection: explicit-user-or-policy-bound-choice
+      silentFallback: forbidden
+    deadlineAndResourceBudget:
+      required: true
+      bindTo: exact-brief-reference-and-target-request
+      absentOrStale: HOLD_UNKNOWN
+    purpose:
+      required: true
+      valueSource: J-09 brief/storyboard video-generation purpose; exact selected target must be video generation
+  expectedSuccessOutput:
+    artifactType: generated-video-candidate-with-source-and-parameter-provenance
+    payloadSchemaRef: exact-selected-target-operation-success-output-schema
+    required: true
+    requiresExactRequestAndInputVersionBinding: true
+  finality:
+    acceptanceMeans: durable-job-submit-receipt-only
+    completionMeans: exact generated candidate only after authoritative output observation
+    unknownOutcome: retain same request identity and reconcile before any retry
+    sourceMutation: none; brief and selected reference versions remain unchanged
+  recovery: Preserve the brief and exact selected reference versions; reconcile unknown submission before retry; do not substitute a newer reference.
+  runtimeAdmission: NOT_ADMITTED
+  independentAcceptance: OPEN
+  decisionRef: .product-experience/decision-log.md#PXD-119
+- id: media.pdp3.invocation-adapter.j10-controlled-video-generation.v1
+  journeyRef: J-10
+  stepRef: .product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml#/steps/1
+  purposeClass: CONTROLLED_VIDEO_GENERATION
+  outcomeRefs:
+  - media.goal.finished-asset
+  - media.goal.explain-or-demonstrate
+  userActionRef: media.action.submit-validated-request
+  userActionOperationRef: media.operation.action.submit-validated-request
+  invocationOperationRef: media.operation.job.submit.v1
+  invocationOperationVersion: 1
+  selectionMode: EXPLICIT_USER_CHOICE_REQUIRED; no default capability or operation
+  allowedCapabilityRefs:
+  - media.generate.video.image-to-video
+  - media.generate.video.video-to-video
+  - media.generate.video.text-image-to-video
+  - media.generate.video.keyframe.start
+  - media.generate.video.keyframe.end
+  - media.generate.video.keyframe.intermediate
+  - media.generate.video.reference-video
+  targetOperationSelection:
+    sourceCollectionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    targetMustMatchSelectedCapabilityBinding: true
+    operationKind: COMMAND
+    asyncSubmissionDisposition: COMMAND_MAY_BE_SUBMITTED
+    targetOperationVersionSource: exact-selected-target-operation-record
+    rejectQueriesOrderedWorkflowsAndRecursiveJobSubmit: true
+    rejectMissingOrAmbiguousTargetSchema: true
+  requestConstruction:
+    sourceVersionBinding:
+      required: true
+      source: exact-user-selected-immutable-reference-and-control-versions
+      subjectType: exact-target-schema-declared-reference-subject
+      binding: exact-selected-request-schema-input-slot-and-typed-version-tuple
+      rejectLatestAliasOrVersionSubstitution: true
+    typedInputs:
+      order: exact-target-request-schema-input-slot-order
+      cardinality: exact-required-target-slots; no omission, duplication, reordering, or extra values
+      schemaSource: exact-selected-capability-operation-requestSchema
+      valueSource: explicit user-selected references, protected-region controls, and confirmed parameters only
+      rejectUnknownFields: true
+    parameters:
+      schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters
+      defaults: none
+      rejectUnknownFields: true
+    profile:
+      required: true
+      selection: explicitly-selected-versioned-profile-compatible-with-exact-capability-and-purpose
+      implicitDefault: forbidden
+    fallbackPolicy:
+      required: true
+      selection: explicit-user-or-policy-bound-choice
+      silentFallback: forbidden
+    deadlineAndResourceBudget:
+      required: true
+      bindTo: selected source/control versions and exact target request
+      absentOrStale: HOLD_UNKNOWN
+    purpose:
+      required: true
+      valueSource: J-10 controlled video generation with explicit references and continuity constraints
+  expectedSuccessOutput:
+    artifactType: controlled-video-candidate-with-source-control-and-uncertainty-provenance
+    payloadSchemaRef: exact-selected-target-operation-success-output-schema
+    required: true
+    requiresExactSourceControlAndRequestBinding: true
+  finality:
+    acceptanceMeans: durable-job-submit-receipt-only
+    completionMeans: exact generated candidate only after authoritative output observation
+    unknownOutcome: retain same request identity and reconcile before any retry
+    sourceMutation: none; reference versions and protected source remain unchanged
+  recovery: Preserve source/reference/control versions; reconcile unknown submission before retry; expose unsupported controls as unresolved rather than implying continuity.
+  runtimeAdmission: NOT_ADMITTED
+  independentAcceptance: OPEN
+  decisionRef: .product-experience/decision-log.md#PXD-119

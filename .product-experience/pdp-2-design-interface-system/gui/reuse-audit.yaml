@@ -1161,10 +1161,34 @@ ecosystemReuseReview:
     evidence:
     - sibling-repository:gharbatai/packages/gharbatai/forms-react-hook-form/package.json
     - sibling-repository:gharbatai/packages/gharbatai/table-tanstack/package.json
-  verificationBoundary:
+verificationBoundary:
     sourceReview: Local sibling package source/manifests/exports and current Media/AI Voice consumer source; not package registry resolution, release verification, or external owner acceptance.
     styleBoundary: Explorer CSP enforces style-src-attr 'none'; local Media CSS remains structural/system-color fallback, not Shared visual qualification.
     acceptanceBoundary: No new component, package, theme, shell, auth/session, form, table/filter, loading/error, accessibility, or token binding is admitted by this review. Existing owner/accessibility and visual review gates remain open.
+
+normativeRuleRecords:
+  - id: media.shared-package-presence-is-not-interface-proof.v1
+    sourceAuthority: Media P2 source-boundary definition
+    rule: >-
+      A package manifest, installed package, version string, or source-tree presence alone does not prove that a
+      capability is publicly exported, that the exported API is stable for consumers, that the actual consumer is
+      isolated from private or transitive implementation details, that applicable direct and transitive licenses are
+      cleared, or that the implementation is functionally complete for the Media contract. Each claim requires its
+      own exact source evidence: package export map and exported symbol, versioned API/schema contract and compatibility
+      policy, consumer import boundary, component and transitive dependency/license evidence, and behavior against
+      the exact Media contract. If any evidence is absent or mismatched, retain the exact candidate as unbound or
+      contract-only and do not infer publication, stability, legal clearance, behavior, or runtime admission.
+    applicability: All Shared or external package and component reuse claims in the Media product definition.
+    requiredEvidence:
+      - exact package identity, immutable source or artifact version, and exported path/symbol
+      - versioned public API or component contract and compatibility policy
+      - actual Media consumer dependency and import boundary
+      - direct, transitive, and embedded dependency license evidence
+      - behavior evidence against the exact typed Media contract
+    unknownDisposition: Keep the claim unbound; missing evidence is not evidence of support or rejection.
+    runtimeAdmission: NOT_ADMITTED
+    independentAcceptance: OPEN
+    acceptanceEffect: none
 grammarCoverageInventory:
   authority: Media P2 design-source inventory; entries identify source authorities and do not assert that their grammar is accepted or independently reviewed.
   dimensions:

@@ -1,0 +1,2042 @@
+{
+  "schemaVersion": "media.pdp38.animation-input-optionality-observation.v1",
+  "observedAt": "2026-10-09T17:22:49.107Z",
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "795f455c9804b8ebbd9c5de29ea41eb1eaef91c17f95a979df344cc423dd8b72",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "62cbbd7a54f782e71826a49ac2a3a97f8a753a2718737881aef70547ce3ffa46"
+  },
+  "records": [
+    {
+      "capabilityRef": "media.animation.2d",
+      "operationRef": "media.operation.capability.media-animation-2d",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-2d"
+    },
+    {
+      "capabilityRef": "media.animation.vector",
+      "operationRef": "media.operation.capability.media-animation-vector",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-vector"
+    },
+    {
+      "capabilityRef": "media.animation.3d",
+      "operationRef": "media.operation.capability.media-animation-3d",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d"
+    },
+    {
+      "capabilityRef": "media.animation.keyframe",
+      "operationRef": "media.operation.capability.media-animation-keyframe",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-keyframe"
+    },
+    {
+      "capabilityRef": "media.animation.interpolation-easing",
+      "operationRef": "media.operation.capability.media-animation-interpolation-easing",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-interpolation-easing"
+    },
+    {
+      "capabilityRef": "media.animation.procedural",
+      "operationRef": "media.operation.capability.media-animation-procedural",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-procedural"
+    },
+    {
+      "capabilityRef": "media.animation.path",
+      "operationRef": "media.operation.capability.media-animation-path",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-path"
+    },
+    {
+      "capabilityRef": "media.animation.skeletal",
+      "operationRef": "media.operation.capability.media-animation-skeletal",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-skeletal"
+    },
+    {
+      "capabilityRef": "media.animation.inverse-kinematics",
+      "operationRef": "media.operation.capability.media-animation-inverse-kinematics",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-inverse-kinematics"
+    },
+    {
+      "capabilityRef": "media.animation.constraint",
+      "operationRef": "media.operation.capability.media-animation-constraint",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-constraint"
+    },
+    {
+      "capabilityRef": "media.animation.morph-target",
+      "operationRef": "media.operation.capability.media-animation-morph-target",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-morph-target"
+    },
+    {
+      "capabilityRef": "media.animation.camera",
+      "operationRef": "media.operation.capability.media-animation-camera",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-camera"
+    },
+    {
+      "capabilityRef": "media.animation.material",
+      "operationRef": "media.operation.capability.media-animation-material",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-material"
+    },
+    {
+      "capabilityRef": "media.animation.light",
+      "operationRef": "media.operation.capability.media-animation-light",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-light"
+    },
+    {
+      "capabilityRef": "media.animation.particle",
+      "operationRef": "media.operation.capability.media-animation-particle",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-particle"
+    },
+    {
+      "capabilityRef": "media.animation.drive.physics",
+      "operationRef": "media.operation.capability.media-animation-drive-physics",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-physics"
+    },
+    {
+      "capabilityRef": "media.animation.drive.audio",
+      "operationRef": "media.operation.capability.media-animation-drive-audio",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-audio"
+    },
+    {
+      "capabilityRef": "media.animation.drive.speech",
+      "operationRef": "media.operation.capability.media-animation-drive-speech",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-speech"
+    },
+    {
+      "capabilityRef": "media.animation.drive.pose",
+      "operationRef": "media.operation.capability.media-animation-drive-pose",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-drive-pose"
+    },
+    {
+      "capabilityRef": "media.animation.facial-expression",
+      "operationRef": "media.operation.capability.media-animation-facial-expression",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-facial-expression"
+    },
+    {
+      "capabilityRef": "media.animation.gaze",
+      "operationRef": "media.operation.capability.media-animation-gaze",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-gaze"
+    },
+    {
+      "capabilityRef": "media.animation.lip",
+      "operationRef": "media.operation.capability.media-animation-lip",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-lip"
+    },
+    {
+      "capabilityRef": "media.animation.motion-capture.extract",
+      "operationRef": "media.operation.capability.media-animation-motion-capture-extract",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-motion-capture-extract"
+    },
+    {
+      "capabilityRef": "media.animation.motion.retarget",
+      "operationRef": "media.operation.capability.media-animation-motion-retarget",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-motion-retarget"
+    },
+    {
+      "capabilityRef": "media.animation.character",
+      "operationRef": "media.operation.capability.media-animation-character",
+      "requestRequired": [
+        "parameters",
+        "input1",
+        "requestId"
+      ],
+      "input2": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactType",
+          "payload"
+        ],
+        "properties": {
+          "artifactType": {
+            "const": "optional-rig-scene-or-media-references"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "reference"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "optional-rig-scene"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "artifactId",
+                  "versionId"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "media-references"
+                  },
+                  "artifactId": {
+                    "type": "string",
+                    "format": "opaque-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "versionId": {
+                    "type": "string",
+                    "format": "opaque-version-id",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sourceRef": {
+                    "type": "string",
+                    "format": "opaque-versioned-reference",
+                    "minLength": 1,
+                    "maxLength": 384
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-character"
+    }
+  ],
+  "recordCount": 25,
+  "mandatoryReferenceSlotCount": 0,
+  "status": "OPTIONAL_REFERENCE_SLOT_CONFIRMED_IN_CAPTURED_SOURCE",
+  "boundary": "Source observation only; no current runtime, acceptance, or receipt claim.",
+  "intentAuthoredCapabilityRefs": [
+    "media.animation.2d",
+    "media.animation.vector",
+    "media.animation.3d",
+    "media.animation.keyframe",
+    "media.animation.interpolation-easing",
+    "media.animation.procedural",
+    "media.animation.path",
+    "media.animation.skeletal",
+    "media.animation.inverse-kinematics",
+    "media.animation.constraint",
+    "media.animation.morph-target",
+    "media.animation.camera",
+    "media.animation.material",
+    "media.animation.light",
+    "media.animation.particle",
+    "media.animation.drive.physics",
+    "media.animation.drive.audio",
+    "media.animation.drive.speech",
+    "media.animation.drive.pose",
+    "media.animation.facial-expression",
+    "media.animation.gaze",
+    "media.animation.lip",
+    "media.animation.motion.retarget",
+    "media.animation.character"
+  ],
+  "mandatorySourceException": "media.animation.motion-capture.extract retains its required input1; optional input2 does not permit capture-free inference.",
+  "meaning": "All 25 captured animation requests already permit omission of input2. The 24 intent-authored leaves support source-free definition authoring; the separately identified capture leaf still requires its capture source. Present references retain their closed typed schema. No new optionality schema change is needed for this observed cut."
+}

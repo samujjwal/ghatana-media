@@ -122,7 +122,7 @@ steps:
       journeyRef: J-29
       ordinal: 1
       viewRef: media.view.review-activity
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
       action:
         actionRef: null
@@ -387,7 +387,7 @@ steps:
           canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
     scenarioRefs: []
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
@@ -485,7 +485,7 @@ steps:
       journeyRef: J-29
       ordinal: 2
       viewRef: media.view.job-status
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
       action:
         actionRef: null
@@ -752,7 +752,7 @@ steps:
           canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
     scenarioRefs: []
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
@@ -850,7 +850,7 @@ steps:
       journeyRef: J-29
       ordinal: 3
       viewRef: media.view.job-status
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
       action:
         actionRef: null
@@ -1110,7 +1110,7 @@ steps:
           canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
     scenarioRefs: []
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation

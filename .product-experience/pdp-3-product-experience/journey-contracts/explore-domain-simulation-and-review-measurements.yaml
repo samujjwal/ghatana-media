@@ -1000,7 +1000,7 @@ steps:
         operationRefs:
           - media.operation.action.inspect-quality-evidence
         effectClaim: see-stepOutcomeSemantics
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED

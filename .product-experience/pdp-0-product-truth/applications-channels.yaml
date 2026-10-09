@@ -221,6 +221,33 @@ channels:
         - .product-experience/pdp-1-domain-data/operations.yaml#actionOperationDispositionInventory
         - Master-plan sections 17 and 20 cited by media.channel.cli
       definitionOnly: true
+      commandSurfaceSeparationRule:
+        id: media.cli.typed-command-surface-separation.v1
+        rule: >-
+          A CLI command binds one exact canonical operation/action and one
+          invocation mode. Batch, streaming observation, simulation, inference,
+          and transport are distinct typed ports with command-specific request,
+          result, flag, authority, and finality rules; a shared command grammar
+          does not make their payloads or lifecycle interchangeable. Commands
+          may compose declared operations only through their exact owner contracts.
+          Do not create a universal provider SPI that requires irrelevant methods,
+          invents fake implementations for absent capabilities, or treats one
+          transport's request shape as another operation's semantic contract.
+          Capability absence is explicit and does not become a successful no-op.
+        requiredBindings:
+          - exact-command-id-and-version
+          - canonical-operation-or-action-ref
+          - one-declared-invocation-mode
+          - command-specific-closed-request-and-result-schema
+          - command-specific-flags-authority-and-finality
+        invocationModes: [ READ_QUERY, MUTATING_COMMAND, ASYNC_SUBMISSION, STREAM_OBSERVATION, BATCH_EXECUTION, SIMULATION, INFERENCE ]
+        invalidCases:
+          - one-command-schema-reused-across-unrelated-invocation-modes
+          - missing-capability-silently-treated-as-successful-no-op
+          - unrelated-operation-flag-accepted-by-a-command
+          - transport-request-shape-inferred-from-command-name
+        scopeStatus: OWNER_DEFINED_CLI_DEFINITION_ONLY; no executable or channel behavior is admitted
+        executionAdmission: NOT_ADMITTED
       pathHandling:
         rule: A local filesystem path is a client-side input reference only. Never
           reinterpret it as an HTTP route, URL, server filesystem path, or
@@ -228,6 +255,31 @@ channels:
         serverRead: A server-side read requires an exact canonical Media
           artifact/version identity and current authorized query contract; local
           paths are not Media artifact identities.
+      filenameArgumentRule:
+        id: media.cli.filename-argument.v1
+        inputArguments:
+          representation: Each path is one argv argument; spaces, Unicode code
+            points, and literal shell metacharacters remain part of that argument.
+          encoding: Preserve the platform path encoding and the supplied Unicode
+            sequence; do not split, shell-expand, interpolate, or silently
+            normalize a filename.
+          execution: Invoke a process with an argument vector or equivalent safe
+            API. Never construct a shell command string from a path or pass a path
+            through a shell for tokenization.
+          boundaries: Local paths remain client-side. A path is not a URL, route,
+            server path, or authorization token; server-side operations require
+            canonical artifact/version references and their own authority checks.
+        outputPaths:
+          representation: Treat the destination as one literal client-side path
+            argument with the same no-splitting and no-shell-interpolation rules.
+          overwrite: Do not overwrite an existing destination unless the exact
+            command declares an explicit overwrite option and confirms the
+            resolved destination identity before writing.
+          errors: Reject invalid or inaccessible destinations before reporting a
+            successful write; never silently substitute a different path.
+        scopeStatus: OWNER_DEFINED_CLI_PATH_ARGUMENT_SEMANTICS; filesystem behavior
+          and CLI execution remain NOT_EVALUATED.
+        executionAdmission: NOT_ADMITTED
       interruptHandling:
         ctrlC:
           effect: stop-local-wait-or-stream-observation
@@ -237,6 +289,74 @@ channels:
           unknownMutationOutcome: A command already sent remains pending or
             OUTCOME_UNKNOWN until an exact authorized reconciliation query
             resolves it; interruption does not imply rejection or cancellation.
+      remoteCancellationRule:
+        id: media.cli.remote-cancellation.v1
+        rule: Remote cancellation is a separate explicit command. Ctrl-C stops
+          only the local wait or stream observer; it never sends a cancellation
+          request, changes job state, or proves provider termination. No
+          --cancel-on-interrupt behavior is defined by this contract.
+        command:
+          id: media.cli.job.cancel
+          canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job
+          invocation: explicit-user-command
+          requestSchema: inherit-the-exact-canonical-operation-request; do not
+            synthesize caller tenant/principal, authority, consent, fence, or
+            request identity fields.
+          requiredCurrentChecks:
+            - host-attested-tenant-and-principal
+            - operation-specific-current-cancel-authority
+            - current-job-version-and-attempt-fence
+            - current-policy-and-deadline
+          resultSemantics:
+            accepted: cancellation-request-receipt-only; job remains nonterminal
+              until authoritative terminal state is observed.
+            rejected: preserve the exact canonical rejection reason; no state
+              change is inferred.
+            unknown: preserve OUTCOME_UNKNOWN and reconcile through the exact
+              authorized job query before any retry.
+            providerTermination: never implied by command receipt, process exit,
+              or observer interruption.
+        scopeStatus: OWNER_DEFINED_CLI_COMMAND_SEMANTICS; no CLI executable,
+          parser, route, server cancellation, or runtime support is admitted.
+        executionAdmission: NOT_ADMITTED
+      submissionWaitRule:
+        id: media.cli.submission-wait.v1
+        submission: Default remote submission returns after the canonical job-submit
+          operation records durable acceptance. Exit 0 means that submission action
+          succeeded; it does not mean media processing or delivery completed.
+        wait: --wait is an explicit local observation mode and returns only an
+          authoritative final result or an explicit non-success/unknown outcome.
+          --no-wait is mutually exclusive with --wait and returns after acceptance.
+        timeout: --timeout bounds the local observation wait only unless a distinct
+          canonical request field explicitly defines a server deadline.
+        unknown: An interrupted or timed-out local observer leaves the submitted
+          operation pending or OUTCOME_UNKNOWN; it does not cancel remote work.
+        canonicalSubmissionRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1
+        executionAdmission: NOT_ADMITTED
+      machineOutputRule:
+        id: media.cli.machine-output.v1
+        json: --json emits exactly one versioned result-or-error object on stdout; no
+          banners, ANSI escapes, progress, or diagnostic prose are allowed there.
+        jsonl: --jsonl is a distinct streaming observation mode and is not an alias
+          for the single-object result mode.
+        diagnostics: Diagnostics are sent to stderr and redacted for credentials,
+          provider request/response bodies, and protected source content.
+        terminal: Non-TTY output, NO_COLOR, --quiet, terminal width, and accessible
+          plain-text presentation may affect presentation only, never command exit
+          or operation finality semantics.
+        scopeStatus: OWNER_DEFINED_CLI_OUTPUT_SEMANTICS; command implementations
+          and channel admission remain NOT_EVALUATED.
+        executionAdmission: NOT_ADMITTED
+      configurationPrecedenceRule:
+        id: media.cli.configuration-precedence.v1
+        precedence: [explicit-flag, environment, selected-project-or-profile-file,
+          user-configuration, product-default]
+        policy: Every effective value remains constrained by non-overridable
+          identity, security, rights, consent, locality, and resource policy.
+        validation: Reject conflicting or unknown profile fields before effect.
+        display: config show reports effective values and safe provenance; secrets
+          are never displayed. Configuration files are declarative data, not scripts.
+        executionAdmission: NOT_ADMITTED
       flagApplicability:
         rule: Each flag is declared per exact command identity and request schema;
           unknown, inapplicable, or conflicting flags fail before dispatch. A
@@ -281,6 +401,26 @@ channels:
       archive/media-desktop-apps/ai-voice-desktop/README.md
     supportRule: Archive retention preserves source history only; do not list as a
       supported current product channel.
+
+ownerNormativeRuleRecords:
+  - id: media.cli.typed-command-surface-separation.v1
+    ruleRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule
+    scopeStatus: OWNER_DEFINED_CLI_DEFINITION_ONLY; runtime and admission remain unestablished.
+  - id: media.cli.filename-argument.v1
+    ruleRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/filenameArgumentRule
+    scopeStatus: OWNER_DEFINED_CLI_PATH_ARGUMENT_SEMANTICS; runtime and admission remain unestablished.
+  - id: media.cli.remote-cancellation.v1
+    ruleRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/remoteCancellationRule
+    scopeStatus: OWNER_DEFINED_CLI_COMMAND_SEMANTICS; runtime and admission remain unestablished.
+  - id: media.cli.submission-wait.v1
+    ruleRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/submissionWaitRule
+    scopeStatus: OWNER_DEFINED_CLI_COMMAND_SEMANTICS; runtime and admission remain unestablished.
+  - id: media.cli.machine-output.v1
+    ruleRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/machineOutputRule
+    scopeStatus: OWNER_DEFINED_CLI_OUTPUT_SEMANTICS; runtime and admission remain unestablished.
+  - id: media.cli.configuration-precedence.v1
+    ruleRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/configurationPrecedenceRule
+    scopeStatus: OWNER_DEFINED_CLI_CONFIGURATION_SEMANTICS; runtime and admission remain unestablished.
 
 capabilityChannelAliases:
   status: proposed-vocabulary-normalization; does-not-establish-per-operation-support

@@ -7,14 +7,17 @@ surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.task-setup
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.task-setup]
+layoutIds:
+  - media.gui.layout.task-setup
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.project-context-summary
   - media.component.artifact-source-picker
   - media.component.artifact-integrity-summary
   - media.component.rights-retention-review
-componentBindingStatus: Media-owned composition selected from this view's source/version/integrity/rights anatomy and existing typed components; renderer and acceptance pending
+componentBindingStatus: Media-owned composition selected from this view's
+  source/version/integrity/rights anatomy and existing typed components;
+  renderer and acceptance pending
 patternIds:
   - media.gui.pattern.source-picker
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
@@ -22,33 +25,71 @@ tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
 domainObjectRefs: []
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: []
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+operationRefs:
+  - media.operation-slice.inspect-artifact-version
+requirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-entry: []
+entry:
+  - "The caller must satisfy the exact screen context and subject scope in this
+    contract: select one authorized source artifact version for speech
+    understanding."
+  - Before the corresponding action, require the source-defined guard
+    “source-version-visible”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “current-read-authority”; absent or stale context leaves the action
+    unavailable.
 entryBindingStatus: unresolved-no-exact-canonical-reference-declared
-exit: []
+exit:
+  - "media.action.choose-source: local-selection-only.
+    preserve-project-and-filter-context"
+  - "media.action.inspect-source: read-only.
+    explain-unavailable-metadata-without-rejecting-the-source-implicitly"
+  - A local or read-only result does not imply a domain transition; an unknown
+    owner outcome stays UNKNOWN and retains the exact subject for
+    reconciliation.
 exitBindingStatus: unresolved-no-exact-canonical-reference-declared
 actionConsequences:
   - actionId: media.action.choose-source
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    operationRefs: []
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.choose-source/actionDefinitionSemantics/typedDefinition
+    consequence: bind-one-exact-source-version-to-the-current-workflow
+    finality: local-selection-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - source-version-visible
+      - current-read-authority
+    failureRecovery: preserve-project-and-filter-context
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.inspect-source
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation-slice.inspect-artifact-version
+    operationRefs:
+      - media.operation-slice.inspect-artifact-version
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition
+    consequence: read-source-metadata-for-one-exact-artifact-version
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - current-read-authority
+    failureRecovery: explain-unavailable-metadata-without-rejecting-the-source-implicitly
+    status: Media-owner-definition; runtime NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
@@ -58,7 +99,8 @@ fixtures:
   refs:
     - media.scenario.source-available
     - media.scenario.source-quarantined
-  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+  status: linked-to-deterministic-simulation-seeds;
+    owner-review-and-behavior-verification-pending
 fixturesBindingStatus: exact-registry-ids-linked; expected-results-and-owner-review-pending
 verification:
   status: not-run
@@ -75,7 +117,8 @@ fieldBindingStatus:
   surfaceId: candidate; owner-binding-pending
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending
+  componentIds: exact-selected-Media-component-composition;
+    renderer/Shared-binding-and-acceptance-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
   tokenDependencies: unresolved; no-canonical-reference-declared
   domainObjectRefs: unresolved; no-canonical-reference-declared
@@ -90,8 +133,8 @@ fieldBindingStatus:
   verification: not-run; no-evidence-refs
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.understand
 purpose: select one authorized source artifact version for speech understanding
 contextGoalNowNext:
@@ -100,24 +143,24 @@ contextGoalNowNext:
   now: Show source identity, version, media kind, integrity, and rights disposition.
   next: Continue only when source access and processing policy allow it.
 anatomy:
-- project-context
-- source-search
-- source-list
-- source-version
-- integrity-status
-- rights-summary
-- choose-action
+  - project-context
+  - source-search
+  - source-list
+  - source-version
+  - integrity-status
+  - rights-summary
+  - choose-action
 states:
-- empty
-- loading
-- source-available
-- source-verifying
-- source-quarantined
-- permission-denied
-- offline
+  - empty
+  - loading
+  - source-available
+  - source-verifying
+  - source-quarantined
+  - permission-denied
+  - offline
 actions:
-- media.action.choose-source
-- media.action.inspect-source
+  - media.action.choose-source
+  - media.action.inspect-source
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -144,10 +187,14 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
+authorityRefs: []
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.choose-source/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition

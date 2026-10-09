@@ -114,7 +114,7 @@ steps:
         - media.action.validate-composition
       choiceSet:
         status: SOURCE_BOUND_ACTION_SET; USER_SELECTION_REQUIRED
-        decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+        decisionRef: .product-experience/decision-log.md#PXD-119
         sourceScreenRef: screen-contracts/compose-media.yaml
         selectedActionRef: null
         defaultActionRef: null
@@ -159,7 +159,7 @@ steps:
       runtimeAdmission: NOT_ADMITTED
       ordinal: 1
       viewRef: media.view.compose-media
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: Timeline/graphics/brand/audio/captions/transition assembly
         result: null
@@ -616,7 +616,7 @@ steps:
         - media.action.save-new-revision
       choiceSet:
         status: SOURCE_BOUND_ACTION_SET; USER_SELECTION_REQUIRED
-        decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+        decisionRef: .product-experience/decision-log.md#PXD-119
         sourceScreenRef: screen-contracts/adjust-color.yaml
         selectedActionRef: null
         defaultActionRef: null
@@ -662,7 +662,7 @@ steps:
       runtimeAdmission: NOT_ADMITTED
       ordinal: 3
       viewRef: media.view.adjust-color
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: Input/output color interpretation and shot matching
         result: null

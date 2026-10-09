@@ -1,0 +1,836 @@
+{
+  "schemaVersion": "media.pdp38.feature-referent-delta-observation.v1",
+  "observedAt": "2026-10-09T17:45:25.678890+00:00",
+  "priorPublishedCut": "f9b4df6139ce6d5a3d886a00aa0785547ed8ab5a",
+  "capturedSourceFiles": {
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "0c7cd7ebe17de6b614e88a35924e0723f084b89087aab66f05a8173b0437aec1",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "0e45d566ecd3734dbb8f450a796f23b15aea855c2943e57b9be7ea0d4843ec04",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "ded6d011711a5b1a59a7208591b7212c58cf4d343ab52d6e3018122f8cb25313"
+  },
+  "population": {
+    "reviewedSelectors": 224,
+    "changedUniqueReferents": 35
+  },
+  "status": "MATERIAL_DELTAS_IDENTIFIED_REAPPROVAL_PENDING",
+  "rows": [
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-artifact-import",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        },
+        {
+          "path": "/parameterSchemaDisposition",
+          "current": "NO_PARAMETERS"
+        },
+        {
+          "path": "/parameterSchemaSourceRef",
+          "current": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.import.v1/ownerWireSchema/requestSchema"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-measure-loudness",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-detect-clipping",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-analyze-spectral",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-audio-analysis-analyze-phase",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-equalize",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-dynamic-compression",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-multiband-compression",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-limit",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-true-peak-loudness-control",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-stereo-width",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-fade-crossfade",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-duck-sidechain",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-master-audio-room-match",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-encode",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        },
+        {
+          "path": "/parameterSchemaDisposition",
+          "current": "NO_PARAMETERS"
+        },
+        {
+          "path": "/parameterSchemaSourceRef",
+          "current": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/ownerWireSchema/requestSchema"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-stream",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-transcription-speaker-diarize",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write",
+      "changes": [
+        {
+          "path": "/autosaveStateSemantics",
+          "current": {
+            "id": "media.caption-draft-autosave-state.v1",
+            "acknowledgement": "A successful response acknowledges exactly draftId and the incremented draftRevision for the session-local snapshot. It does not claim canonical caption-version registration, remote synchronization, or durable persistence beyond the declared local draft owner.",
+            "pending": "Until the exact draftRevision is acknowledged, show the edited revision as pending and retain the last acknowledged revision separately; do not label the pending edits saved.",
+            "offline": "Preserve the local candidate when policy and the admitted local session permit, show OFFLINE_PENDING separately from acknowledged state, and do not claim remote synchronization or silently submit after reconnect.",
+            "conflict": "On DRAFT_REVISION_CONFLICT preserve both the candidate edit and current draft snapshot, show the expected and observed revisions, and require explicit resolution before another write; never overwrite by selecting the latest revision implicitly.",
+            "stateSet": [
+              "DIRTY",
+              "SAVE_PENDING",
+              "ACKNOWLEDGED_LOCAL_REVISION",
+              "OFFLINE_PENDING",
+              "DRAFT_REVISION_CONFLICT",
+              "SAVE_REJECTED"
+            ],
+            "scopeStatus": "DEFINITION_ONLY; local persistence, offline replay, and transport acknowledgment remain NOT_EVALUATED"
+          }
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-compose-render-manifest",
+      "changes": [
+        {
+          "path": "/resultSchema/properties/outputs/items/oneOf",
+          "prior": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "artifactType",
+                "payload"
+              ],
+              "properties": {
+                "artifactType": {
+                  "const": "versioned-composition-and-render-manifest"
+                },
+                "payload": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "artifactId",
+                    "versionId"
+                  ],
+                  "properties": {
+                    "artifactId": {
+                      "type": "string",
+                      "format": "opaque-id",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "versionId": {
+                      "type": "string",
+                      "format": "opaque-version-id",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "sourceRef": {
+                      "type": "string",
+                      "format": "opaque-versioned-reference",
+                      "minLength": 1,
+                      "maxLength": 384
+                    },
+                    "declaredMediaType": {
+                      "type": "string",
+                      "format": "iana-media-type",
+                      "pattern": "^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$",
+                      "minLength": 3,
+                      "maxLength": 127
+                    },
+                    "declaredByteLength": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483648
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "current": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "artifactType",
+                "payload"
+              ],
+              "properties": {
+                "artifactType": {
+                  "const": "versioned-composition-and-render-manifest"
+                },
+                "payload": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "artifactId",
+                    "versionId",
+                    "resultKind"
+                  ],
+                  "properties": {
+                    "artifactId": {
+                      "type": "string",
+                      "format": "opaque-id",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "versionId": {
+                      "type": "string",
+                      "format": "opaque-version-id",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "resultKind": {
+                      "const": "RENDER_MANIFEST"
+                    },
+                    "sourceRef": {
+                      "type": "string",
+                      "format": "opaque-versioned-reference",
+                      "minLength": 1,
+                      "maxLength": 384
+                    },
+                    "declaredMediaType": {
+                      "type": "string",
+                      "format": "iana-media-type",
+                      "pattern": "^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$",
+                      "minLength": 3,
+                      "maxLength": 127
+                    },
+                    "declaredByteLength": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 2147483648
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "path": "/successOutputs",
+          "prior": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "payloadSchemaRef": "media.typed-output.versioned-composition-and-render-manifest",
+              "requiredOnSuccess": true
+            }
+          ],
+          "current": [
+            {
+              "artifactType": "versioned-composition-and-render-manifest",
+              "payloadSchemaRef": "media.typed-output.versioned-composition-and-render-manifest",
+              "resultKind": "RENDER_MANIFEST",
+              "requiredOnSuccess": true
+            }
+          ]
+        },
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.versioned-composition-and-render-manifest",
+      "changes": [
+        {
+          "path": "/schema/properties/payload/required",
+          "prior": [
+            "artifactId",
+            "versionId"
+          ],
+          "current": [
+            "artifactId",
+            "versionId",
+            "resultKind"
+          ]
+        },
+        {
+          "path": "/schema/properties/payload/properties/resultKind",
+          "current": {
+            "type": "string",
+            "enum": [
+              "COMPOSITION_DEFINITION",
+              "RENDER_MANIFEST"
+            ]
+          }
+        },
+        {
+          "path": "/ownerDefinition",
+          "prior": "Exact type discriminator plus closed typed payload; no free-form or untyped payload is accepted.",
+          "current": "Closed artifact identity plus required resultKind. COMPOSITION_DEFINITION is an immutable composition configuration; RENDER_MANIFEST is a render specification only. Neither result kind claims encoded or rendered media bytes. Actual render output requires a separately declared render execution and registered artifact-version receipt."
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-edit-region-correction",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-track-object",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-3d",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-animation-editing-keyframe-insert",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-simulation-rigid-body",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#modelAcquisitionAndFallback",
+      "changes": [
+        {
+          "path": "/fallback/compatibilityDecisionRule",
+          "current": {
+            "id": "media.policy.fallback-compatibility-decision.v1",
+            "rule": "A fallback is eligible only when the current owner-authorized profile names the exact alternate capability, immutable implementation/profile version, input and output media constraints, and required consent, rights, residency, locality, retention, cost, and fidelity conditions. The selected result contract must accept the alternate output and the user's purpose must remain unchanged. Compatibility is evaluated against those exact typed constraints; a missing, stale, or unknown compatibility fact is not a match.",
+            "noSilentSubstitution": "Preserve the requested implementation and report unavailable or UNKNOWN unless the caller's current authority and policy explicitly permit the compatible alternative. Never infer compatibility from a shared capability name, file extension, package presence, or a successful provider response.",
+            "reauthorization": "Before crossing the alternate effect boundary, repeat current policy, consent, rights, locality, residency, retention, budget, and output-contract checks for that exact fallback target; a prior authorization for the primary target does not authorize a different target.",
+            "runtimeStatus": "NOT_EVALUATED",
+            "scopeStatus": "OWNER_DEFINED_FALLBACK_POLICY; no alternate is admitted or selected"
+          }
+        },
+        {
+          "path": "/offlineEntitlementWindow",
+          "current": {
+            "id": "media.policy.offline-entitlement-validity-window.v1",
+            "exactTuple": [
+              "tenantScopeRef",
+              "principalRef",
+              "issuerRef",
+              "capabilityRef",
+              "profileRef",
+              "profileVersionRef",
+              "entitlementRef",
+              "entitlementVersionRef",
+              "policyDecisionRef",
+              "purposeRef",
+              "allowedOperationRefs",
+              "validFrom",
+              "validUntil",
+              "revocationDisposition",
+              "observedAt",
+              "readAuthorityRef",
+              "readVersion"
+            ],
+            "bindingRules": {
+              "exactTrustedContext": [
+                "tenantScopeRef",
+                "principalRef",
+                "issuerRef",
+                "capabilityRef",
+                "profileRef",
+                "profileVersionRef",
+                "purposeRef"
+              ],
+              "exactTrustedOwnerReadTuple": [
+                "entitlementRef",
+                "entitlementVersionRef",
+                "policyDecisionRef",
+                "readAuthorityRef",
+                "readVersion",
+                "currentness",
+                "revocationDisposition"
+              ],
+              "operationMembership": "requestedOperationRef must be an exact member of allowedOperationRefs",
+              "entitlementVersion": "entitlementRef and entitlementVersionRef must resolve as one immutable owner identity",
+              "policyVersion": "policyDecisionRef must be current for the exact profileVersionRef and purposeRef",
+              "revocation": "revocationDisposition must be ACTIVE and current; REVOKED, EXPIRED, UNKNOWN, or missing denies",
+              "observedAuthority": "readAuthorityRef and readVersion must equal the trusted host-selected values"
+            },
+            "timeRepresentation": "Canonical UTC RFC 3339 with exactly millisecond precision (YYYY-MM-DDTHH:mm:ss.sssZ); invalid calendar dates, 24:00, offsets, and noncanonical precision are UNKNOWN.",
+            "rule": "Offline use is eligible only for the exact capability and profile named by a current owner-authorized entitlement whose issuer, immutable version, tenant, principal, purpose, allowed operation set, and policy decision are verified by the trusted owner read. The trusted current time must satisfy the half-open interval validFrom <= now < validUntil; missing, stale, malformed, revoked, expired-at-equality, or untrusted time/authority/version evidence denies new offline work. Reconnect does not extend an entitlement or authorize previously denied work; it requires a new current decision. No grace period is implied.",
+            "offlineBoundary": "Cached bytes or a locally present model do not prove a current entitlement. Existing local observation may be shown as stale/UNKNOWN, but no new protected read, processing dispatch, export, or publication occurs outside the window.",
+            "runtimeStatus": "NOT_EVALUATED",
+            "scopeStatus": "OWNER_DEFINED_POLICY_ONLY; no entitlement issuer or offline profile is admitted"
+          }
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-project-review",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-quality-compare",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+      "changes": [
+        {
+          "path": "/ownerDefinition/childCancellationRule",
+          "current": {
+            "id": "media.job.child-cancellation-order.v1",
+            "admissionClosure": "Persist the parent cancellation request and stop admitting or dispatching new child work before issuing cancellation requests for active children.",
+            "childSnapshot": "Bind the fan-out to the exact parent job version and the enumerated child job identities/versions; never widen the set from a later graph read.",
+            "activeChildRule": "Request cancellation against each active child using that child's current attempt/fence and current authority. Preserve the child's actual state until authoritative stop/finality evidence is observed; a request or detach is not proof of cancellation.",
+            "parentFinality": "Keep the parent cancellation pending or unknown while any child effect may be active or unresolved. Do not mark the parent cancelled from a subset of child acknowledgements.",
+            "unknownRule": "Missing, stale, or conflicting child evidence remains UNKNOWN for that child and prevents a final parent cancellation claim; reconcile the same child job and attempt identities before any retry.",
+            "scopeStatus": "DEFINITION_ONLY; graph persistence, fan-out execution, provider stop, and runtime qualification are NOT_EVALUATED"
+          }
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-connect",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-frame-submit",
+      "changes": [
+        {
+          "path": "/operationVersion",
+          "current": 1
+        },
+        {
+          "path": "/asyncSubmissionDisposition",
+          "current": "COMMAND_MAY_BE_SUBMITTED"
+        }
+      ]
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli",
+      "changes": [
+        {
+          "path": "/ownerCliDefinitionContract/commandSurfaceSeparationRule",
+          "current": {
+            "id": "media.cli.typed-command-surface-separation.v1",
+            "rule": "A CLI command binds one exact canonical operation/action and one invocation mode. Batch, streaming observation, simulation, inference, and transport are distinct typed ports with command-specific request, result, flag, authority, and finality rules; a shared command grammar does not make their payloads or lifecycle interchangeable. Commands may compose declared operations only through their exact owner contracts. Do not create a universal provider SPI that requires irrelevant methods, invents fake implementations for absent capabilities, or treats one transport's request shape as another operation's semantic contract. Capability absence is explicit and does not become a successful no-op.",
+            "requiredBindings": [
+              "exact-command-id-and-version",
+              "canonical-operation-or-action-ref",
+              "one-declared-invocation-mode",
+              "command-specific-closed-request-and-result-schema",
+              "command-specific-flags-authority-and-finality"
+            ],
+            "invocationModes": [
+              "READ_QUERY",
+              "MUTATING_COMMAND",
+              "ASYNC_SUBMISSION",
+              "STREAM_OBSERVATION",
+              "BATCH_EXECUTION",
+              "SIMULATION",
+              "INFERENCE"
+            ],
+            "invalidCases": [
+              "one-command-schema-reused-across-unrelated-invocation-modes",
+              "missing-capability-silently-treated-as-successful-no-op",
+              "unrelated-operation-flag-accepted-by-a-command",
+              "transport-request-shape-inferred-from-command-name"
+            ],
+            "scopeStatus": "OWNER_DEFINED_CLI_DEFINITION_ONLY; no executable or channel behavior is admitted",
+            "executionAdmission": "NOT_ADMITTED"
+          }
+        },
+        {
+          "path": "/ownerCliDefinitionContract/filenameArgumentRule",
+          "current": {
+            "id": "media.cli.filename-argument.v1",
+            "inputArguments": {
+              "representation": "Each path is one argv argument; spaces, Unicode code points, and literal shell metacharacters remain part of that argument.",
+              "encoding": "Preserve the platform path encoding and the supplied Unicode sequence; do not split, shell-expand, interpolate, or silently normalize a filename.",
+              "execution": "Invoke a process with an argument vector or equivalent safe API. Never construct a shell command string from a path or pass a path through a shell for tokenization.",
+              "boundaries": "Local paths remain client-side. A path is not a URL, route, server path, or authorization token; server-side operations require canonical artifact/version references and their own authority checks."
+            },
+            "outputPaths": {
+              "representation": "Treat the destination as one literal client-side path argument with the same no-splitting and no-shell-interpolation rules.",
+              "overwrite": "Do not overwrite an existing destination unless the exact command declares an explicit overwrite option and confirms the resolved destination identity before writing.",
+              "errors": "Reject invalid or inaccessible destinations before reporting a successful write; never silently substitute a different path."
+            },
+            "scopeStatus": "OWNER_DEFINED_CLI_PATH_ARGUMENT_SEMANTICS; filesystem behavior and CLI execution remain NOT_EVALUATED.",
+            "executionAdmission": "NOT_ADMITTED"
+          }
+        },
+        {
+          "path": "/ownerCliDefinitionContract/remoteCancellationRule",
+          "current": {
+            "id": "media.cli.remote-cancellation.v1",
+            "rule": "Remote cancellation is a separate explicit command. Ctrl-C stops only the local wait or stream observer; it never sends a cancellation request, changes job state, or proves provider termination. No --cancel-on-interrupt behavior is defined by this contract.",
+            "command": {
+              "id": "media.cli.job.cancel",
+              "canonicalOperationRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+              "invocation": "explicit-user-command",
+              "requestSchema": "inherit-the-exact-canonical-operation-request; do not synthesize caller tenant/principal, authority, consent, fence, or request identity fields.",
+              "requiredCurrentChecks": [
+                "host-attested-tenant-and-principal",
+                "operation-specific-current-cancel-authority",
+                "current-job-version-and-attempt-fence",
+                "current-policy-and-deadline"
+              ],
+              "resultSemantics": {
+                "accepted": "cancellation-request-receipt-only; job remains nonterminal until authoritative terminal state is observed.",
+                "rejected": "preserve the exact canonical rejection reason; no state change is inferred.",
+                "unknown": "preserve OUTCOME_UNKNOWN and reconcile through the exact authorized job query before any retry.",
+                "providerTermination": "never implied by command receipt, process exit, or observer interruption."
+              }
+            },
+            "scopeStatus": "OWNER_DEFINED_CLI_COMMAND_SEMANTICS; no CLI executable, parser, route, server cancellation, or runtime support is admitted.",
+            "executionAdmission": "NOT_ADMITTED"
+          }
+        },
+        {
+          "path": "/ownerCliDefinitionContract/submissionWaitRule",
+          "current": {
+            "id": "media.cli.submission-wait.v1",
+            "submission": "Default remote submission returns after the canonical job-submit operation records durable acceptance. Exit 0 means that submission action succeeded; it does not mean media processing or delivery completed.",
+            "wait": "--wait is an explicit local observation mode and returns only an authoritative final result or an explicit non-success/unknown outcome. --no-wait is mutually exclusive with --wait and returns after acceptance.",
+            "timeout": "--timeout bounds the local observation wait only unless a distinct canonical request field explicitly defines a server deadline.",
+            "unknown": "An interrupted or timed-out local observer leaves the submitted operation pending or OUTCOME_UNKNOWN; it does not cancel remote work.",
+            "canonicalSubmissionRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1",
+            "executionAdmission": "NOT_ADMITTED"
+          }
+        },
+        {
+          "path": "/ownerCliDefinitionContract/machineOutputRule",
+          "current": {
+            "id": "media.cli.machine-output.v1",
+            "json": "--json emits exactly one versioned result-or-error object on stdout; no banners, ANSI escapes, progress, or diagnostic prose are allowed there.",
+            "jsonl": "--jsonl is a distinct streaming observation mode and is not an alias for the single-object result mode.",
+            "diagnostics": "Diagnostics are sent to stderr and redacted for credentials, provider request/response bodies, and protected source content.",
+            "terminal": "Non-TTY output, NO_COLOR, --quiet, terminal width, and accessible plain-text presentation may affect presentation only, never command exit or operation finality semantics.",
+            "scopeStatus": "OWNER_DEFINED_CLI_OUTPUT_SEMANTICS; command implementations and channel admission remain NOT_EVALUATED.",
+            "executionAdmission": "NOT_ADMITTED"
+          }
+        },
+        {
+          "path": "/ownerCliDefinitionContract/configurationPrecedenceRule",
+          "current": {
+            "id": "media.cli.configuration-precedence.v1",
+            "precedence": [
+              "explicit-flag",
+              "environment",
+              "selected-project-or-profile-file",
+              "user-configuration",
+              "product-default"
+            ],
+            "policy": "Every effective value remains constrained by non-overridable identity, security, rights, consent, locality, and resource policy.",
+            "validation": "Reject conflicting or unknown profile fields before effect.",
+            "display": "config show reports effective values and safe provenance; secrets are never displayed. Configuration files are declarative data, not scripts.",
+            "executionAdmission": "NOT_ADMITTED"
+          }
+        }
+      ]
+    }
+  ],
+  "requiredReview": [
+    "Per-target asynchronous submission eligibility must be justified by operation semantics, not inferred solely from COMMAND kind.",
+    "Review changed composition-definition/render-manifest discriminators and cross-owner type consistency.",
+    "Review additive autosave/cancellation/CLI/fallback/offline clauses and exact dependencies.",
+    "Preserve previous PXD098 and all existing supplements; renew exact pins only through explicit material review and verification."
+  ],
+  "acceptanceEffect": "NONE; this observation does not renew existing direct task criteria or approve a new feature applicability source cut."
+}

@@ -20,3 +20,66 @@ revisionBehavior:
   conflict: retain-local-edit-and-current-server-version; ask-for-resolution-before-commit
   undo: scoped-to-current-draft; does-not-rewrite-source-or-saved-versions
   saveVersion: registers-a-new-caption-version-with-provenance-and-exact-parent-revision; does-not-record-a-review-decision
+exactContentOverlayRule:
+  id: media.design.exact-content-overlay.v1
+  authority: delegated-Media-product-definition-owner
+  appliesTo:
+    - logos-and-brand-marks
+    - captions-and-subtitles
+    - legal-copy
+    - mathematics-and-equations
+    - user-interface-screenshots
+    - diagrams
+    - product-labels
+  sourceBinding:
+    required: [exactSourceOrApprovedAssetRef, immutableVersion, rightsAndUseScope, localeWhenTextual, ownerApprovalWhenRequired]
+    identity: The exact source text, structured equation, or approved asset is authoritative. Bind the selected version and scope; a generative output or visual resemblance is not an authoritative source.
+  composition:
+    method: Render exact content from its bound source using declared typography, layout, timing, and output-profile parameters; preserve source and content identity in the composition revision and provenance.
+    prohibit: [model-authored-or-rewritten-exact-copy, silently-substituted-logo-or-product-mark, unapproved-equation-reconstruction, screenshot-redrawing-as-source-truth, altered-legal-or-label-content]
+    unknownBehavior: If source identity, version, applicable rights, locale, or required owner approval is missing or conflicting, do not claim exact-content fidelity and block the affected composition branch.
+  translationAndDubbing:
+    assistance: A model may propose translation or dubbing as a reviewable draft tied to the exact source version.
+    authority: The user or domain owner retains meaning approval; duration or timing fit never authorizes mistranslation, omission, or semantic change.
+    finality: A generated translation or dub remains a draft until the required meaning review is recorded.
+  nonClaims: [no-runtime-rendering-proof, no-license-clearance, no-human-meaning-approval, no-phase-acceptance]
+  status: OWNER_DEFINED_DESIGN_RULE; rendering and owner review evidence remain separate
+  acceptanceEffect: none
+  rejectionCases:
+    - exact-copy-output-has-no-bound-source-version
+    - generated-text-is-presented-as-approved-legal-copy-or-product-label
+    - logo-or-screenshot-is-substituted-by-a-visually-similar-generated-asset
+    - translation-is-accepted-only-because-it-fits-the-duration
+    - source-version-or-rights-scope-conflicts-with-the-composition
+revisionProjectionRule:
+  id: media.design.same-revision-editor-projections.v1
+  authority: Media owns the canonical editable revision and its exact versioned projection bindings.
+  rule: >-
+    The visual timeline, graph, and textual/accessible editor are projections of one exact canonical revision, not separate
+    competing drafts. Every displayed selection and edit is bound to the same project identity, expected revision identity,
+    and current observed revision. A mutation uses the exact expected revision and owner-defined compare-and-swap contract;
+    a stale or changed revision is shown as a conflict and cannot silently submit a render or overwrite another projection.
+    Saving through any projection creates the same kind of successor revision with a single canonical owner; a projection
+    refresh cannot create an independent semantic revision or merge same-field edits without the declared conflict rule.
+  requiredBindings: [canonical-project-identity, exact-expected-revision-identity, current-observed-revision, shared-selection-identity, owner-cas-mutation-contract, stale-revision-conflict-display]
+  negativeCases:
+    - visual-timeline-and-text-editor-point-to-different-revision-ids
+    - stale-selection-renders-against-a-newer-unnoticed-revision
+    - same-field-edit-merged-without-declared-conflict-policy
+    - projection-refresh-creates-a-second-canonical-revision
+    - read-only-graph-view-authorizes-a-hidden-mutation
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/projectRevision
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+  status: OWNER_DEFINED_EDITOR_REVISION_RULE; UI implementation and multi-client consistency remain unverified.
+  runtimeAdmission: NOT_ADMITTED
+  acceptanceEffect: none
+normativeRuleRecords:
+  - id: media.p2.rule.exact-content-overlay.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#exactContentOverlayRule
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#authority
+    acceptanceEffect: none
+  - id: media.p2.rule.same-revision-editor-projections.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#revisionProjectionRule
+    sourceAuthority: .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
+    acceptanceEffect: none

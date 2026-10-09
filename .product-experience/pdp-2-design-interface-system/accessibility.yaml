@@ -42,6 +42,43 @@ accessibilityRules:
     standard: WCAG 2.2
     level: AA
     requirement: Reduced motion, live status announcements and focus restoration preserve comprehension without repeated disruptive announcements.
+  - id: media.a11y.text-spacing-and-target-size
+    standard: WCAG 2.2
+    level: AA
+    requirement: Text remains readable and functionality remains available when users apply the applicable WCAG 2.2 text-spacing overrides and increase text size; pointer targets meet the minimum target-size rule or a specifically applicable WCAG exception.
+    sourceRefs:
+      - https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html
+      - https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html
+    textSpacingOverride:
+      appliesTo: Content and controls implemented with markup supporting these text style properties; apply only the properties used by the language/script.
+      lineHeightMinimum: 1.5em
+      paragraphAfterMinimum: 2em
+      letterSpacingMinimum: 0.12em
+      wordSpacingMinimum: 0.16em
+      invariant: No content or functionality is clipped, obscured, overlapped, truncated, or lost when these user overrides are applied.
+    pointerTargetMinimum:
+      width: 24 CSS pixels
+      height: 24 CSS pixels
+      exceptions:
+        spacing: For an undersized target, a centered 24 CSS-pixel-diameter circle does not intersect another target circle.
+        equivalent: The same function is available through another target that satisfies the minimum.
+        inline: The target is in a sentence or its size is constrained by non-target text line-height.
+        user-agent: Target size is determined by the user agent and not modified by the author.
+      invariant: Exceptions are recorded per target and do not silently shrink neighboring interactive targets.
+    textResizeAndReflow:
+      requirement: At 200-percent text size and supported narrow reflow widths, users can read content and reach every control without two-dimensional scrolling except where the content itself requires a two-dimensional layout.
+      longLocalizedStrings: Permit wrapping and container growth; do not clip, overlap, hide, or replace a safety, rights, identity, uncertainty, job-finality, or recovery fact.
+      stableIdentifiers: Locale direction, user spacing, resize, and reflow do not change canonical IDs, reason codes, authority, operation effects, or machine fields.
+    evidenceBoundary:
+      status: DEFINITION_ONLY_NOT_MEASURED
+      requiredObservation: Measure rendered target bounds, text-spacing override behavior, zoom/reflow behavior, and visible/pointer reachable content for each accepted representation.
+      nonClaims: [no-rendered-conformance-finding, no-specialist-accessibility-acceptance, no-phase-acceptance]
+    rejectionCases:
+      - text-spacing-override-causes-content-or-functionality-loss
+      - author-modified-pointer-target-is-under-24-by-24-css-pixels-without-a-valid-per-target-exception
+      - undersized-neighboring-target-circles-intersect-under-spacing-exception
+      - long-localized-label-is-clipped-or-hides-a-critical-fact
+      - reflow-or-text-resize-removes-a-control-or-changes-a-canonical-identifier
 requirements:
   - All visible actions have a keyboard path, visible focus, and accessible name that includes purpose and affected object.
   - Playback, transcript, waveform, and timeline have equivalent semantic controls; no operation depends only on drag, color, sound, or motion.
@@ -60,3 +97,46 @@ verificationEvidenceRequired:
   - forced-colors-and-reduced-motion-observation
   - human-reviewer-and-version
 acceptance: review-required; no conformance result is asserted
+ownerDefinedCaptionAndAudioDescriptionOutputUse:
+  id: media.a11y.caption-and-audio-description-output-use.v1
+  authority: Media accessibility definition; independent specialist acceptance remains separate
+  rule: >-
+    Specify caption, transcript, and audio-description obligations against the
+    exact output artifact/version, intended audience, locale, time map, and
+    delivery profile. Captions/transcripts are text alternatives with their own
+    language, timing, and source/version binding; audio description is a
+    distinct narrated or described audio alternative and cannot be counted as a
+    caption. Prerecorded alternatives are version-bound output content. A live
+    stream session's open/connected/frame/acknowledgement or terminal state is
+    only session observation; it is not caption text, a finalized transcript,
+    or proof that an accessibility alternative was delivered. Live content
+    needs an exact content-bearing stream contract and explicit finalization
+    before it can be represented as a retained transcript. Applicability and
+    completeness are assessed per intended output use; neither a universal
+    requirement nor an exemption is inferred from the capability name.
+  requiredBindings:
+    - exact output artifact and immutable version
+    - intended output use, audience, and delivery profile
+    - locale and direction where text is present
+    - exact caption/transcript content and media time-map when applicable
+    - separate audio-description track/content identity when applicable
+    - applicability disposition and evidence owner
+  sourceRefs:
+    - .product-experience/pdp-2-design-interface-system/accessibility.yaml#accessibilityRules/@id=media.a11y.media-alternatives
+    - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.stream.caption.live
+    - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-open
+  evidenceBoundary:
+    status: DEFINITION_ONLY_NOT_MEASURED
+    nonClaims: [no-caption-content-from-session-state, no-transcript-finalization-proof, no-rendered-conformance, no-specialist-acceptance]
+  negativeCases:
+    - treat a live session state as caption text or finalized transcript content
+    - count audio description as captions or captions as audio description
+    - bind an alternative to a mutable artifact without exact version and time-map
+    - infer universal applicability or exemption from capability name alone
+  runtimeAdmission: NOT_ADMITTED
+  acceptanceEffect: none
+normativeRuleRecords:
+  - id: media.p2.rule.caption-and-audio-description-output-use.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#ownerDefinedCaptionAndAudioDescriptionOutputUse
+    sourceAuthority: .product-experience/pdp-2-design-interface-system/accessibility.yaml#selectedPolicy
+    acceptanceEffect: none

@@ -1,46 +1,98 @@
 schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
-surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory; owner-binding-pending
+surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory;
+  owner-binding-pending
 templateId: media.gui.template.review-and-compare
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.review]
+layoutIds:
+  - media.gui.layout.review
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.source-player, media.component.result-comparison, media.component.provenance-summary]
+componentIds:
+  - media.component.source-player
+  - media.component.result-comparison
+  - media.component.provenance-summary
 patternIds:
   - media.gui.pattern.transcript-and-playback
 tokenDependencies: []
-domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version]
-operationRefs: [media.operation.caption-version-read]
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+domainObjectRefs:
+  - media.domain.caption-version
+  - media.domain.artifact-version
+operationRefs:
+  - media.operation.caption-version-read
+  - media.operation-slice.inspect-provenance
+requirementRefs:
+  - MEDIA-REQ-CAP-ARTIFACT
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
-entry: []
-exit: []
+entry:
+  - "The caller must satisfy the exact screen context and subject scope in this
+    contract: compare source-linked caption versions before deciding how to
+    continue the editing workflow."
+  - Before the corresponding action, require the source-defined guard
+    “current-read-authority”; absent or stale context leaves the action
+    unavailable.
+  - Before the corresponding action, require the source-defined guard
+    “two-caption-versions-readable”; absent or stale context leaves the action
+    unavailable.
+exit:
+  - "media.action.inspect-provenance: read-only.
+    disclose-missing-provenance-fields"
+  - "media.action.compare-caption-versions: read-only observation; no merge,
+    winner selection, approval, or rights grant.
+    label-source-mismatch-or-incomplete-comparison-explicitly"
+  - A local or read-only result does not imply a domain transition; an unknown
+    owner outcome stays UNKNOWN and retains the exact subject for
+    reconciliation.
 actionConsequences:
   - actionId: media.action.inspect-provenance
-    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.artifact.inspect
+      - media.artifact.provenance.export
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation-slice.inspect-provenance
+    operationRefs:
+      - media.operation-slice.inspect-provenance
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinition
+    consequence: read-version-bound-source-and-processing-lineage
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    guardRefs:
+      - current-read-authority
+    failureRecovery: disclose-missing-provenance-fields
+    status: Media-owner-definition; runtime NOT_ADMITTED
   - actionId: media.action.compare-caption-versions
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: SOURCE_DEFINED_OWNER_ACCEPTED under PXD-060; runtime-admission-pending
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.caption-version-read
-    effectRef: null
-    consequence: read-only-comparison-of-two-exact-caller-authorized-version-identities; preserve-pair-and-source-clock-comparability; no-winner-or-approval
-    bindingStatus: source-defined-action-semantics; runtime-and-screen-admission-pending
+    operationRefs:
+      - media.operation.caption-version-read
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-caption-versions/actionDefinitionSemantics/typedDefinition
+    consequence: show-text-timing-provenance-and-source-version-differences-without-changing-either-version
+    finality: read-only observation; no merge, winner selection, approval, or rights
+      grant
+    reversibilityDisposition: UNKNOWN
+    guardRefs:
+      - two-caption-versions-readable
+    failureRecovery: label-source-mismatch-or-incomplete-comparison-explicitly
+    status: Media-owner-definition; runtime NOT_ADMITTED
 responsiveBehavior:
   reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
   status: proposal-unverified
   screenSpecificOverrides: []
 fixtures:
-  refs: [media.scenario.caption-version-comparison, media.scenario.caption-source-mismatch]
-  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+  refs:
+    - media.scenario.caption-version-comparison
+    - media.scenario.caption-source-mismatch
+  status: linked-to-deterministic-simulation-seeds;
+    owner-review-and-behavior-verification-pending
 verification:
   status: not-run
   evidenceRefs: []
@@ -55,7 +107,9 @@ fieldBindingStatus:
   surfaceId: candidate-pending-owner-binding
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
-  componentIds: Media-owned exact version comparison composition selected from source playback, paired result comparison, and provenance; renderer and acceptance pending
+  componentIds: Media-owned exact version comparison composition selected from
+    source playback, paired result comparison, and provenance; renderer and
+    acceptance pending
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
   tokenDependencies: unresolved-no-direct-canonical-reference
   domainObjectRefs: unresolved-no-direct-canonical-reference
@@ -73,32 +127,35 @@ screenId: media.view.compare-caption-versions
 status: proposal; human-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.reviewer
+  - media.creator
+  - media.editor
+  - media.reviewer
 intentRef: media.intent.edit
-purpose: compare source-linked caption versions before deciding how to continue the editing workflow
+purpose: compare source-linked caption versions before deciding how to continue
+  the editing workflow
 contextGoalNowNext:
-  context: Exact source version, prior caption version, candidate caption version, and their provenance.
+  context: Exact source version, prior caption version, candidate caption version,
+    and their provenance.
   goal: Understand textual, timing, and limitation differences.
   now: Show aligned differences and the evidence used to produce the candidate.
-  next: Continue caption correction or leave the comparison; review approval is outside this lane.
+  next: Continue caption correction or leave the comparison; review approval is
+    outside this lane.
 anatomy:
-- source-time-selection
-- prior-version
-- candidate-version
-- text-differences
-- timing-differences
-- provenance
-- next-action
+  - source-time-selection
+  - prior-version
+  - candidate-version
+  - text-differences
+  - timing-differences
+  - provenance
+  - next-action
 states:
-- comparable
-- partial-comparison
-- source-version-mismatch
-- unavailable
+  - comparable
+  - partial-comparison
+  - source-version-mismatch
+  - unavailable
 actions:
-- media.action.inspect-provenance
-- media.action.compare-caption-versions
+  - media.action.inspect-provenance
+  - media.action.compare-caption-versions
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -125,11 +182,11 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
 journeyDefinitionBindings:
@@ -139,7 +196,16 @@ journeyDefinitionBindings:
   grammarDecisionRef: .product-experience/decision-log.md#PXD-059
   runtimeAdmission: NOT_ADMITTED
   applicability: required-J03-step-J03-8
-  operationRefs: [media.operation.caption-version-read]
-  domainObjectRefs: [media.domain.caption-version, media.domain.artifact-version]
+  operationRefs:
+    - media.operation.caption-version-read
+  domainObjectRefs:
+    - media.domain.caption-version
+    - media.domain.artifact-version
   stateRefs: []
-  semanticBoundary: Exact authorized pair read; source or clock mismatch is explicit; unavailable fields are not equality and no winner, approval, merge, or rights are inferred.
+  semanticBoundary: Exact authorized pair read; source or clock mismatch is
+    explicit; unavailable fields are not equality and no winner, approval,
+    merge, or rights are inferred.
+authorityRefs: []
+recoveryRefs:
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinition
+  - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-caption-versions/actionDefinitionSemantics/typedDefinition

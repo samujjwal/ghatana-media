@@ -56,6 +56,8 @@ test('MPSEM-0298-C001 and MPSEM-0298-C002: generic job request is closed, typed,
   assert.equal(request.additionalProperties, false);
   assert.ok(request.required.includes('operationRef'));
   assert.ok(request.required.includes('operationVersion'));
+  assert.ok(request.required.includes('targetOperationRef'));
+  assert.ok(request.required.includes('parameters'));
   assert.ok(request.required.includes('typedInputs'));
   assert.ok(request.required.includes('requestId'));
   assert.ok(request.required.includes('profile'));
@@ -64,6 +66,9 @@ test('MPSEM-0298-C001 and MPSEM-0298-C002: generic job request is closed, typed,
   assert.ok(request.required.includes('resourceBudget'));
   assert.ok(!Object.hasOwn(request.properties, 'tenantId'));
   assert.ok(!Object.hasOwn(request.properties, 'principalId'));
+  assert.match(submit.parameterBindingRule.validation, /closed JSON Schema semantics/u);
+  assert.match(submit.parameterBindingRule.fingerprint, /canonical parameter values/u);
+  assert.equal(submit.parameterBindingRule.definitionValidator.export, 'validateJobSubmitParameterContract');
   assert.match(submit.ownerWireSchema.ownerDefinition, /host identity and authority are never request fields/u);
 });
 

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
-import { canonicalIdentityKey, registerImmutableIdentity, validateAcyclicSameTenantLineage, IdentityContractError } from "../scripts/lib/pdp-truth-domain-identity-oracle.mjs";
+import { canonicalIdentityKey, registerImmutableIdentity, validateAcyclicSameTenantLineage, validateOwnerRelationshipDefinitions, IdentityContractError } from "../scripts/lib/pdp-truth-domain-identity-oracle.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const parse = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml").parse;
@@ -67,6 +67,9 @@ test("all 38 current object identities have explicit typed owner or source-obser
 });
 
 test("named cross-entity relationships bind exact same-tenant typed references", () => {
+  assert.deepEqual(validateOwnerRelationshipDefinitions(relationships, source), {
+    valid: true, relationshipCount: 13, identityBindingCount: 13,
+  });
   const relationshipById = new Map(relationships.relationships.map((relationship) => [relationship.id, relationship]));
   const domainObjectIds = new Set(objects.objects.map((object) => object.id));
   assert.equal(relationshipById.size, relationships.relationships.length, "relationship source IDs are unique");
@@ -125,6 +128,25 @@ test("named cross-entity relationships bind exact same-tenant typed references",
   assert.ok(source.tupleRules.some(({ id }) => id === "media.identity-rule.content-digest-not-identity"));
   assert.ok(source.tupleRules.some(({ id }) => id === "media.identity-rule.immutable-version-lineage"));
   assert.ok(source.tupleRules.some(({ id }) => id === "media.identity-rule.source-observation-not-promoted"));
+});
+
+test("relationship production join rejects valid-but-foreign source substitutions and incomplete coverage", () => {
+  const mutate = (change) => {
+    const relationDoc = structuredClone(relationships);
+    const identityDoc = structuredClone(source);
+    change(relationDoc, identityDoc);
+    return validateOwnerRelationshipDefinitions(relationDoc, identityDoc);
+  };
+  assert.equal(mutate((doc) => { doc.relationships[0].ownerDefinition.parentIdentityContracts[0].selector = doc.relationships[1].ownerDefinition.childIdentityContracts[0].selector; }).valid, false,
+    "a resolvable but wrong identity contract selector must fail exact-source validation");
+  assert.equal(mutate((doc) => { doc.relationships[0].ownerDefinition.childIdentityContracts[0].objectRef = doc.relationships[1].to; }).valid, false,
+    "a valid same-file child identity cannot substitute for the declared target");
+  assert.equal(mutate((doc) => { doc.relationships[0].ownerDefinition.childIdentityContracts[0].identityTuple.push("latest"); }).valid, false,
+    "a tuple that weakens exact immutable version identity must fail");
+  assert.equal(mutate((doc) => { doc.relationships[0].from = doc.relationships[2].from; }).valid, false,
+    "a relationship endpoint substitution must fail even when both objects exist");
+  assert.equal(mutate((doc) => { doc.ownerNormativeRuleRecords.pop(); }).valid, false,
+    "the whole normative relationship population must remain indexed");
 });
 
 test("identity oracle rejects missing or caller-overridden tenant, malformed IDs, and same-tenant collisions", () => {

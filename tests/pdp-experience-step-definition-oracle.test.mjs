@@ -4,6 +4,8 @@ import { createRequire } from "node:module";
 import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { evaluatePdp3StepDefinition } from "../scripts/lib/pdp3-step-definition-oracle.mjs";
+import { validatePdp3StepCapabilityPurpose } from "../scripts/lib/pdp3-step-capability-purpose.mjs";
+import { resolvePdp3BindingSourceRef } from "../scripts/lib/pdp3-journey-operation-binding.mjs";
 
 const require = createRequire(resolve(process.cwd(), "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
@@ -11,6 +13,9 @@ const base = ".product-experience/pdp-3-product-experience";
 const actions = parse(await readFile(`${base}/action-registry.yaml`, "utf8")).actions;
 const ownerActions = parse(await readFile(`${base}/action-registry.yaml`, "utf8")).ownerDefinedActions ?? [];
 const stepOracleSource = parse(await readFile(`${base}/step-definition-oracles.yaml`, "utf8"));
+const capabilitySource = parse(await readFile(".product-experience/pdp-0-product-truth/capabilities.yaml", "utf8"));
+const p0JourneyCatalog = parse(await readFile(".product-experience/pdp-0-product-truth/journey-catalog.yaml", "utf8"));
+const capabilitiesById = new Map(capabilitySource.capabilities.map((capability) => [capability.id, capability]));
 const journeys = [];
 for (const filename of (await readdir(`${base}/journey-contracts`)).filter((name) => name.endsWith(".yaml")).sort()) {
   const document = parse(await readFile(`${base}/journey-contracts/${filename}`, "utf8"));
@@ -138,6 +143,54 @@ test("all 130 steps bind fail-closed, but fixture booleans never establish guard
   assert.ok(outcomes.has("OBSERVATION_ONLY"));
 });
 
+test("all 130 projected steps retain exact action and step recovery source clauses", async () => {
+  const actionDocument = parse(await readFile(`${base}/action-registry.yaml`, "utf8"));
+  const actionById = new Map([...(actionDocument.actions ?? []), ...(actionDocument.ownerDefinedActions ?? [])].map((action) => [action.id, action]));
+  const oracleDocumentRef = `${base}/step-definition-oracles.yaml`;
+  const oracleBySourceRef = new Map();
+  const oracleRecoveryRefByStepId = new Map();
+  for (const [journeyIndex, oracleJourney] of (stepOracleSource.journeys ?? []).entries()) {
+    for (const [stepIndex, oracleStep] of (oracleJourney.steps ?? []).entries()) {
+      oracleBySourceRef.set(oracleStep.sourceRef, oracleStep);
+      if (oracleStep.sessionRecoveryDefinition) {
+        oracleRecoveryRefByStepId.set(oracleStep.id,
+          `${oracleDocumentRef}#journeys/${journeyIndex}/steps/${stepIndex}/sessionRecoveryDefinition`);
+      }
+    }
+  }
+  const sourceDocuments = {
+    [`${base}/action-registry.yaml`]: actionDocument,
+    [oracleDocumentRef]: stepOracleSource,
+    ...Object.fromEntries(journeys.map(({ filename, document }) => [`${base}/journey-contracts/${filename}`, document])),
+  };
+  let sourceBoundRecoveryCount = 0;
+  for (const { filename, document } of journeys) {
+    for (const [index, step] of document.steps.entries()) {
+      const sourceRef = `${base}/journey-contracts/${filename}#/steps/${index}`;
+      const oracle = oracleBySourceRef.get(sourceRef);
+      assert.ok(oracle, `${sourceRef} has an exact step oracle`);
+      const actionRef = oracle.canonicalBindings?.actionRef;
+      if (actionRef) {
+        const action = actionById.get(actionRef);
+        assert.ok(action, `${sourceRef} action resolves`);
+        const collection = actionDocument.actions?.some((row) => row.id === actionRef) ? "actions" : "ownerDefinedActions";
+        const ref = `${base}/action-registry.yaml#${collection}/@id=${actionRef}/actionDefinitionSemantics/typedDefinition/failureRecovery`;
+        assert.equal(resolvePdp3BindingSourceRef(ref, sourceDocuments), action.actionDefinitionSemantics?.typedDefinition?.failureRecovery,
+          `${sourceRef} failure recovery points to its selected action`);
+        sourceBoundRecoveryCount += 1;
+      }
+      const sessionRef = oracleRecoveryRefByStepId.get(oracle.id);
+      const stepRecoveryRef = `${sourceRef}/recovery`;
+      const recoveryRef = sessionRef ?? (step.recovery ? stepRecoveryRef : undefined);
+      assert.ok(recoveryRef, `${sourceRef} has a declared recovery or typed session-recovery definition`);
+      const recovered = resolvePdp3BindingSourceRef(recoveryRef, sourceDocuments);
+      if (sessionRef) assert.deepEqual(recovered, oracle.sessionRecoveryDefinition, `${sourceRef} session recovery resolves exactly`);
+      else assert.equal(recovered, step.recovery, `${sourceRef} recovery resolves exactly`);
+    }
+  }
+  assert.equal(sourceBoundRecoveryCount, 121);
+});
+
 test("step source-binding coverage is not reported as guard-semantic completion", () => {
   const coverage = stepOracleSource.guardFactEvaluationCoverage;
   assert.equal(coverage.id, "media.pdp3.step-guard-fact-coverage.v1");
@@ -158,6 +211,41 @@ test("step source-binding coverage is not reported as guard-semantic completion"
       assert.equal(binding.coverageDisposition, "SOURCE_BINDING_RECORDED", `${journey.journeyId}/${index + 1}`);
     }
   }
+});
+
+test("J-05 capability alternatives follow source-analysis purpose, not create-image/create-video labels", () => {
+  const journey = stepOracleSource.journeys.find((item) => item.journeyId === "J-05");
+  const p0Journey = p0JourneyCatalog.journeys.find((item) => item.id === "J-05");
+  assert.ok(journey && p0Journey);
+  assert.deepEqual(p0Journey.outcomeRefs, ["media.goal.understand-media", "media.goal.review-trustworthy-output"]);
+  assert.deepEqual(journey.steps.slice(0, 3).map((step) => step.capabilityOptions.length), [13, 7, 1]);
+  for (const step of journey.steps.slice(0, 3)) {
+    const result = validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Journey);
+    assert.deepEqual(result, { valid: true, reason: "EXACT_SOURCE_ANALYSIS_ALTERNATIVES" }, step.id);
+    assert.equal(step.stepIntent.toLowerCase().includes("generation"), false, step.id);
+  }
+  const imageStep = journey.steps[0];
+  const generatedCapability = capabilitiesById.get("media.generate.image.text-to-image");
+  assert.ok(generatedCapability, "the wrong-purpose control is itself a valid source capability");
+  const wrongButValidCapability = structuredClone(imageStep);
+  wrongButValidCapability.capabilityOptions[0] = {
+    capabilityRef: generatedCapability.id,
+    operationRefs: generatedCapability.ownerDefinition.operationRefs,
+    operationKind: generatedCapability.ownerDefinition.operationKind,
+    requirementRefs: ["MEDIA-REQ-CAP-GENERATE-IMAGE"],
+    admission: "NOT_ADMITTED",
+  };
+  assert.deepEqual(validatePdp3StepCapabilityPurpose(wrongButValidCapability, capabilitiesById, p0Journey), {
+    valid: false, reason: "CAPABILITY_OPTIONS_DO_NOT_MATCH_AUTHORED_PURPOSE_SET",
+  });
+  const falsifiedPurposeSet = structuredClone(wrongButValidCapability);
+  falsifiedPurposeSet.purposeBinding.allowedCapabilityRefs[0] = generatedCapability.id;
+  assert.deepEqual(validatePdp3StepCapabilityPurpose(falsifiedPurposeSet, capabilitiesById, p0Journey), {
+    valid: false, reason: "CAPABILITY_SOURCE_DOES_NOT_MATCH_ANALYSIS_PURPOSE",
+  });
+  assert.equal(imageStep.inputCases.find((item) => item.expectedDecision === "REJECT_WRONG_PURPOSE")?.selectedCapabilityRef,
+    "media.generate.image.text-to-image");
+  assert.equal(journey.steps[3].capabilityOptions.length, 0, "comparison remains read-only and does not invent a generation branch");
 });
 
 test("step oracle enrichment preserves the distinction between source bindings and evaluated guards", async () => {

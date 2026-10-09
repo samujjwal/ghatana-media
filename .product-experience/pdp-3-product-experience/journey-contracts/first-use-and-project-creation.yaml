@@ -466,10 +466,10 @@ steps:
       recovery: Re-observe only within the same tenant, principal, workspace, and query after current
         authority is available; never expose cross-workspace metadata.
       runtimeAdmission: NOT_ADMITTED
-      decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      decisionRef: .product-experience/decision-log.md#PXD-119
       ordinal: 2
       viewRef: media.view.resume-work
-      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: null
         result: authorized-projects-or-a-purposeful-first-use-state-are-shown;

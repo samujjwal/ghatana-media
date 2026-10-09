@@ -7,6 +7,7 @@ export class IdentityContractError extends Error {
 }
 
 const SCALAR_REF_PREFIX = ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/";
+const nonblank = (value) => typeof value === "string" && value.trim().length > 0;
 
 function resolveScalarType(ref, scalarTypes, field) {
   if (typeof ref !== "string" || !ref.startsWith(SCALAR_REF_PREFIX)) {
@@ -144,4 +145,66 @@ export function validateAcyclicSameTenantLineage(edges, contracts, scalarTypes =
   };
   for (const node of graph.keys()) visit(node);
   return { edgeCount: edges.length, acyclic: true, runtimeObservation: "NOT_EVALUATED" };
+}
+
+/** Validate the PDP-1 logical relationship registry against canonical identity and relationship records. */
+export function validateOwnerRelationshipDefinitions(relationshipSource, identitySource) {
+  const fail = (reason) => ({ valid: false, reason });
+  const relationships = relationshipSource?.relationships;
+  const ownerIndexes = relationshipSource?.ownerNormativeRuleRecords;
+  const identities = identitySource?.records;
+  if (!Array.isArray(relationships) || !Array.isArray(ownerIndexes) || !Array.isArray(identities)) return fail("RELATIONSHIP_REGISTRY_MISSING");
+  const relById = new Map(relationships.map((row) => [row?.id, row]));
+  const identityByObject = new Map(identities.map((row) => [row?.objectRef, row]));
+  const identityById = new Map(identities.map((row) => [row?.id, row]));
+  if (relById.size !== relationships.length || identityByObject.size !== identities.length || identityById.size !== identities.length) return fail("DUPLICATE_SOURCE_ID");
+  if (ownerIndexes.length !== relationships.length) return fail("OWNER_INDEX_POPULATION_MISMATCH");
+  const indexById = new Map(ownerIndexes.map((row) => [row?.id, row]));
+  if (indexById.size !== ownerIndexes.length) return fail("DUPLICATE_OWNER_INDEX_ID");
+  for (const relation of relationships) {
+    const definition = relation?.ownerDefinition;
+    if (!definition || definition.disposition !== "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY"
+      || definition.runtimeParity !== "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+      || definition.sameTenantRequired !== true
+      || !["cardinalityRule", "exactVersionRule", "lifecycleRule", "deletionRule", "lineageRule"].every((field) => nonblank(definition[field]))) {
+      return fail(`OWNER_DEFINITION_INCOMPLETE:${relation?.id ?? "unknown"}`);
+    }
+    const indexed = indexById.get(definition.id);
+    const expectedRuleRef = `.product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=${relation.id}/ownerDefinition`;
+    if (!indexed || indexed.ruleRef !== expectedRuleRef) return fail(`OWNER_INDEX_MISMATCH:${relation.id}`);
+    const endpoints = [
+      [definition.parentIdentityContracts, relation.from, "parent"],
+      [definition.childIdentityContracts, relation.to, "child"],
+    ];
+    for (const [contracts, relationEndpoint, role] of endpoints) {
+      const expectedRefs = Array.isArray(relationEndpoint) ? relationEndpoint : [relationEndpoint];
+      if (!Array.isArray(contracts) || contracts.length !== expectedRefs.length) return fail(`ENDPOINT_CARDINALITY_MISMATCH:${relation.id}:${role}`);
+      const actualRefs = [];
+      for (const endpoint of contracts) {
+        const identity = identityByObject.get(endpoint?.objectRef);
+        const expectedSelector = identity && `.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=${identity.id}`;
+        if (!identity || identity.canonicalDisposition !== "CANONICAL_MEDIA_IDENTITY"
+          || endpoint.selector !== expectedSelector
+          || JSON.stringify(endpoint.identityTuple) !== JSON.stringify(identity.canonicalIdentityTuple)) return fail(`ENDPOINT_IDENTITY_MISMATCH:${relation.id}:${role}`);
+        actualRefs.push(endpoint.objectRef);
+      }
+      if (new Set(actualRefs).size !== actualRefs.length || [...actualRefs].sort().join("\u0000") !== [...expectedRefs].sort().join("\u0000")) return fail(`ENDPOINT_REFERENCE_MISMATCH:${relation.id}:${role}`);
+    }
+    const expectedSourceRef = `.product-experience/pdp-1-domain-data/relationships.yaml#relationships/${relation.id}`;
+    const objectBindings = identitySource.relationshipBindings?.filter((row) => row?.sourceRelationshipRef === expectedSourceRef) ?? [];
+    if (objectBindings.length === 0) return fail(`IDENTITY_RELATIONSHIP_BINDING_MISSING:${relation.id}`);
+    if (relation.sourceRefField !== undefined && relation.sourceRefField !== definition.fieldBinding) return fail(`RELATIONSHIP_FIELD_BINDING_MISMATCH:${relation.id}`);
+    for (const binding of objectBindings) {
+      const exactVersionPresent = nonblank(binding.exactVersionRef)
+        || (Array.isArray(binding.exactVersionRef) && binding.exactVersionRef.length > 0 && binding.exactVersionRef.every(nonblank));
+      const targetRefs = Array.isArray(binding.targetRef) ? binding.targetRef : [binding.targetRef];
+      if (binding.sameTenant !== true || binding.sourceRefField !== definition.fieldBinding || !exactVersionPresent
+        || !targetRefs.length || targetRefs.some((ref) => !nonblank(ref))) return fail(`IDENTITY_RELATIONSHIP_BINDING_INCOMPLETE:${relation.id}`);
+      if (!targetRefs.every((targetRef) => [...definition.parentIdentityContracts, ...definition.childIdentityContracts].some((endpoint) => endpoint.objectRef === targetRef))) {
+        return fail(`IDENTITY_RELATIONSHIP_TARGET_MISMATCH:${relation.id}`);
+      }
+    }
+  }
+  if (ownerIndexes.some((row) => !relationships.some((relation) => relation.ownerDefinition?.id === row.id))) return fail("UNBOUND_OWNER_INDEX");
+  return { valid: true, relationshipCount: relationships.length, identityBindingCount: identitySource.relationshipBindings.length };
 }

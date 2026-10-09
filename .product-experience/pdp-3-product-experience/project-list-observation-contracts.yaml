@@ -100,4 +100,4 @@ records:
       - empty page with continuation misrepresented as a terminal empty page
       - stale observation presented as current or as proof of global absence
     runtimeAdmission: NOT_ADMITTED
-    decisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+    decisionRef: .product-experience/decision-log.md#PXD-119

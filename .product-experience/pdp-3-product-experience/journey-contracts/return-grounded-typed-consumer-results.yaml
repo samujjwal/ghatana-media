@@ -25,25 +25,24 @@ preconditions:
   - Consumer purpose and artifact access are authorized; Media-specific
     scene-text intent is distinguished from document extraction.
 steps:
-  - view: media.view.find-task-guidance
+  - view: media.view.review-creation-plan
     legacyViewRef: M-HELP
-    screenContractRef: screen-contracts/find-task-guidance.yaml
-    viewIntent: Product-specific assistance and safe diagnostic sharing
-    actionRef: media.action.search-product-guidance
-    actionBindingState: Exact screen action selected for this ordered step;
-      source-defined semantics only; independent review and runtime admission
-      separate
+    screenContractRef: screen-contracts/review-creation-plan.yaml
+    viewIntent: Select an exact source version and explicit multimodal observation dimensions before submitting a grounded typed-result request
+    actionRef: media.action.submit-validated-request
+    actionBindingState: EXACT_SOURCE_GROUNDED_ASYNC_COMMAND_ADAPTER; explicit capability choice; runtime NOT_ADMITTED
     stateRefs: []
     stateBindingState: state applicability remains separately bounded
     candidateActionRefs: []
     surfaceRefs:
       - media.surface.web
     objectRefs:
-      - media.domain.project
+      - media.domain.artifact
       - media.domain.artifact-version
       - media.domain.processing-job
-    canonicalOperationRef: media.operation.action.search-product-guidance
-    authorityRef: null
+      - media.domain.provenance-manifest
+    canonicalOperationRef: media.operation.job.submit.v1
+    authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
     decisionRef: null
     transitionRef: null
     handoffRef: null
@@ -51,9 +50,7 @@ steps:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
       sourceRef: journey.terminalSuccess
-      proposal: A typed result returns source/time/region/provenance and explicit
-        uncertainty; generic document parsing remains with Document
-        Intelligence.
+      proposal: The request selects the exact source-grounded multimodal COMMAND; only its exact typed output can satisfy the source/time/region/provenance outcome. Generic document parsing remains with Document Intelligence.
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -91,8 +88,8 @@ steps:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
       stateRefs: pending-owner-bound-state-reference-and-transition
-      canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
-      authorityRef: pending-explicit-step-authority-binding
+      canonicalOperationRef: media.operation.job.submit.v1; selected target operation remains user-bound
+      authorityRef: trusted tenant/principal/delegation context is host-supplied and rechecked
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-allocation
@@ -111,11 +108,11 @@ steps:
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
       journeyRef: J-06
       ordinal: 1
-      viewRef: media.view.find-task-guidance
+      viewRef: media.view.review-creation-plan
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       action:
-        actionRef: media.action.search-product-guidance
+        actionRef: media.action.submit-validated-request
         bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
         selectionBasis: EXACT_STEP_INTENT_AND_SCREEN_ACTION
         candidateActionRefs: []
@@ -123,34 +120,30 @@ steps:
         semanticRole: DOMAIN_OPERATION
         actorRefs:
           - media.creator
-          - media.developer-integrator
           - media.editor
-          - media.operator
         guards:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Read or navigate using the exact selected context; do not mutate a
-          source object or infer permission from its presence.
-        reversibilityDisposition: REVERSIBLE
-        finality: read-only-or-navigation; no-write-finality
+        effect: Submit one explicitly selected source-grounded multimodal COMMAND against the exact immutable source version and declared analysis dimensions; no source mutation or generic Document Intelligence extraction is implied.
+        reversibilityDisposition: NOT_REVERSIBLE
+        finality: durable request receipt only; typed result observation is separate; unknown requires same-identity reconciliation
         failureRecovery: preserve-the-exact-target-and-current-draft;
           explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
-          - media.operation.action.search-product-guidance
+          - media.operation.action.submit-validated-request
+          - media.operation.job.submit.v1
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
-        intent: Product-specific assistance and safe diagnostic sharing
+        intent: Select an exact source version and explicit multimodal observation dimensions before submitting a grounded typed-result request
         result: null
         success:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
-          proposal: A typed result returns source/time/region/provenance and explicit
-            uncertainty; generic document parsing remains with Document
-            Intelligence.
+          proposal: The selected source-grounded output returns source/time/region/provenance and explicit uncertainty; generic document parsing remains with Document Intelligence.
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -182,14 +175,27 @@ steps:
         surfaceRefs:
           - media.surface.web
         objectRefs:
-          - media.domain.project
           - media.domain.artifact-version
           - media.domain.processing-job
+          - media.domain.provenance-manifest
+        domainObjectRefs:
+          - media.domain.artifact
+          - media.domain.artifact-version
+          - media.domain.processing-job
+          - media.domain.provenance-manifest
         stateRefs: []
-        canonicalOperationRef: media.operation.action.search-product-guidance
-        authorityRef: null
+        canonicalOperationRef: media.operation.job.submit.v1
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+        operationRefs:
+          - media.operation.action.submit-validated-request
+        operationKinds: [COMMAND]
+        capabilityOptions:
+          - capabilityRef: media.multimodal.observe.source-grounded
+            operationRefs: [media.operation.capability.media-multimodal-observe-source-grounded]
+            operationKind: COMMAND
+            requirementRefs: [MEDIA-REQ-CAP-MULTIMODAL]
         transitionRef: null
-        requirementRefs: []
+        requirementRefs: [MEDIA-REQ-CAP-MULTIMODAL]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
@@ -333,7 +339,7 @@ steps:
         operationRefs:
           - media.operation.action.search-product-guidance
         effectClaim: see-stepOutcomeSemantics
-      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-PENDING-PDP38-EXPERIENCE
+      stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
       operationContractBinding:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
         operationRef: media.operation.action.search-product-guidance

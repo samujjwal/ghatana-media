@@ -13,6 +13,12 @@ toolsSchemaBoundary:
     decisionRef: .product-experience/decision-log.md#PXD-107
     existingEffectFinalitySchemaUnchanged: true
     scope: Parsed schema comparison preserves every prior field; only optional journey semantics and scenarioRefs were added. Source compatibility only; installed publication and phase acceptance remain pending.
+  journeyActorProvenanceSourceReview:
+    sourceCommit: 00618e036ea706d3165e9d8ca53ae14f37fa6f52
+    decisionRef: .product-experience/decision-log.md#PXD-109
+    reviewRef: docs/implementation/verification/pdp-38/tools-journey-actor-source-review.json
+    existingEffectFinalitySchemaUnchanged: true
+    scope: Two optional journey-step actor/provenance arrays only; every other parsed schema value is unchanged. Actors require owner resolution; sourceRefs are provenance and do not prove authority. Installed publication and phase acceptance remain pending.
   sourceSchemaRef: ghatana-tools/libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json#/definitions
   installedSnapshotDisposition: Installed Media workspace package snapshot predates the enum
     extension; it is not used to validate these candidates.

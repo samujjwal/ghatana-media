@@ -21,6 +21,84 @@ productDefinitionContract:
   traceState: All requirement groups now reference proposed canonical P0-002 intents; independent review must confirm the
     granularity of inherited family-level intent/outcome links. Actor, state, and channel proposals remain pending human and
     owner review; this is not a generated ProductDefinition projection or acceptance result.
+ownerDefinedProjectionAuthorityRules:
+- id: media.requirement.generated-projection-single-authority.v1
+  authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sourceAuthority: Media source records remain the only editable Media-specific semantic authorities; a projection is
+    downstream data and cannot become a competing ledger.
+  generatorBinding: Every generated contract or view resolves its fields to exact stable source record identities and
+    declared mappings. Missing, ambiguous, or stale source bindings fail generation; a generator must not fill unknown
+    semantics from labels, filenames, or implementation observations.
+  productDefinitionProjection: ProductDefinition capabilities and requirements are read-only projections of the exact
+    Media capability and requirement records through the declared structural schema mapping. The generic schema cannot
+    absorb Media-specific semantics or replace those records.
+  phaseViews: Phase-local gap, coverage, and acceptance views are generated filtered views of root source obligations;
+    they are not independently editable inventories or alternate acceptance authorities.
+  requirementRetention: Implementation order only sequences execution. It never deletes, weakens, or reclassifies a
+    requirement to match incomplete implementation. Definition completeness, implementation state, qualification, runtime
+    availability, and acceptance remain distinct; an unimplemented or unqualified requirement stays visible with its
+    unresolved status.
+  constitutionProjection: The readable PRODUCT-CONSTITUTION.md is generated from or unambiguously references this one
+    structured requirement register. It is a reader-facing projection, not a second editable authority.
+  runtimeReuseProjection: A runtime reuse-decision projection may be generated only from the exact Media-owned reuse
+    decision records after the required explicit admission decision. It is not a second editable decision register and
+    a candidate, source import, or generated projection does not itself admit a dependency.
+  generatedArtifactRule: Generated files are never the primary edit target. Regeneration must preserve exact source
+    identities and must not promote definition, implementation, qualification, runtime, or acceptance status.
+  negativeCases:
+  - A phase coverage file is edited as an independent source of obligations.
+  - A generator infers a semantic field from a capability label or implementation name when the source binding is absent.
+  - A runtime reuse projection admits a candidate without the exact source decision and its admission state.
+  - A generated ProductDefinition value is edited and treated as canonical Media meaning.
+  status: DEFINITION_ONLY; generator binding, independent review, and generated projection acceptance remain separate.
+ownerDefinedDeploymentPartitionRules:
+- id: media.requirement.resource-isolation-deployment-partition.v1
+  authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  partitionBasis: Choose process and service boundaries from concrete resource isolation, privilege, failure containment,
+    data locality, deployment constraints, and operational ownership requirements. Related capability operations may
+    share a process when their authority, resource profile, and lifecycle boundaries fit.
+  granularity: Do not create one microservice per capability merely because capability records are separately named.
+    A capability boundary is semantic and does not by itself require a process, service, container, or deployment unit.
+  isolationControls: Each selected execution boundary declares its resource ceilings and isolates untrusted decoders,
+    plugins, native engines, and model or script execution according to the current threat policy.
+  nonClaims: [no-runtime-deployment, no-engine-admission, no-license-exemption, no-performance-qualification]
+  status: DEFINITION_ONLY; deployment implementation and qualification remain unestablished.
+ownerDefinedCapabilityNamingRules:
+- id: media.requirement.capability-identities-name-media-semantics.v1
+  authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  semanticIdentity: A Media capability ID and label describe a stable product operation or outcome. They do not name,
+    identify, or imply a vendor, provider, model, engine, package, or deployment.
+  separation: Provider/model/engine identity and version belong in explicit implementation, dependency, profile, and
+    provenance bindings. A vendor change does not change Media semantic identity; a semantic change requires a new or
+    versioned Media owner contract and cannot be smuggled in by renaming a provider.
+  aliasing: An alias is an explicit reference to one canonical Media semantic definition. It does not create an
+    independent capability, implementation, qualification, lifecycle, or runtime admission.
+  status: DEFINITION_ONLY; no provider, model, or engine is thereby admitted or qualified.
+ownerDefinedRecipeTemplateBindingRules:
+- id: media.requirement.recipe-template-versioned-schema-binding.v1
+  authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  representation: A reusable template is a versioned MediaRecipe identity plus exact versioned content and schema
+    bindings. The bound content and parameter schemas are explicit inputs to that recipe version, not hidden application
+    code or mutable defaults.
+  executionBoundary: A template describes reusable intent and structure. It is not a separately hard-coded application,
+    provider implementation, dispatch authority, or proof that the recipe can execute.
+  changeSemantics: Changing the recipe, content binding, parameter schema, or compatibility rules creates a separately
+    identified version and retains the prior binding for lineage and review.
+  invalidation: Missing, stale, incompatible, or unauthorized content/schema bindings make the template instance
+    invalid or unresolved; never silently substitute content or schema.
+  status: DEFINITION_ONLY; recipe execution, content admission, and compatibility qualification remain separate.
+ownerDefinedCrossMediaMechanicsRules:
+- id: media.requirement.shared-cross-media-mechanics.v1
+  authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  sharedConcerns: Rendering, synchronization, quality assessment, and provenance are cross-cutting Media concerns for
+    generated, captured, edited, animated, and simulated media.
+  typedBoundary: Shared mechanics preserve the exact modality, source/output version, clock or media signal, operation,
+    profile, and evidence context. Image, video, audio, animation, and simulation semantics remain separately typed;
+    common mechanics do not make their units, timing, quality metrics, or provenance interchangeable.
+  compositionality: A workflow may combine these mechanics only through explicit versioned operation and artifact
+    bindings with declared ordering, conversion, and loss. It cannot infer a common effect or qualification from shared
+    labels.
+  status: DEFINITION_ONLY; no cross-modal runtime parity or quality qualification is implied.
 requirements:
 - id: MEDIA-REQ-CAP-PROJECT
   scopeStatus: TARGET
@@ -6317,3 +6395,260 @@ actorReferenceAuthority: actors-responsibilities.yaml; actor/role references are
   permission.
 stateModelAuthority: state-models.yaml authored proposal; every listed model/state reference remains pending P0-010 independent
   acceptance and does not claim runtime implementation.
+ownerDefinedIdentifierRules:
+- id: media.requirement-identity.separation-from-execution-task-prefixes.v1
+  sourceAuthority: Media product definition
+  scope: stable-requirement-and-capability-identities
+  rule: >-
+    Product requirements use stable MEDIA-REQ-* identities and capability records use their canonical media.* identities.
+    Historical execution/task labels such as GOV, MIG, P0, P1, P2, P3, HAND, IMP, and OPS identify program work only;
+    they are not requirement, capability, operation, domain, or authorization identities and must not be converted into
+    semantic identifiers. Preserve historical task references as provenance when useful, while resolving their product
+    meaning only through the current owning PDP record.
+  sourceRefs:
+  - docs/migration/expert-reviewed-master-plan.md#section-18.3
+  - .product-experience/pdp-0-product-truth/requirements.yaml#/productDefinitionContract/coreFieldMapping
+  identityFormats:
+    requirement: MEDIA-REQ-<stable-semantic-suffix>
+    capability: media.<canonical-capability-id>
+    prohibitedSemanticReuse: [GOV, MIG, P0, P1, P2, P3, HAND, IMP, OPS]
+  executionAdmission: NOT_ADMITTED
+  independentAcceptance: P0-010-review-open
+ownerDefinedInputInspectionRules:
+- id: media.requirement.source-inspection-is-purpose-bound-and-estimated.v1
+  sourceAuthority: Media product definition
+  scope: source-analysis-before-planning-or-execution
+  rule: >-
+    Source inspection may read only the exact artifact version authorized for the requested purpose. Declared metadata,
+    deterministic format probes, and inferential observations remain distinguishable; inferred frame rate, dimensions/color,
+    language, speech segments, defects, or compatibility are labeled ESTIMATED with method, profile/version, uncertainty,
+    and source-version provenance. Unknown or conflicting inspection results remain UNKNOWN and cannot be converted into
+    rights, consent, authorization, capability qualification, or permission to execute. Inspection itself must not dispatch
+    processing or publish derived output.
+  sourceRefs:
+  - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+  - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
+  requiredFacts: [exactArtifactVersion, purpose, inspectionMethodAndVersion, observedOrEstimated, uncertainty, sourceProvenance]
+  unknownDisposition: DENY_DOWNSTREAM_ASSUMPTION; preserve UNKNOWN and require explicit resolution
+  executionAdmission: NOT_ADMITTED
+  independentAcceptance: P0-010-review-open
+ownerDefinedSimulationScopeRules:
+- id: media.requirement.simulation-family-and-domain-owner-boundary.v1
+  sourceAuthority: Media product definition with qualified external domain owners
+  rule: >-
+    Simulation capability families are distinct by modeled domain and output semantics. A rigid-body solver is not a fluid
+    solver; a volume representation is not a simulation implementation; no engine is presumed to implement all listed
+    regimes. Media owns the execution contract and media representation, while domain equations, educational/scientific
+    claims, clinical meaning, empirical calibration, validity ranges, and domain-specific acceptance remain with the
+    qualified domain owner. Visual plausibility is not scientific or physical correctness. Each selected operation/profile
+    must name its exact model/solver family, typed inputs and outputs, units, bounds, and qualification evidence; a missing
+    or unqualified family stays unavailable rather than being silently substituted.
+  requiredFacts: [exactSimulationFamily, modelOrSolverIdentityAndVersion, typedInputsAndOutputs, unitsAndBounds, qualifiedDomainOwner, validationEvidence]
+  unknownDisposition: BLOCK_OR_REVIEW; no cross-family substitution and no scientific claim
+  executionAdmission: NOT_ADMITTED
+  independentAcceptance: P0-010-and-domain-owner-review-open
+ownerDefinedLeafTrustReconstructionPolicy:
+  id: media.requirement.leaf-trust-reconstruction-policy.v1
+  sourceAuthority: Media product definition
+  appliesTo: Every exact capability leaf in the current capability register, joined to its owner-adjudicated typed input/output and operation contract.
+  rule: >-
+    Each capability declares an explicit trust/reconstruction disposition against its exact typed inputs, outputs, and
+    operation contract. A source-derived transformation or generated/reconstructed output is bound to the exact
+    source/request version and operation branch; the source is never overwritten. A derivative may change meaning or
+    fidelity and is not a claim of lossless preservation. Record the transformation or generation method and effective
+    profile/version, provenance, evidence, uncertainty, and material limits; never present generated detail as recovered
+    fact. An estimator, classifier, measurement, quality
+    assessor, or other inference returns an observation with method/model and version, source/version, applicable scope,
+    evidence, uncertainty, and limitations, and must not label an estimate as ground truth. A state/reference-only or
+    non-transforming operation explicitly records that it neither reconstructs content nor establishes inferred facts;
+    it cannot claim a content effect or evidence it did not produce. Owner-state observations, caller plans, policy
+    decision references, versioned definitions, and recorded project changes have distinct epistemic roles: a plan is
+    not an observation or applied effect, a policy reference is not a grant, and readiness is not admission. A returned
+    state is current only when its exact owner, operation, tenant/version scope, and observation-time authority are valid.
+    If the exact output semantics do not establish which
+    branch applies, preserve UNKNOWN and block the affected claim rather than infer from a capability name. This policy
+    does not grant rights, consent, execution, provider admission, scientific validity, or independent acceptance.
+  requiredLeafBindings:
+    - exact capability source identity
+    - exact owner capability adjudication identity
+    - exact canonical operation contract
+    - exact typed input and output populations
+    - explicit owner-selected disposition and material rationale
+  dispositions:
+    - SOURCE_DERIVED_TRANSFORMATION
+    - ESTIMATED_OR_RECONSTRUCTED
+    - ESTIMATED_OR_INFERRED_OBSERVATION
+    - NO_RECONSTRUCTION_OR_INFERENCE
+    - UNRESOLVED_EXACT_OUTPUT_SEMANTICS
+  unknownDisposition: Preserve UNKNOWN; do not infer a branch from the leaf name or family.
+  runtimeAdmission: NOT_ADMITTED
+  qualification: NOT_EVALUATED
+  acceptanceEffect: none
+ownerDefinedExternalWorkerBoundaryRules:
+  - id: media.requirement.document-intelligence-worker-boundary.v1
+    sourceAuthority: Media product definition, with target-service ownership retained
+    scope: historical-worker-preservation-and-platform-owner-handoff
+    sourceRefs:
+      - docs/migration/expert-reviewed-master-plan.md#REV-06
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#externalOwnerTransfers
+    observedInventory:
+      worker: ghatana/services/media/modules/intelligence/document-intelligence-worker
+      targetOwner: ghatana/services/document-intelligence
+      consumers: Office/PDF/OCR paths and their identified consumers
+      contractBoundary: frozen Shared document-extraction contracts
+    rule: >-
+      Preserve the distinct document-intelligence worker and its Office/PDF/OCR
+      consumer inventory as an explicit owner-boundary record while media work
+      is reorganized; do not orphan or silently absorb those consumers into
+      audio/video processing. The document-intelligence target service owns its
+      cancellation and admission behavior. A proposed move or a source path is
+      not proof that rehome, consumer parity, frozen-contract compatibility,
+      cancellation parity, or admission has completed. Keep the exact
+      consumer-to-target mapping and those parity checks unresolved until
+      source-grounded evidence is recorded; Media may consume only the frozen
+      Shared document-extraction contract at its defined boundary. OCR and
+      document extraction expose source-bounded observations only; they do not
+      decide clinical eligibility, clinical disposition, KYC identity, or
+      financial eligibility. Those decisions and their authority remain with
+      the owning clinical, identity, or financial domain. A recognized term,
+      extracted field, or confidence score cannot be promoted to a decision.
+    requiredFacts:
+      - exact worker identity
+      - exact target owner identity
+      - Office/PDF/OCR consumer inventory and mapping
+      - frozen Shared document-extraction contract identity
+      - target-owned cancellation and admission semantics
+      - separate evidence for rehome and consumer parity
+      - no clinical, KYC, identity, or financial decision inference from extracted observations
+    unknownDisposition: Keep consumer mapping and rehome parity unresolved; do not claim completed transfer.
+    implementationState: UNKNOWN
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+ownerDefinedCrossProductBoundaryRules:
+  - id: media.requirement.marketing-authority-boundary.v1
+    owner: Media product semantics; campaign and brand decisions remain with Digital Marketing
+    inputs: [approved-creative-brief-ref, approved-brand-claim-ref, campaign-scope-ref, delivery-intent]
+    rule: >-
+      Media may compose or transform assets only from the exact approved brief,
+      brand/claim references, and campaign scope supplied by the owning Marketing
+      authority. Media does not author or approve campaign, offer, brand, claim, or
+      publication decisions. Missing, expired, conflicting, or unresolvable owner
+      approval leaves the dependent operation blocked or UNKNOWN; a rendered asset
+      or user-provided claim text is not Marketing approval.
+    negativeCases:
+      - A caller-supplied brand claim without a current owner-approved reference is not authorized.
+      - Media output cannot be treated as campaign publication approval.
+      - An unrelated Marketing approval cannot be substituted for the exact campaign scope.
+    scopeStatus: DEFINITION_ONLY; owner decision evidence and runtime verification remain separate
+  - id: media.requirement.yappc-published-app-authoring-boundary.v1
+    owner: Media product semantics; YAPPC owns app-authoring product experience and implementation
+    rule: >-
+      Media may integrate with YAPPC only through an exact published app-authoring
+      capability whose public request, result, authority, version, and compatibility
+      contract is identified and tested. Media does not embed YAPPC product internals
+      as its editor framework or treat source-code presence as a published capability.
+      If no applicable published contract exists, the integration remains an explicit
+      dependency gap; Media-owned editing remains defined independently.
+    negativeCases:
+      - A private YAPPC module or source path is not a public integration contract.
+      - Similar editor behavior or matching names do not establish API compatibility.
+      - An absent published capability remains a dependency gap, not implicit support.
+    scopeStatus: DEFINITION_ONLY; publication, consumer compatibility, and runtime remain unverified
+
+ownerNormativeRuleRecords:
+  - id: media.requirement.marketing-authority-boundary.v1
+    ruleRef: .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCrossProductBoundaryRules/@id=media.requirement.marketing-authority-boundary.v1
+    sourceRole: stable selector index; normative rule body remains in ownerDefinedCrossProductBoundaryRules
+  - id: media.requirement.yappc-published-app-authoring-boundary.v1
+    ruleRef: .product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedCrossProductBoundaryRules/@id=media.requirement.yappc-published-app-authoring-boundary.v1
+    sourceRole: stable selector index; normative rule body remains in ownerDefinedCrossProductBoundaryRules
+
+ownerDefinedDeploymentAvailabilityRules:
+  - id: media.requirement.policy-and-admitted-deployment-availability.v1
+    sourceAuthority: Media product definition
+    scope: per-capability-operation-and-deployment-profile
+    rule: >-
+      A capability is available for a request only when its exact operation,
+      requested profile, current policy decision, and admitted deployment
+      jointly permit the required processing locality and dependencies. A
+      local-only request cannot fall back to a remote or cloud execution path.
+      Capability registration, provider readiness, package presence, or a
+      deployment label alone does not admit execution. Missing or unknown
+      policy, locality, dependency, or deployment evidence yields unavailable
+      or review-required; do not silently select another location or provider.
+    requiredInputs:
+      - exact capability and canonical operation identity/version
+      - requested profile identity/version and processing-locality requirement
+      - current policy and authority decision for tenant, purpose, rights, and egress
+      - admitted deployment identity and capability-scoped dependency readiness
+    unknownDisposition: BLOCKED_OR_REVIEW_REQUIRED; no implicit remote/cloud fallback.
+    implementationState: UNKNOWN
+    runtimeAdmission: NOT_ADMITTED
+    qualification: NOT_EVALUATED
+    acceptanceEffect: none
+ownerDefinedImportAdapterConversionRule:
+  id: media.requirement.import-adapter-conversion-evidence.v1
+  sourceAuthority: Media product definition; external wire and artifact owners retain their own formats
+  rule: >-
+    An import adapter may claim a tested conversion only for an exact source
+    format/schema and version to an exact Media target schema/profile version.
+    Declare the source and target fields, identity and version bindings, units,
+    clock/coordinate/color conventions, defaults, precision, and every lossy,
+    unsupported, or inferred field. Exercise positive and adversarial fixtures
+    against the actual conversion, including exact round-trip properties where
+    the conversion is reversible. Lossy conversion must report its loss and
+    cannot be described as round-trip preserving; unsupported or unknown source
+    meaning is rejected or preserved as UNKNOWN rather than guessed. A declared
+    conversion rule or fixture inventory does not prove a production adapter,
+    complete format coverage, or runtime admission.
+  requiredEvidence:
+    - exact source schema/format and immutable version
+    - exact target Media schema/profile and version
+    - field-level mapping for identity, units, clocks, coordinates, color, and defaults as applicable
+    - positive, boundary, malformed, unknown-field, and loss fixtures
+    - measured round-trip oracle for every claimed reversible mapping
+    - explicit unsupported/loss disposition for non-reversible fields
+  negativeCases:
+    - accept a conversion based only on matching field names or nominal formats
+    - silently infer absent units, clocks, coordinate origins, color spaces, or versions
+    - claim round-trip preservation after a lossy conversion
+    - treat test fixtures as proof that a production adapter is deployed or admitted
+  scopeStatus: OWNER_DEFINED_CONVERSION_TEST_REQUIREMENT; adapter execution,
+    complete format coverage, and runtime admission remain unestablished
+ownerDefinedProductMissionCapabilityMaps:
+  - id: media.requirement.product-mission-capability-map.v1
+    sourceAuthority: Media product mission and exact capability registry
+    sourceRef: docs/migration/expert-reviewed-master-plan.md#2.2-product-mission
+    capabilityRegistry: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+    missionVerbs:
+      understand: [media.multimodal.observe.source-grounded, media.multimodal.describe, media.vision.scene-text.observation.create]
+      create: [media.generate.image.text-to-image, media.generate.video.text-to-video, media.generate.audio.text-to-audio, media.animation.2d]
+      restore: [media.project.restore, media.enhance.image.damage-restoration, media.enhance.video.frame-repair, media.enhance.audio.channel-repair]
+      enhance: [media.enhance.image.denoise, media.enhance.video.temporal-denoise, media.enhance.audio.noise-suppression]
+      edit: [media.edit.inpaint, media.edit.object-remove, media.edit.relight, media.edit.retime-slow-motion-speed-ramp]
+      animate: [media.animation.2d, media.animation.3d, media.animation.character]
+      simulate: [media.simulation.rigid-body, media.simulation.fluid, media.simulation.procedural-world, media.simulation.scientific-demo]
+      synchronize: [media.sync.sample-accurate-av-map, media.sync.lip-synchronize, media.sync.dub-subtitle-voiceover-time]
+      compose: [media.compose.multitrack-timeline, media.compose.scene-storyboard-assemble, media.compose.reusable-composition]
+      master: [media.master.audio.equalize, media.master.audio.true-peak-loudness-control, media.deliver.master]
+      evaluate: [media.quality.inspect, media.quality.compare, media.quality.diagnose]
+      deliver: [media.deliver.encode, media.deliver.package, media.deliver.export, media.deliver.publish-governed]
+    governedMediaRequires:
+      - .product-experience/pdp-0-product-truth/constitution.yaml#productMission
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+      - .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts
+    interpretation: >-
+      These exact capability identities express the intended breadth of the
+      product mission; they do not imply that each capability is implemented,
+      available to every user, qualified, or admitted. Governance, authority,
+      rights, privacy, and cost constraints apply to each applicable operation
+      and profile; no mission verb overrides them.
+    negativeCases:
+      - omit a mission verb from the mapping or bind it to a nonexistent capability identity
+      - infer implementation or execution availability from mission membership
+      - treat the mission as overriding operation-specific policy, rights, privacy, or cost bounds
+    implementationState: UNKNOWN
+    runtimeAdmission: NOT_ADMITTED
+    qualification: NOT_EVALUATED
+    acceptanceEffect: none

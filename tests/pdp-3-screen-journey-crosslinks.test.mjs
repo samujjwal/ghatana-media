@@ -186,7 +186,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
     // `step.action` is the retained historical screen-consequence subset. The
     // current 120 action/actionRef bindings and one owner action are asserted
     // separately against currentStepBindingObservation below.
-    actionLinks: 18, requirementLinks: 38, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 93,
+    actionLinks: 18, requirementLinks: 40, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 95,
   });
 });
 
@@ -352,12 +352,18 @@ test("J-02 upload workflow binds exact slices and preserves verification authori
   assert.equal(c.runtimeAdmission,"NOT_ADMITTED");
   assert.equal(c.definitionReview.status,"SOURCE_DEFINED_OWNER_ACCEPTED");
   assert.match(c.definitionReview.boundary,/phase acceptance and runtime admission remain separate/u);
-  assert.deepEqual(c.steps[1].requiredOperationRefs,["media.operation-slice.begin-upload","media.operation-slice.append-upload-chunk","media.operation-slice.complete-upload"]);
+  assert.deepEqual(c.steps[1].requiredOperationRefs,["media.operation-slice.begin-upload"]);
+  assert.equal(c.steps[1].transitionRef,null,"begin-upload creates/replays the upload session but does not complete it");
+  assert.equal(c.steps[1].transitionDisposition.status,"NOT_APPLICABLE_TO_BEGIN_UPLOAD; NO_DOMAIN_TRANSITION");
+  assert.match(c.steps[1].transitionDisposition.reason,/separate J02-3 resume workflow owns complete-upload/u);
+  assert.equal(c.steps[1].stepDefinitionSemantics.canonicalBindings.transitionRef,null);
+  assert.equal(c.steps[1].stepDefinitionSemantics.transitionApplicability.transitionRef,null);
+  assert.equal(c.steps[2].transitionRef,"media-upload-and-artifact/T01","only complete-upload’s resume workflow can enter VERIFYING");
   assert.deepEqual(c.steps[2].resumeWorkflow.orderedOperationRefs,["media.operation-slice.inspect-upload","media.operation-slice.append-upload-chunk","media.operation-slice.complete-upload"]);
   assert.ok(c.steps[2].resumeWorkflow.guards.some(x=>x.includes("unknown")&&x.includes("never-authorizes")));
   assert.ok(c.steps[2].resumeWorkflow.guards.some(x=>x.includes("never-authorizes-append")&&x.includes("FINALIZING")));
   assert.deepEqual(c.steps.map(x=>x.actorRefs),Array(5).fill(["media.creator","media.editor"]));
-  assert.deepEqual(c.steps.map(x=>x.transitionDisposition.status),["NOT_APPLICABLE_WITH_REASON","APPLICABLE_WITH_BOUNDS","APPLICABLE_WITH_BOUNDS","NOT_APPLICABLE_WITH_REASON","NOT_APPLICABLE_WITH_REASON"]);
+  assert.deepEqual(c.steps.map(x=>x.transitionDisposition.status),["NOT_APPLICABLE_WITH_REASON","NOT_APPLICABLE_TO_BEGIN_UPLOAD; NO_DOMAIN_TRANSITION","APPLICABLE_WITH_BOUNDS","NOT_APPLICABLE_WITH_REASON","NOT_APPLICABLE_WITH_REASON"]);
   for(const step of c.steps)for(const ref of step.requiredOperationRefs??[])assert.ok(ids.has(ref),`unknown operation slice ${ref}`);
   assert.match(c.terminalSuccess,/T02/u); assert.match(c.terminalSuccess,/AVAILABLE only when verification authority records current positive evidence/u);
   assert.ok(c.steps[3].postconditions.some(x=>x.includes("Verification-authority evidence")));

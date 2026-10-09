@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+
+const parse = createRequire(new URL("../../ghatana-tools/package.json", import.meta.url))("yaml").parse;
 
 const registryPath = ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml";
 const conventionsPath = ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml";
@@ -247,4 +250,46 @@ test("adapter input validation and generic unknown outcome support do not admit 
   const registry = registryText();
   assert.match(registry, /executionAdmitted: false/u);
   assert.match(registry, /DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN/u);
+});
+
+test("bounded Media planning is a closed definition, not dynamic agent or dispatch authority", () => {
+  const document = parse(readFileSync(conventionsPath, "utf8"));
+  const planning = document.mediaOwnedToolDefinitionContracts.boundedPlanningSemantics;
+  assert.equal(planning.id, "media.agent-tool-bounded-planning.v1");
+  assert.equal(planning.scopeStatus, "MEDIA_OWNER_DEFINITION_ONLY; planner/runtime binding and execution admission pending");
+  assert.equal(planning.acceptanceEffect, "none");
+  assert.equal(planning.decisionRef, "PXD-PENDING-PDP38-EXPERIENCE");
+  assert.equal(planning.planEnvelopeSchema.additionalProperties, false);
+  assert.deepEqual(planning.planEnvelopeSchema.required, ["planId", "planVersion", "members", "budget", "authorityContextRef"]);
+  assert.equal(planning.planEnvelopeSchema.properties.members.maxItems, 16);
+  assert.equal(planning.planEnvelopeSchema.properties.members.items, planning.allowedMemberSchema);
+  assert.equal(planning.allowedMemberSchema.additionalProperties, false);
+  assert.deepEqual(planning.allowedMemberSchema.required, [
+    "actionRef", "actionDefinitionRef", "operationRefs", "operationContractRefs", "purposeRef", "resourceBindings", "preconditionRefs", "expectedResultDisposition",
+  ]);
+  assert.equal(planning.allowedMemberSchema.properties.operationRefs.minItems, 1);
+  assert.equal(planning.allowedMemberSchema.properties.operationRefs.maxItems, 8);
+  assert.equal(planning.allowedMemberSchema.properties.operationRefs.uniqueItems, true);
+  assert.equal(planning.allowedMemberSchema.properties.operationContractRefs.minItems, 1);
+  assert.equal(planning.allowedMemberSchema.properties.actionDefinitionRef.pattern,
+    "^\\.product-experience/pdp-3-product-experience/action-registry\\.yaml#actions/@id=media\\.action\\.[a-z0-9.-]+$");
+  assert.deepEqual(planning.planEnvelopeSchema.properties.budget.required,
+    ["budgetRef", "policyVersionRef", "maxPlanningSteps", "maxToolInvocations", "maxReasoningTokens", "deadline"]);
+  assert.equal(planning.planEnvelopeSchema.properties.budget.properties.maxPlanningSteps.maximum, 16);
+  assert.equal(planning.planEnvelopeSchema.properties.budget.properties.maxToolInvocations.maximum, 16);
+  assert.equal(planning.planEnvelopeSchema.properties.budget.properties.maxReasoningTokens.maximum, 100000);
+  assert.deepEqual(planning.allowedMemberSchema.properties.expectedResultDisposition.enum,
+    ["SUCCEEDED", "ACCEPTED", "OUTCOME_UNKNOWN", "FAILED", "CANCELLED"]);
+  const rules = planning.rules.join(" ");
+  assert.match(rules, /cannot add a tool, operation, resource, purpose, authority, or delegation edge/u);
+  assert.match(rules, /Observation, inspection, search, and status-resolution members are read-only/u);
+  assert.match(rules, /does not create an agent graph, recursive planner, dynamic tool authority, or implicit tool invocation/u);
+  assert.match(rules, /unresolved effects stop the plan and prohibit blind retry/u);
+  assert.match(planning.prohibitedInference.join(" "), /not evidence of an admitted agent runtime/u);
+
+  const weakened = structuredClone(planning);
+  weakened.planEnvelopeSchema.additionalProperties = true;
+  weakened.rules = weakened.rules.filter((rule) => !rule.includes("cannot add a tool, operation"));
+  assert.notDeepEqual(weakened.planEnvelopeSchema, planning.planEnvelopeSchema);
+  assert.notDeepEqual(weakened.rules, planning.rules);
 });

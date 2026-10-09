@@ -105,6 +105,17 @@ securityAndRightsBaseline:
   report uncertainty and reconcile rather than replay blindly.
 - Keep deletion, physical erasure, backups, caches, provider copies, legal holds, and external recall as distinct
   lifecycle evidence; never equate metadata hiding with physical erasure.
+workerOutputRegistrationBoundary:
+  id: media.worker-output-registration-boundary.v1
+  rule: An isolated worker may write only to its bounded scratch/output area. A worker result is not a canonical
+    artifact merely because bytes exist there; verify the complete byte length, digest, declared media type, source
+    versions, selected profile, rights and policy scope, then register through the exact owner-defined output operation.
+    Unknown, rejected, or incomplete outcomes do not publish or register a canonical output.
+  registrationOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.output.register.v1
+  executionJobOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1
+  requiredEvidence: [verified-byte-length, sha256-content-digest, exact-source-version-refs, selected-profile-ref-and-version, current-governance-decision]
+  failureDisposition: do-not-register-and-preserve-unknown-effect-state-after-possible-dispatch
+  scopeStatus: OWNER_DEFINED_DEFINITION_ONLY; worker implementations, output verification evidence, qualification, and runtime admission remain unestablished
 qualificationDimensions:
 - public-contract-and-version
 - operation/input-format/size/duration/range

@@ -51,6 +51,56 @@ function compileClosedSchema(schema) {
   assertDeclaredFormats(schema);
   return ajv.compile(schema);
 }
+
+function applyOperationSchemaNarrowing(typed, operation) {
+  const typedObject = typed && typeof typed === "object" && !Array.isArray(typed) && typed.type === "object";
+  const operationObject = operation && typeof operation === "object" && !Array.isArray(operation) && operation.type === "object";
+  if (!typedObject || !operationObject) return { allOf: [structuredClone(typed), structuredClone(operation)] };
+
+  // Typed registry is the closed, complete payload contract. The inline
+  // operation schema supplies additional owner-specific constraints, but is
+  // sometimes a legacy partial projection (e.g. it omits a new required
+  // sessionDisposition field). Merge properties/required fields into the
+  // complete registry shape and retain inline conditional/branch constraints
+  // as an intersection. Never let its partial property list widen bounds or
+  // let its additionalProperties:false hide fields declared by the registry.
+  const result = structuredClone(typed);
+  result.properties ??= {};
+  for (const [key, schema] of Object.entries(operation.properties ?? {})) {
+    result.properties[key] = Object.hasOwn(result.properties, key)
+      ? applyOperationSchemaNarrowing(result.properties[key], schema)
+      : structuredClone(schema);
+  }
+  result.required = [...new Set([...(typed.required ?? []), ...(operation.required ?? [])])];
+  const inlineConstraints = Object.entries(operation)
+    .filter(([key]) => !["type", "properties", "required", "additionalProperties", "allOf"].includes(key))
+    .map(([key, value]) => ({ [key]: structuredClone(value) }));
+  if (operation.additionalProperties && typeof operation.additionalProperties === "object") {
+    inlineConstraints.push({ additionalProperties: structuredClone(operation.additionalProperties) });
+  }
+  if (Array.isArray(operation.allOf)) inlineConstraints.push(...structuredClone(operation.allOf));
+  if (inlineConstraints.length) result.allOf = [...(result.allOf ?? []), ...inlineConstraints];
+  return result;
+}
+
+/**
+ * Validate a dynamically selected owner schema using the same closed-schema
+ * format registry as capability leaf requests/results. This is used for the
+ * Media job-submit operation-parameter schema selected by exact capability
+ * and operation identity.
+ */
+export function validateOwnerClosedJsonSchema(schema, value, contextSchema = undefined) {
+  try {
+    const contextualSchema = contextSchema && typeof contextSchema === "object"
+      ? { ...schema, ...(contextSchema.definitions ? { definitions: contextSchema.definitions } : {}), ...(contextSchema.$defs ? { $defs: contextSchema.$defs } : {}) }
+      : schema;
+    const validate = compileClosedSchema(contextualSchema);
+    const valid = validate(value);
+    return { valid, reason: valid ? "CLOSED_OWNER_SCHEMA_MATCH" : "OWNER_SCHEMA_REJECTED", errors: validate.errors ?? [] };
+  } catch (error) {
+    return { valid: false, reason: "OWNER_SCHEMA_UNSUPPORTED_OR_INVALID", errors: [{ message: error.message }] };
+  }
+}
 const pathValue = (root, path) => {
   if (path === "$.contract.operationRef") return root.contract?.operationRef;
   if (path === "$.contract.selectionKind") return root.contract?.selectionKind;
@@ -119,6 +169,72 @@ export function resolveEffectiveOwnerLeafWireContract(operations, capabilityRef)
     return { valid: false, reason: "OWNER_WIRE_OVERLAY_SOURCE_MISMATCH" };
   }
   return { valid: true, contract: { ...overlay, baseOperation: base } };
+}
+
+/**
+ * Resolve the executable definition schema for a capability from its exact
+ * operation record, closed typed input/output registries, and optional leaf
+ * overlay. Inline result envelopes carry outcome/finality constraints; their
+ * success payloads are selected by the record's exact `successOutputs` refs.
+ */
+export function resolveEffectiveCapabilityWireSchemas(operations, capabilityRef) {
+  const records = operations?.capabilityOperationContracts?.records ?? [];
+  const matches = records.filter((row) => row.capabilityRef === capabilityRef);
+  if (matches.length !== 1) return { valid: false, reason: "CAPABILITY_OPERATION_NOT_UNIQUE" };
+  const row = matches[0];
+  const overlay = resolveEffectiveOwnerLeafWireContract(operations, capabilityRef);
+  if (row.ownerLeafWireContractRef) {
+    if (!overlay.valid) return overlay;
+    return {
+      valid: true,
+      operation: row,
+      requestSchema: overlay.contract.requestSchema,
+      resultSchema: overlay.contract.resultSchema,
+      outputSchemas: [overlay.contract.resultSchema.properties?.outputs?.items],
+      source: "OWNER_LEAF_OVERLAY",
+    };
+  }
+  const inputSchemas = new Map((operations.capabilityOperationContracts.inputPayloadSchemas ?? []).map((entry) => [entry.id, entry.schema]));
+  const outputSchemas = new Map((operations.capabilityOperationContracts.outputPayloadSchemas ?? []).map((entry) => [entry.id, entry]));
+  const requestSchema = structuredClone(row.requestSchema);
+  for (const slot of row.inputSlots ?? []) {
+    const typed = inputSchemas.get(slot.payloadSchemaRef);
+    if (!typed || !requestSchema.properties?.[slot.slotId]) return { valid: false, reason: "INPUT_PAYLOAD_SCHEMA_UNRESOLVED", operation: row, slotId: slot.slotId };
+    // The operation schema may intentionally narrow a shared typed registry
+    // branch (for example, one operation can forbid a reasonRef on
+    // NOT_SELECTED while the reusable input type permits it). Compose both
+    // contracts as an intersection so the reusable registry cannot widen the
+    // selected operation's request semantics.
+    requestSchema.properties[slot.slotId] = applyOperationSchemaNarrowing(typed, requestSchema.properties[slot.slotId]);
+  }
+  const resultSchema = structuredClone(row.resultSchema);
+  const declared = row.successOutputs ?? [];
+  const resolvedOutputs = [];
+  for (const output of declared) {
+    const typed = outputSchemas.get(output.payloadSchemaRef);
+    if (!typed || typed.artifactType !== output.artifactType) return { valid: false, reason: "OUTPUT_PAYLOAD_SCHEMA_UNRESOLVED_OR_MISMATCHED", operation: row, output };
+    resolvedOutputs.push(structuredClone(typed.schema));
+  }
+  const itemSchema = resultSchema.properties?.outputs?.items;
+  if (!itemSchema || !Array.isArray(itemSchema.oneOf)) return { valid: false, reason: "RESULT_OUTPUT_ENVELOPE_UNRESOLVED", operation: row };
+  const inlineTypes = itemSchema.oneOf.map((schema) => schema.properties?.artifactType?.const);
+  if (inlineTypes.length !== resolvedOutputs.length || inlineTypes.some((type, index) => type !== declared[index]?.artifactType)) {
+    return { valid: false, reason: "RESULT_OUTPUT_DECLARATION_MISMATCH", operation: row };
+  }
+  // The exact typed registry is normative for payload shape. The inline
+  // envelope remains authoritative for cardinality and outcome conditions.
+  const replaceOutputAlternatives = (value) => {
+    if (!value || typeof value !== "object") return;
+    if (!Array.isArray(value) && value.properties?.outputs?.items?.oneOf) {
+      value.properties.outputs.items.oneOf = structuredClone(resolvedOutputs);
+    }
+    for (const child of Object.values(value)) {
+      if (Array.isArray(child)) child.forEach(replaceOutputAlternatives);
+      else replaceOutputAlternatives(child);
+    }
+  };
+  replaceOutputAlternatives(resultSchema);
+  return { valid: true, operation: row, requestSchema, resultSchema, outputSchemas: resolvedOutputs, source: "CANONICAL_TYPED_REGISTRY" };
 }
 
 export function validateOwnerLeafWireResult(contract, request, result) {
