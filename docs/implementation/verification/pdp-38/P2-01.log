@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy
+ok 1 - PDP-2 disclosure density mapping follows the selected simple/guided/expert taxonomy
+  ---
+  duration_ms: 1.908356
+  type: 'test'
+  ...
+# Subtest: PDP-2 recovery and accessibility projections preserve their authored scope
+ok 2 - PDP-2 recovery and accessibility projections preserve their authored scope
+  ---
+  duration_ms: 0.392594
+  type: 'test'
+  ...
+# Subtest: PDP-2 projects exact owner-approved recipe identities while admission stays pending
+ok 3 - PDP-2 projects exact owner-approved recipe identities while admission stays pending
+  ---
+  duration_ms: 0.297076
+  type: 'test'
+  ...
+# Subtest: PDP-3 search and inspection source records project to the public schema shape
+ok 4 - PDP-3 search and inspection source records project to the public schema shape
+  ---
+  duration_ms: 10.222465
+  type: 'test'
+  ...
+# Subtest: residual report drops mapped PDP-2 and search/inspection fields while retaining other PDP-3 gaps
+ok 5 - residual report drops mapped PDP-2 and search/inspection fields while retaining other PDP-3 gaps
+  ---
+  duration_ms: 276.466148
+  type: 'test'
+  ...
+# Subtest: Tools public ExperienceLanguage validator accepts the current candidate using Media source registries
+ok 6 - Tools public ExperienceLanguage validator accepts the current candidate using Media source registries
+  ---
+  duration_ms: 7.758644
+  type: 'test'
+  ...
+# Subtest: Tools public ExperienceLanguage validator rejects duplicate recipe-binding identities
+ok 7 - Tools public ExperienceLanguage validator rejects duplicate recipe-binding identities
+  ---
+  duration_ms: 1.154443
+  type: 'test'
+  ...
+# Subtest: Tools public ExperienceLanguage validator rejects an unregistered recipe reference
+ok 8 - Tools public ExperienceLanguage validator rejects an unregistered recipe reference
+  ---
+  duration_ms: 0.821595
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 726.96137
