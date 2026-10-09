@@ -329,5 +329,8 @@
     "sourceCases": 2,
     "runtimeVerification": "not-run; all130 journey steps retain no runtime evidence",
     "sourceDefinitionChecks": 2
-  }
+  },
+  "verifiedSourceCommit": "36cabd3bd092144c85012324e02e9cd282751bf6",
+  "worktreeAtSourceCommit": "clean; main and origin/main matched after successful push",
+  "sourceCheckpointIncludesAllReviewedDefinitionChanges": true
 }
