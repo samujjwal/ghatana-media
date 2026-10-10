@@ -18,7 +18,7 @@ externalOwnerObservations:
   - repositoryId: ghatana
     available: true
     revision: ee364669dea6085f9c0b715026f4fe9505809e73
-    workingTree: CLEAN
+    workingTree: MODIFIED
     files:
       - path: "config/repo-boundary.json"
         sha256: 01408eb197101d3e3c2491eb472ca93b9c965c8f556c87db5a396c482b476ee0
@@ -270,7 +270,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 704290b678016752e14f82555755e1cd16bd867c1e76f27a4f3fabd9140f30e0
+      contentSha256: 990a7cee12502d6f2547ba30e10509dc77634b0736a3527ad6520a7f4ad21cb4
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-DEVELOPMENT-VERSION-POLICY
@@ -1006,7 +1006,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 2274de2247ccb1f8d15f67f5eb8a2291da0a7bdd6b71e8158c4561f93c8f0537
+      contentSha256: ce3a871894884e9b807acff3432216d25b6f504d9559c1f2ceced89575f863bb
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-GLOSSARY
@@ -2662,7 +2662,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 8978361caec7068e6dfa372467ac97f97af42098acc334c6c98bbca028367095
+      contentSha256: 21aefeafe290f155a37551c2027f87f621d317f9f3ae808336bceebf1a3da349
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P2-COMPOSITION-VALIDATION-GRAMMAR
@@ -4318,7 +4318,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 1f80123baf4c80660be9c4e0d28b8dd78171d19fc930266a861486f6615dfb70
+      contentSha256: ba7444564f98ad7b3e6c43ac2a3d1959640c54618c7cbf6b0a1706bd9331c9c8
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-96177BF670D050B776EA
