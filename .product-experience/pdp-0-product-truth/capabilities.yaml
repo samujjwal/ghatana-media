@@ -10163,6 +10163,29 @@ capabilities:
           sourceType: client-idempotency-key-and-canonical-request-fingerprint
           cardinality: EXACTLY_ONE
           required: true
+      idempotencyExpiryContract:
+        productWideDuration: NOT_DEFINED_BY_P0
+        expiryRule: >-
+          Expiry, deletion, or unavailability of idempotency or reconciliation
+          evidence never proves that no prior job or consequential effect
+          exists. Preserve UNKNOWN_OUTCOME until the authoritative owner
+          reconciles the same scoped idempotency identity.
+        freshIdentityRule: >-
+          Expired, deleted, or unavailable evidence does not authorize a new
+          idempotency key, a fresh semantic request, or another consequential
+          effect as a way to bypass unresolved prior work.
+        artifactRetentionRule: >-
+          Artifact retention expiry is independent of idempotency and
+          reconciliation evidence expiry; neither expiry releases the other
+          identity or establishes that an earlier job or effect did not occur.
+        pdp1Delegation: >-
+          PDP-1 defines the exact approved per-operation retention duration and
+          storage, lookup, and expiry contract within this P0 safety invariant.
+          No duration is selected here.
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/constraints
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/cancellationRetryReconciliation
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.retain/ownerDefinition/semanticOutcomeContract
       parameterSchema:
         type: object
         additionalProperties: false

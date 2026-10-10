@@ -8,13 +8,14 @@
       "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.describe/outcome",
       "previousObservedTargetValueSha256": "f2ced337b115e2f075a4ba417152a1dfdfc6ca7643bd813c411cb4d52e21c665",
       "currentTargetValueSha256": "d159f0be2106ca2ac8b901ce47b6da94f1b41caf0c3887bd3fb845d0bf4430a8",
-      "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "claimDisposition": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
       "observation": "The pending locator was updated to the current target digest; this record preserves the previously observed target hash and pins current target bytes. The exact claim remains pending semantic parity review and the current target is not treated as a verified match.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
       "acceptanceEffect": "none",
-      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
+      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "preRefreshCurrentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db"
     },
     {
       "capabilityId": "media.project.create",
@@ -31,12 +32,13 @@
       ],
       "currentInputArtifactTypesSha256": "8b18236b2d6df10d2ae5d6df17c2eb0a1a1520d30f5bd143ca67f53d828426f5",
       "currentTypedInputSlotsSha256": "3c29688e32d8bdde072b3cd127b5bc78ecf2e07baa2da0b98290a83f15f0df00",
-      "currentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "disposition": "HISTORICAL_TRUST_INPUT_REFERENCE_RETAINED; CURRENT_CAPABILITY_INTENT_INPUT_OBSERVED",
       "observation": "PXD-122 current-source review defines this leaf as requiring user-intent and returning versioned-project-state; it does not require the project state it creates. The older versioned-project input remains only in the historical trust reconstruction row and is superseded for current intent binding. This is a source observation, not historical equivalence or acceptance.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
-      "acceptanceEffect": "none"
+      "acceptanceEffect": "none",
+      "preRefreshCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
     },
     {
       "claimId": "MPSEM-0187-C002",
@@ -61,13 +63,14 @@
       "historicalPxd108ObservationArtifactSha256": "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec",
       "historicalPxd108CurrentTargetSha256": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
       "historicalPxd108SourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
-      "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "claimDisposition": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
       "observation": "Additive current source file observation supplement to the immutable PXD-108 locator and historical source file pins. Current target bytes remain unchanged; claim parity remains pending.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
       "acceptanceEffect": "none",
-      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
+      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "preRefreshCurrentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db"
     },
     {
       "claimId": "MPSEM-0336-C006",
@@ -77,13 +80,14 @@
       "historicalPxd108ObservationArtifactSha256": "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec",
       "historicalPxd108CurrentTargetSha256": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
       "historicalPxd108SourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
-      "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "claimDisposition": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
       "observation": "Additive current source file observation supplement to the immutable PXD-108 locator and historical source file pins. Current target bytes remain unchanged; claim parity remains pending.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
       "acceptanceEffect": "none",
-      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
+      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "preRefreshCurrentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db"
     },
     {
       "claimId": "MPSEM-0349-C001",
@@ -93,13 +97,14 @@
       "historicalPxd108ObservationArtifactSha256": "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec",
       "historicalPxd108CurrentTargetSha256": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
       "historicalPxd108SourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
-      "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "claimDisposition": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
       "observation": "Additive current source file observation supplement to the immutable PXD-108 locator and historical source file pins. Current target bytes remain unchanged; claim parity remains pending.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
       "acceptanceEffect": "none",
-      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
+      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "preRefreshCurrentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db"
     },
     {
       "claimId": "MPSEM-0351-C001",
@@ -109,13 +114,14 @@
       "historicalPxd108ObservationArtifactSha256": "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec",
       "historicalPxd108CurrentTargetSha256": "f3ce3cf8cb3e5d09fc49c11c6bfa2722df44abcf2595003aab931bf21c7ef8eb",
       "historicalPxd108SourceFileSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
-      "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "claimDisposition": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
       "observation": "Additive current source file observation supplement to the immutable PXD-108 locator and historical source file pins. Current target bytes remain unchanged; claim parity remains pending.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
       "acceptanceEffect": "none",
-      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
+      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "preRefreshCurrentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db"
     },
     {
       "claimId": "MPSEM-0291-C003",
@@ -134,13 +140,14 @@
       "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.alternatives.provide/outcome",
       "previousObservedTargetValueSha256": "bf6a1d2100154dd564d7fe9a0a2f59f3c394f4a862565a966f711bf93b8b6ed5",
       "currentTargetValueSha256": "d373646664417b90ef2588de847c6f43973e6c3ddbdc3eb21605bf9b1373cc27",
-      "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "claimDisposition": "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY",
       "observation": "PXD-130 additive observation records the exact current target digest after current capability source edits; the prior observed digest is retained. This observation does not assert semantic equivalence or acceptance.",
       "semanticEquivalence": "NOT_ASSERTED",
       "semanticPromotion": false,
       "acceptanceEffect": "none",
-      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529"
+      "previousCurrentSourceFileSha256": "bae4dba335df737b30318846a287d10e58cced37b54d905d95455108788bb529",
+      "preRefreshCurrentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db"
     },
     {
       "claimId": "MPSEM-0278-C001",

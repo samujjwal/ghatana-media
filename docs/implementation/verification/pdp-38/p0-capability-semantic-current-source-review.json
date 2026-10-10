@@ -4,7 +4,7 @@
   "scope": "Current-source semantic review of the frozen PDP-0 462-leaf capability population. This is an additive review snapshot and makes no claim about historical source equivalence.",
   "source": {
     "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-    "currentSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+    "currentSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
     "historicalComparison": {
       "priorSha256": "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25",
       "availability": "UNAVAILABLE_PRIOR_BYTES_NOT_RETAINED",
@@ -1767,6 +1767,17 @@
         "ownerDefinition.guards.authorityRefs"
       ],
       "resolvedMeaning": "Review one exact immutable project version for a declared purpose and selected quality, rights, provenance, or approval scope, with a comment, approval, rejection, or request-changes action under current assigned reviewer authority and explicit scope/expiry disposition. Result evidence remains linked to the reviewed version and does not mutate it or grant rights clearance or publication authority.",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-122",
+      "capabilityId": "media.job.submit",
+      "sourceFields": [
+        "ownerDefinition.idempotencyExpiryContract"
+      ],
+      "sourceValueSha256": "84bcd789bf10053c4ac52a9a6698390a2e537a7eadfe43f72a532136b941e6dc",
+      "resolvedMeaning": "P0 defines no product-wide idempotency evidence duration. Expiry, deletion, or unavailability leaves the same scoped identity UNKNOWN until authoritative reconciliation; a fresh key or request cannot bypass unresolved work; artifact retention expiry remains independent. PDP-1 selects the exact approved per-operation duration and storage, lookup, and expiry contract.",
       "semanticEquivalence": "NOT_ASSERTED",
       "acceptanceEffect": "none"
     }

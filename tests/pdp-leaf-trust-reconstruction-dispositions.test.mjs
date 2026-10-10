@@ -132,11 +132,30 @@ const sources = { capabilities: read("capabilities"), review };
 
 test("P0-122 current capability contracts and historical trust rows reconcile without asserting equivalence", () => {
   assert.equal(policy.population.recordCount, 462);
-  assert.equal(driftInventory.source.currentSourceFileSha256, "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db");
+  assert.equal(driftInventory.source.currentSourceFileSha256, "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22");
   assert.deepEqual(driftInventory.currentSourceCutRefresh.affectedCapabilityIds, ["media.project.review"]);
   assert.equal(driftInventory.currentSourceCutRefresh.affectedCurrentTypeMismatches, 0);
   assert.equal(driftInventory.currentSourceCutRefresh.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(driftInventory.currentSourceCutRefresh.acceptanceEffect, "none");
+  assert.equal(driftInventory.currentSourceCutRefresh.decisionRef, ".product-experience/decision-log.md#PXD-135");
+  assert.equal(driftInventory.currentSourceCutRefresh.currentSourceSha256, "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+    "the PXD-135 source-cut observation remains immutable");
+  const subsequentRefresh = driftInventory.subsequentCurrentSourceCutRefresh;
+  assert.equal(subsequentRefresh.decisionRef, ".product-experience/decision-log.md#PXD-122");
+  assert.equal(subsequentRefresh.priorSourceSha256, driftInventory.currentSourceCutRefresh.currentSourceSha256);
+  assert.equal(subsequentRefresh.currentSourceSha256, driftInventory.source.currentSourceFileSha256);
+  assert.deepEqual(subsequentRefresh.affectedCapabilityIds, ["media.job.submit"]);
+  assert.equal(subsequentRefresh.affectedCurrentTypeMismatches, 0);
+  assert.equal(subsequentRefresh.contractRef,
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract");
+  assert.equal(subsequentRefresh.populationCountsUnchanged.capabilityRecords, 462);
+  assert.equal(subsequentRefresh.populationCountsUnchanged.uniqueCapabilities, driftInventory.counts.uniqueCapabilities);
+  assert.equal(subsequentRefresh.populationCountsUnchanged.identityTypeMismatches, driftInventory.counts.individualTypeMismatches);
+  assert.equal(subsequentRefresh.populationCountsUnchanged.inputTypeMismatches, driftInventory.counts.inputTypeMismatches);
+  assert.equal(subsequentRefresh.populationCountsUnchanged.outputTypeMismatches, driftInventory.counts.outputTypeMismatches);
+  assert.equal(subsequentRefresh.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(subsequentRefresh.acceptanceEffect, "none");
+  assert.match(subsequentRefresh.meaning, /no product-wide duration/u);
   const phaseInventory = driftInventory.records.find(({ capabilityId }) => capabilityId === "media.audio.analysis.analyze.phase");
   const phaseMismatch = driftInventory.mismatches.find(({ capabilityId, mismatchKind }) => capabilityId === "media.audio.analysis.analyze.phase" && mismatchKind === "OUTPUT_ARTIFACT_TYPES");
   assert.equal(phaseInventory.historicalTrustOutputArtifactTypesSha256, "36c76818ecd60118d5ce4995a83a35af9c6229e175b91178f87bd98e4a9ab165");

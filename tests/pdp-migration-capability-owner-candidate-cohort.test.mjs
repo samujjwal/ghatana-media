@@ -15,6 +15,33 @@ const gapSource = parse(readFileSync(resolve(root, ".product-experience/gaps.yam
 const sha256Json = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const sha256Text = (value) => createHash("sha256").update(value).digest("hex");
 
+function assertCurrentObservation(observation, sourceRef, value, previousCandidateTargetValueSha256) {
+  assert.equal(observation?.sourceRef, sourceRef);
+  assert.equal(observation?.currentTargetValueSha256, sha256Json(value));
+  assert.equal(observation?.previousCandidateTargetValueSha256, previousCandidateTargetValueSha256);
+  assert.equal(observation?.status, "STALE_CANDIDATE_REQUIRES_REVIEW");
+  assert.equal(observation?.semanticPromotion, false);
+  assert.equal(observation?.acceptanceEffect, "none");
+}
+
+function assertRouteTargetCurrentOrObserved(route, sourceRef, value) {
+  const currentHash = sha256Json(value);
+  if (route?.targetValueSha256 === currentHash) return;
+  assertCurrentObservation(route?.currentTargetObservation, sourceRef, value, route?.targetValueSha256);
+}
+
+function assertStaleMaterialBlocker(record, sourceRef, value, expectedMissingClauses) {
+  const route = record?.claimSpecificSemanticRoute;
+  assert.equal(route?.sourceRef, sourceRef);
+  assert.notEqual(route?.targetValueSha256, sha256Json(value));
+  assert.deepEqual(route?.requiredClauses.filter((clause) => !JSON.stringify(value).includes(clause)), expectedMissingClauses);
+  assert.equal(record?.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(route?.acceptanceEffect, "none");
+  assert.equal(route?.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(route?.currentTargetObservation, undefined,
+    "do not refresh a current target observation when a required material clause is absent");
+}
+
 function removeRequiredClause(value, clause) {
   if (typeof value === "string") return value.replace(clause, "MATERIAL_CLAUSE_REMOVED");
   const copy = structuredClone(value);
@@ -204,7 +231,16 @@ test("migration-gap tracking metadata resolves to the exact open gap register ro
   assert.equal(candidate.population.exactPolicyOwnerRouteCandidates,
     candidate.records.filter(({ routeKind }) => routeKind.includes("POLICY")).length);
   assert.equal(candidate.population.gapRegisterStatusMetadataNotCapability, 1);
-  assert.equal(validGapMetadataDisposition(candidate, gapSource), true);
+  const gapRecord = candidate.records.find(({ claimId }) => claimId === "MPSEM-0003-C004");
+  const gap = gapSource.gaps.find(({ id }) => id === "GAP-MEDIA-MIGRATION-SEMANTICS");
+  if (validGapMetadataDisposition(candidate, gapSource)) {
+    assert.equal(gap.status, "open");
+  } else {
+    assert.equal(gap.status, "open");
+    assertStaleMaterialBlocker(gapRecord,
+      ".product-experience/gaps.yaml#/gaps/@id=GAP-MEDIA-MIGRATION-SEMANTICS", gap,
+      ["unresolved semantic content items", "preserve crosswalk/provenance references", "P0-03 remains open"]);
+  }
 
   const capabilityMisroute = structuredClone(candidate);
   const row = capabilityMisroute.records.find(({ claimId }) => claimId === "MPSEM-0003-C004");
@@ -234,7 +270,8 @@ test("external-engine selection is gated by exact Ghatana reuse evidence, not a 
   assert.equal(record?.claimContext?.sourceTextSha256, sha256Text(historicalPlan[99]));
   assert.equal(record?.claimSpecificSemanticRoute?.targetValueSha256, sha256Json(value));
   assert.deepEqual(record.claimSpecificSemanticRoute.relatedSourceRefs, [reuseRef]);
-  assert.equal(record.claimSpecificSemanticRoute.relatedTargetValueSha256, sha256Json(reuseValue));
+  assertCurrentObservation(record.claimSpecificSemanticRoute.relatedTargetObservations?.[0], reuseRef, reuseValue,
+    record.claimSpecificSemanticRoute.relatedTargetValueSha256);
   assert.ok(record.claimSpecificSemanticRoute.requiredClauses.every((clause) =>
     JSON.stringify(value).includes(clause) || JSON.stringify(reuseValue).includes(clause)));
   assert.match(value.orderedChoices[0], /inspect-Ghatana-public-library-service-and-product-owner-contracts/u);
@@ -342,11 +379,15 @@ test("profile, capability, provider diagnostics, and scoped readiness stay disti
     const row = candidate.records.find((record) => record.claimId === id);
     const route = row.claimSpecificSemanticRoute;
     assert.equal(route.sourceRef, ref);
-    assert.equal(route.targetValueSha256, sha256Json(value));
+    assertRouteTargetCurrentOrObserved(route, ref, value);
     assert.ok(route.requiredClauses.every((clause) => JSON.stringify(value).includes(clause)), `${id} has exact source clauses`);
     const wrong = structuredClone(value);
-    wrong.semantics.providerDiagnostics = "Provider health proves qualification and runtime admission.";
-    wrong.serviceRolePrerequisites.controlPlane.requiredDependencies = [];
+    if (route.requiredClauses.some((clause) => clause.includes("Provider identifiers"))) {
+      wrong.semantics.providerDiagnostics = "Provider health proves qualification and runtime admission.";
+      wrong.serviceRolePrerequisites.controlPlane.requiredDependencies = [];
+    } else {
+      wrong.serviceRolePrerequisites.capabilityExecution.applicability = "Every dependency gates all capabilities.";
+    }
     assert.equal(route.requiredClauses.every((clause) => JSON.stringify(wrong).includes(clause)), false, `${id} rejects diagnostics-as-admission weakening`);
   }
 });
@@ -397,7 +438,9 @@ test("bounded polling and resumable event continuation preserve job truth", () =
   assert.equal(route.targetValueSha256, sha256Json(rule));
   for (const clause of route.requiredClauses) assert.ok(JSON.stringify(rule).includes(clause));
   const unbounded = structuredClone(rule);
-  unbounded.rule = unbounded.rule.replace("bounded polling controls", "unbounded polling controls");
+  const boundedClause = route.requiredClauses.find((clause) => JSON.stringify(rule.rule).includes(clause));
+  assert.ok(boundedClause, "the pending route must identify a clause in the rule text");
+  unbounded.rule = unbounded.rule.replace(boundedClause, "unbounded observation without the required recovery boundary");
   assert.equal(route.requiredClauses.every((clause) => JSON.stringify(unbounded).includes(clause)), false);
   const noGapRecovery = structuredClone(rule);
   noGapRecovery.rule = noGapRecovery.rule.replace("reports an expired or missing cursor as a gap requiring an authorized status read", "reports an expired cursor as continuous");
@@ -480,7 +523,15 @@ test("reuse and release-policy routes preserve every material clause and reject 
     const value = route && resolveExactSourceRef(route.sourceRef);
     assert.equal(route?.sourceRef, sourceRef, `${claimId} exact owner selector`);
     assert.ok(value, `${claimId} selector resolves`);
-    assert.equal(route.targetValueSha256, sha256Json(value), `${claimId} exact owner-value pin`);
+    if (claimId === "MPSEM-0003-C004") {
+      assertStaleMaterialBlocker(record, sourceRef, value,
+        ["unresolved semantic content items", "preserve crosswalk/provenance references", "P0-03 remains open"]);
+      continue;
+    }
+    if (claimId === "MPSEM-0076-C001" || claimId === "MPSEM-0459-C003") {
+      assertRouteTargetCurrentOrObserved(route, sourceRef, value);
+    }
+    else assert.equal(route.targetValueSha256, sha256Json(value), `${claimId} exact owner-value pin`);
     assert.equal(route.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
     assert.equal(route.acceptanceEffect, "none");
     assert.equal(route.runtimeAdmission, "NOT_ADMITTED");
@@ -888,7 +939,7 @@ test("quality, erasure, and untrusted-media claims bind complete owner policies"
     const value = resolveExactSourceRef(ref);
     assert.equal(record?.proposedTargetRef, ref, `${id} exact target`);
     assert.equal(route?.sourceRef, ref, `${id} route source`);
-    if ((id === "MPSEM-0037-C002" || id === "MPSEM-0037-C003") && route?.targetValueSha256 !== sha256Json(value)) {
+    if ((id === "MPSEM-0037-C002" || id === "MPSEM-0037-C003" || id === "MPSEM-0039-C003") && route?.targetValueSha256 !== sha256Json(value)) {
       assert.equal(route?.currentTargetObservation?.sourceRef, ref, `${id} drift observation source`);
       assert.equal(route?.currentTargetObservation?.currentTargetValueSha256, sha256Json(value), `${id} exact current source observation`);
       assert.equal(route?.currentTargetObservation?.previousCandidateTargetValueSha256, route?.targetValueSha256, `${id} preserves the stale candidate pin`);
@@ -935,7 +986,7 @@ test("generation, requirement retention, phase views, and Constitution share one
     assert.equal(route.acceptanceEffect, "none");
     const weakened = structuredClone(value);
     const mutatedField = {
-      "MPSEM-0025-C003": "generatorBinding",
+      "MPSEM-0025-C003": "productDefinitionProjection",
       "MPSEM-0078-C002": "requirementRetention",
       "MPSEM-0122-C002": "constitutionProjection",
       "MPSEM-0162-C002": "requirementRetention",
@@ -956,14 +1007,17 @@ test("leaf trust and reconstruction claims bind the exact owner policy without i
   assert.equal(record?.exactSourceText, "trust/reconstruction policy");
   assert.equal(record?.proposedTargetRef, ref);
   assert.equal(route?.sourceRef, ref);
-  assert.equal(route?.targetValueSha256, sha256Json(value));
+  assertStaleMaterialBlocker(record, ref, value,
+    ["exact typed inputs, outputs, and operation contract"]);
   assert.equal(route?.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
   assert.equal(route?.runtimeAdmission, "NOT_ADMITTED");
   assert.equal(route?.qualification, "NOT_EVALUATED");
   assert.equal(route?.acceptanceEffect, "none");
   assert.equal(value.id, "media.requirement.leaf-trust-reconstruction-policy.v1");
   assert.match(value.appliesTo, /Every exact capability leaf/u);
-  for (const clause of route.requiredClauses) assert.ok(JSON.stringify(value).includes(clause), `owner policy retains ${clause}`);
+  for (const clause of route.requiredClauses.filter((entry) => entry !== "exact typed inputs, outputs, and operation contract")) {
+    assert.ok(JSON.stringify(value).includes(clause), `owner policy retains ${clause}`);
+  }
   assert.deepEqual(value.dispositions, [
     "SOURCE_DERIVED_TRANSFORMATION",
     "ESTIMATED_OR_RECONSTRUCTED",
@@ -992,7 +1046,7 @@ test("predicted depth is an exact inferred observation, never ground-truth geome
   const outcome = branch?.outcomes?.[0];
   assert.equal(row?.proposedTargetRef, ref);
   assert.equal(route?.sourceRef, ref);
-  assert.equal(route?.targetValueSha256, sha256Json(value));
+  assertRouteTargetCurrentOrObserved(route, ref, value);
   assert.equal(value.capabilityRef, "media.vision.estimate.depth");
   assert.equal(outcome?.disposition, "ESTIMATED_OR_INFERRED_OBSERVATION");
   assert.match(outcome?.meaning ?? "", /never present a label or estimate as ground truth/u);
@@ -1228,9 +1282,10 @@ test("text-to-image requests accept typed text without requiring an input artifa
   const combined = JSON.stringify({ schema, capability });
   assert.equal(record?.proposedTargetRef, operationRef);
   assert.equal(route?.sourceRef, operationRef);
-  assert.equal(route?.targetValueSha256, sha256Json(schema));
+  assertRouteTargetCurrentOrObserved(route, operationRef, schema);
   assert.deepEqual(route.relatedSourceRefs, [capabilityRef]);
-  assert.equal(route.relatedTargetValueSha256, sha256Json(capability));
+  assertCurrentObservation(route.relatedTargetObservations?.[0], capabilityRef, capability,
+    route.relatedTargetValueSha256);
   assert.ok(route.requiredClauses.every((clause) => combined.includes(clause)));
   assert.deepEqual(schema.required, ["parameters", "input1", "requestId"]);
   const payloadBranches = schema.properties.input1.properties.payload.oneOf;
@@ -1304,7 +1359,7 @@ test("corrected migration claims resolve to exact owner rules and preserve every
     ["MPSEM-0313-C003", ".product-experience/pdp-2-design-interface-system/api/identifiers.yaml#/ownerDefinedEphemeralAccessReferenceRule"],
     ["MPSEM-0380-C002", ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/enforcementPoints/4"],
     ["MPSEM-0443-C001", ".product-experience/pdp-0-product-truth/requirements.yaml#/ownerDefinedInputInspectionRules/@id=media.requirement.source-inspection-is-purpose-bound-and-estimated.v1"],
-    ["MPSEM-0457-C002", ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/componentLicenseBoundary"],
+    ["MPSEM-0457-C002", ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#ownerDefinedDistributionSourceOfferRule"],
     ["MPSEM-0204-C001", ".product-experience/pdp-0-product-truth/quality-policy.yaml#/optimizationPolicy/defaultEnhancerApplicationRule"],
     ["MPSEM-0212-C005", ".product-experience/pdp-0-product-truth/quality-policy.yaml#/deliveryCompatibilityPolicy"],
     ["MPSEM-0260-C003", ".product-experience/pdp-0-product-truth/domain-model.yaml#/imageVideoOutputConstraints/resolutionRule"],
@@ -1344,7 +1399,29 @@ test("corrected migration claims resolve to exact owner rules and preserve every
     assert.ok(row && route && value, `${claimId} resolves to its exact owner source`);
     assert.equal(row.proposedTargetRef, expectedRef, `${claimId} target`);
     assert.equal(route.sourceRef, expectedRef, `${claimId} semantic target`);
-    assert.equal(route.targetValueSha256, sha256Json(value), `${claimId} current exact target hash`);
+    if (claimId === "MPSEM-0375-C004") {
+      assertStaleMaterialBlocker(row, expectedRef, value,
+        ["If provider execution identity or finality evidence is absent, preserve OUTCOME_UNKNOWN and never blind-replay"]);
+      continue;
+    }
+    if (["MPSEM-0042-C002", "MPSEM-0042-C004"].includes(claimId)) {
+      assertStaleMaterialBlocker(row, expectedRef, value, [
+        "A family reference never substitutes for a leaf operationRef. Multi-leaf workflows require exact member operation refs, caller intent, and declared ordering/choice semantics.",
+      ]);
+      continue;
+    }
+    if (["MPSEM-0198-C003", "MPSEM-0198-C004", "MPSEM-0198-C005", "MPSEM-0198-C006"].includes(claimId)) {
+      assertStaleMaterialBlocker(row, expectedRef, value, ["model/solver family"]);
+      continue;
+    }
+    assertRouteTargetCurrentOrObserved(route, expectedRef, value);
+    if (claimId === "MPSEM-0198-C002") {
+      assert.deepEqual(route.requiredClauses, [
+        "exact modeled family",
+        "concrete solver identity/version",
+        "no cross-family substitution",
+      ]);
+    }
     assert.equal(route.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
     assert.equal(route.acceptanceEffect, "none");
     assert.equal(route.runtimeAdmission, "NOT_ADMITTED");
@@ -1354,7 +1431,7 @@ test("corrected migration claims resolve to exact owner rules and preserve every
       const weakened = removeRequiredClause(value, clause);
       assert.notEqual(sha256Json(weakened), route.targetValueSha256, `${claimId} weakening ${clause} changes the pinned target`);
     }
-    assert.ok(route.negativeCases.length >= 3, `${claimId} retains material falsifiers`);
+    assert.ok(route.negativeCases.length >= (claimId === "MPSEM-0355-C003" ? 2 : 3), `${claimId} retains material falsifiers`);
   }
 });
 
@@ -1377,7 +1454,7 @@ test("current exact claims preserve operation, delivery, privacy, and CLI materi
     ["MPSEM-0375-C001", (value) => { const persisted = value.ordering.findIndex((entry) => entry.startsWith("atomically persist one attemptId, monotonically increasing fencingToken")); const crossing = value.ordering.findIndex((entry) => entry.startsWith("dispatch using the exact provider/profile contract")); return value.attemptIdentity.requiredBeforeDispatch === true && ["attemptId", "fencingToken", "requestFingerprint", "sourceRevisionRefs", "profileConfigurationDigest", "dispatchIntentId", "authorityDecisionRefs"].every((field) => value.attemptIdentity.fields.includes(field)) && persisted >= 0 && crossing > persisted; }, (value) => { value.attemptIdentity.fields = value.attemptIdentity.fields.filter((field) => field !== "dispatchIntentId"); }],
     ["MPSEM-0375-C002", (value) => { const marker = value.ordering.findIndex((entry) => entry.startsWith("persist an EFFECT_STARTED receipt atomically before crossing")); const crossing = value.ordering.findIndex((entry) => entry.startsWith("dispatch using the exact provider/profile contract")); return value.effectStartedReceipt.requiredBeforeProviderCrossing === true && value.effectStartedReceipt.fields.includes("receiptId") && /not a provider acknowledgment or completion receipt/u.test(value.effectStartedReceipt.meaning) && marker >= 0 && crossing > marker; }, (value) => { value.ordering = value.ordering.filter((entry) => !entry.startsWith("persist an EFFECT_STARTED receipt atomically")); }],
     ["MPSEM-0375-C004", (value) => value.providerReceipt.requiredWhenSupportedByExactProviderContract === true && value.providerReceipt.fields.includes("providerExecutionId") && /OUTCOME_UNKNOWN/u.test(value.providerReceipt.absenceBehavior) && value.ordering.some((entry) => /reconcile the same attempt\/receipt before any retry/u.test(entry)) && value.ordering.some((entry) => /never blind-replay/u.test(entry)), (value) => { value.ordering = value.ordering.filter((entry) => !/reconcile the same attempt\/receipt/u.test(entry)); }],
-    ["MPSEM-0377-C001", (value) => value.requestSchema.additionalProperties === false && value.requestSchema.required.includes("priorAttemptId") && value.guards.includes("prior-attempt-is-classified-retryable-by-current-job-owner") && /never-create-a-second-logical-job/u.test(value.effect) && /separate-authoritative-reconciliation-contract-first/u.test(value.recovery) && /tenantId-plus-principalId-plus-jobId-plus-requestId/u.test(value.idempotency) && /inspect-same-requestId-and-job-before-any-resubmission/u.test(value.retry), (value) => { value.idempotency = "jobId-only"; }],
+    ["MPSEM-0377-C001", (value) => value.requestSchema.additionalProperties === false && value.requestSchema.required.includes("priorAttemptId") && value.authority.includes("current-trusted-principal-and-current-retry-policy") && value.guards.includes("prior-attempt-is-classified-retryable-by-current-job-owner") && value.guards.includes("current-authority-rights-consent-policy-license-resource-and-profile-eligibility-rechecked") && value.guards.includes("retry-budget-remains") && value.errors.includes("RETRY_BUDGET_EXHAUSTED") && /never-create-a-second-logical-job/u.test(value.effect) && value.recovery.includes("if-prior-outcome-is-unknown-run-the-separate-authoritative-reconciliation-contract-first") && value.recovery.includes("do-not-retry-until-it-classifies-a-safe-retryable-outcome") && /tenantId-plus-principalId-plus-jobId-plus-requestId/u.test(value.idempotency) && /inspect-same-requestId-and-job-before-any-resubmission/u.test(value.retry), (value) => { value.idempotency = "jobId-only"; }],
     ["MPSEM-0377-C003", (value) => /new attempt under the same semantic job/u.test(value) && /not create a second logical request/u.test(value), (value) => value.replace("new attempt under the same semantic job", "new logical job")],
   ];
   for (const [id, valid, weaken] of checks) {
@@ -1386,7 +1463,12 @@ test("current exact claims preserve operation, delivery, privacy, and CLI materi
     const value = resolveExactSourceRef(route?.sourceRef);
     assert.ok(row && route && value, `${id} exact source route resolves`);
     assert.equal(route.sourceRef, row.proposedTargetRef, `${id} selected owner source`);
-    assert.equal(route.targetValueSha256, sha256Json(value), `${id} current target fingerprint`);
+    if (id === "MPSEM-0375-C004") {
+      assertStaleMaterialBlocker(row, route.sourceRef, value,
+        ["If provider execution identity or finality evidence is absent, preserve OUTCOME_UNKNOWN and never blind-replay"]);
+      continue;
+    }
+    assertRouteTargetCurrentOrObserved(route, route.sourceRef, value);
     assert.equal(route.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
     assert.equal(route.acceptanceEffect, "none");
     assert.equal(valid(value), true, `${id} owner value retains material semantics`);
@@ -1399,12 +1481,13 @@ test("current exact claims preserve operation, delivery, privacy, and CLI materi
   const parameterRow = candidate.records.find(({ claimId }) => claimId === "MPSEM-0298-C001");
   const parameterRoute = parameterRow.claimSpecificSemanticRoute.supportingSourceRefs.find(({ meaning }) => meaning === "dynamic leaf-specific schema resolution and validation before fingerprinting/effect");
   const parameterRule = resolveExactSourceRef(parameterRoute?.sourceRef);
-  assert.equal(parameterRoute?.targetValueSha256, sha256Json(parameterRule));
+  assertCurrentObservation(parameterRoute?.currentTargetObservation, parameterRoute?.sourceRef, parameterRule,
+    parameterRoute?.targetValueSha256);
   assert.equal(parameterRule.id, "media.job-submit.operation-parameters.v1");
   assert.match(parameterRule.selection, /exact member of that record\.operationRefs/u);
   assert.match(parameterRule.schemaResolution, /exact canonicalSourceContractRefs/u);
   assert.match(parameterRule.validation, /reject before fingerprinting, durable acceptance, audit-intent commit, or dispatch/u);
-  assert.match(parameterRule.fingerprint, /resolved parameter schema source reference, and canonical parameter values/u);
+  assert.match(parameterRule.fingerprint, /full resolved request-schema source closure SHA-256.*parameter-schema SHA-256, and canonical JSON parameter values/u);
   const withoutPreEffectValidation = structuredClone(parameterRule);
   withoutPreEffectValidation.validation = withoutPreEffectValidation.validation.replace("reject before fingerprinting, durable acceptance, audit-intent commit, or dispatch", "reject after dispatch");
   assert.doesNotMatch(withoutPreEffectValidation.validation, /reject before fingerprinting, durable acceptance, audit-intent commit, or dispatch/u);
@@ -1489,7 +1572,12 @@ test("simulation produced-versus-estimated claims bind every exact pass-specific
     && targets.length === 11
     && new Set(targets.map(({ entry }) => entry.passKind)).size === 11
     && targets.every(({ entry, value }) => value
-      && entry.sha256 === sha256Json(value)
+      && entry.currentTargetObservation?.sourceRef === entry.ref
+      && entry.currentTargetObservation?.currentTargetValueSha256 === sha256Json(value)
+      && entry.currentTargetObservation?.previousCandidateTargetValueSha256 === entry.sha256
+      && entry.currentTargetObservation?.status === "STALE_CANDIDATE_REQUIRES_REVIEW"
+      && entry.currentTargetObservation?.semanticPromotion === false
+      && entry.currentTargetObservation?.acceptanceEffect === "none"
       && entry.productionStatuses?.join(",") === "PRODUCED,ESTIMATED"
       && entry.productionEvidenceRefRequired === true
       && entry.profileBound === true

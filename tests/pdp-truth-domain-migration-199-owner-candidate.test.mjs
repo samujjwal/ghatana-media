@@ -181,7 +181,7 @@ test("only exact heading/table-label spans are classified as non-normative sourc
 });
 
 const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? "ALL";
-const expectedMaterialReviewCounts = { ALL: 183, "PDP-0": 134, "PDP-1": 48 };
+const expectedMaterialReviewCounts = { ALL: 179, "PDP-0": 134, "PDP-1": 44 };
 if (!Object.hasOwn(expectedMaterialReviewCounts, candidatePhase)) {
   throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be one of ALL, PDP-0, PDP-1; got ${candidatePhase}`);
 }
@@ -232,6 +232,93 @@ test(`claim-specific material clauses for ${candidatePhase} resolve exactly and 
     substituted.set(foreign.priorLocatorRef, typeof foreignValue === "string" ? foreignValue : JSON.stringify(foreignValue));
     assert.equal(validateMaterialReview(substitutedRow, substituted), false, `${row.claimId} rejects valid but unrelated target substitution`);
   }
+});
+
+test("unresolved selectors and source-value drift remain explicit material blockers", () => {
+  const row = (claimId) => candidate.records.find((item) => item.claimId === claimId);
+  const unresolved = row("MPSEM-0172-C004");
+  assert.equal(unresolved.ownerSemanticReview.disposition, "BLOCKED_UNRESOLVED_CURRENT_SELECTOR");
+  assert.equal(unresolved.ownerSemanticReview.historicalDisposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+  assert.equal(unresolved.ownerSemanticReview.materialReviewBlocker.acceptanceEffect, "none");
+  assert.equal(unresolved.ownerSemanticReview.materialReviewBlocker.runtimeStatus, "NOT_EVALUATED");
+  const unresolvedBinding = unresolved.ownerSemanticReview.materialBindings.find(({ ref }) => ref.endsWith("#familyDefinitionPolicy/operationIdentity"));
+  assert.ok(unresolvedBinding);
+  assert.throws(() => resolveSelector(unresolvedBinding.ref), /unresolved exact source selector/u);
+  assert.equal(unresolvedBinding.currentProposalObservation.currentSourceValueSha256,
+    "c4cd6d81b109a39bde30b00b9864c613b68faa5f028023bb06cf548bf51069d2",
+    "unresolved historical current-value observation is retained");
+  assert.match(unresolved.ownerSemanticReview.materialReviewBlocker.reason, /no exact owner clause/u);
+
+  for (const claimId of ["MPSEM-0298-C003"]) {
+    const record = row(claimId);
+    if (candidatePhase !== "ALL" && record.ownerPhase !== candidatePhase) continue;
+    assert.equal(record.ownerSemanticReview.disposition, "BLOCKED_CURRENT_SOURCE_VALUE_DRIFT");
+    assert.equal(record.ownerSemanticReview.historicalDisposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+    assert.equal(record.ownerSemanticReview.materialReviewBlocker.acceptanceEffect, "none");
+    assert.equal(record.ownerSemanticReview.materialReviewBlocker.runtimeStatus, "NOT_EVALUATED");
+    const binding = record.ownerSemanticReview.materialBindings.find(({ ref }) => ref.endsWith("/ownerWireSchema/requestSchema"));
+    assert.ok(binding);
+    const { source, value } = resolveSelector(binding.ref);
+    const serialized = typeof value === "string" ? value : JSON.stringify(value);
+    assert.equal(binding.currentProposalObservation.currentSourceValueSha256,
+      "9601290ea449fb3aca34af0919f261324503550ca9ca871ed180b360d22293ae",
+      `${claimId} retains the prior current-value observation`);
+    assert.notEqual(sha(serialized), binding.currentProposalObservation.currentSourceValueSha256,
+      `${claimId} live request schema has unresolved value drift`);
+    assert.notEqual(binding.currentProposalObservation.currentSourceFileSha256, sha(source),
+      `${claimId} source file observation is not refreshed across a value drift`);
+    assert.match(record.ownerSemanticReview.materialReviewBlocker.reason, /pending exact material review/u);
+  }
+
+  for (const [claimId, suffix] of [
+    ["MPSEM-0171-C008", "#coverageRule"],
+    ["MPSEM-0372-C003", "#ownerJobStatusDimensionContract/independentDimensions"],
+  ]) {
+    const record = row(claimId);
+    if (candidatePhase !== "ALL" && record.ownerPhase !== candidatePhase) continue;
+    assert.equal(record.ownerSemanticReview.disposition, "BLOCKED_CURRENT_MATERIAL_CLAUSE_MISMATCH");
+    assert.equal(record.ownerSemanticReview.historicalDisposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+    assert.equal(record.ownerSemanticReview.materialReviewBlocker.acceptanceEffect, "none");
+    const binding = record.ownerSemanticReview.materialBindings.find(({ ref }) => ref.endsWith(suffix));
+    assert.ok(binding);
+    const { value } = resolveSelector(binding.ref);
+    const serialized = typeof value === "string" ? value : JSON.stringify(value);
+    assert.equal(serialized.includes(binding.requiredSourcePhrase), false,
+      `${claimId} required phrase is absent from the live exact source value`);
+    const joined = record.ownerSemanticReview.exactContractRefs.map((ref) => {
+      const { value: contractValue } = resolveSelector(ref);
+      return typeof contractValue === "string" ? contractValue : JSON.stringify(contractValue);
+    }).join("\n");
+    assert.equal(record.ownerSemanticReview.materialPredicates.every((predicate) => joined.includes(predicate)), false,
+      `${claimId} current clauses fail at least one material predicate`);
+  }
+
+  const resolvedExpiry = row("MPSEM-0311-C004");
+  assert.equal(resolvedExpiry.ownerPhase, "PDP-0");
+  assert.equal(resolvedExpiry.ownerSemanticReview.disposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+  assert.equal(resolvedExpiry.ownerSemanticReview.acceptanceEffect, "none");
+  assert.equal(resolvedExpiry.ownerSemanticReview.runtimeStatus, "NOT_EVALUATED");
+  assert.equal(resolvedExpiry.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(resolvedExpiry.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(resolvedExpiry.currentProposalObservation.priorSourceFileSha256, resolvedExpiry.ownerSourceSha256,
+    "the historical source file pin remains unchanged");
+  assert.equal(resolvedExpiry.currentProposalObservation.priorTargetValueSha256, resolvedExpiry.currentTargetValueSha256,
+    "the historical target value pin remains unchanged");
+  assert.equal(resolvedExpiry.ownerSemanticReview.proposedTargetRef,
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract");
+  assert.deepEqual(resolvedExpiry.ownerSemanticReview.materialBindings.map(({ ref }) => ref.split("/").at(-1)), [
+    "productWideDuration", "expiryRule", "freshIdentityRule", "artifactRetentionRule", "pdp1Delegation",
+  ]);
+  assert.match(resolvedExpiry.ownerSemanticReview.materialBindings[0].requiredSourcePhrase, /NOT_DEFINED_BY_P0/u);
+  assert.match(resolvedExpiry.ownerSemanticReview.materialBindings[1].requiredSourcePhrase,
+    /never proves that no prior job or consequential effect exists[\s\S]*UNKNOWN_OUTCOME[\s\S]*same scoped idempotency identity/u);
+  assert.match(resolvedExpiry.ownerSemanticReview.materialBindings[2].requiredSourcePhrase,
+    /does not authorize a new idempotency key[\s\S]*fresh semantic request[\s\S]*another consequential effect/u);
+  assert.match(resolvedExpiry.ownerSemanticReview.materialBindings[3].requiredSourcePhrase,
+    /Artifact retention expiry is independent of idempotency and reconciliation evidence expiry/u);
+  assert.match(resolvedExpiry.ownerSemanticReview.materialBindings[4].requiredSourcePhrase,
+    /PDP-1 defines the exact approved per-operation retention duration[\s\S]*No duration is selected here/u);
+  assert.equal(resolvedExpiry.ownerSemanticReview.materialReviewBlocker, undefined);
 });
 
 test("job acceptance keeps audit intent and dispatch intent inside one pre-effect durability boundary", { skip: candidatePhase === "PDP-0" }, () => {

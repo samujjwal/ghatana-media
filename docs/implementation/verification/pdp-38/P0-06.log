@@ -2,64 +2,64 @@ TAP version 13
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
 ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 12160.917776
+  duration_ms: 12511.663607
   type: 'test'
   ...
 # Subtest: P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
 ok 2 - P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
   ---
-  duration_ms: 8333.466242
+  duration_ms: 8241.74507
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
 ok 3 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 2.755142
+  duration_ms: 2.332214
   type: 'test'
   ...
 # Subtest: unknown applicability, missing evidence and invented measurements remain errors
 ok 4 - unknown applicability, missing evidence and invented measurements remain errors
   ---
-  duration_ms: 1.197801
+  duration_ms: 1.098701
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
 ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
   ---
-  duration_ms: 159.490428
+  duration_ms: 167.021393
   type: 'test'
   ...
 # Subtest: P0 quality applicability is complete from capability intent and semantic artifact types alone
 ok 6 - P0 quality applicability is complete from capability intent and semantic artifact types alone
   ---
-  duration_ms: 126.136373
+  duration_ms: 106.737743
   type: 'test'
   ...
 # Subtest: P0 quality checks reject foreign semantic types and missing applicability decisions
 ok 7 - P0 quality checks reject foreign semantic types and missing applicability decisions
   ---
-  duration_ms: 159.748553
+  duration_ms: 200.50604
   type: 'test'
   ...
 # Subtest: P0-06 maps all measures to stable capability meaning without inventing measured results
 ok 8 - P0-06 maps all measures to stable capability meaning without inventing measured results
   ---
-  duration_ms: 5772.42643
+  duration_ms: 6201.429371
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
 ok 5 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
   ---
-  duration_ms: 147.547647
+  duration_ms: 154.336998
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
 ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
   ---
-  duration_ms: 154.198211
+  duration_ms: 150.988231
   type: 'test'
   ...
 1..10
@@ -70,4 +70,4 @@ ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-sou
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 20787.678753
+# duration_ms 20985.62997

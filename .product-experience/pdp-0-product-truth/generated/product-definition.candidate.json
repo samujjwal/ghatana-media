@@ -2866,8 +2866,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "sha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
-      "bytes": 7873590,
+      "sha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+      "bytes": 7875129,
       "format": "yaml",
       "schemaVersion": "media.capabilities.v1",
       "authority": "prospective-Phase-0-definition; not runtime authority or qualification evidence",
@@ -8511,8 +8511,8 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json",
-      "sha256": "7ad8839b066ddb6775707d6a7683c79acf7cc6db94c2ac1a6b01c5475674146b",
-      "bytes": 87173,
+      "sha256": "1c187221d5c882b8559d7eb9fe5cebf2195a0e0bfb346d61c5277ed1e6081b4d",
+      "bytes": 87951,
       "format": "yaml",
       "schemaVersion": "media.pdp0.capability-semantic-current-source-review.v1",
       "authority": null,
@@ -8539,7 +8539,7 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json",
-      "sha256": "9486f2666877caf31d03eef027a4c8f10b755c675ef113bc5312cb77b6b39eb2",
+      "sha256": "28e455e427859439a2cbf9b284a8eb2e6a522a8bbb0e3aec9a7183accfe4d885",
       "bytes": 8111,
       "format": "yaml",
       "schemaVersion": "media.pdp0.quality-current-source-review.v1",

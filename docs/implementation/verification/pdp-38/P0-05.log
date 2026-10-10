@@ -2,50 +2,50 @@ TAP version 13
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 1 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 169.481968
+  duration_ms: 189.928078
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 2 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 750.458455
+  duration_ms: 715.059018
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
 ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-constitution-normative-completeness.test.mjs
   ---
-  duration_ms: 3505.356584
+  duration_ms: 3004.9855
   type: 'test'
   ...
 # Subtest: P0 policy assigns one semantic authority and keeps platform mechanics separate
 ok 4 - P0 policy assigns one semantic authority and keeps platform mechanics separate
   ---
-  duration_ms: 1.933502
+  duration_ms: 7.071349
   type: 'test'
   ...
 # Subtest: identity, consent, rights, version and revocation checks fail closed at policy boundaries
 ok 5 - identity, consent, rights, version and revocation checks fail closed at policy boundaries
   ---
-  duration_ms: 0.784722
+  duration_ms: 11.119237
   type: 'test'
   ...
 # Subtest: policy definitions do not claim runtime/provider admission or acceptance
 ok 6 - policy definitions do not claim runtime/provider admission or acceptance
   ---
-  duration_ms: 0.302272
+  duration_ms: 0.311109
   type: 'test'
   ...
 # Subtest: P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
 ok 7 - P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites
   ---
-  duration_ms: 2.953465
+  duration_ms: 3.201755
   type: 'test'
   ...
 # Subtest: historical migration source stays provenance and cannot become current phase acceptance
 ok 8 - historical migration source stays provenance and cannot become current phase acceptance
   ---
-  duration_ms: 0.380113
+  duration_ms: 0.417001
   type: 'test'
   ...
 1..8
@@ -56,4 +56,4 @@ ok 8 - historical migration source stays provenance and cannot become current ph
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 10063.165057
+# duration_ms 8718.76313

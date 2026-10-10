@@ -372,7 +372,18 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const textToImageSourceHash = typeof capabilitiesSourceText === "string"
     ? createHash("sha256").update(capabilitiesSourceText).digest("hex") : null;
   const capabilityIntentOwnerBindingExpectedSha256 = "e33af569db9ea0b510af334af8dfc4ae2e2c05cd0b2fa32e57a889e94023ba7a";
-  const capabilitySemanticReviewExpectedSha256 = "7ad8839b066ddb6775707d6a7683c79acf7cc6db94c2ac1a6b01c5475674146b";
+  const capabilitySemanticReviewExpectedSha256 = "1c187221d5c882b8559d7eb9fe5cebf2195a0e0bfb346d61c5277ed1e6081b4d";
+  const jobSubmitExpiryRef = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract";
+  const jobSubmitExpiryContract = resolveSelector(jobSubmitExpiryRef, sourceDocuments);
+  const jobSubmitExpiryReview = capabilitySemanticReview?.currentSourceCorrections?.find(({ capabilityId }) => capabilityId === "media.job.submit");
+  const jobSubmitExpiryReviewValid = jobSubmitExpiryReview?.decisionRef === ".product-experience/decision-log.md#PXD-122"
+    && JSON.stringify(jobSubmitExpiryReview.sourceFields) === JSON.stringify(["ownerDefinition.idempotencyExpiryContract"])
+    && jobSubmitExpiryReview.sourceValueSha256 === (jobSubmitExpiryContract === undefined ? null : createHash("sha256").update(JSON.stringify(jobSubmitExpiryContract)).digest("hex"))
+    && /P0 defines no product-wide idempotency evidence duration/u.test(jobSubmitExpiryReview.resolvedMeaning ?? "")
+    && /same scoped identity UNKNOWN until authoritative reconciliation/u.test(jobSubmitExpiryReview.resolvedMeaning ?? "")
+    && /PDP-1 selects the exact approved per-operation duration/u.test(jobSubmitExpiryReview.resolvedMeaning ?? "")
+    && jobSubmitExpiryReview.semanticEquivalence === "NOT_ASSERTED"
+    && jobSubmitExpiryReview.acceptanceEffect === "none";
   const capabilitySemanticReviewValid = typeof capabilitySemanticReviewText === "string"
     && createHash("sha256").update(capabilitySemanticReviewText).digest("hex") === capabilitySemanticReviewExpectedSha256
     && capabilitySemanticReview?.schemaVersion === "media.pdp0.capability-semantic-current-source-review.v1"
@@ -387,7 +398,8 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && capabilitySemanticReview?.decisionRef === ".product-experience/decision-log.md#PXD-122"
     && capabilitySemanticReview?.semanticEquivalence === "NOT_ASSERTED"
     && capabilitySemanticReview?.acceptanceEffect?.startsWith("none;")
-    && capabilitySemanticReview?.currentSourceChecks?.length >= 5;
+    && capabilitySemanticReview?.currentSourceChecks?.length >= 5
+    && jobSubmitExpiryReviewValid;
   if (!capabilitySemanticReviewValid) fail("PXD-122 current capability semantic review is absent, stale, or overbroad");
   const capabilityIntentOwnerBindingValid = typeof capabilityIntentOwnerBindingObservationText === "string"
     && createHash("sha256").update(capabilityIntentOwnerBindingObservationText).digest("hex") === capabilityIntentOwnerBindingExpectedSha256

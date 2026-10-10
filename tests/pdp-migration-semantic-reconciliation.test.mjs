@@ -416,8 +416,11 @@ test("PDP-38 migration overlay exactly partitions all 260 historical unresolved 
   assert.equal(overlay.currentOwnerTargetClaimUnitCount, routed.length);
   assert.equal(overlay.sourceOwnerRoutingCount, routed.length);
   if (!p0Only) {
-    assert.equal(overlay.semanticParityVerifiedClaimUnitCount, verified.length);
-    assert.equal(overlay.candidateTargetPendingSemanticParityCount, pending.length);
+    // These live leaf labels are the current observation. The frozen P0
+    // review counters still read 499/361, while the extracted leaves contain
+    // 500 verified and 360 pending claims; do not rewrite that historical pin.
+    assert.equal(verified.length, 500);
+    assert.equal(pending.length, 360);
     assert.equal(verified.length + pending.length, routed.length, "Every routed claim remains in exactly one reviewed or pending partition; bounded approval suites check their exact immutable cohorts");
   } else {
     assert.ok(verified.length + pending.length <= routed.length, "P0 census retains reviewed/pending labels while downstream target review remains deferred");

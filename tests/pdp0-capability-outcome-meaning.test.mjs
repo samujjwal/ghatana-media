@@ -48,6 +48,18 @@ function expectedSourcePreservation(leaf) {
     || ["media.artifact.derive", "media.artifact.output.register"].includes(leaf.id);
   return requiredSource && sourceDerivedOutput;
 }
+function validateJobSubmitIdempotencyExpiry(leaf) {
+  const contract = leaf?.ownerDefinition?.idempotencyExpiryContract;
+  if (leaf?.id !== "media.job.submit" || !contract
+      || contract.productWideDuration !== "NOT_DEFINED_BY_P0"
+      || !/expiry, deletion, or unavailability[\s\S]*never proves[\s\S]*no prior job or consequential effect[\s\S]*UNKNOWN_OUTCOME[\s\S]*same scoped idempotency identity/iu.test(contract.expiryRule ?? "")
+      || !/does not authorize[\s\S]*new idempotency key[\s\S]*fresh semantic request[\s\S]*another consequential effect/iu.test(contract.freshIdentityRule ?? "")
+      || !/artifact retention expiry is independent[\s\S]*idempotency and reconciliation evidence expiry/iu.test(contract.artifactRetentionRule ?? "")
+      || !/PDP-1 defines the exact approved per-operation retention duration[\s\S]*No duration is selected here/iu.test(contract.pdp1Delegation ?? "")
+      || !Array.isArray(contract.sourceRefs) || contract.sourceRefs.length !== 3
+      || contract.sourceRefs.some((ref) => resolveSourceRef(ref) === undefined)) return false;
+  return true;
+}
 const specificMeanings = new Map([
   ["media.artifact.derive", "The P0 meaning of a derivation result is bound to exact source-version references, transformation-profile identity, requested output/media type, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."],
   ["media.artifact.output.register", "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage, content digest, policy decision, and target project revision are identity constraints; a registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."],
@@ -197,6 +209,7 @@ function validateOutcomePopulation(catalog, actorCatalog) {
     }
   }
   const byId = new Map(leaves.map((leaf) => [leaf.id, leaf]));
+  if (!validateJobSubmitIdempotencyExpiry(byId.get("media.job.submit"))) return false;
   if (byId.get("media.project.create")?.ownerDefinition.typedInputSlots.some(({ sourceType }) => sourceType === "versioned-project")) return false;
   for (const [id, sourceType] of sourceInputByCapability) {
     const slot = byId.get(id)?.ownerDefinition.typedInputSlots.find(({ slotId }) => slotId === "input2");
@@ -263,6 +276,25 @@ test("P0 outcome validation rejects generic, incomplete, or operation-specific r
   search.outputArtifactTypes = ["versioned-project-state"];
   search.ownerDefinition.successOutputs[0].artifactType = "versioned-project-state";
   assert.equal(validateOutcomePopulation(stalePageOutput, actors), false);
+});
+
+test("P0 job submit expiry semantics reject unsafe replay and artifact-retention conflation", () => {
+  const base = readCapabilities();
+  const submit = base.capabilities.find(({ id }) => id === "media.job.submit");
+  assert.equal(validateJobSubmitIdempotencyExpiry(submit), true);
+  for (const mutate of [
+    (contract) => { contract.expiryRule = "Expiry proves no prior job exists."; },
+    (contract) => { contract.expiryRule = "Expiry is unknown; reconcile the identity."; },
+    (contract) => { contract.freshIdentityRule = "A new key may create a fresh semantic request."; },
+    (contract) => { contract.artifactRetentionRule = "Artifact retention expiry releases idempotency evidence."; },
+    (contract) => { contract.pdp1Delegation = "P0 selects a 30 day duration."; },
+    (contract) => { contract.productWideDuration = "30 days"; },
+    (contract) => { contract.sourceRefs = []; },
+  ]) {
+    const candidate = structuredClone(submit);
+    mutate(candidate.ownerDefinition.idempotencyExpiryContract);
+    assert.equal(validateJobSubmitIdempotencyExpiry(candidate), false);
+  }
 });
 
 test("P0 source-derived branches, artifact lifecycle, rights assertions, and metric results retain distinct meanings", () => {

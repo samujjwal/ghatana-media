@@ -92,6 +92,18 @@ test("P0 capability semantic review pins current source checks without claiming 
   assert.equal(byId.get("media.artifact.output.register").ownerDefinition.effect.effectIntentScope, "CANONICAL_PRODUCT_STATE_CHANGE");
   assert.equal(byId.get("media.artifact.provenance.export").ownerDefinition.effect.effectIntentScope, "GOVERNED_EXTERNAL_REQUEST");
 
+  const jobSubmitExpiry = byId.get("media.job.submit").ownerDefinition.idempotencyExpiryContract;
+  const expiryReview = observation.currentSourceCorrections.find(({ capabilityId }) => capabilityId === "media.job.submit");
+  assert.deepEqual(expiryReview.sourceFields, ["ownerDefinition.idempotencyExpiryContract"]);
+  assert.equal(expiryReview.sourceValueSha256, sha(JSON.stringify(jobSubmitExpiry)));
+  assert.equal(jobSubmitExpiry.productWideDuration, "NOT_DEFINED_BY_P0");
+  assert.match(jobSubmitExpiry.expiryRule, /never proves.*UNKNOWN_OUTCOME.*same scoped idempotency identity/u);
+  assert.match(jobSubmitExpiry.freshIdentityRule, /new idempotency key.*fresh semantic request.*another consequential effect/u);
+  assert.match(jobSubmitExpiry.artifactRetentionRule, /independent/u);
+  assert.match(jobSubmitExpiry.pdp1Delegation, /PDP-1 defines the exact approved per-operation retention duration/u);
+  assert.equal(expiryReview.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(expiryReview.acceptanceEffect, "none");
+
   assert.equal(observation.decisionRef, ".product-experience/decision-log.md#PXD-122");
   assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(observation.acceptanceEffect.split(";")[0], "none");

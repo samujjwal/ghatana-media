@@ -4,7 +4,7 @@
   "scope": "Exact current P0 type drift against historical trust rows. Disposition labels are review triage only; historical branches and fingerprints are preserved and no semantic equivalence, branch remap, acceptance, implementation, or qualification is asserted.",
   "source": {
     "capabilitiesPath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-    "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+    "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
     "currentSourceReviewRef": "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json#currentSourceChecks"
   },
   "historicalReviewPath": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records",
@@ -15622,6 +15622,27 @@
     ],
     "affectedCurrentTypeMismatches": 0,
     "meaning": "The project review outcome and bindings were resolved. Its existing user-intent/versioned-project input types and versioned-project-state output type did not change, so the historical type-drift population remains unchanged.",
+    "semanticEquivalence": "NOT_ASSERTED",
+    "acceptanceEffect": "none"
+  },
+  "subsequentCurrentSourceCutRefresh": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-122",
+    "priorSourceSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+    "currentSourceSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+    "affectedCapabilityIds": [
+      "media.job.submit"
+    ],
+    "affectedCurrentTypeMismatches": 0,
+    "contractRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract",
+    "contractSha256": "84bcd789bf10053c4ac52a9a6698390a2e537a7eadfe43f72a532136b941e6dc",
+    "populationCountsUnchanged": {
+      "capabilityRecords": 462,
+      "identityTypeMismatches": 68,
+      "inputTypeMismatches": 42,
+      "outputTypeMismatches": 26,
+      "uniqueCapabilities": 63
+    },
+    "meaning": "PXD-122 adds the P0 job-submit idempotency expiry safety contract. This source-cut refresh leaves capability identity and historical/current type-mismatch populations unchanged; it selects no product-wide duration, asserts no semantic equivalence, and has no acceptance effect.",
     "semanticEquivalence": "NOT_ASSERTED",
     "acceptanceEffect": "none"
   }

@@ -9,7 +9,7 @@
     },
     "capabilities": {
       "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "currentSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "currentSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
       "capabilityCount": 462,
       "identityField": "id"
     }

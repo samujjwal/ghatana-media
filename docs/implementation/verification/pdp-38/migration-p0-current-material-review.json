@@ -42,7 +42,7 @@
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
-          "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "currentTargetPreview": "Every scoped capability below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation, license, qualification, or runtime availability is inferred from code/package presence."
         }
@@ -85,7 +85,7 @@
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
-          "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "currentTargetPreview": "Every scoped capability below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation, license, qualification, or runtime availability is inferred from code/package presence."
         }
