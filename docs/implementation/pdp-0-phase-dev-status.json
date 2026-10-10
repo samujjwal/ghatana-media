@@ -1,7 +1,7 @@
 {
   "schemaVersion": "media.phase-dev-status.v1",
   "phase": "PDP-0",
-  "mainSha": "a89157cb349812f9c510a844d52751f571b185e0",
+  "mainSha": "66392c46d0758c2fac4ae5fd692102fbdec384fa",
   "sourceShaSet": {
     ".product-experience/artifact-identities.yaml": "da30ef7dcff99d1753ad5f833fea747b1924f568f2b4628a4c11c32c4afcb7c1",
     ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
@@ -93,7 +93,7 @@
     "tests/pdp-migration-constitution-claims.test.mjs": "5d884d519933c328ed8dab1cbb7fa2d34526b00f91f655a03a302251255f77d7",
     "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs": "f3d237062e0b9cb290591d8b18a9699f6fe7b382604c60ecad55e3217c8ea998",
     "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "3d3820d683ca2cf62ed411bd6ea745e4caad28b904c81f177266eb08d702305b",
-    "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "6fa4ef7efec57dde5bd745832511e0a7548578b7066b9a032e6f533ad04b1933",
+    "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "09ba40bd4e566f0f2e507d17227f9f24f1aa0b7cf86a3d3bfc82f8c4dc8c1a3f",
     "tests/pdp-migration-p0-current-material-reviews.test.mjs": "1722d26aeec7a69039475a34e43a056781ad9edee9aba85b88befe8d80effca6",
     "tests/pdp-0-final.test.mjs": "eb54e321b0973bb04a934f96869664f1ebfa41809a244d2240d95064d66a6f38",
     "tests/media-product-definition-resolved-intents.test.mjs": "7b5a812e746c4a8e58b5fc84a52f39b7f272fec966c2abb44eac3c8044e8d176",
@@ -136,12 +136,10 @@
     "channelApplicabilityLeaves": 462,
     "featureReviewDimensions": 15,
     "featureReviewCapabilityLeaves": 462,
-    "masterPlanClaims": 0,
+    "masterPlanClaims": 129,
     "constitutionalRequirements": 32
   },
-  "outstandingMeaningIds": [
-    "P0-03:current-master-plan-claim-ownership"
-  ],
+  "outstandingMeaningIds": [],
   "testsActuallyRun": {
     "P0-01": {
       "command": "node --test \"--test-name-pattern=P0 assigns every capability leaf explicit channel applicability|all 462 leaves have exact profile-channel applicability or a source-backed exclusion|15 review dimensions resolve every requirement type and all 462 exact leaf joins|PDP-0 hands off all 462 stable capability intents|PDP-0 handoff rejects missing, duplicate, or weakened capability meaning|P0 owner intent binding observation|P0 capability outcomes state exact result meaning|P0 outcome validation rejects generic|source-backed capability result contracts|PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity|current P0 owner review and trust records preserve measurement semantics and fail closed|current P0 quality joins use the measurement record as the phase metric subject|project creation requires a title|phase analysis declares a measurement record|scientific demo separates visual plausibility|export creates a delivery package|P0 capability semantic review|source-free animation authoring|PXD-128 result variants cover every audited leaf|capability families are exact leaf groupings without inherited operations or readiness\" /home/samujjwal/Developments/ghatana-media/tests/pdp-truth-domain-channel-profile-applicability.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-truth-domain.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-development-handoff.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-animation-authored-provenance.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-intent-current-source-observation.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-outcome-meaning.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-source-backed-outcomes.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-result-variant-trust-bindings.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-capability-family-definition.test.mjs",
@@ -149,7 +147,7 @@
       "testCount": 18,
       "passedTestCount": 18,
       "skippedTestCount": 0,
-      "outputSha256": "31d1e4ae0fcd6b8bc6b53aae25149b5ab8bc2f9ecdd82ba2264dea1fbeb09613",
+      "outputSha256": "61e66ccdc5612638bcfd1aa84c84c4bfb740fc626875efd511ebb886cf075eb0",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "91af1f69225d0f228e0541f61da3e8eb7a64ce578d6f7ed61545700ad176770a",
         "tests/pdp-truth-domain.test.mjs": "bccdba6c62ebb2ae4c466390fb385b90718211e02d0360b02b56022a98f14ba7",
@@ -252,7 +250,7 @@
       "testCount": 11,
       "passedTestCount": 11,
       "skippedTestCount": 0,
-      "outputSha256": "7e89bb638d1de246e464f17e4f248ca7872f334e658b21a3c251c6fd4418f147",
+      "outputSha256": "665cc6ebad60297d3d9176608a06cb4ae5263c7ceb96fc21aaa21b1569628151",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain.test.mjs": "bccdba6c62ebb2ae4c466390fb385b90718211e02d0360b02b56022a98f14ba7",
         "tests/media-operation-bounds.test.mjs": "f1130ccbdcf19790611f21e74472c11d6c361e88e16e3502291917392cc85368",
@@ -341,11 +339,11 @@
     },
     "P0-03": {
       "command": "PDP_MIGRATION_CANDIDATE_PHASE=PDP-0 node --test /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-current-source-claim-dispositions.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-semantic-reconciliation.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-capability-material-claims.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-preservation-identity-wire-claims.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-pxd120-current-target-observations.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-constitution-claims.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp-migration-p0-current-material-reviews.test.mjs /home/samujjwal/Developments/ghatana-media/tests/pdp0-result-variant-trust-bindings.test.mjs",
-      "status": "FAIL",
+      "status": "PASS",
       "testCount": 60,
-      "passedTestCount": 49,
+      "passedTestCount": 50,
       "skippedTestCount": 10,
-      "outputSha256": "b83c26b7201a9fed7114c01a680e55eb0dfd434ad4a071cdfc5913a8464031e2",
+      "outputSha256": "8b879b549d9cf11da8dd8455e1ed128cf7aca215c5ccf5606ca6e8406bd45665",
       "testSourceFingerprints": {
         "tests/pdp-migration-current-source-claim-dispositions.test.mjs": "7aa64116e95303b8352f2b884b1bc0800de306bf8ed9dcdcc6f196eac0564d35",
         "tests/pdp-migration-semantic-reconciliation.test.mjs": "faf3ba6d50b9c63545f892d05432834de1b1d17f840d90481e7d46874b51f3cb",
@@ -355,7 +353,7 @@
         "tests/pdp-migration-constitution-claims.test.mjs": "5d884d519933c328ed8dab1cbb7fa2d34526b00f91f655a03a302251255f77d7",
         "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs": "f3d237062e0b9cb290591d8b18a9699f6fe7b382604c60ecad55e3217c8ea998",
         "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "3d3820d683ca2cf62ed411bd6ea745e4caad28b904c81f177266eb08d702305b",
-        "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "6fa4ef7efec57dde5bd745832511e0a7548578b7066b9a032e6f533ad04b1933",
+        "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "09ba40bd4e566f0f2e507d17227f9f24f1aa0b7cf86a3d3bfc82f8c4dc8c1a3f",
         "tests/pdp-migration-p0-current-material-reviews.test.mjs": "1722d26aeec7a69039475a34e43a056781ad9edee9aba85b88befe8d80effca6",
         "tests/pdp0-result-variant-trust-bindings.test.mjs": "e81c45855c7ed483de66b673985bb202cbaa80e696fd194c973d2a8b494709c1"
       },
@@ -435,7 +433,7 @@
           "tests/pdp-migration-constitution-claims.test.mjs": "5d884d519933c328ed8dab1cbb7fa2d34526b00f91f655a03a302251255f77d7",
           "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs": "f3d237062e0b9cb290591d8b18a9699f6fe7b382604c60ecad55e3217c8ea998",
           "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "3d3820d683ca2cf62ed411bd6ea745e4caad28b904c81f177266eb08d702305b",
-          "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "6fa4ef7efec57dde5bd745832511e0a7548578b7066b9a032e6f533ad04b1933",
+          "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "09ba40bd4e566f0f2e507d17227f9f24f1aa0b7cf86a3d3bfc82f8c4dc8c1a3f",
           "tests/pdp-migration-p0-current-material-reviews.test.mjs": "1722d26aeec7a69039475a34e43a056781ad9edee9aba85b88befe8d80effca6",
           "tests/pdp0-result-variant-trust-bindings.test.mjs": "e81c45855c7ed483de66b673985bb202cbaa80e696fd194c973d2a8b494709c1"
         },
@@ -448,7 +446,7 @@
       "testCount": 5,
       "passedTestCount": 5,
       "skippedTestCount": 0,
-      "outputSha256": "4fc3e51827ecca933191afeaf61d41f4531bc147c4269ecc259d1b998b7063ce",
+      "outputSha256": "9a8aa575c462fb7ba185cdb1e3c4b51c80742845464262ad5138fb78549360ff",
       "testSourceFingerprints": {
         "tests/pdp-0-final.test.mjs": "eb54e321b0973bb04a934f96869664f1ebfa41809a244d2240d95064d66a6f38",
         "tests/media-product-definition-resolved-intents.test.mjs": "7b5a812e746c4a8e58b5fc84a52f39b7f272fec966c2abb44eac3c8044e8d176"
@@ -533,7 +531,7 @@
       "testCount": 8,
       "passedTestCount": 8,
       "skippedTestCount": 0,
-      "outputSha256": "fd594af6abf0111c81753948fae000b4445d495394f452f02d06835fbd4be268",
+      "outputSha256": "b451af8bedab9cd6e7340a2fd4d156f6c542714a197fba7b1baa11aa42e539ed",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain.test.mjs": "bccdba6c62ebb2ae4c466390fb385b90718211e02d0360b02b56022a98f14ba7",
         "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
@@ -622,7 +620,7 @@
       "testCount": 10,
       "passedTestCount": 10,
       "skippedTestCount": 0,
-      "outputSha256": "2f431ae14effe73491b1f1236638455b802dd5b5e0a23323922df7328ca8fa33",
+      "outputSha256": "ee0c6db80a6a52d34aa182f5e052b8d3a7df0759d660f7f24cb3d0ee610c275e",
       "testSourceFingerprints": {
         "tests/pdp-0-06-measures-provenance.test.mjs": "b83426b6b61cbcc0939df5e0629db2febf7c8a0607b7b06dcf628fac1bf98b9b",
         "tests/media-measure-applicability-crosswalk.test.mjs": "215479fc8472f8febbde8a7b1baab0bcde79607e2def2f812154f3122723bd38",
@@ -715,7 +713,7 @@
       "testCount": 8,
       "passedTestCount": 8,
       "skippedTestCount": 0,
-      "outputSha256": "f0d05fbf22428c1ad10c09200be04cdbda58c612ea10b93434860d5cc4de4022",
+      "outputSha256": "0aeb4f664ca7ee8245cca7daebec65aa04c4fa609d7fa7147a1c4735b163897a",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "91af1f69225d0f228e0541f61da3e8eb7a64ce578d6f7ed61545700ad176770a",
         "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
@@ -804,7 +802,7 @@
       "testCount": 91,
       "passedTestCount": 91,
       "skippedTestCount": 0,
-      "outputSha256": "5c3e42b8e67c1c39f70b62e31459886ab094127a0adfb0207c181df4bce3aa66",
+      "outputSha256": "ed1bf001f801a6e2708df5f1c720a6ba7d9fc9886aa4fbfa6ef9585bfdfb8a56",
       "testSourceFingerprints": {
         "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "91af1f69225d0f228e0541f61da3e8eb7a64ce578d6f7ed61545700ad176770a",
         "tests/pdp0-development-handoff.test.mjs": "8c2b15734718e03d18bcc8233d984f6b343e1b0a693d2a97ba619d0067f18468",
@@ -829,7 +827,7 @@
         "tests/pdp-migration-constitution-claims.test.mjs": "5d884d519933c328ed8dab1cbb7fa2d34526b00f91f655a03a302251255f77d7",
         "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs": "f3d237062e0b9cb290591d8b18a9699f6fe7b382604c60ecad55e3217c8ea998",
         "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "3d3820d683ca2cf62ed411bd6ea745e4caad28b904c81f177266eb08d702305b",
-        "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "6fa4ef7efec57dde5bd745832511e0a7548578b7066b9a032e6f533ad04b1933",
+        "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "09ba40bd4e566f0f2e507d17227f9f24f1aa0b7cf86a3d3bfc82f8c4dc8c1a3f",
         "tests/pdp-migration-p0-current-material-reviews.test.mjs": "1722d26aeec7a69039475a34e43a056781ad9edee9aba85b88befe8d80effca6",
         "tests/media-product-definition-resolved-intents.test.mjs": "7b5a812e746c4a8e58b5fc84a52f39b7f272fec966c2abb44eac3c8044e8d176",
         "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
@@ -935,7 +933,7 @@
           "tests/pdp-migration-constitution-claims.test.mjs": "5d884d519933c328ed8dab1cbb7fa2d34526b00f91f655a03a302251255f77d7",
           "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs": "f3d237062e0b9cb290591d8b18a9699f6fe7b382604c60ecad55e3217c8ea998",
           "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "3d3820d683ca2cf62ed411bd6ea745e4caad28b904c81f177266eb08d702305b",
-          "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "6fa4ef7efec57dde5bd745832511e0a7548578b7066b9a032e6f533ad04b1933",
+          "tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs": "09ba40bd4e566f0f2e507d17227f9f24f1aa0b7cf86a3d3bfc82f8c4dc8c1a3f",
           "tests/pdp-migration-p0-current-material-reviews.test.mjs": "1722d26aeec7a69039475a34e43a056781ad9edee9aba85b88befe8d80effca6",
           "tests/media-product-definition-resolved-intents.test.mjs": "7b5a812e746c4a8e58b5fc84a52f39b7f272fec966c2abb44eac3c8044e8d176",
           "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
@@ -968,9 +966,9 @@
       "skippedTestCount": 0
     },
     "P0-03": {
-      "testStatus": "FAIL",
+      "testStatus": "PASS",
       "testCount": 60,
-      "passedTestCount": 49,
+      "passedTestCount": 50,
       "skippedTestCount": 10
     },
     "P0-04": {

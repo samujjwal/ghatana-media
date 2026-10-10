@@ -2,110 +2,110 @@ TAP version 13
 # Subtest: capability families are exact leaf groupings without inherited operations or readiness
 ok 1 - capability families are exact leaf groupings without inherited operations or readiness
   ---
-  duration_ms: 7.109179
+  duration_ms: 2.914116
   type: 'test'
   ...
 # Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
 ok 2 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 32.754443
+  duration_ms: 35.050535
   type: 'test'
   ...
 # Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
 ok 3 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 12191.058851
+  duration_ms: 12634.180791
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 4 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 13671.589485
+  duration_ms: 14580.514582
   type: 'test'
   ...
 # Subtest: source-free animation authoring does not claim a source-derived transformation
 ok 5 - source-free animation authoring does not claim a source-derived transformation
   ---
-  duration_ms: 12947.154584
+  duration_ms: 13848.695244
   type: 'test'
   ...
 # Subtest: P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
 ok 6 - P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
   ---
-  duration_ms: 7133.525593
+  duration_ms: 6905.65179
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
 ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
   ---
-  duration_ms: 7317.535445
+  duration_ms: 8907.48999
   type: 'test'
   ...
 # Subtest: P0 capability outcomes state exact result meaning without operation claims
 ok 8 - P0 capability outcomes state exact result meaning without operation claims
   ---
-  duration_ms: 23017.8512
+  duration_ms: 23165.695684
   type: 'test'
   ...
 # Subtest: P0 outcome validation rejects generic, incomplete, or operation-specific result claims
 ok 9 - P0 outcome validation rejects generic, incomplete, or operation-specific result claims
   ---
-  duration_ms: 3395.335474
+  duration_ms: 4380.430786
   type: 'test'
   ...
 # Subtest: project creation requires a title without claiming initial project contents
 ok 10 - project creation requires a title without claiming initial project contents
   ---
-  duration_ms: 5.248127
+  duration_ms: 3.122019
   type: 'test'
   ...
 # Subtest: scientific demo separates visual plausibility from domain-validated results
 ok 11 - scientific demo separates visual plausibility from domain-validated results
   ---
-  duration_ms: 0.633175
+  duration_ms: 0.78398
   type: 'test'
   ...
 # Subtest: export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
 ok 12 - export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
   ---
-  duration_ms: 1.6899
+  duration_ms: 1.324076
   type: 'test'
   ...
 # Subtest: PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
 ok 13 - PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
   ---
-  duration_ms: 14192.28051
+  duration_ms: 14996.206244
   type: 'test'
   ...
 # Subtest: PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
 ok 14 - PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
   ---
-  duration_ms: 5049.921735
+  duration_ms: 5093.62089
   type: 'test'
   ...
 # Subtest: PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
 ok 15 - PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
   ---
-  duration_ms: 6649.6037
+  duration_ms: 6764.762473
   type: 'test'
   ...
 # Subtest: current P0 owner review and trust records preserve measurement semantics and fail closed
 ok 16 - current P0 owner review and trust records preserve measurement semantics and fail closed
   ---
-  duration_ms: 5612.694417
+  duration_ms: 6526.847881
   type: 'test'
   ...
 # Subtest: current P0 quality joins use the measurement record as the phase metric subject
 ok 17 - current P0 quality joins use the measurement record as the phase metric subject
   ---
-  duration_ms: 13568.259717
+  duration_ms: 14164.028492
   type: 'test'
   ...
 # Subtest: PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
 ok 18 - PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
   ---
-  duration_ms: 7.162485
+  duration_ms: 23.543763
   type: 'test'
   ...
 1..18
@@ -116,4 +116,4 @@ ok 18 - PXD-128 result variants cover every audited leaf and bind to one exact t
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 26757.810142
+# duration_ms 28379.026213

@@ -15,8 +15,6 @@ const ownerText = readFileSync(resolve(root, ownerPath), "utf8");
 const journeyText = readFileSync(resolve(root, journeyPath), "utf8");
 const owner = parse(ownerText);
 const journeys = parse(journeyText);
-const priorOwner = parse(execFileSync("git", ["show", `HEAD:${ownerPath}`], { cwd: root, encoding: "utf8" }));
-const priorJourneys = parse(execFileSync("git", ["show", `HEAD:${journeyPath}`], { cwd: root, encoding: "utf8" }));
 const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
 const partition = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-pending-owner-partition-499.json"), "utf8"));
 const review = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml"), "utf8"));
@@ -49,6 +47,22 @@ const resolveRef = (ref, actorDoc = owner, journeyDoc = journeys) => {
 };
 const expectedValues = expectedRefs.map((ref) => serialize(resolveRef(ref)));
 const row = candidate.records.find((item) => item.claimId === "MPSEM-0077-C002");
+const historicalDocuments = new Map();
+
+function resolveHistoricalDocument(path, expectedFileSha256) {
+  const key = `${path}:${expectedFileSha256}`;
+  if (historicalDocuments.has(key)) return historicalDocuments.get(key);
+  const revisions = execFileSync("git", ["log", "--all", "--format=%H", "--", path], { cwd: root, encoding: "utf8" }).trim().split(/\r?\n/u);
+  for (const revision of revisions) {
+    const content = execFileSync("git", ["show", `${revision}:${path}`], { cwd: root, encoding: "utf8" });
+    if (sha(content) === expectedFileSha256) {
+      const document = parse(content);
+      historicalDocuments.set(key, document);
+      return document;
+    }
+  }
+  throw new Error(`historical source snapshot ${path} at ${expectedFileSha256} is unavailable in Git history`);
+}
 
 function bindingsAreExact(bindings, actorDoc = owner, journeyDoc = journeys) {
   if (!Array.isArray(bindings) || bindings.length !== expectedRefs.length) return false;
@@ -84,9 +98,12 @@ test("MPSEM-0077-C002 binds personas through exact goals and proposed journey co
   assert.deepEqual(row.currentProposalObservation.currentMaterialRefs, expectedRefs);
   assert.deepEqual(row.currentProposalObservation.currentMaterialValueSha256, expectedValues.map(sha));
   for (const binding of row.ownerSemanticReview.materialBindings) {
-    const priorValue = resolveRef(binding.ref, priorOwner, priorJourneys);
-    const priorHash = priorValue === undefined ? null : sha(serialize(priorValue));
-    assert.equal(binding.sourceValueSha256, priorHash, `${binding.ref} historical target pin remains intact`);
+    const [path] = binding.ref.split("#", 2);
+    const historicalDocument = resolveHistoricalDocument(path, binding.sourceFileSha256);
+    const historicalValue = resolveRef(binding.ref, path === ownerPath ? historicalDocument : owner, path === journeyPath ? historicalDocument : journeys);
+    assert.equal(binding.sourceValueSha256, sha(serialize(historicalValue)), `${binding.ref} historical target pin remains intact`);
+    assert.equal(binding.currentProposalObservation?.priorSourceFileSha256, binding.sourceFileSha256);
+    assert.equal(binding.currentProposalObservation?.priorSourceValueSha256, binding.sourceValueSha256);
   }
   assert.equal(partition.records.find((item) => item.claimId === "MPSEM-0077-C002").acceptanceEffect, "none");
 });
