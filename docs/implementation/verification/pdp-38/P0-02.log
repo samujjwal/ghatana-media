@@ -2,68 +2,68 @@ TAP version 13
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
 ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 13418.382271
+  duration_ms: 13345.216371
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
 ok 2 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 3.196093
+  duration_ms: 3.511916
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs
 ok 2 - /home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs
   ---
-  duration_ms: 5304.672642
+  duration_ms: 4374.838773
   type: 'test'
   ...
 # Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
 ok 4 - every declared NFR has one complete owner measurement method without implying observation or acceptance
   ---
-  duration_ms: 16315.725409
+  duration_ms: 16554.442278
   type: 'test'
   ...
 # Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
 ok 5 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
   ---
-  duration_ms: 0.637226
+  duration_ms: 0.568835
   type: 'test'
   ...
 # Subtest: missing method material and attempted qualification promotion fail validation
 ok 6 - missing method material and attempted qualification promotion fail validation
   ---
-  duration_ms: 2.021171
+  duration_ms: 1.917658
   type: 'test'
   ...
 # Subtest: SLO and human/specialist methods remain gated on their real external evidence
 ok 7 - SLO and human/specialist methods remain gated on their real external evidence
   ---
-  duration_ms: 0.174367
+  duration_ms: 0.206877
   type: 'test'
   ...
 # Subtest: trustworthy-output applicability follows output-producer role and preserves incomplete candidates
 ok 8 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
   ---
-  duration_ms: 7008.332815
+  duration_ms: 6377.933981
   type: 'test'
   ...
 # Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
 ok 9 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 197.237777
+  duration_ms: 171.30425
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 10 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 789.031028
+  duration_ms: 608.447388
   type: 'test'
   ...
 # Subtest: P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
 ok 11 - P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
   ---
-  duration_ms: 577.666962
+  duration_ms: 629.833563
   type: 'test'
   ...
 1..11
@@ -74,4 +74,4 @@ ok 11 - P0 bounded invocation admission distinguishes inapplicable resources fro
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 16568.869788
+# duration_ms 16812.249766

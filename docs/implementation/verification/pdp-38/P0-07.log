@@ -2,50 +2,50 @@ TAP version 13
 # Subtest: the complete product feature review matrix resolves to canonical sources and the cross-phase denominator
 ok 1 - the complete product feature review matrix resolves to canonical sources and the cross-phase denominator
   ---
-  duration_ms: 4673.969143
+  duration_ms: 4551.220579
   type: 'test'
   ...
 # Subtest: every active P0 capability adjudication has an exact channel disposition, with unsupported admission left explicit
 ok 2 - every active P0 capability adjudication has an exact channel disposition, with unsupported admission left explicit
   ---
-  duration_ms: 7984.250187
+  duration_ms: 6490.186941
   type: 'test'
   ...
 # Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
 ok 3 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 28.303347
+  duration_ms: 22.059195
   type: 'test'
   ...
 # Subtest: channel rules keep protocol and product-interaction semantics separate
 ok 4 - channel rules keep protocol and product-interaction semantics separate
   ---
-  duration_ms: 0.44237
+  duration_ms: 0.254143
   type: 'test'
   ...
 # Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
 ok 5 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 9708.37547
+  duration_ms: 7237.729369
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 6 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 9085.743058
+  duration_ms: 8645.381754
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 7 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 520.072503
+  duration_ms: 306.91714
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
 ok 4 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
   ---
-  duration_ms: 185.665265
+  duration_ms: 139.296469
   type: 'test'
   ...
 1..8
@@ -56,4 +56,4 @@ ok 4 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-curr
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 19156.48473
+# duration_ms 16188.367373
