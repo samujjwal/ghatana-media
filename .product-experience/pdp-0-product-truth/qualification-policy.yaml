@@ -78,6 +78,9 @@ decisionRules:
 - A capability is eligible for invocation only when the exact implementation binding is admitted by license and
   policy, qualification covers the requested dimensions, and live runtime checks report available. Missing evidence
   blocks or yields a policy-permitted explicit fallback.
+- An applicable resource dimension with unknown applicability or a NOT_EVALUATED bound, unit, authority, source, or
+  enforcement boundary blocks before dispatch; request shape and a proposed performance target do not establish a
+  finite execution limit or runtime availability.
 - Qualification applies to a declared leaf and scope, not a family/package/provider label. A new model, engine,
   version, weight digest, codec, configuration, hardware class, language, quality dataset, or materially changed
   policy may invalidate evidence.
@@ -126,7 +129,7 @@ qualificationDimensions:
 - security/privacy/residency/egress/retention/cancellation/erasure
 - license/distribution/patent/asset rights
 - engine/model/weight/configuration/digest
-- CPU/RAM/VRAM/storage/network/time/cost
+- CPU/RAM/VRAM/GPU-time/storage/network/process-count/wall-time/retry-count/cost
 - hardware/runtime/deployment/region/tenant
 - failure/restart/recovery/reproducibility
 - delivery codec/container/player/subtitle/color/accessibility

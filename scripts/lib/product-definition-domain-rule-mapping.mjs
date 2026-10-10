@@ -261,76 +261,44 @@ export function validateOwnerMeasureApplicabilityCrosswalk(crosswalk, capability
   for (const row of rows) {
     const key = `${row.capabilityRef}\u0000${row.measureRef}`;
     const expectedId = `media.measure-applicability.${row.measureRef?.replaceAll('.', '-')}.${row.capabilityRef?.replaceAll('.', '-')}`;
-    if (!capabilities.has(row.capabilityRef) || !measures.has(row.measureRef) || seen.has(key) || row.id !== expectedId) throw new Error('Duplicate, forged or foreign applicability identity');
+    if (!capabilities.has(row.capabilityRef) || row.capabilityIntentId !== row.capabilityRef || !measures.has(row.measureRef) || seen.has(key) || row.id !== expectedId) throw new Error('Duplicate, forged or foreign capability-intent applicability identity');
     if (!allowed.get(row.measureRef).includes(row.disposition) || typeof row.reason !== 'string' || !row.reason.trim() || !Array.isArray(row.sourceRefs) || !row.sourceRefs.length || row.sourceRefs.some(ref => typeof ref !== 'string' || !ref.trim())) throw new Error('Missing exact applicability definition and source');
+    if (JSON.stringify(row.sourceRefs).includes('pdp-1-domain-data') || /operation(?:Contract)?Ref|SchemaRef|operationId/iu.test(JSON.stringify(row))) throw new Error('P0 applicability cannot depend on PDP-1 operation identity or schemas');
     if (!unmeasured(row) || row.admission !== 'NOT_ADMITTED' || row.sourceDisposition !== 'OWNER_DEFINED_DEFINITION_ONLY') throw new Error('Source applicability cannot assert measurement or admission');
     if (sourceDocuments) {
       const resolved = row.sourceRefs.map(ref => resolveExactSourceRef(ref, sourceDocuments));
       if (resolved.some(value => value === undefined)) throw new Error(`Applicability source selector does not resolve for ${row.capabilityRef}/${row.measureRef}`);
-      const capabilityRef = `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${row.capabilityRef}`;
-      if (!row.sourceRefs.includes(capabilityRef)) throw new Error(`Applicability source does not bind the exact capability ${row.capabilityRef}`);
-      // Owner leaf row IDs are a distinct normative identity namespace from capability IDs.
-      // Join by the leaf's declared capabilityRef, then require its exact operation selector
-      // to appear in this applicability row rather than guessing an @id from the capability.
-      const leafRows = sourceDocuments['.product-experience/pdp-0-product-truth/capability-leaf-review.yaml']?.ownerCapabilityLeafAdjudication?.records
-        ?.filter((record) => record.capabilityRef === row.capabilityRef) ?? [];
-      const leaf = leafRows.length === 1 ? leafRows[0] : undefined;
-      const operation = leaf && resolveExactSourceRef(leaf.operationContractRef, sourceDocuments);
-      const operationSource = sourceDocuments['.product-experience/pdp-1-domain-data/operations.yaml'];
-      const wrappers = operationSource?.capabilityOperationContracts?.records?.filter((record) => record.capabilityRef === row.capabilityRef) ?? [];
-      const operationId = leaf?.operationContractRef?.split('@id=').at(-1);
-      const canonicalContracts = [
-        ...(operationSource?.capabilityOperationContracts?.records ?? []),
-        ...(operationSource?.individualOperationContracts?.records ?? []),
-        ...(operationSource?.ownerDefinedOperationContracts?.records ?? []),
-        ...(operationSource?.operations ?? []),
-      ];
-      const wrapperOperations = wrappers.length === 1
-        ? wrappers[0].operationRefs?.map((id) => canonicalContracts.filter((record) => record.id === id)).flat() ?? []
-        : [];
-      if (!leaf || leaf.capabilityRef !== row.capabilityRef || wrappers.length !== 1
-        || !operation || operation.id !== operationId || wrappers[0].id !== operationId
-        || wrappers[0].familyProfileRef !== leaf.profileRef || wrappers[0].boundsRef !== leaf.boundsRef
-        || !Array.isArray(wrappers[0].operationRefs) || !wrappers[0].operationRefs.length
-        || wrapperOperations.length !== wrappers[0].operationRefs.length) {
-        throw new Error(`Applicability does not join the exact capability leaf, wrapper and canonical owner operation ${row.capabilityRef}`);
-      }
-      const exactProfileRef = `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=${leaf.profileRef}`;
-      const exactBoundsRef = `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=${leaf.boundsRef}`;
-      const profile = resolveExactSourceRef(exactProfileRef, sourceDocuments);
-      const bounds = resolveExactSourceRef(exactBoundsRef, sourceDocuments);
-      if (!profile || !bounds || !profile.capabilityRefs?.includes(row.capabilityRef)
-        || bounds.capabilityRef !== row.capabilityRef || bounds.profileRef !== leaf.profileRef) {
-        throw new Error(`Applicability leaf profile or bounds do not resolve for ${row.capabilityRef}`);
-      }
-      const profileRefs = row.sourceRefs.filter(ref => ref.includes('#capabilityOperationContracts/families/'));
-      const boundsRefs = row.sourceRefs.filter(ref => ref.includes('#capabilityOperationContracts/bounds/'));
-      if (profileRefs.some(ref => resolveExactSourceRef(ref, sourceDocuments) !== profile)
-        || boundsRefs.some(ref => resolveExactSourceRef(ref, sourceDocuments) !== bounds)) {
-        throw new Error(`Applicability references a valid but foreign profile or bounds record for ${row.capabilityRef}`);
-      }
-      if (row.measureRef === 'media.business.bounded-provider-execution.measure'
-        && row.disposition === 'APPLICABLE_PROVIDER_PROFILE_CANDIDATE'
-        && (!row.sourceRefs.includes(exactProfileRef) || !row.sourceRefs.includes(exactBoundsRef))) {
-        throw new Error(`Provider applicability lacks exact profile and bounds refs for ${row.capabilityRef}`);
-      }
-      const operationSelectors = row.sourceRefs.filter(ref => ref.includes('#capabilityOperationContracts/records/'));
-      if (operationSelectors.length && (operationSelectors.length !== 1
-        || resolveExactSourceRef(operationSelectors[0], sourceDocuments) !== wrappers[0])) {
-        throw new Error(`Applicability does not bind the exact owner operation selector ${row.capabilityRef}`);
-      }
+      const capabilityRef = `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${row.capabilityIntentId}`;
+      const measureRef = `.product-experience/pdp-0-product-truth/goals-jtbd.yaml#successMeasureContracts/records/@id=${row.measureRef}`;
+      const capability = resolveExactSourceRef(capabilityRef, sourceDocuments);
+      const measure = resolveExactSourceRef(measureRef, sourceDocuments);
+      if (!capability || !measure || row.sourceRefs.length !== 2 || !row.sourceRefs.includes(capabilityRef) || !row.sourceRefs.includes(measureRef)) throw new Error(`Applicability does not resolve exact P0 capability intent and measure semantics ${row.capabilityRef}/${row.measureRef}`);
+      const listed = measure.capabilityRefs?.includes(row.capabilityIntentId) ?? false;
+      const expectedDisposition = row.measureRef === 'media.business.reuse-media-capabilities.measure'
+        ? 'TRACE_ONLY_NOT_A_MEASURE_UNIT'
+        : row.measureRef === 'media.business.trustworthy-versioned-outputs.measure'
+          ? (listed ? 'APPLICABLE_OUTPUT_PRODUCER_CANDIDATE' : 'NOT_APPLICABLE_READ_ONLY_OR_NO_OUTPUT_OPERATION')
+          : row.measureRef === 'media.business.bounded-provider-execution.measure'
+            ? (listed ? 'APPLICABLE_PROVIDER_PROFILE_CANDIDATE' : 'NOT_APPLICABLE_NOT_EXECUTION_PROFILE_OPERATION')
+            : (listed ? 'APPLICABLE_ASYNCHRONOUS_OPERATION_CANDIDATE' : 'NOT_APPLICABLE_SYNCHRONOUS_OPERATION');
+      if (row.disposition !== expectedDisposition) throw new Error(`Applicability disposition disagrees with exact P0 measure capability population for ${row.capabilityRef}/${row.measureRef}`);
     }
     seen.add(key); byPair.set(key, row);
   }
   if (!Array.isArray(crosswalk.records) || crosswalk.records.length !== capabilities.size || new Set(crosswalk.records.map(row => row.capabilityRef)).size !== capabilities.size) throw new Error('Incomplete applicability binding index');
   for (const binding of crosswalk.records) {
-    if (!capabilities.has(binding.capabilityRef) || binding.bindingProjectionOnly !== true || !unmeasured(binding) || binding.admission !== 'NOT_ADMITTED' || binding.sourceDisposition !== 'OWNER_DEFINITION_ONLY') throw new Error('Invalid nonnormative applicability binding');
+    if (!capabilities.has(binding.capabilityRef) || binding.capabilityIntentId !== binding.capabilityRef || binding.capabilityIntentRef !== `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${binding.capabilityIntentId}` || binding.outputSemanticShapeRef !== `${binding.capabilityIntentRef}/outputArtifactTypes` || !Array.isArray(binding.outputSemanticShape) || binding.bindingProjectionOnly !== true || !unmeasured(binding) || binding.admission !== 'NOT_ADMITTED' || binding.sourceDisposition !== 'OWNER_DEFINITION_ONLY' || /operation(?:Contract)?Ref|SchemaRef|operationId/iu.test(JSON.stringify(binding))) throw new Error('Invalid P0 capability-intent applicability binding');
+    if (sourceDocuments) {
+      const capability = resolveExactSourceRef(binding.capabilityIntentRef, sourceDocuments);
+      if (!capability || JSON.stringify(binding.outputSemanticShape) !== JSON.stringify(capability.outputArtifactTypes ?? [])) throw new Error(`P0 output semantic shape does not match capability intent ${binding.capabilityIntentId}`);
+    }
     if (Object.keys(binding.measureApplicability ?? {}).length !== measures.size) throw new Error('Incomplete binding measure population');
     for (const measure of measures) {
       const projected = binding.measureApplicability[measure], row = byPair.get(`${binding.capabilityRef}\u0000${measure}`);
       if (!projected || projected.id !== row.id || projected.disposition !== row.disposition || projected.reason !== row.reason || JSON.stringify(projected.sourceRefs) !== JSON.stringify(row.sourceRefs)) throw new Error('Binding index differs from normative applicability definition');
     }
   }
+  if (crosswalk.downstreamPdp1OperationContext?.gatingForPdp0 !== false || crosswalk.downstreamPdp1OperationContext?.status !== 'DOWNSTREAM_CONTEXT_ONLY_NOT_A_PDP0_PREREQUISITE' || crosswalk.downstreamPdp1OperationContext.records?.length !== capabilities.size) throw new Error('PDP-1 operation context must be explicitly downstream and non-gating');
   if (crosswalk.capabilityCount !== capabilities.size || crosswalk.uniqueCapabilityCount !== capabilities.size || crosswalk.completeCrosswalkCount !== capabilities.size || JSON.stringify([...crosswalk.measureRefs ?? []].sort()) !== JSON.stringify([...measures].sort())) throw new Error('Applicability census differs from source populations');
   for (const measure of measures) {
     const count = rows.filter(row => row.measureRef === measure && (row.disposition.startsWith('APPLICABLE_') || row.disposition === 'TRACE_ONLY_NOT_A_MEASURE_UNIT')).length;

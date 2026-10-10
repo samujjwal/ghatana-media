@@ -17,6 +17,7 @@ const glossaryPath = ".product-experience/pdp-0-product-truth/glossary.yaml";
 const interfaceParityPath = ".product-experience/interface-parity/operation-parity.yaml";
 const currentObservationPath = "docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json";
 const sourceImpactPath = "docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json";
+const currentP0ObservationPath = "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json";
 const frozenSourceCommit = "11eb14ea9059045ca4d983383d36c01f9a08bc8f";
 const historicalQuality = parse(execFileSync("git", ["show", `${frozenSourceCommit}:${qualityPath}`], { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }));
 const owners = new Map([
@@ -101,16 +102,16 @@ test("privacy, preservation, person-inference and wire-compatibility claims bind
   }
 });
 
-test("PXD-100 person-inference addition is current-source evidence only; historical locator remains pending", () => {
+test("PXD-108 and PXD-100 person-inference observations stay historical while PXD-130 records the live source", () => {
   const claim = claims().find((row) => row.claimId === "MPSEM-0187-C002");
   const observation = JSON.parse(readFileSync(resolve(root, currentObservationPath), "utf8"));
   const observed = observation.records.find((row) => row.claimId === claim.claimId);
   const impact = JSON.parse(readFileSync(resolve(root, sourceImpactPath), "utf8"));
   const impactRecord = impact.records.find((row) => row.claimId === claim.claimId);
+  const p0Observation = JSON.parse(readFileSync(resolve(root, currentP0ObservationPath), "utf8"))
+    .records.find((row) => row.claimId === claim.claimId);
   const current = resolveRef(targets.get(claim.claimId));
   const historical = historicalQuality.personAndIdentityInferenceRule;
-  const currentWithoutAddition = structuredClone(current);
-  delete currentWithoutAddition.anonymousTrackIdsByDefault;
 
   assert.equal(claim.targetTextSha256, observed.priorHash, "the historical ledger pin is unchanged");
   assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
@@ -118,13 +119,27 @@ test("PXD-100 person-inference addition is current-source evidence only; histori
   assert.equal(observed.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(observed.acceptanceEffect, "none");
   assert.equal(observed.targetRef, targets.get(claim.claimId));
-  assert.equal(observed.currentHash, targetDigest(current));
-  const impactSourceHash = createHash("sha256").update(readFileSync(resolve(root, qualityPath))).digest("hex");
-  assert.equal(impactSourceHash, impactRecord.currentSourceFileSha256, "the additive source-impact artifact pins the live file separately");
-  assert.equal(observed.sourceFileSha256, impactRecord.currentSourceFileSha256,
-    "PXD-108's frozen current-file observation remains exact; later source edits invalidate this test until reviewed");
+  assert.equal(observed.currentHash, impactRecord.currentTargetValueSha256,
+    "the PXD-108 target observation and PXD-100 source-impact target remain pinned to their reviewed cut");
+  assert.equal(observed.sourceFileSha256, "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+    "the PXD-108 source-file observation remains immutable");
+  assert.equal(impactRecord.currentSourceFileSha256, "2004b5fc9eed50260b2774a1d171fb0d95ceb258d7495dcec8d32972c9d7f6dd",
+    "the PXD-100 source-file observation remains immutable");
   assert.equal(targetDigest(historical), observed.priorHash, "the frozen source resolves the exact prior target value");
-  assert.deepEqual(currentWithoutAddition, historical, "only the separately bounded anonymous-track rule was added to this target");
+  assert.deepEqual(observed.currentValue.anonymousTrackIdsByDefault,
+    current.anonymousTrackIdsByDefault, "the PXD-100 anonymous-track rule remains exact in the current owner source");
+  assert.equal(p0Observation.previousObservedTargetValueSha256, observed.currentHash,
+    "PXD-130 preserves the PXD-108 current-target digest as history");
+  assert.equal(p0Observation.currentTargetValueSha256, targetDigest(current),
+    "PXD-130 records the exact current target value separately");
+  assert.equal(p0Observation.historicalPxd108ObservationArtifactSha256, createHash("sha256").update(readFileSync(resolve(root, currentObservationPath))).digest("hex"));
+  assert.equal(p0Observation.historicalPxd108CurrentTargetSha256, observed.currentHash);
+  assert.equal(p0Observation.historicalPxd108SourceFileSha256, observed.sourceFileSha256);
+  assert.equal(p0Observation.currentSourceFileSha256,
+    createHash("sha256").update(readFileSync(resolve(root, qualityPath))).digest("hex"));
+  assert.equal(p0Observation.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(p0Observation.semanticPromotion, false);
+  assert.equal(p0Observation.acceptanceEffect, "none");
   assert.equal(impactRecord.historicalTargetValueSha256, observed.priorHash);
   assert.equal(impactRecord.currentTargetValueSha256, observed.currentHash);
   assert.deepEqual(impactRecord.addedPaths, ["#/personAndIdentityInferenceRule/anonymousTrackIdsByDefault"]);

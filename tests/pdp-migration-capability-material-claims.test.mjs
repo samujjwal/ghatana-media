@@ -7,6 +7,9 @@ import { createRequire } from 'node:module';
 const toolsRequire = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url));
 const { parse } = toolsRequire('yaml');
 const fragment = JSON.parse(await readFile('docs/implementation/verification/pdp-38/migration-capability-reviewed.json', 'utf8'));
+const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? 'ALL';
+if (!['ALL', 'PDP-0'].includes(candidatePhase)) throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be ALL or PDP-0; got ${candidatePhase}`);
+const p0Only = candidatePhase === 'PDP-0';
 const sourceFiles = [
   '.product-experience/pdp-0-product-truth/glossary.yaml',
   '.product-experience/pdp-0-product-truth/quality-policy.yaml',
@@ -16,9 +19,11 @@ const sourceFiles = [
   '.product-experience/pdp-0-product-truth/reuse-decisions.yaml',
   '.product-experience/pdp-0-product-truth/policy-authority-model.yaml',
   '.product-experience/pdp-0-product-truth/domain-model.yaml',
-  '.product-experience/pdp-1-domain-data/privacy.yaml',
-  '.product-experience/pdp-1-domain-data/states.yaml',
-  '.product-experience/pdp-1-domain-data/operations.yaml',
+  ...(p0Only ? [] : [
+    '.product-experience/pdp-1-domain-data/privacy.yaml',
+    '.product-experience/pdp-1-domain-data/states.yaml',
+    '.product-experience/pdp-1-domain-data/operations.yaml',
+  ]),
 ];
 const documents = Object.fromEntries(await Promise.all(sourceFiles.map(async (path) => [path, parse(await readFile(path, 'utf8'))])));
 const resolvePointer = (root, pointer) => pointer.split('/').filter(Boolean).reduce((value, token) => {
@@ -32,13 +37,12 @@ const sourceRef = (target) => {
 };
 const digest = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
-test('13 previously mismatched capability claims now target exact owner semantics with pinned source values', () => {
+test('PDP-0 capability claims target exact owner semantics with pinned source values', () => {
   const expected = {
     'MPSEM-0199-C003': '.product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.measurement-uncertainty/estimatePresentationRule',
     'MPSEM-0204-C001': '.product-experience/pdp-0-product-truth/quality-policy.yaml#/optimizationPolicy/defaultEnhancerApplicationRule',
     'MPSEM-0260-C003': '.product-experience/pdp-0-product-truth/domain-model.yaml#/imageVideoOutputConstraints/resolutionRule',
     'MPSEM-0291-C002': '.product-experience/pdp-0-product-truth/quality-policy.yaml#/protectedSemanticProperties/@id=PROTECTED-DELIVERY-CONSTRAINTS/rule',
-    'MPSEM-0300-C003': '.product-experience/pdp-1-domain-data/operations.yaml#/ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultSemantics/acknowledged',
     'MPSEM-0334-C002': '.product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/pathHandling',
     'MPSEM-0336-C006': '.product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/interruptHandling/ctrlC',
     'MPSEM-0352-C001': '.product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/flagApplicability/rule',
@@ -61,7 +65,6 @@ test('13 previously mismatched capability claims now target exact owner semantic
   assert.equal(sourceRef(expected['MPSEM-0204-C001']).execution, 'Applying a candidate remains a separate explicit operation subject to the existing policy, rights, resource, fidelity, and confirmation gates.');
   assert.match(sourceRef(expected['MPSEM-0260-C003']), /odd output height.*4:2:0.*pixel alignment/iu);
   assert.match(sourceRef(expected['MPSEM-0291-C002']), /Fallback may alter these only when explicitly permitted/u);
-  assert.match(sourceRef(expected['MPSEM-0300-C003']), /does not prove provider crossing, execution start, or completion/u);
   assert.match(sourceRef(expected['MPSEM-0334-C002']).rule, /Never reinterpret it as an HTTP route/u);
   assert.equal(sourceRef(expected['MPSEM-0336-C006']).serverCancellation, false);
   assert.match(sourceRef(expected['MPSEM-0352-C001']), /fail before dispatch/u);
@@ -71,9 +74,29 @@ test('13 previously mismatched capability claims now target exact owner semantic
   assert.match(sourceRef(expected['MPSEM-0461-C003']), /immutable version and integrity digest/u);
 });
 
-test('privacy and erasure capability claims target exact policy/state sources and preserve open implementation limits', () => {
+test('PDP-0 privacy authority claim targets exact policy semantics and preserves its default rules', () => {
   const expected = {
     'MPSEM-0036-C001': '.product-experience/pdp-0-product-truth/policy-authority-model.yaml#/dataHandling/purposeBoundDataAccess',
+  };
+  const records = new Map(fragment.records.map((record) => [record.claimId, record]));
+  for (const [claimId, target] of Object.entries(expected)) {
+    const record = records.get(claimId);
+    assert.ok(record, `review record ${claimId} exists`);
+    assert.equal(record.proposedTargetRef, target);
+    assert.equal(record.semanticReviewStatus, 'SEMANTIC_PARITY_VERIFIED');
+    assert.equal(record.targetValueSha256, digest(sourceRef(target)));
+    assert.equal(record.acceptanceEffect, 'none');
+    assert.ok(record.negativeCases.length >= 2);
+    assert.ok(record.testSources.includes('tests/pdp-migration-capability-material-claims.test.mjs'));
+  }
+  assert.match(sourceRef(expected['MPSEM-0036-C001']).defaultPolicy.externalEgress, /deny/u);
+  assert.match(sourceRef(expected['MPSEM-0036-C001']).defaultPolicy.secondaryTraining, /deny/u);
+});
+
+
+test('PDP-1 privacy, erasure, lifecycle, and job-result claims target exact owner semantics', { skip: p0Only }, () => {
+  const expected = {
+    'MPSEM-0300-C003': '.product-experience/pdp-1-domain-data/operations.yaml#/ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/resultSemantics/acknowledged',
     'MPSEM-0037-C002': '.product-experience/pdp-1-domain-data/privacy.yaml#/retentionAndErasure',
     'MPSEM-0037-C003': '.product-experience/pdp-1-domain-data/privacy.yaml#/retentionAndErasure',
     'MPSEM-0365-C001': '.product-experience/pdp-1-domain-data/privacy.yaml#/retentionAndErasure',
@@ -90,6 +113,7 @@ test('privacy and erasure capability claims target exact policy/state sources an
     assert.ok(record.negativeCases.length >= 2);
     assert.ok(record.testSources.includes('tests/pdp-migration-capability-material-claims.test.mjs'));
   }
+  assert.match(sourceRef(expected['MPSEM-0300-C003']), /does not prove provider crossing, execution start, or completion/u);
   const privacy = sourceRef(expected['MPSEM-0037-C003']);
   assert.equal(privacy.status, 'proposal-only; policy-and-storage-owner-approval-pending');
   assert.ok(privacy.proposalRules.includes('represent-partial-or-unconfirmed-deletion-as-pending-or-blocked-not-erasure-confirmed'));
@@ -97,11 +121,7 @@ test('privacy and erasure capability claims target exact policy/state sources an
   assert.ok(privacy.notEstablished.includes('restore-time-tombstone-replay-or-independently-verifiable-erasure-receipt'));
   const states = sourceRef(expected['MPSEM-0366-C001']);
   const stateIds = new Set(states.map(({ id }) => id));
-  for (const id of ['ERASURE_REQUESTED', 'ACCESS_REVOKED', 'PHYSICAL_ERASURE_PENDING', 'ERASURE_CONFIRMED', 'BLOCKED_BY_HOLD', 'EXTERNAL_ERASURE_UNCONFIRMED']) {
-    assert.ok(stateIds.has(id), `lifecycle state ${id} is source-defined`);
-  }
-  assert.match(sourceRef(expected['MPSEM-0036-C001']).defaultPolicy.externalEgress, /deny/u);
-  assert.match(sourceRef(expected['MPSEM-0036-C001']).defaultPolicy.secondaryTraining, /deny/u);
+  for (const id of ['ERASURE_REQUESTED', 'ACCESS_REVOKED', 'PHYSICAL_ERASURE_PENDING', 'ERASURE_CONFIRMED', 'BLOCKED_BY_HOLD', 'EXTERNAL_ERASURE_UNCONFIRMED']) assert.ok(stateIds.has(id));
 });
 
 test('best-effort diagnostics do not decide business outcome or replace required audit intent', () => {
@@ -134,14 +154,34 @@ test('model, worker, recipe, and isolation claims target exact owner boundaries 
       const impact = JSON.parse(await readFile('docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json', 'utf8'));
       const observed = impact.records.find(({ targetRef }) => targetRef === target);
       assert.ok(observed, 'exact reviewed browser-boundary additive observation exists');
+      const currentObservation = JSON.parse(await readFile('docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json', 'utf8'));
+      assert.equal(currentObservation.decisionRef, 'PROPOSED: .product-experience/decision-log.md#PXD-126');
+      const sourceRecord = currentObservation.records.find((entry) => entry.claimId === claimId);
+      assert.ok(sourceRecord, 'exact current-source observation exists for the reviewed claim');
+      assert.equal(sourceRecord.targetRef, target);
+      assert.equal(sourceRecord.historicalTargetValueSha256, record.targetValueSha256, 'immutable fragment target hash remains exact');
       const current = sourceRef(target);
       const previousProjection = structuredClone(current);
       delete previousProjection.browserToLocalWorkerBoundary;
-      assert.equal(record.targetValueSha256, observed.historicalTargetValueSha256, 'immutable fragment target hash remains exact');
+      delete previousProjection.archiveExtractionDestinationRule;
       assert.equal(digest(previousProjection), record.targetValueSha256, 'every earlier parsed target field is preserved');
-      assert.equal(digest(current), observed.currentTargetValueSha256, 'current whole target hash is exact');
+      assert.deepEqual(sourceRecord.addedPaths, [
+        '#/productPolicy/inputAndExecutionThreats/archiveExtractionDestinationRule',
+        '#/productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary',
+      ]);
+      assert.equal(digest(current), sourceRecord.currentTargetValueSha256, 'current whole target hash is exact');
+      assert.equal(sourceRecord.acceptanceEffect, 'none');
+      assert.equal(sourceRecord.semanticPromotion, false);
       assert.equal(current.browserToLocalWorkerBoundary.id, 'media.policy.browser-to-local-worker-boundary.v1');
       assert.equal(observed.semanticPromotion, false);
+    } else if (claimId === 'MPSEM-0030-C001') {
+      const ownerObservations = JSON.parse(await readFile('docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'utf8'));
+      const ownerObservation = ownerObservations.records.find((entry) => entry.claimId === 'MPSEM-0388-C003');
+      assert.ok(ownerObservation, 'exact PXD-120 current-source observation exists for the expanded owner target');
+      assert.equal(ownerObservation.targetRef, target);
+      assert.equal(ownerObservation.historicalCurrentTargetValueSha256, record.targetValueSha256, 'historical reviewed target pin remains exact');
+      assert.equal(ownerObservation.currentTargetValueSha256, digest(sourceRef(target)), 'current owner target digest is observed exactly');
+      assert.equal(ownerObservation.acceptanceEffect, 'none');
     } else {
       assert.equal(record.targetValueSha256, digest(sourceRef(target)));
     }

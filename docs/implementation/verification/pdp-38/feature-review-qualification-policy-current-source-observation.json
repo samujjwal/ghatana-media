@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-105",
+  "baseReviewRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseReviewSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "currentCutRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#P0-07",
+  "currentCutDecisionRef": ".product-experience/decision-log.md#PXD-105",
+  "scope": "Additive current-source observation for the single PXD-098 qualification decisionRules referent. It records the fail-closed rule added at index 4 and makes no semantic-parity claim.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+  "sourcePinSha256": "93a69ee00fbf5020f78b96e9558af61f2344b873f975f5381adbf1bd42840b7a",
+  "currentSourceSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+  "record": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules",
+    "identity": null,
+    "historicalPxd098ContentSha256": "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791",
+    "currentContentSha256": "e6ac071ed2fc0a1ee8e3906fd831516bd71fb9aadbb14ff58f7139bcff26eb48",
+    "changedPaths": [
+      {
+        "path": [4],
+        "prior": null,
+        "current": "An applicable resource dimension with unknown applicability or a NOT_EVALUATED bound, unit, authority, source, or enforcement boundary blocks before dispatch; request shape and a proposed performance target do not establish a finite execution limit or runtime availability."
+      }
+    ],
+    "semanticEquivalence": "NOT_ASSERTED"
+  },
+  "acceptanceEffect": "none"
+}

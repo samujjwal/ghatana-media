@@ -237,8 +237,8 @@ phaseAuthorities:
     title: Migration semantics review
     path: pdp-0-product-truth/migration-semantics-review.yaml
     role: source-pinned-best-effort-semantic-extraction-review
-    authority: plan-content-classification-and-reconciliation-record; GAP-MEDIA-MIGRATION-SEMANTICS-remains-open; not-a-semantic-acceptance-result
-    acceptanceState: owner-review-pending; no-PDP-0-acceptance-claimed
+    authority: historical-plan-content-classification-and-reconciliation-record; current-source-delta-dispositions-at-docs/migration/current-master-plan-claim-dispositions.json; old-260/361-ledgers-are-non-gating-for-current-PDP0-03; not-a-semantic-acceptance-result
+    acceptanceState: current-source-delta-dispositioned; historical-ledger-preserved; independent-acceptance-not-claimed
 - phase: PDP-1
   name: Canonical Domain and Data Model
   owner: ghatana-media-domain-owners
@@ -1081,7 +1081,7 @@ governanceArtifacts:
     path: ../docs/migration/expert-reviewed-master-plan.md
     role: migration-execution-plan-and-historical-provenance
     authority: execution-order-and-migration-procedure-only; product-semantics-belong-to-their-PDP-authorities
-    acceptanceState: reference-only; unique-semantic-content-extraction-remains-open-under-GAP-MEDIA-MIGRATION-SEMANTICS
+    acceptanceState: reference-only; current-PDP0-03-source-delta-dispositioned; historical-source-review-remains-open-for-broader-CROSS-004-only
   - id: ART-GOV-VISION-REQUIREMENTS-COVERAGE
     title: Vision and requirements coverage ledger
     path: vision-requirements-coverage.yaml

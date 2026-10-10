@@ -31,9 +31,12 @@ test("P0-06 projects accepted measurement definitions while keeping actual profi
   assert.equal(quality.qualityDimensions.length, 6);
   assert.equal(quality.metricDefinitions.length, 16);
   assert.equal(quality.authority, "prospective-Phase-0-policy; does not establish measurements, calibration, qualification, or runtime support");
-  assert.ok(quality.qualityDimensions.every(({ capabilityRefs, capabilityRefState }) => capabilityRefs.length === 0 && /pending/u.test(capabilityRefState)));
-  assert.ok(quality.metricDefinitions.every(({ capabilityRefs, capabilityRefState, calibrationState, qualificationState }) =>
-    capabilityRefs.length === 0 && /pending/u.test(capabilityRefState) && /pending/u.test(calibrationState) && qualificationState === "NOT_EVALUATED"));
+  assert.ok(quality.qualityDimensions.every(({ ownerCurrentApplicability }) =>
+    ownerCurrentApplicability.sourceStatus === "COMPLETE_DEFINITION_ONLY" && ownerCurrentApplicability.populationCount === 462));
+  assert.ok(quality.metricDefinitions.every(({ ownerCurrentApplicability, calibrationState, qualificationState }) =>
+    ownerCurrentApplicability.sourceStatus === "COMPLETE_DEFINITION_ONLY" && ownerCurrentApplicability.populationCount === 462
+      && (calibrationState === "NOT_EVALUATED" || /^pending-[a-z0-9-]+-decision$/u.test(calibrationState))
+      && qualificationState === "NOT_EVALUATED"));
 
   const measureById = new Map(candidate.candidateModel.successMeasures.map((measure) => [measure.id, measure]));
   const sourceMeasureById = new Map(goals.successMeasureContracts.records.map((measure) => [measure.id, measure]));
@@ -109,12 +112,31 @@ test("P0-06 defines exact outcome/capability crosswalks and deterministic profil
     "unknown names and family wildcards cannot silently expand a source-defined denominator");
 
   const outputs = goals.successMeasureContracts.records.find(({ id }) => id === "media.business.trustworthy-versioned-outputs.measure");
-  assert.equal(outputs.unit, "output-operation-contract-profile-pair");
-  assert.match(outputs.denominator, /operation-contract\/profile pair/u);
+  assert.equal(outputs.unit, "capability-intent-profile-pair");
+  assert.match(outputs.metric, /^applicable-output-capability-intent-profile-pairs/u,
+    "the metric identity must describe the same unit as its denominator");
+  assert.match(outputs.denominator, /output-producing capability-intent\/profile pair/u);
+  assert.match(outputs.denominator, /operation identity does not gate this P0 candidate set/u);
+  assert.match(outputs.applicability, /stable capability ID appears in this measure’s P0 capabilityRefs list/u);
+  assert.match(outputs.numerator, /capability-intent\/profile pairs/u);
+  assert.match(outputs.acceptanceCriterion, /Every applicable output contract/u);
+  assert.match(outputs.acceptanceCriterion, /missing or incomplete contract keeps the pair out of the numerator/u);
+  const reuse = goals.successMeasureContracts.records.find(({ id }) => id === "media.business.reuse-media-capabilities.measure");
+  assert.match(reuse.denominator, /retain failed, blocked, and untested workflows/u);
+  assert.match(reuse.applicability, /missing or unadmitted contract leaves the workflow in the denominator/u);
+  const bounded = goals.successMeasureContracts.records.find(({ id }) => id === "media.business.bounded-provider-execution.measure");
+  assert.equal(bounded.unit, "capability-intent-profile-pair");
+  assert.match(bounded.metric, /^selected-capability-intent-profile-pairs/u);
+  assert.match(bounded.acceptanceCriterion, /Each counted capability-intent\/profile pair/u);
   const recovery = goals.successMeasureContracts.records.find(({ id }) => id === "media.business.safe-recoverable-operations.measure");
-  assert.match(recovery.applicabilityRule, /exact operation contract states/u);
-  assert.match(recovery.applicabilityRule, /not separate long-running-operation units by name alone/u);
-  assert.match(recovery.denominator, /asynchronous operation-contract\/profile pair/u);
+  assert.equal(recovery.unit, "capability-intent-profile-pair");
+  assert.match(recovery.metric, /^applicable-capability-intent-profile-pairs/u);
+  assert.match(recovery.numerator, /every applicable downstream operation contract/u);
+  assert.match(recovery.numerator, /incomplete operation inventory makes the aggregate NOT_EVALUATED/u);
+  assert.match(recovery.acceptanceCriterion, /Every applicable operation bound to a counted capability-intent\/profile pair/u);
+  assert.match(recovery.applicabilityRule, /stable capability ID appears in this measure’s P0 capabilityRefs list/u);
+  assert.match(recovery.applicabilityRule, /does not require a completed PDP-1 operation mapping/u);
+  assert.match(recovery.denominator, /safe-recovery candidate capability-intent\/profile pair/u);
 });
 
 test("P0-06 retains source-defined measurement applicability without turning it into a pass or target", () => {
@@ -148,14 +170,14 @@ test("P0-06 profiles and proposed budgets do not claim capability availability o
   assert.match(profiles.status, /proposed/u);
   assert.match(profiles.authority, /not runtime binding or qualification evidence/u);
   assert.match(profiles.scopeNote, /does not select, qualify, or declare available/u);
-  assert.match(profiles.integrationGaps.capabilityReferences, /pending-P0-003/u);
-  assert.match(profiles.integrationGaps.profileRuntimeBindings, /pending-public-contract-license-and-qualification-evidence/u);
+  assert.match(profiles.integrationGaps.capabilityReferences, /RESOLVED_FOR_462_LEAVES/u);
+  assert.match(profiles.integrationGaps.profileRuntimeBindings, /concrete public-contract, license, and runtime qualification evidence remain NOT_EVALUATED/u);
   assert.equal(profiles.candidateDeliveryProfiles[0].status, "candidate-not-runtime-available");
 
   const qualityIntent = profiles.profileAxes.find(({ name }) => name === "quality-intent");
   assert.match(qualityIntent.axisRule, /not a numeric threshold or evidence/u);
   const preservation = profiles.profileAxes.find(({ name }) => name === "preservation");
-  assert.equal(preservation.qualificationPolicyMappingState, "pending-owner-schema-validation");
+  assert.match(preservation.qualificationPolicyMappingState, /^DEFINED;.*NOT_EVALUATED/u);
   assert.match(preservation.axisRule, /independent of quality intent and resource profile/u);
   assert.equal(profiles.fallbackSemantics.permissionFields.qualityIntentChange.permitted, false);
 

@@ -483,6 +483,13 @@
     "title": "Operations"
   },
   {
+    "artifactId": "ART-P1-OWNER-ACTION-WIRE-CONTRACTS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+    "title": "Owner Action Wire Contracts"
+  },
+  {
     "artifactId": "ART-P1-PRESENTATION-PROJECTIONS",
     "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
@@ -677,6 +684,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/api/pagination.yaml",
     "title": "Pagination"
+  },
+  {
+    "artifactId": "ART-P2-READ-CONSUMER-ADAPTERS",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/api/read-consumer-adapters.yaml",
+    "title": "Read Consumer Adapters"
   },
   {
     "artifactId": "ART-MEDIA-A943BA035FE0",
@@ -938,6 +952,13 @@
     "title": "COMPLETE PRODUCT EXPERIENCE"
   },
   {
+    "artifactId": "ART-P3-ACTION-RECONCILIATION-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/action-reconciliation-contracts.yaml",
+    "title": "Action Reconciliation Contracts"
+  },
+  {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-ACTION-REGISTRY-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -1176,6 +1197,13 @@
     "title": "Application Channel Registry"
   },
   {
+    "artifactId": "ART-P3-CAPABILITY-INVOCATION-ADAPTERS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml",
+    "title": "Capability Invocation Adapters"
+  },
+  {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CLI-COMMAND-REGISTRY-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -1202,6 +1230,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml",
     "title": "Source Crosswalk"
+  },
+  {
+    "artifactId": "ART-P3-CONSENT-OBSERVATION-ADAPTER-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/consent-observation-adapter-contracts.yaml",
+    "title": "Consent Observation Adapter Contracts"
   },
   {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-CONTENT-COPY-CATALOG-YAML",
@@ -1778,11 +1813,39 @@
     "title": "Work Locally And Reconcile After Reconnect"
   },
   {
+    "artifactId": "ART-P3-JOURNEY-OUTCOME-PROJECTION-DECISIONS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml",
+    "title": "Journey Outcome Projection Decisions"
+  },
+  {
+    "artifactId": "ART-P3-JOURNEY-PURPOSE-BINDINGS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+    "title": "Journey Purpose Bindings"
+  },
+  {
     "artifactId": "ART-P2-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-REGISTRY-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/journey-registry.yaml",
     "title": "Journey Registry"
+  },
+  {
+    "artifactId": "ART-P3-JOURNEY-SCENARIO-BINDINGS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml",
+    "title": "Journey Scenario Bindings"
+  },
+  {
+    "artifactId": "ART-P3-JOURNEY-TRANSITION-EDGE-BINDINGS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/journey-transition-edge-bindings.yaml",
+    "title": "Journey Transition Edge Bindings"
   },
   {
     "artifactId": "ART-P3-LOCAL-STEP-EFFECT-CONTRACTS",
@@ -2259,6 +2322,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/step-guard-specialized-fact-contracts.yaml",
     "title": "Step Guard Specialized Fact Contracts"
+  },
+  {
+    "artifactId": "ART-P3-STEP-VERSION-BINDING-CONTRACTS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
+    "title": "Step Version Binding Contracts"
   },
   {
     "artifactId": "ART-P3-VIEW-OBSERVATION-INPUT-CONTRACTS",

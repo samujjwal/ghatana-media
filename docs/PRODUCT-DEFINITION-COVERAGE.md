@@ -15,7 +15,7 @@ canonical folders use these phase labels:
 
 | Master-prompt authority | Media local source | Coverage status |
 | --- | --- | --- |
-| PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | Authored proposal; P0-001 boundary slice accepted, P0-010 pending |
+| PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | Active sequential development-completion work; channel applicability is owner-defined at the exact-leaf level, while phase exit remains pending |
 | PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | Proposed object, value, relationship, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision registries; semantic review pending |
 | PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | Authored Shared bindings, GUI primitive/pattern/layout/template/composition registries, token/state/accessibility/localization, responsive, and CLI/API/event/SDK/tool conventions; owner conformance pending |
 | PDP-3 Complete Product Experience | pdp-3-product-experience/ | 47 canonical screen IDs (48 contract files including a job-family specialization), 30 journeys including J-29/J-30, action/state/channel proposals, 27 HTTP operations and 43 gRPC RPCs observed in the current contract inventory; 11 fixture/plan CLI commands versus 12 broader CLI proposal records; SDK, event, tool, and service registries remain proposal-level; owner acceptance pending |
@@ -55,10 +55,10 @@ or an explicitly classified supporting view:
 
 The same records also retain the 11 jobs-to-be-done, 19 intents, 30 journey
 denominator, 38 requirement groups, 462 capability leaves, and 14 NFRs plus
-three open specialist decisions. Every capability leaf has operation-specific
-inputs, outputs, preconditions, constraints, acceptance cases, and unsupported
-cases; 385 leaf-to-journey relationships remain unresolved. The machine-readable
-ledger is the exact checkable form of this table.
+three open specialist decisions. The historical operation-evidence audit still
+contains 383 unresolved rows; that count is retained as evidence history and is
+not the current PDP-0 applicability denominator. The machine-readable ledger is
+the exact checkable form of this table.
 
 ## Required downstream content
 
@@ -116,14 +116,42 @@ Each dimension must resolve to accepted capability requirements or a
 product-owner-reviewed exclusion. External engine, model, codec, font, fixture,
 and provider qualification remains separate from semantic coverage.
 
+## Channel and consumer applicability
+
+The current P0 applicability contract covers all 462 capability leaves against
+the 11 channel identities (nine authored channels plus the owner-defined Agent
+and Event channels). Each leaf has one definition-scope disposition per
+channel. These decisions describe product applicability only: phase-0 channel
+admission is pending, execution admission is `NOT_ADMITTED`, implementation is
+unknown, and qualification is not evaluated.
+
+Web has a narrower, exact consumer rule. The current owner overlay identifies
+77 leaves whose own adjudication links to a journey that proposes Web and to
+that journey's proposed views. The other 385 leaves have no owner-linked Web
+journey and are explicitly Web-non-applicable in this P0 definition. An
+inherited `supportedChannels: web` label, a family sibling, or a convenient
+screen does not create a Web consumer. Exact screen/action bindings remain
+PDP-3 work.
+
+For API-labelled leaves, `api` means protocol-neutral definition scope. It does
+not establish HTTP, gRPC, or SDK equivalence; those exact adapters remain
+pending. A capability declared API/CLI-only can therefore remain outside Web
+scope without losing its API or CLI definition. Event is modeled as an
+observation/notification channel, not a command invocation surface. Archived
+desktop is excluded from active scope. Agent scope requires an explicit
+automation-agent or product-integration role, followed by an exact binding.
+The focused channel and profile applicability tests validate the complete leaf
+partition and these non-admission boundaries.
+
 ## Honest remaining coverage gaps
 
 The ledger deliberately records unresolved reachability instead of inventing
 relationships:
 
-- 385 capability leaves have no explicit leaf-level journeyRefs; their family
-  requirement and intent/outcome inheritance is recorded, but P0-010 must
-  confirm the per-leaf fit.
+- The historical operation-evidence review retains 383 unresolved rows. This
+  historical count does not gate the current exact-leaf channel decisions; the
+  P0 channel overlay records Web consumer evidence or an explicit Web
+  non-applicability reason for every capability leaf.
 - The migration semantic review retains 349 unresolved blocks, including 123
   mixed blocks proposed for decomposition. These are not marked owner-reviewed,
   obsolete, or closed by a structural ProductDefinition projection.

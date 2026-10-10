@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "media.pdp38-migration-p0-current-material-review.v1",
+  "scope": "Coordinator-approved source-only adjudication for five PDP-0 claims under PXD-139, based on the exact source and target material pinned below. This approval has no task or phase acceptance, implementation, qualification, runtime, or Lifecycle effect.",
+  "decisionRef": ".product-experience/decision-log.md#PXD-139",
+  "authorizationStatus": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+  "status": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+  "acceptanceEffect": "none",
+  "runtimeStatus": "NOT_EVALUATED",
+  "cliAdmission": "NOT_ADMITTED",
+  "records": [
+    {
+      "claimId": "MPSEM-0078-C003",
+      "ownerPhase": "PDP-0",
+      "source": {
+        "ref": "docs/migration/expert-reviewed-master-plan.md#L194",
+        "exactText": "Each leaf declares: intended behavior",
+        "textSha256": "75562a6278c1ae9ed522d7d826578a031eb4669c5836bfb8ea90cc7c536c71be",
+        "sourcePlanCommit": "e62514f94c45a4ecbc438d26298bf82b6a6f3d69",
+        "ownerDefinitionRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+        "ownerDefinitionFileSha256": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89"
+      },
+      "ownerProposalObservation": {
+        "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+        "priorSourceFileSha256": "136cdd7921aa124c3d16435317e1463f1309ec17ad87c092fa2b35534e8ae2c4",
+        "currentSourceFileSha256": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+        "priorTargetValueSha256": "7ee18931341940b63615d9d1527abef207d4a7fbe6a580899021921db1bf36f6",
+        "currentTargetValueSha256": "7ee18931341940b63615d9d1527abef207d4a7fbe6a580899021921db1bf36f6",
+        "currentTargetValuePreview": "leaf.domain.canonicalDomainObjectRefs",
+        "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance.",
+        "previousCurrentSourceFileSha256": "680b582ab16f232d57064e1952d68baa9780a33db9c3ee398ac02feb25fe24e4"
+      },
+      "proposedDisposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
+      "reason": "PXD-137 resolves this P0 leaf obligation against P0 semantic inputs and outputs. P0 does not require a PDP-1 operation contract as a prerequisite; concrete operation contracts are downstream. The leaf-level trust/reconstruction definition remains a source obligation, not qualification or runtime support.",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedLeafTrustReconstructionPolicy/rule",
+          "requiredSourcePhrase": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs.",
+          "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+          "currentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
+          "currentTargetPreview": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs. A source-derived transformation or generated/reconstructed output is bound to the exact source/request version and declared semantic output branch; the source is never overwritten. A derivative may change meaning or fidelity and is not a claim of lossless preservation. Record the transformation or generation method and effective profile/version, provenance, evidence, uncertainty, and material limits; never present generated detail as recovered fact. An estimator, classifier, measurement, quality assessor, or other inference returns an observation with method/model and version, source/version, applicable scope, evidence, uncertainty, and limitations, and must not label an estimate as ground truth. A state/reference-only or non-transforming operation explicitly records that it neither reconstructs content nor establishes inferred facts; it cannot claim a content effect or evidence it did not produce. Owner-state observations, caller plans, policy decision references, versioned definitions, and recorded project changes have distinct epistemic roles: a plan is not an observation or applied effect, a policy reference is not a grant, and readiness is not admission. A returned state is current only when its exact owner, operation, tenant/version scope, and observation-time authority are valid. If the exact output semantics do not establish which branch applies, preserve UNKNOWN and block the affected claim rather than infer from a capability name. This policy does not grant rights, consent, execution, provider admission, scientific validity, or independent acceptance."
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
+          "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
+          "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
+          "currentTargetPreview": "Every scoped capability below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation, license, qualification, or runtime availability is inferred from code/package presence."
+        }
+      ],
+      "acceptanceEffect": "none",
+      "runtimeStatus": "NOT_EVALUATED",
+      "coordinatorDisposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139"
+    },
+    {
+      "claimId": "MPSEM-0181-C001",
+      "ownerPhase": "PDP-0",
+      "source": {
+        "ref": "docs/migration/expert-reviewed-master-plan.md#L390",
+        "exactText": "Live delivery extensions such as WebRTC, adaptive HTTP streaming, HLS/DASH and live captioning are defined as capability/profile requirements, not assumed properties of the current HTTP frame API.",
+        "textSha256": "67711c84ce7b18020c046afcf6888f4ac289a0bc2eac4cf3fe5c5c7175894748",
+        "sourcePlanCommit": "e62514f94c45a4ecbc438d26298bf82b6a6f3d69",
+        "ownerDefinitionRef": ".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml",
+        "ownerDefinitionFileSha256": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af"
+      },
+      "ownerProposalObservation": {
+        "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+        "priorSourceFileSha256": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af",
+        "currentSourceFileSha256": "ccfa544afaf056b8a7ffcc77f61dc17e36289d8ddfc0fb60c75f7998a4d116af",
+        "priorTargetValueSha256": "b0263f651f15de7535ace2c2f34d6b810d421c5ab081bd1782a70b07feb7f51f",
+        "currentTargetValueSha256": "b0263f651f15de7535ace2c2f34d6b810d421c5ab081bd1782a70b07feb7f51f",
+        "currentTargetValuePreview": "Preserve current HTTP/session observations and terminal/finality constraints. WebRTC, adaptive HTTP, HLS, DASH and live captioning remain separately declared profiles with UNKNOWN ",
+        "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
+      },
+      "proposedDisposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
+      "reason": "PXD-137 binds the exact stream profile rule and current capability-leaf coverage wording. Live delivery extensions remain declared capability/profile requirements, while the current HTTP observations do not establish their runtime support.",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#streamProfileRule/rule",
+          "requiredSourcePhrase": "A real-time or recorded stream profile binds codec, transport, recording behavior, reconnect and resumption semantics, and latency bounds together for the exact profile version. State supported directions, media tracks, ",
+          "currentSourceFileSha256": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+          "currentTargetValueSha256": "b6d553de9d05bb2c7f454a99dc7867d788417ddf83ed1484d6921fba1bc17f64",
+          "currentTargetPreview": "A real-time or recorded stream profile binds codec, transport, recording behavior, reconnect and resumption semantics, and latency bounds together for the exact profile version. State supported directions, media tracks, timing units, buffering and loss behavior, cancellation/finality, and compatibility evidence. An unbound or unqualified dimension is unsupported; support on one profile cannot be inferred for another."
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
+          "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
+          "currentSourceFileSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
+          "currentTargetPreview": "Every scoped capability below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation, license, qualification, or runtime availability is inferred from code/package presence."
+        }
+      ],
+      "acceptanceEffect": "none",
+      "runtimeStatus": "NOT_EVALUATED",
+      "coordinatorDisposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139"
+    },
+    {
+      "claimId": "MPSEM-0278-C001",
+      "ownerPhase": "PDP-0",
+      "source": {
+        "ref": "docs/migration/expert-reviewed-master-plan.md#L638",
+        "exactText": "Evaluate **structural validity, perceptual quality, intent fidelity, domain/scientific constraints, rights/safety and delivery compatibility separately**.",
+        "textSha256": "522eba153304df7455f1e3f3475904318d10595d0ee32670c9d5113d83189208",
+        "sourcePlanCommit": "e62514f94c45a4ecbc438d26298bf82b6a6f3d69",
+        "ownerDefinitionRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+        "ownerDefinitionFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e"
+      },
+      "ownerProposalObservation": {
+        "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+        "priorSourceFileSha256": "93a69ee00fbf5020f78b96e9558af61f2344b873f975f5381adbf1bd42840b7a",
+        "currentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+        "priorTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
+        "currentTargetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/6",
+        "currentTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
+        "currentTargetValuePreview": "Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and delivery compatibility as separate observations with method/version",
+        "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
+      },
+      "proposedDisposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
+      "reason": "PXD-137 rebinds this P0 claim to the current exact six-dimension qualification rule. This is a source definition only and makes no implementation, runtime qualification, independent acceptance, or Lifecycle claim.",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/6",
+          "requiredSourcePhrase": "Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and delivery compatibility as separate observations with method/version, applicability, uncertainty, and abstention.",
+          "currentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          "currentTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
+          "currentTargetPreview": "Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and delivery compatibility as separate observations with method/version, applicability, uncertainty, and abstention."
+        }
+      ],
+      "acceptanceEffect": "none",
+      "runtimeStatus": "NOT_EVALUATED",
+      "coordinatorDisposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139"
+    },
+    {
+      "claimId": "MPSEM-0367-C002",
+      "ownerPhase": "PDP-0",
+      "source": {
+        "ref": "docs/migration/expert-reviewed-master-plan.md#L822",
+        "exactText": "revoking access cannot honestly promise remote recall.",
+        "textSha256": "0e6c7b97194a0c929700ccca130084acc615e952da20c5be38840ac907aed5f6",
+        "sourcePlanCommit": "e62514f94c45a4ecbc438d26298bf82b6a6f3d69",
+        "ownerDefinitionRef": ".product-experience/pdp-0-product-truth/state-models.yaml",
+        "ownerDefinitionFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda"
+      },
+      "ownerProposalObservation": {
+        "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+        "priorSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        "priorTargetValueSha256": "a51d274a2917651298a77ca83a02d1ab013b9a582f506ff9b8d943ea710eb88e",
+        "currentTargetValueSha256": "a51d274a2917651298a77ca83a02d1ab013b9a582f506ff9b8d943ea710eb88e",
+        "currentTargetValuePreview": "Media cannot confirm deletion of a remote or recipient-held copy",
+        "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
+      },
+      "proposedDisposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
+      "reason": "PXD-137 rebinds this P0 state meaning to the current P0 erasure states and safe next action. Access revocation blocks new reads, reuse, and dispatch; the external-copy state preserves uncertainty and explicitly prohibits claiming remote recall. P1 privacy schemas remain historical context and were not modified by this review.",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/state-models.yaml#/models/2/states/@id=ACCESS_REVOKED/meaning",
+          "requiredSourcePhrase": "new reads, reuse, and dispatch are blocked while erasure work proceeds",
+          "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "currentTargetValueSha256": "552ea9ffe6b0194b61d7a7b9c5e1c38ce5d857415dd23d02458f4dc6614a0345",
+          "currentTargetPreview": "new reads, reuse, and dispatch are blocked while erasure work proceeds"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/state-models.yaml#/models/2/states/@id=EXTERNAL_ERASURE_UNCONFIRMED/meaning",
+          "requiredSourcePhrase": "Media cannot confirm deletion of a remote or recipient-held copy",
+          "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "currentTargetValueSha256": "a51d274a2917651298a77ca83a02d1ab013b9a582f506ff9b8d943ea710eb88e",
+          "currentTargetPreview": "Media cannot confirm deletion of a remote or recipient-held copy"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/state-models.yaml#/models/2/safeNextActions/EXTERNAL_ERASURE_UNCONFIRMED/1",
+          "requiredSourcePhrase": "do-not-claim-remote-recall",
+          "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "currentTargetValueSha256": "62977ca5d790e33f78d5b5753297d41b632eab1d6c2ca0a23928e93fb25b53bd",
+          "currentTargetPreview": "do-not-claim-remote-recall"
+        }
+      ],
+      "acceptanceEffect": "none",
+      "runtimeStatus": "NOT_EVALUATED",
+      "coordinatorDisposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139"
+    },
+    {
+      "claimId": "MPSEM-0475-C003",
+      "ownerPhase": "PDP-0",
+      "source": {
+        "ref": "docs/migration/expert-reviewed-master-plan.md#L1153",
+        "exactText": "and safe batch rendering via CLI.",
+        "textSha256": "68dc96b3c2a4f25bcd01521ab2634047f647fbea3578c3f807d57d92b98e22c1",
+        "sourcePlanCommit": "e62514f94c45a4ecbc438d26298bf82b6a6f3d69",
+        "ownerDefinitionRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+        "ownerDefinitionFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d"
+      },
+      "ownerProposalObservation": {
+        "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+        "priorSourceFileSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+        "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+        "priorTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
+        "currentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
+        "currentTargetValuePreview": "Master-plan sections 17 and 20 propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.",
+        "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
+      },
+      "proposedDisposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
+      "reason": "PXD-137 binds the P0 CLI channel evidence and its current typed command-surface rule. The source proposes safe bounded batch rendering, but exact commands and installed behavior remain to be authored. Batch execution is a distinct declared invocation mode; no executable, runtime support, or admission is claimed.",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/evidence",
+          "requiredSourcePhrase": "propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
+          "currentTargetPreview": "Master-plan sections 17 and 20 propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored."
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/rule",
+          "requiredSourcePhrase": "A CLI command binds one exact canonical operation/action and one invocation mode.",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
+          "currentTargetPreview": "A CLI command binds one exact canonical operation/action and one invocation mode. Batch, streaming observation, simulation, inference, and transport are distinct typed ports with command-specific request, result, flag, authority, and finality rules; a shared command grammar does not make their payloads or lifecycle interchangeable. Commands may compose declared operations only through their exact owner contracts. Do not create a universal provider SPI that requires irrelevant methods, invents fake implementations for absent capabilities, or treats one transport's request shape as another operation's semantic contract. Capability absence is explicit and does not become a successful no-op."
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/invocationModes",
+          "requiredSourcePhrase": "BATCH_EXECUTION",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
+          "currentTargetPreview": "[\"READ_QUERY\",\"MUTATING_COMMAND\",\"ASYNC_SUBMISSION\",\"STREAM_OBSERVATION\",\"BATCH_EXECUTION\",\"SIMULATION\",\"INFERENCE\"]"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/scopeStatus",
+          "requiredSourcePhrase": "no executable or channel behavior is admitted",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
+          "currentTargetPreview": "OWNER_DEFINED_CLI_DEFINITION_ONLY; no executable or channel behavior is admitted"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/executionAdmission",
+          "requiredSourcePhrase": "NOT_ADMITTED",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
+          "currentTargetPreview": "NOT_ADMITTED"
+        }
+      ],
+      "acceptanceEffect": "none",
+      "runtimeStatus": "NOT_EVALUATED",
+      "cliAdmission": "NOT_ADMITTED",
+      "coordinatorDisposition": "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE",
+      "coordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139"
+    }
+  ]
+}

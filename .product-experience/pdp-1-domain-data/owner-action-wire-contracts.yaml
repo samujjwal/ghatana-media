@@ -1840,6 +1840,7 @@ records:
     actionRef: media.action.apply-admitted-edit
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.apply-admitted-edit
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.apply-admitted-edit
     sourceEffect: Dispatch the explicitly admitted edit against the exact selected source, region, and
@@ -2022,6 +2023,7 @@ records:
     actionRef: media.action.apply-authorized-rights-restriction
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.apply-authorized-rights-restriction
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.apply-authorized-rights-restriction
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -2211,13 +2213,14 @@ records:
     actionRef: media.action.check-job-outcome
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome
     sourceEffect: collect-evidence-for-the-existing-job-identity-without-new-dispatch
     sourceFinality: remains-unknown-until-evidence-classifies-outcome
     sourceGuards:
       - existing-job-is-outcome-unknown
-    sourceRecovery: null
+    sourceRecovery: preserve-unknown-state-and-disable-resubmission
     domainObjectRefs:
       - media.domain.project
       - media.domain.artifact-version
@@ -2327,6 +2330,7 @@ records:
     actionRef: media.action.compare-candidate-on-metric
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-candidate-on-metric
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -2444,6 +2448,7 @@ records:
     actionRef: media.action.compare-media-versions
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-media-versions
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-media-versions
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -2564,6 +2569,7 @@ records:
     actionRef: media.action.continue-within-recorded-scope
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.continue-within-recorded-scope
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.continue-within-recorded-scope
     sourceEffect: Continue the explicitly authorized voice operation only within the recorded consent and
@@ -2755,6 +2761,7 @@ records:
     actionRef: media.action.deliver-exact-version
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -2945,6 +2952,7 @@ records:
     actionRef: media.action.export-authorized-provenance
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.export-authorized-provenance
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.export-authorized-provenance
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -3133,6 +3141,7 @@ records:
     actionRef: media.action.inspect-consent-and-permitted-use
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-consent-and-permitted-use
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-consent-and-permitted-use
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -3256,6 +3265,7 @@ records:
     actionRef: media.action.inspect-driver-or-constraint
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-driver-or-constraint
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-driver-or-constraint
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -3376,6 +3386,7 @@ records:
     actionRef: media.action.inspect-effective-processing-constraints
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-effective-processing-constraints
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-effective-processing-constraints
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -3496,6 +3507,7 @@ records:
     actionRef: media.action.inspect-generated-candidates
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-generated-candidates
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-generated-candidates
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -3616,6 +3628,7 @@ records:
     actionRef: media.action.inspect-governing-evidence
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-governing-evidence
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-governing-evidence
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -3736,6 +3749,7 @@ records:
     actionRef: media.action.inspect-input-output-color-interpretation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-input-output-color-interpretation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-input-output-color-interpretation
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -3856,6 +3870,7 @@ records:
     actionRef: null
     actionApplicability: OWNER_OPERATION_WITH_NO_SOURCE_ACTION_IDENTITY
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-job-retry-policy
     sourceActionRef: null
     sourceGuards: []
@@ -3943,6 +3958,7 @@ records:
     actionRef: media.action.inspect-operation-contract
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-operation-contract
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-operation-contract
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4063,6 +4079,7 @@ records:
     actionRef: media.action.inspect-operation-readiness
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-operation-readiness
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-operation-readiness
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4183,6 +4200,7 @@ records:
     actionRef: media.action.inspect-output-preview-and-version
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-output-preview-and-version
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4300,6 +4318,7 @@ records:
     actionRef: media.action.inspect-quality-evidence
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-quality-evidence
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4420,6 +4439,7 @@ records:
     actionRef: media.action.inspect-scene-binding
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-scene-binding
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-scene-binding
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4540,6 +4560,7 @@ records:
     actionRef: media.action.inspect-setting-owner
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-setting-owner
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-setting-owner
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4654,6 +4675,7 @@ records:
     actionRef: media.action.inspect-simulation-domain-and-fidelity
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-domain-and-fidelity
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-simulation-domain-and-fidelity
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -4783,6 +4805,7 @@ records:
     actionRef: media.action.inspect-simulation-result
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-simulation-result
     sourceEffect: Read the result and declared measurements for the exact simulation run; distinguish missing,
@@ -4912,6 +4935,7 @@ records:
     actionRef: media.action.inspect-source-grounded-observation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-source-grounded-observation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source-grounded-observation
     sourceEffect: Read the exact artifact, measurement, or declared parameter context; preserve source versions
@@ -5040,6 +5064,7 @@ records:
     actionRef: media.action.inspect-source-measurements
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-source-measurements
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source-measurements
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5160,6 +5185,7 @@ records:
     actionRef: media.action.inspect-version-and-review-scope
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-version-and-review-scope
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-version-and-review-scope
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5280,6 +5306,7 @@ records:
     actionRef: media.action.inspect-voice-authorization
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-voice-authorization
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5400,6 +5427,7 @@ records:
     actionRef: media.action.open-admitted-delivery-action
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.open-admitted-delivery-action
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-admitted-delivery-action
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5517,6 +5545,7 @@ records:
     actionRef: media.action.open-approval-view
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.open-approval-view
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-approval-view
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5637,6 +5666,7 @@ records:
     actionRef: media.action.open-authorized-recovery-instruction
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.open-authorized-recovery-instruction
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-authorized-recovery-instruction
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5757,6 +5787,7 @@ records:
     actionRef: media.action.open-qualification-evidence
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.open-qualification-evidence
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-qualification-evidence
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5877,6 +5908,7 @@ records:
     actionRef: media.action.open-related-view
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.open-related-view
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-related-view
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -5997,6 +6029,7 @@ records:
     actionRef: media.action.preview-current-revision
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.preview-current-revision
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.preview-current-revision
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -6120,6 +6153,7 @@ records:
     actionRef: media.action.preview-motion
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.preview-motion
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.preview-motion
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -6240,6 +6274,7 @@ records:
     actionRef: media.action.reconcile-delivery-acknowledgment
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.reconcile-delivery-acknowledgment
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.reconcile-delivery-acknowledgment
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -6357,6 +6392,7 @@ records:
     actionRef: media.action.record-authorized-attestation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-authorized-attestation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-authorized-attestation
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -6546,6 +6582,7 @@ records:
     actionRef: media.action.record-candidate-for-review
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-candidate-for-review
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-candidate-for-review
     sourceEffect: Append a new version or review record to the exact identified target; preserve prior versions
@@ -6736,6 +6773,7 @@ records:
     actionRef: media.action.record-review-comment
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-review-comment
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-review-comment
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -6926,6 +6964,7 @@ records:
     actionRef: media.action.record-review-follow-up
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-review-follow-up
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-review-follow-up
     sourceEffect: Append a new version or review record to the exact identified target; preserve prior versions
@@ -7116,6 +7155,7 @@ records:
     actionRef: media.action.record-version-review-decision
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.record-version-review-decision
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-version-review-decision
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -7301,6 +7341,7 @@ records:
     actionRef: media.action.refresh-operation-readiness
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.refresh-operation-readiness
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.refresh-operation-readiness
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -7421,6 +7462,7 @@ records:
     actionRef: media.action.request-admitted-speech-operation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-admitted-speech-operation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-admitted-speech-operation
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -7597,6 +7639,7 @@ records:
     actionRef: media.action.request-authorized-review
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-authorized-review
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-authorized-review
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -7762,6 +7805,7 @@ records:
     actionRef: media.action.request-plan-validation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-plan-validation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-plan-validation
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -7927,6 +7971,7 @@ records:
     actionRef: media.action.request-rights-review
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.request-rights-review
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-rights-review
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -8116,6 +8161,7 @@ records:
     actionRef: media.action.restore-prior-setting-preference
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.restore-prior-setting-preference
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.restore-prior-setting-preference
     sourceEffect: Restore the exact prior preference value for the same actor and workspace after current
@@ -8270,6 +8316,7 @@ records:
     actionRef: media.action.return-to-requested-destination-after-identity-confirmation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.return-to-requested-destination-after-identity-confirmation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.return-to-requested-destination-after-identity-confirmation
     sourceEffect: Return to the preserved Media destination only after the upstream identity contract confirms
@@ -8390,6 +8437,7 @@ records:
     actionRef: media.action.review-bounded-repair-proposal
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-bounded-repair-proposal
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-bounded-repair-proposal
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -8507,6 +8555,7 @@ records:
     actionRef: media.action.review-estimates-and-rights-effects
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-estimates-and-rights-effects
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-estimates-and-rights-effects
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -8624,6 +8673,7 @@ records:
     actionRef: media.action.review-output-evidence
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-output-evidence
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-output-evidence
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -8744,6 +8794,7 @@ records:
     actionRef: media.action.review-processing-parameters
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-processing-parameters
     sourceEffect: Read the exact artifact, measurement, or declared parameter context; preserve source versions
@@ -8863,6 +8914,7 @@ records:
     actionRef: media.action.review-recognized-or-synthesized-content
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-recognized-or-synthesized-content
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-recognized-or-synthesized-content
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -8986,6 +9038,7 @@ records:
     actionRef: media.action.review-repair-bounds
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-repair-bounds
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-repair-bounds
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -9106,6 +9159,7 @@ records:
     actionRef: media.action.review-rights-approval-and-format-effects
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-rights-approval-and-format-effects
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-rights-approval-and-format-effects
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -9229,6 +9283,7 @@ records:
     actionRef: media.action.review-scene-timing-and-transitions
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-scene-timing-and-transitions
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-scene-timing-and-transitions
     sourceEffect: Read the exact artifact, measurement, or declared parameter context; preserve source versions
@@ -9354,6 +9409,7 @@ records:
     actionRef: media.action.review-translated-segment
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-translated-segment
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-translated-segment
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -9474,6 +9530,7 @@ records:
     actionRef: media.action.review-uncertain-tracking
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-uncertain-tracking
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-uncertain-tracking
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -9594,6 +9651,7 @@ records:
     actionRef: media.action.revoke-authorized-consent
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.revoke-authorized-consent
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -9780,6 +9838,7 @@ records:
     actionRef: media.action.save-dubbing-version
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.save-dubbing-version
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-dubbing-version
     sourceEffect: Append a new version or review record to the exact identified target; preserve prior versions
@@ -9953,6 +10012,7 @@ records:
     actionRef: media.action.save-new-revision
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.save-new-revision
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-new-revision
     sourceEffect: Append a new version or review record to the exact identified target; preserve prior versions
@@ -10129,6 +10189,7 @@ records:
     actionRef: media.action.save-setting-preference
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.save-setting-preference
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-setting-preference
     sourceEffect: Persist the permitted preference for the current actor and workspace after owner authority is
@@ -10283,6 +10344,7 @@ records:
     actionRef: media.action.save-storyboard-revision
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.save-storyboard-revision
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-storyboard-revision
     sourceEffect: Append a new version or review record to the exact identified target; preserve prior versions
@@ -10465,6 +10527,7 @@ records:
     actionRef: media.action.save-versioned-edit
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.save-versioned-edit
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-versioned-edit
     sourceEffect: Append a new version or review record to the exact identified target; preserve prior versions
@@ -10638,6 +10701,7 @@ records:
     actionRef: media.action.search-authorized-artifacts
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.search-authorized-artifacts
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.search-authorized-artifacts
     sourceEffect: Read the exact artifact, measurement, or declared parameter context; preserve source versions
@@ -10778,6 +10842,7 @@ records:
     actionRef: media.action.search-by-user-outcome
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.search-by-user-outcome
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.search-by-user-outcome
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -10898,6 +10963,7 @@ records:
     actionRef: media.action.search-named-profiles
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.search-named-profiles
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.search-named-profiles
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -11018,6 +11084,7 @@ records:
     actionRef: media.action.search-product-guidance
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.search-product-guidance
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.search-product-guidance
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -11138,6 +11205,7 @@ records:
     actionRef: media.action.share-diagnostics-after-explicit-choice
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.share-diagnostics-after-explicit-choice
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.share-diagnostics-after-explicit-choice
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -11303,6 +11371,7 @@ records:
     actionRef: media.action.stop-authorized-voice-use
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.stop-authorized-voice-use
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.stop-authorized-voice-use
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -11500,6 +11569,7 @@ records:
     actionRef: media.action.submit-admitted-plan
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-admitted-plan
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-admitted-plan
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -11667,6 +11737,7 @@ records:
     actionRef: media.action.submit-render
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-render
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -11856,6 +11927,7 @@ records:
     actionRef: media.action.submit-simulation
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-simulation
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-simulation
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -12069,6 +12141,7 @@ records:
     actionRef: media.action.submit-validated-request
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: COMMAND
+    actionClassification: DOMAIN_COMMAND
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request
     sourceEffect: Request the explicitly named operation for the exact target only after fresh actor, capability,
@@ -12236,6 +12309,7 @@ records:
     actionRef: media.action.validate-composition
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.validate-composition
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.validate-composition
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -12356,6 +12430,7 @@ records:
     actionRef: media.action.validate-exact-snapshot
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.validate-exact-snapshot
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.validate-exact-snapshot
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -12476,6 +12551,7 @@ records:
     actionRef: media.action.validate-processing-profile
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.validate-processing-profile
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.validate-processing-profile
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -12596,6 +12672,7 @@ records:
     actionRef: media.action.validate-scene-references
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.validate-scene-references
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.validate-scene-references
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -12716,6 +12793,7 @@ records:
     actionRef: media.action.validate-simulation-plan
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.validate-simulation-plan
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.validate-simulation-plan
     sourceEffect: Read or navigate using the exact selected context; do not mutate a source object or infer
@@ -12845,13 +12923,14 @@ records:
     actionRef: media.action.view-job-status
     actionApplicability: SOURCE_ACTION_BOUND
     operationKind: QUERY
+    actionClassification: DOMAIN_QUERY
     sourceOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
     sourceActionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status
     sourceEffect: read-current-job-and-attempt-evidence
     sourceFinality: read-only
     sourceGuards:
       - stable-job-reference
-    sourceRecovery: null
+    sourceRecovery: keep-last-known-state-labelled-stale
     domainObjectRefs:
       - media.domain.project
       - media.domain.artifact-version

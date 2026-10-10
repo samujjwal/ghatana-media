@@ -1,6 +1,6 @@
 # Media Product Truth
 
-**Definition state:** Proposal pending source/reference reconciliation, specialist review, and independent P0-010 acceptance. PXD-026 records bounded cross-phase owner-policy decisions; it does not accept this Product Truth, individual records, or any complete PDP phase.
+**Definition state:** Internal semantic review is part of PDP-0 development completion. Independent P0-010 acceptance and specialist reviews remain separate. PXD-026 records bounded cross-phase owner-policy decisions; it does not accept this Product Truth, individual records, or any complete PDP phase.
 **Product:** Media (`media`)  
 **Target repository:** `samujjwal/ghatana-media`  
 **Media product-meaning authority:** `.product-experience` is the single editable authority. `samujjwal/ghatana:services/media` remains a migration/implementation observation and compatibility source until an approved cutover executes; it is not a competing Product Truth authority.
@@ -182,9 +182,17 @@ lists remain intact as collaborators. These owner choices do not grant runtime
 permission or execution authority. Final candidate regeneration, installed-package
 verification, and P0-010 independent review remain open.
 
-PDP-1 depends on independent P0-010 acceptance; PDP-2 depends on accepted
-PDP-1; PDP-3 depends on accepted PDP-2. Explorer is a projection outside these
-phases. Later-phase artifacts and local implementation remain provisional.
+For the current development-only sequence, PDP-1 consumes a stable PDP-0
+capability-intent handoff after PDP-0's definitions, references, variants,
+negative cases, and development tests are complete. PDP-0 does not wait for
+future PDP-1 operation implementations or independent P0-010 acceptance before
+that handoff. PDP-2 follows PDP-1 development completion, and PDP-3 follows
+PDP-2 development completion, as defined in
+[`PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md`](../../docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md).
+Independent acceptance, Lifecycle receipts, convergence, production
+qualification, and release readiness remain separate. Explorer is a projection
+outside these phases. Later-phase artifacts and local implementation remain
+provisional until their own development definitions are complete.
 
 `generated/product-definition.candidate.json` is a deterministic partial,
 read-only projection using `ghatana.product-definition.v1` and the

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-105",
+  "baseReviewRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseReviewSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "currentCutRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#P0-07",
+  "currentCutDecisionRef": ".product-experience/decision-log.md#PXD-105",
+  "scope": "Observation-only supplement for the single PXD-098 QUALITY-METRIC-AUDIO-DEFECTS applicability referent. PXD-098 remains immutable; its clause meaning is unchanged.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+  "sourcePinSha256": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+  "currentSourceSha256": "cc57b1aa3522114482e7cc2c13a3b8e4d6db92948b0a64d83d13c47a9ab6ac46",
+  "record": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-DEFECTS",
+    "identity": "QUALITY-METRIC-AUDIO-DEFECTS",
+    "historicalPxd098ContentSha256": "e9f9798be75dc293d8d3e2282a15bdfd387fcc86bc8b8b100dc7b550584a10bb",
+    "currentContentSha256": "5d7b7f7f12e1ad69f6ee97d102b4af58c59435b485c1d6bfc56bc6c60e8b3fa5",
+    "changedPaths": [
+      {
+        "path": [
+          "ownerCurrentApplicability",
+          "capabilityRefs"
+        ],
+        "removed": [
+          "media.master.audio.phase-noise-floor-analyze"
+        ],
+        "added": []
+      },
+      {
+        "path": [
+          "ownerCurrentApplicability",
+          "applicableCount"
+        ],
+        "prior": 117,
+        "current": 116
+      },
+      {
+        "path": [
+          "ownerCurrentApplicability",
+          "notApplicableCount"
+        ],
+        "prior": 345,
+        "current": 346
+      }
+    ],
+    "preserved": {
+      "scope": "Audio noise, clipping, distortion, intelligibility, and signal defects for a declared task.",
+      "applicableCountPlusNotApplicableCount": 462
+    },
+    "semanticParityRationale": "The phase-noise-floor analyzer produces a phase-noise measurement and is not defined as an audio defect assessment. Removing it from this applicability list preserves the metric scope and exact 462-leaf denominator."
+  },
+  "acceptanceEffect": "none",
+  "acceptanceBoundary": "Current-source observation only; no renewal of PXD-098 material approval, no change to PXD-105 approval, and no measurement, calibration, qualification, runtime, or Lifecycle evidence."
+}

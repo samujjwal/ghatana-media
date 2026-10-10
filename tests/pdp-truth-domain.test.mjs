@@ -235,7 +235,7 @@ test("all 146 action identities have a source-backed operation or non-operation 
   }
 });
 
-test("P0 exact capability-to-operation decisions resolve only fully classified action slices", () => {
+test("PDP-1 exact operation bindings resolve only fully classified P0 capability slices", () => {
   const review = readYaml(paths.capabilityReview);
   const operations = readYaml(paths.operations);
   const actionIndex = new Map(operations.actionOperationDispositionInventory.records.map((entry) => [entry.actionId, entry]));
@@ -323,7 +323,7 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
   return true;
 }
 
-test("P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions", () => {
+test("PDP-1 consumes P0 capability intents with exact typed operations, bounds, and honest admission dimensions", () => {
   const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
   const review = readYaml(paths.capabilityReview);
   const operations = readYaml(paths.operations);
@@ -472,7 +472,30 @@ test("P1-08 distinguishes nine durable event definitions from fifteen local noti
   assert.equal(validateEventDefinition(missingDedup), false, "event delivery without durable dedup/outbox semantics fails");
 });
 
-test("P0-06 enumerates exact capability applicability without inventing a measured population", () => {
+test("P0-06 maps all measures to stable capability meaning without inventing measured results", () => {
+  const goals = readYaml(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
+  const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
+  const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
+  const records = crosswalk.records;
+  const applicabilityRecords = crosswalk.measureApplicabilityRecords.records;
+  const ids = new Set(capabilities.capabilities.map(({ id }) => id));
+  const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
+  assert.equal(records.length, 462);
+  assert.equal(new Set(records.map(({ id }) => id)).size, 462);
+  assert.equal(applicabilityRecords.length, 1848);
+  assert.equal(new Set(applicabilityRecords.map(({ id }) => id)).size, 1848);
+  assert.equal(new Set(applicabilityRecords.map(({ capabilityRef }) => capabilityRef)).size, 462);
+  assert.equal(new Set(records.map(({ capabilityRef }) => capabilityRef)).size, 462);
+  assert.ok(records.every(({ capabilityRef, measureApplicability }) =>
+    ids.has(capabilityRef)
+    && measureIds.every((id) => measureApplicability[id]?.disposition
+      && measureApplicability[id]?.reason
+      && measureApplicability[id]?.sourceRefs?.includes(`.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${capabilityRef}`))));
+  assert.ok(goals.successMeasureContracts.records.every(({ baseline, target, qualification }) =>
+    baseline.startsWith("NOT_EVALUATED") && target.startsWith("NOT_SET") && qualification === "NOT_EVALUATED"));
+});
+
+test("PDP-1 operation, profile, and domain projections preserve P0 metric applicability references", () => {
   const goals = readYaml(".product-experience/pdp-0-product-truth/goals-jtbd.yaml");
   const capabilities = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
   const operations = readYaml(paths.operations);
@@ -482,7 +505,6 @@ test("P0-06 enumerates exact capability applicability without inventing a measur
   const records = crosswalk.records;
   const applicabilityRecords = crosswalk.measureApplicabilityRecords.records;
   const outputTypes = domains.ownerOutputArtifactTypeCrosswalk.records;
-  const ids = new Set(capabilities.capabilities.map(({ id }) => id));
   const domainIds = new Set(domains.objects.map(({ id }) => id));
   const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
   assert.equal(records.length, 462);
@@ -492,12 +514,10 @@ test("P0-06 enumerates exact capability applicability without inventing a measur
   assert.equal(new Set(applicabilityRecords.map(({ capabilityRef }) => capabilityRef)).size, 462);
   assert.equal(new Set(records.map(({ capabilityRef }) => capabilityRef)).size, 462);
   assert.ok(records.every(({ capabilityRef, measureApplicability, operationContractRef, profileRef, boundsRef }) =>
-    ids.has(capabilityRef)
+    capabilities.capabilities.some(({ id }) => id === capabilityRef)
     && operationContractRef.startsWith(".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=")
     && profileRef && boundsRef
     && measureIds.every((id) => measureApplicability[id]?.disposition && measureApplicability[id]?.reason && measureApplicability[id]?.sourceRefs?.length)));
-  assert.ok(goals.successMeasureContracts.records.every(({ baseline, target, qualification }) =>
-    baseline.startsWith("NOT_EVALUATED") && target.startsWith("NOT_SET") && qualification === "NOT_EVALUATED"));
   assert.equal(operations.capabilityOperationContracts.bounds.length, 462);
   assert.equal(outputTypes.length, 69);
   assert.equal(new Set(outputTypes.map(({ artifactType }) => artifactType)).size, 69);
@@ -512,7 +532,7 @@ test("P0-06 enumerates exact capability applicability without inventing a measur
     && outputDomainObjectRefs.every((id) => domainIds.has(id))));
 });
 
-test("P0 capability schemas use closed typed payloads, scalar validators, and the exact flat request envelope", () => {
+test("PDP-1 action schemas use closed typed payloads, scalar validators, and the exact flat request envelope", () => {
   const operations = readYaml(paths.operations);
   const contracts = operations.capabilityOperationContracts;
   assert.equal(contracts.scalarTypeRecords.length, 29);
@@ -535,7 +555,7 @@ test("P0 capability schemas use closed typed payloads, scalar validators, and th
   }
 });
 
-test("P0 canonical capability request schemas accept typed inputs and reject malformed or over-posted requests", () => {
+test("PDP-1 canonical capability requests accept typed inputs and reject malformed or over-posted requests", () => {
   const operations = readYaml(paths.operations);
   const contracts = operations.capabilityOperationContracts;
   const generated = contracts.records.find(({ capabilityRef }) => capabilityRef === "media.project.update");

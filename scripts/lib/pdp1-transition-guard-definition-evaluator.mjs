@@ -139,19 +139,31 @@ function evaluateExpression(expression, facts, contracts) {
   if (operator === "fact") {
     if (typeof operand !== "string") return { value: "UNKNOWN", failures: ["GUARD_FACT_ID_INVALID"] };
     if (operand === "tenant.matches") {
-      const request = facts.tenant?.requestTenantId;
-      const subject = facts.tenant?.resourceTenantId;
-      if (typeof request !== "string" || request.trim().length === 0 || typeof subject !== "string" || subject.trim().length === 0) {
-        return { value: "UNKNOWN", failures: ["TENANT_CONTEXT_MISSING"] };
+      const tenantFact = contracts.commonFacts?.[operand];
+      if (tenantFact?.inputKind !== "DEFINITION_MODEL_INPUT") {
+        return { value: "UNKNOWN", failures: ["GUARD_FACT_INPUT_KIND_INVALID:tenant.matches"] };
       }
-      return request === subject
+      if (!Object.hasOwn(facts.modelInputs ?? {}, operand)) {
+        return { value: "UNKNOWN", failures: ["GUARD_MODEL_INPUT_MISSING:tenant.matches"] };
+      }
+      if (typeof facts.modelInputs[operand] !== "boolean") {
+        return { value: "UNKNOWN", failures: ["GUARD_FACT_INVALID_TYPE:tenant.matches"] };
+      }
+      return facts.modelInputs[operand]
         ? { value: "TRUE", failures: [] }
-        : { value: "FALSE", failures: ["TENANT_MISMATCH"] };
+        : { value: "FALSE", failures: ["MODEL_INPUT_NOT_ESTABLISHED:tenant.matches"] };
     }
     if (!Object.hasOwn(contracts.facts ?? {}, operand)) {
       return { value: "UNKNOWN", failures: [`UNKNOWN_GUARD_FACT:${operand}`] };
     }
+    const factContract = contracts.facts[operand];
+    if (!factContract || !["DEFINITION_MODEL_INPUT", "TYPED_OWNER_OBSERVATION"].includes(factContract.inputKind)) {
+      return { value: "UNKNOWN", failures: [`GUARD_FACT_INPUT_KIND_INVALID:${operand}`] };
+    }
     if (operand === "expectedVersionMatches" || operand === "expectedVersionConflicts") {
+      if (factContract.inputKind !== "DEFINITION_MODEL_INPUT") {
+        return { value: "UNKNOWN", failures: [`GUARD_FACT_INPUT_KIND_INVALID:${operand}`] };
+      }
       const expected = facts.version?.expected;
       const current = facts.version?.current;
       if (typeof expected !== "string" || expected.trim().length === 0 || typeof current !== "string" || current.trim().length === 0) {
@@ -164,10 +176,28 @@ function evaluateExpression(expression, facts, contracts) {
         : { value: "FALSE", failures: [operand === "expectedVersionMatches" ? "VERSION_PRECONDITION_STALE" : "VERSION_CONFLICT_NOT_PRESENT"] };
     }
     if (operand === "consentPerEffectCurrent") {
+      const definition = contracts.facts[operand]?.typedEvaluation;
+      const expectedContracts = [
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1",
+        ".product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract",
+      ];
+      const expectedAuthorities = [RIGHTS_READ_AUTHORITY_REF, CONSENT_READ_AUTHORITY_REF];
+      if (factContract.inputKind !== "TYPED_OWNER_OBSERVATION" || definition?.inputPath !== "facts.typedOwnerFacts.consentPerEffectCurrent" ||
+          definition?.legacyBooleanInputDisposition !== "IGNORED; typed observation required" || definition?.runtimeAdmission !== "NOT_ADMITTED" ||
+          JSON.stringify(definition.sourceContractRefs) !== JSON.stringify(expectedContracts) ||
+          JSON.stringify(definition.authorityRefs) !== JSON.stringify(expectedAuthorities)) {
+        return { value: "UNKNOWN", failures: ["TYPED_GUARD_FACT_CONTRACT_INVALID"] };
+      }
       return evaluateConsentPerEffectCurrent(facts);
     }
-    if (!Object.hasOwn(facts.guardFacts ?? {}, operand)) return { value: "UNKNOWN", failures: [`GUARD_FACT_MISSING:${operand}`] };
-    const value = facts.guardFacts[operand];
+    if (factContract.inputKind === "TYPED_OWNER_OBSERVATION") {
+      return { value: "UNKNOWN", failures: [`TYPED_GUARD_FACT_EVALUATOR_MISSING:${operand}`] };
+    }
+    if (factContract.inputKind !== "DEFINITION_MODEL_INPUT") {
+      return { value: "UNKNOWN", failures: [`GUARD_FACT_INPUT_KIND_INVALID:${operand}`] };
+    }
+    if (!Object.hasOwn(facts.modelInputs ?? {}, operand)) return { value: "UNKNOWN", failures: [`GUARD_MODEL_INPUT_MISSING:${operand}`] };
+    const value = facts.modelInputs[operand];
     if (typeof value !== "boolean") return { value: "UNKNOWN", failures: [`GUARD_FACT_INVALID_TYPE:${operand}`] };
     return value
       ? { value: "TRUE", failures: [] }
@@ -239,7 +269,7 @@ export function evaluatePdpTransition({ transitions, states, guardContracts, tra
     if (group.rule !== "at-most-one-positive-outcome-fact") {
       return { allowed: false, reasonCodes: ["EXCLUSIVE_FACT_GROUP_RULE_UNKNOWN"], transitionId, from, to };
     }
-    const positive = group.factIds.filter((id) => facts.guardFacts?.[id] === true);
+    const positive = group.factIds.filter((id) => facts.modelInputs?.[id] === true);
     if (positive.length > 1) {
       return { allowed: false, reasonCodes: [`CONTRADICTORY_OUTCOME_FACTS:${group.id}`], transitionId, from, to };
     }

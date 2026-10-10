@@ -7,11 +7,11 @@ status:
 dependencies:
   p0-001: accepted-boundary-slice
   p0-002: proposed-actors-and-outcomes-await-review
-  p0-003: pending-operation-denominator
+  p0-003: current-462-capability-intent-denominator-resolved; operation-denominator-is-downstream-pdp-1
   p0-005: pending-job-command-cancellation-and-finality-models
-  p0-006: pending-authority-rights-consent-and-data-classification-model
-  p0-007: pending-quality-profile-fallback-and-provider-selection-policy
-  p0-008: pending-public-contract-availability-health-fallback-and-expiry-bindings
+  p0-006: owner-defined-authority-rights-consent-and-data-classification-meaning-authored; independent-review-is-separate
+  p0-007: owner-defined-quality-profile-and-fallback-meaning-authored; specialist-qualification-is-separate
+  p0-008: exact-public-operation-and-availability-bindings-are-downstream-and-non-gating-for-pdp-0
   mediaMigration: source-cutover-not-authorized-or-executed
 
 sourceReferences:
@@ -59,6 +59,66 @@ handoffEnvelope:
   unresolvedFieldValue: >-
     A field marked pending-owner-contract is a known contract gap. It is not a
     default, an inferred guarantee, or permission to invent a route/payload.
+
+pdpPhaseHandoffContracts:
+  pdp0ToPdp1CapabilityIntent:
+    id: media.pdp0-pdp1.capability-intent-handoff.v1
+    sourcePhase: PDP-0
+    consumerPhase: PDP-1
+    status: DEFINITION_HANDOFF_CONTRACT
+    sourceRecordPopulation:
+      count: 462
+      identity: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>
+      identityRule: Each existing capability leaf ID is the stable capabilityIntentId. PDP-1 consumes it verbatim; a family ID, operation ID, label, or generated ID is not a substitute.
+      fullDenominatorSource: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities
+    requiredMeaning:
+      actorRefs: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/actorRefs
+      intentRefs: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/intentRefs
+      outcome: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/outcome
+      semanticOutcomeContract: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/ownerDefinition/semanticOutcomeContract
+      requirementIds: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/requirementIds
+      inputSemanticShapes:
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/inputArtifactTypes
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/supportedParameters
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/ownerDefinition/typedInputSlots
+        - .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/ownerDefinition/parameterSchema
+      outputSemanticShapes:
+        artifactTypes: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/outputArtifactTypes
+        successOutputs: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/ownerDefinition/successOutputs
+        successOutputVariants: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/ownerDefinition/successOutputs/*/resultVariants
+        trustReconstructionBranches: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@capabilityRef=<capabilityIntentId>/outputBranches/*/outcomes
+        variantBindingRule: >-
+          Each success output is joined to its owner trust branch by exact output artifact type. Each result variant is
+          joined by its exact selector and disposition; PDP-1 preserves these P0 declarations verbatim. A missing or
+          mismatched branch is an unresolved P0 semantic handoff, not a PDP-1 implementation choice.
+      preconditions: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/preconditions
+      constraints: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/constraints
+      executionResourceAdmission: >-
+        .product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission
+      rightsPrivacy: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/rightsPrivacyImplications
+      fidelity: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/qualityFidelityContract
+      provenance: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/provenance
+      supportedChannels: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/supportedChannels
+      channelApplicability: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>/channelApplicability
+      exclusions: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/explicitUnsupportedCases
+      qualificationAndAvailability: .product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=<capabilityIntentId>/supportDimensions
+    consumerObligations:
+      - Preserve the stable capabilityIntentId and exact WHAT/WHY, actors, semantic input/output shapes, source-backed result meaning and distinctions, unknown disposition, preconditions, constraints, applicability, exclusions, and support-axis meanings.
+      - Treat typedInputSlots.sourceType, cardinality, and required as PDP-0 semantic shape; payloadSchemaRef names are downstream schema-lookup hints and their resolution is not a PDP-0 completion dependency.
+      - Add exact typed PDP-1 operation, query, or non-domain disposition bindings only in PDP-1. A capability may bind to multiple operations or to an explicit no-domain-operation disposition when its meaning requires that.
+      - Reject missing, duplicate, stale, or substituted capabilityIntentIds and any operation that broadens the handed-off product meaning.
+      - Keep operation contracts, domain object identities, executable request/result schemas, and state transitions downstream; their absence does not make a complete PDP-0 intent incomplete.
+      - Preserve UNKNOWN, NOT_EVALUATED, NOT_ADMITTED, and unsupported outcomes exactly; definition never implies implementation, license admission, qualification, or runtime availability.
+      - Preserve every ownerDefinition.successOutputs result variant and its exact selector, result kind, origin relation, epistemic disposition, and claim limit together with the matching ownerTrustReconstructionDispositions branch. Do not flatten variants into a single artifact type or infer a variant from a reference alone.
+    negativeCases:
+      - A PDP-1 operation is matched to a capability by a similar label instead of the exact stable capabilityIntentId.
+      - A PDP-1 operation silently adds an actor, outcome, channel, input, output, or effect that is absent from the handed-off P0 meaning.
+      - A capability outcome is reduced to a generated inventory sentence, omits its exact required result distinction, or has no resolvable owner source reference.
+      - A future operation ID, transport route, domain object, provider, or runtime implementation is required to establish PDP-0 semantic completeness.
+      - An absent or unbound source is represented as source-derived rather than authored, inferred, or UNKNOWN according to the exact P0 branch.
+      - A result variant is dropped, its selector or disposition is changed, or it is handed off without the matching P0 trust branch.
+    scopeStatus: OWNER_DEFINED_PHASE_HANDOFF; does not claim PDP-1 operation completeness or runtime admission.
+
 publicOwnerContractFingerprintRule:
   id: media.handoff.public-owner-contract-fingerprint
   authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
@@ -320,19 +380,19 @@ handoffs:
       scopeStatus: OWNER_DEFINED_BOUNDARY; no Marketing policy contract or publication operation is admitted.
 
   - id: ai-inference-execution
-    status: owner-boundary-established; exact-per-capability-bindings-pending-p0-008
+    status: owner-boundary-established; exact-operation-version-binding-is-downstream-pdp-1-and-non-gating-for-pdp-0
     direction: Media bounded capability adapter to AI Inference public operation; provider/model selection remains AI Inference-owned
     sourceOwner: Media for intent, source artifacts, output requirements, and media operation state
     destinationOwner: Ghatana AI Inference for generic model/provider eligibility, routing, credentials, quota, health, and failover
     operationAndVersion:
       value: Exact public operation/version is not recorded in the current Media migration inventory.
-      admission: Resolve one public AI Inference contract per admitted leaf capability in P0-008.
+      admission: Resolve the exact public AI Inference operation/version per admitted leaf capability in PDP-1 before runtime admission; this does not gate PDP-0 intent definition.
     authenticationAndDelegation: Use public service identity/delegation and current policy; Media does not pass credentials or widen authority through intent.
     classificationAndPurpose: Bind purpose, classification, residency/egress, retention, consent, and biometric restrictions where applicable.
     expectedContext: Typed operation/version, immutable artifact refs, Media bounds/deadline, policy-decision refs, and opaque correlation/job refs.
     timeoutCancellation: Use the AI Inference public cancellation/reconciliation contract; timeout is not provider cancellation confirmation.
     finality: Model/provider response is an execution result, not automatic quality, rights, fidelity, or publication approval.
-    retryReconciliation: Bounded idempotent request and provider outcome reconciliation; exact semantics pending P0-005/P0-008 owner bindings.
+    retryReconciliation: Bounded idempotent request and provider outcome reconciliation; exact operation-level semantics are a downstream PDP-1 binding.
     errorMapping: Preserve public health, quota, license, policy, capacity, and unknown-outcome reasons; do not silently select an unqualified fallback.
     returnContinuation: Return provider-neutral result/provenance refs to Media plan/job for Media-specific validation and registration.
     acceptedArtifactReferences: Authorized input/output artifact refs and owner-provided execution refs.
@@ -397,7 +457,7 @@ handoffs:
       scopeStatus: OWNER_DEFINED_BINDING_REQUIREMENT; no AI Inference operation or artifact transport is admitted.
 
   - id: action-plane-publication
-    status: master-plan-required-boundary; exact-public-effect-contract-pending-p0-008
+    status: master-plan-required-boundary; exact-public-effect-contract-is-downstream-and-not-a-pdp-0-meaning-gate
     direction: Media requests an authorized external publication effect through Action Plane
     sourceOwner: Media for output/version, delivery intent, and media lifecycle
     destinationOwner: Ghatana Action Plane for privileged effect authority, approval, idempotency, execution, and reconciliation
@@ -428,7 +488,7 @@ handoffs:
     sourceOwner: Ghatana Agent Runtime for reasoning/agent execution; Action Plane for privileged effects
     destinationOwner: Media for its public actions and media-owned state
     operationAndVersion:
-      value: Exact public Media action/Agent Runtime operation is pending P0-008.
+      value: Exact public Media action/Agent Runtime operation is downstream channel binding and is not required to define the stable PDP-0 capability intent.
       source: docs/migration/expert-reviewed-master-plan.md#17-cross-product-recipes-and-dependency-handoffs
     authenticationAndDelegation: Explicit bounded delegation; an agent cannot self-authorize or use Media intent to widen scope.
     classificationAndPurpose: Pass only purpose-required media/intent/policy references; no unrestricted user context or secret-bearing baggage.

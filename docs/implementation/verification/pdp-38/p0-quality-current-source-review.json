@@ -1,0 +1,205 @@
+{
+  "schemaVersion": "media.pdp0.quality-current-source-review.v1",
+  "artifactId": "P0-QUALITY-CURRENT-SOURCE-REVIEW-001",
+  "scope": "Additive current-source review of P0 quality policy and owner crosswalk. It records source checks only and asserts no historical equivalence or acceptance effect.",
+  "sources": {
+    "qualityPolicy": {
+      "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "currentSha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d"
+    },
+    "capabilities": {
+      "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "currentSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+      "capabilityCount": 462,
+      "identityField": "id"
+    }
+  },
+  "reviewedPopulation": {
+    "capabilityRows": 462,
+    "uniqueCapabilityRefs": 462,
+    "qualityDimensions": 6,
+    "metricDefinitions": 16,
+    "dimensionDispositions": 2772,
+    "metricDispositions": 7392,
+    "dimensionStatusCounts": {
+      "QUALITY-DIM-STRUCTURAL-VALIDITY": {
+        "APPLICABLE": 221,
+        "NOT_APPLICABLE": 241
+      },
+      "QUALITY-DIM-PERCEPTUAL": {
+        "APPLICABLE": 221,
+        "NOT_APPLICABLE": 241
+      },
+      "QUALITY-DIM-INTENT-FIDELITY": {
+        "APPLICABLE": 50,
+        "NOT_APPLICABLE": 412
+      },
+      "QUALITY-DIM-DOMAIN-SCIENTIFIC": {
+        "APPLICABLE": 33,
+        "NOT_APPLICABLE": 429
+      },
+      "QUALITY-DIM-RIGHTS-SAFETY": {
+        "APPLICABLE": 462,
+        "NOT_APPLICABLE": 0
+      },
+      "QUALITY-DIM-DELIVERY-COMPATIBILITY": {
+        "APPLICABLE": 147,
+        "NOT_APPLICABLE": 315
+      }
+    },
+    "metricStatusCounts": {
+      "QUALITY-METRIC-IMAGE-DEFECTS": {
+        "APPLICABLE": 77,
+        "NOT_APPLICABLE": 385
+      },
+      "QUALITY-METRIC-IMAGE-STRUCTURAL-REFERENCE": {
+        "APPLICABLE": 13,
+        "NOT_APPLICABLE": 449
+      },
+      "QUALITY-METRIC-IMAGE-IDENTITY": {
+        "APPLICABLE": 13,
+        "NOT_APPLICABLE": 449
+      },
+      "QUALITY-METRIC-IMAGE-PERCEPTUAL": {
+        "APPLICABLE": 37,
+        "NOT_APPLICABLE": 425
+      },
+      "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS": {
+        "APPLICABLE": 79,
+        "NOT_APPLICABLE": 383
+      },
+      "QUALITY-METRIC-VIDEO-CONTINUITY": {
+        "APPLICABLE": 25,
+        "NOT_APPLICABLE": 437
+      },
+      "QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY": {
+        "APPLICABLE": 26,
+        "NOT_APPLICABLE": 436
+      },
+      "QUALITY-METRIC-VIDEO-PHYSICAL-PLAUSIBILITY": {
+        "APPLICABLE": 0,
+        "NOT_APPLICABLE": 462
+      },
+      "QUALITY-METRIC-VIDEO-LIP-AV-SYNC": {
+        "APPLICABLE": 0,
+        "NOT_APPLICABLE": 462
+      },
+      "QUALITY-METRIC-VIDEO-ENCODING": {
+        "APPLICABLE": 25,
+        "NOT_APPLICABLE": 437
+      },
+      "QUALITY-METRIC-AUDIO-DEFECTS": {
+        "APPLICABLE": 116,
+        "NOT_APPLICABLE": 346
+      },
+      "QUALITY-METRIC-AUDIO-SEPARATION-LEAKAGE": {
+        "APPLICABLE": 10,
+        "NOT_APPLICABLE": 452
+      },
+      "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE": {
+        "APPLICABLE": 117,
+        "NOT_APPLICABLE": 345
+      },
+      "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK": {
+        "APPLICABLE": 116,
+        "NOT_APPLICABLE": 346
+      },
+      "QUALITY-METRIC-AUDIO-NATURALNESS": {
+        "APPLICABLE": 59,
+        "NOT_APPLICABLE": 403
+      },
+      "QUALITY-METRIC-AUDIO-SPEAKER-SIMILARITY": {
+        "APPLICABLE": 10,
+        "NOT_APPLICABLE": 452
+      }
+    }
+  },
+  "currentSourceChecks": [
+    "462 unique crosswalk capabilityRef values join exactly to the frozen 462 capability ids",
+    "Each crosswalk inputArtifactTypes and outputArtifactTypes array exactly equals its capability inputArtifactTypes and outputArtifactTypes",
+    "Every crosswalk row contains a disposition for all six dimensions and all sixteen metrics",
+    "Every metric measurementState and qualificationState is NOT_EVALUATED",
+    "P0 crosswalk includes no PDP-1 operation, schema, or domain-object dependency",
+    "The 26 exact typed video identity subjects, including the direct identity assessor input, are APPLICABLE with the authorized video-or-frame-reference condition; measurement and qualification remain NOT_EVALUATED.",
+    "Authorized speaker identification binds its typed authorized-speaker-reference input and purpose/consent authority in the exact P0 quality applicability row."
+  ],
+  "historicalBoundary": {
+    "historicalComparison": "NOT_ASSERTED",
+    "preservedArtifacts": [
+      "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+      "docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json"
+    ],
+    "decisions": [
+      "PXD-098",
+      "PXD-105"
+    ],
+    "acceptanceEffect": "none"
+  },
+  "semanticEquivalence": "NOT_ASSERTED",
+  "acceptanceEffect": "none; current-source structural and semantic join checks only",
+  "reviewBoundary": "No metric measurement, calibration, qualification, runtime support, or historical approval is asserted.",
+  "reviewedDimensions": [
+    {
+      "id": "QUALITY-DIM-STRUCTURAL-VALIDITY",
+      "scope": "Typed inputs and outputs for an exact capability intent; applicability is resolved at leaf level."
+    },
+    {
+      "id": "QUALITY-DIM-PERCEPTUAL",
+      "scope": "Image, video, and audio outcomes only for a named task, modality, and supported measurement regime."
+    },
+    {
+      "id": "QUALITY-DIM-INTENT-FIDELITY",
+      "scope": "Requirements and references explicitly declared for a capability intent; inferred intent alone does not establish a test oracle."
+    },
+    {
+      "id": "QUALITY-DIM-DOMAIN-SCIENTIFIC",
+      "scope": "A specific domain model, simulation, measurement, or declared physical/educational/scientific constraint."
+    },
+    {
+      "id": "QUALITY-DIM-RIGHTS-SAFETY",
+      "scope": "Current rights, consent, privacy, safety, identity/biometric, egress, retention, and effect authority for the exact use."
+    },
+    {
+      "id": "QUALITY-DIM-DELIVERY-COMPATIBILITY",
+      "scope": "A named output target, device/player contract, codec/container, color/audio/caption requirements, and delivery mode."
+    }
+  ],
+  "videoIdentityApplicability": {
+    "metricRef": "QUALITY-METRIC-VIDEO-IDENTITY-OBJECT-GEOMETRY",
+    "capabilityRefs": [
+      "media.enhance.video.compression-repair",
+      "media.enhance.video.deflicker",
+      "media.enhance.video.deinterlace",
+      "media.enhance.video.frame-rate-conversion",
+      "media.enhance.video.frame-repair",
+      "media.enhance.video.grain.adjust",
+      "media.enhance.video.interpolation",
+      "media.enhance.video.inverse-telecine-cadence",
+      "media.enhance.video.motion-blur-synthesis",
+      "media.enhance.video.rolling-shutter",
+      "media.enhance.video.spatiotemporal-super-resolution",
+      "media.enhance.video.stabilize",
+      "media.enhance.video.temporal-consistency",
+      "media.enhance.video.temporal-deblur",
+      "media.enhance.video.temporal-denoise",
+      "media.generate.video.drive.audio",
+      "media.generate.video.drive.speech",
+      "media.generate.video.image-to-video",
+      "media.generate.video.keyframe.end",
+      "media.generate.video.keyframe.intermediate",
+      "media.generate.video.keyframe.start",
+      "media.generate.video.reference-video",
+      "media.generate.video.text-image-to-video",
+      "media.generate.video.text-to-video",
+      "media.generate.video.video-to-video",
+      "media.quality.video.video.assess-identity-consistency"
+    ],
+    "applicableCount": 26,
+    "notApplicableCount": 436,
+    "requiredReferenceArtifactType": "video-or-frame-reference",
+    "conditionalPredicate": "Exact frame/geometry reference and an authorized identity comparison are required; otherwise NOT_EVALUATED.",
+    "measurementState": "NOT_EVALUATED",
+    "qualificationState": "NOT_EVALUATED",
+    "rationale": "Exact P0 typed candidate/derived video outputs make the metric applicable; reference authorization/alignment remains a conditional evaluation prerequisite and no P1 schema binding is an applicability gate."
+  }
+}

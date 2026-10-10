@@ -8,6 +8,8 @@ import { validateMigrationClaimCohort, validateMigrationClaimReview } from "../s
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
+const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? "ALL";
+if (!["ALL", "PDP-0"].includes(candidatePhase)) throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be ALL or PDP-0; got ${candidatePhase}`);
 const parseYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const migrationPath = ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml";
 const constitutionPath = ".product-experience/pdp-0-product-truth/constitution.yaml";
@@ -16,10 +18,10 @@ const migrationPathAlt = ".product-experience/pdp-0-product-truth/nonfunctional-
 const channelsPath = ".product-experience/pdp-0-product-truth/applications-channels.yaml";
 const migration = parseYaml(migrationPath);
 const constitution = parseYaml(constitutionPath);
-const typography = parseYaml(typographyPath);
+const typography = candidatePhase === "PDP-0" ? null : parseYaml(typographyPath);
 const nfr = parseYaml(migrationPathAlt);
 const channels = parseYaml(channelsPath);
-const owners = new Map([[constitutionPath, constitution], [typographyPath, typography], [migrationPathAlt, nfr], [channelsPath, channels]]);
+const owners = new Map([[constitutionPath, constitution], ...(typography ? [[typographyPath, typography]] : []), [migrationPathAlt, nfr], [channelsPath, channels]]);
 const sha = (value) => createHash("sha256").update(typeof value === "string" ? value : JSON.stringify(value)).digest("hex");
 
 const targets = new Map([
@@ -36,7 +38,6 @@ const targets = new Map([
   ["MPSEM-0369-C002", `${constitutionPath}#invariants/records/@id=MEDIA-INV-005/auditDurabilityDistinction`],
   ["MPSEM-0371-C002", `${constitutionPath}#invariants/records/@id=MEDIA-INV-004/untrustedContentBoundary`],
   ["MPSEM-0375-C005", `${constitutionPath}#domainRules/records/@id=MEDIA-DOMAIN-RULE-003/failClosed`],
-  ["MPSEM-0442-C001", `${typographyPath}#density`],
   ["MPSEM-0038-C002", `${constitutionPath}#/invariants/records/@id=MEDIA-INV-005/diagnosticDeliveryGuaranteeRule`],
   ["MPSEM-0038-C003", `${constitutionPath}#/invariants/records/@id=MEDIA-INV-005/diagnosticFailureRule`],
   ["MPSEM-0453-C006", `${channelsPath}#/localeAdmission/requiredResilienceTestRule`],
@@ -56,7 +57,6 @@ const predicates = new Map([
   ["MPSEM-0369-C002", ["Required durable audit intent", "optional debug telemetry", "cannot substitute"]],
   ["MPSEM-0371-C002", ["Untrusted user or model content", "modify system policy", "select privileged tools", "exfiltrate other assets"]],
   ["MPSEM-0375-C005", ["OUTCOME_UNKNOWN", "authoritative reconciliation", "before retry or finality claims"]],
-  ["MPSEM-0442-C001", ["intent and safe defaults", "one primary task", "next safe action", "quality", "style", "duration", "reference", "output", "privacy", "same state and actions", "typed graph", "curves", "solver limits", "generation", "color", "audio", "encoding controls", "no hidden change to action meaning or authority"]],
   ["MPSEM-0038-C002", ["ambient or best-effort label specifies no delivery", "ordering, persistence, or durability guarantee", "remote sink lag is a diagnostic delivery condition"]],
   ["MPSEM-0038-C003", ["Best-effort bounded diagnostics may be delayed, dropped, or unavailable without changing the business outcome", "Diagnostic failure cannot replace", "block the effect"]],
   ["MPSEM-0453-C006", ["Latin and Devanagari fixtures", "RTL or pseudo-localization", "bidi direction", "licensed font fallback", "script shaping", "translated-caption wrapping", "does not admit a locale"]],
@@ -131,8 +131,9 @@ test("fail-closed, policy separation and audit clauses reject weakened variants"
   assert.equal(validateMigrationClaimReview({ claim: auditClaim, expectedTargetRef: auditRef, targetValue: audit.replace("cannot substitute", "may substitute"), requiredPredicates: predicates.get(auditClaim.claimId) }).valid, false);
 });
 
-test("the human-readable Simple/Guided/Expert density progression is not collapsed", () => {
-  const density = resolveRef(targets.get("MPSEM-0442-C001"));
+test("the human-readable Simple/Guided/Expert density progression is not collapsed", { skip: candidatePhase === "PDP-0" }, () => {
+  const target = `${typographyPath}#density`;
+  const density = resolveRef(target);
   assert.equal(Object.keys(density).sort().join(","), "expert,guided,simple");
   assert.match(density.simple, /one primary task/u);
   assert.match(density.guided, /rights status/u);
@@ -140,12 +141,13 @@ test("the human-readable Simple/Guided/Expert density progression is not collaps
   const missingSummary = structuredClone(density);
   missingSummary.simple = "primary task";
   const claim = claimRows().find((row) => row.claimId === "MPSEM-0442-C001");
-  assert.equal(validateMigrationClaimReview({ claim, expectedTargetRef: targets.get(claim.claimId), targetValue: missingSummary, requiredPredicates: predicates.get(claim.claimId) }).valid, false);
+  const required = ["intent and safe defaults", "one primary task", "next safe action", "quality", "style", "duration", "reference", "output", "privacy", "same state and actions", "typed graph", "curves", "solver limits", "generation", "color", "audio", "encoding controls", "no hidden change to action meaning or authority"];
+  assert.equal(validateMigrationClaimReview({ claim, expectedTargetRef: target, targetValue: missingSummary, requiredPredicates: required }).valid, false);
   for (const field of ["guided", "expert"]) {
     for (const option of field === "guided" ? ["style", "duration", "reference", "output", "privacy"] : ["typed graph", "curves", "solver limits", "generation", "color", "audio", "encoding"]) {
       const weakened = structuredClone(density);
       weakened[field] = weakened[field].replace(option, "removed");
-      assert.equal(validateMigrationClaimReview({ claim, expectedTargetRef: targets.get(claim.claimId), targetValue: weakened, requiredPredicates: predicates.get(claim.claimId) }).valid, false, `${field} must retain ${option}`);
+      assert.equal(validateMigrationClaimReview({ claim, expectedTargetRef: target, targetValue: weakened, requiredPredicates: required }).valid, false, `${field} must retain ${option}`);
     }
   }
 });

@@ -26,7 +26,7 @@ function setPositiveFacts(expression, facts = {}) {
   return facts;
 }
 function setFact(facts,fact,value){
-  if(fact==="tenant.matches"){facts.tenant={requestTenantId:value?"tenant-a":"tenant-a",resourceTenantId:value?"tenant-a":"tenant-b"};return;}
+  if(fact==="tenant.matches"){facts.modelInputs["tenant.matches"]=value;return;}
   if(fact==="expectedVersionMatches"){facts.version={expected:"rev-2",current:value?"rev-2":"stale"};return;}
   if(fact==="expectedVersionConflicts"){facts.version={expected:"rev-2",current:value?"stale":"rev-2"};return;}
   if(fact==="consentPerEffectCurrent"){
@@ -36,31 +36,31 @@ function setFact(facts,fact,value){
     const consentAuthority=".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope";
     const effectRef="media.effect.stream-frame.submit", consentId="consent-record-9", consentRevisionRef="media.consent-revision/consent-record-9/v9";
     const subjectArtifactVersionRef="media.artifact-version/session-7-v4", purposeRef="media.purpose.live-capture", regionRef="media.region.us", retentionPolicyRef="media.retention.stream-24h.v1";
-    const trustedConsentContext={tenantScopeRef,principalRef,subjectArtifactVersionRef,purposeRef,regionRef,retentionPolicyRef,expectedRightsAuthorityRef:rightsAuthority,expectedRightsReadVersion:"rights-read-v8",expectedConsentReadAuthorityRef:consentAuthority,expectedConsentReadVersion:"consent-read-v8",now:"2026-10-09T12:00:00.000Z",maxAgeMs:60000,expectedEffects:[{effectRef,consentId,consentRevisionRef,consentRevisionVersion:9,decisionAuthorityVersionRef:"media.policy-decision/decision-8/v1"}]};
+    const trustedConsentContext={tenantScopeRef,principalRef,subjectArtifactVersionRef,purposeRef,regionRef,retentionPolicyRef,expectedRightsAuthorityRef:rightsAuthority,expectedRightsReadVersion:"rights-read-v8",expectedConsentReadAuthorityRef:consentAuthority,expectedConsentReadVersion:"consent-read-v8",now:"2026-10-09T12:00:00.000Z",maxAgeMs:60000,expectedEffects:[{effectRef,consentId,consentRef:"media.consent-reference/consent-9",consentRevisionRef,consentRevisionVersion:9,decisionAuthorityVersionRef:"media.policy-decision/decision-8/v1",externalProcessingRequirement:"NOT_REQUIRED",biometricProcessingRequirement:"NOT_REQUIRED"}]};
     const rightsRequest={queryId:"query-rights-1",subjectArtifactVersionRef,decisionKind:"CONSENT",purposeRef,useRef:effectRef,regionRef,retentionPolicyRef};
     const rightsTrusted={tenantScopeRef,principalRef,expectedOperationRef:rightsContract.operationRefs[0],expectedReadAuthorityRef:rightsAuthority,expectedReadVersion:"rights-read-v8"};
     const rightsResult={tenantScopeRef,principalRef,queryId:rightsRequest.queryId,operationRef:rightsContract.operationRefs[0],requestFingerprint:typedObservationRequestFingerprint(rightsRequest,rightsTrusted),readAuthorityRef:rightsAuthority,currentness:"CURRENT",decisionKind:"CONSENT",observationStatus:allowed?"ALLOWED_FOR_DECLARED_SCOPE":"REVOKED",observedAt:"2026-10-09T11:59:30.000Z",readVersion:"rights-read-v8",decision:{tenantScopeRef,principalRef,subjectArtifactVersionRef,decisionKind:"CONSENT",purposeRef,useRef:effectRef,regionRef,retentionPolicyRef,authorityRef:rightsAuthority,authorityVersionRef:"media.policy-decision/decision-8/v1",effectDisposition:allowed?"PERMITTED":"REVOKED",validFrom:"2026-10-09T11:00:00.000Z",validUntil:"2026-10-09T13:00:00.000Z",evidenceRefs:[consentRevisionRef,"media.evidence/decision-8"]}};
-    const consentRequest={queryId:"query-consent-1",consentId,purposeRef},consentTrusted={tenantScopeRef,principalRef};
+    const consentRequest={queryId:"query-consent-1",consentId,purposeRef},consentTrusted={tenantScopeRef,principalRef,expectedOperationRef:consentRevisionContract.operationRef,expectedReadAuthorityRef:consentAuthority,expectedReadVersion:"consent-read-v8"};
     const consentResult={queryId:consentRequest.queryId,requestFingerprint:typedObservationRequestFingerprint(consentRequest,consentTrusted),operationRef:consentRevisionContract.operationRef,readAuthorityRef:consentAuthority,currentness:"CURRENT",readVersion:"consent-read-v8",observedAt:"2026-10-09T11:59:30.000Z",outcome:{kind:"OBSERVED_CONSENT_REVISION",consentId,consentRef:"media.consent-reference/consent-9",consentRevisionRef,tenantScopeRef,principalRef,purposes:[purposeRef],allowedRegions:[regionRef],externalProcessingAllowed:true,biometricProcessingAllowed:false,status:allowed?"ACTIVE":"REVOKED",authorityRef:rightsAuthority,evidenceRef:"media.evidence/consent-9",grantedAt:"2026-10-09T11:00:00.000Z",expiresAt:"2026-10-09T13:00:00.000Z",revokedAt:allowed?null:"2026-10-09T11:30:00.000Z",version:9}};
     facts.trustedConsentContext=trustedConsentContext;facts.typedOwnerFacts={consentPerEffectCurrent:{effectReads:[{rightsRequest,rightsResult,consentRequest,consentResult}]}};return;
   }
-  facts.guardFacts[fact]=value;
+  facts.modelInputs[fact]=value;
 }
-function setFalseFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},guardFacts:{}}){
+function setFalseFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},modelInputs:{}}){
   if(expression.fact)setFact(facts,expression.fact,false);
   else if(expression.all)setFalseFacts(expression.all[0],facts);
   else if(expression.any)expression.any.forEach(child=>setFalseFacts(child,facts));
   else if(expression.not)setFact(facts,expression.not.fact,true);
   return facts;
 }
-function setInvalidFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},guardFacts:{}}){
+function setInvalidFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},modelInputs:{}}){
   if(expression.fact)setFact(facts,expression.fact,"not-a-boolean");
   else if(expression.all)expression.all.forEach(child=>setInvalidFacts(child,facts));
   else if(expression.any)expression.any.forEach(child=>setInvalidFacts(child,facts));
   else if(expression.not)setInvalidFacts(expression.not,facts);
   return facts;
 }
-function clearFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},guardFacts:{}}){
+function clearFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},modelInputs:{}}){
   if(expression.fact)removeFact(facts,expression.fact);
   else if(expression.all)expression.all.forEach(child=>clearFacts(child,facts));
   else if(expression.any)expression.any.forEach(child=>clearFacts(child,facts));
@@ -69,19 +69,19 @@ function clearFacts(expression,facts={tenant:{requestTenantId:"tenant-a",resourc
 }
 function collectOperators(node,found=[]){if(!node||typeof node!=="object")return found;if(node.any)found.push({kind:"any",node});if(node.not)found.push({kind:"not",node});for(const value of Object.values(node)){if(Array.isArray(value))value.forEach(child=>collectOperators(child,found));else if(value&&typeof value==="object")collectOperators(value,found);}return found;}
 function fixture(edge) {
-  const facts = setPositiveFacts(edge.when,{tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},version:{expected:"rev-2",current:"rev-2"},guardFacts:{}});
+  const facts = setPositiveFacts(edge.when,{tenant:{requestTenantId:"tenant-a",resourceTenantId:"tenant-a"},version:{expected:"rev-2",current:"rev-2"},modelInputs:{}});
   return facts;
 }
 function falseFact(facts, fact) {
   if (fact === "expectedVersionMatches") facts.version.current = "stale";
   else if (fact === "expectedVersionConflicts") facts.version.current = facts.version.expected;
   else if (fact === "consentPerEffectCurrent") setFact(facts,fact,false);
-  else facts.guardFacts[fact]=false;
+  else facts.modelInputs[fact]=false;
 }
 function removeFact(facts, fact) {
   if (fact === "expectedVersionMatches" || fact === "expectedVersionConflicts") delete facts.version;
   else if (fact === "consentPerEffectCurrent") delete facts.typedOwnerFacts;
-  else delete facts.guardFacts[fact];
+  else delete facts.modelInputs[fact];
 }
 function mandatoryFacts(expression, found = new Set(), optional=false) {
   if (expression.fact) { if (!optional && expression.fact !== "tenant.matches") found.add(expression.fact); return [...found]; }
@@ -132,7 +132,8 @@ test("all 55 transitions allow each declared legal edge and reject every forbidd
     assert.equal(contract.sourceMachineId,transition.sourceMachineId);
     for(const edge of contract.edgeRules){
       assert.ok(transition.from.includes(edge.from)&&transition.to.includes(edge.to));
-      assert.equal(evaluate(transition.id,edge.from,edge.to,fixture(edge)).allowed,true,`${transition.id} ${edge.from}->${edge.to}`);
+      const accepted = evaluate(transition.id,edge.from,edge.to,fixture(edge));
+      assert.equal(accepted.allowed,true,`${transition.id} ${edge.from}->${edge.to}: ${accepted.reasonCodes.join(",")}`);
       for(const fact of mandatoryFacts(edge.when)){
         const denied=fixture(edge); falseFact(denied,fact);
         assert.equal(evaluate(transition.id,edge.from,edge.to,denied).allowed,false,`${transition.id} rejects ${fact}`);

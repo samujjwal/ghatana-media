@@ -1,64 +1,119 @@
 TAP version 13
-# Subtest: all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
-ok 1 - all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
+# Subtest: capability families are exact leaf groupings without inherited operations or readiness
+ok 1 - capability families are exact leaf groupings without inherited operations or readiness
   ---
-  duration_ms: 1159.260267
+  duration_ms: 3.385235
   type: 'test'
   ...
-# Subtest: all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
-ok 2 - all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
+# Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
+ok 2 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 10378.162367
+  duration_ms: 39.330438
   type: 'test'
   ...
-# Subtest: owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
-ok 3 - owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
+# Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
+ok 3 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 1114.894758
+  duration_ms: 13821.851128
   type: 'test'
   ...
-# Subtest: owner wire base selectors resolve an exact real operation, profile, and bound
-ok 4 - owner wire base selectors resolve an exact real operation, profile, and bound
+# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
+ok 4 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 587.111373
+  duration_ms: 16432.565343
   type: 'test'
   ...
-# Subtest: simulation passes reject cross-pass output, missing provenance and wrong source bindings
-ok 5 - simulation passes reject cross-pass output, missing provenance and wrong source bindings
+# Subtest: source-free animation authoring does not claim a source-derived transformation
+ok 5 - source-free animation authoring does not claim a source-derived transformation
   ---
-  duration_ms: 85.266989
+  duration_ms: 13879.386939
   type: 'test'
   ...
-# Subtest: edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
-ok 6 - edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
+# Subtest: P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
+ok 6 - P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
   ---
-  duration_ms: 71.846007
+  duration_ms: 9275.053118
   type: 'test'
   ...
-# Subtest: owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
-ok 7 - owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
+1..0
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
+ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
   ---
-  duration_ms: 2.916024
+  duration_ms: 8483.179663
   type: 'test'
   ...
-# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
-ok 8 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
+# Subtest: P0 capability outcomes state exact result meaning without operation claims
+ok 8 - P0 capability outcomes state exact result meaning without operation claims
   ---
-  duration_ms: 1838.915093
+  duration_ms: 24989.970185
   type: 'test'
   ...
-# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-ok 9 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
+# Subtest: P0 outcome validation rejects generic, incomplete, or operation-specific result claims
+ok 9 - P0 outcome validation rejects generic, incomplete, or operation-specific result claims
   ---
-  duration_ms: 25250.619627
+  duration_ms: 4694.994739
   type: 'test'
   ...
-1..9
-# tests 9
+# Subtest: project creation requires a title without claiming initial project contents
+ok 10 - project creation requires a title without claiming initial project contents
+  ---
+  duration_ms: 3.697398
+  type: 'test'
+  ...
+# Subtest: scientific demo separates visual plausibility from domain-validated results
+ok 11 - scientific demo separates visual plausibility from domain-validated results
+  ---
+  duration_ms: 0.924781
+  type: 'test'
+  ...
+# Subtest: export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
+ok 12 - export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
+  ---
+  duration_ms: 2.048868
+  type: 'test'
+  ...
+# Subtest: PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
+ok 13 - PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
+  ---
+  duration_ms: 15652.416728
+  type: 'test'
+  ...
+# Subtest: PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
+ok 14 - PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
+  ---
+  duration_ms: 5444.119635
+  type: 'test'
+  ...
+# Subtest: PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
+ok 15 - PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
+  ---
+  duration_ms: 8965.071086
+  type: 'test'
+  ...
+# Subtest: current P0 owner review and trust records preserve measurement semantics and fail closed
+ok 16 - current P0 owner review and trust records preserve measurement semantics and fail closed
+  ---
+  duration_ms: 6077.938919
+  type: 'test'
+  ...
+# Subtest: current P0 quality joins use the measurement record as the phase metric subject
+ok 17 - current P0 quality joins use the measurement record as the phase metric subject
+  ---
+  duration_ms: 15347.077527
+  type: 'test'
+  ...
+# Subtest: PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
+ok 18 - PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
+  ---
+  duration_ms: 14.628914
+  type: 'test'
+  ...
+1..18
+# tests 18
 # suites 0
-# pass 9
+# pass 18
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 42878.262496
+# duration_ms 30978.881257

@@ -18,9 +18,7 @@ productDefinitionContract:
     priority: requirements[].priority
     capabilityRef: owning family id
     traceToIntentIds: requirements[].traceToIntentIds
-  traceState: All requirement groups now reference proposed canonical P0-002 intents; independent review must confirm the
-    granularity of inherited family-level intent/outcome links. Actor, state, and channel proposals remain pending human and
-    owner review; this is not a generated ProductDefinition projection or acceptance result.
+  traceState: The Media owner defines the exact 38 family requirement-to-capability mappings and 462 stable machine capabilityIntentIds with leaf-local outcome semantics in capabilities.yaml. intentRefs and outcomeRefs remain secondary business-intent trace context and do not claim independently reviewed per-leaf business-intent fit. Exact-leaf channel applicability is owner-defined in capability-leaf-review.yaml; exact screen/action bindings remain pending P0-009, while requirement-level actor/state proposals remain pending their owning P0 tasks. P0-010 independent semantic acceptance remains pending; this source statement records development definition, not acceptance.
 ownerDefinedProjectionAuthorityRules:
 - id: media.requirement.generated-projection-single-authority.v1
   authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
@@ -99,6 +97,44 @@ ownerDefinedCrossMediaMechanicsRules:
     bindings with declared ordering, conversion, and loss. It cannot infer a common effect or qualification from shared
     labels.
   status: DEFINITION_ONLY; no cross-modal runtime parity or quality qualification is implied.
+ownerDefinedOperationRequestBoundsRules:
+- id: media.requirement.operation-request-bounds.v1
+  authority: delegated-Media-product-definition-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  application: Each requirement is a family-level obligation. Its capabilityIds identify the exact leaves whose individual
+    operation/request contracts in capabilities.yaml refine the obligation; a family statement, label, shared operation name,
+    or generated PDP-1 operation does not replace an exact leaf contract. Each invocation is bound to one exact leaf and the
+    requested profile/version, inputs, parameters, intended effect, and policy context before admission.
+  requestContract: The exact leaf ownerDefinition is authoritative for typed input slots and parameter schema, including
+    required/optional fields, accepted value meaning, outputs/effects, and explicit unsupported combinations. Any required
+    default, omission behavior, or profile-specific eligibility must be stated in the Media owner definition and its source;
+    absent defaults are not inferred from implementation, package, provider, UI, or PDP-1 behavior. Concrete PDP-1 operation
+    and wire-schema contracts are downstream handoff and must bind back to the exact capability leaf.
+  boundsAndUnits: A bound is stated only when an applicable product policy or source establishes it. Each applicable
+    resource dimension requires a finite bound, explicit unit, accountable authority, source, and pre-dispatch/ongoing
+    enforcement boundary under profile-semantics.yaml#boundedInvocationAdmission. Use that rule's dimension-specific units;
+    other domain quantities use the unit and time/coordinate/color convention declared by the exact leaf contract. No absent
+    product limit is filled with a guessed numeric ceiling or an unlimited interpretation.
+  unknownDisposition: UNKNOWN applicability, or a missing/NOT_EVALUATED bound, unit, authority, source, enforcement boundary,
+    required input meaning, or requested-profile binding means NOT_ADMITTED and blocks invocation before dispatch with an
+    explicit blocked/denied outcome. NOT_EVALUATED preserves an unresolved fact; it is not zero, unlimited, inapplicable, qualified, or available.
+    Inapplicability requires a reason and evidence. Measured limits and qualification remain NOT_EVALUATED until supported by
+    evidence; a product-level bounded-admission strategy is definable without asserting a numeric limit.
+  nonDefaultPolicy: No operation, provider, model, format, language, profile, parameter, resource budget, or fallback is a
+    default merely because it is named, present in code, or accepted by an adapter. A default or fallback is permitted only
+    when explicitly defined by the applicable Media owner policy, visible in effective parameters, and independently checked
+    for requested-profile eligibility, rights, bounds, and qualification. Otherwise omission or unsupported values are
+    rejected or resolved as explicitly unknown according to the leaf contract; silent substitution is prohibited.
+  supportStateSeparation: Intended scope and semantic definition are independent of implementation, license admission,
+    qualification, and current runtime availability. For each leaf/profile, only the matching evidence can advance its
+    support dimension; definition or a complete request shape never means implemented, licensed, qualified, or available.
+    UNKNOWN is not AVAILABLE and NOT_EVALUATED is not success.
+  sourceAuthority: requirements.yaml owns requirement-family intent and obligation; capabilities.yaml owns exact leaf
+    operation/request semantics; profile-semantics.yaml owns bounded-invocation admission and resource units;
+    qualification-policy.yaml owns qualification evidence semantics. Source phrases in the migration plan establish
+    provenance, not unstated request defaults or numeric bounds. This rule neither modifies PDP-1 ownership nor accepts
+    generated projections.
+  status: DEFINITION_ONLY; numeric limits, runtime enforcement, qualification, implementation, license admission, availability,
+    and independent P0-010 acceptance remain separate and are not asserted.
 requirements:
 - id: MEDIA-REQ-CAP-PROJECT
   scopeStatus: TARGET
@@ -133,8 +169,9 @@ requirements:
   traceToIntentIds:
   - media.intent.create
   - media.intent.edit
+  - media.intent.review-exact-version
   - media.intent.restore-project
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - creator
   - editor
@@ -190,7 +227,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -297,7 +334,7 @@ requirements:
   - media.intent.improve
   - media.intent.deliver
   - media.intent.manage-artifact-lifecycle
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - creator
   - editor
@@ -353,7 +390,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -475,7 +512,7 @@ requirements:
   - media.intent.simulate
   - media.intent.deliver
   - media.intent.resolve-job
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - creator
   - operator
@@ -535,7 +572,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -644,8 +681,9 @@ requirements:
   traceToIntentIds:
   - media.intent.create
   - media.intent.understand
+  - media.intent.deliver
   - media.intent.recover-live-session
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - creator
   - operator
@@ -701,7 +739,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -792,7 +830,7 @@ requirements:
   priority: must
   traceToIntentIds:
   - media.intent.choose-eligible-processing-option
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - developer-integrator
   - operator
@@ -846,7 +884,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -901,7 +939,7 @@ requirements:
   priority: must
   traceToIntentIds:
   - media.intent.check-processing-options
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - developer-integrator
   - operator
@@ -955,7 +993,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -1004,7 +1042,7 @@ requirements:
   priority: must
   traceToIntentIds:
   - media.intent.check-processing-readiness
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - operator
   actorBindingState: resolved-to-P0-002-canonical-actors-and-responsibility-roles
@@ -1057,7 +1095,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -1101,7 +1139,7 @@ requirements:
   traceToIntentIds:
   - media.intent.deliver
   - media.intent.review-rights-and-consent
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - creator
   - privacy-rights-reviewer
@@ -1156,7 +1194,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -1256,7 +1294,8 @@ requirements:
   - media.intent.improve
   - media.intent.deliver
   - media.intent.inspect-provenance
-  intentTraceState: traced-to-proposed-canonical-P0-002-intents; human-review-pending
+  - media.intent.manage-artifact-lifecycle
+  intentTraceState: media-owner-reviewed-fit-to-canonical-P0-002-intents; independent-P0-010-acceptance-pending
   actorRoles:
   - creator
   - reviewer
@@ -1311,7 +1350,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -1508,7 +1547,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -1684,7 +1723,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -1864,7 +1903,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -2029,7 +2068,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -2200,7 +2239,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -2370,7 +2409,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -2529,7 +2568,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -2688,7 +2727,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -2857,7 +2896,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -3030,7 +3069,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -3220,7 +3259,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -3391,7 +3430,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -3526,7 +3565,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -3700,7 +3739,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -3869,7 +3908,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -4057,7 +4096,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -4229,7 +4268,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -4408,7 +4447,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -4595,7 +4634,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -4778,7 +4817,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -4942,7 +4981,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -5108,7 +5147,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -5288,7 +5327,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -5455,7 +5494,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: project/revision state refs authored as proposals; P0-005 owner review pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -5630,7 +5669,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -5792,7 +5831,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -5949,7 +5988,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -6105,7 +6144,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -6282,7 +6321,7 @@ requirements:
     not invent a new external endpoint or duplicate owner schema.
   downstreamMappings:
     journeys: pending-P0-009
-    viewsAndChannels: pending-P0-007/P0-009
+    viewsAndChannels: exact-leaf-channel-applicability-bound-in-capability-leaf-review.yaml; exact-screen/action-bindings-pending-P0-009
     states: proposed state-model references authored; owner review and P0-010 pending
     implementation: not-authorized-by-definition
   actorRoleBindings:
@@ -6427,9 +6466,10 @@ ownerDefinedInputInspectionRules:
     processing or publish derived output.
   sourceRefs:
   - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
-  - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
-  requiredFacts: [exactArtifactVersion, purpose, inspectionMethodAndVersion, observedOrEstimated, uncertainty, sourceProvenance]
+  - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+  requiredFacts: [exactArtifactVersion, capabilityIntentId, purpose, p0InputMeaning, inspectionMethodAndVersion, observedOrEstimated, uncertainty, sourceProvenance]
   unknownDisposition: DENY_DOWNSTREAM_ASSUMPTION; preserve UNKNOWN and require explicit resolution
+  downstreamHandoff: PDP-1 binds the stable capability intent to a concrete inspection operation and wire contract; operation identity is not a PDP-0 prerequisite.
   executionAdmission: NOT_ADMITTED
   independentAcceptance: P0-010-review-open
 ownerDefinedSimulationScopeRules:
@@ -6438,23 +6478,25 @@ ownerDefinedSimulationScopeRules:
   rule: >-
     Simulation capability families are distinct by modeled domain and output semantics. A rigid-body solver is not a fluid
     solver; a volume representation is not a simulation implementation; no engine is presumed to implement all listed
-    regimes. Media owns the execution contract and media representation, while domain equations, educational/scientific
-    claims, clinical meaning, empirical calibration, validity ranges, and domain-specific acceptance remain with the
-    qualified domain owner. Visual plausibility is not scientific or physical correctness. Each selected operation/profile
-    must name its exact model/solver family, typed inputs and outputs, units, bounds, and qualification evidence; a missing
-    or unqualified family stays unavailable rather than being silently substituted.
-  requiredFacts: [exactSimulationFamily, modelOrSolverIdentityAndVersion, typedInputsAndOutputs, unitsAndBounds, qualifiedDomainOwner, validationEvidence]
+    regimes. Media owns the capability intent, semantic input/output shapes, and media representation, while domain equations,
+    educational/scientific claims, clinical meaning, empirical calibration, validity ranges, and domain-specific acceptance
+    remain with the qualified domain owner. Visual plausibility is not scientific or physical correctness. Each simulation
+    capability intent/profile declares its exact modeled family, semantic inputs and outputs, units, bounds, applicable domain
+    owner, and required validation meaning. A concrete solver identity/version and qualification evidence are downstream
+    implementation bindings; a missing or unqualified family stays unavailable rather than being silently substituted.
+  requiredFacts: [capabilityIntentId, exactSimulationFamily, semanticInputsAndOutputs, unitsAndBounds, qualifiedDomainOwner, validationMeaning]
+  downstreamHandoff: PDP-1 binds the P0 simulation family and semantic shapes to exact solver operations and typed wire contracts; PDP-0 does not require those operation bindings.
   unknownDisposition: BLOCK_OR_REVIEW; no cross-family substitution and no scientific claim
   executionAdmission: NOT_ADMITTED
   independentAcceptance: P0-010-and-domain-owner-review-open
 ownerDefinedLeafTrustReconstructionPolicy:
   id: media.requirement.leaf-trust-reconstruction-policy.v1
   sourceAuthority: Media product definition
-  appliesTo: Every exact capability leaf in the current capability register, joined to its owner-adjudicated typed input/output and operation contract.
+  appliesTo: Every exact capability leaf in the current capability register, joined by stable capability intent ID to its P0 semantic input/output shapes and owner-adjudicated disposition.
   rule: >-
-    Each capability declares an explicit trust/reconstruction disposition against its exact typed inputs, outputs, and
-    operation contract. A source-derived transformation or generated/reconstructed output is bound to the exact
-    source/request version and operation branch; the source is never overwritten. A derivative may change meaning or
+    Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs. A
+    source-derived transformation or generated/reconstructed output is bound to the exact
+    source/request version and declared semantic output branch; the source is never overwritten. A derivative may change meaning or
     fidelity and is not a claim of lossless preservation. Record the transformation or generation method and effective
     profile/version, provenance, evidence, uncertainty, and material limits; never present generated detail as recovered
     fact. An estimator, classifier, measurement, quality
@@ -6469,11 +6511,11 @@ ownerDefinedLeafTrustReconstructionPolicy:
     branch applies, preserve UNKNOWN and block the affected claim rather than infer from a capability name. This policy
     does not grant rights, consent, execution, provider admission, scientific validity, or independent acceptance.
   requiredLeafBindings:
-    - exact capability source identity
+    - exact stable capability intent identity
     - exact owner capability adjudication identity
-    - exact canonical operation contract
-    - exact typed input and output populations
+    - P0 semantic input and output shapes
     - explicit owner-selected disposition and material rationale
+  downstreamHandoff: PDP-1 supplies concrete operation contracts and wire schemas, each back-bound to the stable P0 capability intent; those bindings do not gate P0 definition completeness.
   dispositions:
     - SOURCE_DERIVED_TRANSFORMATION
     - ESTIMATED_OR_RECONSTRUCTED
@@ -6636,8 +6678,9 @@ ownerDefinedProductMissionCapabilityMaps:
     governedMediaRequires:
       - .product-experience/pdp-0-product-truth/constitution.yaml#productMission
       - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
-      - .product-experience/pdp-1-domain-data/privacy.yaml#retentionAndErasure
-      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts
+      - .product-experience/pdp-0-product-truth/constitution.yaml#invariants
+      - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+    downstreamHandoff: PDP-1 maps each P0 capability intent to logical operations and concrete request/result contracts, applying the P0 rights, privacy, retention, and policy constraints.
     interpretation: >-
       These exact capability identities express the intended breadth of the
       product mission; they do not imply that each capability is implemented,

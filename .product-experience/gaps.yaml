@@ -318,17 +318,20 @@ gaps:
   scope: extract-and-reconcile-unique-product-semantic-proposals-from-the-migration-execution-plan-into-owning-PDP-authorities
   owner: media-product-owners-and-relevant-domain-interface-design-and-experience-owners
   evidence: >-
-    docs/migration/expert-reviewed-master-plan.md is an execution reference and its source-pinned review register now covers
-    1,340 unique content blocks. A bounded owner classification covers 86 exact structural, provenance, navigation,
-    and Appendix A crosswalk items (18 EXECUTION_ONLY; 68 EVIDENCE_REFERENCE), with no semantic acceptance. Current
-    unresolved semantic content is 263 items: 133 SINGLE_SEMANTIC_CLASS, 124 MIXED_REQUIRES_DECOMPOSITION, and 6
-    still-proposed NO_NORMATIVE_CONTENT blocks. Semantic owner review remains 0; 86 non-normative classifications are
-    recorded separately. Task crosswalks do not establish equivalence, completion, or receipt transfer. The Lifecycle
-    ownership row is extracted to the exact AUTH-RULE-CLOSURE-AND-EVIDENCE record, without accepting that rule or closing this gap.
-  remaining: Reconcile 263 unresolved semantic content items to their owning PDP records; decompose only owner-confirmed
-    mixed blocks; preserve crosswalk/provenance references without inferring task completion or equivalence; and obtain
-    applicable semantic owner acceptance before treating any proposal as accepted. P0-03 remains open.
-  impact: blocks-full-CROSS-004-acceptance-and-affected-PDP-semantic-acceptance; does-not-change-bounded-CROSS-001-approval
+    The original source-pinned review register and its 1,340-item population remain historical evidence. Its 260
+    unresolved source units and the 361 locator-only claim candidates in migration-semantics-review.yaml are preserved
+    as historical counts, not as the current P0-03 exit denominator. The active source-change delta is
+    docs/migration/current-master-plan-claim-dispositions.json: 129 exact current-source claims are dispositioned
+    (20 clarified, 12 adopted, 57 execution-only, 7 external-owner, 12 superseded, 21 out-of-current-product-scope),
+    `p0MeaningOnlyInOldPlan` is empty, and its one P1 external handoff is explicitly not a P0 meaning gap. Its focused
+    regression is tests/pdp-migration-current-source-claim-dispositions.test.mjs. This owner overlay establishes no
+    independent semantic acceptance, implementation, qualification, runtime behavior, or Lifecycle evidence.
+  remaining: >-
+    Preserve the historical source pins, item classifications, and old claim counts for traceability. Any new
+    current-source delta must be reviewed through the 129-claim disposition overlay and routed to its owning phase;
+    do not reopen the historical 260/361 populations as a P0-03 gate. Applicable independent owner acceptance and
+    broader CROSS-004 migration acceptance remain separate.
+  impact: historical-migration-review-and-broader-CROSS-004-acceptance-only; does-not-block-current-P0-03-development-exit
 - id: GAP-MEDIA-CLEAN-5-STALE-DOCKER-GRADLE-PATHS
   taskRef: CLEAN-5
   status: gated

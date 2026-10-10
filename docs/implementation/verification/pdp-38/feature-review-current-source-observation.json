@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-105",
+  "baseReviewRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseReviewSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "referenceCorrectionRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json",
+  "referenceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-101",
+  "currentCutRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#P0-07",
+  "currentCutDecisionRef": ".product-experience/decision-log.md#PXD-105",
+  "scope": "Additive current-source observation for the single PXD-098/PXD-101 text-to-image capability referent after P0/P1 decoupling. PXD-098 and PXD-101 remain immutable; this observation records the exact current source delta without asserting semantic equivalence or renewing clause approval.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+  "sourcePinSha256": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+  "currentSourceSha256": "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25",
+  "record": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.text-to-image",
+    "identity": "media.generate.image.text-to-image",
+    "historicalPxd098ContentSha256": "3697f0a093ecae9bab2497f8a498ec6dba84b5b3d17d7020db300de2249725cc",
+    "priorPxd101CurrentContentSha256": "2a6fa4812b77fa1f1bfdb85d2c45d84b458a1a09e3702fa1b8cf468776c3cde8",
+    "currentContentSha256": "88238037f49e21bf55f2a7dcfcce6bc9db144e79ae8a05f087e1e67dd1aa5324",
+    "changedPaths": [
+      {
+        "path": [
+          "supportedParameters"
+        ],
+        "prior": "Not yet enumerated; the owning profile/public contract must define units, ranges, defaults, and unsupported values before a claim of support.",
+        "current": "P0 defines parameter fields in ownerDefinition.parameterSchema: outputWidth, outputHeight, outputProfileRef. This is a typed request-shape definition, not evidence of product support, qualification, or runtime availability; profile-specific defaults and eligibility remain separate owner decisions. Typed input meaning is defined by this leaf's P0 ownerDefinition.typedInputSlots."
+      },
+      {
+        "path": [
+          "executionResourceRequirements"
+        ],
+        "prior": "Declare required execution location and bounded CPU/RAM/VRAM/storage/network/time/cost/profile; values are not selected or measured here.",
+        "current": "Resolve this leaf under .product-experience/pdp-0-product-truth/profile-semantics.yaml#boundedInvocationAdmission. Each APPLICABLE resource dimension requires a finite bound, unit, accountable authority, source, and pre-dispatch plus ongoing enforcement. UNKNOWN applicability or an incomplete APPLICABLE bound blocks before dispatch with an explicit denial; INAPPLICABLE requires a reason and evidence. This product definition selects no numeric resource limit and claims no runtime availability."
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "ownerDisposition"
+        ],
+        "prior": "MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY",
+        "current": "MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY"
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "operationRefs"
+        ],
+        "prior": [
+          "media.operation.capability.media-generate-image-text-to-image"
+        ],
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "operationKind"
+        ],
+        "prior": "COMMAND",
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "operationContractRef"
+        ],
+        "prior": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-generate-image-text-to-image",
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "typedInputSlots",
+          "0",
+          "payloadSchemaRef"
+        ],
+        "prior": "media.typed-input.text-or-visual-intent",
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "typedInputSlots",
+          "1",
+          "payloadSchemaRef"
+        ],
+        "prior": "media.typed-input.optional-authorized-reference-artifacts",
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "successOutputs",
+          "0",
+          "payloadSchemaRef"
+        ],
+        "prior": "media.typed-output.candidate-image-artifact-with-execution-provenance",
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "idempotency"
+        ],
+        "prior": "tenant+principal+operationRef+requestId+canonical-payload-fingerprint; exact replay returns same receipt; key reuse with different payload conflicts.",
+        "current": "Repeating the same admitted intent within the same authority scope must not create duplicate consequential effects; conflicting intents remain distinguishable."
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "recovery"
+        ],
+        "prior": "After ambiguous response reconcile same requestId and payload fingerprint; no blind retry; retry only proven non-acceptance with same idempotency identity.",
+        "current": "When a consequential outcome is unknown, preserve that uncertainty and reconcile with the authoritative owner before another effect; do not infer success, failure, or retry eligibility."
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "canonicalAuthorityRefs"
+        ],
+        "prior": [
+          ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope",
+          ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/effectBoundary",
+          ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/duplicateEffectPrevention"
+        ],
+        "current": null
+      },
+      {
+        "path": [
+          "ownerDefinition",
+          "capabilityIntentId"
+        ],
+        "prior": null,
+        "current": "media.generate.image.text-to-image"
+      },
+      {
+        "path": [
+          "intentBindingState"
+        ],
+        "prior": "bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending",
+        "current": "P0_OWNER_DEFINED_CAPABILITY_INTENT; independent P0-010 semantic acceptance remains pending"
+      },
+      {
+        "path": [
+          "requirementTraceState"
+        ],
+        "prior": "bound-to-canonical-family-requirement-groups; per-leaf semantic closure pending P0-010",
+        "current": "P0_OWNER_DEFINED_EXACT_FAMILY_REQUIREMENT_TRACE; this leaf outcome is resolved; independent P0-010 semantic acceptance remains pending"
+      },
+      {
+        "path": [
+          "semanticReferenceScope"
+        ],
+        "prior": "intent/outcome/journey refs inherited from family requirement and supporting intent records; per-leaf fit pending independent review",
+        "current": "media.capability-intent.owner-binding.v1"
+      }
+    ],
+    "semanticEquivalence": "NOT_ASSERTED",
+    "interpretation": "The current record removes PDP-1 operation and executable-schema references from the P0 capability definition and expresses duplicate-effect and unknown-outcome behavior at the P0 product-intent level. This observation records the exact source change only; it does not claim that the record is unchanged or that historical PXD-098/PXD-101 material review is renewed."
+  },
+  "acceptanceEffect": "none",
+  "acceptanceBoundary": "Observation only. PXD-098, PXD-101, and PXD-105 are not rewritten or silently repinned. No new clause approval, PDP-1 operation mapping, runtime, deployment, qualification, or Lifecycle evidence is claimed."
+}

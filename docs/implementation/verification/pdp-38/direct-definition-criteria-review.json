@@ -6,7 +6,7 @@
     {
       "taskId": "P0-01",
       "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
-      "scope": "Exactly462 leaf identities have explicit owner dispositions and exact canonical operation/binding, typed input/output, profile/bounds and channel source references. Same-count substitution, missing identities and stale operation references are rejected.",
+      "scope": "PDP-0 capability meaning only: the 462-leaf identity set, owner-defined intent, typed semantic inputs and outputs, and source-backed applicability. PDP-1 operation and exact wire-schema closure are outside this criterion; the exact phase-noise-floor wire schema is deferred to P1.",
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "6f68d3a91531c9159390ef3681434e6a239040844b32054d5b955abedf16d90e",
         ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "611760e26f00cac2ba279486d4ed636b2bc37d0c619caa290d641f7f227986bb",
@@ -20,12 +20,39 @@
         "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7"
       },
       "currentCorrectiveReview": {
-        "status": "MATERIAL_SOURCE_CORRECTION_REVIEW_PENDING",
-        "decisionRef": ".product-experience/decision-log.md#PXD-117",
-        "scope": "The phase-noise-floor capability result must be an exact measurement record, not mastered audio. The current live correction and its quality/output applicability require a stable source cut, adversarial regression, and coordinator material reassessment. Other preserved capability criteria are not reopened merely because dependencies are unfinished.",
-        "observedAt": "2026-10-09T18:05:46.363171+00:00",
-        "requiredVerification": "Exact phase-noise measurement result/schema and applicability; negative mastered-audio substitution; whole current owner leaf wire consistency; changed feature referents reviewed without silently replacing prior approval pins.",
-        "acceptanceBoundary": "Prior published source approvals remain historical. No renewed current direct criterion, task dependency acceptance, qualified independent acceptance, runtime qualification, or Lifecycle receipt is claimed."
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-138",
+        "phaseScope": "PDP-0",
+        "scope": "Current P0 semantic meaning across the exact 462-leaf capability population, including the PXD-117 measurement result, owner trust reconstruction, and quality applicability. Exact P1 operation and wire-schema contracts remain deferred to P1.",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "798c44a29479c21917f14e5041b61ad6e85f1b8a5401a0184f8a9011fee72f38",
+          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+          "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json": "7ad8839b066ddb6775707d6a7683c79acf7cc6db94c2ac1a6b01c5475674146b",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json": "9486f2666877caf31d03eef027a4c8f10b755c675ef113bc5312cb77b6b39eb2",
+          "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs": "7ffbd97f98e75cb1a284e19931451cf3d08c7258e5ba2ddbe144713ff55bdfdb",
+          "tests/pdp0-capability-semantic-current-source-review.test.mjs": "ee3b2a9e3900439cbcef55eed123e0779aecc2a9af32e2264c19ee7a5f972bf9",
+          "tests/pdp0-quality-current-source-review.test.mjs": "b36db51a27a395f4b7eb38493040f82ab2201da0ea4805d440796189f5a86b37"
+        },
+        "verification": {
+          "status": "PASS",
+          "tests": 5,
+          "passed": 5,
+          "failed": 0,
+          "command": "node --test tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs tests/pdp0-capability-semantic-current-source-review.test.mjs tests/pdp0-quality-current-source-review.test.mjs",
+          "evidenceRefs": [
+            "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs",
+            "tests/pdp0-capability-semantic-current-source-review.test.mjs",
+            "tests/pdp0-quality-current-source-review.test.mjs"
+          ]
+        },
+        "acceptanceBoundary": "Current PDP-0 direct-definition criterion only. Historical approvals remain preserved. No downstream phase acceptance, task dependency acceptance, qualified independent P0-010 acceptance, implementation/qualification, runtime admission or Lifecycle receipt is claimed."
       },
       "historicalCorrectiveReviews": [
         {
@@ -116,13 +143,36 @@
             "productDefinitionPublicValidator": "PASS"
           },
           "acceptanceBoundary": "Bounded direct definition criterion renewed only; migration-semantic task completion, task dependencies, historical ledger, qualified independent acceptance, runtime qualification and Lifecycle receipts remain separate."
+        },
+        {
+          "status": "APPROVED_CURRENT_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-129",
+          "phaseScope": "PDP-0",
+          "scope": "PXD-117 is resolved at PDP-0 semantic scope: the phase-noise-floor leaf returns an exact typed phase-noise-floor measurement record, with matching owner adjudication, trust reconstruction, and quality applicability. The result is read-only and is not mastered audio or an audio derivative. Exact PDP-1 wire schema remains deferred to P1.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+            ".product-experience/pdp-0-product-truth/quality-policy.yaml": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+            "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json": "7ad8839b066ddb6775707d6a7683c79acf7cc6db94c2ac1a6b01c5475674146b",
+            "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json": "9486f2666877caf31d03eef027a4c8f10b755c675ef113bc5312cb77b6b39eb2",
+            "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs": "7ffbd97f98e75cb1a284e19931451cf3d08c7258e5ba2ddbe144713ff55bdfdb"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 3,
+            "passed": 3,
+            "failed": 0,
+            "evidenceRef": "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs",
+            "command": "node --test tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs"
+          },
+          "acceptanceBoundary": "PDP-0 semantic correction only. PXD-106 and earlier approvals remain historical. This does not accept P0-01 dependencies, exact PDP-1 wire schema, independent P0-010 review, implementation, qualification, runtime admission or Lifecycle evidence."
         }
       ]
     },
     {
       "taskId": "P0-02",
       "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
-      "scope": "All462 leaf-bound definitions resolve448 closed request/result schemas and14 existing-operation bindings;170 typed payload schemas are material and fail closed.14 distinct NFRs have exact owned measurement-method definitions with actual source references; six proposed performance surfaces retain unmeasured/unapproved environment gates. DEFINED does not establish IMPLEMENTED/QUALIFIED/AVAILABLE.",
+      "scope": "PDP-0 authored definition only: owner semantic input/output meaning, applicability, bounds and measurement-method definitions. PDP-1 operation bindings and exact request/result wire schemas are deferred to P1; DEFINED does not establish IMPLEMENTED, QUALIFIED or AVAILABLE.",
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "6f68d3a91531c9159390ef3681434e6a239040844b32054d5b955abedf16d90e",
         ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "611760e26f00cac2ba279486d4ed636b2bc37d0c619caa290d641f7f227986bb",
@@ -137,42 +187,33 @@
       },
       "currentCorrectiveReview": {
         "status": "APPROVED_CURRENT_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-106",
-        "scope": "All462 active capability and leaf-adjudication source joins resolve actual ID-selected operation, wrapper, channel and canonical authority records. Existing14 wire-schema bindings resolve real nested ownerWireSchema records. Exact PXD-101/103 supplements preserve original materially reviewed clauses; stream consent selectors remain exact and valid-but-foreign authority substitutions reject. Prior simulation/edit output corrections and UNKNOWN/NOT_EVALUATED/NOT_ADMITTED boundaries remain intact.",
+        "decisionRef": ".product-experience/decision-log.md#PXD-138",
+        "phaseScope": "PDP-0",
+        "scope": "Current P0 authored input/output meaning, applicability, profile/bounds and measurement-method definitions. Exact P1 operation bindings and request/result wire schemas are deferred to P1.",
         "sourceFingerprints": {
-          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
-          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
-          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
-          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
-          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
-          ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
-          "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
-          "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json": "3f3fff501a396a38ca964b265ec31112484a7c0c41931bb7997e0ca46df87f85",
-          "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json": "c8ccf42f82e7567b5316cb0bfb047030b5f18d0a39a40fb8f0fd885302508d50",
-          "scripts/lib/pdp-owner-leaf-wire-validation.mjs": "718dbe5cf14a28a79dce0049bdbed161a899dfc571347ed81a15dbf283feafc7",
-          "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
-          "scripts/lib/pdp0-feature-review-applicability.mjs": "cec4e500fde68274e11f61b8ceeafffaf22a19b75d26a59a6c758ab9bab25097",
-          "tests/pdp-migration-capability-leaf-narrowing.test.mjs": "3f50e3ea4a877b76759669c65739dc466fa73105f2e795c7220b85ab6fbff0aa",
-          "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "5fe7a43861383fec3ed2cd3e2035f8706b3b281a849168aab6581d2df3d652f0",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "798c44a29479c21917f14e5041b61ad6e85f1b8a5401a0184f8a9011fee72f38",
+          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
           "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7",
-          "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "e332e3129ff905930231b1e1e31d7cbe7c94092c9d2330b298213b10b676b09e",
-          "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs": "b128a0774fd3a2bb6b3f10e0bc7ea9faf0173bd9d252174c4b18a6a6c9dcf0f0",
-          "tests/pdp-truth-domain-quality-applicability.test.mjs": "f0cf2c514adfac9a2214ed7fe01fc5a70814f0888f997c1b515c327aeb948439",
-          "tests/pdp-truth-domain-schema-validation.test.mjs": "ea14d4912e4a35a4e73b6e59c62a2684d70f0af90139045d41175015d720be26",
-          "tests/pdp-truth-domain.test.mjs": "a75019c2b381c743b8adb38620ea4161bddb74cc5c27b5f650158db60c71107b"
+          "tests/pdp0-bounded-resource-admission.test.mjs": "9b7e26ee41a5b3c225ed2d368c3df36537703480767522852d71340cc451e644"
         },
         "verification": {
           "status": "PASS",
-          "tests": 35,
-          "passed": 35,
+          "tests": 5,
+          "passed": 5,
           "failed": 0,
-          "evidenceRef": "docs/implementation/verification/pdp-38/current-p001-p002-35-tests.log",
-          "applicabilityTests": 5,
-          "applicabilityEvidenceRef": "docs/implementation/verification/pdp-38/current-p007-5-tests.log",
-          "productDefinitionSchema": "VALID",
-          "productDefinitionPublicValidator": "PASS"
+          "command": "node --test tests/pdp-truth-domain-nfr-measurement-methods.test.mjs tests/pdp0-bounded-resource-admission.test.mjs",
+          "evidenceRefs": [
+            "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs",
+            "tests/pdp0-bounded-resource-admission.test.mjs"
+          ]
         },
-        "acceptanceBoundary": "Bounded direct definition criterion renewed only; migration-semantic task completion, task dependencies, historical ledger, qualified independent acceptance, runtime qualification and Lifecycle receipts remain separate."
+        "acceptanceBoundary": "Current PDP-0 direct-definition criterion only. Historical approvals remain preserved. No downstream phase acceptance, task dependency acceptance, qualified independent P0-010 acceptance, implementation/qualification, runtime admission or Lifecycle receipt is claimed."
       },
       "historicalCorrectiveReviews": [
         {
@@ -224,6 +265,46 @@
           ],
           "priorApprovedCorrectionDecision": ".product-experience/decision-log.md#PXD-093",
           "runtimeAndIndependentAcceptance": "NOT_CLAIMED"
+        },
+        {
+          "status": "APPROVED_CURRENT_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-106",
+          "scope": "PDP-0 owner-authored input/output meanings, applicability, profile/bounds definitions, and measurement methods are the reviewed current correction. Prior exact operation joins and exact wire-schema closure belong to the historical PXD-106 correction record and are not renewed by this PDP-0 review.",
+          "sourceFingerprints": {
+            ".product-experience/pdp-0-product-truth/applications-channels.yaml": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+            ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
+            ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+            ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+            "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+            "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json": "3f3fff501a396a38ca964b265ec31112484a7c0c41931bb7997e0ca46df87f85",
+            "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json": "c8ccf42f82e7567b5316cb0bfb047030b5f18d0a39a40fb8f0fd885302508d50",
+            "scripts/lib/pdp-owner-leaf-wire-validation.mjs": "718dbe5cf14a28a79dce0049bdbed161a899dfc571347ed81a15dbf283feafc7",
+            "scripts/lib/pdp-truth-domain-schema-validator.mjs": "b04aad21e03acfc211bada296dcc7af066a54d758e6a41360e6fa8e2d4cfe1c8",
+            "scripts/lib/pdp0-feature-review-applicability.mjs": "cec4e500fde68274e11f61b8ceeafffaf22a19b75d26a59a6c758ab9bab25097",
+            "tests/pdp-migration-capability-leaf-narrowing.test.mjs": "3f50e3ea4a877b76759669c65739dc466fa73105f2e795c7220b85ab6fbff0aa",
+            "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "5fe7a43861383fec3ed2cd3e2035f8706b3b281a849168aab6581d2df3d652f0",
+            "tests/pdp-truth-domain-nfr-measurement-methods.test.mjs": "5938d886ff4b394db8ccfa483599ce68e57ac819a56adbd3e0f08843420d94a7",
+            "tests/pdp-truth-domain-output-producer-applicability.test.mjs": "e332e3129ff905930231b1e1e31d7cbe7c94092c9d2330b298213b10b676b09e",
+            "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs": "b128a0774fd3a2bb6b3f10e0bc7ea9faf0173bd9d252174c4b18a6a6c9dcf0f0",
+            "tests/pdp-truth-domain-quality-applicability.test.mjs": "f0cf2c514adfac9a2214ed7fe01fc5a70814f0888f997c1b515c327aeb948439",
+            "tests/pdp-truth-domain-schema-validation.test.mjs": "ea14d4912e4a35a4e73b6e59c62a2684d70f0af90139045d41175015d720be26",
+            "tests/pdp-truth-domain.test.mjs": "a75019c2b381c743b8adb38620ea4161bddb74cc5c27b5f650158db60c71107b"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 35,
+            "passed": 35,
+            "failed": 0,
+            "evidenceRef": "docs/implementation/verification/pdp-38/current-p001-p002-35-tests.log",
+            "applicabilityTests": 5,
+            "applicabilityEvidenceRef": "docs/implementation/verification/pdp-38/current-p007-5-tests.log",
+            "productDefinitionSchema": "VALID",
+            "productDefinitionPublicValidator": "PASS"
+          },
+          "acceptanceBoundary": "PDP-0 direct definition criterion only. Preserve historical approval and fingerprints; PDP-1/PDP-2 source authorities, task dependencies, independent acceptance, runtime qualification and Lifecycle receipts remain separate.",
+          "phaseScope": "PDP-0"
         }
       ]
     },
@@ -231,7 +312,7 @@
       "taskId": "P0-05",
       "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
       "decisionRef": ".product-experience/decision-log.md#PXD-099",
-      "scope": "Six exact accepted PDP-1 rule decisions, seven constitutional invariant projections, four owner trust definitions with two explicit projection exclusions, and eight accountable-owner rows map through the production resolver. Exact owner, trust, source and fail-closed substitutions are rejected; illegal transitions remain checked by owner guard/race definition evaluators. No second domain authority is created.",
+      "scope": "PDP-0 owner-defined policy, invariant, trust and accountable-owner meanings, including only their projection into ProductDefinition. PDP-1 remains its own authority; this review does not approve PDP-1 rules or transition/runtime behavior.",
       "sourceFingerprints": {
         "scripts/generate-media-phase-projections.mjs": "847bc8109b266b5f587db00969e4e2f4a7b79cc0e018015b2b8e3ea1a0de4616",
         "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
@@ -264,45 +345,76 @@
       "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged.",
       "currentCorrectiveReview": {
         "status": "APPROVED_CURRENT_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-105",
-        "scope": "Current-cut revalidation of the unchanged direct definition criterion after exact canonical source-selector repairs, explicit reviewed feature referent corrections, additive owner erasure policy and generator source-closure/caller wiring. Historical fingerprints remain unchanged.",
+        "decisionRef": ".product-experience/decision-log.md#PXD-138",
+        "phaseScope": "PDP-0",
+        "scope": "Current P0 policy, invariant, trust and accountable-owner semantics and their definition-only projection. PDP-1 remains a separate source authority; no PDP-1 rules or transition/runtime behavior are approved.",
         "sourceFingerprints": {
-          "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
-          "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
-          ".product-experience/pdp-0-product-truth/constitution.yaml": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
-          ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
-          ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "a553a79da537517a1380bd686eed2db73ba29ce6ace64f4a2f9f880e296dff80",
-          ".product-experience/pdp-1-domain-data/authority.yaml": "46a779a44a0d63bde3eea68807d718a59bfa58233a12fe26d0db8184277cf1f6",
-          ".product-experience/pdp-1-domain-data/privacy.yaml": "68cf5efe8c0cbc710aba9cb05aa35f1ac84dfa10503475d57f01af054e625d5b",
-          ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "ea45b40ccc4e36fac24778adf1125dc15afc882e2073b0b334edcfc947fb7b6c",
-          "tests/pdp-truth-domain-policy-projection.test.mjs": "14233cc88b987b120cde066a6009d3040838a738ffe66061168860cc1e1892d8",
-          "tests/product-definition-domain-rule-mapping.test.mjs": "19da17cef4c1ce59bd3dd727639ca0dd34ca99a2bac790bf875227ab218191ed",
-          "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "326db58811730baa8128b299f6eaf4d47a7cf2d5b093150536a116a8a199e7c6",
-          "tests/pdp-truth-domain-race-semantics.test.mjs": "10c90d0151b4ba5fca660e3d03a9643da6a8f4efb4a4bb9afe8bc309e9d650d2",
-          "scripts/lib/pdp1-transition-guard-definition-evaluator.mjs": "586c66119975cbae62b94795be9c01480c84da8091fc00355f30def3351fa0ef",
-          "scripts/lib/pdp-truth-domain-race-oracle.mjs": "765eab144031d5a920455f670919b0611d672177a63e561af26c5dd2dad73f4b",
-          ".product-experience/pdp-1-domain-data/transitions.yaml": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
-          ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
-          ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "c5c9d68f03f14745d9594ac7cadca09e943a61b1a1e7fc58c5b9f35612198226"
+          ".product-experience/pdp-0-product-truth/constitution.yaml": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+          ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
+          ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+          "tests/pdp0-constitution-normative-completeness.test.mjs": "0786dcebb6628f2678bd62b9d454ee69ade94cad9f09b184c999ed91e454a770",
+          "tests/pdp0-requirement-source-boundaries.test.mjs": "7eb4e7002d99abcd53be7a8454a9b92a11e68b32aeeaae21b0d1ff4694757de7",
+          "tests/pdp0-policy-authority-boundary.test.mjs": "0a18c713b2dd84cdbbc9fa6da4a435aac80318ff02a9478a4df6dcb16cb4505c"
         },
         "verification": {
           "status": "PASS",
-          "tests": 33,
-          "passed": 33,
+          "tests": 12,
+          "passed": 12,
           "failed": 0,
-          "evidenceRef": "docs/implementation/verification/pdp-38/current-p005-p006-33-tests.log",
-          "productDefinitionSchema": "VALID",
-          "productDefinitionPublicValidator": "PASS",
-          "projectionEvidenceRef": "docs/implementation/verification/pdp-38/current-criteria-projections.log"
+          "command": "node --test tests/pdp0-constitution-normative-completeness.test.mjs tests/pdp0-requirement-source-boundaries.test.mjs tests/pdp0-policy-authority-boundary.test.mjs",
+          "evidenceRefs": [
+            "tests/pdp0-constitution-normative-completeness.test.mjs",
+            "tests/pdp0-requirement-source-boundaries.test.mjs",
+            "tests/pdp0-policy-authority-boundary.test.mjs"
+          ]
         },
-        "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged."
-      }
+        "acceptanceBoundary": "Current PDP-0 direct-definition criterion only. Historical approvals remain preserved. No downstream phase acceptance, task dependency acceptance, qualified independent P0-010 acceptance, implementation/qualification, runtime admission or Lifecycle receipt is claimed."
+      },
+      "historicalCorrectiveReviews": [
+        {
+          "status": "APPROVED_CURRENT_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-105",
+          "scope": "PDP-0 owner policy, invariant, trust and accountable-owner projection meanings only. The prior cross-phase resolver correction remains historical evidence; PDP-1 rule decisions and transition evaluators remain independently authoritative and are not approved here.",
+          "sourceFingerprints": {
+            "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
+            "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
+            ".product-experience/pdp-0-product-truth/constitution.yaml": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
+            ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
+            ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "a553a79da537517a1380bd686eed2db73ba29ce6ace64f4a2f9f880e296dff80",
+            ".product-experience/pdp-1-domain-data/authority.yaml": "46a779a44a0d63bde3eea68807d718a59bfa58233a12fe26d0db8184277cf1f6",
+            ".product-experience/pdp-1-domain-data/privacy.yaml": "68cf5efe8c0cbc710aba9cb05aa35f1ac84dfa10503475d57f01af054e625d5b",
+            ".product-experience/pdp-1-domain-data/state-adjudication.yaml": "ea45b40ccc4e36fac24778adf1125dc15afc882e2073b0b334edcfc947fb7b6c",
+            "tests/pdp-truth-domain-policy-projection.test.mjs": "14233cc88b987b120cde066a6009d3040838a738ffe66061168860cc1e1892d8",
+            "tests/product-definition-domain-rule-mapping.test.mjs": "19da17cef4c1ce59bd3dd727639ca0dd34ca99a2bac790bf875227ab218191ed",
+            "tests/pdp1-transition-guard-definition-evaluator.test.mjs": "326db58811730baa8128b299f6eaf4d47a7cf2d5b093150536a116a8a199e7c6",
+            "tests/pdp-truth-domain-race-semantics.test.mjs": "10c90d0151b4ba5fca660e3d03a9643da6a8f4efb4a4bb9afe8bc309e9d650d2",
+            "scripts/lib/pdp1-transition-guard-definition-evaluator.mjs": "586c66119975cbae62b94795be9c01480c84da8091fc00355f30def3351fa0ef",
+            "scripts/lib/pdp-truth-domain-race-oracle.mjs": "765eab144031d5a920455f670919b0611d672177a63e561af26c5dd2dad73f4b",
+            ".product-experience/pdp-1-domain-data/transitions.yaml": "274905d44050a45052fc7b009b0151a4f1c6b972e0046fb977d3327c9d6815ea",
+            ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
+            ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "c5c9d68f03f14745d9594ac7cadca09e943a61b1a1e7fc58c5b9f35612198226"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 33,
+            "passed": 33,
+            "failed": 0,
+            "evidenceRef": "docs/implementation/verification/pdp-38/current-p005-p006-33-tests.log",
+            "productDefinitionSchema": "VALID",
+            "productDefinitionPublicValidator": "PASS",
+            "projectionEvidenceRef": "docs/implementation/verification/pdp-38/current-criteria-projections.log"
+          },
+          "acceptanceBoundary": "PDP-0 direct definition criterion only. Preserve historical approval and fingerprints; PDP-1/PDP-2 source authorities, task dependencies, independent acceptance, runtime qualification and Lifecycle receipts remain separate.",
+          "phaseScope": "PDP-0"
+        }
+      ]
     },
     {
       "taskId": "P0-06",
       "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
       "decisionRef": ".product-experience/decision-log.md#PXD-099",
-      "scope": "Four honest source measure contracts and all 1,848 leaf-by-measure applicability records bind exact capability, leaf-wrapper, canonical operation, selected profile and bounds selectors; same-count, valid-foreign and forged admission/measurement substitutions are rejected. Optional authored timestamps remain omitted because no reviewed canonical timestamp source exists; generation-time and arbitrary matching-source timestamps are rejected.",
+      "scope": "PDP-0 owner-defined measure contracts and leaf-by-measure applicability, including exact P0 source joins and explicit non-evaluation. PDP-1 operation/schema bindings are outside this criterion; no measurement, calibration, qualification or runtime claim is made.",
       "sourceFingerprints": {
         "scripts/generate-media-phase-projections.mjs": "847bc8109b266b5f587db00969e4e2f4a7b79cc0e018015b2b8e3ea1a0de4616",
         "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
@@ -333,43 +445,83 @@
       "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged.",
       "currentCorrectiveReview": {
         "status": "APPROVED_CURRENT_CORRECTION",
-        "decisionRef": ".product-experience/decision-log.md#PXD-105",
-        "scope": "Current-cut revalidation of the unchanged direct definition criterion after exact canonical source-selector repairs, explicit reviewed feature referent corrections, additive owner erasure policy and generator source-closure/caller wiring. Historical fingerprints remain unchanged.",
+        "decisionRef": ".product-experience/decision-log.md#PXD-138",
+        "phaseScope": "PDP-0",
+        "scope": "Current P0 measurement definitions and all leaf-by-measure applicability decisions, with measurement and qualification explicitly NOT_EVALUATED. No PDP-1 operation/schema or runtime acceptance is included.",
         "sourceFingerprints": {
-          "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
-          "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
-          "scripts/lib/product-definition-authored-timestamp-provenance.mjs": "3f2a0527e7a9957db9fa823da3eb522369ef830ccfc43677f3df7eb8ccd8e048",
-          "tests/pdp-0-06-measures-provenance.test.mjs": "c14ca4404ae01280ae92b52b9cf49c4d94897b70a1c30d8726c579590a60226b",
-          "tests/media-measure-applicability-crosswalk.test.mjs": "29f912f51f8bb9dae30a039789c9d42e60e4e7810559be0e41e8dacc079bc62c",
-          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
-          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
-          ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
-          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
-          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
-          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
+          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
           ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
-          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
-          ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
-          ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af"
+          ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "798c44a29479c21917f14e5041b61ad6e85f1b8a5401a0184f8a9011fee72f38",
+          "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json": "9486f2666877caf31d03eef027a4c8f10b755c675ef113bc5312cb77b6b39eb2",
+          "tests/pdp-0-06-measures-provenance.test.mjs": "b83426b6b61cbcc0939df5e0629db2febf7c8a0607b7b06dcf628fac1bf98b9b",
+          "tests/media-measure-applicability-crosswalk.test.mjs": "215479fc8472f8febbde8a7b1baab0bcde79607e2def2f812154f3122723bd38",
+          "tests/pdp-truth-domain-quality-applicability.test.mjs": "8e5fae64d5b4b4ba4ca994f5a606410bf47d9d14471216cb7620dc60af5fb46b",
+          "tests/pdp0-quality-current-source-review.test.mjs": "b36db51a27a395f4b7eb38493040f82ab2201da0ea4805d440796189f5a86b37",
+          "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs": "7ffbd97f98e75cb1a284e19931451cf3d08c7258e5ba2ddbe144713ff55bdfdb"
         },
         "verification": {
           "status": "PASS",
-          "tests": 33,
-          "passed": 33,
+          "tests": 21,
+          "passed": 21,
           "failed": 0,
-          "evidenceRef": "docs/implementation/verification/pdp-38/current-p005-p006-33-tests.log",
-          "productDefinitionSchema": "VALID",
-          "productDefinitionPublicValidator": "PASS",
-          "projectionEvidenceRef": "docs/implementation/verification/pdp-38/current-criteria-projections.log"
+          "command": "node --test tests/pdp-0-06-measures-provenance.test.mjs tests/media-measure-applicability-crosswalk.test.mjs tests/pdp-truth-domain-quality-applicability.test.mjs tests/pdp0-quality-current-source-review.test.mjs tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs",
+          "evidenceRefs": [
+            "tests/pdp-0-06-measures-provenance.test.mjs",
+            "tests/media-measure-applicability-crosswalk.test.mjs",
+            "tests/pdp-truth-domain-quality-applicability.test.mjs",
+            "tests/pdp0-quality-current-source-review.test.mjs",
+            "tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs"
+          ]
         },
-        "acceptanceBoundary": "Direct source criterion only; original full task ledger, dependencies, qualified independent reviews, runtime qualification and Lifecycle phase receipts remain unchanged."
-      }
+        "acceptanceBoundary": "Current PDP-0 direct-definition criterion only. Historical approvals remain preserved. No downstream phase acceptance, task dependency acceptance, qualified independent P0-010 acceptance, implementation/qualification, runtime admission or Lifecycle receipt is claimed."
+      },
+      "historicalCorrectiveReviews": [
+        {
+          "status": "APPROVED_CURRENT_CORRECTION",
+          "decisionRef": ".product-experience/decision-log.md#PXD-105",
+          "scope": "PDP-0 measure definitions, applicability, source provenance and explicit NOT_EVALUATED states only. Prior canonical operation/schema joins remain historical evidence; this review makes no PDP-1 approval or measurement/qualification claim.",
+          "sourceFingerprints": {
+            "scripts/generate-media-phase-projections.mjs": "372e41364078961e67931451c5005b23bfebe0f6dfa3bd4ddc7c06c65c3558cd",
+            "scripts/lib/product-definition-domain-rule-mapping.mjs": "f55a8c7165afbddb69f5e04b9c331668a854917c12462f37603c94faf9dd6d92",
+            "scripts/lib/product-definition-authored-timestamp-provenance.mjs": "3f2a0527e7a9957db9fa823da3eb522369ef830ccfc43677f3df7eb8ccd8e048",
+            "tests/pdp-0-06-measures-provenance.test.mjs": "c14ca4404ae01280ae92b52b9cf49c4d94897b70a1c30d8726c579590a60226b",
+            "tests/media-measure-applicability-crosswalk.test.mjs": "29f912f51f8bb9dae30a039789c9d42e60e4e7810559be0e41e8dacc079bc62c",
+            ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
+            ".product-experience/pdp-0-product-truth/quality-policy.yaml": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+            ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
+            ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "2449ccb5efd945f73192993fc70c626ccc070c76b4370bc25ab432e6b7f9b86c",
+            ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+            ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "11b9cd4189060ed3c8747ec69be7b3cccba34c2afa0aec494ac796655f3c9cf8",
+            ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+            ".product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml": "dd453e9870dbb97380a0acaf0d93f9ef006ca9456e035ba4ec6dec34860096f8",
+            ".product-experience/pdp-1-domain-data/operations.yaml": "a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5",
+            ".product-experience/pdp-1-domain-data/domain-objects.yaml": "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af"
+          },
+          "verification": {
+            "status": "PASS",
+            "tests": 33,
+            "passed": 33,
+            "failed": 0,
+            "evidenceRef": "docs/implementation/verification/pdp-38/current-p005-p006-33-tests.log",
+            "productDefinitionSchema": "VALID",
+            "productDefinitionPublicValidator": "PASS",
+            "projectionEvidenceRef": "docs/implementation/verification/pdp-38/current-criteria-projections.log"
+          },
+          "acceptanceBoundary": "PDP-0 direct definition criterion only. Preserve historical approval and fingerprints; PDP-1/PDP-2 source authorities, task dependencies, independent acceptance, runtime qualification and Lifecycle receipts remain separate.",
+          "phaseScope": "PDP-0"
+        }
+      ]
     },
     {
       "taskId": "P0-07",
       "status": "APPROVED_DIRECT_DEFINITION_CRITERION",
       "decisionRef": ".product-experience/decision-log.md#PXD-105",
-      "scope": "All15 mandatory dimensions carry45 materially reviewed clauses with224 exact referent occurrences. The complete15\u00d738 requirement decisions and462 leaf\u00d711 channel/profile decisions resolve exact current sources or explicit source-backed exclusions; machine-only/event/agent/legacy channel differences and non-admission remain explicit. PXD-098 remains immutable, supplemented only by PXD-101/103 exact reference corrections.",
+      "scope": "PDP-0 feature, requirement and channel/profile applicability definitions with exact source referents or explicit exclusions. Referenced PDP-1/PDP-2 clauses are source context only; this criterion approves no downstream contract, conformance, runtime behavior or phase acceptance.",
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c",
@@ -415,7 +567,54 @@
         "productDefinitionSchema": "VALID",
         "productDefinitionPublicValidator": "PASS"
       },
-      "acceptanceBoundary": "Direct source criterion only; P0-01/02 task dependencies, original full-task ledger, qualified independent acceptance, runtime admission and authoritative Lifecycle receipts remain separate."
+      "acceptanceBoundary": "Direct source criterion only; P0-01/02 task dependencies, original full-task ledger, qualified independent acceptance, runtime admission and authoritative Lifecycle receipts remain separate.",
+      "scopeBoundary": "PDP-0 feature/requirement/channel-profile applicability only; downstream sources are references, not accepted definitions.",
+      "currentCorrectiveReview": {
+        "status": "APPROVED_CURRENT_CORRECTION",
+        "decisionRef": ".product-experience/decision-log.md#PXD-138",
+        "phaseScope": "PDP-0",
+        "scope": "Current PDP-0 feature, requirement and channel/profile applicability definitions, based on exact P0 sources and bounded current-source observations. Downstream clauses are referents only; no PDP-1/PDP-2 approval is made.",
+        "sourceFingerprints": {
+          ".product-experience/pdp-0-product-truth/applications-channels.yaml": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+          ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+          ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
+          ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+          ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+          ".product-experience/pdp-0-product-truth/qualification-policy.yaml": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          ".product-experience/pdp-0-product-truth/quality-policy.yaml": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+          ".product-experience/pdp-0-product-truth/requirements.yaml": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+          "docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json": "ab16b84e46c90db5054db696481b400a442733dcd4015787e6b783183224e5df",
+          "docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json": "9ce6d0a30933e3f4a95b08fcc56f2294af1c3270ea5ad6e2cbff177a15a18656",
+          "docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json": "e23767211ff244c69c4f187c735cc52bd07ac2f86bdfbd08c17b23597027ce92",
+          "docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json": "8f7dd8bb2b745dc1ad21002cd536feb560241a9b6ed9d61612e338c687471ed9",
+          "docs/implementation/verification/pdp-38/feature-review-current-source-observation.json": "a04c66a7365cfc7a9ba4113e4ddcd71bcebc5498ca36bd67115fa6f99e898dfc",
+          "docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json": "06f6fce847d41fc26468fcec04c019581e5f3afd2e617d7f5dfbcfd99067d9bb",
+          "docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json": "22bf29748e7044610788cff3fe3851e06bb75f964258a0921b6352f4aeb627ff",
+          "docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json": "8b55a7f9c9f5664c3aaede25f453161f365c0788b09bc041ba1de7526cc71e9a",
+          "tests/media-p0-07-feature-channel-review.test.mjs": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+          "tests/pdp-truth-domain-channel-profile-applicability.test.mjs": "91af1f69225d0f228e0541f61da3e8eb7a64ce578d6f7ed61545700ad176770a",
+          "tests/pdp-truth-domain.test.mjs": "bccdba6c62ebb2ae4c466390fb385b90718211e02d0360b02b56022a98f14ba7",
+          "tests/pdp0-feature-review-current-source-observation.test.mjs": "517de8f61a76b2180da3d7b799fa99ef12d4ddbfeed83740d0ad797f58c998e9"
+        },
+        "verification": {
+          "status": "PASS",
+          "tests": 8,
+          "passed": 8,
+          "failed": 0,
+          "command": "node scripts/report-media-pdp-readiness.mjs --verify --verify-tasks=P0-07",
+          "testScope": "Exact bounded PDP-0 feature/channel current-source criteria; no downstream phase acceptance inferred.",
+          "evidenceRef": "docs/implementation/verification/pdp-38/P0-07.log"
+        },
+        "acceptanceBoundary": "Current PDP-0 direct-definition criterion only. Historical approvals remain preserved. No downstream phase acceptance, task dependency acceptance, qualified independent P0-010 acceptance, implementation/qualification, runtime admission or Lifecycle receipt is claimed.",
+        "preservedHistoricalReviews": [
+          ".product-experience/decision-log.md#PXD-098",
+          ".product-experience/decision-log.md#PXD-105",
+          ".product-experience/decision-log.md#PXD-101",
+          ".product-experience/decision-log.md#PXD-103"
+        ]
+      }
     }
   ],
   "verification": {
@@ -431,5 +630,6 @@
     "Runtime behavior or qualification",
     "SRE/AT/legal/scientific owner acceptance",
     "Native Lifecycle receipt"
-  ]
+  ],
+  "scopeBoundary": "P0-01, P0-02, P0-05, P0-06, and P0-07 are PDP-0 direct-definition scopes. A referenced downstream source is not thereby accepted; no independent P0-010 outcome or PDP-0 DEV_COMPLETE state is asserted."
 }

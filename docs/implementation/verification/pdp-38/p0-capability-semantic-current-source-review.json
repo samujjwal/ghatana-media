@@ -1,0 +1,1774 @@
+{
+  "schemaVersion": "media.pdp0.capability-semantic-current-source-review.v1",
+  "artifactId": "P0-CAPABILITY-SEMANTIC-CURRENT-SOURCE-REVIEW-001",
+  "scope": "Current-source semantic review of the frozen PDP-0 462-leaf capability population. This is an additive review snapshot and makes no claim about historical source equivalence.",
+  "source": {
+    "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "currentSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+    "historicalComparison": {
+      "priorSha256": "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25",
+      "availability": "UNAVAILABLE_PRIOR_BYTES_NOT_RETAINED",
+      "parsedPathDelta": "NOT_ASSERTED"
+    },
+    "recordPopulation": {
+      "path": "capabilities",
+      "count": 462,
+      "identityField": "id",
+      "sortedIdentitySetSha256": "5b287861ead4bc5f020132f331af799ad6cecf2e1a0e73d746da3f70a4d42dc1",
+      "ownerDispositionSnapshotSha256": "dcba65623f6dc7f430362c2f1c2d42ae77e097472e788404acf31cabb1ae9ffe",
+      "ownerDispositionCounts": {
+        "JOURNEY_STEP_CAPABILITY": 77,
+        "MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY": 383,
+        "PLATFORM_DEPENDENCY_WITH_EXPLICIT_APPLICABILITY": 2
+      },
+      "snapshotRelation": "CURRENT_FINGERPRINT_MATCHES_PXD_121_OWNER_BINDING_SNAPSHOT; HISTORICAL SOURCE BYTE COMPARISON UNAVAILABLE"
+    },
+    "effectIntentScopeCounts": {
+      "CANONICAL_PRODUCT_STATE_CHANGE": 33,
+      "GOVERNED_EXTERNAL_REQUEST": 39,
+      "LOCAL_CANDIDATE_OR_DRAFT": 285,
+      "OBSERVATION_ONLY": 105
+    }
+  },
+  "decisionRef": ".product-experience/decision-log.md#PXD-122",
+  "currentSourceChecks": [
+    {
+      "check": "stable capability identity",
+      "result": "462 unique capability ids; every ownerDefinition.capabilityIntentId equals the containing leaf id"
+    },
+    {
+      "check": "input contract closure",
+      "result": "Every leaf inputArtifactTypes list exactly matches the ordered sourceType list in ownerDefinition.typedInputSlots"
+    },
+    {
+      "check": "output contract closure",
+      "result": "Every leaf outputArtifactTypes list exactly matches ownerDefinition.successOutputs artifactType values"
+    },
+    {
+      "check": "effect intent scope",
+      "result": "All 462 leaves use the closed four-value scope enum. The field states intended product boundary only; it does not assert dispatch, success, persistence, or finality."
+    },
+    {
+      "check": "source and provenance meaning",
+      "result": "Provenance is conditional on actual source consumption; source-free authored creation does not fabricate a source artifact. sourcePreservationRequired is limited to required-source derived outputs."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    },
+    {
+      "check": "PXD-128 audited result variants",
+      "result": "68 exact capability leaves retain one broad success output type and define nested resultVariants with unique selectors joined to the active trust reconstruction dispositions; no runtime, wire, qualification, or admission claim."
+    }
+  ],
+  "reviewedExamples": [
+    {
+      "capabilityId": "media.project.create",
+      "finding": "Requires user-intent and produces versioned-project-state; it does not require the project state it creates."
+    },
+    {
+      "capabilityId": "media.generate.image.text-to-image",
+      "finding": "Text/visual intent is required; an authorized reference is optional and its mere availability does not establish source-derived provenance."
+    },
+    {
+      "capabilityId": "media.generate.image.image-to-image",
+      "finding": "Requires a source-image-artifact for the source-derived branch."
+    },
+    {
+      "capabilityId": "media.generate.audio.audio-to-audio",
+      "finding": "Requires a source-audio-artifact."
+    },
+    {
+      "capabilityId": "media.artifact.share",
+      "finding": "Requires a governed artifact reference, recipient-and-sharing-scope, and rights/retention context; returns an artifact-sharing-grant-observation."
+    },
+    {
+      "capabilityId": "media.artifact.share.revoke",
+      "finding": "Identifies a grant or artifact/recipient/scope target and returns a confirmed-or-unknown revocation observation."
+    },
+    {
+      "capabilityId": "media.artifact.delete",
+      "finding": "Returns a lifecycle observation distinguishing access revocation, hold, pending/requested erasure, confirmed erasure, and unconfirmed external erasure; it does not claim physical erasure."
+    },
+    {
+      "capabilityId": "media.rights.attestation.record",
+      "finding": "Returns asserted-rights-attestation-record, distinct from consent reference and permitted-use evaluation outputs."
+    },
+    {
+      "capabilityId": "media.audio.analysis.analyze.phase",
+      "finding": "Returns phase-noise-floor-measurement-record, not a mastered-audio output. Method, unit, thresholds, and numeric values remain UNKNOWN unless specified by source."
+    },
+    {
+      "capabilityId": "media.artifact.output.register",
+      "finding": "Declares CANONICAL_PRODUCT_STATE_CHANGE intent; that does not assert a registration occurred or identify runtime commit/finality."
+    },
+    {
+      "capabilityId": "media.artifact.provenance.export",
+      "finding": "Declares GOVERNED_EXTERNAL_REQUEST intent; exact delivery/acknowledgement behavior remains downstream."
+    }
+  ],
+  "semanticEquivalence": "NOT_ASSERTED",
+  "acceptanceEffect": "none; this review records current-source checks and does not change P0-010 acceptance or implementation, qualification, license, runtime, or admission states",
+  "historicalPins": "PXD-098, PXD-105, and the PXD-121 owner-binding observation remain preserved as history; this record neither rewrites nor supersedes their historical claims.",
+  "reviewBoundary": "No PDP-1 operation, wire schema, transition finality, runtime behavior, or release state is approved or made a PDP-0 prerequisite. No parsed path-change counts are claimed because prior source bytes for the supplied digest were unavailable.",
+  "currentSourceAdditions": [
+    {
+      "capabilityIds": [
+        "media.generate.spatial.image-to-3d",
+        "media.generate.spatial.reconstruct.multiview",
+        "media.generate.spatial.reconstruct.depth",
+        "media.generate.spatial.reconstruct.camera",
+        "media.generate.spatial.generate.novel-view",
+        "media.generate.spatial.relight-3d",
+        "media.generate.spatial.compose-3d",
+        "media.generate.spatial.representation.nerf-adapter",
+        "media.generate.spatial.representation.gaussian-splatting-adapter"
+      ],
+      "sourceFields": [
+        "ownerDefinition.successOutputs[0].originRelation",
+        "ownerDefinition.successOutputs[0].epistemicDisposition"
+      ],
+      "values": {
+        "originRelation": "SOURCE_DERIVED",
+        "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED"
+      },
+      "meaning": "Current owner output-origin meaning for these source-bound spatial operations; output is generated/reconstructed, not recovered source truth. Required source input and provenance remain explicit; no source preservation, runtime admission, qualification, or acceptance promotion.",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none"
+    }
+  ],
+  "resultVariantReview": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-128",
+    "semanticEquivalence": "NOT_ASSERTED",
+    "acceptanceEffect": "none",
+    "capabilityIds": [
+      {
+        "capabilityId": "media.rights.consent.reference",
+        "successOutputArtifactType": "policy-decision-reference-or-rights-observation",
+        "resultVariants": [
+          {
+            "resultKind": "POLICY_DECISION_REFERENCE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=POLICY_DECISION_REFERENCE"
+          },
+          {
+            "resultKind": "RIGHTS_OBSERVATION",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=RIGHTS_OBSERVATION"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=POLICY_DECISION_REFERENCE",
+          "resultKind=RIGHTS_OBSERVATION"
+        ],
+        "sourceContractSha256": "3c866197f0dd76e34cd30ea257e2e3bdf7dfb5f26c8e2552bf337e484c5be9ec"
+      },
+      {
+        "capabilityId": "media.rights.permitted-use.evaluate",
+        "successOutputArtifactType": "policy-decision-reference-or-rights-observation",
+        "resultVariants": [
+          {
+            "resultKind": "POLICY_DECISION_REFERENCE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=POLICY_DECISION_REFERENCE"
+          },
+          {
+            "resultKind": "RIGHTS_OBSERVATION",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=RIGHTS_OBSERVATION"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=POLICY_DECISION_REFERENCE",
+          "resultKind=RIGHTS_OBSERVATION"
+        ],
+        "sourceContractSha256": "3c866197f0dd76e34cd30ea257e2e3bdf7dfb5f26c8e2552bf337e484c5be9ec"
+      },
+      {
+        "capabilityId": "media.generate.spatial.text-to-3d",
+        "successOutputArtifactType": "spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata",
+        "resultVariants": [
+          {
+            "resultKind": "SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_FREE_GENERATION",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+        ],
+        "sourceContractSha256": "7cc439c67bd2e08841dcb2fe25adcfb227a32bf4ce7013bef2e6025e6892ea47"
+      },
+      {
+        "capabilityId": "media.generate.spatial.asset.create-3d",
+        "successOutputArtifactType": "spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata",
+        "resultVariants": [
+          {
+            "resultKind": "SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_FREE_GENERATION",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=SPATIAL_3D_ASSET_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+        ],
+        "sourceContractSha256": "7cc439c67bd2e08841dcb2fe25adcfb227a32bf4ce7013bef2e6025e6892ea47"
+      },
+      {
+        "capabilityId": "media.generate.spatial.create.360-media",
+        "successOutputArtifactType": "spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata",
+        "resultVariants": [
+          {
+            "resultKind": "SPATIAL_360_MEDIA_PASS_WITH_PROJECTION_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_FREE_GENERATION",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_360_MEDIA_PASS_WITH_PROJECTION_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "SPATIAL_360_MEDIA_PASS_WITH_PROJECTION_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_360_MEDIA_PASS_WITH_PROJECTION_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SPATIAL_360_MEDIA_PASS_WITH_PROJECTION_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=SPATIAL_360_MEDIA_PASS_WITH_PROJECTION_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+        ],
+        "sourceContractSha256": "f3592930151cf095bb51e02d9bb3f331711edc3b9d7972a17761f114fdde751d"
+      },
+      {
+        "capabilityId": "media.generate.spatial.create.spatial-audio",
+        "successOutputArtifactType": "spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata",
+        "resultVariants": [
+          {
+            "resultKind": "SPATIAL_AUDIO_MEDIA_PASS_WITH_COORDINATE_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_FREE_GENERATION",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_AUDIO_MEDIA_PASS_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "SPATIAL_AUDIO_MEDIA_PASS_WITH_COORDINATE_AND_FIDELITY_METADATA",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=SPATIAL_AUDIO_MEDIA_PASS_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SPATIAL_AUDIO_MEDIA_PASS_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_FREE_GENERATION;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=SPATIAL_AUDIO_MEDIA_PASS_WITH_COORDINATE_AND_FIDELITY_METADATA;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+        ],
+        "sourceContractSha256": "23b488e667f625beadc1d532a0f67feb905f1d8dfbbcd85896e395f30ba1b95d"
+      },
+      {
+        "capabilityId": "media.simulation.output.rgb",
+        "successOutputArtifactType": "simulation-pass-result-rgb",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "1eda65d51e94ae51ddac77bd5cd22ffa85abf6848d23e2dbf79fa7b5d6e21ecf"
+      },
+      {
+        "capabilityId": "media.simulation.output.depth",
+        "successOutputArtifactType": "simulation-pass-result-depth",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "81e2a5db03235e8d7fbfa9e671bf550d8f0088a19f047ec7153a66dccc92ec70"
+      },
+      {
+        "capabilityId": "media.simulation.output.normals",
+        "successOutputArtifactType": "simulation-pass-result-normals",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "63e23bb19886936e56e437fd0f8911ed3801cfd859e7e484bdac6629daf74ee1"
+      },
+      {
+        "capabilityId": "media.simulation.output.segmentation",
+        "successOutputArtifactType": "simulation-pass-result-segmentation",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "1cadc90e2b52c1d64ba582641106b51728b0a3722215419c4fc054238b138f43"
+      },
+      {
+        "capabilityId": "media.simulation.output.optical-flow",
+        "successOutputArtifactType": "simulation-pass-result-optical-flow",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "a54b3427f73bdc927141b90894855d784bdc50c8d0929b095ab5f7dc15fd04e3"
+      },
+      {
+        "capabilityId": "media.simulation.output.motion-vectors",
+        "successOutputArtifactType": "simulation-pass-result-motion-vectors",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "946edaa5b26ee201b593627945b679beae7356646045c4826773c030d4d9ede6"
+      },
+      {
+        "capabilityId": "media.simulation.output.object-ids",
+        "successOutputArtifactType": "simulation-pass-result-object-ids",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "14e04f666fd98684c6ffb9015dd356590b42e2582a05d77ef0a050296c6a88b4"
+      },
+      {
+        "capabilityId": "media.simulation.output.contacts",
+        "successOutputArtifactType": "simulation-pass-result-contacts",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "a0b40cc64f15dfd1d033d620867f5fa415867b07a47736fefa7c65d53dff29aa"
+      },
+      {
+        "capabilityId": "media.simulation.output.physical-events",
+        "successOutputArtifactType": "simulation-pass-result-physical-events",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "f474c65f6820343b0052261b19818d71a24e2f7fcafc5f48d84f64f1651c38e4"
+      },
+      {
+        "capabilityId": "media.simulation.output.measurements",
+        "successOutputArtifactType": "simulation-pass-result-measurements",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "f0cf7d961e03e4cfed84d6f761ff9fca5cd014558c7345f5e39f41bba11ca3e8"
+      },
+      {
+        "capabilityId": "media.simulation.output.timestamped-state",
+        "successOutputArtifactType": "simulation-pass-result-timestamped-state",
+        "resultVariants": [
+          {
+            "resultKind": "SIMULATION_PASS_OUTPUT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+            "claimLimit": "Measured or ground-truth output is not claimable without exact evidence and qualified domain-owner authorization."
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=SIMULATION_PASS_OUTPUT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+        ],
+        "sourceContractSha256": "1e9542ec42aa40c4b0d416e6cd5eb3dbe1d28fe90e20b640a337ffb1850fc6fd"
+      },
+      {
+        "capabilityId": "media.edit.inpaint",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.outpaint",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.object-remove",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.object-replace",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.background-remove",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.background-replace",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.matte",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "b91c88a2af3012f478bbd9acb63eb89381a2ca44be448cf1b4f68f02e3788ba1"
+      },
+      {
+        "capabilityId": "media.edit.relight",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.recolor",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.colorize",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.style-transfer",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.retime-slow-motion-speed-ramp",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "b91c88a2af3012f478bbd9acb63eb89381a2ca44be448cf1b4f68f02e3788ba1"
+      },
+      {
+        "capabilityId": "media.edit.smart-crop-auto-reframe",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "b91c88a2af3012f478bbd9acb63eb89381a2ca44be448cf1b4f68f02e3788ba1"
+      },
+      {
+        "capabilityId": "media.edit.shot-color-match",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "b91c88a2af3012f478bbd9acb63eb89381a2ca44be448cf1b4f68f02e3788ba1"
+      },
+      {
+        "capabilityId": "media.edit.region-correction",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.face-correction",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.hand-correction",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "disposition": "ESTIMATED_OR_RECONSTRUCTED",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=ESTIMATED_OR_RECONSTRUCTED",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "29bfe284cb903a03fcf833bb47e3fa308db61368c9719504275ef3e2cb2e6135"
+      },
+      {
+        "capabilityId": "media.edit.propagate-keyframe-mask-effect",
+        "successOutputArtifactType": "versioned-edited-artifact-or-project-change",
+        "resultVariants": [
+          {
+            "resultKind": "EDITED_ARTIFACT",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "PROJECT_CHANGE",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=PROJECT_CHANGE"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=EDITED_ARTIFACT;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=PROJECT_CHANGE"
+        ],
+        "sourceContractSha256": "b91c88a2af3012f478bbd9acb63eb89381a2ca44be448cf1b4f68f02e3788ba1"
+      },
+      {
+        "capabilityId": "media.quality.inspect",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.quality.compare",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.quality.diagnose",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.quality.rank",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.quality.recommend",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.quality.repair-plan",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.quality.bounded-optimize",
+        "successOutputArtifactType": "quality-observation-or-bounded-repair-plan",
+        "resultVariants": [
+          {
+            "resultKind": "QUALITY_OBSERVATION",
+            "epistemicDisposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "disposition": "ESTIMATED_OR_INFERRED_OBSERVATION",
+            "selector": "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION"
+          },
+          {
+            "resultKind": "BOUNDED_REPAIR_PLAN",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=BOUNDED_REPAIR_PLAN"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=QUALITY_OBSERVATION;epistemicDisposition=ESTIMATED_OR_INFERRED_OBSERVATION",
+          "resultKind=BOUNDED_REPAIR_PLAN"
+        ],
+        "sourceContractSha256": "84df71692791632ba12c7ec899c14a6348080566d6481ad61cb1b06c4cbc93fc"
+      },
+      {
+        "capabilityId": "media.deliver.encode",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.transcode",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.master",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.package",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.stream",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.download",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.export",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPORT_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPORT_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPORT_OUTCOME"
+        ],
+        "sourceContractSha256": "b7a0c906da9da334bfc97640ed8cd9d650af81457984593b4d72e9d7c19ea2e1"
+      },
+      {
+        "capabilityId": "media.deliver.publish-governed",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "GOVERNED_PUBLICATION_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=GOVERNED_PUBLICATION_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=GOVERNED_PUBLICATION_OUTCOME"
+        ],
+        "sourceContractSha256": "1b4c023a2fb8adf8b49096ed84bd24b92d4694487f415a5f715600526951f70a"
+      },
+      {
+        "capabilityId": "media.deliver.renditions.aspect-ratio",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.renditions.resolution",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.renditions.adaptive-bitrate",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.web",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.social",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.podcast",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.broadcast",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.cinematic",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.archival",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.interactive",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.profile.named",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.subtitles",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.transcripts",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.thumbnails",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.posters",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.interactive-scene-bundle",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.provenance-manifest",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      },
+      {
+        "capabilityId": "media.deliver.compatibility-fallback",
+        "successOutputArtifactType": "delivery-package-or-explicit-delivery-outcome",
+        "resultVariants": [
+          {
+            "resultKind": "DELIVERY_PACKAGE",
+            "originRelation": "SOURCE_DERIVED",
+            "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+            "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+          },
+          {
+            "resultKind": "EXPLICIT_DELIVERY_OUTCOME",
+            "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+            "selector": "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+          }
+        ],
+        "trustSelectors": [
+          "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION",
+          "resultKind=EXPLICIT_DELIVERY_OUTCOME"
+        ],
+        "sourceContractSha256": "fbb232c942b158fa35d04af3e148b96997f3c742a229187aefaff1f12070d462"
+      }
+    ]
+  },
+  "supplementDecisionRef": ".product-experience/decision-log.md#PXD-128",
+  "currentSourceRefresh": {
+    "priorReviewSnapshotSha256": "0e70484686d01b3b1eefdeca44712d9dca80689004c257cc4d82c6c4618276de",
+    "currentSourceSha256": "c46903fcef1e378b6f396efe81947e026c51699811f14491d361c0ddcabb63db",
+    "sourcePath": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "changedCapabilitySourceFields": [
+      {
+        "capabilityId": "media.deliver.export",
+        "successOutputs": [
+          {
+            "artifactType": "delivery-package-or-explicit-delivery-outcome",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "DELIVERY_PACKAGE",
+                "originRelation": "SOURCE_DERIVED",
+                "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+              },
+              {
+                "resultKind": "EXPORT_OUTCOME",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=EXPORT_OUTCOME"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "capabilityId": "media.deliver.publish-governed",
+        "successOutputs": [
+          {
+            "artifactType": "delivery-package-or-explicit-delivery-outcome",
+            "requiredOnSuccess": true,
+            "resultVariants": [
+              {
+                "resultKind": "DELIVERY_PACKAGE",
+                "originRelation": "SOURCE_DERIVED",
+                "epistemicDisposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "disposition": "SOURCE_DERIVED_TRANSFORMATION",
+                "selector": "resultKind=DELIVERY_PACKAGE;originRelation=SOURCE_DERIVED;epistemicDisposition=SOURCE_DERIVED_TRANSFORMATION"
+              },
+              {
+                "resultKind": "GOVERNED_PUBLICATION_OUTCOME",
+                "disposition": "NO_RECONSTRUCTION_OR_INFERENCE",
+                "selector": "resultKind=GOVERNED_PUBLICATION_OUTCOME"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "priorReviewScopeCounts": {
+      "OBSERVATION_ONLY": 106,
+      "LOCAL_CANDIDATE_OR_DRAFT": 284,
+      "CANONICAL_PRODUCT_STATE_CHANGE": 33,
+      "GOVERNED_EXTERNAL_REQUEST": 39
+    },
+    "currentScopeCounts": {
+      "CANONICAL_PRODUCT_STATE_CHANGE": 33,
+      "GOVERNED_EXTERNAL_REQUEST": 39,
+      "LOCAL_CANDIDATE_OR_DRAFT": 285,
+      "OBSERVATION_ONLY": 105
+    },
+    "recordPopulation": {
+      "capabilityCount": 462,
+      "identitySetChange": "none",
+      "ownerDispositionSnapshotChange": "none"
+    },
+    "parsedPathDeltaAgainstHistoricalSource": "NOT_ASSERTED",
+    "semanticEquivalence": "NOT_ASSERTED",
+    "acceptanceEffect": "none"
+  },
+  "currentSourceCorrections": [
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-135",
+      "capabilityId": "media.project.review",
+      "sourceFields": [
+        "outcome",
+        "intentRefs",
+        "outcomeRefs",
+        "journeyRefs",
+        "ownerDefinition.typedInputSlots",
+        "ownerDefinition.parameterSchema",
+        "ownerDefinition.semanticOutcomeContract",
+        "ownerDefinition.guards.authorityRefs"
+      ],
+      "resolvedMeaning": "Review one exact immutable project version for a declared purpose and selected quality, rights, provenance, or approval scope, with a comment, approval, rejection, or request-changes action under current assigned reviewer authority and explicit scope/expiry disposition. Result evidence remains linked to the reviewed version and does not mutate it or grant rights clearance or publication authority.",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none"
+    }
+  ]
+}

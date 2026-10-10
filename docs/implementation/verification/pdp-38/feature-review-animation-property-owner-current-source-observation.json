@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-105",
+  "relatedOwnerDecisionRef": ".product-experience/decision-log.md#PXD-119",
+  "baseReviewRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseReviewSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "currentCutRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#P0-07",
+  "currentCutDecisionRef": ".product-experience/decision-log.md#PXD-105",
+  "scope": "Read-only current-source observation for the single PXD-098 animation-property-owner referent used by the scene-graph-and-animation-clock clause. This records the current exact referent and PXD-119 linkage; it does not create a PDP-0 prerequisite or approve unrelated animation/spatial contracts.",
+  "sourcePath": ".product-experience/pdp-1-domain-data/relationships.yaml",
+  "sourcePinSha256": "4224eb4c0cac5cfb62f66ab80e4b9cf2d3d845be612a012bbf9baeeb6d2ea1df",
+  "currentSourceSha256": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+  "record": {
+    "sourceRef": ".product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.animation-property-owner",
+    "identity": "media.rel.animation-property-owner",
+    "historicalPxd098ContentSha256": "feed57c57a5b25f48efdeed5b67937b2d752e75910d93d2748d409a9d865a3d3",
+    "currentContentSha256": "d4426cd4d6027d66b938e188c4e5a143185c5576fce35cba4e497debce8b54c2",
+    "changedPaths": [
+      {
+        "path": [
+          "sourceRefs"
+        ],
+        "prior": [
+          ".product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph",
+          ".product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph"
+        ],
+        "current": [
+          ".product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph",
+          ".product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph",
+          ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.animation-graph",
+          ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph"
+        ]
+      },
+      {
+        "path": [
+          "scopeStatus"
+        ],
+        "prior": "proposed; pending-owner-review",
+        "current": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED"
+      },
+      {
+        "path": [
+          "ownerDefinition"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.relationship-owner.animation-property-owner.v1",
+          "ownerDecisionId": "PXD-119",
+          "disposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+          "path": "AnimationGraph → SceneGraph",
+          "fieldBinding": "AnimationGraph.propertyOwnerRefs[]",
+          "parentIdentityContracts": [
+            {
+              "objectRef": "media.domain.animation-graph",
+              "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.animation-graph",
+              "identityTuple": [
+                "tenantId",
+                "projectId",
+                "animationGraphId",
+                "semanticVersion"
+              ]
+            }
+          ],
+          "childIdentityContracts": [
+            {
+              "objectRef": "media.domain.scene-graph",
+              "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph",
+              "identityTuple": [
+                "tenantId",
+                "projectId",
+                "sceneGraphId",
+                "semanticVersion"
+              ]
+            }
+          ],
+          "sameTenantRequired": true,
+          "cardinalityRule": "An animation graph may bind multiple properties to explicit scene-graph owners; a scene property may be driven by multiple declared tracks only where the composition contract permits.",
+          "exactVersionRule": "Each owner ref binds exact tenant, sceneGraphId, and semanticVersion; property and track identifiers are explicit and unique in the binding.",
+          "lifecycleRule": "Changing the owner creates a new animation graph revision; no implicit ownership transfer or name-based rebinding.",
+          "deletionRule": "Removing a binding does not delete either graph; unresolved owners reject or remain UNKNOWN.",
+          "lineageRule": "No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.",
+          "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+        }
+      }
+    ],
+    "sourceInterpretation": "The PXD-119 logical relationship is current read-only evidence for this existing PXD-098 clause referent. This observation records a substantive current-source expansion rather than asserting byte or semantic parity with the historical record."
+  },
+  "acceptanceEffect": "none",
+  "acceptanceBoundary": "Observation only; no renewal or expansion of PXD-098 approval, no new PDP-0 prerequisite, no approval of unrelated animation/spatial contracts, and no persistence, runtime, qualification, or Lifecycle evidence.",
+  "sourceRefreshNote": "Whole-file fingerprint refreshed after current PXD-140 relationship-population and lineage source updates; the exact animation-property-owner record digest and observation scope remain unchanged."
+}

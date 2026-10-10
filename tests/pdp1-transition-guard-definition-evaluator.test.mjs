@@ -64,27 +64,27 @@ function setConsentRead(facts, decision = "PERMITTED") {
   facts.typedOwnerFacts = { consentPerEffectCurrent: { effectReads: [{ rightsRequest, rightsResult, consentRequest, consentResult }] } };
 }
 
-function allFactsTrue(expression, guardFacts = {}) {
+function allFactsTrue(expression, modelInputs = {}) {
   if (expression.fact) {
     if (expression.fact === "tenant.matches") return;
-    guardFacts[expression.fact] = true;
+    modelInputs[expression.fact] = true;
   } else if (expression.all || expression.any) {
-    (expression.all ?? expression.any).forEach((child) => allFactsTrue(child, guardFacts));
+    (expression.all ?? expression.any).forEach((child) => allFactsTrue(child, modelInputs));
   } else if (expression.not) {
     // The base positive fixture intentionally leaves the negated fact false.
   }
-  return guardFacts;
+  return modelInputs;
 }
 function fixture(edge) {
-  const guardFacts = allFactsTrue(edge.when, {});
+  const modelInputs = allFactsTrue(edge.when, {});
   const needsVersionConflict = JSON.stringify(edge.when).includes('"expectedVersionConflicts"');
-  delete guardFacts.expectedVersionMatches;
-  delete guardFacts.expectedVersionConflicts;
-  delete guardFacts.consentPerEffectCurrent;
+  delete modelInputs.expectedVersionMatches;
+  delete modelInputs.expectedVersionConflicts;
+  delete modelInputs.consentPerEffectCurrent;
   const facts = {
     tenant: { requestTenantId: "tenant-media-a", resourceTenantId: "tenant-media-a" },
     version: { expected: "head-v7", current: needsVersionConflict ? "head-v6" : "head-v7" },
-    guardFacts,
+    modelInputs: { ...modelInputs, "tenant.matches": true },
   };
   setConsentRead(facts);
   return facts;
@@ -96,12 +96,12 @@ function makePredicateFalse(facts, id) {
   if (id === "expectedVersionMatches") facts.version.current = "stale-head";
   else if (id === "expectedVersionConflicts") facts.version.current = facts.version.expected;
   else if (id === "consentPerEffectCurrent") setConsentRead(facts, "DENIED");
-  else facts.guardFacts[id] = false;
+  else facts.modelInputs[id] = false;
 }
 function removePredicate(facts, id) {
   if (id === "expectedVersionMatches" || id === "expectedVersionConflicts") delete facts.version;
   else if (id === "consentPerEffectCurrent") delete facts.typedOwnerFacts;
-  else delete facts.guardFacts[id];
+  else delete facts.modelInputs[id];
 }
 function mandatoryPredicateIds(expression) {
   const ids = new Set();
@@ -143,6 +143,54 @@ test("all 55 transition identities bind typed, source-current, explicit edge con
   }
 });
 
+test("state adjudication covers every current machine and preserves machine dimensions", () => {
+  const adjudication = readYaml(".product-experience/pdp-1-domain-data/state-adjudication.yaml");
+  const adjudicated = new Set(adjudication.machineDimensions.map(({ machineId }) => machineId));
+  assert.equal(states.stateMachines.length, 11);
+  assert.deepEqual([...states.stateMachines.map(({ machineId }) => machineId)].filter((id) => !adjudicated.has(id)), []);
+  const rights = adjudication.machineDimensions.find(({ machineId }) => machineId === "media-rights-and-consent");
+  assert.deepEqual(rights.dimensions.map(({ dimension }) => dimension), ["rights-assertion-disposition", "consent-authority-disposition"]);
+  for (const id of ["media-stream-session", "media-review", "media-quality-disposition", "media-project", "media-project-version", "media-project-membership"]) {
+    const item = adjudication.machineDimensions.find(({ machineId }) => machineId === id);
+    assert.equal(item.sourceRef.includes(id), true, `${id} cites its exact state machine`);
+    assert.ok(item.stateIds?.length || item.proposedMeanings, `${id} records state meanings or IDs`);
+  }
+});
+
+test("every guard fact is typed or explicitly definition-model-only", () => {
+  const facts = [...Object.entries(guardContracts.facts), ...Object.entries(guardContracts.commonFacts)];
+  assert.equal(facts.length, Object.keys(guardContracts.facts).length + 1);
+  for (const [id, contract] of facts) {
+    assert.ok(["DEFINITION_MODEL_INPUT", "TYPED_OWNER_OBSERVATION"].includes(contract.inputKind), `${id} has a closed input kind`);
+    assert.equal(contract.unknown, "deny", `${id} denies unknown`);
+    if (contract.inputKind === "TYPED_OWNER_OBSERVATION") {
+      assert.ok(contract.typedEvaluation?.sourceContractRefs?.length, `${id} references exact source contracts`);
+    } else {
+      assert.match(contract.truthBoundary, /synthetic|model input/iu, `${id} cannot claim runtime truth`);
+    }
+  }
+});
+
+test("bare guard booleans cannot satisfy authority or source-evidence predicates", () => {
+  const transitionId = "media-job/T04";
+  const edge = byId.get(transitionId).edgeRules[0];
+  const facts = fixture(edge);
+  delete facts.typedOwnerFacts;
+  const required = mandatoryPredicateIds(edge.when).filter((id) => id !== "tenant.matches");
+  assert.ok(required.length > 0);
+  facts.guardFacts = {};
+  for (const id of required) {
+    facts.guardFacts[id] = true;
+    delete facts.modelInputs[id];
+    assert.equal(guardContracts.facts[id].inputKind, "DEFINITION_MODEL_INPUT");
+  }
+  facts.guardFacts["tenant.matches"] = true;
+  delete facts.modelInputs["tenant.matches"];
+  const denied = evaluate(transitionId, edge.from, edge.to, facts);
+  assert.equal(denied.allowed, false, "untrusted guardFacts booleans are ignored");
+  assert.ok(denied.reasonCodes.some((reason) => reason.startsWith("GUARD_MODEL_INPUT_MISSING:")), "missing model inputs remain UNKNOWN");
+});
+
 test("each edge fails when its material positive predicate is missing or false", () => {
   let negativeCount = 0;
   for (const transition of allTransitions) {
@@ -178,8 +226,8 @@ test("tenant, compare-and-swap, finality, and consent revocation use concrete fa
   stale.version.current = "head-v8";
   assert.equal(evaluate(versionCommit, "DRAFT", "COMMITTED", stale).allowed, false);
   const tenantMismatch = fixture(versionEdge);
-  tenantMismatch.tenant.resourceTenantId = "tenant-media-b";
-  assert.ok(evaluate(versionCommit, "DRAFT", "COMMITTED", tenantMismatch).reasonCodes.includes("TENANT_MISMATCH"));
+  tenantMismatch.modelInputs["tenant.matches"] = false;
+  assert.ok(evaluate(versionCommit, "DRAFT", "COMMITTED", tenantMismatch).reasonCodes.includes("MODEL_INPUT_NOT_ESTABLISHED:tenant.matches"));
 
   const conflictId = "media-project-version/T02";
   const conflict = byId.get(conflictId).edgeRules[0];
@@ -191,16 +239,44 @@ test("tenant, compare-and-swap, finality, and consent revocation use concrete fa
   const rightsRevocation = byId.get("media-rights-and-consent/consent/T02");
   const revokeEdge = rightsRevocation.edgeRules.find(({ to }) => to === "REVOKED");
   const revokeFacts = fixture(revokeEdge);
-  revokeFacts.guardFacts["consent.revocationRecorded"] = true;
+  revokeFacts.modelInputs["consent.revocationRecorded"] = true;
   assert.equal(evaluate(rightsRevocation.transitionId, "ACTIVE", "REVOKED", revokeFacts).allowed, true,
     "authoritative revocation from ACTIVE is not blocked by lack of active consent afterward");
   const missingRevocation = fixture(revokeEdge);
-  delete missingRevocation.guardFacts["consent.revocationRecorded"];
+  delete missingRevocation.modelInputs["consent.revocationRecorded"];
   assert.equal(evaluate(rightsRevocation.transitionId, "ACTIVE", "REVOKED", missingRevocation).allowed, false);
   const expiryEdge = rightsRevocation.edgeRules.find(({ to }) => to === "EXPIRED");
   const expiryFacts = fixture(expiryEdge);
-  expiryFacts.guardFacts["consent.expiryRecorded"] = true;
+  expiryFacts.modelInputs["consent.expiryRecorded"] = true;
   assert.equal(evaluate(rightsRevocation.transitionId, "ACTIVE", "EXPIRED", expiryFacts).allowed, true);
+});
+
+test("dispatch, cancellation race, and unknown outcomes require their distinct evidence", () => {
+  const dispatchId = "media-attempt/T02";
+  const dispatchEdge = byId.get(dispatchId).edgeRules.find(({ to }) => to === "DISPATCHED");
+  const noIdempotency = fixture(dispatchEdge);
+  noIdempotency.modelInputs.idempotencyIdentityRecorded = false;
+  assert.equal(evaluate(dispatchId, "DISPATCH_INTENT_RECORDED", "DISPATCHED", noIdempotency).allowed, false,
+    "dispatch requires a recorded idempotency identity in addition to durable intent");
+  const unknownDispatch = fixture(byId.get(dispatchId).edgeRules.find(({ to }) => to === "OUTCOME_UNKNOWN"));
+  assert.equal(evaluate(dispatchId, "DISPATCH_INTENT_RECORDED", "OUTCOME_UNKNOWN", unknownDispatch).allowed, true,
+    "an uncertain boundary remains explicitly representable as unknown");
+
+  const cancelId = "media-attempt/T05";
+  const cancellationEdges = byId.get(cancelId).edgeRules;
+  for (const edge of cancellationEdges) {
+    const noRaceEvidence = fixture(edge);
+    noRaceEvidence.modelInputs.cancellationRaceEvidenceRecorded = false;
+    assert.equal(evaluate(cancelId, "CANCEL_REQUESTED", edge.to, noRaceEvidence).allowed, false,
+      `${edge.to} cannot be selected before the cancel race is resolved`);
+  }
+  const raceResolvedAsSuccess = fixture(cancellationEdges.find(({ to }) => to === "SUCCEEDED"));
+  assert.equal(evaluate(cancelId, "CANCEL_REQUESTED", "SUCCEEDED", raceResolvedAsSuccess).allowed, true,
+    "a cancellation request can race with a verified success; request is not cancellation finality");
+  const noEffectProof = fixture(cancellationEdges.find(({ to }) => to === "CANCEL_CONFIRMED"));
+  noEffectProof.modelInputs["outcome.media.attempt.cancel.confirmed.supported"] = false;
+  assert.equal(evaluate(cancelId, "CANCEL_REQUESTED", "CANCEL_CONFIRMED", noEffectProof).allowed, false,
+    "cancel confirmation requires evidence that closes the relevant effects");
 });
 
 test("competing multi-target outcomes require distinct evidence and contradictory classifications fail", () => {
@@ -208,13 +284,13 @@ test("competing multi-target outcomes require distinct evidence and contradictor
   const holdContract = byId.get(holdId);
   const proceed = holdContract.edgeRules.find(({ to }) => to === "ACCESS_REVOKED");
   const proceedFacts = fixture(proceed);
-  proceedFacts.guardFacts["hold.active"] = true;
+  proceedFacts.modelInputs["hold.active"] = true;
   const contradiction = evaluate(holdId, proceed.from, proceed.to, proceedFacts);
   assert.equal(contradiction.allowed, false, "proceeding while also asserting an active hold is contradictory");
   assert.ok(contradiction.reasonCodes.some((reason) => reason.startsWith("CONTRADICTORY_OUTCOME_FACTS:")));
   const blocked = holdContract.edgeRules.find(({ to }) => to === "BLOCKED_BY_HOLD");
   const unknownHold = fixture(blocked);
-  delete unknownHold.guardFacts["hold.active"];
+  delete unknownHold.modelInputs["hold.active"];
   assert.equal(evaluate(holdId, blocked.from, blocked.to, unknownHold).allowed, false,
     "unknown hold applicability cannot be treated as either clear or active");
 
@@ -222,7 +298,7 @@ test("competing multi-target outcomes require distinct evidence and contradictor
   const deliveryContract = byId.get(deliveryId);
   const acknowledged = deliveryContract.edgeRules.find(({ to }) => to === "ACKNOWLEDGED");
   const conflictingDelivery = fixture(acknowledged);
-  conflictingDelivery.guardFacts["outcome.media.delivery.failed.supported"] = true;
+  conflictingDelivery.modelInputs["outcome.media.delivery.failed.supported"] = true;
   const deliveryConflict = evaluate(deliveryId, acknowledged.from, acknowledged.to, conflictingDelivery);
   assert.equal(deliveryConflict.allowed, false, "ACKNOWLEDGED and FAILED cannot be simultaneously asserted for one outcome");
   assert.ok(deliveryConflict.reasonCodes.some((reason) => reason.startsWith("CONTRADICTORY_OUTCOME_FACTS:")));
@@ -240,7 +316,7 @@ test("unknown predicates, source drift, and malformed ASTs fail closed without r
     ["GUARD_CONTRACT_SOURCE_STALE"]);
   const unknownPredicateContracts = structuredClone(guardContracts);
   unknownPredicateContracts.records.find(({ transitionId }) => transitionId === record.id).edgeRules[0].when = { fact: "invented.untypedPredicate" };
-  facts.guardFacts["invented.untypedPredicate"] = true;
+  facts.modelInputs["invented.untypedPredicate"] = true;
   assert.ok(evaluatePdpTransition({ transitions, states, guardContracts: unknownPredicateContracts, transitionId: record.id, from: "OUTCOME_UNKNOWN", to: "RECONCILING", facts }).reasonCodes.includes("UNKNOWN_GUARD_FACT:invented.untypedPredicate"));
   const beforeTransitions = structuredClone(transitions);
   const beforeStates = structuredClone(states);
@@ -256,9 +332,9 @@ test("three-valued NOT and Boolean nodes never turn unknown or malformed predica
   const contract = structuredClone(guardContracts);
   const record = contract.records.find(({ transitionId }) => transitionId === id);
   const edge = record.edgeRules[0];
-  contract.facts["test.knownPredicate"] = { description: "test-only mutation predicate", valueType: "boolean", unknown: "deny" };
+  contract.facts["test.knownPredicate"] = { description: "test-only mutation predicate", valueType: "boolean", unknown: "deny", inputKind: "DEFINITION_MODEL_INPUT" };
   const base = fixture(edge);
-  base.guardFacts["test.knownPredicate"] = false;
+  base.modelInputs["test.knownPredicate"] = false;
   const evaluateMutation = (when, facts = base) => {
     const mutated = structuredClone(contract);
     mutated.records.find(({ transitionId }) => transitionId === id).edgeRules[0].when = when;
@@ -267,7 +343,7 @@ test("three-valued NOT and Boolean nodes never turn unknown or malformed predica
   assert.equal(evaluateMutation({ all: [{ fact: "tenant.matches" }, { not: { fact: "test.knownPredicate" } }] }).allowed, true,
     "NOT of a known false predicate may pass");
   const missingKnownFact = structuredClone(base);
-  delete missingKnownFact.guardFacts["test.knownPredicate"];
+  delete missingKnownFact.modelInputs["test.knownPredicate"];
   assert.equal(evaluateMutation({ not: { fact: "test.knownPredicate" } }, missingKnownFact).allowed, false,
     "NOT of a missing fact must stay unknown and fail closed");
   assert.ok(evaluateMutation({ not: { fact: "not.in.catalog" } }).reasonCodes.includes("UNKNOWN_GUARD_FACT:not.in.catalog"));
@@ -287,11 +363,13 @@ test("three-valued NOT and Boolean nodes never turn unknown or malformed predica
   assert.equal(evaluate(versionId, "DRAFT", "COMMITTED", emptyVersions).allowed, false, "empty versions are not valid CAS identities");
   const emptyTenant = fixture(versionEdge);
   emptyTenant.tenant.requestTenantId = "";
-  assert.equal(evaluate(versionId, "DRAFT", "COMMITTED", emptyTenant).allowed, false, "empty tenant context is unknown, not equal");
+  delete emptyTenant.modelInputs["tenant.matches"];
+  assert.equal(evaluate(versionId, "DRAFT", "COMMITTED", emptyTenant).allowed, false, "untrusted tenant fields without a model input are unknown");
   const whitespaceTenant = fixture(versionEdge);
   whitespaceTenant.tenant.requestTenantId = "   ";
   whitespaceTenant.tenant.resourceTenantId = "   ";
-  assert.equal(evaluate(versionId, "DRAFT", "COMMITTED", whitespaceTenant).allowed, false, "whitespace-only tenant identity is unknown");
+  whitespaceTenant.modelInputs["tenant.matches"] = "   ";
+  assert.equal(evaluate(versionId, "DRAFT", "COMMITTED", whitespaceTenant).allowed, false, "non-Boolean tenant model input is unknown");
   const whitespaceVersions = fixture(versionEdge);
   whitespaceVersions.version = { expected: " \t", current: " \t" };
   assert.equal(evaluate(versionId, "DRAFT", "COMMITTED", whitespaceVersions).allowed, false, "whitespace-only CAS identities are unknown");
@@ -335,7 +413,7 @@ test("consent guards ignore caller booleans and reject foreign or stale typed pe
   const legacyBooleanOnly = fixture(edge);
   delete legacyBooleanOnly.typedOwnerFacts;
   legacyBooleanOnly.consent = { status: "ACTIVE", current: true, tenantId: "tenant-media-a", purposes: ["media.purpose.live-capture"] };
-  legacyBooleanOnly.guardFacts.consentPerEffectCurrent = true;
+  legacyBooleanOnly.modelInputs.consentPerEffectCurrent = true;
   assert.equal(evaluate(contract.transitionId, edge.from, edge.to, legacyBooleanOnly).allowed, false,
     "legacy ACTIVE/current booleans cannot satisfy a per-effect owner observation guard");
 

@@ -1,7 +1,7 @@
 schemaVersion: media.migration-semantics-review.v1
 artifactId: media.migration-semantics-review
 productId: media
-status: best-effort-source-extraction; GAP-MEDIA-MIGRATION-SEMANTICS-remains-open
+status: historical-source-extraction-and-source-pin; current-P0-03-delta-dispositions-are-in-docs/migration/current-master-plan-claim-dispositions.json
 sourcePin:
   path: docs/migration/expert-reviewed-master-plan.md
   sha256: 2960242334b5144187a7a6b687d4513a97d7f45401e0544b772b0e80f122fa5a
@@ -27,7 +27,7 @@ ownerDecisionOverlay:
     authority: user-delegated owner classification, limited to the exact item IDs listed below
     classificationEffect: structural, navigation, provenance, and task-crosswalk bookkeeping only; crosswalk destinations do not imply semantic equivalence or task completion
     acceptanceEffect: none
-    p0-03: remains open
+    p0-03: historical 2026-10-08 population status; current-source delta disposition is tracked separately and the historical unresolved count is not a P0-03 exit gate
     itemIds:
       executionOnly: [MPSEM-0020, MPSEM-0050, MPSEM-0081, MPSEM-0089, MPSEM-0123, MPSEM-0156, MPSEM-0173, MPSEM-0182, MPSEM-0216, MPSEM-0266, MPSEM-0284, MPSEM-0302, MPSEM-0317, MPSEM-0332, MPSEM-0337, MPSEM-0466, MPSEM-1190, MPSEM-1223]
       evidenceReference: [MPSEM-0007, MPSEM-0018, MPSEM-0019, MPSEM-1189, MPSEM-1191, MPSEM-1192, MPSEM-1193, MPSEM-1194, MPSEM-1195, MPSEM-1196, MPSEM-1197, MPSEM-1198, MPSEM-1199, MPSEM-1200, MPSEM-1201, MPSEM-1202, MPSEM-1203, MPSEM-1204, MPSEM-1205, MPSEM-1206, MPSEM-1207, MPSEM-1208, MPSEM-1209, MPSEM-1210, MPSEM-1211, MPSEM-1212, MPSEM-1213, MPSEM-1214, MPSEM-1215, MPSEM-1216, MPSEM-1217, MPSEM-1218, MPSEM-1219, MPSEM-1220, MPSEM-1221, MPSEM-1224, MPSEM-1225, MPSEM-1226, MPSEM-1227, MPSEM-1229, MPSEM-1230, MPSEM-1231, MPSEM-1232, MPSEM-1233, MPSEM-1234, MPSEM-1235, MPSEM-1236, MPSEM-1237, MPSEM-1238, MPSEM-1239, MPSEM-1240, MPSEM-1241, MPSEM-1242, MPSEM-1243, MPSEM-1244, MPSEM-1245, MPSEM-1247, MPSEM-1248, MPSEM-1249, MPSEM-1250, MPSEM-1251, MPSEM-1252, MPSEM-1253, MPSEM-1254, MPSEM-1255, MPSEM-1256, MPSEM-1257, MPSEM-1258]
@@ -32020,7 +32020,7 @@ migrationClaimReconciliations:
     - "Reconcile unreviewed taxonomy assertions, preserved task content, and other migration clusters; this bounded routing set does not complete P0-03 or justify refreshing the stale master-plan pin."
 sourceChangeLedger:
   schemaVersion: media.migration-source-change-ledger.v1
-  task: P0-03 semantic reconciliation of the stale master-plan source pin
+  task: historical source-change inventory; current P0-03 delta disposition is maintained in docs/migration/current-master-plan-claim-dispositions.json
   historicalSource:
     path: docs/migration/expert-reviewed-master-plan.md
     commit: e62514f94c45a4ecbc438d26298bf82b6a6f3d69
@@ -32032,7 +32032,7 @@ sourceChangeLedger:
     lineCount: 2829
     diffAgainstHistorical: 182 additions and 168 deletions; 350 changed lines
   sourcePinDisposition: keep-stale
-  reconciliationStatus: partial; all inventoried source-diff hunks have exact claim or unresolved-fragment coverage, while semantic equivalence, canonical target mapping, and owner review remain incomplete
+  reconciliationStatus: partial historical inventory; non-gating for current P0-03; current source-delta dispositions are at docs/migration/current-master-plan-claim-dispositions.json
   prePXD039ReviewCounts:
     uniqueUnits: 1340
     unresolved: 263
@@ -32043,7 +32043,7 @@ sourceChangeLedger:
     unresolved: 260
     mixedRequiresDecomposition: 124
     ownerReviewed: 3
-  remainingReview: Resolve the exact claim and unresolved-fragment records against their canonical PDP targets; complete owner review for the new taxonomy and PDP-1 routing; update affected historical MPSEM item text/locations where the claim boundaries changed; and establish any required external contract, qualification, or runtime evidence. Exact source decomposition, routing, or source presence alone does not constitute semantic equivalence or acceptance.
+  remainingReview: Preserve this historical inventory and stale source pin for traceability. Current source-change claims are dispositioned by docs/migration/current-master-plan-claim-dispositions.json; new delta review belongs there. Historical counts and pending locator claims do not gate current P0-03 development completion. Independent owner acceptance, external contracts, qualification, runtime evidence, and Lifecycle evidence remain separate.
   sourceChangeClaimLedger: docs/migration/master-plan-source-change-claims.yaml
   diffHunkCoverage:
     schemaVersion: media.migration-source-diff-hunk-coverage.v1
@@ -32799,17 +32799,19 @@ definitionOnlyLinkedSourceDelta:
 pdp38ClaimReconciliation:
   schemaVersion: media.pdp38-migration-claim-reconciliation.v1
   authority: User-delegated Media product-semantic routing under current PDP-38 mandate; this overlay does not act as an independent reviewer or Lifecycle receipt.
-  scope: Exactly the 260 unique source items historically classified UNRESOLVED in the 349-observation migration inventory; the historical item classifications and stale source pin are retained unchanged.
+  scope: Exactly the 260 unique source items historically classified UNRESOLVED in the 349-observation migration inventory; the historical item classifications and stale source pin are retained unchanged. This historical ledger is non-gating for current P0-03 exit; current source changes are covered by docs/migration/current-master-plan-claim-dispositions.json.
+  currentness: HISTORICAL_POPULATION_ONLY; NON_GATING_FOR_CURRENT_PDP0_03_DEVELOPMENT_EXIT
+  currentDeltaDispositionRef: docs/migration/current-master-plan-claim-dispositions.json
   mandateRef: docs/implementation/EXECUTE-MEDIA-PDP-0-3-38-TASKS.md#decision-1-stop-the-71-task-headline
   reconciliationMethod: Exact source-item digest and line span; each nontrivial clause is routed to one exact current PDP authority scalar or explicitly superseded only as an active old program instruction. Similarity was used only to locate candidate existing fields; owner routing dispositions below are static and independently testable.
   historicalPopulation: {uniqueUnits: 1340, structuralObservations: 349, existingBoundedNonNormativeClassifications: 89, unresolvedAtHistoricalReview: 260, mixedAtHistoricalReview: 124}
   currentClaimRecordCount: 260
   currentClaimUnitCount: 884
-  sourceOwnerRoutingCount: 862
-  semanticParityVerifiedClaimUnitCount: 500
-  candidateTargetPendingSemanticParityCount: 362
-  nonNormativeSourceMetadataClaimUnitCount: 8
-  semanticParityRule: Route existence and target digests assign an owner locator only. A claim is parity-verified only when its semanticReviewStatus is CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED and a claim-specific test preserves its material meaning; other routed claims remain explicit candidate targets pending semantic review.
+  sourceOwnerRoutingCount: 860
+  semanticParityVerifiedClaimUnitCount: 499
+  candidateTargetPendingSemanticParityCount: 361
+  nonNormativeSourceMetadataClaimUnitCount: 10
+  semanticParityRule: Route existence and target digests assign an owner locator only. A claim is parity-verified only when its semanticReviewStatus is CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED and a claim-specific test preserves its material meaning; other routed claims remain explicit historical candidate targets pending semantic review and do not gate current P0-03 development exit.
   scopeSupersessionClaimIds: [MPSEM-0005-C002, MPSEM-0005-C003, MPSEM-0005-C004, MPSEM-0006-C001, MPSEM-0006-C002, MPSEM-1222-C005]
   sourcePinDisposition: keep-stale; the original pinned historical source remains the baseline and current-plan source-change ledger remains separate.
   acceptanceEffect: none; source routing does not establish independent migration review, PDP phase acceptance, external-owner acceptance, runtime execution, technical qualification, or Lifecycle currentness.
@@ -33644,11 +33646,10 @@ pdp38ClaimReconciliation:
         - claimId: MPSEM-0030-C001
           exactSourceText: "| REV-10 — “Local ML” could bypass governance"
           sourceTextSha256: "d8ca11ab1bc1efb1971211d019b4541e8cd5f89d71d7da4351247244ede0ed7c"
-          disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.job.watch/acceptanceCases/1/when"
-          targetTextSha256: "fa940b6375fd85eb292c64e1771e67643136fd11e08344e096dae055132ac8b6"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: The local observation ends."
+          disposition: NON_NORMATIVE_SOURCE_METADATA
+          metadataFields: [finding-id-and-summary-label]
+          sourceEvidenceRef: "docs/migration/expert-reviewed-master-plan.md#L106"
+          rationale: "The exact text is the first-cell REV-10 finding label. Its governance meaning is carried by the separately decomposed required-resolution claims MPSEM-0030-C003 and C004, which retain their current P0 owner mappings. This label creates no additional product requirement."
           acceptanceEffect: none
         - claimId: MPSEM-0030-C002
           exactSourceText: "U1 §14.1 is broader than AI Inference’s consumer boundary [R03]"
@@ -33834,21 +33835,18 @@ pdp38ClaimReconciliation:
         - claimId: MPSEM-0034-C001
           exactSourceText: "| REV-14 — Graph definition and execution state were mixed"
           sourceTextSha256: "c46d5f28da212b70137466af605cb159d7a252ae29f3228f0d69d591caea14f2"
-          disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
-          targetRef: ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.definition-and-run-state-separation.v1"
-          targetTextSha256: "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925"
-          rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
+          disposition: NON_NORMATIVE_SOURCE_METADATA
+          metadataFields: [finding-id-and-summary-label]
+          sourceEvidenceRef: "docs/migration/expert-reviewed-master-plan.md#L113"
+          rationale: "The exact text is the first-cell REV-14 finding label. The source observation and required rule are separately stated in C002-C004; this label adds no independent product behavior."
           acceptanceEffect: none
-          semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0034-C001"
-          coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
         - claimId: MPSEM-0034-C002
           exactSourceText: "U1 §9 puts parameters, policies and execution state in one graph"
           sourceTextSha256: "8fcae6531f94bec3f1c4b87e1d0977f8f3ca5ba8e0834dc7ad966bbd37f06f65"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.definition-and-run-state-separation.v1"
-          targetTextSha256: "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925"
+          targetTextSha256: "57b961cb3581893c04c88675de18a719daa1857f875bbddb1c7028902a9e8b49"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0034-C002"
@@ -34248,7 +34246,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1"
-          targetTextSha256: "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b"
+          targetTextSha256: "fcccc71f1cef93a779214097ac0728921aa8826a39629f3379c4f9586bc7c477"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0042-C003"
@@ -35029,10 +35027,49 @@ pdp38ClaimReconciliation:
           exactSourceText: "Educational, marketing, archival, creator, developer and operator journeys are first-class examples."
           sourceTextSha256: "19a51010f244846ce5581d63a4a6f00fd513237ce1552c2d6dfd7a70ecdd5918"
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
-          semanticReviewStatus: OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY
-          targetRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.integrator/context"
-          targetTextSha256: "1bcc44a2fd9a05433786cdd44a4ac8d68778ce8ca98320bd058615ba707fe897"
-          rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: A developer or operator integrating Media into an existing system or automation."
+          semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
+          targetRef: ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.educator-or-researcher/context"
+          targetTextSha256: "81d9b4810081b4122ac30666fbe004464f6ee94df9cd129c58610da5591e59c3"
+          rationale: "PXD-136: all five persona contexts bind through their exact typicalGoals to corresponding outcomeCoverage entries with proposed canonical J-IDs. This is persona-to-goal-to-proposed-journey example coverage only; it does not assert screen/action completeness, named journey completeness, market validation or adoption, runtime support, or phase acceptance."
+          materialTargetRefs:
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.educator-or-researcher/context"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.campaign-producer/context"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.archive-restorer/context"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.independent-creator/context"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.integrator/context"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.educator-or-researcher/typicalGoals"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.campaign-producer/typicalGoals"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.archive-restorer/typicalGoals"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.independent-creator/typicalGoals"
+          - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/personas/@id=media.persona.integrator/typicalGoals"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/3"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/5"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/0"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/6"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/1"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/4"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/7"
+          - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/outcomeCoverage/8"
+          materialTargetValueSha256:
+          - "81d9b4810081b4122ac30666fbe004464f6ee94df9cd129c58610da5591e59c3"
+          - "ad788ff62f00de5ed8ecf5dffd44c76772de104f7c33bff09509ddae6f4caf5e"
+          - "1383741052c38c29a2d32010ea609cdb63dcce5c31592907fd238909fcac4ee0"
+          - "7dbaf658fdfe61d9b36c0ea66f23f0d3c082ad710f69eaac21c57061f9f21474"
+          - "1bcc44a2fd9a05433786cdd44a4ac8d68778ce8ca98320bd058615ba707fe897"
+          - "8854eaf46c8c16f0be0069f778904bdecc43c13612082b285979c728b4a25830"
+          - "54b9305c0111eb36a0723cf6b8d383f2af855c6fcdaf6fec9121b7aba15bc846"
+          - "6009cba968f05d8bd9d6b2087528ae34c4d98c9df387c80b257f8e8ac71ad61f"
+          - "53813631066f6df4909977ae2f4e3ff7c414a15863b1c7ad10bf4e5ed56322f0"
+          - "7a8f0718dbaff3d56346673d2027280279724adf67fb2bbe354ebf06cacdc98c"
+          - "4664b7f37af759b0b9f978da8a2f50b83d4e74d15fab50e8b7e1893aff63d8ee"
+          - "542e802bc885218129b369f5b792a7b82c2924330c7216e844f152b4c7502552"
+          - "e6be8c860894bfa0fd19eb7b8afb2b6d180211bdddfb842ee37e0f52b40718df"
+          - "90a625c54a04242f2667eee2433658714da12ed47ed4245c942ab64435b1d0fa"
+          - "57fadcab1871773b6084fb843387b968f56e5e4fec286bb7522d83268dd1b947"
+          - "1576e527384355c822754c978ccda352051788392b63c89abf2c153dd6b33029"
+          - "0cccae50a9ea24ff02702636cde7e5ad75ccba24cf24e8ce0d5b183a0c9e46d4"
+          - "732b3dbccdb1b514b46710fb79d10f308028260c352f2b5d1324f4bc9ebfcd06"
+          decisionRef: ".product-experience/decision-log.md#PXD-136"
           acceptanceEffect: none
         - claimId: MPSEM-0077-C003
           exactSourceText: "Scientific validity, pedagogical truth, clinical decisions and campaign claims stay with their domain owners."
@@ -36537,7 +36574,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
           targetRef: ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule"
-          targetTextSha256: "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe"
+          targetTextSha256: "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: existing media processing and streaming"
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0181-C002"
@@ -38680,7 +38717,7 @@ pdp38ClaimReconciliation:
           semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json#/records/@claimId=MPSEM-0291-C009"
           targetRef: ".product-experience/pdp-0-product-truth/profile-semantics.yaml#bindingProfileRule"
-          targetTextSha256: "22517b43debb68fa84ad63522a03cc14c32ed8c52b2ea7ae574a187c47c312bb"
+          targetTextSha256: "47148e7a5c9189c0e80aa5de633ae206a29c6af191c1c59bf502050949d3efd0"
           rationale: "The structured binding-profile rule keeps model-native settings in exact qualified profiles, separate from ordinary user requirements, and independently records requested versus effective identities, versions, quality dimensions, changes, reasons, and fallback authority. No profile qualification is claimed."
           acceptanceEffect: none
     - itemId: MPSEM-0295
@@ -38760,7 +38797,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/interface-parity/operation-parity.yaml#ownerDefinedSourceTruthMatrix"
-          targetTextSha256: "cd7dc0f0af3884cc1239c3764eb24d4ab47576f5fb9ca7d067f1485296e77cf1"
+          targetTextSha256: "8c188d0bc642d1831e6bf0a75260f90bac842c37c67c09f371ea1568800e3189"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0296-C005"
@@ -39424,7 +39461,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics"
-          targetTextSha256: "ab2d66b9bb0cf7e8ceb5bd9bd595bd5957da322da8d552ca42ac547738ab9d7a"
+          targetTextSha256: "ac5065399c1791f75ace2a8e4b1268a93f43969e0050514d3bc9f0c8d89a780b"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0315-C003"
@@ -39463,7 +39500,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1"
-          targetTextSha256: "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b"
+          targetTextSha256: "fcccc71f1cef93a779214097ac0728921aa8826a39629f3379c4f9586bc7c477"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0316-C001"
@@ -39781,7 +39818,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.finite-command-family-registry.v1"
-          targetTextSha256: "92b9c275eec6a7b677c76df5b66e6c3cb7e1516c577857c45e4f5c23fae7ec1f"
+          targetTextSha256: "cfbe604c5db8eb31a18daffdef8111b9bea36ded28c6a6844785463bc4b4922f"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0331-C001"
@@ -40274,7 +40311,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics"
-          targetTextSha256: "ab2d66b9bb0cf7e8ceb5bd9bd595bd5957da322da8d552ca42ac547738ab9d7a"
+          targetTextSha256: "ac5065399c1791f75ace2a8e4b1268a93f43969e0050514d3bc9f0c8d89a780b"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0350-C001"
@@ -41180,7 +41217,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule"
-          targetTextSha256: "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe"
+          targetTextSha256: "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17"
           rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0374-C006"
@@ -41637,7 +41674,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback"
-          targetTextSha256: "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6"
+          targetTextSha256: "e1ba9597b1b4a9867552cd7064efc1d068219ef7b6fe2e3ea27695883765920e"
           previouslyReviewedTargetTextSha256: "5a29712ad7914bd6856b6b9112e0cc13db54ae753c0b7b66c61c99ab9f465a7e"
           sourceImpactReviewRef: "docs/implementation/verification/pdp-38/migration-reviewed-source-impact.json#/records/@claimId=MPSEM-0388-C003"
           currentOwnerDeltaRef: ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/hardwareFootprintDoesNotWaiveAdmission"
@@ -42484,7 +42521,7 @@ pdp38ClaimReconciliation:
           semanticReviewStatus: CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-policy-source-review.json#/records/@claimId=MPSEM-0455-C002"
           targetRef: ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary"
-          targetTextSha256: "9a8d07cba462cbafd9153beef209439630cfea8d7f2dc3d2c04f24a565fc44a4"
+          targetTextSha256: "f62fcd66d8772966e23b0fd61c9262ca616404c8ca13c0c710dab6d41ecb8a4e"
           rationale: "Reusable Shared mechanics are adopted only behind Media-owned adapters when exact public contracts satisfy Media policy/state/finality; owner boundaries remain explicit."
           acceptanceEffect: none
         - claimId: MPSEM-0455-C003
@@ -42692,7 +42729,7 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/externalStackSelectionRule"
-          targetTextSha256: "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe"
+          targetTextSha256: "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17"
           rationale: "Media owner routing selects this exact current owner field for the claim. It is a definition/source relationship only; it does not promote proposed meaning to runtime, qualification, external-owner, independent-review, or phase acceptance. Target excerpt: References bytes; does not duplicate or redefine them."
           acceptanceEffect: none
         - claimId: MPSEM-0459-C003
@@ -43429,7 +43466,7 @@ pdp38ClaimReconciliation:
               rationale: "PDP-2 accessibility rules define requirements; they do not represent specialist approval or certification."
               acceptanceEffect: none
               targetRef: ".product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules"
-              targetTextSha256: "2c8f8799cffd305fd676ee1dbd021ea95d546b1943c5ad29573b2b6e09e1cdb6"
+              targetTextSha256: "cda948442d9a9f40d8c367db645551cf1a3231aa8ba6f281f5d8c8dd97652ade"
             - claimId: MPSEM-1259-C001-S14
               exactSourceText: "responsive/a11y/localization"
               sourceTextSha256: "e4bb37baad0a35fab663a143bf84402b86bd6472fdeb97262db5d515eb268458"
@@ -43495,7 +43532,7 @@ pdp38ClaimReconciliation:
           targetTextSha256: "70a446cda0b57d3d8dafa67ff4c94e97d643e2a7351cfce46ff9af34101a1ab1"
           acceptanceEffect: none
   scopeSupersededClaimUnitCount: 6
-  currentOwnerTargetClaimUnitCount: 862
+  currentOwnerTargetClaimUnitCount: 860
   ownerAccountedPendingSemanticDefinitionCount: 0
   retainedHistoricalProgramTruthClaimCount: 7
   outOfScopeHistoricalRequirementCount: 1

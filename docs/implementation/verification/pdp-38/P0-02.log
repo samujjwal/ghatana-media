@@ -1,160 +1,77 @@
 TAP version 13
-# Subtest: source applicability validates the exact Cartesian population without admitting measurement
-ok 1 - source applicability validates the exact Cartesian population without admitting measurement
-  ---
-  duration_ms: 7.264301
-  type: 'test'
-  ...
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
-ok 2 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
+ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 35593.326907
+  duration_ms: 15955.67406
   type: 'test'
   ...
-# Subtest: actual measure source bindings resolve exact owner rows and reject valid foreign targets
-ok 3 - actual measure source bindings resolve exact owner rows and reject valid foreign targets
+# Subtest: same-count substitution, duplicates and stale binding projections are rejected
+ok 2 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 23807.328863
+  duration_ms: 2.799539
   type: 'test'
   ...
-# Subtest: unknown applicability, missing evidence and invented measurements remain errors
-ok 4 - unknown applicability, missing evidence and invented measurements remain errors
+1..0
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs
+ok 2 - /home/samujjwal/Developments/ghatana-media/tests/media-operation-bounds.test.mjs
   ---
-  duration_ms: 1.866167
-  type: 'test'
-  ...
-# Subtest: explicit applicability decision keeps missing output identity in scope without qualified measurements
-ok 5 - explicit applicability decision keeps missing output identity in scope without qualified measurements
-  ---
-  duration_ms: 3.637748
-  type: 'test'
-  ...
-# Subtest: all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
-ok 6 - all eleven simulation-pass leaves have distinct, operation-bound schemas and typed output shape
-  ---
-  duration_ms: 1469.171916
-  type: 'test'
-  ...
-# Subtest: all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
-ok 7 - all eighteen edit leaves constrain operation kind, preservation, versions, outputs and cross-field identity
-  ---
-  duration_ms: 10855.856799
+  duration_ms: 6549.77234
   type: 'test'
   ...
 # Subtest: every declared NFR has one complete owner measurement method without implying observation or acceptance
-ok 8 - every declared NFR has one complete owner measurement method without implying observation or acceptance
+ok 4 - every declared NFR has one complete owner measurement method without implying observation or acceptance
   ---
-  duration_ms: 23210.929444
+  duration_ms: 19982.413307
   type: 'test'
   ...
 # Subtest: performance method binds all six proposed budgets while preserving unnamed environments as a gate
-ok 9 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
+ok 5 - performance method binds all six proposed budgets while preserving unnamed environments as a gate
   ---
-  duration_ms: 1.06643
+  duration_ms: 0.876848
   type: 'test'
   ...
 # Subtest: missing method material and attempted qualification promotion fail validation
-ok 10 - missing method material and attempted qualification promotion fail validation
+ok 6 - missing method material and attempted qualification promotion fail validation
   ---
-  duration_ms: 5.968687
+  duration_ms: 3.136518
   type: 'test'
   ...
 # Subtest: SLO and human/specialist methods remain gated on their real external evidence
-ok 11 - SLO and human/specialist methods remain gated on their real external evidence
+ok 7 - SLO and human/specialist methods remain gated on their real external evidence
   ---
-  duration_ms: 0.343572
+  duration_ms: 0.268746
   type: 'test'
   ...
 # Subtest: trustworthy-output applicability follows output-producer role and preserves incomplete candidates
-ok 12 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
+ok 8 - trustworthy-output applicability follows output-producer role and preserves incomplete candidates
   ---
-  duration_ms: 9334.052495
+  duration_ms: 8832.64088
   type: 'test'
   ...
-# Subtest: provider and recovery populations include exact local compute and unknown asynchronous operations
-ok 13 - provider and recovery populations include exact local compute and unknown asynchronous operations
+# Subtest: P0 model acquisition and reuse policy separates package licenses from model and asset terms
+ok 9 - P0 model acquisition and reuse policy separates package licenses from model and asset terms
   ---
-  duration_ms: 7945.252923
+  duration_ms: 337.882673
   type: 'test'
   ...
-# Subtest: owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
-ok 14 - owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
+# Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
+ok 10 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 2054.083909
+  duration_ms: 1046.638125
   type: 'test'
   ...
-# Subtest: owner wire base selectors resolve an exact real operation, profile, and bound
-ok 15 - owner wire base selectors resolve an exact real operation, profile, and bound
+# Subtest: P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
+ok 11 - P0 bounded invocation admission distinguishes inapplicable resources from unknown or unbounded ones
   ---
-  duration_ms: 708.560302
+  duration_ms: 618.488874
   type: 'test'
   ...
-# Subtest: simulation passes reject cross-pass output, missing provenance and wrong source bindings
-ok 16 - simulation passes reject cross-pass output, missing provenance and wrong source bindings
-  ---
-  duration_ms: 79.409504
-  type: 'test'
-  ...
-# Subtest: edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
-ok 17 - edit leaves reject wrong operation parameters, unsupported media types and unbound source/output versions
-  ---
-  duration_ms: 56.393656
-  type: 'test'
-  ...
-# Subtest: owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
-ok 18 - owner wire schemas reject invalid calendar dates, whitespace identifiers and undeclared formats
-  ---
-  duration_ms: 2.415546
-  type: 'test'
-  ...
-# Subtest: all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
-ok 19 - all 448 canonical capability request and result schemas close against exact typed payload/scalar definitions
-  ---
-  duration_ms: 17672.598936
-  type: 'test'
-  ...
-# Subtest: all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
-ok 20 - all 101 input and 69 output type definitions are material, closed, and reject missing required evidence
-  ---
-  duration_ms: 992.577088
-  type: 'test'
-  ...
-# Subtest: rational frame-rate limits use the exact BigInt validator and fail closed
-ok 21 - rational frame-rate limits use the exact BigInt validator and fail closed
-  ---
-  duration_ms: 17.943493
-  type: 'test'
-  ...
-# Subtest: all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
-ok 22 - all 14 existing-operation capability bindings resolve to their exact source-owned wire schemas
-  ---
-  duration_ms: 1289.819661
-  type: 'test'
-  ...
-# Subtest: P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-ok 23 - P0 defines every capability leaf with exact typed operations, bounds, and honest admission dimensions
-  ---
-  duration_ms: 30713.956119
-  type: 'test'
-  ...
-# Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
-ok 24 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
-  ---
-  duration_ms: 9313.825091
-  type: 'test'
-  ...
-# Subtest: P0-06 enumerates exact capability applicability without inventing a measured population
-ok 25 - P0-06 enumerates exact capability applicability without inventing a measured population
-  ---
-  duration_ms: 18618.716997
-  type: 'test'
-  ...
-1..25
-# tests 25
+1..11
+# tests 11
 # suites 0
-# pass 25
+# pass 11
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 60035.890474
+# duration_ms 20389.139989

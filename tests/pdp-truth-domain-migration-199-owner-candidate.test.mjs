@@ -59,7 +59,7 @@ function validateMaterialReview(row, valuesByRef) {
     && valuesByRef.get(binding.ref).includes(binding.requiredSourcePhrase));
 }
 
-test("the complete 199-row truth-owned cohort preserves exact claim identity and current source locators", () => {
+test("the 199-row cohort preserves historical claim identity and phase-scoped live source locators", () => {
   const byId = new Map(partition.records.map((row) => [row.claimId, row]));
   assert.equal(candidate.records.length, 199);
   assert.equal(new Set(candidate.records.map((row) => row.claimId)).size, 199);
@@ -81,17 +81,64 @@ test("the complete 199-row truth-owned cohort preserves exact claim identity and
       assert.equal(sha(line), context.sha256, `${row.claimId} exact parent context hash`);
       assert.ok(line.includes(row.exactSourceText), `${row.claimId} exact claim appears in its parent context`);
     }
-    const { source, value } = resolveSelector(row.priorLocatorRef);
-    const currentValueSha256 = sha(typeof value === "string" ? value : JSON.stringify(value));
+    // Preserve the full historical cohort census in every phase, but read
+    // live owner sources only for the active phase. PDP-0 must not depend on
+    // PDP-1 locator values while its handoff is being frozen.
+    if (candidatePhase === "PDP-0" && row.ownerPhase !== "PDP-0") continue;
     const observation = row.currentProposalObservation;
+    const observationTargetRef = observation?.currentTargetRef ?? row.priorLocatorRef;
+    const { source, value } = resolveSelector(observationTargetRef);
+    const currentValueSha256 = sha(typeof value === "string" ? value : JSON.stringify(value));
     assert.equal(observation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW", `${row.claimId} live source delta remains explicitly pending`);
     assert.equal(observation.priorSourceFileSha256, row.ownerSourceSha256, `${row.claimId} historical file pin is preserved`);
     assert.equal(observation.priorTargetValueSha256, row.currentTargetValueSha256, `${row.claimId} historical value pin is preserved`);
     assert.equal(observation.currentTargetValueSha256, currentValueSha256, `${row.claimId} current observation binds the exact live target value`);
+    if (observation.currentTargetRef) {
+      assert.equal(observation.currentTargetRef, row.ownerSemanticReview?.proposedTargetRef,
+        `${row.claimId} current observation selector matches its owner-reviewed current target`);
+    }
     assert.equal(observation.currentSourceFileSha256, sha(source), `${row.claimId} current observation binds the exact live source file`);
     assert.match(observation.reason, /does not imply acceptance/u);
     assert.ok(row.currentTargetValuePreview);
     assert.ok(source.length > 0, `${row.claimId} owner source was read`);
+  }
+});
+
+test("MPSEM-0278-C001 keeps the historical partition locator and explicitly observes current rule 6", () => {
+  const record = candidate.records.find(({ claimId }) => claimId === "MPSEM-0278-C001");
+  const sourceClaim = partition.records.find(({ claimId }) => claimId === record.claimId);
+  const expectedCurrentTargetRef = ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/6";
+  assert.equal(record.priorLocatorRef, ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/5");
+  assert.equal(sourceClaim.currentTargetRef, record.priorLocatorRef, "historical source partition target is unchanged");
+  assert.equal(record.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(record.currentProposalObservation.currentTargetRef, expectedCurrentTargetRef);
+  const { value } = resolveSelector(expectedCurrentTargetRef);
+  const currentValueSha256 = sha(typeof value === "string" ? value : JSON.stringify(value));
+  assert.equal(currentValueSha256, "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421");
+  assert.equal(record.currentProposalObservation.currentTargetValueSha256, currentValueSha256);
+  assert.notEqual(record.currentProposalObservation.currentTargetRef, record.priorLocatorRef, "stale rule 5 cannot stand in for the current selector");
+});
+
+test("current proposal observations preserve historical source and owner pins", () => {
+  const row = (claimId) => candidate.records.find((item) => item.claimId === claimId);
+  const review0022 = row("MPSEM-0022-C001");
+  assert.equal(review0022.sourcePlanCommit, "e62514f94c45a4ecbc438d26298bf82b6a6f3d69");
+  assert.equal(review0022.ownerSourceSha256, "136cdd7921aa124c3d16435317e1463f1309ec17ad87c092fa2b35534e8ae2c4");
+  assert.equal(review0022.currentProposalObservation.priorSourceFileSha256, review0022.ownerSourceSha256);
+  assert.equal(review0022.currentProposalObservation.priorTargetValueSha256,
+    "61debf8977441075d65403125946501e39373aa0c6b918415fef3bf439c8bb8c");
+
+  const review0003 = row("MPSEM-0003-C002");
+  assert.equal(review0003.sourcePlanCommit, "e62514f94c45a4ecbc438d26298bf82b6a6f3d69");
+  assert.equal(review0003.ownerSourceSha256, "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc");
+  assert.equal(review0003.currentProposalObservation.priorSourceFileSha256, review0003.ownerSourceSha256);
+  assert.equal(review0003.currentProposalObservation.priorTargetValueSha256,
+    "bc182679b5ca308b9e757ba680d1002ed4cbaebb5e85acb50907f6e145422310");
+  assert.equal(review0003.ownerSemanticReview.disposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+  for (const binding of review0003.ownerSemanticReview.materialBindings) {
+    assert.equal(binding.currentProposalObservation.priorSourceFileSha256, binding.sourceFileSha256);
+    assert.equal(binding.currentProposalObservation.priorSourceValueSha256, binding.sourceValueSha256);
+    assert.equal(binding.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
   }
 });
 
@@ -133,9 +180,16 @@ test("only exact heading/table-label spans are classified as non-normative sourc
   assert.equal(expectedLines.size, 16);
 });
 
-test("claim-specific material clauses resolve exactly and reject weakened or substituted targets", () => {
-  const reviewed = candidate.records.filter((row) => row.ownerSemanticReview?.disposition === "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
-  assert.equal(reviewed.length, 183);
+const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? "ALL";
+const expectedMaterialReviewCounts = { ALL: 183, "PDP-0": 134, "PDP-1": 48 };
+if (!Object.hasOwn(expectedMaterialReviewCounts, candidatePhase)) {
+  throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be one of ALL, PDP-0, PDP-1; got ${candidatePhase}`);
+}
+
+test(`claim-specific material clauses for ${candidatePhase} resolve exactly and reject weakened or substituted targets`, () => {
+  const reviewed = candidate.records.filter((row) => row.ownerSemanticReview?.disposition === "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL"
+    && (candidatePhase === "ALL" || row.ownerPhase === candidatePhase));
+  assert.equal(reviewed.length, expectedMaterialReviewCounts[candidatePhase]);
   for (const row of reviewed) {
     const review = row.ownerSemanticReview;
     assert.equal(review.proposedTargetRef, review.exactContractRefs[0], ` primary target is the first exact owner clause`);
@@ -180,7 +234,7 @@ test("claim-specific material clauses resolve exactly and reject weakened or sub
   }
 });
 
-test("job acceptance keeps audit intent and dispatch intent inside one pre-effect durability boundary", () => {
+test("job acceptance keeps audit intent and dispatch intent inside one pre-effect durability boundary", { skip: candidatePhase === "PDP-0" }, () => {
   const { value: operation } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1");
   const contract = operation.auditIntentBoundary;
   assert.equal(contract.id, "media.operation.job-submit-audit-intent-boundary.v1");
@@ -215,7 +269,7 @@ test("job acceptance keeps audit intent and dispatch intent inside one pre-effec
   }
 });
 
-test("parent cancellation freezes child admission and retains unresolved child effects", () => {
+test("parent cancellation freezes child admission and retains unresolved child effects", { skip: candidatePhase === "PDP-0" }, () => {
   const { value: operation } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job");
   const rule = operation.ownerDefinition.childCancellationRule;
   assert.equal(rule.id, "media.job.child-cancellation-order.v1");
@@ -314,7 +368,7 @@ test("material-change disclosure covers narration, rights, egress, spend, and pu
   }
 });
 
-test("versioned autosave distinguishes local, pending, durable, offline, and conflict across mutable resources", () => {
+test("versioned autosave distinguishes local, pending, durable, offline, and conflict across mutable resources", { skip: candidatePhase === "PDP-0" }, () => {
   const { value: operation } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write");
   const rule = operation.autosaveStateSemantics;
   assert.equal(rule.id, "media.caption-draft-autosave-state.v1");
@@ -355,7 +409,7 @@ test("versioned autosave distinguishes local, pending, durable, offline, and con
   assert.deepEqual(resourceRule.autosaveApplicability.excludes, ["read-only-queries", "immutable-snapshot-creation-without-existing-head"]);
 });
 
-test("versioned mutations use exact optimistic compare-and-set and render submission rejects stale project heads", () => {
+test("versioned mutations use exact optimistic compare-and-set and render submission rejects stale project heads", { skip: candidatePhase === "PDP-0" }, () => {
   const { value: concurrency } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#ownerOptimisticConcurrencyRule");
   assert.equal(concurrency.id, "media.operation.optimistic-concurrency.v1");
   assert.ok(concurrency.applicability.appliesTo.includes("mutable-project-heads"));
@@ -395,7 +449,7 @@ test("versioned mutations use exact optimistic compare-and-set and render submis
   }
 });
 
-test("owner error, CRUD, job-dimension, lease, and completion clauses reject weakening", () => {
+test("owner error, CRUD, job-dimension, lease, and completion clauses reject weakening", { skip: candidatePhase === "PDP-0" }, () => {
   const { value: errors } = resolveSelector(".product-experience/pdp-1-domain-data/operations.yaml#ownerErrorResponseContract");
   const expectedErrors = ["VALIDATION", "AUTHENTICATION", "AUTHORIZATION", "POLICY", "RIGHTS_OR_LICENSE", "CAPABILITY_UNAVAILABLE", "CAPACITY_OR_QUOTA", "CONFLICT", "TIMEOUT", "CANCELLATION", "PROVIDER_OUTCOME_AMBIGUOUS", "INTERNAL"];
   assert.deepEqual(errors.errorClasses, expectedErrors);
@@ -460,7 +514,7 @@ test("owner error, CRUD, job-dimension, lease, and completion clauses reject wea
   assert.equal(unsafe.requiredEvidence.includes("verifiedByteLengthAndSha256"), false);
 });
 
-test("erasure inventory preserves shared references, restore tombstones, and remote uncertainty", () => {
+test("erasure inventory preserves shared references, restore tombstones, and remote uncertainty", { skip: candidatePhase === "PDP-0" }, () => {
   const { value: erasure } = resolveSelector(".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract");
   const shared = erasure.copyInventory.sharedReferenceRule;
   assert.match(shared, /exact versioned-reference inventory/u);

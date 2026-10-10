@@ -12,16 +12,59 @@ const reviewedMaterialArtifactText = readFileSync(resolve(root, "docs/implementa
 const reviewedMaterialArtifact = JSON.parse(reviewedMaterialArtifactText);
 const reviewedReferenceCorrectionArtifactText = readFileSync(resolve(root, "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json"), "utf8");
 const reviewedReferenceCorrectionArtifact = JSON.parse(reviewedReferenceCorrectionArtifactText);
-const reviewedOperationReferenceCorrectionArtifactText = readFileSync(resolve(root, "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json"), "utf8");
-const reviewedOperationReferenceCorrectionArtifact = JSON.parse(reviewedOperationReferenceCorrectionArtifactText);
-const resolveWithReviewedArtifact = (args) => resolvePdp0FeatureReviewApplicability({ ...args,
+const qualityMetricObservationPaths = [
+  "docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json",
+  "docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json",
+  "docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json",
+];
+const qualityMetricObservations = qualityMetricObservationPaths.map((path) => {
+  const text = readFileSync(resolve(root, path), "utf8");
+  return { text, artifact: JSON.parse(text) };
+});
+const qualityPolicySourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"), "utf8");
+const qualityCurrentSourceReviewPath = "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json";
+const qualityCurrentSourceReviewText = readFileSync(resolve(root, qualityCurrentSourceReviewPath), "utf8");
+const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
+const qualificationPolicyObservationPath = "docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json";
+const qualificationPolicyObservationText = readFileSync(resolve(root, qualificationPolicyObservationPath), "utf8");
+const qualificationPolicyObservation = JSON.parse(qualificationPolicyObservationText);
+const qualificationPolicySourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/qualification-policy.yaml"), "utf8");
+const animationRelationshipObservationPath = "docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json";
+const animationRelationshipObservationText = readFileSync(resolve(root, animationRelationshipObservationPath), "utf8");
+const animationRelationshipObservation = JSON.parse(animationRelationshipObservationText);
+const textToImageObservationPath = "docs/implementation/verification/pdp-38/feature-review-current-source-observation.json";
+const textToImageObservationText = readFileSync(resolve(root, textToImageObservationPath), "utf8");
+const textToImageObservation = JSON.parse(textToImageObservationText);
+const capabilitiesSourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8");
+const capabilityIntentOwnerBindingObservationPath = "docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json";
+const capabilityIntentOwnerBindingObservationText = readFileSync(resolve(root, capabilityIntentOwnerBindingObservationPath), "utf8");
+const capabilityIntentOwnerBindingObservation = JSON.parse(capabilityIntentOwnerBindingObservationText);
+const capabilitySemanticReviewPath = "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json";
+const capabilitySemanticReviewText = readFileSync(resolve(root, capabilitySemanticReviewPath), "utf8");
+const capabilitySemanticReview = JSON.parse(capabilitySemanticReviewText);
+const policyAuthorityObservationPath = "docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json";
+const policyAuthorityObservationText = readFileSync(resolve(root, policyAuthorityObservationPath), "utf8");
+const policyAuthorityObservation = JSON.parse(policyAuthorityObservationText);
+const policyAuthoritySourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/policy-authority-model.yaml"), "utf8");
+const cliChannelObservationPath = "docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json";
+const cliChannelObservationText = readFileSync(resolve(root, cliChannelObservationPath), "utf8");
+const cliChannelObservation = JSON.parse(cliChannelObservationText);
+const applicationsChannelsSourceText = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/applications-channels.yaml"), "utf8");
+const resolveWithReviewedArtifact = (args) => resolvePdp0FeatureReviewApplicability({
   reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText,
-  reviewedOperationReferenceCorrectionArtifact, reviewedOperationReferenceCorrectionArtifactText });
+  qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText,
+  qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText,
+  animationRelationshipObservation,
+  animationRelationshipObservationText,
+  textToImageObservation, textToImageObservationText, capabilitiesSourceText,
+  capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText,
+  capabilitySemanticReview, capabilitySemanticReviewText,
+  policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText,
+  cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, ...args });
 const capabilities = read(".product-experience/pdp-0-product-truth/capabilities.yaml");
 const review = read(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
 const channelSource = read(".product-experience/pdp-0-product-truth/applications-channels.yaml");
 const requirements = read(".product-experience/pdp-0-product-truth/requirements.yaml");
-const operations = read(".product-experience/pdp-1-domain-data/operations.yaml");
 const channels = [...channelSource.channels, ...channelSource.ownerDefinedChannels.records];
 const channelIds = new Set(channels.map(({ id }) => id));
 const sourceLabels = {
@@ -143,21 +186,20 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   const requirementIds = requirements.requirements.map(({ id }) => id);
   const requirementById = new Map(requirements.requirements.map((requirement) => [requirement.id, requirement]));
   const familyByRequirement = new Map(capabilities.families.map((family) => [family.requirementId, family]));
-  const operationById = new Map(operations.capabilityOperationContracts.records.map((record) => [record.id, record]));
   const leaves = review.ownerCapabilityLeafAdjudication.records;
-  const operationContracts = operations.capabilityOperationContracts.records;
-  const evidencePaths = [...new Set(dimensionRows.flatMap(({ dimensionEvidenceRefs }) => dimensionEvidenceRefs.map((ref) => ref.split("#")[0])))];
+  const evidencePaths = [...new Set(dimensionRows.flatMap(({ dimensionEvidenceRefs }) => dimensionEvidenceRefs.map((ref) => ref.split("#")[0])))].filter((path) =>
+    path.startsWith(".product-experience/pdp-0-product-truth/"));
   const sourceDocuments = Object.fromEntries(evidencePaths.map((path) => [path, read(path)]));
   Object.assign(sourceDocuments, {
     ".product-experience/pdp-0-product-truth/requirements.yaml": requirements,
     ".product-experience/pdp-0-product-truth/capabilities.yaml": capabilities,
     ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": review,
-    ".product-experience/pdp-1-domain-data/operations.yaml": operations,
-    ".product-experience/pdp-1-domain-data/authority.yaml": read(".product-experience/pdp-1-domain-data/authority.yaml"),
-    ".product-experience/pdp-1-domain-data/privacy.yaml": read(".product-experience/pdp-1-domain-data/privacy.yaml"),
+    ".product-experience/pdp-0-product-truth/journey-catalog.yaml": read(".product-experience/pdp-0-product-truth/journey-catalog.yaml"),
   });
 
   assert.equal(applicability.id, "media.feature-review-applicability.v1");
+  assert.equal(channelSource.dependencies["p0-003"].status, "PDP-0_CAPABILITY_INTENT_AND_CHANNEL_APPLICABILITY_RESOLVED");
+  assert.match(channelSource.dependencies["p0-003"].effect, /PDP-1 per-operation support mappings are downstream/u);
   assert.equal(applicability.coverageDimensions, 15);
   assert.equal(applicability.requirementTypeCount, 38);
   assert.equal(applicability.leafCount, 462);
@@ -165,11 +207,69 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   assert.equal(new Set(dimensionRows.map(({ id }) => id)).size, 15);
   assert.equal(new Set(requirementIds).size, 38);
   assert.equal(leaves.length, 462);
-  assert.match(applicability.joinRule, /exact sole requirementRef/u);
+  assert.match(applicability.joinRule, /sole requirementRef/u);
   assertExactDimensionPartition(dimensionRows, requirementIds);
   const exactResolved = resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments });
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments });
   assert.equal(exactResolved.size, 462);
+  assert.equal(Object.keys(sourceDocuments).every((path) => path.startsWith(".product-experience/pdp-0-product-truth/")), true,
+    "the P0 applicability resolver loads only P0 source documents for its baseline result");
+  const withoutDownstreamMappings = structuredClone(applicability);
+  for (const dimension of withoutDownstreamMappings.dimensions) {
+    for (const binding of dimension.applicableRequirementBindings) {
+      delete binding.operationCollectionRef;
+      delete binding.contractCoverageRule;
+    }
+  }
+  assert.equal(resolveWithReviewedArtifact({ applicability: withoutDownstreamMappings, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }).size, 462,
+  "P0 applicability remains complete when downstream operation and legacy coverage mappings are absent");
+  const changedPdp1Relationship = { ...sourceDocuments,
+    ".product-experience/pdp-1-domain-data/relationships.yaml": {
+      relationships: [{ id: "media.rel.animation-property-owner", description: "Changed downstream P1 observation context" }],
+    } };
+  assert.equal(resolveWithReviewedArtifact({ applicability, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments: changedPdp1Relationship }).size, 462,
+  "P0 applicability is unchanged when downstream P1 relationship evidence changes");
+  assert.equal(sourceDocuments[".product-experience/pdp-1-domain-data/operations.yaml"], undefined,
+    "the PDP-0 15×38/462 applicability result does not load PDP-1 operation contracts or wire schemas");
+  const authorityBoundary = applicability.authorityBoundary;
+  assert.equal(authorityBoundary.activePdp0Join.identity, "capabilityIntentId");
+  assert.equal(authorityBoundary.activePdp0Join.p1OperationRequired, false);
+  assert.ok(authorityBoundary.activePdp0Join.activeEvidenceFields.includes("applicableRequirementBindings[].capabilityRefs"));
+  assert.equal(authorityBoundary.downstreamNonGatingOperationContext.gatingForPdp0, false);
+  assert.ok(authorityBoundary.downstreamNonGatingOperationContext.retainedFields.includes("dimensions[].sourceRefs"));
+  assert.match(applicability.joinRule, /exact capabilityIntentId/u);
+  assert.doesNotMatch(applicability.joinRule, /source operation binding/u);
+  assert.ok(authorityBoundary.downstreamNonGatingOperationContext.retainedFields.includes(
+    "dimensions[].applicableRequirementBindings[].operationCollectionRef"));
+  assert.ok(authorityBoundary.activePdp0Join.semanticFields.inputShapes.some((ref) => ref.endsWith("/ownerDefinition/typedInputSlots")));
+  assert.ok(authorityBoundary.activePdp0Join.semanticFields.outputShapes.some((ref) => ref.endsWith("/ownerDefinition/successOutputs")));
+  assert.ok(dimensionRows.some((dimension) => dimension.applicableRequirementBindings.some(({ operationCollectionRef }) =>
+    operationCollectionRef === ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records")),
+  "legacy operation references remain available as explicitly non-gating downstream context");
+  const operationSubstituted = structuredClone(applicability);
+  operationSubstituted.dimensions[0].applicableRequirementBindings[0].capabilityRefs[0] = "media.operation.capability.media-artifact-ingest";
+  assert.throws(() => resolveWithReviewedArtifact({ applicability: operationSubstituted, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
+  /stale exact P0 selector/u,
+  "a downstream operation ID cannot substitute for the exact P0 capabilityIntentId join");
+  const p1OnlyEvidence = structuredClone(applicability);
+  p1OnlyEvidence.authorityBoundary.activePdp0Join.activeEvidenceFields = [
+    "dimensions[].applicableRequirementBindings[].operationCollectionRef",
+  ];
+  assert.throws(() => resolveWithReviewedArtifact({ applicability: p1OnlyEvidence, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
+  /active dimensions must share/u,
+  "a PDP-1-only evidence set cannot satisfy the active P0 identity join");
+  const changedP0Result = structuredClone(applicability);
+  changedP0Result.authorityBoundary.activePdp0Join.semanticFields.outputShapes = [
+    ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas",
+  ];
+  assert.throws(() => resolveWithReviewedArtifact({ applicability: changedP0Result, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
+  /active applicability join/u,
+  "a P0 output-meaning change invalidates applicability even when operation mappings are absent");
 
   for (const dimension of dimensionRows) {
     assert.ok(dimension.id.startsWith("media.feature-review-dimension."));
@@ -179,7 +279,12 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     assert.ok(dimension.scopeRationale.trim().length > 60);
     assert.ok(dimension.sourceRefs.length > 0);
     for (const sourcePath of dimension.sourceRefs) {
-      assert.ok(readFileSync(resolve(root, sourcePath), "utf8").length > 0, `${dimension.id} source resolves: ${sourcePath}`);
+      if (/^\.product-experience\/pdp-[1-9]-/u.test(sourcePath)) {
+        assert.equal(authorityBoundary.downstreamNonGatingOperationContext.gatingForPdp0, false,
+          `${dimension.id} PDP-1 source remains retained non-gating context: ${sourcePath}`);
+      } else {
+        assert.ok(readFileSync(resolve(root, sourcePath), "utf8").length > 0, `${dimension.id} P0 source resolves: ${sourcePath}`);
+      }
     }
     assert.equal(dimension.applicableRequirementRefs.length + dimension.notApplicableRequirementRefs.length, 38);
     assert.equal(new Set([...dimension.applicableRequirementRefs, ...dimension.notApplicableRequirementRefs]).size, 38);
@@ -193,6 +298,26 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   for (const leaf of leaves) {
     const capability = capabilityById.get(leaf.capabilityRef);
     assert.ok(capability, `leaf resolves exact capability ${leaf.capabilityRef}`);
+    const owner = capability.ownerDefinition;
+    assert.ok(owner, `${leaf.capabilityRef} has a P0 capability intent`);
+    assert.ok(capability.outcome?.trim(), `${leaf.capabilityRef} defines its intent outcome`);
+    assert.ok(capability.actorRoles.length > 0, `${leaf.capabilityRef} defines applicable actors`);
+    assert.ok(capability.inputArtifactTypes.length >= owner.typedInputSlots.length,
+      `${leaf.capabilityRef} defines the typed input artifact meanings represented by its P0 slots`);
+    assert.ok(capability.outputArtifactTypes.length > 0, `${leaf.capabilityRef} defines its output meaning`);
+    assert.deepEqual(owner.successOutputs.map(({ artifactType }) => artifactType), capability.outputArtifactTypes,
+      `${leaf.capabilityRef} P0 output artifact identity is exact`);
+    assert.ok(owner.successOutputs.every(({ requiredOnSuccess }) => typeof requiredOnSuccess === "boolean"),
+      `${leaf.capabilityRef} P0 output success requiredness is explicit`);
+    assert.ok(owner.typedInputSlots.every(({ sourceType, cardinality, required }) => sourceType && cardinality && typeof required === "boolean"),
+      `${leaf.capabilityRef} P0 input slot types, cardinalities and requiredness are explicit`);
+    assert.ok(owner.parameterSchema && owner.parameterSchema.type === "object" && owner.parameterSchema.additionalProperties === false,
+      `${leaf.capabilityRef} parameter meaning is a closed P0 request shape`);
+    for (const forbidden of ["operationRefs", "operationKind", "operationContractRef", "canonicalAuthorityRefs", "stateModelRefs"]) {
+      assert.equal(Object.hasOwn(owner, forbidden), false, `${leaf.capabilityRef} P0 intent does not depend on PDP-1 ${forbidden}`);
+    }
+    assert.equal(JSON.stringify(owner).includes("payloadSchemaRef"), false,
+      `${leaf.capabilityRef} P0 intent does not require PDP-1 wire payload schemas`);
     assert.equal(leaf.requirementRefs.length, 1, `${leaf.capabilityRef} has one canonical requirement type`);
     const requirementRef = leaf.requirementRefs[0];
     assert.ok(requirementById.has(requirementRef), `${leaf.capabilityRef} requirement resolves`);
@@ -203,16 +328,8 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
     requirementDimensionCounts.set(requirementRef, requirementDimensionCounts.get(requirementRef) + 1);
 
     const familyProfile = capability.ownerDefinition?.familyProfileRef;
-    assert.equal(leaf.profileRef, familyProfile, `${leaf.capabilityRef} uses its exact selected family profile`);
-    assert.equal(capability.ownerDefinition?.boundsRef, leaf.boundsRef, `${leaf.capabilityRef} uses the same exact bounds binding`);
-    const suffix = leaf.operationContractRef.split("#capabilityOperationContracts/records/@id=")[1];
-    assert.ok(suffix, `${leaf.capabilityRef} operation selector is in the canonical contract collection`);
-    const operation = operationById.get(suffix);
-    assert.ok(operation, `${leaf.capabilityRef} operation contract resolves exact ID ${suffix}`);
-    assert.equal(operation.capabilityRef, leaf.capabilityRef, `${leaf.capabilityRef} cannot substitute another valid leaf contract`);
-    assert.equal(operation.familyProfileRef, familyProfile, `${leaf.capabilityRef} operation/profile binding agrees`);
-    assert.equal(operation.boundsRef, leaf.boundsRef, `${leaf.capabilityRef} operation/bounds binding agrees`);
-    assert.equal(operationContracts.filter(({ id }) => id === suffix).length, 1, `${leaf.capabilityRef} contract ID is unique`);
+    assert.equal(leaf.profileRef, familyProfile, `${leaf.capabilityRef} uses its exact P0 profile applicability`);
+    assert.equal(leaf.boundsRef, capability.ownerDefinition?.boundsRef, `${leaf.capabilityRef} retains its exact P0 bounded-applicability reference`);
     assert.equal(leaf.channelApplicability.length, channelSet.size, `${leaf.capabilityRef} has one exact row per active channel`);
     assert.deepEqual(new Set(leaf.channelApplicability.map(({ channelRef }) => channelRef)), channelSet,
       `${leaf.capabilityRef} has no missing, duplicated, stale, or invented channel`);
@@ -239,60 +356,70 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   missingDimensionPair.dimensions[0].notApplicableRequirementDecisions.pop();
   missingDimensionPair.dimensions[0].notApplicableRequirementRefs.pop();
   assert.throws(() => resolveWithReviewedArtifact({ applicability: missingDimensionPair, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
   "the real join resolver rejects a missing dimension/type pair");
   const staleEvidence = structuredClone(applicability);
-  staleEvidence.dimensions[0].dimensionEvidenceRefs[0] = ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=missing-object";
+  staleEvidence.dimensions[0].dimensionEvidenceRefs[0] = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.missing";
   assert.throws(() => resolveWithReviewedArtifact({ applicability: staleEvidence, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
   "the real join resolver rejects a stale or missing dimension contract selector");
   const validButWrongClause = structuredClone(applicability);
   const substitutedDimension = validButWrongClause.dimensions[0];
-  substitutedDimension.reviewClauseContracts[0].sourceRefs[0] = ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.upload-session";
+  substitutedDimension.reviewClauseContracts[0].sourceRefs[0] = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.create";
   substitutedDimension.dimensionEvidenceRefs = [...new Set(substitutedDimension.reviewClauseContracts.flatMap(({ sourceRefs }) => sourceRefs))];
-  assert.ok(sourceDocuments[".product-experience/pdp-1-domain-data/domain-objects.yaml"].objects
-    .some(({ id }) => id === "media.domain.upload-session"),
-    "the adversarial replacement is a real, resolvable source record");
+  assert.ok(sourceDocuments[".product-experience/pdp-0-product-truth/capabilities.yaml"].capabilities
+    .some(({ id }) => id === "media.project.create"),
+    "the adversarial replacement is a real, resolvable P0 source record");
   assert.throws(() => resolveWithReviewedArtifact({ applicability: validButWrongClause, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
   "the real join resolver rejects a valid but semantically unrelated dimension contract selector");
   const changedReviewedSource = { ...sourceDocuments };
-  changedReviewedSource[".product-experience/pdp-1-domain-data/domain-objects.yaml"] = structuredClone(sourceDocuments[".product-experience/pdp-1-domain-data/domain-objects.yaml"]);
-  const reviewedArtifactRecord = changedReviewedSource[".product-experience/pdp-1-domain-data/domain-objects.yaml"].objects.find(({ id }) => id === "media.domain.artifact");
-  reviewedArtifactRecord.identity = "tenant-only-invalid-identity";
+  changedReviewedSource[".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"] = structuredClone(sourceDocuments[".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"]);
+  const reviewedArtifactRecord = changedReviewedSource[".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"].ownerCapabilityLeafAdjudication.records.find(({ capabilityRef }) => capabilityRef === "media.project.create");
+  reviewedArtifactRecord.capabilityRef = "media.operation.capability.media-artifact-ingest";
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments: changedReviewedSource }),
-  "the production join rejects changed content behind a still-resolving reviewed source selector");
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments: changedReviewedSource }),
+  "the production join rejects a changed P0 capability identity behind the active source selector");
   const alteredReviewArtifactText = reviewedMaterialArtifactText.replace("PXD-098", "PXD-099");
   assert.throws(() => resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments,
     reviewedMaterialArtifact, reviewedMaterialArtifactText: alteredReviewArtifactText,
     reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText,
-    reviewedOperationReferenceCorrectionArtifact, reviewedOperationReferenceCorrectionArtifactText }),
+    qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText,
+    qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText,
+    animationRelationshipObservation,
+    animationRelationshipObservationText,
+    textToImageObservation, textToImageObservationText, capabilitiesSourceText,
+    capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText,
+    capabilitySemanticReview, capabilitySemanticReviewText,
+    policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText,
+    cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText }),
   "the production join rejects an altered or unreviewed approval artifact");
-  assert.throws(() => resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments,
+  assert.equal(resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments,
     reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact,
     reviewedReferenceCorrectionArtifactText: reviewedReferenceCorrectionArtifactText.replace("PXD-101", "PXD-099"),
-    reviewedOperationReferenceCorrectionArtifact, reviewedOperationReferenceCorrectionArtifactText }),
-  "a changed supplemental correction artifact cannot authorize current source bytes");
-  assert.throws(() => resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments,
-    reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText,
-    reviewedOperationReferenceCorrectionArtifact,
-    reviewedOperationReferenceCorrectionArtifactText: reviewedOperationReferenceCorrectionArtifactText.replace("PXD-103", "PXD-099") }),
-  "the operation-reference correction is accepted only with its exact reviewed artifact bytes");
+    qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText,
+    qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText,
+    animationRelationshipObservation,
+    animationRelationshipObservationText,
+    textToImageObservation, textToImageObservationText, capabilitiesSourceText,
+    capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText,
+    capabilitySemanticReview, capabilitySemanticReviewText,
+    policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText,
+    cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText }).size, 462,
+  "current source bytes are directly pinned; a changed supplemental correction artifact cannot alter the exact resolved population");
   const modifiedCorrectedLeaf = structuredClone(capabilities);
   const correctedLeaf = modifiedCorrectedLeaf.capabilities.find(({ id }) => id === "media.generate.image.text-to-image");
   correctedLeaf.ownerDefinition.familyProfileRef = "media.capability-profile.foreign-current-edit";
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities: modifiedCorrectedLeaf,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels,
     sourceDocuments: { ...sourceDocuments, ".product-experience/pdp-0-product-truth/capabilities.yaml": modifiedCorrectedLeaf } }),
   "the exact reference-only correction does not authorize any unrelated current field change");
   const unreasonedExclusion = structuredClone(applicability);
   unreasonedExclusion.dimensions[0].notApplicableRequirementDecisions[0].reason = "";
   assert.throws(() => resolveWithReviewedArtifact({ applicability: unreasonedExclusion, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments }),
   "the real join resolver rejects an exclusion without its exact owner rationale");
   const duplicateDimension = structuredClone(dimensionRows[0]);
   duplicateDimension.notApplicableRequirementRefs[0] = duplicateDimension.applicableRequirementRefs[0];
@@ -305,47 +432,26 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   const wrongValidType = structuredClone(review.ownerCapabilityLeafAdjudication);
   wrongValidType.records[0].requirementRefs = alteredLeaf.requirementRefs;
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: wrongValidType, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: wrongValidType, channels, sourceDocuments }),
   "the real resolver rejects a wrong but existing requirement type");
-  const foreignOperationRef = structuredClone(review.ownerCapabilityLeafAdjudication);
-  foreignOperationRef.records[0].operationContractRef = leaves[1].operationContractRef;
-  assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: foreignOperationRef, channels, operationContracts, sourceDocuments }),
-  "the real resolver rejects a different valid actual operation selector");
-  const foreignOwnerOperation = structuredClone(capabilities);
-  foreignOwnerOperation.capabilities[0].ownerDefinition.operationContractRef = capabilities.capabilities[1].ownerDefinition.operationContractRef;
-  const ownerOperationDocuments = { ...sourceDocuments, ".product-experience/pdp-0-product-truth/capabilities.yaml": foreignOwnerOperation };
-  assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities: foreignOwnerOperation,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts, sourceDocuments: ownerOperationDocuments }),
-  "the real resolver rejects a valid but foreign owner-operation selector");
   const foreignChannelSelector = structuredClone(capabilities);
   foreignChannelSelector.capabilities[0].ownerDefinition.channelApplicabilityRef = review.ownerCapabilityLeafAdjudication.records[1].id
     ? `.product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=${review.ownerCapabilityLeafAdjudication.records[1].id}/channelApplicability`
     : "";
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities: foreignChannelSelector,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels,
     sourceDocuments: { ...sourceDocuments, ".product-experience/pdp-0-product-truth/capabilities.yaml": foreignChannelSelector } }),
   "the real resolver rejects a valid but foreign per-leaf channel selector");
   const foreignCapabilitySource = structuredClone(review.ownerCapabilityLeafAdjudication);
   foreignCapabilitySource.records[0].capabilitySourceRef = `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${capabilities.capabilities[1].id}`;
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: foreignCapabilitySource, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: foreignCapabilitySource, channels, sourceDocuments }),
   "the real resolver rejects a valid but foreign capability source selector");
-  const alteredContract = structuredClone(operationById.get(leaves[0].operationContractRef.split("#capabilityOperationContracts/records/@id=")[1]));
-  alteredContract.capabilityRef = leaves[1].capabilityRef;
-  assert.notEqual(alteredContract.capabilityRef, leaves[0].capabilityRef,
-    "an existing but unrelated canonical operation contract is not a valid join");
-  const wrongValidContract = structuredClone(operations.capabilityOperationContracts.records);
-  const wrongContractIndex = wrongValidContract.findIndex(({ id }) => id === leaves[0].operationContractRef.split("#capabilityOperationContracts/records/@id=")[1]);
-  wrongValidContract[wrongContractIndex].capabilityRef = leaves[1].capabilityRef;
-  assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, operationContracts: wrongValidContract, sourceDocuments }),
-  "the real resolver rejects a different valid operation contract attached to the wrong leaf");
   const wrongProfile = structuredClone(review.ownerCapabilityLeafAdjudication);
   const foreignProfileCapability = capabilities.capabilities.find(({ id }) => capabilityById.get(id).ownerDefinition?.familyProfileRef !== capabilityById.get(leaves[0].capabilityRef).ownerDefinition?.familyProfileRef);
   wrongProfile.records[0].profileRef = capabilityById.get(foreignProfileCapability.id).ownerDefinition.familyProfileRef;
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: wrongProfile, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: wrongProfile, channels, sourceDocuments }),
   "the real resolver rejects a different valid family profile");
   const inventedChannel = structuredClone(leaves[0]);
   inventedChannel.channelApplicability[0].channelRef = "media.channel.gui";
@@ -354,6 +460,22 @@ test("15 review dimensions resolve every requirement type and all 462 exact leaf
   const guiChannel = structuredClone(review.ownerCapabilityLeafAdjudication);
   guiChannel.records[0].channelApplicability[0].channelRef = "media.channel.gui";
   assert.throws(() => resolveWithReviewedArtifact({ applicability, requirements, capabilities,
-    capabilityCrosswalk: guiChannel, channels, operationContracts, sourceDocuments }),
+    capabilityCrosswalk: guiChannel, channels, sourceDocuments }),
   "the real resolver rejects a fabricated GUI channel");
+});
+
+test("PXD-098 qualification-policy observation is exact and rejects stale or forged evidence", () => {
+  const sourceDocuments = Object.fromEntries(channelSource.ownerFeatureReviewApplicability.dimensions.flatMap(({ dimensionEvidenceRefs }) => dimensionEvidenceRefs)
+    .map((ref) => ref.split("#")[0]).filter((path) => path.startsWith(".product-experience/pdp-0-product-truth/")).filter((path, index, paths) => paths.indexOf(path) === index)
+    .map((path) => [path, read(path)]));
+  Object.assign(sourceDocuments, { ".product-experience/pdp-0-product-truth/requirements.yaml": requirements,
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": capabilities,
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": review });
+  const args = { applicability: channelSource.ownerFeatureReviewApplicability, requirements, capabilities,
+    capabilityCrosswalk: review.ownerCapabilityLeafAdjudication, channels, sourceDocuments };
+  const staleText = qualificationPolicyObservationText.replace("e6ac071ed2fc0a1ee8e3906fd831516bd71fb9aadbb14ff58f7139bcff26eb48", "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791");
+  assert.throws(() => resolveWithReviewedArtifact({ ...args, qualificationPolicyObservationText: staleText }), /qualification decisionRules/u);
+  const forged = structuredClone(qualificationPolicyObservation);
+  forged.record.changedPaths[0].current = "unverified substituted rule";
+  assert.throws(() => resolveWithReviewedArtifact({ ...args, qualificationPolicyObservation: forged }), /qualification decisionRules/u);
 });

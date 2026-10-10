@@ -14,9 +14,10 @@ dependencies:
     compatibilityCommitment: Preserve existing public API/protobuf/package
       identities subject to the migration gates.
   p0-003:
-    status: pending
-    effect: Capability/channel denominator and per-operation support matrix are not
-      final.
+    status: PDP-0_CAPABILITY_INTENT_AND_CHANNEL_APPLICABILITY_RESOLVED
+    effect: The P0 denominator is exact capabilityIntentId and owner-defined
+      channel applicability. PDP-1 per-operation support mappings are downstream
+      handoff work and do not block this P0 channel meaning.
   p0-007:
     status: pending
     effect: Quality profiles and safe device-specific fallbacks are not final.
@@ -119,6 +120,991 @@ channels:
       - M-HELP
     supportRule: Design for responsive, semantic, keyboard-operable processes;
       availability for any deployment/browser remains unverified.
+    ownerDefinitionApplicability:
+      status: OWNER_DEFINED_LEAF_WEB_JOURNEY_CONTEXT; DEFINITION_ONLY
+      scope: A capability is definition-applicable to Web only when the exact
+        leaf has an owner-linked journey whose proposedChannels includes Web;
+        that journey's viewRefs provide product consumer context. Family mapping
+        groups exact leaf decisions and cannot promote sibling leaves. No journey
+        or view is inferred from a convenient UI affordance.
+      sourceFamilyRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families
+      leafJourneyBindingSourceRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>/journeyRefs
+      journeyChannelAndViewSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=<journeyId>
+      consumerViewRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.web/viewReferences
+      capabilityLeafCount: 462
+      webApplicableLeafCount: 77
+      webNonApplicableLeafCount: 385
+      phase0Admission: pending
+      executionAdmission: NOT_ADMITTED
+      exactScreenAndJourneyBinding: deferred-to-PDP-3
+      ruleRef: EXACT_LEAF_WEB_JOURNEY_VIEW_CONTEXT
+      leafIntentRule: OWNER_LINKED_JOURNEY_PROPOSES_WEB
+      nonApplicabilityRule: NO_OWNER_LINKED_WEB_JOURNEY
+      authorityBoundary:
+        decisionStatus: CURRENT_P0_OWNER_APPLICABILITY_OVERLAY
+        currentDecisionSource: channels[].ownerDefinitionApplicability.familyConsumers
+        sourceProposalDispositionRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>/channelApplicability/@channelRef=media.channel.web
+        sourceProposalRole: INHERITED_CHANNEL_LABEL_ONLY; NON_GATING_FOR_CURRENT_WEB_APPLICABILITY
+        rule: The exact leaf membership in webApplicableCapabilityRefs or
+          webNonApplicableCapabilityRefs is the current P0 Web decision; the
+          original source-label-based matrix is retained as proposal history and
+          cannot override this owner-selected, journey-backed partition.
+      familyConsumers:
+        - familyRef: media.project
+          webApplicableCapabilityRefs:
+            - media.project.create
+            - media.project.inspect
+            - media.project.update
+            - media.project.search
+            - media.project.organize
+            - media.project.archive
+            - media.project.version
+            - media.project.duplicate
+            - media.project.branch
+            - media.project.collaborate
+            - media.project.review
+            - media.project.restore
+            - media.project.source-asset.attach
+            - media.project.derived-asset.attach
+            - media.project.composition.update
+            - media.project.settings.update
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-01
+            - J-02
+            - J-21
+            - J-26
+          viewRefs:
+            - M-ACTIVITY
+            - M-ASSET
+            - M-ASSETS
+            - M-AUTH
+            - M-CREATE
+            - M-HOME
+            - M-JOB
+            - M-OUTPUT
+            - M-PROJECT
+            - M-PROJECTS
+            - M-PROVENANCE
+            - M-RIGHTS
+            - M-REVIEW
+            - M-UPLOAD
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.artifact
+          webApplicableCapabilityRefs:
+            - media.artifact.ingest
+            - media.artifact.upload
+            - media.artifact.upload.resume
+            - media.artifact.import
+            - media.artifact.inspect
+            - media.artifact.search
+            - media.artifact.list
+            - media.artifact.download
+            - media.artifact.derive
+            - media.artifact.output.register
+            - media.artifact.share
+            - media.artifact.share.revoke
+            - media.artifact.delete
+            - media.artifact.retain
+            - media.artifact.provenance.export
+            - media.artifact.source-reference.resolve
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-02
+            - J-03
+            - J-20
+            - J-21
+            - J-22
+            - J-26
+          viewRefs:
+            - M-ACTIVITY
+            - M-ASSET
+            - M-ASSETS
+            - M-AUDIO
+            - M-CAPTIONS
+            - M-COMPARE
+            - M-DELIVERY
+            - M-JOB
+            - M-OUTPUT
+            - M-OUTPUTS
+            - M-PROJECT
+            - M-PROVENANCE
+            - M-REVIEW
+            - M-RIGHTS
+            - M-SPEECH
+            - M-UPLOAD
+            - M-VIDEO
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.job
+          webApplicableCapabilityRefs:
+            - media.job.submit
+            - media.job.view-status
+            - media.job.list
+            - media.job.watch
+            - media.job.cancel
+            - media.job.retry
+            - media.job.check-outcome
+            - media.job.outputs.inspect
+            - media.job.history.inspect
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-03
+            - J-20
+            - J-27
+          viewRefs:
+            - M-ACTIVITY
+            - M-AUDIO
+            - M-CAPTIONS
+            - M-COMPARE
+            - M-JOB
+            - M-OUTPUTS
+            - M-PLAN
+            - M-PROJECT
+            - M-QUALITY
+            - M-SPEECH
+            - M-VIDEO
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.stream
+          webApplicableCapabilityRefs:
+            - media.stream.session.open
+            - media.stream.session.connect
+            - media.stream.frame.submit
+            - media.stream.frame.acknowledge
+            - media.stream.session.close
+            - media.stream.session.reconnect
+            - media.stream.ordering.enforce
+            - media.stream.lease.renew
+            - media.stream.buffer.bound
+            - media.stream.backpressure.apply
+            - media.stream.recording.integrate
+            - media.stream.live-processing.integrate
+            - media.stream.transport.webrtc
+            - media.stream.transport.adaptive-http
+            - media.stream.transport.hls
+            - media.stream.transport.dash
+            - media.stream.caption.live
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-29
+          viewRefs:
+            - M-ACTIVITY
+            - M-JOB
+            - M-VIDEO
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.profile
+          webApplicableCapabilityRefs:
+            - media.profile.discover
+            - media.profile.validate
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-22
+            - J-30
+          viewRefs:
+            - M-ACTIVITY
+            - M-DELIVERY
+            - M-JOB
+            - M-OPERATIONS
+            - M-OUTPUT
+            - M-PROFILES
+            - M-PROVIDERS
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.capability
+          webApplicableCapabilityRefs:
+            - media.capability.discover
+            - media.capability.check-declared-options
+            - media.capability.execution.compatibility
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-30
+          viewRefs:
+            - M-ACTIVITY
+            - M-OPERATIONS
+            - M-PROFILES
+            - M-PROVIDERS
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.health
+          webApplicableCapabilityRefs:
+            - media.health.readiness.inspect
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-27
+            - J-30
+          viewRefs:
+            - M-ACTIVITY
+            - M-JOB
+            - M-OPERATIONS
+            - M-PLAN
+            - M-PROFILES
+            - M-PROVIDERS
+            - M-QUALITY
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.rights
+          webApplicableCapabilityRefs:
+            - media.rights.consent.reference
+            - media.rights.permitted-use.evaluate
+            - media.rights.attestation.record
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-21
+            - J-26
+          viewRefs:
+            - M-ACTIVITY
+            - M-ASSET
+            - M-OUTPUT
+            - M-PROVENANCE
+            - M-REVIEW
+            - M-RIGHTS
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.provenance
+          webApplicableCapabilityRefs:
+            - media.provenance.source-lineage.inspect
+            - media.provenance.execution-lineage.inspect
+            - media.provenance.origin.disclose
+            - media.provenance.retention.effect.record
+            - media.provenance.erasure.effect.record
+          webNonApplicableCapabilityRefs: []
+          journeyRefs:
+            - J-21
+            - J-26
+          viewRefs:
+            - M-ACTIVITY
+            - M-ASSET
+            - M-OUTPUT
+            - M-PROVENANCE
+            - M-REVIEW
+            - M-RIGHTS
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+        - familyRef: media.vision.scene-text
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.vision.scene-text.region.track
+            - media.vision.scene-text.observation.create
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.speech.transcription
+          webApplicableCapabilityRefs:
+            - media.speech.transcription.file
+            - media.speech.transcription.language.detect
+            - media.speech.transcription.word-timestamp.create
+            - media.speech.transcription.forced-align
+            - media.speech.transcription.subtitle.generate
+          webNonApplicableCapabilityRefs:
+            - media.speech.transcription.stream
+            - media.speech.transcription.voice-activity.detect
+            - media.speech.transcription.speaker.diarize
+            - media.speech.transcription.speaker.segment
+            - media.speech.transcription.speaker.separate
+            - media.speech.transcription.speaker.identify-authorized
+            - media.speech.transcription.phoneme-timestamp.create
+            - media.speech.transcription.punctuate-capitalize
+            - media.speech.transcription.alternatives.provide
+            - media.speech.transcription.confidence.provide
+            - media.speech.transcription.translate
+          journeyRefs:
+            - J-03
+            - J-16
+            - J-18
+            - J-20
+            - J-27
+          viewRefs:
+            - M-ACTIVITY
+            - M-AUDIO
+            - M-CAPTIONS
+            - M-COLOR
+            - M-COMPARE
+            - M-COMPOSER
+            - M-DUB
+            - M-EDIT
+            - M-JOB
+            - M-OUTPUT
+            - M-OUTPUTS
+            - M-PLAN
+            - M-PROJECT
+            - M-QUALITY
+            - M-RENDER
+            - M-SPEECH
+            - M-VIDEO
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          consumerRationale: Exact listed leaves have owner-linked journeys that propose media.channel.web; their listed viewRefs establish product consumer context. Exact screen actions remain deferred to PDP-3.
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.vision
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.vision.detect
+            - media.vision.classify
+            - media.vision.segment.image
+            - media.vision.segment.video
+            - media.vision.track.object
+            - media.vision.track.point
+            - media.vision.estimate.optical-flow
+            - media.vision.estimate.depth
+            - media.vision.estimate.surface-normals
+            - media.vision.estimate.human-pose
+            - media.vision.estimate.hand-pose
+            - media.vision.estimate.face-landmarks
+            - media.vision.analyze.expression
+            - media.vision.analyze.gaze
+            - media.vision.matte.foreground-background
+            - media.vision.segment.motion
+            - media.vision.estimate.saliency
+            - media.vision.classify.scene
+            - media.vision.detect.shot-boundary
+            - media.vision.estimate.camera-motion
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.multimodal
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.multimodal.analyze.cross-modal
+            - media.multimodal.describe
+            - media.multimodal.summarize
+            - media.multimodal.extract.structured
+            - media.multimodal.associate.speaker-face
+            - media.multimodal.relate.scene-audio
+            - media.multimodal.observe.source-grounded
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.audio.analysis
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.audio.analysis.segment.content-kind
+            - media.audio.analysis.measure.loudness
+            - media.audio.analysis.measure.peaks
+            - media.audio.analysis.detect.clipping
+            - media.audio.analysis.measure.noise
+            - media.audio.analysis.analyze.spectral
+            - media.audio.analysis.analyze.phase
+            - media.audio.analysis.analyze.channels
+            - media.audio.analysis.detect.beat-onset
+            - media.audio.analysis.detect.silence
+            - media.audio.analysis.diagnose.source-separation
+            - media.audio.analysis.assess.timing
+            - media.audio.analysis.assess.intelligibility
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.generate.image
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.generate.image.text-to-image
+            - media.generate.image.image-to-image
+            - media.generate.image.reference
+            - media.generate.image.multi-reference
+            - media.generate.image.sketch-to-image
+            - media.generate.image.layout-to-image
+            - media.generate.image.condition.pose
+            - media.generate.image.condition.depth
+            - media.generate.image.condition.edge
+            - media.generate.image.condition.segmentation
+            - media.generate.image.control.palette
+            - media.generate.image.control.style
+            - media.generate.image.control.reference
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.generate.video
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.generate.video.text-to-video
+            - media.generate.video.image-to-video
+            - media.generate.video.video-to-video
+            - media.generate.video.text-image-to-video
+            - media.generate.video.keyframe.start
+            - media.generate.video.keyframe.end
+            - media.generate.video.keyframe.intermediate
+            - media.generate.video.reference-video
+            - media.generate.video.drive.audio
+            - media.generate.video.drive.speech
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.generate.audio
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.generate.audio.text-to-audio
+            - media.generate.audio.sound-effect
+            - media.generate.audio.music
+            - media.generate.audio.video-to-audio
+            - media.generate.audio.foley
+            - media.generate.audio.ambience
+            - media.generate.audio.audio-to-audio
+            - media.generate.audio.music.continue
+            - media.generate.audio.music.vary
+            - media.generate.audio.stem.generate
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.speech.synthesis
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.speech.synthesis.text-to-speech
+            - media.speech.synthesis.streaming
+            - media.speech.synthesis.multilingual
+            - media.speech.synthesis.cross-lingual
+            - media.speech.synthesis.expressive
+            - media.speech.synthesis.control.prosody
+            - media.speech.synthesis.control.rate
+            - media.speech.synthesis.control.pitch
+            - media.speech.synthesis.control.emotion-style
+            - media.speech.synthesis.control.pronunciation
+            - media.speech.synthesis.control.phoneme
+            - media.speech.synthesis.speaker.condition
+            - media.speech.synthesis.speaker.clone-authorized
+            - media.speech.synthesis.voice.convert
+            - media.speech.synthesis.speech-to-speech
+            - media.speech.synthesis.speech.translate
+            - media.speech.synthesis.dub
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.generate.spatial
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.generate.spatial.text-to-3d
+            - media.generate.spatial.image-to-3d
+            - media.generate.spatial.reconstruct.multiview
+            - media.generate.spatial.reconstruct.depth
+            - media.generate.spatial.reconstruct.camera
+            - media.generate.spatial.generate.novel-view
+            - media.generate.spatial.asset.create-3d
+            - media.generate.spatial.relight-3d
+            - media.generate.spatial.compose-3d
+            - media.generate.spatial.representation.nerf-adapter
+            - media.generate.spatial.representation.gaussian-splatting-adapter
+            - media.generate.spatial.create.360-media
+            - media.generate.spatial.create.spatial-audio
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.animation
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.animation.2d
+            - media.animation.vector
+            - media.animation.3d
+            - media.animation.keyframe
+            - media.animation.interpolation-easing
+            - media.animation.procedural
+            - media.animation.path
+            - media.animation.skeletal
+            - media.animation.inverse-kinematics
+            - media.animation.constraint
+            - media.animation.morph-target
+            - media.animation.camera
+            - media.animation.material
+            - media.animation.light
+            - media.animation.particle
+            - media.animation.drive.physics
+            - media.animation.drive.audio
+            - media.animation.drive.speech
+            - media.animation.drive.pose
+            - media.animation.facial-expression
+            - media.animation.gaze
+            - media.animation.lip
+            - media.animation.motion-capture.extract
+            - media.animation.motion.retarget
+            - media.animation.character
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.animation.editing
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.animation.editing.select
+            - media.animation.editing.keyframe.insert
+            - media.animation.editing.keyframe.remove
+            - media.animation.editing.curve.edit
+            - media.animation.editing.temporal-snap
+            - media.animation.editing.playback-scrub
+            - media.animation.editing.track.mute
+            - media.animation.editing.track.solo
+            - media.animation.editing.layer
+            - media.animation.editing.blend
+            - media.animation.editing.undo-redo.versioned
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.animation.output
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.animation.output.output.interactive-scene
+            - media.animation.output.output.vector-raster-frames
+            - media.animation.output.output.composited-video
+            - media.animation.output.output.reusable-clip
+            - media.animation.output.output.exchange-package
+            - media.animation.output.accessibility.semantic-timeline
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.simulation
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.simulation.rigid-body
+            - media.simulation.soft-body
+            - media.simulation.cloth
+            - media.simulation.rope
+            - media.simulation.particle
+            - media.simulation.fluid
+            - media.simulation.smoke
+            - media.simulation.fire
+            - media.simulation.collision
+            - media.simulation.constraint
+            - media.simulation.vehicle
+            - media.simulation.crowd
+            - media.simulation.agent
+            - media.simulation.human-motion
+            - media.simulation.procedural-world
+            - media.simulation.camera-experiment
+            - media.simulation.lighting-experiment
+            - media.simulation.educational-demo
+            - media.simulation.scientific-demo
+            - media.simulation.robotics
+            - media.simulation.kinematics
+            - media.simulation.synthetic-data
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.simulation.output
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.simulation.output.rgb
+            - media.simulation.output.depth
+            - media.simulation.output.normals
+            - media.simulation.output.segmentation
+            - media.simulation.output.optical-flow
+            - media.simulation.output.motion-vectors
+            - media.simulation.output.object-ids
+            - media.simulation.output.contacts
+            - media.simulation.output.physical-events
+            - media.simulation.output.measurements
+            - media.simulation.output.timestamped-state
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.recipe.template
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.recipe.template.physics-math-explainer
+            - media.recipe.template.infographic
+            - media.recipe.template.product-demonstration
+            - media.recipe.template.scientific-visualization
+            - media.recipe.template.interactive-lesson
+            - media.recipe.template.training-scenario
+            - media.recipe.template.architectural-scene
+            - media.recipe.template.character-gesture-animation
+            - media.recipe.template.synthetic-dataset
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.enhance.image
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.enhance.image.denoise
+            - media.enhance.image.deblur
+            - media.enhance.image.dehaze
+            - media.enhance.image.deblock
+            - media.enhance.image.deband
+            - media.enhance.image.dering
+            - media.enhance.image.compression-repair
+            - media.enhance.image.jpeg-repair
+            - media.enhance.image.super-resolution
+            - media.enhance.image.face-restoration
+            - media.enhance.image.detail-restoration
+            - media.enhance.image.texture-restoration
+            - media.enhance.image.scratch-restoration
+            - media.enhance.image.damage-restoration
+            - media.enhance.image.color-recovery
+            - media.enhance.image.white-balance
+            - media.enhance.image.exposure
+            - media.enhance.image.lens-distortion
+            - media.enhance.image.chromatic-aberration
+            - media.enhance.image.vignette-correction
+            - media.enhance.image.hdr-recovery
+            - media.enhance.image.tone-conversion
+            - media.enhance.image.gamut-conversion
+            - media.enhance.image.sharpen
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.enhance.video
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.enhance.video.spatiotemporal-super-resolution
+            - media.enhance.video.interpolation
+            - media.enhance.video.temporal-denoise
+            - media.enhance.video.temporal-deblur
+            - media.enhance.video.compression-repair
+            - media.enhance.video.deflicker
+            - media.enhance.video.temporal-consistency
+            - media.enhance.video.stabilize
+            - media.enhance.video.rolling-shutter
+            - media.enhance.video.frame-repair
+            - media.enhance.video.frame-rate-conversion
+            - media.enhance.video.motion-blur-synthesis
+            - media.enhance.video.grain.adjust
+            - media.enhance.video.deinterlace
+            - media.enhance.video.inverse-telecine-cadence
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.enhance.audio
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.enhance.audio.noise-suppression
+            - media.enhance.audio.speech-enhancement
+            - media.enhance.audio.dereverberation
+            - media.enhance.audio.deecho
+            - media.enhance.audio.acoustic-echo-cancellation
+            - media.enhance.audio.dehum
+            - media.enhance.audio.declick
+            - media.enhance.audio.decrackle
+            - media.enhance.audio.declip
+            - media.enhance.audio.wind-reduction
+            - media.enhance.audio.plosive-reduction
+            - media.enhance.audio.deessing
+            - media.enhance.audio.source-separation
+            - media.enhance.audio.speaker-separation
+            - media.enhance.audio.music-vocal-separation
+            - media.enhance.audio.stem-separation
+            - media.enhance.audio.background-removal
+            - media.enhance.audio.speech-separation
+            - media.enhance.audio.audio-super-resolution
+            - media.enhance.audio.bandwidth-extension
+            - media.enhance.audio.sample-rate-conversion
+            - media.enhance.audio.phase-repair
+            - media.enhance.audio.channel-repair
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.edit
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.edit.inpaint
+            - media.edit.outpaint
+            - media.edit.object-remove
+            - media.edit.object-replace
+            - media.edit.background-remove
+            - media.edit.background-replace
+            - media.edit.matte
+            - media.edit.relight
+            - media.edit.recolor
+            - media.edit.colorize
+            - media.edit.style-transfer
+            - media.edit.retime-slow-motion-speed-ramp
+            - media.edit.smart-crop-auto-reframe
+            - media.edit.shot-color-match
+            - media.edit.region-correction
+            - media.edit.face-correction
+            - media.edit.hand-correction
+            - media.edit.propagate-keyframe-mask-effect
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.sync
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.sync.sample-accurate-av-map
+            - media.sync.lip-synchronize
+            - media.sync.phoneme-viseme-align
+            - media.sync.dub-subtitle-voiceover-time
+            - media.sync.scene-beat-music-align
+            - media.sync.speaker-face-associate
+            - media.sync.drift-detect-correct
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.compose
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.compose.multitrack-timeline
+            - media.compose.scene-storyboard-assemble
+            - media.compose.track.video-audio-caption-overlay
+            - media.compose.transition
+            - media.compose.titles-credits-lower-thirds
+            - media.compose.exact-typography-logo-brand
+            - media.compose.safe-area
+            - media.compose.reusable-composition
+            - media.compose.render-manifest
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.color
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.color.white-balance
+            - media.color.exposure
+            - media.color.contrast
+            - media.color.curves
+            - media.color.temperature
+            - media.color.tint
+            - media.color.selective-color
+            - media.color.skin-tone-preserve
+            - media.color.shot-match
+            - media.color.lut
+            - media.color.colorspace-gamut-convert
+            - media.color.hdr-grade
+            - media.color.sdr-hdr-convert
+            - media.color.tone-map
+            - media.color.highlight-shadow-recover
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.master.audio
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.master.audio.equalize
+            - media.master.audio.dynamic-compression
+            - media.master.audio.multiband-compression
+            - media.master.audio.limit
+            - media.master.audio.true-peak-loudness-control
+            - media.master.audio.stereo-width
+            - media.master.audio.phase-noise-floor-analyze
+            - media.master.audio.fade-crossfade
+            - media.master.audio.duck-sidechain
+            - media.master.audio.room-match
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.quality
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.quality.inspect
+            - media.quality.compare
+            - media.quality.diagnose
+            - media.quality.rank
+            - media.quality.recommend
+            - media.quality.repair-plan
+            - media.quality.bounded-optimize
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.quality.image
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.quality.image.image.assess-noise
+            - media.quality.image.image.assess-blur
+            - media.quality.image.image.assess-compression
+            - media.quality.image.image.assess-exposure
+            - media.quality.image.image.assess-color
+            - media.quality.image.image.assess-structural-reference-fidelity
+            - media.quality.image.image.assess-identity-consistency
+            - media.quality.image.image.assess-perceptual-quality
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.quality.video
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.quality.video.video.assess-temporal-consistency
+            - media.quality.video.video.assess-flicker
+            - media.quality.video.video.assess-frame-artifacts
+            - media.quality.video.video.assess-motion
+            - media.quality.video.video.assess-identity-consistency
+            - media.quality.video.video.assess-object-continuity
+            - media.quality.video.video.assess-geometry-continuity
+            - media.quality.video.video.assess-camera-continuity
+            - media.quality.video.video.assess-qualified-physical-plausibility
+            - media.quality.video.video.assess-lip-sync
+            - media.quality.video.video.assess-av-sync
+            - media.quality.video.video.assess-encoding
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.quality.audio
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.quality.audio.audio.assess-noise
+            - media.quality.audio.audio.assess-clipping
+            - media.quality.audio.audio.assess-distortion
+            - media.quality.audio.audio.assess-intelligibility
+            - media.quality.audio.audio.assess-separation-leakage
+            - media.quality.audio.audio.assess-spectral
+            - media.quality.audio.audio.assess-phase
+            - media.quality.audio.audio.assess-loudness
+            - media.quality.audio.audio.assess-true-peak
+            - media.quality.audio.audio.assess-naturalness
+            - media.quality.audio.audio.assess-authorized-speaker-similarity
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+        - familyRef: media.deliver
+          webApplicableCapabilityRefs: []
+          webNonApplicableCapabilityRefs:
+            - media.deliver.encode
+            - media.deliver.transcode
+            - media.deliver.master
+            - media.deliver.package
+            - media.deliver.stream
+            - media.deliver.download
+            - media.deliver.export
+            - media.deliver.publish-governed
+            - media.deliver.renditions.aspect-ratio
+            - media.deliver.renditions.resolution
+            - media.deliver.renditions.adaptive-bitrate
+            - media.deliver.profile.web
+            - media.deliver.profile.social
+            - media.deliver.profile.podcast
+            - media.deliver.profile.broadcast
+            - media.deliver.profile.cinematic
+            - media.deliver.profile.archival
+            - media.deliver.profile.interactive
+            - media.deliver.profile.named
+            - media.deliver.subtitles
+            - media.deliver.transcripts
+            - media.deliver.thumbnails
+            - media.deliver.posters
+            - media.deliver.interactive-scene-bundle
+            - media.deliver.provenance-manifest
+            - media.deliver.compatibility-fallback
+          journeyRefs: []
+          viewRefs: []
+          definitionApplicabilityState: OWNER_DEFINED_DEFINITION_ONLY
+          phase0Admission: pending
+          executionAdmission: NOT_ADMITTED
+          nonApplicabilityRuleRef: NO_OWNER_LINKED_WEB_JOURNEY
+          nonApplicabilityRationale: These exact leaves have no owner-linked journey that proposes Web in current P0 source. The inherited supportedChannels proposal label and convenient family views do not establish a Web consumer.
+
   - id: media.channel.api
     name: Protocol-neutral API
     definitionState: proposed
@@ -435,7 +1421,9 @@ capabilityChannelAliases:
     product-integration: media.channel.product-integration
   rules:
     - Capability supportedChannels entries are proposal-time vocabulary and
-      normalize only through this map.
+      normalize only through this map; for Web, the finite owner family map in
+      channels[].ownerDefinitionApplicability is authoritative for definition
+      applicability, not the inherited proposal label.
     - The api alias is protocol-neutral; it never implies simultaneous
       HTTP/OpenAPI and gRPC support.
     - The embedded alias means a host-context Media experience; it is not a
@@ -581,6 +1569,19 @@ ownerLeafApplicabilityRules:
     EXACT_SOURCE_CHANNEL_LABEL: Map each capability supportedChannels label only to
       the channel whose source ID has that exact label; logical api maps only to
       media.channel.api.
+    EXACT_LEAF_WEB_JOURNEY_VIEW_CONTEXT: Web definition applicability requires
+      an exact ownerCapabilityLeafAdjudication journeyRef, a current journey
+      record that explicitly lists media.channel.web in proposedChannels, and
+      that journey's proposed viewRefs. Family rows only group exact leaf refs;
+      they do not transfer applicability to sibling leaves. supportedChannels
+      labels alone are proposal evidence and do not establish a Web consumer.
+      Exact screen actions remain PDP-3 work; implementation, qualification,
+      admission, and runtime support are not implied.
+    NO_OWNER_LINKED_WEB_JOURNEY: When an exact capability leaf has no owner-linked
+      journey that proposes Web, mark its current P0 Web applicability as
+      OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF. Preserve an inherited Web
+      proposal label as non-gating source history; do not infer a consumer from a
+      family name or convenient view.
     API_ALIAS_DOES_NOT_ASSERT_HTTP_GRPC_OR_SDK_EQUIVALENCE: A leaf naming logical
       api is definition-applicable to HTTP, gRPC, and SDK contract work only as
       a pending concrete adapter; no transport equivalence, endpoint, or package
@@ -702,6 +1703,44 @@ channelIdentityPrecedence: channels preserves the nine historically authored
 ownerFeatureReviewApplicability:
   id: media.feature-review-applicability.v1
   decisionAuthority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  authorityBoundary:
+    activePdp0Join:
+      identity: capabilityIntentId
+      identitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>
+      familyMembershipSourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families
+      applicabilitySourceRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>
+      semanticFields:
+        outcome: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/outcome
+        actors: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/actorRoles
+        inputShapes:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/inputArtifactTypes
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/ownerDefinition/typedInputSlots
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/ownerDefinition/parameterSchema
+        outputShapes:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/outputArtifactTypes
+          - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/ownerDefinition/successOutputs
+        constraints: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/constraints
+        channelApplicability: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>/channelApplicability
+      joinRule: Each exact requirement-family capabilityRefs entry is the existing stable capabilityIntentId. Resolve it directly against the P0 capability catalog and owner leaf applicability record; review scope is decided from that P0 intent and its semantic input/output meaning.
+      activeEvidenceFields:
+        - applicableRequirementBindings[].capabilityRefs
+        - capabilitySourceRef
+        - capability.intent/outcome/actorRoles/inputArtifactTypes/ownerDefinition.typedInputSlots/ownerDefinition.parameterSchema/outputArtifactTypes/ownerDefinition.successOutputs/constraints
+        - ownerCapabilityLeafAdjudication.records[].channelApplicability
+      p1OperationRequired: false
+      unknownRule: Missing or conflicting P0 capability identity or semantic source remains UNKNOWN and cannot be repaired by matching a PDP-1 operation, schema, or label.
+    downstreamNonGatingOperationContext:
+      role: Historical review evidence and legacy consumer compatibility only.
+      gatingForPdp0: false
+      retainedFields:
+        - dimensions[].sourceRefs
+        - dimensions[].dimensionEvidenceRefs
+        - dimensions[].reviewClauseContracts[].sourceRefs
+        - dimensions[].applicableRequirementBindings[].operationCollectionRef
+        - dimensions[].applicableRequirementBindings[].contractCoverageRule
+        - sourceContractSelectors.canonicalCapabilityOperation
+      rule: Retained PDP-1 operation, wire-schema, or domain evidence does not define P0 review applicability. It remains available to legacy consumers and downstream phase reconciliation; the active resolver does not use it to join a capability or establish P0 semantic completeness.
+    historicalAcceptance: Existing PXD-098/PXD-105 source claims remain immutable; this boundary defines current P0 join authority and does not renew their clause approval.
   sourceRequirementRef: .product-experience/pdp-0-product-truth/requirements.yaml#requirements
   sourceCapabilityRef: .product-experience/pdp-0-product-truth/capabilities.yaml#families
   sourceLeafCrosswalkRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records
@@ -709,14 +1748,15 @@ ownerFeatureReviewApplicability:
   requirementTypeCount: 38
   leafCount: 462
   joinRule: Each requirement type inherits exactly one family review dimension
-    disposition per named review dimension; every capability leaf is joined
-    through its exact sole requirementRef, source operation binding, family
-    profile selector and 11-channel applicability matrix. A dimension
-    disposition is review applicability only, never qualification, execution,
-    transport equivalence or acceptance.
+    disposition per named review dimension; every capability leaf is joined by
+    its exact capabilityIntentId, sole requirementRef, P0 semantic input/output
+    meaning and 11-channel applicability matrix. PDP-1 operation bindings are
+    downstream context only. A dimension disposition is review applicability,
+    never qualification, execution, transport equivalence or acceptance.
   scopeLimit: Requirement-family dimension dispositions provide review scope.
-    Exact leaf input/output applicability, operation/profile/channel joins
-    remain authoritative at each exact ownerCapabilityLeafAdjudication record.
+    Exact leaf input/output applicability and channel joins remain authoritative
+    at each exact ownerCapabilityLeafAdjudication record. PDP-1 operation/profile
+    bindings do not define this P0 applicability result.
   dimensions:
     - id: media.feature-review-dimension.ingestion-source-preservation
       dimension: Ingestion and source preservation
@@ -15343,5 +16383,9 @@ ownerFeatureReviewApplicability:
   sourceContractSelectors:
     requirementTypes: .product-experience/pdp-0-product-truth/requirements.yaml#requirements
     familyMembership: .product-experience/pdp-0-product-truth/capabilities.yaml#families
-    leafOperationProfileBoundsChannel: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records
+    leafCapabilityIntentSemanticMeaning: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+    leafCapabilityChannelApplicability: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records
+    leafCapabilityProfileBoundsChannel: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records
+    leafCapabilityProfileBoundsChannelRole: PDP-0 capability profile, bounds, and channel applicability only; operation mappings are downstream non-gating context
     canonicalCapabilityOperation: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+    canonicalCapabilityOperationRole: downstream/non-gating; PDP-1 handoff only and not a PDP-0 applicability prerequisite

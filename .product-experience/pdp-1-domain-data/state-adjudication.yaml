@@ -155,6 +155,105 @@ machineDimensions:
       PARTIALLY_DELIVERED: only declared subset of intended delivery is acknowledged
     separation: same spelling in media-job or media-attempt is not same state
       identity; retain machine id
+  - machineId: media-stream-session
+    dimension: stream-session-state
+    sourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-stream-session
+    transitionRefs:
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T01
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T02
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T03
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-stream-session/T04
+    proposedMeanings:
+      OPEN: authorized tenant-scoped session and protected reconnect-token reference exist; live provider connection and frame acceptance are not implied
+      CONNECTED: current provider connection and reconnect lease are observed
+      DEGRADED: continuation is limited by the declared degradation policy
+      DRAINING: new frames are fenced while active work and provider close are resolved
+      CLOSED: no new frame or reconnect is accepted and provider close is recorded
+      FAILED: session cannot continue; accepted frames and uncertain remote effects remain auditable
+    distinctions:
+      request-acceptance-is-not-session-open: true
+      close-request-is-not-provider-close: true
+    disposition: owner-definition-proposal; independent-review-open; provider-and-runtime-observation-UNKNOWN
+  - machineId: media-rights-and-consent
+    dimensions:
+      - dimension: rights-assertion-disposition
+        stateDefinitionRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/rightsAssertion
+        proposedMeanings:
+          ASSERTED: claimant assertion only; no rights-dependent effect is authorized
+          UNDER_REVIEW: scoped authority evaluates evidence; protected use remains blocked
+          VERIFIED_FOR_DECLARED_SCOPE: authoritative verification applies only to its exact scope, evidence, territory, and validity
+          RESTRICTED: only the narrower recorded scope may be permitted
+          REJECTED: authority rejected the asserted scope; new evidence requires a new review
+          REVOKED: prior scoped verification was revoked; new work is blocked and in-flight effects require reconciliation
+          EXPIRED: verification validity elapsed; current evidence is required before new rights-dependent work
+        disposition: owner-definition-proposal; external legal/licensor authority; independent-review-open
+      - dimension: consent-authority-disposition
+        stateDefinitionRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent
+        proposedMeanings:
+          PENDING_VERIFICATION: recorded request only; consent-dependent processing is blocked
+          ACTIVE: trusted authority verified exact tenant, principal, purpose, region, and validity; recheck at each effect
+          REVOKED: trusted authority recorded revocation; new work is blocked and in-flight effects require separate reconciliation
+          EXPIRED: consent validity elapsed; current authority decision is required
+          SUPERSEDED: newer authoritative record replaces this one; old record cannot authorize new work
+        disposition: owner-definition-proposal; external consent authority; independent-review-open
+    transitionRefs:
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-rights-and-consent/rights/T01
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-rights-and-consent/rights/T02
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-rights-and-consent/consent/T01
+      - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-rights-and-consent/consent/T02
+    identityRule: state-identity-includes-machine-and-dimension; equal state spellings across dimensions do not imply equivalence
+  - machineId: media-review
+    dimension: review-disposition
+    sourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-review
+    stateIds: [DRAFT, REQUESTED, IN_REVIEW, CHANGES_REQUESTED, APPROVED, REJECTED, WITHDRAWN, SUPERSEDED, EXPIRED]
+    versionBinding: every decision is bound to exact immutable version and purpose; a changed version requires a new review request
+    authorityBoundary: APPROVED applies only within current reviewer delegation and does not satisfy independent policy gates
+    transitionRefPrefix: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-review/
+    disposition: owner-definition-proposal; independent-review-open; runtime-observation-UNKNOWN
+  - machineId: media-quality-disposition
+    dimension: quality-disposition
+    sourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-quality-disposition
+    stateIds: [NOT_ASSESSED, ASSESSING, PASS, FAIL, ABSTAINED, REVIEW_REQUIRED, SUPERSEDED]
+    versionBinding: assessment is tied to exact output version, applicable metric, and declared protocol
+    outcomeBoundary: PASS is protocol-scoped; ABSTAINED is not PASS; quality result alone does not authorize protected use
+    transitionRefPrefix: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-quality-disposition/
+    disposition: owner-definition-proposal; independent-review-open; runtime-observation-UNKNOWN
+  - machineId: media-project
+    dimension: project-container-lifecycle
+    sourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-project
+    stateIds: [ACTIVE, ARCHIVED]
+    proposedMeanings:
+      ACTIVE: current-authority reads and versioned changes are permitted subject to current membership and policy checks
+      ARCHIVED: retained project excluded from ordinary active work; revision history remains
+    authorityBoundary: project state does not grant membership or action authority
+    transitionRefPrefix: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project/
+    disposition: bounded-owner-definition-proposal; archive/restore guards and independent review open
+  - machineId: media-project-version
+    dimension: project-revision-lifecycle
+    sourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-project-version
+    stateIds: [DRAFT, COMMITTED, SUPERSEDED, CONFLICTED, ABANDONED]
+    proposedMeanings:
+      DRAFT: mutable candidate bound to an exact parent head; not canonical until guarded compare-and-set commit
+      COMMITTED: immutable revision atomically accepted as project head after expected-head comparison and validation
+      SUPERSEDED: immutable revision no longer current head; retained for authorized history and restore
+      CONFLICTED: immutable commit attempt rejected because expected head was stale or a declared merge constraint failed
+      ABANDONED: uncommitted draft explicitly abandoned or expired without changing project head
+    identityRule: revisions are immutable identities; stale expected head cannot commit or overwrite a newer head
+    transitionRefPrefix: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-version/
+    disposition: bounded-owner-definition-proposal; draft/branch/restore guards and independent review open
+  - machineId: media-project-membership
+    dimension: project-membership-lifecycle
+    sourceRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-project-membership
+    stateIds: [INVITED, ACTIVE, SUSPENDED, REVOKED, EXPIRED]
+    proposedMeanings:
+      INVITED: pending invitation; confers no project access
+      ACTIVE: accepted membership relationship; each action still requires current grant and project-policy checks
+      SUSPENDED: relationship retained while project actions are blocked pending authorized reactivation or revocation
+      REVOKED: membership ended; prior actions remain auditable and access is re-evaluated at each boundary
+      EXPIRED: invitation expired without becoming active
+    authorityBoundary: membership status is distinct from role grants and does not bypass per-action authorization
+    transitionRefPrefix: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-project-membership/
+    disposition: owner-definition-proposal; independent-review-open; runtime-observation-UNKNOWN
 crossProjectionDispositions:
   - source: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#JobStatus
     observation: Media runtime emits ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED,

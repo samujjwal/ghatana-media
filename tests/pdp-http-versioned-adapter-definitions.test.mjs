@@ -226,6 +226,58 @@ function finitePropertyValues(schema, name, values = new Set()) {
   return values;
 }
 
+function dynamicSchemaAssessmentErrors(record, assessment = parity.typedHttpCanonicalAdapterAssessments.records
+  .find((candidate) => candidate.identity === record.identity)?.canonicalSchemaDynamicObjectAssessment) {
+  const errors = [];
+  const fail = (message) => errors.push(message);
+  if (record.identity !== "submitMediaJob") return assessment ? ["dynamic schema exception is only valid for submitMediaJob"] : [];
+  if (!assessment) return ["exact source-backed dynamic schema assessment is required"];
+  if (assessment.status !== "SOURCE_SCHEMA_USES_TYPED_DYNAMIC_JSON; EXACT_TARGET_RESOLVER_REQUIRED; runtimeAdmission: NOT_ADMITTED") fail("dynamic schema status or admission changed");
+  const request = resolveRef(assessment.canonicalRequestSchemaRef);
+  if (!request || assessment.canonicalRequestSchemaRef !== record.canonicalRequestSchemaRef) fail("dynamic schema assessment must bind the exact canonical request schema");
+  const validator = resolveRef(assessment.validatorRef);
+  const parameterRule = resolveRef(assessment.parameterRuleRef);
+  if (!validator || !parameterRule) fail("dynamic resolver and parameter binding rules must resolve");
+  const expectedRequiredBefore = ["request-fingerprint", "durable-acceptance", "audit-intent-commit", "provider-dispatch"];
+  if (JSON.stringify(assessment.requiredBefore) !== JSON.stringify(expectedRequiredBefore)
+      || JSON.stringify(parameterRule?.definitionValidator?.requiredBefore) !== JSON.stringify(expectedRequiredBefore)) fail("dynamic parameter resolution must precede all exact effect boundaries");
+  const expected = {
+    "$.directRequestFields": ["directRequestFields", "dynamicObjects:direct"],
+    "$.parameters": ["parameters", "dynamicObjects:parameters"],
+  };
+  const jsonValue = request?.$defs?.jsonValue;
+  if (!jsonValue || !jsonValue.oneOf?.some((branch) => branch.type === "object"
+      && branch.additionalProperties?.$ref === "#/$defs/jsonValue")
+      || !jsonValue?.oneOf?.some((branch) => branch.type === "array"
+        && branch.items?.$ref === "#/$defs/jsonValue")) fail("dynamic values must use recursively typed JSON, not unconstrained YAML/JavaScript values");
+  if (assessment.dynamicObjects?.length !== 2) fail("only the two owner-defined dynamic schema fields may remain open");
+  const byPath = new Map((assessment.dynamicObjects ?? []).map((row) => [row.path, row]));
+  if (JSON.stringify([...byPath.keys()].sort()) !== JSON.stringify(Object.keys(expected).sort())) fail("dynamic schema path set differs from the exact owner request fields");
+  for (const [path, [field]] of Object.entries(expected)) {
+    const entry = byPath.get(path);
+    const schema = request?.properties?.[field];
+    if (!entry || !schema || schema.type !== "object" || schema.additionalProperties?.$ref !== "#/$defs/jsonValue") {
+      fail(`${path}: exact recursive typed-JSON source schema must be recorded`);
+      continue;
+    }
+    if (entry.additionalPropertiesSchemaRef !== schema.additionalProperties.$ref) fail(`${path}: typed-JSON value schema ref differs from source`);
+    if (path === "$.directRequestFields" && (schema.maxProperties !== entry.maxProperties || entry.maxProperties !== 32)) fail("directRequestFields bound differs from source schema");
+    if (!entry.targetSchemaRule?.includes("targetRequestSchemaRef") && path === "$.directRequestFields") fail(`${path}: resolver must select the exact target request schema`);
+    if (!entry.targetSchemaRule?.includes("exact selected target operation schema") && path === "$.parameters") fail(`${path}: resolver must select the exact target parameter schema`);
+    if (!entry.rejection?.includes("reject") || !entry.selectorRule?.includes("exact")) fail(`${path}: rejection and exact selector semantics are required`);
+  }
+  const typedRules = validator?.directFieldAdapters ?? [];
+  if (typedRules.length !== 2 || typedRules.some((rule) => !resolveRef(rule.targetRequestSchemaRef)
+      || !rule.directFields?.length || !rule.validation?.includes("before fingerprinting"))) {
+    fail("direct field adapters must resolve exact target request schemas and validate before fingerprinting");
+  }
+  if (!assessment.parameterRuleRef?.endsWith("/parameterBindingRule")
+      || !assessment.dynamicObjects.find(({ path }) => path === "$.parameters")?.targetSchemaRule?.includes("requestSchema.properties.parameters")) {
+    fail("parameters must bind only to the selected operation parameter schema");
+  }
+  return errors;
+}
+
 function validateAdapterSet(records) {
   const identities = records.map((record) => record.identity);
   assert.equal(new Set(identities).size, identities.length, "duplicate HTTP adapter identity");
@@ -252,7 +304,16 @@ function validateAdapterSet(records) {
     const resultSchema = resolveRef(record.canonicalResultSchemaRef);
     assert.ok(requestSchema, `${record.identity}: canonical request schema ref does not resolve`);
     assert.ok(resultSchema, `${record.identity}: canonical result schema ref does not resolve`);
-    assert.deepEqual(hasOnlyClosedObjects(requestSchema), [], `${record.identity}: canonical request schema must be closed`);
+    if (record.identity === "submitMediaJob") {
+      assert.deepEqual(hasOnlyClosedObjects(requestSchema), [], "submitMediaJob dynamic JSON values are recursively typed");
+      assert.deepEqual(dynamicSchemaAssessmentErrors(record), [], "submitMediaJob records exact resolver and negative semantics for both generic objects");
+      const recursiveJson = requestSchema.$defs?.jsonValue;
+      assert.ok(recursiveJson?.oneOf?.some((branch) => branch.type === "object" && branch.additionalProperties?.$ref === "#/$defs/jsonValue"));
+      assert.ok(recursiveJson?.oneOf?.some((branch) => branch.type === "array" && branch.items?.$ref === "#/$defs/jsonValue"));
+    } else {
+      assert.deepEqual(hasOnlyClosedObjects(requestSchema), [], `${record.identity}: canonical request schema must be closed`);
+      assert.deepEqual(dynamicSchemaAssessmentErrors(record), [], `${record.identity}: no generic-open schema exception is admitted`);
+    }
     assert.deepEqual(hasOnlyClosedObjects(resultSchema), [], `${record.identity}: canonical result schema must be closed`);
     assert.deepEqual(canonicalProjectionTargetErrors(record, requestSchema, adapters.canonicalEnvelope.request), [],
       `${record.identity}: every positive source projection resolves against the exact owner request or host envelope schema`);
@@ -327,6 +388,17 @@ test("adapter validation rejects invented operation bindings, route admission, a
   const missingAuthorityGap = structuredClone(adapters.records);
   missingAuthorityGap.find((record) => record.identity === "grantMediaConsent").legacyResultProjection.canonicalRequiredButUnrepresentable = [];
   assert.throws(() => validateAdapterSet(missingAuthorityGap), /canonicalRequiredButUnrepresentable/u);
+
+  const submit = adapters.records.find((record) => record.identity === "submitMediaJob");
+  const dynamicAssessment = parity.typedHttpCanonicalAdapterAssessments.records
+    .find((record) => record.identity === "submitMediaJob").canonicalSchemaDynamicObjectAssessment;
+  const omittedTargetClosure = structuredClone(dynamicAssessment);
+  omittedTargetClosure.dynamicObjects[0].targetSchemaRule = "accept unvalidated direct request values";
+  assert.ok(dynamicSchemaAssessmentErrors(submit, omittedTargetClosure).some((error) => error.includes("exact target request schema")));
+
+  const renamedOpenBag = structuredClone(dynamicAssessment);
+  renamedOpenBag.dynamicObjects[1].path = "$.arbitraryCallerBag";
+  assert.ok(dynamicSchemaAssessmentErrors(submit, renamedOpenBag).some((error) => error.includes("path set differs")));
 });
 
 test("Media HTTP source acceptance and acknowledgements cannot erase canonical authority or finality requirements", () => {

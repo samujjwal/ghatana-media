@@ -117,8 +117,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-      "sha256": "1cec53c4f6e7f3cb00aab47f14f2c49e6b58653b2a87268e4afcdebb7c3d0f6a",
-      "bytes": 4450,
+      "sha256": "2448d6410c360e8da767af209a1c3e9e1119cae68f3b4d6aa82007d5f6e9bb3b",
+      "bytes": 10358,
       "format": "yaml",
       "schemaVersion": "media.accessibility-language.v1",
       "authority": "Media-specific accessibility contracts over Shared primitives",
@@ -128,6 +128,8 @@
         "accessibilityRules",
         "authority",
         "mediaOwnerDefinitionDecision",
+        "normativeRuleRecords",
+        "ownerDefinedCaptionAndAudioDescriptionOutputUse",
         "productId",
         "requirements",
         "reviewTarget",
@@ -137,18 +139,21 @@
         "verificationEvidenceRequired"
       ],
       "declaredIds": [
+        "media.a11y.caption-and-audio-description-output-use.v1",
         "media.a11y.keyboard-equivalence",
         "media.a11y.media-alternatives",
         "media.a11y.movement-and-status",
         "media.a11y.noncolor",
         "media.a11y.programmatic-state",
-        "media.a11y.readability-reflow"
+        "media.a11y.readability-reflow",
+        "media.a11y.text-spacing-and-target-size",
+        "media.p2.rule.caption-and-audio-description-output-use.v1"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-      "sha256": "2578c50565ec9c8041093b963866cba8dc7816eef5af4c44790e0fe40a89b994",
-      "bytes": 4950,
+      "sha256": "8f9762c2169d044f9b21bf916e553974e99595e3c3acb67eb76b477bec6a275a",
+      "bytes": 7340,
       "format": "yaml",
       "schemaVersion": "media.localization-content.v1",
       "authority": "Media language, locale, and content behavior",
@@ -166,15 +171,17 @@
       ],
       "declaredIds": [
         "media.localization.direction-and-reflow.v1",
+        "media.localization.font-fallback-shaping-and-license.v1",
         "media.localization.original-and-intermediate-precision.v1",
         "media.p2.rule.localization-direction-and-reflow.v1",
+        "media.p2.rule.localization-font-fallback-shaping-and-license.v1",
         "media.p2.rule.localization-original-intermediate-precision.v1"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
-      "sha256": "325eb4d6c604e31547a9f8ce21ec675f3be6a4ae7f90c3b0990ca20a126f2ec1",
-      "bytes": 44960,
+      "sha256": "068a7d70e45e6acba765b74b9b6e56d7c3cc0cdd552208eba845cc31a9931727",
+      "bytes": 48663,
       "format": "yaml",
       "schemaVersion": "media.action-finality-grammar.v1",
       "authority": "Media interaction and wording for PDP-0 action/finality semantics",
@@ -187,6 +194,9 @@
         "boundedTranscriptReviewSlice",
         "boundedTranscriptionSubmissionSlice",
         "boundedUploadArtifactSlice",
+        "changeImpactRule",
+        "immutableOutputCorrectionRule",
+        "normativeRuleRecords",
         "outcomes",
         "productId",
         "recoveryPatterns",
@@ -195,12 +205,16 @@
         "status"
       ],
       "declaredIds": [
+        "media.action-finality.immutable-output-correction.v1",
         "media.action-outcome.applied",
         "media.action-outcome.blocked",
         "media.action-outcome.cancellation-pending",
         "media.action-outcome.completed",
         "media.action-outcome.partial",
         "media.action-outcome.unknown",
+        "media.action.change-impact.v1",
+        "media.p2.rule.action-change-impact.v1",
+        "media.p2.rule.immutable-output-correction.v1",
         "media.recovery.cancel-requested",
         "media.recovery.conflicted-offline-edit",
         "media.recovery.observer-reconnect",
@@ -560,8 +574,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-3-product-experience/navigation-contracts.yaml",
-      "sha256": "6327e72956e680980abb75f75f023fe22c1be8bb9e5e43b0c642320154effc35",
-      "bytes": 5006,
+      "sha256": "c79f7e7366e0c0eb3cf6be3316d83c71dae1bc749511ae71698c2e04144ca59a",
+      "bytes": 7562,
       "format": "yaml",
       "schemaVersion": "media.navigation-contracts.v1",
       "authority": null,
@@ -577,6 +591,7 @@
         "status"
       ],
       "declaredIds": [
+        "media.navigation.default-global-and-utility-placement.v1",
         "media.navigation.ordinary-path-provider-boundary.v1"
       ]
     },
@@ -1320,8 +1335,8 @@
         "presentationEffect": "Processing stopped by consent change: New processing is blocked; existing output and deletion scope follow the owning lifecycle policy."
       }
     ],
-    "createdAt": "2026-10-09T14:51:56.335Z",
-    "updatedAt": "2026-10-09T14:51:56.335Z"
+    "createdAt": "2026-10-10T15:27:28.785Z",
+    "updatedAt": "2026-10-10T15:27:28.785Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

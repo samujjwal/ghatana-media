@@ -414,6 +414,35 @@ function capabilityCoverageReport(root, diagnostics) {
   const path = ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml";
   const source = readText(root, path);
   const parsed = parseYaml(source);
+  const capabilitiesPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
+  const capabilities = parseYaml(readText(root, capabilitiesPath)).capabilities ?? [];
+  const currentRows = parsed.ownerCapabilityLeafAdjudication?.records ?? [];
+  const currentDispositionCounts = {};
+  const currentUnresolvedIds = [];
+  const knownCurrentDispositions = new Set([
+    "JOURNEY_STEP_CAPABILITY",
+    "MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY",
+    "PLATFORM_DEPENDENCY_CAPABILITY",
+  ]);
+  const capabilityIds = new Set(capabilities.map(({ id }) => id));
+  const currentIds = new Set();
+  for (const row of currentRows) {
+    const disposition = row.ownerDisposition ?? "UNRESOLVED";
+    currentDispositionCounts[disposition] = (currentDispositionCounts[disposition] ?? 0) + 1;
+    if (!row.capabilityRef || !capabilityIds.has(row.capabilityRef) || currentIds.has(row.capabilityRef)
+      || !knownCurrentDispositions.has(disposition) || row.definitionState !== "OWNER_DEFINED_DEFINITION_ONLY"
+      || row.channelApplicability?.length !== 11 || !row.normativeMeaning?.trim()) {
+      currentUnresolvedIds.push(row.capabilityRef ?? row.id ?? "<missing-capability-intent-id>");
+    }
+    if (row.capabilityRef) currentIds.add(row.capabilityRef);
+  }
+  for (const id of capabilityIds) if (!currentIds.has(id)) currentUnresolvedIds.push(id);
+  if (currentRows.length !== capabilities.length || currentIds.size !== capabilities.length) {
+    diagnostics.push(`${path} active owner adjudications do not cover the exact capability population`);
+  }
+
+  // `leaves[].coverageDecision` is the preserved operation-evidence review.
+  // Its unresolved count describes that historical review cut, not current P0 intent completeness.
   const leafBlocks = parsed.leaves ?? [];
   const dispositions = {};
   const unresolvedLeafIds = [];
@@ -459,22 +488,38 @@ function capabilityCoverageReport(root, diagnostics) {
   if (!pins.length) diagnostics.push(`${path} has no source inventory pins`);
   return {
     source: path,
-    leafCount: leafBlocks.length,
+    authority: "current PDP-0 capability meaning is read from ownerCapabilityLeafAdjudication; legacy leaves are a historical operation-evidence audit",
+    leafCount: currentRows.length,
     applicability: {
-      total: leafBlocks.length,
-      classified: classifiedLeaves.length,
-      unresolved: unresolvedLeafIds.length,
-      excludedWithRationale: excludedLeaves,
-      source: `${path}#/leaves/*/coverageDecision`,
+      total: capabilities.length,
+      classified: currentRows.length - currentUnresolvedIds.length,
+      unresolved: currentUnresolvedIds.length,
+      dispositionCounts: Object.fromEntries(Object.entries(currentDispositionCounts).sort(([left], [right]) => left.localeCompare(right))),
+      source: `${path}#ownerCapabilityLeafAdjudication/records`,
     },
-    acceptedCoverageCount: classifiedLeaves.filter((leaf) => /(^|[;, ])accepted([;, ]|$)/iu.test(leaf.status)
-      && !/pending|proposal/iu.test(leaf.status)).length,
-    dispositionCounts: Object.fromEntries(Object.entries(dispositions).sort(([left], [right]) => left.localeCompare(right))),
-    unresolvedCount: unresolvedLeafIds.length,
-    unresolvedLeafIds: unresolvedLeafIds.sort(),
-    unresolvedLeaves: unresolvedLeaves.sort((left, right) => left.id.localeCompare(right.id)),
-    classifiedLeaves: classifiedLeaves.sort((left, right) => left.id.localeCompare(right.id)),
-    sourcePins: validatePins(root, pins, path, diagnostics),
+    ownerDefinedCount: currentRows.length - currentUnresolvedIds.length,
+    unresolvedCount: currentUnresolvedIds.length,
+    unresolvedLeafIds: [...new Set(currentUnresolvedIds)].sort(),
+    dispositionCounts: Object.fromEntries(Object.entries(currentDispositionCounts).sort(([left], [right]) => left.localeCompare(right))),
+    historicalOperationApplicability: {
+      authority: "HISTORICAL_SOURCE_ONLY; NON_GATING_FOR_PDP-0",
+      source: `${path}#/leaves/*/coverageDecision`,
+      leafCount: leafBlocks.length,
+      applicability: {
+        total: leafBlocks.length,
+        classified: classifiedLeaves.length,
+        unresolved: unresolvedLeafIds.length,
+        excludedWithRationale: excludedLeaves,
+      },
+      acceptedCoverageCount: classifiedLeaves.filter((leaf) => /(^|[;, ])accepted([;, ]|$)/iu.test(leaf.status)
+        && !/pending|proposal/iu.test(leaf.status)).length,
+      dispositionCounts: Object.fromEntries(Object.entries(dispositions).sort(([left], [right]) => left.localeCompare(right))),
+      unresolvedCount: unresolvedLeafIds.length,
+      unresolvedLeafIds: unresolvedLeafIds.sort(),
+      unresolvedLeaves: unresolvedLeaves.sort((left, right) => left.id.localeCompare(right.id)),
+      classifiedLeaves: classifiedLeaves.sort((left, right) => left.id.localeCompare(right.id)),
+      sourcePins: validatePins(root, pins, path, diagnostics),
+    },
   };
 }
 
@@ -991,7 +1036,8 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
     "",
     "## Remaining source work",
     "",
-    `- Capability coverage: ${report.capabilityCoverage.leafCount} leaves; ${report.capabilityCoverage.dispositionCounts.JOURNEY_STEP ?? 0} journey steps, ${report.capabilityCoverage.dispositionCounts.MACHINE_OPERATION ?? 0} machine operations, ${report.capabilityCoverage.dispositionCounts.PLATFORM_DEPENDENCY ?? 0} platform dependencies, ${report.capabilityCoverage.unresolvedCount} unresolved.` ,
+    `- Current PDP-0 capability applicability: ${report.capabilityCoverage.leafCount} leaves; ${report.capabilityCoverage.ownerDefinedCount} owner-defined, ${report.capabilityCoverage.unresolvedCount} unresolved (${Object.entries(report.capabilityCoverage.dispositionCounts).map(([name, count]) => `${name} ${count}`).join(", ")}).`,
+    `- Historical operation-evidence applicability: ${report.capabilityCoverage.historicalOperationApplicability.leafCount} leaves; ${report.capabilityCoverage.historicalOperationApplicability.applicability.classified} classified, ${report.capabilityCoverage.historicalOperationApplicability.unresolvedCount} unresolved; retained as non-gating review evidence.`,
     `- Migration semantics: ${report.migrationSemantics.uniqueContentUnits} unique content units; ${report.migrationSemantics.originalStructuralUnresolvedCount} original structural observations = ${report.migrationSemantics.semanticReviewRequiredCount} requiring semantic review + ${report.migrationSemantics.ownerClassifiedNonNormativeCount} bounded non-normative classifications; ${report.migrationSemantics.mixedRequiresDecompositionCount} mixed blocks requiring decomposition.` ,
     `  Master-plan pin: ${report.migrationSemantics.sourcePinState}; recorded/current line counts ${report.migrationSemantics.declaredSourceLineCount}/${report.migrationSemantics.currentSourceLineCount}.`,
     `  Master-plan semantic diff: ${report.migrationSemantics.sourceChangeLedger.changedClusterCount} clusters; ${report.migrationSemantics.sourceChangeLedger.unmappedClusterIds.length} lack historical MPSEM IDs; ${report.migrationSemantics.sourceChangeLedger.decomposedSourceClaimCount} exact source claims across ${report.migrationSemantics.sourceChangeLedger.clustersDecomposedSemanticUnresolved.length} clusters are decomposed, with semantic reconciliation unresolved for those clusters. Pin disposition: ${report.migrationSemantics.sourceChangeLedger.pinDisposition}.`,
@@ -1005,7 +1051,7 @@ export function renderMediaProductDefinitionResidualMarkdown(report) {
   ];
   const blockers = report.projections.flatMap((phase) => phase.unresolvedFields.map((field) => `- ${field.id}: ${field.status} (${field.reasons.join("; ")})`));
   lines.push(...(blockers.length ? blockers : ["- None."]));
-  const stalePins = [...new Map([...report.capabilityCoverage.sourcePins, ...report.migrationSemantics.sourcePins]
+  const stalePins = [...new Map([...report.capabilityCoverage.historicalOperationApplicability.sourcePins, ...report.migrationSemantics.sourcePins]
     .filter((pin) => pin.state !== "CURRENT")
     .map((pin) => [`${pin.path}:${pin.state}`, pin])).values()];
   if (stalePins.length) {

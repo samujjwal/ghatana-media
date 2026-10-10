@@ -108,9 +108,13 @@ test("owner wire overlays close all 11 simulation pass leaves and 18 edit leaves
     assert.ok(qualityRow, `${contract.capabilityRef} has a complete quality row`);
     if (contract.capabilityRef.startsWith("media.simulation.output.")) {
       const slug = contract.capabilityRef.split(".").at(-1);
-      assert.equal(leaf.exactTypedOutputs[0], `simulation-pass-result-${slug}`);
-      assert.deepEqual(qualityRow.outputDomainObjectRefs, ["media.domain.media-run"]);
-      assert.equal(qualityRow.ownerLeafWireContractRef, contract.id);
+      assert.equal(contract.outputType, `simulation-pass-result-${slug}`);
+      assert.equal(contract.outputTypeRef, `media.owner-output-type.simulation-pass-result-${slug}.v1`);
+      assert.deepEqual(leaf.exactTypedOutputSchemaRefs, [contract.ownerOutputSchemaRef]);
+      assert.deepEqual(contract.domainObjectRefs, ["media.domain.media-run"]);
+      assert.deepEqual(qualityRow.outputArtifactTypes, [contract.outputType]);
+      assert.equal(qualityRow.ownerCapabilityIntentRef,
+        `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${contract.capabilityRef}`);
     }
     const { request, result } = successFixture(contract);
     const resolved = resolveEffectiveOwnerLeafWireContract(operations, contract.capabilityRef);

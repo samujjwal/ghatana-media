@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-105",
+  "baseReviewRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseReviewSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "referenceCorrectionRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json",
+  "referenceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-101",
+  "currentCutRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#P0-07",
+  "currentCutDecisionRef": ".product-experience/decision-log.md#PXD-105",
+  "scope": "Additive current-source observation for the single PXD-098 CLI channel referent in the client-channel-applicability clause. It records substantive additions without asserting parity.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+  "sourcePinSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+  "currentSourceSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+  "record": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.cli",
+    "identity": "media.channel.cli",
+    "historicalPxd098ContentSha256": "6c8f7c48df970abc77aa47ca0aca7057253c241ab97310cadd0381e9731edcbf",
+    "priorPxd105CurrentSourceSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+    "priorPxd101Disposition": "PXD-101 correction is scoped to media.generate.image.text-to-image and does not correct this CLI referent",
+    "currentContentSha256": "5a70a1fb9b9f4bcbd26a57b987b264006272b03a1d68c45ed14906bce7b65f92",
+    "changedPaths": [
+      {
+        "path": [
+          "ownerCliDefinitionContract",
+          "commandSurfaceSeparationRule"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.cli.typed-command-surface-separation.v1",
+          "rule": "A CLI command binds one exact canonical operation/action and one invocation mode. Batch, streaming observation, simulation, inference, and transport are distinct typed ports with command-specific request, result, flag, authority, and finality rules; a shared command grammar does not make their payloads or lifecycle interchangeable. Commands may compose declared operations only through their exact owner contracts. Do not create a universal provider SPI that requires irrelevant methods, invents fake implementations for absent capabilities, or treats one transport's request shape as another operation's semantic contract. Capability absence is explicit and does not become a successful no-op.",
+          "requiredBindings": [
+            "exact-command-id-and-version",
+            "canonical-operation-or-action-ref",
+            "one-declared-invocation-mode",
+            "command-specific-closed-request-and-result-schema",
+            "command-specific-flags-authority-and-finality"
+          ],
+          "invocationModes": [
+            "READ_QUERY",
+            "MUTATING_COMMAND",
+            "ASYNC_SUBMISSION",
+            "STREAM_OBSERVATION",
+            "BATCH_EXECUTION",
+            "SIMULATION",
+            "INFERENCE"
+          ],
+          "invalidCases": [
+            "one-command-schema-reused-across-unrelated-invocation-modes",
+            "missing-capability-silently-treated-as-successful-no-op",
+            "unrelated-operation-flag-accepted-by-a-command",
+            "transport-request-shape-inferred-from-command-name"
+          ],
+          "scopeStatus": "OWNER_DEFINED_CLI_DEFINITION_ONLY; no executable or channel behavior is admitted",
+          "executionAdmission": "NOT_ADMITTED"
+        }
+      },
+      {
+        "path": [
+          "ownerCliDefinitionContract",
+          "filenameArgumentRule"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.cli.filename-argument.v1",
+          "inputArguments": {
+            "representation": "Each path is one argv argument; spaces, Unicode code points, and literal shell metacharacters remain part of that argument.",
+            "encoding": "Preserve the platform path encoding and the supplied Unicode sequence; do not split, shell-expand, interpolate, or silently normalize a filename.",
+            "execution": "Invoke a process with an argument vector or equivalent safe API. Never construct a shell command string from a path or pass a path through a shell for tokenization.",
+            "boundaries": "Local paths remain client-side. A path is not a URL, route, server path, or authorization token; server-side operations require canonical artifact/version references and their own authority checks."
+          },
+          "outputPaths": {
+            "representation": "Treat the destination as one literal client-side path argument with the same no-splitting and no-shell-interpolation rules.",
+            "overwrite": "Do not overwrite an existing destination unless the exact command declares an explicit overwrite option and confirms the resolved destination identity before writing.",
+            "errors": "Reject invalid or inaccessible destinations before reporting a successful write; never silently substitute a different path."
+          },
+          "scopeStatus": "OWNER_DEFINED_CLI_PATH_ARGUMENT_SEMANTICS; filesystem behavior and CLI execution remain NOT_EVALUATED.",
+          "executionAdmission": "NOT_ADMITTED"
+        }
+      },
+      {
+        "path": [
+          "ownerCliDefinitionContract",
+          "remoteCancellationRule"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.cli.remote-cancellation.v1",
+          "rule": "Remote cancellation is a separate explicit command. Ctrl-C stops only the local wait or stream observer; it never sends a cancellation request, changes job state, or proves provider termination. No --cancel-on-interrupt behavior is defined by this contract.",
+          "command": {
+            "id": "media.cli.job.cancel",
+            "canonicalOperationRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job",
+            "invocation": "explicit-user-command",
+            "requestSchema": "inherit-the-exact-canonical-operation-request; do not synthesize caller tenant/principal, authority, consent, fence, or request identity fields.",
+            "requiredCurrentChecks": [
+              "host-attested-tenant-and-principal",
+              "operation-specific-current-cancel-authority",
+              "current-job-version-and-attempt-fence",
+              "current-policy-and-deadline"
+            ],
+            "resultSemantics": {
+              "accepted": "cancellation-request-receipt-only; job remains nonterminal until authoritative terminal state is observed.",
+              "rejected": "preserve the exact canonical rejection reason; no state change is inferred.",
+              "unknown": "preserve OUTCOME_UNKNOWN and reconcile through the exact authorized job query before any retry.",
+              "providerTermination": "never implied by command receipt, process exit, or observer interruption."
+            }
+          },
+          "scopeStatus": "OWNER_DEFINED_CLI_COMMAND_SEMANTICS; no CLI executable, parser, route, server cancellation, or runtime support is admitted.",
+          "executionAdmission": "NOT_ADMITTED"
+        }
+      },
+      {
+        "path": [
+          "ownerCliDefinitionContract",
+          "submissionWaitRule"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.cli.submission-wait.v1",
+          "submission": "Default remote submission returns after the canonical job-submit operation records durable acceptance. Exit 0 means that submission action succeeded; it does not mean media processing or delivery completed.",
+          "wait": "--wait is an explicit local observation mode and returns only an authoritative final result or an explicit non-success/unknown outcome. --no-wait is mutually exclusive with --wait and returns after acceptance.",
+          "timeout": "--timeout bounds the local observation wait only unless a distinct canonical request field explicitly defines a server deadline.",
+          "unknown": "An interrupted or timed-out local observer leaves the submitted operation pending or OUTCOME_UNKNOWN; it does not cancel remote work.",
+          "canonicalSubmissionRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1",
+          "executionAdmission": "NOT_ADMITTED"
+        }
+      },
+      {
+        "path": [
+          "ownerCliDefinitionContract",
+          "machineOutputRule"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.cli.machine-output.v1",
+          "json": "--json emits exactly one versioned result-or-error object on stdout; no banners, ANSI escapes, progress, or diagnostic prose are allowed there.",
+          "jsonl": "--jsonl is a distinct streaming observation mode and is not an alias for the single-object result mode.",
+          "diagnostics": "Diagnostics are sent to stderr and redacted for credentials, provider request/response bodies, and protected source content.",
+          "terminal": "Non-TTY output, NO_COLOR, --quiet, terminal width, and accessible plain-text presentation may affect presentation only, never command exit or operation finality semantics.",
+          "scopeStatus": "OWNER_DEFINED_CLI_OUTPUT_SEMANTICS; command implementations and channel admission remain NOT_EVALUATED.",
+          "executionAdmission": "NOT_ADMITTED"
+        }
+      },
+      {
+        "path": [
+          "ownerCliDefinitionContract",
+          "configurationPrecedenceRule"
+        ],
+        "prior": null,
+        "current": {
+          "id": "media.cli.configuration-precedence.v1",
+          "precedence": [
+            "explicit-flag",
+            "environment",
+            "selected-project-or-profile-file",
+            "user-configuration",
+            "product-default"
+          ],
+          "policy": "Every effective value remains constrained by non-overridable identity, security, rights, consent, locality, and resource policy.",
+          "validation": "Reject conflicting or unknown profile fields before effect.",
+          "display": "config show reports effective values and safe provenance; secrets are never displayed. Configuration files are declarative data, not scripts.",
+          "executionAdmission": "NOT_ADMITTED"
+        }
+      }
+    ],
+    "semanticEquivalence": "NOT_ASSERTED",
+    "interpretation": "The current CLI channel record adds six nested definition branches that were absent from the PXD-098-referenced record. This supplement enumerates those exact additions and records no semantic-equivalence conclusion; it does not renew clause acceptance or establish CLI implementation/admission."
+  },
+  "acceptanceEffect": "none",
+  "acceptanceBoundary": "Observation only. PXD-098, PXD-101, and PXD-105 remain unchanged. No new clause approval, CLI implementation, runtime availability, or channel admission is claimed.",
+  "additionalCurrentSourceObservation": {
+    "changedPaths": [
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "sourceContractSelectors",
+          "leafCapabilityProfileBoundsChannel"
+        ],
+        "prior": null,
+        "current": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records"
+      },
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "sourceContractSelectors",
+          "leafCapabilityProfileBoundsChannelRole"
+        ],
+        "prior": "PDP-0 channel applicability only; operation/profile binding fields are non-gating downstream compatibility context",
+        "current": "PDP-0 capability profile, bounds, and channel applicability only; operation mappings are downstream non-gating context"
+      },
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "sourceContractSelectors",
+          "canonicalCapabilityOperationRole"
+        ],
+        "prior": "PDP-1 downstream handoff; not a PDP-0 applicability prerequisite",
+        "current": "downstream/non-gating; PDP-1 handoff only and not a PDP-0 applicability prerequisite"
+      }
+    ],
+    "acceptanceEffect": "none"
+  },
+  "pdx123CurrentSourceSupplement": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-123",
+    "status": "ADDITIVE_CURRENT_SOURCE_OBSERVATION; PROPOSED_DECISION_REFERENCE",
+    "sourcePath": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "priorPxd105CurrentSourceSha256": "1b626371aad85ef1a764bd012a724798b10706cae77ff252bfddf8c90c80b882",
+    "currentSourceSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+    "cliRecordContentSha256": "5a70a1fb9b9f4bcbd26a57b987b264006272b03a1d68c45ed14906bce7b65f92",
+    "cliRecordUnchangedSincePxd105": true,
+    "changedPaths": [
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "authorityBoundary"
+        ],
+        "prior": null,
+        "current": {
+          "activePdp0Join": {
+            "identity": "capabilityIntentId",
+            "identitySourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>",
+            "familyMembershipSourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#families",
+            "applicabilitySourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>",
+            "semanticFields": {
+              "outcome": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/outcome",
+              "actors": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/actorRoles",
+              "inputShapes": [
+                ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/inputArtifactTypes",
+                ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/ownerDefinition/typedInputSlots",
+                ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/ownerDefinition/parameterSchema"
+              ],
+              "outputShapes": [
+                ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/outputArtifactTypes",
+                ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/ownerDefinition/successOutputs"
+              ],
+              "constraints": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=<capabilityIntentId>/constraints",
+              "channelApplicability": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=<capabilityIntentId>/channelApplicability"
+            },
+            "joinRule": "Each exact requirement-family capabilityRefs entry is the existing stable capabilityIntentId. Resolve it directly against the P0 capability catalog and owner leaf applicability record; review scope is decided from that P0 intent and its semantic input/output meaning.",
+            "activeEvidenceFields": [
+              "applicableRequirementBindings[].capabilityRefs",
+              "capabilitySourceRef",
+              "capability.intent/outcome/actorRoles/inputArtifactTypes/ownerDefinition.typedInputSlots/ownerDefinition.parameterSchema/outputArtifactTypes/ownerDefinition.successOutputs/constraints",
+              "ownerCapabilityLeafAdjudication.records[].channelApplicability"
+            ],
+            "p1OperationRequired": false,
+            "unknownRule": "Missing or conflicting P0 capability identity or semantic source remains UNKNOWN and cannot be repaired by matching a PDP-1 operation, schema, or label."
+          },
+          "downstreamNonGatingOperationContext": {
+            "role": "Historical review evidence and legacy consumer compatibility only.",
+            "gatingForPdp0": false,
+            "retainedFields": [
+              "dimensions[].sourceRefs",
+              "dimensions[].dimensionEvidenceRefs",
+              "dimensions[].reviewClauseContracts[].sourceRefs",
+              "dimensions[].applicableRequirementBindings[].operationCollectionRef",
+              "dimensions[].applicableRequirementBindings[].contractCoverageRule",
+              "sourceContractSelectors.canonicalCapabilityOperation"
+            ],
+            "rule": "Retained PDP-1 operation, wire-schema, or domain evidence does not define P0 review applicability. It remains available to legacy consumers and downstream phase reconciliation; the active resolver does not use it to join a capability or establish P0 semantic completeness."
+          },
+          "historicalAcceptance": "Existing PXD-098/PXD-105 source claims remain immutable; this boundary defines current P0 join authority and does not renew their clause approval."
+        }
+      },
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "joinRule"
+        ],
+        "prior": "Each requirement type inherits exactly one family review dimension disposition per named review dimension; every capability leaf is joined through its exact sole requirementRef, source operation binding, family profile selector and 11-channel applicability matrix. A dimension disposition is review applicability only, never qualification, execution, transport equivalence or acceptance.",
+        "current": "Each requirement type inherits exactly one family review dimension disposition per named review dimension; every capability leaf is joined by its exact capabilityIntentId, sole requirementRef, P0 semantic input/output meaning and 11-channel applicability matrix. PDP-1 operation bindings are downstream context only. A dimension disposition is review applicability, never qualification, execution, transport equivalence or acceptance."
+      },
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "scopeLimit"
+        ],
+        "prior": "Requirement-family dimension dispositions provide review scope. Exact leaf input/output applicability, operation/profile/channel joins remain authoritative at each exact ownerCapabilityLeafAdjudication record.",
+        "current": "Requirement-family dimension dispositions provide review scope. Exact leaf input/output applicability and channel joins remain authoritative at each exact ownerCapabilityLeafAdjudication record. PDP-1 operation/profile bindings do not define this P0 applicability result."
+      },
+      {
+        "path": [
+          "ownerFeatureReviewApplicability",
+          "sourceContractSelectors"
+        ],
+        "prior": {
+          "requirementTypes": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements",
+          "familyMembership": ".product-experience/pdp-0-product-truth/capabilities.yaml#families",
+          "leafOperationProfileBoundsChannel": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records",
+          "canonicalCapabilityOperation": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records"
+        },
+        "current": {
+          "requirementTypes": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements",
+          "familyMembership": ".product-experience/pdp-0-product-truth/capabilities.yaml#families",
+          "leafCapabilityIntentSemanticMeaning": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities",
+          "leafCapabilityChannelApplicability": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records",
+          "leafCapabilityProfileBoundsChannel": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records",
+          "leafCapabilityProfileBoundsChannelRole": "PDP-0 capability profile, bounds, and channel applicability only; operation mappings are downstream non-gating context",
+          "canonicalCapabilityOperation": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records",
+          "canonicalCapabilityOperationRole": "downstream/non-gating; PDP-1 handoff only and not a PDP-0 applicability prerequisite"
+        }
+      },
+      {
+        "path": [
+          "channels",
+          "@id=media.channel.web",
+          "ownerDefinitionApplicability"
+        ],
+        "prior": null,
+        "currentSha256": "c6c66520fee24d5be55fa160133d78b2a5e954116611bab398ad789a50f7f0c1"
+      },
+      {
+        "path": [
+          "ownerLeafApplicabilityRules",
+          "rules",
+          "EXACT_LEAF_WEB_JOURNEY_VIEW_CONTEXT"
+        ],
+        "prior": null,
+        "current": "Web definition applicability requires an exact ownerCapabilityLeafAdjudication journeyRef, a current journey record that explicitly lists media.channel.web in proposedChannels, and that journey's proposed viewRefs. Family rows only group exact leaf refs; they do not transfer applicability to sibling leaves. supportedChannels labels alone are proposal evidence and do not establish a Web consumer. Exact screen actions remain PDP-3 work; implementation, qualification, admission, and runtime support are not implied."
+      },
+      {
+        "path": [
+          "ownerLeafApplicabilityRules",
+          "rules",
+          "NO_OWNER_LINKED_WEB_JOURNEY"
+        ],
+        "prior": null,
+        "current": "When an exact capability leaf has no owner-linked journey that proposes Web, mark its current P0 Web applicability as OWNER_SELECTED_NOT_APPLICABLE_TO_THIS_LEAF. Preserve an inherited Web proposal label as non-gating source history; do not infer a consumer from a family name or convenient view."
+      },
+      {
+        "path": [
+          "capabilityChannelAliases",
+          "rules",
+          0
+        ],
+        "prior": "Capability supportedChannels entries are proposal-time vocabulary and normalize only through this map.",
+        "current": "Capability supportedChannels entries are proposal-time vocabulary and normalize only through this map; for Web, the finite owner family map in channels[].ownerDefinitionApplicability is authoritative for definition applicability, not the inherited proposal label."
+      }
+    ],
+    "acceptanceEffect": "none",
+    "interpretation": "The CLI channel record itself is unchanged from its PXD-105 current-source content. This additive supplement pins the new full source cut and records the P0 feature-review authority and Web applicability changes in the same source document; the historical CLI and PXD-098/PXD-105 pins remain unchanged.",
+    "webJourneyViewCurrentSourceObservation": {
+      "status": "ADDITIVE_CURRENT_SOURCE_OBSERVATION; PROPOSED_DECISION_REFERENCE",
+      "scope": "P0-07 Web definition applicability for the media.project family only, grounded in owner-linked journey J-21 and its proposed views.",
+      "reason": "The P0 source correction adds J-21 to the media.project Web consumer map and includes J-21's proposed view context. This Web applicability update is unrelated to the CLI channel referent.",
+      "priorApplicationsChannelsSha256": "2cc8a91ef71ca49f74fdeb5e929ec7b414963a814fa493e9b3687370a675d883",
+      "currentApplicationsChannelsSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+      "journeySourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-21",
+      "journeyContentSha256": "8451825b6892be01432ee1b5791a88c49eb808dbddb28890204e67a77354f78c",
+      "consumerSourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.web/ownerDefinitionApplicability/familyConsumers/0",
+      "consumerFamilyRef": "media.project",
+      "consumerContentSha256": "725d7baa78ac902774e0f77fd959386a168531c86685ba6d9326212d0911d206",
+      "cliRecordContentSha256": "5a70a1fb9b9f4bcbd26a57b987b264006272b03a1d68c45ed14906bce7b65f92",
+      "cliRecordUnchanged": true,
+      "acceptanceEffect": "none"
+    }
+  }
+}

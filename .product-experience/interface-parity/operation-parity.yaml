@@ -799,6 +799,25 @@ typedHttpCanonicalAdapterAssessments:
       canonicalOperationRef: media.operation.job.submit.v1
       disposition: ADAPTER_REQUIRED
       missingSemantics: [trusted-host-identity-not-client-supplied, canonical-exact-artifact-version, leaf-specific-typed-parameters-and-profile-version, fresh-tenant-principal-and-consent-guards, durable-dispatch-intent-before-acceptance, receipt-versus-effect-finality]
+      canonicalSchemaDynamicObjectAssessment:
+        status: "SOURCE_SCHEMA_USES_TYPED_DYNAMIC_JSON; EXACT_TARGET_RESOLVER_REQUIRED; runtimeAdmission: NOT_ADMITTED"
+        canonicalRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema
+        validatorRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/requestSemantics/typedInputValidator
+        parameterRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/parameterBindingRule
+        requiredBefore: [request-fingerprint, durable-acceptance, audit-intent-commit, provider-dispatch]
+        dynamicObjects:
+          - path: $.directRequestFields
+            additionalPropertiesSchemaRef: "#/$defs/jsonValue"
+            maxProperties: 32
+            selectorRule: directRequestFields keys must equal the exact selected target request directFieldAdapters.directFields; unknown targets or keys reject.
+            targetSchemaRule: Reconstruct the selected target request from the exact capability/operation/version tuple and validate against its exact targetRequestSchemaRef closure.
+            rejection: Missing adapter, missing required field, extra field, invalid value, or foreign selector rejects before fingerprint, acceptance, audit intent, or dispatch.
+          - path: $.parameters
+            additionalPropertiesSchemaRef: "#/$defs/jsonValue"
+            selectorRule: Resolve exactly one capability binding and target operation; caller cannot provide a schema selector.
+            targetSchemaRule: Validate only against requestSchema.properties.parameters from the exact selected target operation schema using declared Media scalar definitions and closed JSON Schema semantics.
+            rejection: Missing/unresolved schema, unknown or missing parameter, invalid type, or mismatched capability/operation/schema rejects before fingerprint, durable acceptance, audit intent, or dispatch.
+        nonClaims: Recursive typed JSON is only a bounded generic carrier; the exact target resolver still closes the selected keys and validates each value. It does not imply transport parity or runtime implementation.
       boundary: accepted HTTP job registration is not proof that processing completed or that providerHint is qualified
     - identity: listMediaJobs
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get

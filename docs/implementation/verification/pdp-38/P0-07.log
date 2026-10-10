@@ -2,51 +2,58 @@ TAP version 13
 # Subtest: the complete product feature review matrix resolves to canonical sources and the cross-phase denominator
 ok 1 - the complete product feature review matrix resolves to canonical sources and the cross-phase denominator
   ---
-  duration_ms: 2976.037108
+  duration_ms: 5013.298443
   type: 'test'
   ...
-# Subtest: every feature leaf has an exact proposal-time channel disposition, with unsupported admission left explicit
-ok 2 - every feature leaf has an exact proposal-time channel disposition, with unsupported admission left explicit
+# Subtest: every active P0 capability adjudication has an exact channel disposition, with unsupported admission left explicit
+ok 2 - every active P0 capability adjudication has an exact channel disposition, with unsupported admission left explicit
   ---
-  duration_ms: 7548.420059
+  duration_ms: 8647.782528
   type: 'test'
   ...
 # Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
 ok 3 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 22.019497
+  duration_ms: 27.733217
   type: 'test'
   ...
 # Subtest: channel rules keep protocol and product-interaction semantics separate
 ok 4 - channel rules keep protocol and product-interaction semantics separate
   ---
-  duration_ms: 0.277779
+  duration_ms: 0.403428
   type: 'test'
   ...
 # Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
 ok 5 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 12941.337223
+  duration_ms: 11219.067078
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 6 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 6303.983621
+  duration_ms: 8724.152716
   type: 'test'
   ...
 # Subtest: P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
 ok 7 - P0 channel and dependency update semantics define bounded CLI and promotion rules without admission
   ---
-  duration_ms: 450.047827
+  duration_ms: 461.869485
   type: 'test'
   ...
-1..7
-# tests 7
+1..0
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
+ok 4 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-feature-review-current-source-observation.test.mjs
+  ---
+  duration_ms: 160.412842
+  type: 'test'
+  ...
+1..8
+# tests 8
 # suites 0
-# pass 7
+# pass 8
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 26972.151584
+# duration_ms 20345.434021

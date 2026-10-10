@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "media.pdp38-migration-current-owner-target-observation.v1",
+  "scope": "Claim-scoped current-owner target observations for PXD-120. Historical source-impact bytes, historical review target digests and prior approvals remain unchanged; current target digests are recorded only after exact claim-parity review.",
+  "records": [
+    {
+      "claimId": "MPSEM-0388-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback",
+      "historicalCurrentTargetValueSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+      "currentTargetValueSha256": "e1ba9597b1b4a9867552cd7064efc1d068219ef7b6fe2e3ea27695883765920e",
+      "historicalSourceImpactRef": "docs/implementation/verification/pdp-38/migration-reviewed-source-impact.json#/records/@claimId=MPSEM-0388-C003",
+      "additionalOwnerRuleRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/offlineEntitlementWindow",
+      "additionalRuleId": "media.policy.offline-entitlement-validity-window.v1",
+      "meaning": "The current policy subtree adds an owner-defined offline entitlement validity boundary. It denies new protected work when the exact current entitlement tuple or trusted time/authority/version evidence is absent, stale, malformed, revoked, expired, or outside the half-open validity window. This addition does not authorize automatic model downloads or silent/cloud fallback; the existing DENY acquisition and fallback clauses remain intact.",
+      "claimParityBasis": "The source claim concerns automatic acquisition and cloud fallback. The current automaticAcquisition.default remains DENY, unavailableBehavior forbids automatic model download, fallback.default remains DENY_SILENT_FALLBACK, localOnly forbids cloud/provider egress, and otherProfiles still require an exact owner-approved alternate plus current policy checks. Existing negative predicates remain regression-tested. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_EXTENDED_BY_UNRELATED_OWNER_RULE; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0034-C002",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/api/async-operations.yaml#/ownerDefinedAsyncRules/@id=media.async.definition-and-run-state-separation.v1",
+      "reportedReviewTargetValueSha256": "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925",
+      "recomputedCurrentTargetValueSha256": "57b961cb3581893c04c88675de18a719daa1857f875bbddb1c7028902a9e8b49",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0034-C002",
+      "exactSourceClaim": "U1 §9 puts parameters, policies and execution state in one graph",
+      "claimParityBasis": "The exact current owner rule states that a versioned workflow definition contains declared stages, typed parameters, policy references and dependency edges; each invocation has a separately identified run; run status does not rewrite the definition; parameters and policy do not stand in for run state; and a graph alone grants no dispatch authority or runtime execution. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0042-C003",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1",
+      "reportedReviewTargetValueSha256": "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b",
+      "recomputedCurrentTargetValueSha256": "fcccc71f1cef93a779214097ac0728921aa8826a39629f3379c4f9586bc7c477",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0042-C003",
+      "exactSourceClaim": "One command registry over canonical action IDs",
+      "claimParityBasis": "The exact current owner rule requires one unique command identity and exact action plus operation/version bindings across production channels; aliases resolve only to that canonical identity. It forbids inferred commands and leaves incomplete rows as fixtures or NOT_ADMITTED. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0316-C001",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1",
+      "reportedReviewTargetValueSha256": "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b",
+      "recomputedCurrentTargetValueSha256": "fcccc71f1cef93a779214097ac0728921aa8826a39629f3379c4f9586bc7c477",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0316-C001",
+      "exactSourceClaim": "Every canonical CLI command maps to the same action/operation ID as Web/API.",
+      "claimParityBasis": "The exact current owner rule requires one unique command identity and exact action plus operation/version bindings across production channels; aliases resolve only to that canonical identity. It forbids inferred commands and leaves incomplete rows as fixtures or NOT_ADMITTED. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0181-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule",
+      "historicalTargetTextSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "currentTargetValueSha256": "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17",
+      "sourceText": "Reuse existing Ghatana streaming modules before selecting a new stack.",
+      "claimParityBasis": "Current externalStackSelectionRule.reuseBeforeSelection requires inspection of exact existing Ghatana-owned streaming modules before a new stack, reuse when an exact admitted capability/profile fits, and concrete requirement/evidence for any reuse gap. The added owner clause closes the source meaning; it does not admit or qualify a stack. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_OWNER_RULE_EXTENDED_WITH_EXPLICIT_REUSE_FIRST_CLAUSE; CLAIM_PARITY_REVIEWED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0181-C002"
+    },
+    {
+      "claimId": "MPSEM-0291-C009",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#bindingProfileRule",
+      "historicalTargetTextSha256": "22517b43debb68fa84ad63522a03cc14c32ed8c52b2ea7ae574a187c47c312bb",
+      "currentTargetValueSha256": "47148e7a5c9189c0e80aa5de633ae206a29c6af191c1c59bf502050949d3efd0",
+      "sourceText": "Keep model-native generation settings such as steps, guidance, offload and quantization in qualified binding profiles, not ordinary user requirements.",
+      "claimParityBasis": "Current bindingProfileRule keeps model-native steps, guidance, offload, and quantization in exact qualified binding profiles rather than ordinary user requirements. The requested/effective profile identities and fallback rules remain explicit; the revised scopeStatus only clarifies PDP-0 definition completion versus runtime qualification. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json#/records/@claimId=MPSEM-0291-C009"
+    },
+    {
+      "claimId": "MPSEM-0296-C005",
+      "targetRef": ".product-experience/interface-parity/operation-parity.yaml#ownerDefinedSourceTruthMatrix",
+      "historicalTargetTextSha256": "cd7dc0f0af3884cc1239c3764eb24d4ab47576f5fb9ca7d067f1485296e77cf1",
+      "currentTargetValueSha256": "8c188d0bc642d1831e6bf0a75260f90bac842c37c67c09f371ea1568800e3189",
+      "sourceText": "The source-of-truth matrix identifies the owner and implementation for every method/path/action.",
+      "claimParityBasis": "Current ownerDefinedSourceTruthMatrix requires exact identity, owner, implementation/source evidence, explicit disposition, and an explicit gap for unknown identities across inventoried public methods, paths, SDK methods, and UI actions. The expanded population metadata does not weaken those fields. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0296-C005"
+    },
+    {
+      "claimId": "MPSEM-0315-C003",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics",
+      "historicalTargetTextSha256": "ab2d66b9bb0cf7e8ceb5bd9bd595bd5957da322da8d552ca42ac547738ab9d7a",
+      "currentTargetValueSha256": "ac5065399c1791f75ace2a8e4b1268a93f43969e0050514d3bc9f0c8d89a780b",
+      "sourceText": "Error objects expose structured reason codes, output references for partial results, and uncertainty.",
+      "claimParityBasis": "Current ownerDefinedErrorSemantics preserves stable Media reason codes, exact inspectable output-version references for partial results, and explicit uncertainty/UNKNOWN_OUTCOME semantics. Partial output is not full success; the expanded error rule retains those clauses. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0315-C003"
+    },
+    {
+      "claimId": "MPSEM-0331-C001",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.finite-command-family-registry.v1",
+      "historicalTargetTextSha256": "92b9c275eec6a7b677c76df5b66e6c3cb7e1516c577857c45e4f5c23fae7ec1f",
+      "currentTargetValueSha256": "cfbe604c5db8eb31a18daffdef8111b9bea36ded28c6a6844785463bc4b4922f",
+      "sourceText": "A parameterized command family expands to an explicit finite registry.",
+      "claimParityBasis": "Current finite-command-family-registry rule expands parameterized families only to a finite set of registered command identities; wildcards, implicit aliases, and parameter values cannot create commands. Added fixture details do not change this finite registry constraint. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0331-C001"
+    },
+    {
+      "claimId": "MPSEM-0350-C001",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/api/errors.yaml#ownerDefinedErrorSemantics",
+      "historicalTargetTextSha256": "ab2d66b9bb0cf7e8ceb5bd9bd595bd5957da322da8d552ca42ac547738ab9d7a",
+      "currentTargetValueSha256": "ac5065399c1791f75ace2a8e4b1268a93f43969e0050514d3bc9f0c8d89a780b",
+      "sourceText": "Partial completion not accepted as success by the command contract |",
+      "claimParityBasis": "Current ownerDefinedErrorSemantics explicitly states partial output is not full success and omits unavailable output references instead of guessing. The revised target retains the command-contract boundary. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0350-C001"
+    },
+    {
+      "claimId": "MPSEM-0374-C006",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule",
+      "historicalTargetTextSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "currentTargetValueSha256": "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17",
+      "sourceText": "Do not add RabbitMQ, Redis Streams, Temporal or another workflow engine before a concrete reuse/capacity-gap decision.",
+      "claimParityBasis": "Current externalStackSelectionRule makes candidate selection non-mandatory and requires an exact admitted capability/profile, demonstrated Ghatana reuse gap, smallest fitting stack, and one qualified implementation per profile; it forbids parallel adapters and silent fallback. The source claim remains covered. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0374-C006"
+    },
+    {
+      "claimId": "MPSEM-0455-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/genericMechanicsBoundary",
+      "historicalTargetTextSha256": "9a8d07cba462cbafd9153beef209439630cfea8d7f2dc3d2c04f24a565fc44a4",
+      "currentTargetValueSha256": "f62fcd66d8772966e23b0fd61c9262ca616404c8ca13c0c710dab6d41ecb8a4e",
+      "sourceText": "extract genuinely reusable mechanics with owner approval",
+      "claimParityBasis": "Current genericMechanicsBoundary permits reusable Shared workflow/outbox/idempotency/CAS/retry/reconciliation mechanics only behind Media-owned adapters when the exact public contract satisfies Media guards/finality; Media retains domain state and policy, and production invocation still requires exact admission/delegation/policy/receipt. Added scheduler boundary is additive. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-policy-source-review.json#/records/@claimId=MPSEM-0455-C002"
+    },
+    {
+      "claimId": "MPSEM-0459-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/externalStackSelectionRule",
+      "historicalTargetTextSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+      "currentTargetValueSha256": "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17",
+      "sourceText": "It does not mandate integrating them all.",
+      "claimParityBasis": "Current externalStackSelectionRule explicitly says candidate selection is not an integration mandate and says not to integrate every listed package or engine. This exact owner text directly covers the source clause; no package is thereby admitted. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-1259-C001-S13",
+      "targetRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules",
+      "historicalTargetTextSha256": "2c8f8799cffd305fd676ee1dbd021ea95d546b1943c5ad29573b2b6e09e1cdb6",
+      "currentTargetValueSha256": "cda948442d9a9f40d8c367db645551cf1a3231aa8ba6f281f5d8c8dd97652ade",
+      "sourceText": "responsive/a11y/localization",
+      "claimParityBasis": "Current accessibilityRules specify keyboard equivalence, responsive reflow, readable long localized strings, locale-direction stability, and nonvisual alternatives. They define requirements only: rendered behavior, specialist review, conformance, and phase acceptance remain unasserted. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none"
+    }
+  ],
+  "decisionRef": ".product-experience/decision-log.md#PXD-120"
+}

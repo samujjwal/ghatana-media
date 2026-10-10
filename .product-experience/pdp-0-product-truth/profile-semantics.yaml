@@ -13,10 +13,19 @@ sourceRefs:
   - constitution:MEDIA-CONST-027
   - constitution:MEDIA-CONST-028
 scopeNote: >-
-  This file defines orthogonal profile axes and the shape of fallback
-  authorization. It does not select, qualify, or declare available any engine,
-  model, codec, provider, runtime, or deployment. Concrete capability/profile
-  bindings remain pending integration with P0-003 and owner contracts.
+  PDP-0 semantics for orthogonal profile axes, fallback authorization, and
+  unknown/unbound denial are defined here. This file does not select, qualify,
+  or declare available any engine, model, codec, provider, runtime, or
+  deployment. The exact P0 capability/profile/schema envelope is owner-defined
+  by the capability-bounds-envelope rule below. Operation bindings and runtime
+  qualification remain separate downstream work; their absence does not weaken
+  this fail-closed P0 admission rule.
+semanticCompletion:
+  phase: PDP-0
+  status: DEV_COMPLETE_FOR_PROFILE_MEANING
+  completed: [orthogonal-profile-axes, requested-effective-profile-record, fallback-default-deny, unknown-or-unbound-denial, bounded-invocation-admission, p0-capability-bounds-envelope, preservation-qualification-dimension-mapping]
+  laterBindingWork: [exact-capability-operation-profile-bindings, owner-approved-limits, per-capability-profile-qualification-evidence, runtime-qualification-and-availability]
+  ownerPendingSemantics: []
 profileAxes:
   - id: PROFILE-AXIS-QUALITY-INTENT
     name: quality-intent
@@ -65,7 +74,8 @@ profileAxes:
   - id: PROFILE-AXIS-PRESERVATION
     name: preservation
     qualificationPolicyDimension: preservation-policy
-    qualificationPolicyMappingState: pending-owner-schema-validation
+    qualificationPolicyMappingState: DEFINED; profile preservation maps to qualification-policy dimension preservation-policy; per-capability qualification remains NOT_EVALUATED until scoped evidence is supplied.
+    qualificationPolicyMappingRef: .product-experience/pdp-0-product-truth/qualification-policy.yaml#/profileDimensions
     values:
       - id: PRESERVATION-MODE-PRESERVE
         value: preserve
@@ -156,7 +166,133 @@ profileResolutionRecord:
     - qualificationScopeRef
     - budgetEstimateAndCeiling
     - confirmationOrApprovalOutcome
-  capabilityBindingState: pending-P0-003-integration
+  capabilityBindingState: The P0 capabilityIntentId and family profile/schema envelope resolve through capabilityBoundsEnvelope; an executable implementation/operation binding remains unestablished and blocks admission.
+boundedInvocationAdmission:
+  id: media.profile.bounded-invocation-admission
+  authority: PDP-0 product-level admission semantics; this rule does not establish an implementation, numeric limit, or runtime enforcement mechanism.
+  requiredRecord:
+    - capabilityLeafRef
+    - requestedProfileRefAndVersion
+    - effectiveProfileRefAndVersion
+    - resourceDimensionDecisions
+    - admissionDecision
+    - decisionAuthorityRef
+  resourceDimensions: [cpu, ram, vram, gpu-time, storage, network, process-count, time, retry-count, cost]
+  resourceDimensionUnits:
+    cpu: CPU-milliseconds per job
+    ram: bytes of system memory per job
+    vram: bytes of video memory per job
+    gpu-time: GPU-milliseconds per job
+    storage: bytes per job
+    network: bytes transferred per job
+    process-count: process count per job
+    time: wall-milliseconds per job
+    retry-count: retry count per job
+    cost: currency minor units per job
+  additionalResourceDimensionSources:
+    vram: .product-experience/pdp-0-product-truth/qualification-policy.yaml#qualificationDimensions
+    network: .product-experience/pdp-0-product-truth/qualification-policy.yaml#securityAndRightsBaseline
+    scope: VRAM is separately named by the qualification policy's resource dimension list; network transfer is separately bounded for network imports by the policy's destination, redirect, size, and time rule. These dimensions add scoped accounting and do not relax or replace NFR-COST-001 bounds.
+  resourceDimensionDecisionFields:
+    - dimension
+    - applicability
+    - applicabilityReason
+    - bound
+    - unit
+    - authorityRef
+    - sourceRef
+    - enforcementBoundary
+  resourceEvidenceStates:
+    bound: [DEFINED_FINITE, NOT_EVALUATED]
+    unit: [DEFINED, NOT_EVALUATED]
+    authority: [DEFINED, NOT_EVALUATED]
+    source: [DEFINED, NOT_EVALUATED]
+    enforcementBoundary: [DEFINED, NOT_EVALUATED]
+    note: NOT_EVALUATED records an unresolved fact; it is not an empty, zero, unlimited, or inapplicable value.
+  applicabilityStates:
+    - APPLICABLE
+    - INAPPLICABLE
+    - UNKNOWN
+  rules:
+    - Every invocation declares a requested profile and its effective profile; an unbound profile is not an available profile.
+    - Every resource dimension is classified independently for the exact capability leaf, profile, and invocation context.
+    - APPLICABLE requires a finite bound, an explicit unit, an accountable authority reference, the source that establishes the bound, and the boundary that must enforce it before dispatch and throughout the bounded work.
+    - INAPPLICABLE requires an explicit reason and evidence source; it cannot be used to hide a missing, unknown, or unevaluated bound.
+    - UNKNOWN applicability, or an APPLICABLE dimension with a NOT_EVALUATED or missing finite bound, unit, authority, source, or enforcement boundary, means NOT_ADMITTED. The product must block before dispatch and report an explicit denial/blocked outcome; it must not interpret missing data as zero, unlimited, or implicitly available.
+    - An explicit fallback may be admitted only when policy authorizes that exact change and the fallback invocation independently satisfies this contract. Fallback does not relax an existing bound or requested quality, fidelity, locality, rights, or preservation constraint.
+  decisionCases:
+    - id: bounded-resource-all-applicable
+      given: Every applicable dimension has a finite bound, unit, authority, source, and pre-dispatch enforcement boundary; every inapplicable dimension has a reason and evidence source.
+      then: Resource admission may proceed to the remaining capability, policy, rights, qualification, and runtime-availability gates.
+    - id: bounded-resource-inapplicable-with-evidence
+      given: A dimension is INAPPLICABLE with an explicit reason and evidence source.
+      then: That dimension does not require a bound, and its disposition does not waive any other applicable dimension.
+    - id: bounded-resource-unknown-applicability
+      given: Any dimension has UNKNOWN applicability.
+      then: NOT_ADMITTED; block before dispatch and return an explicit denial or blocked outcome.
+    - id: bounded-resource-missing-bound-or-provenance
+      given: Any APPLICABLE dimension lacks a finite bound, unit, authority, source, or enforcement boundary.
+      then: NOT_ADMITTED; block before dispatch and return an explicit denial or blocked outcome.
+    - id: bounded-resource-fallback
+      given: A policy-authorized fallback changes the profile or resource plan.
+      then: Re-evaluate every resource dimension under the fallback's exact profile and context before dispatch; no original bound is inherited unless its authority explicitly covers the fallback.
+  nonClaims:
+    - no numeric resource limits are selected here
+    - no resource dimension is declared inapplicable for any capability leaf here
+    - no runtime support, enforcement implementation, or availability is claimed
+  scopeStatus: DEFINITION_ONLY; the exact per-leaf P0 identity/profile/schema envelope is owner-defined below, while per-invocation resource applicability/bounds/evidence and enforcement remain UNKNOWN or NOT_EVALUATED and are not runtime admission.
+capabilityBoundsEnvelope:
+  id: media.profile.p0-capability-bounds-envelope.v1
+  authority: delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
+  population:
+    sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities
+    count: 462
+    identity: Each capability record id is its stable capabilityIntentId.
+  boundsRefResolution:
+    identityField: capabilities[].ownerDefinition.boundsRef
+    canonicalIdentityRule: For capabilityIntentId beginning with media., replace its remaining dots with hyphens and prefix media.capability-bounds.media-; the resulting identity must resolve to exactly that one capability record.
+    oneToOne: Every one of 462 boundsRef identities is unique, maps to one capabilityIntentId, and is not inherited from a family or operation.
+    profileBinding: The envelope profile is exactly that record's ownerDefinition.familyProfileRef.
+  exactEnvelopeFields:
+    - capabilities[].id
+    - capabilities[].ownerDefinition.familyProfileRef
+    - capabilities[].ownerDefinition.parameterSchema
+    - capabilities[].ownerDefinition.typedInputSlots
+    - capabilities[].inputArtifactTypes
+    - capabilities[].outputArtifactTypes
+    - capabilities[].ownerDefinition.successOutputs
+  inputShapeRule: Each leaf's ownerDefinition.typedInputSlots is its closed product input shape. A slot's sourceType, cardinality, required flag, alternatives, and condition are normative together; reuse an existing shared shape only when all populated identity fields match, and record a leaf-specific exception in that leaf's owner definition. No family-level optionality, field, default, or cardinality is inherited. Parameter properties and their requiredness are governed only by that same leaf's closed parameterSchema.
+  inputShapeFamilyReconciliation:
+    sourceRef: capabilities[].ownerDefinition.typedInputSlots
+    currentPopulation:
+      leafCount: 462
+      slotCount: 930
+      distinctSharedShapeCount: 129
+    sharedShapeIdentityFields: [sourceType, cardinality, required, alternatives, condition]
+    rule: These are a computed reuse relation over the existing leaf-owned slots, not a second input catalog. Reuse requires exact equality of all populated identity fields; slotId remains local to its leaf. Missing or changed shape fields are explicit exceptions and do not inherit family values.
+  parameterRule: The closed ownerDefinition.parameterSchema, including its required fields, property constraints, and emptyDisposition, is the exact product parameter shape. A property listed in required is mandatory; other declared properties are optional. Defaults exist only when explicitly present in that exact schema; no implicit, family, or operation default is inferred. No operation wire schema, family default, inferred field, or unsupported parameter value is added by this envelope.
+  resourceDimensionRule:
+    dimensions: [cpu, ram, vram, gpu-time, storage, network, process-count, time, retry-count, cost]
+    currentEvidencePopulation:
+      capabilityCount: 462
+      dimensionCountPerCapability: 10
+      applicability: UNKNOWN
+      bound: NOT_EVALUATED
+      unit: DEFINED
+      unitSourceRef: .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml#ownerMeasurementDefinitions/records/@id=media.nfr-measurement.NFR-COST-001.v1
+      authority: NOT_EVALUATED
+      source: NOT_EVALUATED
+      enforcementBoundary: NOT_EVALUATED
+      meaning: No numeric resource ceiling or dimension inapplicability has been owner-established for a leaf/profile/invocation tuple in this P0 source cut. The normative units above are defined by NFR-COST-001; exact bound, authority, applicability, and enforcement evidence remain NOT_EVALUATED.
+    unappliedEvidenceState: UNKNOWN applicability and NOT_EVALUATED bound, authority, bound source, or enforcement evidence are explicit until a scoped record supplies them; normative units are defined by NFR-COST-001.
+    admission: UNKNOWN applicability or any missing/unknown required resource fact means NOT_ADMITTED and MUST block before dispatch with an explicit denial/blocked outcome.
+    numericLimits: No numeric resource limit is invented or implied by the boundsRef identity.
+  negativeCases:
+    - A missing, duplicate, stale, or foreign boundsRef does not resolve to an envelope.
+    - A boundsRef resolves to a different leaf, profile, parameter schema, typed input slot, or output shape.
+    - UNKNOWN or NOT_EVALUATED resource evidence is treated as zero, unlimited, or admitted.
+    - A required or optional input slot is accepted with a different sourceType, cardinality, or required flag from the exact leaf definition.
+  scopeStatus: OWNER_DEFINED_P0_IDENTITY_AND_SCHEMA_ENVELOPE; per-invocation resource evidence and runtime enforcement remain NOT_EVALUATED and NOT_ADMITTED until supplied.
 bindingProfileRule:
   id: media.profile.binding-profile-rule
   rule: >-
@@ -169,7 +305,7 @@ bindingProfileRule:
     authority and reason for every change. Unknown or unbound values block
     execution or use only an explicit policy-permitted fallback; they are never
     reported as available. A fallback never overwrites the requested profile.
-  scopeStatus: OWNER_DEFINED_PROFILE_SEMANTICS; no binding or runtime qualification is claimed.
+  scopeStatus: PDP-0_PROFILE_SEMANTICS_COMPLETE; exact bindings and runtime qualification are separate and not claimed.
 supportedIOContract:
   id: media.profile.supported-io-contract
   rule: >-
@@ -239,7 +375,7 @@ fallbackSemantics:
     modelOrEngineSubstitution:
       permitted: false
       constraintsRequiredIfPermitted: [candidateCapabilityRefs, compatibilityEvidenceRef, qualityFloorRefs]
-      candidateCapabilityRefState: pending-P0-003-integration
+      candidateCapabilityRefState: P0 capability-intent catalog is resolved; because modelOrEngineSubstitution.permitted is false, no alternative is admitted. If a later owner permits substitution, exact compatible capability/profile candidates and evidence remain NOT_EVALUATED and must be supplied before admission.
     resourceProfileChange:
       permitted: false
       constraintsRequiredIfPermitted: [allowedValues, proof-no-protected-property-degradation]
@@ -318,6 +454,6 @@ candidateDeliveryProfiles:
     sourceAuthority: .product-experience/pdp-0-product-truth/reuse-decisions.yaml
     ownerReview: codec-profile-integration-and-patent-distribution-review-pending
 integrationGaps:
-  capabilityReferences: pending-P0-003-leaf-integration
-  domainFidelityReferences: pending-P0-004-and-domain-owner-integration
-  profileRuntimeBindings: pending-public-contract-license-and-qualification-evidence
+  capabilityReferences: OWNER_DEFINED_P0_CAPABILITY_INTENT_BINDINGS_AND_BOUNDS_ENVELOPES_RESOLVED_FOR_462_LEAVES
+  domainFidelityReferences: P0 capability intent and quality metric applicability are defined across the 462-leaf population; domain-specific scientific validation, fidelity thresholds, and specialist evidence remain NOT_EVALUATED.
+  profileRuntimeBindings: P0 profile meanings are defined; concrete public-contract, license, and runtime qualification evidence remain NOT_EVALUATED

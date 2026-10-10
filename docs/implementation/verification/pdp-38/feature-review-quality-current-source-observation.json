@@ -1,0 +1,181 @@
+{
+  "schemaVersion": "media.pdp38.feature-review-current-source-observation.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-105",
+  "baseReviewRef": "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
+  "baseReviewSha256": "9294d3e13ee01e35bbe24b8cfaefec23316b17d43b969f057924a980e46cb922",
+  "currentCutRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#P0-07",
+  "currentCutDecisionRef": ".product-experience/decision-log.md#PXD-105",
+  "scope": "Observation-only supplement for one current PXD-098 referent whose exact quality applicability record changed after the PXD-105 source cut. PXD-098 and PXD-101/103 remain immutable; the clause criterion and its meaning are unchanged.",
+  "sourcePath": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+  "sourcePinSha256": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+  "currentSourceSha256": "cc57b1aa3522114482e7cc2c13a3b8e4d6db92948b0a64d83d13c47a9ab6ac46",
+  "record": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+    "identity": "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+    "historicalPxd098ContentSha256": "1ca8c4fea8ac355fed2c76bdc9640a6244f7105fdcce4acdb0eac15c2da041b7",
+    "currentContentSha256": "e109dbbc2d8cb250c3220625a541e38d03eaca7b727515a4c9e693e99fb5c34e",
+    "changedPaths": [
+      {
+        "path": [
+          "ownerCurrentApplicability",
+          "capabilityRefs"
+        ],
+        "removed": [
+          "media.master.audio.phase-noise-floor-analyze"
+        ],
+        "added": []
+      },
+      {
+        "path": [
+          "ownerCurrentApplicability",
+          "applicableCount"
+        ],
+        "prior": 117,
+        "current": 116
+      },
+      {
+        "path": [
+          "ownerCurrentApplicability",
+          "notApplicableCount"
+        ],
+        "prior": 345,
+        "current": 346
+      }
+    ],
+    "preserved": {
+      "scope": "Loudness and true-peak measurements for a declared audio delivery target.",
+      "dimensionRefs": [
+        "QUALITY-DIM-PERCEPTUAL",
+        "QUALITY-DIM-DELIVERY-COMPATIBILITY"
+      ],
+      "applicableCountPlusNotApplicableCount": 462
+    },
+    "semanticParityRationale": "The removed capability produces a phase-noise-floor measurement, while this metric is explicitly scoped to loudness and true-peak measurements. Excluding it preserves the metric meaning, maintains the exact 462-leaf denominator, and changes only this record's applicability disposition."
+  },
+  "acceptanceEffect": "none",
+  "acceptanceBoundary": "Current-source observation only. It does not renew PXD-098 material approval, alter the PXD-105 approval or source pin, approve a new metric meaning, or claim measurement, calibration, qualification, runtime, or Lifecycle evidence.",
+  "additionalCurrentSourceObservation": {
+    "changedPaths": [
+      {
+        "path": [
+          "integrationGaps",
+          "capabilityReferences"
+        ],
+        "prior": "pending-P0-003-leaf-integration",
+        "current": "P0-owner-quality-applicability-crosswalk-defined-for-all-462-capability-intents; runtime-qualification-not-evaluated"
+      },
+      {
+        "path": [
+          "integrationGaps",
+          "domainAndFidelityReferences"
+        ],
+        "prior": "pending-P0-004-and-domain-owner-integration",
+        "current": "P0-quality-dimension-and-metric-applicability-defined; domain-specific-scientific-validation-and-fidelity-thresholds-not-evaluated"
+      },
+      {
+        "path": [
+          "integrationGaps",
+          "privacyAndRightsGates"
+        ],
+        "prior": "pending-P0-006-and-P0-008-integration",
+        "current": "P0-policy-and-rights-applicability-defined; runtime-enforcement-and-independent-acceptance-not-evaluated"
+      }
+    ],
+    "acceptanceEffect": "none",
+    "resolvedOwnerApplicability": {
+      "dimensions": 6,
+      "metrics": 16,
+      "capabilityLeaves": 462,
+      "status": "COMPLETE_DEFINITION_ONLY",
+      "measurementAndCalibration": "NOT_EVALUATED",
+      "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalk",
+      "rootCapabilityRefPlaceholdersRemoved": {
+        "dimensions": 6,
+        "metrics": 16
+      },
+      "capabilityRefState": "P0 applicability is defined by the owner crosswalk",
+      "candidateQualificationState": "NOT_EVALUATED"
+    }
+  },
+  "currentSourceAuthorityCleanupObservation": {
+    "proposedDecisionRef": ".product-experience/decision-log.md#PXD-124",
+    "status": "PROPOSED_ADDITIVE_CURRENT_SOURCE_SUPPLEMENT",
+    "scope": "Observation-only supplement for removal of stale duplicate root-level capability applicability placeholders from the three audio metric referents. Existing PXD-098/PXD-105 historical pins and each nested ownerCurrentApplicability record remain preserved.",
+    "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+    "sourcePinSha256": "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de",
+    "currentSourceSha256": "cc57b1aa3522114482e7cc2c13a3b8e4d6db92948b0a64d83d13c47a9ab6ac46",
+    "acceptanceEffect": "none",
+    "records": [
+      {
+        "identity": "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+        "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+        "priorContentSha256": "e109dbbc2d8cb250c3220625a541e38d03eaca7b727515a4c9e693e99fb5c34e",
+        "currentContentSha256": "a832079b794897c863842e628eb754f5912b2efc56a9075d97140a5023ead161",
+        "changedPaths": [
+          {
+            "path": [
+              "capabilityRefs"
+            ],
+            "prior": [],
+            "current": "ABSENT"
+          },
+          {
+            "path": [
+              "capabilityRefState"
+            ],
+            "prior": "pending-P0-003-and-P0-008-integration",
+            "current": "ABSENT"
+          }
+        ],
+        "preservedNestedOwnerApplicabilitySha256": "c0b70301b87219e01c52bfa6c1e91a6d35b731654f23f3fed6632f7e1d2f54a4"
+      },
+      {
+        "identity": "QUALITY-METRIC-AUDIO-DEFECTS",
+        "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-DEFECTS",
+        "priorContentSha256": "5d7b7f7f12e1ad69f6ee97d102b4af58c59435b485c1d6bfc56bc6c60e8b3fa5",
+        "currentContentSha256": "9a0a6634dc347fe6599735f5927539cf4bcf4a01a882b78cfbb7e1d2fc653436",
+        "changedPaths": [
+          {
+            "path": [
+              "capabilityRefs"
+            ],
+            "prior": [],
+            "current": "ABSENT"
+          },
+          {
+            "path": [
+              "capabilityRefState"
+            ],
+            "prior": "pending-P0-003-integration",
+            "current": "ABSENT"
+          }
+        ],
+        "preservedNestedOwnerApplicabilitySha256": "c0b70301b87219e01c52bfa6c1e91a6d35b731654f23f3fed6632f7e1d2f54a4"
+      },
+      {
+        "identity": "QUALITY-METRIC-AUDIO-NATURALNESS",
+        "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#metricDefinitions/@id=QUALITY-METRIC-AUDIO-NATURALNESS",
+        "priorContentSha256": "c9265c66a3278143df06fd4578d2ae10804f381877ad77396be42416a7965e7d",
+        "currentContentSha256": "8e4f317e956321cd5821001dd8d8b52e24d2127f68a57f74da0eeb0ccc14c26d",
+        "changedPaths": [
+          {
+            "path": [
+              "capabilityRefs"
+            ],
+            "prior": [],
+            "current": "ABSENT"
+          },
+          {
+            "path": [
+              "capabilityRefState"
+            ],
+            "prior": "pending-P0-003-integration",
+            "current": "ABSENT"
+          }
+        ],
+        "preservedNestedOwnerApplicabilitySha256": "99755033356d67a631c3b6f2286eedabd55c5a806cf1291544e59f71b1bbad95"
+      }
+    ],
+    "acceptanceBoundary": "This supplement records exact current-source changes only. It does not revise PXD-098/PXD-105, renew approval, or claim measurement, calibration, qualification, runtime, or Lifecycle evidence."
+  }
+}

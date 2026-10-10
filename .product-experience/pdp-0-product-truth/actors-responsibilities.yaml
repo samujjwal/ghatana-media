@@ -368,12 +368,12 @@ personas:
   typicalGoals: [media.goal.explain-or-demonstrate, media.goal.review-trustworthy-output]
   permissionImplication: none
 - id: media.persona.campaign-producer
-  context: A person preparing campaign media subject to separate brand, claims, and publication authority.
+  context: A marketing or campaign producer preparing campaign media subject to separate brand, claims, and publication authority.
   actorRefs: [media.creator, media.editor, media.reviewer]
   typicalGoals: [media.goal.finished-asset, media.goal.deliver-approved-output]
   permissionImplication: none
 - id: media.persona.archive-restorer
-  context: A person restoring or improving historical material while distinguishing reconstruction from recovered fact.
+  context: A person restoring or improving archival or historical material while distinguishing reconstruction from recovered fact.
   actorRefs: [media.creator, media.editor, media.reviewer]
   typicalGoals: [media.goal.preserve-source, media.goal.improve-with-disclosure]
   permissionImplication: none

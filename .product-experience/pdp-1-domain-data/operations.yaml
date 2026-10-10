@@ -16737,7 +16737,8 @@ ownerDefinedOperationContracts:
             directRequestFields:
               type: object
               maxProperties: 32
-              additionalProperties: true
+              additionalProperties:
+                $ref: "#/$defs/jsonValue"
               description: >-
                 Dynamic exact target direct fields. This bag is not an open
                 operation schema: the owner-authored adapter must resolve one
@@ -16746,6 +16747,8 @@ ownerDefinedOperationContracts:
                 before request fingerprinting or effect.
             parameters:
               type: object
+              additionalProperties:
+                $ref: "#/$defs/jsonValue"
               description: >-
                 Operation-specific parameter values. The mandatory dynamic
                 parameter resolver below closes this object against the exact
@@ -17038,6 +17041,19 @@ ownerDefinedOperationContracts:
               type: string
               minLength: 1
               maxLength: 128
+          $defs:
+            jsonValue:
+              oneOf:
+                - type: "null"
+                - type: boolean
+                - type: number
+                - type: string
+                - type: array
+                  items:
+                    $ref: "#/$defs/jsonValue"
+                - type: object
+                  additionalProperties:
+                    $ref: "#/$defs/jsonValue"
           definitions:
             typedInputs:
               user-intent:

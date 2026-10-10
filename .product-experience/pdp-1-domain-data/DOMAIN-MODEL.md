@@ -196,11 +196,13 @@ every outcome. `presentation-projections.yaml` defines read-side fields and
 requires freshness, uncertainty, authorization scope, and safe actions to be
 carried from the host/domain adapter.
 
-The current operation-parity report inventories 284 identities across eight
-surface families: 146 UI actions, 27 HTTP operations, 43 gRPC methods, CLI,
-SDK, Agent Tools, events, and related interfaces. It reports 192 unresolved
-identities and zero owner-accepted bindings. Proposed family associations do
-not eliminate source-specific gaps or establish semantic equivalence.
+The current operation-parity report inventories 287 identities across nine
+exact source surfaces grouped into eight interface families: 147 UI actions,
+27 HTTP operations, 43 gRPC methods, CLI fixture commands and host-configured
+CLI consumers, SDK methods, Agent Tools, lifecycle event names, and internal
+runtime events. It reports 154 unresolved source identities and zero
+owner-accepted cross-interface bindings. Proposed family associations do not
+eliminate source-specific gaps or establish semantic equivalence.
 
 ## Uncertainty and finality
 

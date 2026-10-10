@@ -962,6 +962,14 @@ mediaArchitectureRules:
       Integrate only when an exact admitted Media capability/profile has a
       demonstrated Ghatana reuse gap and the candidate closes that gap under its
       public contract.
+    reuseBeforeSelection: >-
+      Before selecting a new streaming stack, inspect the exact existing
+      Ghatana-owned streaming modules and their public contracts. Reuse an
+      existing module when it satisfies the requirements of the exact admitted
+      Media capability/profile. If no existing module fits, record the concrete
+      profile requirement it cannot meet and the evidence for that reuse gap
+      before evaluating a new candidate. An inventory mention or package name
+      alone does not establish that a module exists, is suitable, or is admitted.
     scope: Do not integrate every listed package or engine; select the smallest
       stack that meets the requirements of the next admitted recipe.
     multiplicity: One qualified implementation is selected for an exact

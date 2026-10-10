@@ -3,7 +3,7 @@
   "productId": "media",
   "semanticOwner": "media",
   "authorityStatus": "owner-defined guard predicate grammar; independent-PDP1-review-open; runtime-NOT_ADMITTED",
-  "factsAuthority": "Source-typed predicates are derived from their closed owner observation contracts; caller-supplied booleans alone are not evidence. Other definition facts remain explicit model inputs and do not prove runtime truth.",
+  "factsAuthority": "Every fact is classified. Typed owner observations are derived only from the referenced closed source contracts; definition-model inputs are synthetic fixture inputs and never establish runtime truth. Caller-supplied guardFacts booleans are ignored.",
   "expressionGrammar": {
     "all": "every child expression must pass",
     "any": "at least one child expression must pass",
@@ -11,79 +11,117 @@
     "fact": "exact key in the declared fact catalog; source-typed predicates are derived from their closed owner-observation contracts, and caller-supplied booleans alone are not evidence"
   },
   "commonFacts": {
-    "tenant.matches": "tenant request and state subject are in same trusted tenant; source .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication"
+    "tenant.matches": {
+      "description": "Synthetic definition-model predicate that indicates authenticated request and resource tenant identities match; test-only and never runtime proof.",
+      "valueType": "boolean",
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input only; production tenant authentication and resource binding require an independently admitted trusted identity contract."
+    }
   },
   "facts": {
     "activeEffectsResolvedOrUnknown": {
       "description": "activeEffectsResolvedOrUnknown",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "affectedWorkReconciled": {
       "description": "affectedWorkReconciled",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "approvalDurable": {
       "description": "approvalDurable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "assignedReviewerOrAuthority": {
       "description": "assignedReviewerOrAuthority",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "atomicCommitAvailable": {
       "description": "atomicCommitAvailable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "attemptOutcomeRecorded": {
       "description": "attemptOutcomeRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "authorityCurrent": {
       "description": "authorityCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "authorityRecordedConsentDecision": {
       "description": "authorityRecordedConsentDecision",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "cancellationRaceEvidenceRecorded": {
       "description": "cancellationRaceEvidenceRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "consent.activationVerified": {
       "description": "consent.activationVerified",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "consent.expiryRecorded": {
       "description": "consent.expiryRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "consent.replacementRecorded": {
       "description": "consent.replacementRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "consent.revocationRecorded": {
       "description": "consent.revocationRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "consentPerEffectCurrent": {
       "description": "consentPerEffectCurrent",
       "valueType": "boolean",
       "unknown": "deny",
-      "recognizedStatuses": ["PENDING_VERIFICATION", "ACTIVE", "REVOKED", "EXPIRED", "SUPERSEDED"],
+      "recognizedStatuses": [
+        "PENDING_VERIFICATION",
+        "ACTIVE",
+        "REVOKED",
+        "EXPIRED",
+        "SUPERSEDED"
+      ],
       "statusSource": ".product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-rights-and-consent/stateDefinitionsByDimension/consent",
       "typedEvaluation": {
         "inputPath": "facts.typedOwnerFacts.consentPerEffectCurrent",
@@ -97,770 +135,1101 @@
           ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
           ".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope"
         ],
-        "requiredJoins": ["tenantId", "principalId", "subjectArtifactVersionRef", "purposeRef", "effectRef", "queryId", "requestFingerprint", "operationRef", "consentId", "consentRef", "consentRevisionRef", "consentRevisionVersion", "decisionAuthorityVersionRef", "readAuthorityRef", "readVersion", "currentness", "observedAt", "grantedAt", "expiresAt", "revokedAt", "validFrom", "validUntil", "externalProcessingRequirement", "biometricProcessingRequirement"],
+        "requiredJoins": [
+          "tenantId",
+          "principalId",
+          "subjectArtifactVersionRef",
+          "purposeRef",
+          "effectRef",
+          "queryId",
+          "requestFingerprint",
+          "operationRef",
+          "consentId",
+          "consentRef",
+          "consentRevisionRef",
+          "consentRevisionVersion",
+          "decisionAuthorityVersionRef",
+          "readAuthorityRef",
+          "readVersion",
+          "currentness",
+          "observedAt",
+          "grantedAt",
+          "expiresAt",
+          "revokedAt",
+          "validFrom",
+          "validUntil",
+          "externalProcessingRequirement",
+          "biometricProcessingRequirement"
+        ],
         "legacyBooleanInputDisposition": "IGNORED; typed observation required",
         "runtimeAdmission": "NOT_ADMITTED"
-      }
+      },
+      "inputKind": "TYPED_OWNER_OBSERVATION",
+      "truthBoundary": "Only the typedEvaluation contract path can establish this fact; runtimeAdmission remains NOT_ADMITTED."
     },
     "consentScopeCurrent": {
       "description": "consentScopeCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "copyInventoryComplete": {
       "description": "copyInventoryComplete",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "currentHeadRecorded": {
       "description": "currentHeadRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "degradationPolicyDeclared": {
       "description": "degradationPolicyDeclared",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "delegationCurrent": {
       "description": "delegationCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "deletionEvidenceRecorded": {
       "description": "deletionEvidenceRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "deliveryIntentAuthorized": {
       "description": "deliveryIntentAuthorized",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "destinationCurrent": {
       "description": "destinationCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "destinationEffectsAccounted": {
       "description": "destinationEffectsAccounted",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "destinationEvidenceRecorded": {
       "description": "destinationEvidenceRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "destinationPolicyPass": {
       "description": "destinationPolicyPass",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "destinationQueryOrReconciliationStarted": {
       "description": "destinationQueryOrReconciliationStarted",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "dispatchIntentDurable": {
       "description": "dispatchIntentDurable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "dispatchMayHaveCrossed": {
       "description": "dispatchMayHaveCrossed",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "erasureIntentDurable": {
       "description": "erasureIntentDurable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "exactOutputVersionCurrent": {
       "description": "exactOutputVersionCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "exactVersionCurrent": {
       "description": "exactVersionCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "expectedVersionConflicts": {
       "description": "expectedVersionConflicts",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "expectedVersionMatches": {
       "description": "expectedVersionMatches",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "expiryPolicyCurrent": {
       "description": "expiryPolicyCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "explicitAbandonOrExpiryRecorded": {
       "description": "explicitAbandonOrExpiryRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "fenceCurrent": {
       "description": "fenceCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "formatDispositionRecorded": {
       "description": "formatDispositionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "holdCheckPass": {
       "description": "holdCheckPass",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "holdReleaseOrBoundaryEvidence": {
       "description": "holdReleaseOrBoundaryEvidence",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "idempotencyIdentityRecorded": {
       "description": "idempotencyIdentityRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "identityCurrent": {
       "description": "identityCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "immutableVersionSelected": {
       "description": "immutableVersionSelected",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "integrityDispositionRecorded": {
       "description": "integrityDispositionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "inviteeAccepted": {
       "description": "inviteeAccepted",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "inviterAuthorized": {
       "description": "inviterAuthorized",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "leaseCurrent": {
       "description": "leaseCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "leaseSequenceCurrent": {
       "description": "leaseSequenceCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "measurementOrAbstentionRecorded": {
       "description": "measurementOrAbstentionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "measurementProtocolVersionBound": {
       "description": "measurementProtocolVersionBound",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "metricApplicabilityDeclared": {
       "description": "metricApplicabilityDeclared",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "newEvidenceOrRevocationOrExpiryRecorded": {
       "description": "newEvidenceOrRevocationOrExpiryRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "newHeadCommitted": {
       "description": "newHeadCommitted",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "newReviewRequestRecorded": {
       "description": "newReviewRequestRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "newWorkFenced": {
       "description": "newWorkFenced",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "noPartialCommit": {
       "description": "noPartialCommit",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outputOrMeasurementProtocolChanged": {
       "description": "outputOrMeasurementProtocolChanged",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "policyChangeOrRevocationOrExpiryRecorded": {
       "description": "policyChangeOrRevocationOrExpiryRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "policyCurrent": {
       "description": "policyCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "policyEventRecorded": {
       "description": "policyEventRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "priorRevisionImmutable": {
       "description": "priorRevisionImmutable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "projectAccessCurrent": {
       "description": "projectAccessCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "projectOwnerAuthorized": {
       "description": "projectOwnerAuthorized",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "projectScopeMatches": {
       "description": "projectScopeMatches",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "providerBindingCurrent": {
       "description": "providerBindingCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "providerObservationRecorded": {
       "description": "providerObservationRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reconciliationAuthorityAvailable": {
       "description": "reconciliationAuthorityAvailable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reconciliationEvidenceDurable": {
       "description": "reconciliationEvidenceDurable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "recoveryBudgetAvailable": {
       "description": "recoveryBudgetAvailable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "referencedArtifactsAvailable": {
       "description": "referencedArtifactsAvailable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "requestValid": {
       "description": "requestValid",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "retentionPass": {
       "description": "retentionPass",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "retryBudgetAvailable": {
       "description": "retryBudgetAvailable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reviewOrErasureDecisionRecorded": {
       "description": "reviewOrErasureDecisionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reviewPurposeCurrent": {
       "description": "reviewPurposeCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reviewPurposeSelected": {
       "description": "reviewPurposeSelected",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reviewerAuthorized": {
       "description": "reviewerAuthorized",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "reviewerDelegationCurrent": {
       "description": "reviewerDelegationCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "revisionCreatesNewVersion": {
       "description": "revisionCreatesNewVersion",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "revocationDurable": {
       "description": "revocationDurable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "revocationOrExpiryDurable": {
       "description": "revocationOrExpiryDurable",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "rights.expiryRecorded": {
       "description": "rights.expiryRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "rights.newEvidenceRecorded": {
       "description": "rights.newEvidenceRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "rights.policyChangeRecorded": {
       "description": "rights.policyChangeRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "rights.revocationRecorded": {
       "description": "rights.revocationRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "rightsDispositionRecorded": {
       "description": "rightsDispositionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "safeDecisionRecorded": {
       "description": "safeDecisionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "scopeBoundEvidenceProduced": {
       "description": "scopeBoundEvidenceProduced",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "securityDispositionRecorded": {
       "description": "securityDispositionRecorded",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "sessionGrantCurrent": {
       "description": "sessionGrantCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "stableSubmissionIdentity": {
       "description": "stableSubmissionIdentity",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "tenant.matches": {
       "description": "tenant.matches",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "tenantProjectScopeMatches": {
       "description": "tenantProjectScopeMatches",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "tombstoneCheckPass": {
       "description": "tombstoneCheckPass",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "trustedConsentAuthority": {
       "description": "trustedConsentAuthority",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "uploadBoundsValid": {
       "description": "uploadBoundsValid",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "userAssertionRecordedUnverified": {
       "description": "userAssertionRecordedUnverified",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "validationPass": {
       "description": "validationPass",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "versionCurrent": {
       "description": "versionCurrent",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "versionValidityOrExpiryOrWithdrawalEvidence": {
       "description": "versionValidityOrExpiryOrWithdrawalEvidence",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "hold.active": {
       "description": "A current hold applies to this exact governed object and scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "hold.absent": {
       "description": "A current hold lookup establishes no applicable hold for this exact governed object and scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "hold.unknown": {
       "description": "Hold applicability cannot be established for this exact object/scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.running.supported": {
       "description": "A current fenced attempt is observed executing an admitted stage.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.cancelled.supported": {
       "description": "Authoritative no-dispatch or fenced-effects finality confirms cancellation.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.failed.supported": {
       "description": "Failure truth is durably classified and no eligible continuation remains.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.retry.pending.supported": {
       "description": "The prior attempt is classified retryable and bounded retry authority remains.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.outcome.unknown.supported": {
       "description": "An external effect may have occurred and its result is still unknown.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.reconciling.supported": {
       "description": "An authoritative provider, store, or owner reconciliation has actually started.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.completed.supported": {
       "description": "The exact output set is validated, registered, and durably committed under the result contract.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.partially.succeeded.supported": {
       "description": "Every declared sub-effect has a closed disposition and no consequential effect remains unknown.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.dispatch.intent.recorded.supported": {
       "description": "Durable dispatch intent and idempotency identity are recorded before dispatch.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.cancel.confirmed.supported": {
       "description": "Authoritative no-dispatch or termination evidence closes all relevant effects.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.failed.supported": {
       "description": "Failure truth is durably classified and no eligible continuation remains.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.superseded.supported": {
       "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.dispatched.supported": {
       "description": "The external request may have crossed the boundary under the current durable intent.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.outcome.unknown.supported": {
       "description": "An external effect may have occurred and its result is still unknown.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.running.supported": {
       "description": "A current fenced attempt is observed executing an admitted stage.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.cancel.requested.supported": {
       "description": "An authorized stop intent is recorded; cancellation finality is not claimed.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.attempt.succeeded.supported": {
       "description": "The provider reported success; result validation and registration remain separate.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.upload.and.artifact.verifying.supported": {
       "description": "Transfer bounds pass and exact uploaded bytes enter integrity verification.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.upload.and.artifact.rejected.supported": {
       "description": "The assigned reviewer or rights authority records a scoped rejection decision.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.upload.and.artifact.expired.supported": {
       "description": "The invitation or review validity window has expired under its declared policy.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.upload.and.artifact.available.supported": {
       "description": "All required integrity, format, rights, security, and durable-registration checks pass.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.upload.and.artifact.quarantined.supported": {
       "description": "A failed, conflicting, or inconclusive admission check blocks use pending review.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.upload.and.artifact.erasure.requested.supported": {
       "description": "An authorized erasure intent is durably recorded for the exact governed object.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.stream.session.connected.supported": {
       "description": "Current session grant, provider binding, lease sequence, and consent scope authorize active effects.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.stream.session.draining.supported": {
       "description": "New work is fenced while active effects reach confirmed closure or recorded uncertainty.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.stream.session.failed.supported": {
       "description": "Failure truth is durably classified and no eligible continuation remains.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.stream.session.degraded.supported": {
       "description": "The session remains within a declared degradation and recovery budget with current per-effect authority.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.stream.session.closed.supported": {
       "description": "No active work remains, and every possibly consequential effect is confirmed or recorded unknown.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.requested.supported": {
       "description": "An exact immutable version and review purpose are bound in a durable review request.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.withdrawn.supported": {
       "description": "An authorized withdrawal for this exact review/version is durably recorded.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.expired.supported": {
       "description": "The invitation or review validity window has expired under its declared policy.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.in.review.supported": {
       "description": "A delegated reviewer is current for the exact immutable version and purpose.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.superseded.supported": {
       "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.changes.requested.supported": {
       "description": "The authorized reviewer records scoped requested changes for the exact review target.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.approved.supported": {
       "description": "An authorized reviewer approves the exact version and stated purpose with current evidence.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.review.rejected.supported": {
       "description": "The assigned reviewer or rights authority records a scoped rejection decision.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.preparing.supported": {
       "description": "An authorized delivery intent and exact destination are selected; submission has not occurred.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.revoked.supported": {
       "description": "An authorized revocation is durably recorded for the exact consent/rights scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.ready.for.authorized.delivery.supported": {
       "description": "Exact output identity, destination policy, current approval, and rights all pass before submission.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.failed.supported": {
       "description": "Failure truth is durably classified and no eligible continuation remains.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.submitted.supported": {
       "description": "Durable approval and idempotency identity precede an authorized external submission.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.acknowledged.supported": {
       "description": "Destination evidence acknowledges the exact submitted output and destination.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.partially.delivered.supported": {
       "description": "Some destination effects are acknowledged and all remaining effects have explicit dispositions.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.outcome.unknown.supported": {
       "description": "An external effect may have occurred and its result is still unknown.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.delivery.reconciling.supported": {
       "description": "An authoritative provider, store, or owner reconciliation has actually started.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.quality.disposition.assessing.supported": {
       "description": "Applicable measurements are being produced for the exact output under the declared protocol.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.quality.disposition.review.required.supported": {
       "description": "Evidence or qualified capability is insufficient for an automated pass/fail decision.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.quality.disposition.pass.supported": {
       "description": "Recorded measurements satisfy the applicable declared acceptance criteria.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.quality.disposition.fail.supported": {
       "description": "Recorded measurements fail the applicable declared acceptance criteria.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.quality.disposition.abstained.supported": {
       "description": "Assessment abstains with a recorded reason tied to missing or inapplicable evidence.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.quality.disposition.superseded.supported": {
       "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.project.membership.revoked.supported": {
       "description": "An authorized revocation is durably recorded for the exact consent/rights scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.project.membership.expired.supported": {
       "description": "The invitation or review validity window has expired under its declared policy.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.project.membership.suspended.supported": {
       "description": "Current project authority applies a scoped suspension and affected work is reconciled.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.under.review.supported": {
       "description": "A current review owner and evidence request are assigned; no positive rights decision is implied.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.restricted.supported": {
       "description": "A current policy, review, or rights decision limits use and records the applicable scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.rejected.supported": {
       "description": "The assigned reviewer or rights authority records a scoped rejection decision.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.verified.for.declared.scope.supported": {
       "description": "A qualified authority supplies evidence for the exact declared rights scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.revoked.supported": {
       "description": "An authorized revocation is durably recorded for the exact consent/rights scope.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.expired.supported": {
       "description": "The invitation or review validity window has expired under its declared policy.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.active.supported": {
       "description": "Current project authority, retention, tombstone, and referenced-artifact checks allow restore/reactivation.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.rights.and.consent.superseded.supported": {
       "description": "A newer fence, revision, or exact version is authoritative and no stale effect remains actionable.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "erasure.externalCopyUnconfirmed": {
       "description": "A governed copy is outside known control or lacks current deletion evidence.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "erasure.allControlledCopiesConfirmed": {
       "description": "Every controlled copy has current deletion evidence or the exact accepted control boundary.",
       "valueType": "boolean",
-      "unknown": "deny"
+      "unknown": "deny",
+      "inputKind": "DEFINITION_MODEL_INPUT",
+      "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     }
   },
   "records": [
@@ -5134,5 +5503,9 @@
       ],
       "rule": "at-most-one-positive-outcome-fact"
     }
-  ]
+  ],
+  "factInputKinds": {
+    "DEFINITION_MODEL_INPUT": "synthetic Boolean supplied only to exercise the pure definition oracle; it is not a runtime observation and cannot establish production truth",
+    "TYPED_OWNER_OBSERVATION": "derived by the evaluator from exact closed owner observation contracts; caller-supplied Boolean is ignored"
+  }
 }

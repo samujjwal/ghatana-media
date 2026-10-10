@@ -9,11 +9,11 @@ status:
 dependencies:
   p0-001: accepted-boundary-slice
   p0-002: goals-and-actors-proposed-not-accepted
-  p0-003: pending-capability-denominator
+  p0-003: current-462-capability-intent-and-applicability-denominator-resolved
   p0-005: pending-state-finality-and-recovery-models
-  p0-006: pending-authority-rights-and-privacy-model
-  p0-007: pending-quality-profile-and-fallback-policy
-  p0-008: pending-owner-approved-handoff-bindings
+  p0-006: owner-defined-policy-meaning-authored; independent-review-is-separate
+  p0-007: owner-defined-profile-and-quality-applicability-authored; qualification-is-separate
+  p0-008: exact-operation-and-public-contract-bindings-are-downstream-and-non-gating-for-pdp-0
   nonfunctionalRequirements:
     status: authored-proposal-pending-p0-010-integration-and-independent-acceptance
     artifact: nonfunctional-requirements.yaml
@@ -33,18 +33,31 @@ sourceReferences:
 
 capabilityApplicabilityDecision:
   decisionRef: MEDIA-OWNER-2026-10-07/P0-D01
-  rule: Assign a permitted applicability disposition only where exact source evidence supports it. A human journey is required only for a human task; do not infer machine-operation interfaces from operation names or proposal channel aliases.
-  coverageRegister: capability-leaf-review.yaml#/leaves (coverageDecision per leaf)
+  authority: current-PDP-0-owner-capability-meaning
+  rule: Assign each stable capabilityIntentId to its P0 meaning class using the exact capability outcome, actor, semantic input/output, constraints, and owner adjudication. A human journey is required only for a human task; machine capability meaning and channel applicability do not require a future PDP-1 operation identity.
+  coverageRegister: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records
+  currentApplicabilitySource: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records
   observedLeafCount: 462
   dispositions:
-    JOURNEY_STEP: 77
-    MACHINE_OPERATION: 0
-    PLATFORM_DEPENDENCY: 2
-    SUPPORTING_READ_MODEL: 0
-    EXCLUDED_BY_PRODUCT_POLICY: 0
-    UNRESOLVED: 383
-  status: partial; 79 applicability dispositions are evidence-backed, 383 lack exact per-operation interface evidence, and PDP-0 remains open
-  evidence: The 77 JOURNEY_STEP leaves have direct journeyRefs. Two scene-text leaves have the MDI-001 public-contract dependency. The other 383 have per-leaf outcome refs but only proposed channel aliases, which do not establish an operation-specific interface binding or support claim.
+    JOURNEY_STEP_CAPABILITY: 77
+    MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY: 383
+    PLATFORM_DEPENDENCY_CAPABILITY: 2
+  status: OWNER_DEFINED_CURRENT_COMPLETE_DEFINITION_ONLY; independent acceptance, implementation, qualification, and runtime admission remain separate
+  evidence: All 462 stable capabilityIntentIds have exact owner adjudications with P0 actor, outcome, semantic input/output, constraints, and channel applicability. The 383 machine capabilities are classified from those P0 meanings; exact operation, request/result, transition, and transport bindings are downstream PDP-1 work.
+  historicalOperationEvidenceAudit:
+    authority: historical-review-evidence-only
+    gatingForPdp0: false
+    sourceRef: capability-leaf-review.yaml#/leaves (legacy coverageDecision per leaf)
+    observedLeafCount: 462
+    dispositions:
+      JOURNEY_STEP: 77
+      MACHINE_OPERATION: 0
+      PLATFORM_DEPENDENCY: 2
+      SUPPORTING_READ_MODEL: 0
+      EXCLUDED_BY_PRODUCT_POLICY: 0
+      UNRESOLVED: 383
+    status: HISTORICAL_SOURCE_CUT; 383 lacked exact per-operation interface evidence in that earlier operation-mapping review
+    interpretation: This retained operation-evidence count is not a current P0 capability-meaning or channel-applicability blocker.
 
 journeyRecordRequirements:
   phase0CatalogIncludes:
@@ -60,9 +73,10 @@ journeyRecordRequirements:
   - responsive variants, exact copy, accessibility/localization contracts, and executable fixtures
   currentness: >-
     Entries below are planning references from the reviewed master plan and
-    proposed Goal/Actor records. P0-003 and P0-007 must be reconciled before
-    Phase-0 acceptance; this list is not a proof that every leaf operation is
-    covered or available.
+    proposed Goal/Actor records. Current P0 capability intent and channel
+    applicability are resolved by the exact owner adjudications above. This
+    list is not a proof that every downstream PDP-1 operation is mapped,
+    available, or admitted.
 
 accessibilityDisposition:
   id: media.a11y.baseline
@@ -262,7 +276,7 @@ journeys:
   actors: [media.creator, media.editor, media.reviewer]
   proposedChannels: [media.channel.web]
   viewRefs: [M-VIDEO, M-ENHANCE, M-COMPARE, M-QUALITY]
-  preconditions: Repair operation, input envelope, and budget are admitted by P0-003/P0-007.
+  preconditions: The exact P0 repair capability, input envelope, profile constraints, and finite budget are defined; runtime operation admission remains a downstream check.
   completion: Eligible stabilized/upscaled/repaired output is compared under applicable metrics with limitations visible.
   criticalNonhappy: Insufficient recoverable detail, failed metric, temporal artifacts, or exhausted budget.
   recovery: Stop bounded work, keep completed safe outputs and source, and report metric abstention/failure.
@@ -484,6 +498,7 @@ journeys:
   contextAndReturn: Retain comments bound to artifact version and time/region and return to the project/output.
   accessibility: media.a11y.baseline
   intentRefs:
+  - media.intent.review-exact-version
   - media.intent.review-rights-and-consent
   - media.intent.inspect-provenance
 - id: J-22

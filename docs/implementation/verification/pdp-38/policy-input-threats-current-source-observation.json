@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "media.pdp38-current-source-observation.v1",
+  "scope": "Exact current owner target observation for the existing MPSEM-0039-C003 claim after additive source changes. Historical claim pins remain unchanged; this observation records target bytes only and asserts no acceptance or semantic promotion.",
+  "decisionRef": "PROPOSED: .product-experience/decision-log.md#PXD-126",
+  "records": [
+    {
+      "claimId": "MPSEM-0039-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/inputAndExecutionThreats",
+      "sourceFileSha256": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+      "historicalTargetValueSha256": "f472d1538117d7a15c0c38b188af6096da3bc01a26eca9f48ccb3fd37bbbbe74",
+      "currentTargetValueSha256": "9577c1470a98d5f3e3c920eba7f835a522af97f8639f43e8b542850822c0160f",
+      "addedPaths": [
+        "#/productPolicy/inputAndExecutionThreats/archiveExtractionDestinationRule",
+        "#/productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary"
+      ],
+      "historicalProjectionSha256": "f472d1538117d7a15c0c38b188af6096da3bc01a26eca9f48ccb3fd37bbbbe74",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-capability-reviewed.json#/records/@claimId=MPSEM-0039-C003",
+      "priorCurrentObservationRef": "docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json#/records/@claimId=MPSEM-0388-C005",
+      "observation": "The exact current target includes the previously pinned untrusted-input controls plus the additive archiveExtractionDestinationRule and browserToLocalWorkerBoundary. Removing those two exact paths reproduces the immutable historical target projection. This records source state and does not revise the reviewed claim, promote parity, or imply enforcement, qualification, runtime admission, or phase acceptance.",
+      "semanticPromotion": false,
+      "acceptanceEffect": "none"
+    }
+  ]
+}

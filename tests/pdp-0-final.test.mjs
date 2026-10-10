@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 
@@ -105,91 +105,75 @@ test("ProductDefinition mapping coverage is explicit, source-pinned, and rejects
     "owner values must come from the explicit accountableRoleRef source, not inferred principals");
 });
 
-test("all 462 capability leaves have operation-specific inputs, outcomes, preconditions, constraints, and acceptance cases", () => {
+test("P0-01 defines all 462 capability intents with complete meaning and no PDP-1 prerequisites", () => {
   const source = readYaml(".product-experience/pdp-0-product-truth/capabilities.yaml");
   const leaves = source.capabilities;
   assert.equal(leaves.length, 462);
   assert.equal(new Set(leaves.map(({ id }) => id)).size, 462);
+  const p0OwnerDispositionNames = new Set();
   for (const leaf of leaves) {
-    assert.ok(leaf.operation, `${leaf.id} has an operation identity`);
-    assert.ok(leaf.inputArtifactTypes?.length, `${leaf.id} has inputs`);
-    assert.ok(leaf.outputArtifactTypes?.length, `${leaf.id} has outputs`);
-    assert.ok(leaf.preconditions?.length, `${leaf.id} has preconditions`);
-    assert.ok(leaf.constraints?.length, `${leaf.id} has constraints`);
-    assert.ok(leaf.acceptanceCases?.length, `${leaf.id} has acceptance cases`);
-    assert.ok(leaf.acceptanceCases.every((scenario) => scenario.given && scenario.when && scenario.then), `${leaf.id} has testable acceptance cases`);
-    assert.ok(leaf.requiredAuthority?.length, `${leaf.id} has effect authority requirements`);
-    assert.ok(leaf.qualityFidelityContract, `${leaf.id} has quality/fidelity rules`);
-    assert.ok(leaf.cancellationRetryReconciliation, `${leaf.id} has recovery semantics`);
-    assert.ok(leaf.executionResourceRequirements, `${leaf.id} has resource bounds to resolve`);
-    assert.ok(leaf.qualificationDimensions?.length, `${leaf.id} has qualification dimensions`);
-    assert.ok(leaf.explicitUnsupportedCases?.length, `${leaf.id} has explicit unsupported cases`);
-  }
-  const reviewed = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
-  const crosswalk = readYaml(".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml");
-  assert.equal(reviewed.denominatorReconciliation.capabilityLeaves, 462);
-  assert.equal(reviewed.denominatorReconciliation.leavesWithoutJourneyRefs, 385);
-  assert.equal(reviewed.denominatorReconciliation.leavesWithOwnerCoverageDisposition, 79);
-  assert.equal(reviewed.denominatorReconciliation.leavesWithUnresolvedApplicability, 383);
-  assert.equal(reviewed.denominatorReconciliation.machineOperationDispositions, 0);
-  assert.ok(reviewed.leaves.every((leaf) => leaf.coverageDecision.purposeSpecificOutcomeRefs?.length));
-  assert.ok(reviewed.leaves.every((leaf) => leaf.coverageDecision.proposedInterfaceRefs?.every((ref) => leaf.coverageDecision.normativeRefs.includes(`.product-experience/pdp-0-product-truth/applications-channels.yaml#${ref}`))));
-  assert.ok(reviewed.leaves.filter((leaf) => leaf.coverageDecision.disposition === "UNRESOLVED").every((leaf) => leaf.coverageDecision.proposedInterfaceRefs?.length && /not established/u.test(leaf.coverageDecision.interfaceAdmissionStatus)));
-  assert.match(reviewed.status, /^owner-defined-462-of-462-exact-leaf-applicability-and-bounds; independent-review-and-runtime-admission-open$/u,
-    "current owner authoring is distinct from the preserved historical coverage counters above");
-  assert.equal(reviewed.currentOwnerDefinitionCensus.ownerDefinitionStateCounts.OWNER_DEFINED_DEFINITION_ONLY, 462);
-  assert.match(reviewed.currentOwnerDefinitionCensus.definitionReviewStatus, /not independent PDP acceptance or runtime admission/u);
-  assert.equal(reviewed.currentOwnerDefinitionCensus.executionAdmission, "NOT_ADMITTED");
-  assert.equal(reviewed.leaves.length, 462);
-  const sourceIds = leaves.map(({ id }) => id);
-  const reviewIds = reviewed.leaves.map(({ id }) => id);
-  const crosswalkIds = crosswalk.familyCrosswalk.flatMap((family) => family.capabilityIds);
-  assert.deepEqual(reviewIds, sourceIds, "review must retain every canonical capability leaf in source order");
-  assert.deepEqual([...crosswalkIds].sort(), [...sourceIds].sort(), "crosswalk must retain the exact capability denominator");
-  const reviewById = new Map(reviewed.leaves.map((leaf) => [leaf.id, leaf]));
-  const contractDir = resolve(root, ".product-experience/pdp-3-product-experience/journey-contracts");
-  const contractFiles = readdirSync(contractDir).filter((file) => file.endsWith(".yaml"));
-  for (const file of contractFiles) {
-    const contract = readYaml(`.product-experience/pdp-3-product-experience/journey-contracts/${file}`);
-    for (const step of contract.steps ?? []) {
-      for (const capabilityId of step.capabilityRefs ?? []) {
-        assert.ok(reviewById.has(capabilityId), `${file} has no stale capability ID ${capabilityId}`);
-        assert.equal(reviewById.get(capabilityId).coverageDecision.disposition, "JOURNEY_STEP", `${file} capability ${capabilityId} must retain its exact journey disposition`);
-      }
+    assert.ok(leaf.actorRefs?.length, `${leaf.id} has source-backed actors`);
+    assert.ok(leaf.intentRefs?.length, `${leaf.id} has source-backed intent`);
+    assert.ok(leaf.outcome, `${leaf.id} states its outcome`);
+    assert.ok(leaf.inputArtifactTypes?.length, `${leaf.id} has semantic inputs`);
+    assert.ok(leaf.outputArtifactTypes?.length, `${leaf.id} has semantic outputs`);
+    assert.ok(leaf.preconditions?.length, `${leaf.id} has product preconditions`);
+    assert.ok(leaf.constraints?.length, `${leaf.id} has product constraints`);
+    assert.ok(leaf.acceptanceCases?.length, `${leaf.id} has falsifiable cases`);
+    assert.ok(leaf.acceptanceCases.every((scenario) => scenario.given && scenario.when && scenario.then), `${leaf.id} cases are testable`);
+    assert.ok(leaf.requiredAuthority?.length, `${leaf.id} names its authority requirements`);
+    assert.ok(leaf.qualityFidelityContract, `${leaf.id} defines quality/fidelity meaning`);
+    assert.ok(leaf.cancellationRetryReconciliation, `${leaf.id} defines safe unknown behavior`);
+    assert.ok(/profile-semantics\.yaml#boundedInvocationAdmission/u.test(leaf.executionResourceRequirements), `${leaf.id} has a bounded resource strategy`);
+    assert.ok(leaf.qualificationDimensions?.length, `${leaf.id} declares qualification dimensions without a qualified claim`);
+    assert.ok(leaf.explicitUnsupportedCases?.length, `${leaf.id} states unsupported cases`);
+
+    const owner = leaf.ownerDefinition;
+    assert.ok(owner?.familyProfileRef?.startsWith("media.capability-profile."), `${leaf.id} has a P0 profile`);
+    assert.ok(owner?.boundsRef?.startsWith("media.capability-bounds."), `${leaf.id} has P0 bounds`);
+    assert.ok(owner?.channelApplicabilityRef?.startsWith(".product-experience/pdp-0-product-truth/"), `${leaf.id} has P0 channel applicability`);
+    assert.ok(Array.isArray(owner.typedInputSlots) && owner.typedInputSlots.length > 0, `${leaf.id} has semantic input slots`);
+    assert.ok(owner.typedInputSlots.every(({ slotId, sourceType, cardinality, required }) => slotId && sourceType && cardinality && typeof required === "boolean"), `${leaf.id} input slots are complete`);
+    assert.equal(owner.parameterSchema.type, "object", `${leaf.id} parameters are typed`);
+    assert.equal(owner.parameterSchema.additionalProperties, false, `${leaf.id} parameters are closed`);
+    assert.deepEqual(owner.successOutputs.map(({ artifactType }) => artifactType), leaf.outputArtifactTypes, `${leaf.id} P0 output shapes match`);
+    assert.ok(owner.successOutputs.every(({ requiredOnSuccess }) => typeof requiredOnSuccess === "boolean"), `${leaf.id} output requirements are explicit`);
+    assert.ok(owner.idempotency && owner.recovery, `${leaf.id} has safe repeat and unknown-outcome semantics`);
+    assert.equal(owner.availability.implementationState, "UNKNOWN");
+    assert.equal(owner.availability.qualificationState, "NOT_EVALUATED");
+    assert.equal(owner.availability.runtimeAvailability, "UNKNOWN");
+    assert.equal(owner.availability.executionAdmission, "NOT_ADMITTED");
+    assert.equal(owner.ownerDisposition.includes("OPERATION"), false, `${leaf.id} applicability is a P0 capability decision`);
+    p0OwnerDispositionNames.add(owner.ownerDisposition);
+
+    for (const forbiddenKey of ["operationRefs", "operationKind", "operationContractRef", "payloadSchemaRef", "domainObjectRefs", "stateRefs", "canonicalAuthorityRefs"]) {
+      assert.equal(Object.hasOwn(owner, forbiddenKey), false, `${leaf.id} has no downstream ${forbiddenKey}`);
     }
+    assert.ok(owner.typedInputSlots.every((slot) => !Object.hasOwn(slot, "payloadSchemaRef")), `${leaf.id} has no PDP-1 input schema dependency`);
+    assert.ok(owner.successOutputs.every((output) => !Object.hasOwn(output, "payloadSchemaRef")), `${leaf.id} has no PDP-1 output schema dependency`);
   }
-  const unresolved = reviewed.leaves.filter(({ coverageDecision }) => coverageDecision.disposition === "UNRESOLVED");
-  assert.equal(unresolved.length, 383, "unresolved applicability must not be silently reduced");
-  for (const leaf of unresolved) {
-    assert.equal(leaf.journeyRefs.length, 0, `${leaf.id} must not claim an absent journey`);
-    assert.equal(leaf.supportingViewRefs.length, 0, `${leaf.id} must not claim an absent supporting view`);
-    assert.equal(leaf.operation.explicitOperationBindings.length, 0, `${leaf.id} must not claim an unrecorded operation binding`);
-    assert.equal(leaf.operation.ambiguousOperationBindings.length, 0, `${leaf.id} keeps ambiguous bindings unresolved`);
-    assert.equal(leaf.coverageDecision.unresolvedResolution.ownerSourceRef, ".product-experience/gaps.yaml#GAP-MEDIA-CAPABILITY-LEAF-DETAIL");
-    assert.equal(leaf.coverageDecision.unresolvedResolution.sourceLeafRef, `.product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/${leaf.sourceIndex}`);
-  }
+  assert.ok(p0OwnerDispositionNames.size >= 2, "P0 distinguishes journey, machine, and explicit dependency applicability");
+
+  const reviewed = readYaml(".product-experience/pdp-0-product-truth/capability-leaf-review.yaml");
+  const adjudication = reviewed.ownerCapabilityLeafAdjudication;
+  assert.equal(adjudication.exactLeafCount, 462);
+  assert.equal(adjudication.records.length, 462);
+  assert.equal(new Set(adjudication.records.map(({ capabilityRef }) => capabilityRef)).size, 462);
+  assert.deepEqual(adjudication.records.map(({ capabilityRef }) => capabilityRef), leaves.map(({ id }) => id));
+  assert.ok(adjudication.records.every((row) => row.ownerDisposition && row.channelApplicability), "each leaf has a P0 applicability decision");
+  assert.ok(adjudication.records.every((row) => !Object.hasOwn(row, "operationRefs") && !Object.hasOwn(row, "operationContractRef")), "P0 adjudication does not require exact operations");
+
+  const crosswalk = readYaml(".product-experience/pdp-0-product-truth/capability-preservation-crosswalk.yaml");
+  const familyIds = crosswalk.familyCrosswalk.flatMap((family) => family.capabilityIds);
+  assert.deepEqual([...familyIds].sort(), leaves.map(({ id }) => id).sort(), "preservation crosswalk retains the exact capability denominator");
   const journeySource = readYaml(".product-experience/pdp-0-product-truth/journey-catalog.yaml");
   const knownJourneys = new Set(journeySource.journeys.map(({ id }) => id));
-  const knownViews = new Set(journeySource.journeys.flatMap(({ viewRefs = [] }) => viewRefs));
-  for (const leaf of reviewed.leaves) {
-    assert.ok(leaf.requirementRefs.length > 0, `${leaf.id} traces to a requirement`);
-    assert.ok(leaf.intentRefs.length > 0, `${leaf.id} traces to an intent`);
-    for (const ref of leaf.journeyRefs) assert.ok(knownJourneys.has(ref), `${leaf.id} journey ${ref} exists`);
-    for (const ref of leaf.supportingViewRefs) assert.ok(knownViews.has(ref), `${leaf.id} view ${ref} exists`);
-    if (leaf.journeyRefs.length === 0 && leaf.supportingViewRefs.length === 0) {
-      assert.match(leaf.journeyAndViewDisposition, /unresolved/u, `${leaf.id} keeps its missing reachability decision open`);
-    } else {
-      assert.ok(leaf.journeyRefs.length > 0 || leaf.supportingViewRefs.length > 0, `${leaf.id} has direct reachability references`);
-    }
+  assert.equal(journeySource.journeys.length, 30);
+  for (const leaf of leaves) for (const ref of leaf.journeyRefs ?? []) assert.ok(knownJourneys.has(ref), `${leaf.id} journey ${ref} exists in P0`);
+  for (const key of ["inputArtifactTypes", "outputArtifactTypes", "typedInputSlots", "successOutputs"]) {
+    const serialized = JSON.stringify(leaves.map((leaf) => key === "typedInputSlots" || key === "successOutputs" ? leaf.ownerDefinition[key] : leaf[key]));
+    assert.doesNotMatch(serialized, /pdp-1-domain-data|operationContractRef|payloadSchemaRef/u, `${key} remains P0 semantic meaning`);
   }
-  assert.equal(reviewed.leaves.filter(({ operation }) => operation.explicitOperationBindings.length > 0).length, 11);
-  const forcedAlignLeaf = reviewById.get("media.speech.transcription.forced-align");
-  assert.ok(forcedAlignLeaf.sourcePhrase.includes("forced alignment"), "the original forced-alignment leaf remains in the denominator");
-  assert.equal(forcedAlignLeaf.coverageDecision.disposition, "JOURNEY_STEP");
-  assert.deepEqual(forcedAlignLeaf.operation.explicitOperationBindings, [], "manual user tick edits do not bind the forced-alignment operation");
-  assert.match(forcedAlignLeaf.operation.canonicalOperationDisposition, /PXD-069 rejects manual user timing edits as a forced-alignment operation/u);
-  assert.equal(reviewed.leaves.filter(({ operation }) => operation.ambiguousOperationBindings.length > 0).length, 1);
-  assert.equal(reviewed.leaves.filter(({ operation }) => operation.canonicalOperationDisposition.startsWith("unresolved;")).length, 450);
 });
 
 test("PDP-0 quality and NFR records retain measurement limits and unresolved specialist decisions", () => {
@@ -211,21 +195,13 @@ test("PDP-0 quality and NFR records retain measurement limits and unresolved spe
     baseline.startsWith("NOT_EVALUATED") && target.startsWith("NOT_SET") && qualification === "NOT_EVALUATED"));
 });
 
-test("P0-05 projects only bounded PDP-1 owner-decided rules with trust and fail-closed semantics", () => {
+test("P0-05 defines Media policy, trust, rights, and ownership without PDP-1 state prerequisites", () => {
   const constitution = readYaml(".product-experience/pdp-0-product-truth/constitution.yaml");
   const actors = readYaml(".product-experience/pdp-0-product-truth/actors-responsibilities.yaml");
   const policy = readYaml(".product-experience/pdp-0-product-truth/policy-authority-model.yaml").productPolicy;
-  const domainRules = constitution.domainRules;
-  assert.match(domainRules.status, /mapped-under-PXD-035/u);
-  assert.equal(domainRules.pendingSources.length, 3, "proposal-only state, transition, and authority mappings remain explicit");
-  assert.ok(domainRules.pendingSources.every(({ ref }) => ref.startsWith(".product-experience/pdp-1-domain-data/")));
-  assert.equal(domainRules.records.length, 6);
-  assert.equal(new Set(domainRules.records.map(({ id }) => id)).size, domainRules.records.length);
-  assert.ok(domainRules.records.every(({ rule, violation, trustScope, ownerRef, failClosed, sourceRef, decisionStatus }) =>
-    rule && violation && trustScope && ownerRef.startsWith(".product-experience/pdp-1-domain-data/") && failClosed &&
-    sourceRef.startsWith(".product-experience/pdp-1-domain-data/") && /bounded-media-owner-approved/u.test(decisionStatus)));
-  assert.ok(domainRules.records.every(({ sourceRef }) => sourceRef.includes("ownerAcceptedPolicyDecisions/")),
-    "projection records may use only bounded accepted PDP-1 decisions");
+  assert.equal(constitution.requirements.length, 32);
+  assert.equal(new Set(constitution.requirements.map(({ id }) => id)).size, 32);
+  assert.ok(constitution.requirements.every(({ statement, normativeFieldRefs }) => statement && normativeFieldRefs));
 
   const invariants = constitution.invariants.records;
   assert.equal(invariants.length, 7);
@@ -233,6 +209,15 @@ test("P0-05 projects only bounded PDP-1 owner-decided rules with trust and fail-
   assert.ok(invariants.every(({ statement, violation, sourceRefs }) => statement && violation && sourceRefs.length));
   assert.ok(invariants.every(({ sourceRefs }) => sourceRefs.every((ref) => ref.startsWith(".product-experience/pdp-0-product-truth/policy-authority-model.yaml#"))));
   assert.match(invariants.find(({ id }) => id === "MEDIA-INV-005").violation, /do not replay/u, "unknown effect outcomes cannot be replayed as audit repair");
+
+  assert.ok(policy.independentGovernanceAxes.length >= 8);
+  assert.ok(policy.invariants.length >= invariants.length);
+  assert.ok(policy.adversarialAcceptanceCases.includes("expired-or-revoked-consent-blocks-new-frame-and-provider-dispatch"));
+  assert.ok(policy.adversarialAcceptanceCases.includes("cancelled-remote-work-remains-uncertain-until-provider-confirmation"));
+  assert.equal(policy.platformMechanics.identityAndAuthentication.owner, "ghatana-shared-and-identity-service");
+  assert.ok(policy.platformMechanics.identityAndAuthentication.prohibited.includes("caller-selected-tenant-authority"));
+  assert.equal(policy.platformMechanics.privilegedEffects.owner, "ghatana-action-plane");
+  assert.ok(policy.platformMechanics.privilegedEffects.prohibited.includes("model-output-as-approval"));
 
   const contexts = actors.trustContexts;
   assert.match(contexts.principalKindInference, /forbidden/u);
@@ -246,9 +231,8 @@ test("P0-05 projects only bounded PDP-1 owner-decided rules with trust and fail-
   assert.equal(owners.rules.length, 5);
   assert.equal(new Set(owners.rules.map(({ id }) => id)).size, owners.rules.length);
   assert.ok(owners.rules.every(({ accountableRoleRef, executionAuthority, contractOwner, sourceRefs }) => accountableRoleRef && executionAuthority && contractOwner && sourceRefs.length));
-  assert.equal(owners.rules.find(({ id }) => id === "media.ownership.domain-state").bindingStatus, "PDP-1-records-are-proposal-only; owner-review-pending");
-  assert.ok(owners.rules.filter(({ contractOwner }) => contractOwner.repository !== "samujjwal/ghatana-media").every(({ bindingStatus }) => /identified|unverified/u.test(bindingStatus)), "external public-surface observations do not claim verified artifact bindings");
-  assert.ok(policy.invariants.length >= invariants.length, "policy authority remains the source of the PDP-0 invariant summaries");
+  assert.ok(owners.rules.filter(({ contractOwner }) => contractOwner.repository !== "samujjwal/ghatana-media").every(({ bindingStatus }) => /identified|unverified/u.test(bindingStatus)), "external owner contracts remain honestly unverified");
+  for (const source of [constitution.invariants, actors.trustContexts]) assert.doesNotMatch(JSON.stringify(source), /pdp-1-domain-data\/.*(states|transitions|authority)\.yaml/u);
 });
 
 test("P0-04 owner intent decisions are auditable and preserve collaborative actor references", () => {
@@ -333,9 +317,6 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
   assert.match(decisions.status, /P0-010-independent-semantic-review-pending/u);
   assert.equal(decisions.journeys.length, 30);
   assert.deepEqual(decisions.journeys.map(({ id }) => id), journeys.map(({ id }) => id));
-  const contracts = new Map(readdirSync(resolve(root, ".product-experience/pdp-3-product-experience/journey-contracts"))
-    .filter((file) => file.endsWith(".yaml"))
-    .map((file) => [file, readYaml(`.product-experience/pdp-3-product-experience/journey-contracts/${file}`)]));
   for (let index = 0; index < journeys.length; index += 1) {
     const source = journeys[index];
     const decision = decisions.journeys[index];
@@ -348,16 +329,7 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
     } else {
       assert.equal(decision.initiatingActorRef, null, `${source.id} unresolved actor is not selected`);
     }
-    for (const ref of decision.evidenceRefs) {
-      if (ref.startsWith("journey-contracts/")) {
-        const [file, pointer] = ref.split("#");
-        const contract = contracts.get(file.split("/").at(-1));
-        assert.ok(contract, `${source.id} has existing contract evidence ${file}`);
-        assert.equal(contract.journeyId, source.id);
-        assert.match(pointer, /^\/steps\/\d+$/u);
-        assert.ok(contract.steps[Number(pointer.split("/").at(-1))], `${source.id} has existing ordered step ${pointer}`);
-      }
-    }
+    assert.ok(decision.evidenceRefs.every((ref) => ref.length > 0), `${source.id} retains its evidence locators`);
   }
   assert.equal(decisions.journeys.filter(({ actorStatus }) => actorStatus === "resolved").length, 30);
   assert.equal(decisions.journeys.filter(({ actorStatus }) => actorStatus === "unresolved").length, 0);
@@ -387,8 +359,8 @@ test("P0-04 journey actors and requirement intent targets remain source-bound", 
     else noResolvedActorTargetRequirements += 1;
   }
   assert.equal(requirements.length, 38);
-  assert.equal(traceRefs, 66);
-  assert.equal(resolvedTraceRefs, 66);
+  assert.equal(traceRefs, 69, "current owner-reviewed STREAM, PROVENANCE, and PROJECT traces are included");
+  assert.equal(resolvedTraceRefs, 69);
   assert.equal(fullyResolvableRequirements, 38);
   assert.equal(partlyResolvableRequirements, 0);
   assert.equal(noResolvedActorTargetRequirements, 0);

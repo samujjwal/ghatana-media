@@ -1155,8 +1155,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml",
-      "sha256": "3f3c707303e0fda9f6de94cee5ac297dab32804a0c4b588f870e6fd59e66de16",
-      "bytes": 10481756,
+      "sha256": "dddae0056aceb10c1d27b745fdde0e96f915ad3896e684cee01ba6a4577c07a6",
+      "bytes": 10482275,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.operations.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -4963,8 +4963,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-      "sha256": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
-      "bytes": 23358,
+      "sha256": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
+      "bytes": 23394,
       "format": "yaml",
       "schemaVersion": "media.actors-responsibilities.v1",
       "authority": null,
@@ -5040,8 +5040,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
-      "sha256": "91cd9dd50f2f44fbbdd7f65ac3c0281dff9d7e11e89917cc58817f6cbf44df65",
-      "bytes": 5613559,
+      "sha256": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
+      "bytes": 4526718,
       "format": "yaml",
       "schemaVersion": "media.goals-jtbd.v1",
       "authority": null,
@@ -7464,8 +7464,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/journey-catalog.yaml",
-      "sha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
-      "bytes": 94410,
+      "sha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
+      "bytes": 95679,
       "format": "yaml",
       "schemaVersion": null,
       "authority": null,
@@ -7616,8 +7616,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
-      "sha256": "0e45d566ecd3734dbb8f450a796f23b15aea855c2943e57b9be7ea0d4843ec04",
-      "bytes": 32098,
+      "sha256": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
+      "bytes": 32246,
       "format": "yaml",
       "schemaVersion": "media.migration-boundary-authority.v1",
       "authority": null,
@@ -7652,8 +7652,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
-      "sha256": "6735c58f3358fd2d6d64139b3f57c6586d59cae27969f546a7574541afeaeb30",
-      "bytes": 302636,
+      "sha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+      "bytes": 311930,
       "format": "yaml",
       "schemaVersion": "media.requirements.v1",
       "authority": "prospective-Phase-0-definition; not accepted Product Truth",
@@ -7671,6 +7671,7 @@
         "ownerDefinedImportAdapterConversionRule",
         "ownerDefinedInputInspectionRules",
         "ownerDefinedLeafTrustReconstructionPolicy",
+        "ownerDefinedOperationRequestBoundsRules",
         "ownerDefinedProductMissionCapabilityMaps",
         "ownerDefinedProjectionAuthorityRules",
         "ownerDefinedRecipeTemplateBindingRules",
@@ -7807,6 +7808,7 @@
         "media.requirement.import-adapter-conversion-evidence.v1",
         "media.requirement.leaf-trust-reconstruction-policy.v1",
         "media.requirement.marketing-authority-boundary.v1",
+        "media.requirement.operation-request-bounds.v1",
         "media.requirement.policy-and-admitted-deployment-availability.v1",
         "media.requirement.product-mission-capability-map.v1",
         "media.requirement.recipe-template-versioned-schema-binding.v1",
@@ -32368,8 +32370,8 @@
         "description": "Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification."
       }
     ],
-    "createdAt": "2026-10-09T21:01:09.535Z",
-    "updatedAt": "2026-10-09T21:01:09.535Z"
+    "createdAt": "2026-10-10T15:27:28.785Z",
+    "updatedAt": "2026-10-10T15:27:28.785Z"
   },
   "candidateMappingReview": {
     "generationTimestampSemantics": "createdAt/updatedAt record this candidate projection build only; they are not canonical Media authority timestamps.",

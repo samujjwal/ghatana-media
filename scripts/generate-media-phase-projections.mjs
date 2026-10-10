@@ -90,7 +90,6 @@ const definitions = [
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
       ".product-experience/pdp-0-product-truth/capabilities.yaml",
       ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
-      ".product-experience/pdp-1-domain-data/operations.yaml",
       ".product-experience/pdp-1-domain-data/domain-objects.yaml",
       ".product-experience/pdp-0-product-truth/requirements.yaml",
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -119,10 +118,20 @@ const definitions = [
       ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
       "docs/implementation/verification/pdp-38/feature-review-45-clause-material-review.json",
       "docs/implementation/verification/pdp-38/feature-review-45-clause-reference-correction.json",
-      "docs/implementation/verification/pdp-38/feature-review-operation-reference-correction.json",
+      "docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json",
+      "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json",
+      "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json",
       ".product-experience/explorer/tools-binding.yaml",
     ],
-    candidate: (sources) => {
+    candidate: async (sources) => {
       const source = (name) => sources.find((entry) => entry.sourceRef.endsWith(`/${name}`))?.content ?? {};
       const textSource = (name) => sources.find((entry) => entry.sourceRef.endsWith(`/${name}`))?.text ?? "";
       const productTruth = textSource("PRODUCT-TRUTH.md");
@@ -156,22 +165,71 @@ const definitions = [
       const reviewedFeatureArtifact = JSON.parse(reviewedFeatureArtifactText);
       const reviewedFeatureReferenceCorrectionText = textSource("feature-review-45-clause-reference-correction.json");
       const reviewedFeatureReferenceCorrection = JSON.parse(reviewedFeatureReferenceCorrectionText);
-      const reviewedOperationReferenceCorrectionText = textSource("feature-review-operation-reference-correction.json");
-      const reviewedOperationReferenceCorrection = JSON.parse(reviewedOperationReferenceCorrectionText);
+      const qualityMetricObservationPaths = [
+        "feature-review-quality-current-source-observation.json",
+        "feature-review-audio-defects-current-source-observation.json",
+        "feature-review-audio-naturalness-current-source-observation.json",
+      ];
+      const qualityMetricObservations = qualityMetricObservationPaths.map((name) => {
+        const text = textSource(name);
+        return { text, artifact: JSON.parse(text) };
+      });
+      const qualityPolicySourceText = textSource("quality-policy.yaml");
+      const qualityCurrentSourceReviewText = textSource("p0-quality-current-source-review.json");
+      const qualityCurrentSourceReview = JSON.parse(qualityCurrentSourceReviewText);
+      const qualificationPolicyObservationText = textSource("feature-review-qualification-policy-current-source-observation.json");
+      const qualificationPolicyObservation = JSON.parse(qualificationPolicyObservationText);
+      const qualificationPolicySourceText = textSource("qualification-policy.yaml");
+      const capabilityIntentOwnerBindingObservationText = textSource("p0-capability-intent-owner-binding-current-source-observation.json");
+      const capabilityIntentOwnerBindingObservation = JSON.parse(capabilityIntentOwnerBindingObservationText);
+      const capabilitiesSourceText = textSource("capabilities.yaml");
+      const capabilitySemanticReviewText = textSource("p0-capability-semantic-current-source-review.json");
+      const capabilitySemanticReview = JSON.parse(capabilitySemanticReviewText);
+      const animationRelationshipObservationText = textSource("feature-review-animation-property-owner-current-source-observation.json");
+      const animationRelationshipObservation = JSON.parse(animationRelationshipObservationText);
+      const textToImageObservationText = textSource("feature-review-current-source-observation.json");
+      const textToImageObservation = JSON.parse(textToImageObservationText);
+      const policyAuthorityObservationText = textSource("feature-review-policy-authority-current-source-observation.json");
+      const policyAuthorityObservation = JSON.parse(policyAuthorityObservationText);
+      const policyAuthoritySourceText = textSource("policy-authority-model.yaml");
+      const cliChannelObservationText = textSource("feature-review-cli-channel-current-source-observation.json");
+      const cliChannelObservation = JSON.parse(cliChannelObservationText);
+      const applicationsChannelsSourceText = textSource("applications-channels.yaml");
+      const relationshipSourceText = textSource("relationships.yaml");
       resolvePdp0FeatureReviewApplicability({
         applicability: featureReviewSource.ownerFeatureReviewApplicability,
         requirements,
         capabilities,
         capabilityCrosswalk: source("capability-leaf-review.yaml").ownerCapabilityLeafAdjudication,
         channels: [...featureReviewSource.channels, ...featureReviewSource.ownerDefinedChannels.records],
-        operationContracts: source("operations.yaml").capabilityOperationContracts.records,
         sourceDocuments: Object.fromEntries(sources.filter((entry) => entry.sourceRef.endsWith(".yaml")).map((entry) => [entry.sourceRef, entry.content])),
         reviewedMaterialArtifact: reviewedFeatureArtifact,
         reviewedMaterialArtifactText: reviewedFeatureArtifactText,
+        capabilityIntentOwnerBindingObservation,
+        capabilityIntentOwnerBindingObservationText,
+        capabilitySemanticReview,
+        capabilitySemanticReviewText,
+        capabilitiesSourceText,
+        qualityPolicySourceText,
+        qualityMetricObservations,
+        qualityCurrentSourceReview,
+        qualityCurrentSourceReviewText,
+        animationRelationshipObservation,
+        animationRelationshipObservationText,
+        relationshipSourceText,
+        textToImageObservation,
+        textToImageObservationText,
+        qualificationPolicyObservation,
+        qualificationPolicyObservationText,
+        qualificationPolicySourceText,
+        policyAuthorityObservation,
+        policyAuthorityObservationText,
+        policyAuthoritySourceText,
+        cliChannelObservation,
+        cliChannelObservationText,
+        applicationsChannelsSourceText,
         reviewedReferenceCorrectionArtifact: reviewedFeatureReferenceCorrection,
         reviewedReferenceCorrectionArtifactText: reviewedFeatureReferenceCorrectionText,
-        reviewedOperationReferenceCorrectionArtifact: reviewedOperationReferenceCorrection,
-        reviewedOperationReferenceCorrectionArtifactText: reviewedOperationReferenceCorrectionText,
       });
       const intentResolutionById = new Map((intentResolutions.intents ?? []).map((resolution) => [resolution.id, resolution]));
       const resolvedUserIntents = (goals.intents ?? []).flatMap((intent) => {
@@ -1514,7 +1572,8 @@ for (const directory of ["screen-contracts", "journey-contracts"]) {
 async function loadSource(sourceRef) {
   if (cache.has(sourceRef)) return cache.get(sourceRef);
   const text = await readFile(resolve(root, sourceRef), "utf8");
-  const content = sourceRef.endsWith(".yaml") || sourceRef.endsWith(".yml") ? parse(text) : null;
+  const content = sourceRef.endsWith(".yaml") || sourceRef.endsWith(".yml") ? parse(text)
+    : sourceRef.endsWith(".json") ? JSON.parse(text) : null;
   const record = Object.freeze({ sourceRef, text, content });
   cache.set(sourceRef, record);
   return record;
@@ -1663,7 +1722,7 @@ const generationTimestamp = new Date().toISOString();
 if (onlyDefinition && !definitions.some((definition) => definition.name === onlyDefinition)) throw new Error(`Unknown --only definition ${onlyDefinition}`);
 for (const definition of definitions.filter((entry) => !onlyDefinition || entry.name === onlyDefinition)) {
   const sources = await Promise.all(definition.sources.map(loadSource));
-  const candidateModel = definition.candidate(sources, generationTimestamp);
+  const candidateModel = await definition.candidate(sources, generationTimestamp);
   if (definition.name === "product-definition") {
     validateProductDefinitionTimestampProvenance(candidateModel, definition.candidateFieldSources,
       Object.fromEntries(sources.map(({ sourceRef, content }) => [sourceRef, content])));

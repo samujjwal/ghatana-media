@@ -37,6 +37,15 @@ test("current parity census includes owner intents, adapter-required methods and
   }
 });
 
+test("PDP-1 domain model overview uses the current operation parity denominators", () => {
+  const overview = readFileSync(resolve(new URL("..", import.meta.url).pathname,
+    ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md"), "utf8");
+  assert.match(overview, /inventories 287 identities across nine\s+exact source surfaces grouped into eight interface families/u);
+  assert.match(overview, /147 UI actions,\s+27 HTTP operations, 43 gRPC methods/u);
+  assert.match(overview, /154 unresolved source identities and zero\s+owner-accepted cross-interface bindings/u);
+  assert.doesNotMatch(overview, /inventories 284 identities|192 unresolved identities/u);
+});
+
 test("residual report validates exact projection dispositions and pinned sources", () => {
   const root = resolve(new URL("..", import.meta.url).pathname);
   const report = buildMediaProductDefinitionResidualReport();
@@ -70,14 +79,23 @@ test("residual report validates exact projection dispositions and pinned sources
     assert.ok(projection.unresolvedFields.every((field) => field.id && field.status && field.reasons.length));
   }
   assert.equal(report.capabilityCoverage.leafCount, 462, "capability denominator must not shrink without an explicit source-scope revision");
-  assert.equal(report.capabilityCoverage.unresolvedCount, 383);
-  assert.equal(new Set(report.capabilityCoverage.unresolvedLeafIds).size, report.capabilityCoverage.unresolvedCount);
+  assert.equal(report.capabilityCoverage.unresolvedCount, 0,
+    "current P0 completeness is based on the active owner capability adjudications");
+  assert.equal(report.capabilityCoverage.ownerDefinedCount, 462);
+  assert.deepEqual(report.capabilityCoverage.dispositionCounts, {
+    JOURNEY_STEP_CAPABILITY: 77,
+    MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY: 383,
+    PLATFORM_DEPENDENCY_CAPABILITY: 2,
+  });
+  assert.equal(report.capabilityCoverage.historicalOperationApplicability.unresolvedCount, 383,
+    "the previous operation-evidence audit remains available as historical evidence");
+  assert.equal(new Set(report.capabilityCoverage.historicalOperationApplicability.unresolvedLeafIds).size, 383);
   assert.equal(report.capabilityCoverage.applicability.total, 462);
-  assert.equal(report.capabilityCoverage.applicability.classified, 79);
-  assert.equal(report.capabilityCoverage.applicability.unresolved, 383);
-  assert.equal(report.capabilityCoverage.acceptedCoverageCount, 0);
-  assert.equal(report.capabilityCoverage.unresolvedLeaves.length, 383);
-  assert.ok(report.capabilityCoverage.unresolvedLeaves.every((leaf) => leaf.id && leaf.sourceRef && leaf.rationale));
+  assert.equal(report.capabilityCoverage.applicability.classified, 462);
+  assert.equal(report.capabilityCoverage.applicability.unresolved, 0);
+  assert.equal(report.capabilityCoverage.historicalOperationApplicability.acceptedCoverageCount, 0);
+  assert.equal(report.capabilityCoverage.historicalOperationApplicability.unresolvedLeaves.length, 383);
+  assert.ok(report.capabilityCoverage.historicalOperationApplicability.unresolvedLeaves.every((leaf) => leaf.id && leaf.sourceRef && leaf.rationale));
   assert.equal(Object.values(report.capabilityCoverage.dispositionCounts).reduce((sum, count) => sum + count, 0), report.capabilityCoverage.leafCount);
   assert.equal(report.migrationSemantics.uniqueContentUnits, 1340);
   assert.equal(report.migrationSemantics.unresolvedCount, 260);
@@ -213,7 +231,7 @@ test("residual report validates exact projection dispositions and pinned sources
   assert.ok(report.productExperience.journeyTrace.actionBindings.linkedSteps
     .every((step) => step.actionRef && step.actionBindingState === "SOURCE_LINKED_PROPOSAL"));
   assert.match(renderMediaProductDefinitionResidualMarkdown(report), /authoritative receipt\/currentness evaluation is NOT_EVALUATED/u);
-  for (const pin of [...report.capabilityCoverage.sourcePins, ...report.migrationSemantics.sourcePins]) {
+  for (const pin of [...report.capabilityCoverage.historicalOperationApplicability.sourcePins, ...report.migrationSemantics.sourcePins]) {
     const actual = createHash("sha256").update(readFileSync(resolve(root, pin.path))).digest("hex");
     assert.equal(pin.state, actual === pin.sha256 ? "CURRENT" : "STALE", `${pin.path}: historical pin currency follows exact bytes`);
   }

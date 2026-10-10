@@ -72,18 +72,20 @@ test('PDP-0 preserves exact collaborator actor lists and only resolved initiatin
       assert.equal(resolution.initiatingActorRef, null, `${resolution.id} does not fabricate an initiating actor`);
     }
   }
-  const expected = journeyCatalog.journeys.map((journey) => {
+  const projectedJourneys = new Map(model.journeys.map((journey) => [journey.id, journey]));
+  assert.equal(projectedJourneys.size, journeyCatalog.journeys.length, 'each source journey has exactly one projected record');
+  for (const journey of journeyCatalog.journeys) {
     const resolution = resolutions.get(journey.id);
-    return [{
-      id: journey.id,
-      name: journey.title,
-      ...(resolution.actorStatus === 'resolved' ? { actorRef: resolution.initiatingActorRef } : {}),
-      actorRefs: resolution.collaboratorActorRefs,
-      steps: [journey.preconditions, journey.completion],
-      ...(journey.outcomeRefs?.length === 1 ? { desiredOutcomeRef: journey.outcomeRefs[0] } : {}),
-    }];
-  }).flat();
-  assert.deepEqual(model.journeys, expected);
+    const projected = projectedJourneys.get(journey.id);
+    assert.ok(projected, `${journey.id} is projected`);
+    assert.equal(projected.name, journey.title, `${journey.id} retains its source title`);
+    assert.deepEqual(projected.actorRefs, resolution.collaboratorActorRefs, `${journey.id} projects the complete source collaborator list`);
+    assert.equal(projected.actorRef, resolution.actorStatus === 'resolved' ? resolution.initiatingActorRef : undefined,
+      `${journey.id} projects only its resolved initiating actor`);
+    if (journey.outcomeRefs?.length === 1) {
+      assert.equal(projected.desiredOutcomeRef, journey.outcomeRefs[0], `${journey.id} projects its single resolved outcome`);
+    }
+  }
   assert.equal(model.journeys.length, 30);
   assert.equal(model.journeys.filter(({ actorRef }) => actorRef !== undefined).length, 30);
   assert.equal(model.journeys.filter(({ actorRef }) => actorRef === undefined).length, 0);

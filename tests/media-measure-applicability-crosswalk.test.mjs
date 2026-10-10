@@ -16,7 +16,7 @@ function fixture() {
   const dispositions = ['TRACE_ONLY_NOT_A_MEASURE_UNIT', 'NOT_APPLICABLE_READ_ONLY_OR_NO_OUTPUT_OPERATION', 'NOT_APPLICABLE_NOT_EXECUTION_PROFILE_OPERATION', 'NOT_APPLICABLE_SYNCHRONOUS_OPERATION'];
   const rows = capabilities.flatMap(capabilityRef => measures.map((measureRef, i) => ({
     id: `media.measure-applicability.${measureRef.replaceAll('.', '-')}.${capabilityRef.replaceAll('.', '-')}`,
-    capabilityRef, measureRef, disposition: dispositions[i], reason: 'Exact source definition excludes this candidate from the measurement unit.', sourceRefs: [`source.yaml#${capabilityRef}`],
+    capabilityRef, capabilityIntentId: capabilityRef, measureRef, disposition: dispositions[i], reason: 'Exact source definition excludes this candidate from the measurement unit.', sourceRefs: [`source.yaml#${capabilityRef}`],
     baseline: 'NOT_EVALUATED', target: 'NOT_SET', qualification: 'NOT_EVALUATED', admission: 'NOT_ADMITTED', sourceDisposition: 'OWNER_DEFINED_DEFINITION_ONLY',
   })));
   return {
@@ -24,7 +24,8 @@ function fixture() {
     capabilityCount: 2, uniqueCapabilityCount: 2, completeCrosswalkCount: 2, measureRefs: measures,
     applicableCandidateCounts: Object.fromEntries(measures.map((id, i) => [id, i === 0 ? 2 : 0])),
     measureApplicabilityRecords: { recordCount: 8, uniqueRecordIds: 8, records: rows },
-    records: capabilities.map(capabilityRef => ({ capabilityRef, bindingProjectionOnly: true, sourceDisposition: 'OWNER_DEFINITION_ONLY', admission: 'NOT_ADMITTED', baseline: 'NOT_EVALUATED', target: 'NOT_SET', qualification: 'NOT_EVALUATED', measureApplicability: Object.fromEntries(rows.filter(row => row.capabilityRef === capabilityRef).map(({measureRef,id,disposition,reason,sourceRefs}) => [measureRef, {id,disposition,reason,sourceRefs}])) })),
+    downstreamPdp1OperationContext: { status: 'DOWNSTREAM_CONTEXT_ONLY_NOT_A_PDP0_PREREQUISITE', gatingForPdp0: false, records: capabilities.map(capabilityIntentId => ({ capabilityIntentId, operationContractRef: 'downstream-only' })) },
+    records: capabilities.map(capabilityRef => ({ capabilityRef, capabilityIntentId: capabilityRef, capabilityIntentRef: `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${capabilityRef}`, outputSemanticShapeRef: `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${capabilityRef}/outputArtifactTypes`, outputSemanticShape: [], bindingProjectionOnly: true, sourceDisposition: 'OWNER_DEFINITION_ONLY', admission: 'NOT_ADMITTED', baseline: 'NOT_EVALUATED', target: 'NOT_SET', qualification: 'NOT_EVALUATED', measureApplicability: Object.fromEntries(rows.filter(row => row.capabilityRef === capabilityRef).map(({measureRef,id,disposition,reason,sourceRefs}) => [measureRef, {id,disposition,reason,sourceRefs}])) })),
   };
 }
 test('source applicability validates the exact Cartesian population without admitting measurement', () => {
@@ -37,9 +38,7 @@ test('actual PDP-0 owner applicability source closes all pairs and exact binding
   const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
   const sourceDocuments = Object.fromEntries([
     '.product-experience/pdp-0-product-truth/capabilities.yaml',
-    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
-    '.product-experience/pdp-1-domain-data/operations.yaml',
-    '.product-experience/pdp-1-domain-data/domain-objects.yaml',
+    '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
   ].map((path) => [path, readSourceYaml(path)]));
   const rows = validate(crosswalk, caps.map(({ id }) => id), measureIds, sourceDocuments);
   const counts = Object.fromEntries(measureIds.map((id) => [id, rows.filter((row) => row.measureRef === id
@@ -66,9 +65,7 @@ test('actual measure source bindings resolve exact owner rows and reject valid f
   const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
   const sourceDocuments = Object.fromEntries([
     '.product-experience/pdp-0-product-truth/capabilities.yaml',
-    '.product-experience/pdp-0-product-truth/capability-leaf-review.yaml',
-    '.product-experience/pdp-1-domain-data/operations.yaml',
-    '.product-experience/pdp-1-domain-data/domain-objects.yaml',
+    '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
   ].map((path) => [path, readSourceYaml(path)]));
   const crosswalk = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
   const measureIds = goals.successMeasureContracts.records.map(({ id }) => id);
@@ -77,8 +74,9 @@ test('actual measure source bindings resolve exact owner rows and reject valid f
   for (const [index, mutate] of [
     (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.inspect'; },
     (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT'; },
-    (value) => { value.measureApplicabilityRecords.records.find((row) => row.measureRef === measures[2] && row.capabilityRef === 'media.generate.image.text-to-image').sourceRefs[1] = '.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/families/@id=media.capability-profile.media-project'; },
-    (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[1] = '.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-project-inspect'; },
+    (value) => { value.measureApplicabilityRecords.records[0].capabilityIntentId = 'media.foreign'; },
+    (value) => { value.measureApplicabilityRecords.records[0].operationId = 'media.operation.fake'; },
+    (value) => { value.measureApplicabilityRecords.records[0].wireSchemaRef = 'schemas/fake'; },
     (value) => { value.measureApplicabilityRecords.records[0].sourceRefs[0] = '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.foreign'; },
   ].entries()) {
     const altered = structuredClone(crosswalk);
@@ -87,10 +85,28 @@ test('actual measure source bindings resolve exact owner rows and reject valid f
   }
 });
 
+test('P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes', () => {
+  const goals = readSourceYaml('.product-experience/pdp-0-product-truth/goals-jtbd.yaml');
+  const caps = readSourceYaml('.product-experience/pdp-0-product-truth/capabilities.yaml').capabilities;
+  const docs = Object.fromEntries(['.product-experience/pdp-0-product-truth/capabilities.yaml', '.product-experience/pdp-0-product-truth/goals-jtbd.yaml'].map(path => [path, readSourceYaml(path)]));
+  const cw = goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk;
+  assert.equal(cw.records.length, 462);
+  assert.equal(new Set(cw.records.map(row => row.capabilityIntentId)).size, 462);
+  assert.ok(cw.records.every(row => row.capabilityIntentRef.endsWith(`#capabilities/@id=${row.capabilityIntentId}`) && row.outputSemanticShapeRef === `${row.capabilityIntentRef}/outputArtifactTypes`));
+  assert.ok(cw.measureApplicabilityRecords.records.every(row => row.capabilityIntentId === row.capabilityRef));
+  assert.equal(validate(cw, caps.map(row => row.id), goals.successMeasureContracts.records.map(row => row.id), docs).length, 1848);
+  for (const field of ['operationId', 'operationContractRef', 'requestSchemaRef', 'wireSchemaRef']) {
+    const altered = structuredClone(cw);
+    altered.measureApplicabilityRecords.records[0][field] = 'media.operation.fake';
+    assert.throws(() => validate(altered, caps.map(row => row.id), goals.successMeasureContracts.records.map(row => row.id), docs), /PDP-1 operation identity or schemas/u);
+  }
+});
+
 test('same-count substitution, duplicates and stale binding projections are rejected', () => {
   for (const mutate of [
     x => { x.measureApplicabilityRecords.records[1] = structuredClone(x.measureApplicabilityRecords.records[0]); },
     x => { x.measureApplicabilityRecords.records[0].capabilityRef = 'media.foreign'; },
+    x => { x.measureApplicabilityRecords.records[0].capabilityIntentId = 'media.foreign'; },
     x => { x.measureApplicabilityRecords.records[0].id = 'invented'; },
     x => { x.records[0].measureApplicability[measures[0]].reason = 'Copied stale claim'; },
     x => { delete x.records[0].measureApplicability[measures[1]]; },

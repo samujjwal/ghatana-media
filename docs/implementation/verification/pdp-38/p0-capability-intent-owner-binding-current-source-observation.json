@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "media.pdp0.capability-intent-current-source-observation.v1",
+  "artifactId": "P0-CAPABILITY-INTENT-OWNER-BINDING-CURRENT-SOURCE-OBSERVATION-001",
+  "scope": "Compact current-source observation for the delegated Media owner's P0 machine-capability identity and per-leaf status correction across the complete 462-leaf catalog. This records the current source delta only; it does not alter historical review pins.",
+  "source": {
+    "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "priorSha256": "9c197f92140421984b4e5c97249d2b0da288d8beeb3867dedecee02b9bf51523",
+    "currentSha256": "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25",
+    "recordPopulation": {
+      "path": "capabilities",
+      "count": 462,
+      "identityField": "id",
+      "sortedIdentitySetSha256": "5b287861ead4bc5f020132f331af799ad6cecf2e1a0e73d746da3f70a4d42dc1",
+      "identitySetChange": "none",
+      "ownerDispositionSnapshotSha256": "dcba65623f6dc7f430362c2f1c2d42ae77e097472e788404acf31cabb1ae9ffe",
+      "ownerDispositionCounts": {
+        "JOURNEY_STEP_CAPABILITY": 77,
+        "MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY": 383,
+        "PLATFORM_DEPENDENCY_WITH_EXPLICIT_APPLICABILITY": 2
+      },
+      "ownerDispositionUnchanged": true
+    }
+  },
+  "decisionRef": "PXD-121",
+  "changes": [
+    {
+      "pathPattern": "capabilities/@id=<id>/ownerDefinition/capabilityIntentId",
+      "count": 462,
+      "prior": "absent",
+      "current": "the same record's existing id, verbatim"
+    },
+    {
+      "pathPattern": "capabilities/@id=<id>/intentBindingState",
+      "count": 462,
+      "prior": "bound-to-proposed-canonical-family-intent-refs; owner-acceptance-pending",
+      "current": "P0_OWNER_DEFINED_CAPABILITY_INTENT; independent P0-010 semantic acceptance remains pending"
+    },
+    {
+      "pathPattern": "capabilities/@id=<id>/requirementTraceState",
+      "count": 462,
+      "prior": "bound-to-canonical-family-requirement-groups; per-leaf semantic closure pending P0-010",
+      "current": "P0_OWNER_DEFINED_EXACT_FAMILY_REQUIREMENT_TRACE; this leaf outcome is resolved; independent P0-010 semantic acceptance remains pending"
+    },
+    {
+      "pathPattern": "capabilities/@id=<id>/semanticReferenceScope",
+      "count": 462,
+      "prior": "intent/outcome/journey refs inherited from family requirement and supporting intent records; per-leaf fit pending independent review",
+      "current": "media.capability-intent.owner-binding.v1"
+    },
+    {
+      "pathPattern": "ownerDefinedCapabilityIntentBinding/exactLeafMeaningRule",
+      "count": 1,
+      "prior": "The owner-defined leaf outcome, actor roles, typed inputs, closed parameter schema, outputs, constraints, authority, provenance, fidelity, and explicit unsupported cases jointly define this exact P0 machine capability. They are sufficient for the machine-capability handoff without a PDP-1 operation.",
+      "current": "Every exact capabilityIntentId resolves to its same P0 capability record, and ownerDisposition selects its meaning. JOURNEY_STEP_CAPABILITY means the exact user-facing journey-step capability; MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY means the machine capability defined by its owner outcome, actor roles, typed inputs, closed parameter schema, outputs, constraints, authority, provenance, fidelity, and explicit unsupported cases; PLATFORM_DEPENDENCY_WITH_EXPLICIT_APPLICABILITY means a platform dependency with only the explicitly stated applicability. This rule does not relabel journey or platform records as machine capabilities. These P0 meanings are sufficient for handoff without a PDP-1 operation."
+    }
+  ],
+  "authorityRule": {
+    "path": "capabilities.yaml#ownerDefinedCapabilityIntentBinding",
+    "id": "media.capability-intent.owner-binding.v1",
+    "meaning": "Each existing leaf id and exact owner-defined P0 intent binds with its ownerDisposition-specific meaning: journey-step, machine capability, or platform dependency with explicit applicability. Machine meaning is defined by owner outcome, actors, typed inputs, closed parameters, outputs, constraints, authority, provenance, fidelity, and unsupported cases. intentRefs/outcomeRefs remain secondary trace context; no independent per-leaf business-intent fit is claimed."
+  },
+  "semanticEquivalence": "NOT_ASSERTED",
+  "semanticEffect": "none; this observation documents owner-defined P0 source binding and does not independently approve its business-intent fit",
+  "acceptanceEffect": "none; independent P0-010 semantic acceptance remains pending and all implementation, license, qualification, runtime, and admission states retain their source values",
+  "historicalPins": "PXD-098, PXD-101, and PXD-105 remain immutable; this additive observation does not revise their claims or acceptance.",
+  "reviewBoundary": "No PDP-1 operation, state model, executable schema, or runtime meaning is approved or made a P0 prerequisite."
+}

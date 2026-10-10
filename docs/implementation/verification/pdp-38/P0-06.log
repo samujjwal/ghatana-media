@@ -1,88 +1,73 @@
 TAP version 13
-# Subtest: source applicability validates the exact Cartesian population without admitting measurement
-ok 1 - source applicability validates the exact Cartesian population without admitting measurement
-  ---
-  duration_ms: 1.951478
-  type: 'test'
-  ...
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
-ok 2 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
+ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 15915.793451
+  duration_ms: 12160.917776
   type: 'test'
   ...
-# Subtest: actual measure source bindings resolve exact owner rows and reject valid foreign targets
-ok 3 - actual measure source bindings resolve exact owner rows and reject valid foreign targets
+# Subtest: P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
+ok 2 - P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
   ---
-  duration_ms: 15887.720941
+  duration_ms: 8333.466242
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
-ok 4 - same-count substitution, duplicates and stale binding projections are rejected
+ok 3 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 1.325625
+  duration_ms: 2.755142
   type: 'test'
   ...
 # Subtest: unknown applicability, missing evidence and invented measurements remain errors
-ok 5 - unknown applicability, missing evidence and invented measurements remain errors
+ok 4 - unknown applicability, missing evidence and invented measurements remain errors
   ---
-  duration_ms: 0.796358
+  duration_ms: 1.197801
   type: 'test'
   ...
-# Subtest: explicit applicability decision keeps missing output identity in scope without qualified measurements
-ok 6 - explicit applicability decision keeps missing output identity in scope without qualified measurements
+1..0
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
+ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
   ---
-  duration_ms: 2.072751
+  duration_ms: 159.490428
   type: 'test'
   ...
-# Subtest: P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated
-ok 7 - P0-06 projects accepted measurement definitions while keeping actual profile measurement and qualification unevaluated
+# Subtest: P0 quality applicability is complete from capability intent and semantic artifact types alone
+ok 6 - P0 quality applicability is complete from capability intent and semantic artifact types alone
   ---
-  duration_ms: 2223.902068
+  duration_ms: 126.136373
   type: 'test'
   ...
-# Subtest: P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators
-ok 8 - P0-06 defines exact outcome/capability crosswalks and deterministic profile-scoped numerators and denominators
+# Subtest: P0 quality checks reject foreign semantic types and missing applicability decisions
+ok 7 - P0 quality checks reject foreign semantic types and missing applicability decisions
   ---
-  duration_ms: 2672.669274
+  duration_ms: 159.748553
   type: 'test'
   ...
-# Subtest: P0-06 retains source-defined measurement applicability without turning it into a pass or target
-ok 9 - P0-06 retains source-defined measurement applicability without turning it into a pass or target
+# Subtest: P0-06 maps all measures to stable capability meaning without inventing measured results
+ok 8 - P0-06 maps all measures to stable capability meaning without inventing measured results
   ---
-  duration_ms: 1531.410619
+  duration_ms: 5772.42643
   type: 'test'
   ...
-# Subtest: P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
-ok 10 - P0-06 profiles and proposed budgets do not claim capability availability or qualified success targets
+1..0
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
+ok 5 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
   ---
-  duration_ms: 22.066924
+  duration_ms: 147.547647
   type: 'test'
   ...
-# Subtest: P0-06 keeps privacy and locality applicability as independent policy decisions
-ok 11 - P0-06 keeps privacy and locality applicability as independent policy decisions
+1..0
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
+ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
   ---
-  duration_ms: 9.913931
+  duration_ms: 154.198211
   type: 'test'
   ...
-# Subtest: P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
-ok 12 - P0-06 omits authored ProductDefinition timestamps when Media has no timestamp provenance
-  ---
-  duration_ms: 9.488447
-  type: 'test'
-  ...
-# Subtest: measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values
-ok 13 - measurement projection rejects stale identity, guessed scope, empty grammar and forged qualified values
-  ---
-  duration_ms: 5395.473977
-  type: 'test'
-  ...
-1..13
-# tests 13
+1..10
+# tests 10
 # suites 0
-# pass 13
+# pass 10
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 32096.636445
+# duration_ms 20787.678753

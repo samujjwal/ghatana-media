@@ -3,7 +3,20 @@ artifactId: media.pdp-1.relationships
 productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/domain-model.yaml
-scopeStatus: proposed-relationship-map; pending-owner-review
+scopeStatus: coordinator-reviewed-logical-relationship-definitions; storage-and-runtime-parity-not-admitted
+relationshipPopulationAdjudication:
+  coordinatorDecisionRef: .product-experience/decision-log.md#PXD-140
+  observedRelationshipCount: 13
+  status: current-13-record-source-population-reviewed; definition-only; runtime-and-storage-parity-not-admitted
+  rationale: The frozen PDP-0 handoff count of 11 is stale relative to the current source. Preserve all 13 unique relationships, including the four PXD-119 owner-defined logical bindings, because each resolves to explicit PDP-0 concepts and canonical PDP-1 object identity tuples.
+  pendingOwnerDecisions:
+    - id: relationship-storage-constraints
+      question: Which exact relationship cardinalities and lineage constraints are enforced by persistence, and what evidence establishes that enforcement?
+      status: unresolved; no-storage-parity-claimed
+    - id: relationship-runtime-and-wire-parity
+      question: Which runtime and wire projections implement these owner-defined relationship bindings?
+      status: unresolved; no-runtime-or-wire-parity-claimed
+  acceptanceEffect: none
 sourceRefs:
   - .product-experience/pdp-0-product-truth/domain-model.yaml
   - .product-experience/pdp-0-product-truth/state-models.yaml
@@ -446,8 +459,8 @@ relationships:
     from: media.domain.artifact-version
     to: media.domain.artifact-version
     meaning: derived-version-records-parent-lineage-without-source-mutation
-    cardinality: directed-many-to-many; acyclicity-contract-unbound
-    cardinalityBasis: PDP-0 semantic proposal; acyclicity and storage constraint unbound; unaccepted pending Media owner review
+    cardinality: directed-many-to-many; owner-defined-lineage-must-be-acyclic; storage-enforcement-unverified
+    cardinalityBasis: PXD-119 owner-defined logical lineage semantics; persistence constraint and enforcement unverified; runtime NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion
       - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
@@ -470,8 +483,8 @@ relationships:
       cardinalityRule: A derived version may reference zero or more exact parent versions; parent edges are directed and may not self-reference.
       exactVersionRule: Each endpoint binds exact tenantId, artifactId, and versionId; content digest is integrity evidence, never identity.
       lifecycleRule: Derivation is immutable and records every declared parent; revisions add new nodes/edges rather than mutate prior lineage.
-      deletionRule: Erasure/holds apply across lineage according to exact retention policy; source deletion is not inferred from derivative deletion. Lineage must be acyclic.
-      lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
+      deletionRule: Erasure/holds apply across lineage according to exact retention policy; source deletion is not inferred from derivative deletion. The owner-defined lineage graph is acyclic; storage enforcement remains unverified.
+      lineageRule: This relationship explicitly records directed parent-version lineage; each edge uses exact same-tenant artifact-version tuples, and the resulting graph is acyclic.
       runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
   - id: media.rel.assessment-subject
     from: media.domain.quality-assessment

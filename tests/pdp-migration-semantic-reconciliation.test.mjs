@@ -9,6 +9,10 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const reviewPath = ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml";
+const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? "ALL";
+if (!["ALL", "PDP-0"].includes(candidatePhase)) throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be ALL or PDP-0; got ${candidatePhase}`);
+const p0Only = candidatePhase === "PDP-0";
+const downstreamOwner = (ref) => /\/pdp-[1-3]-|authority-map\.yaml#(?:\/)?phaseAuthorities\/(?:[1-3])(?:\/|$)/u.test(ref ?? "");
 const yamlCache = new Map();
 const readYaml = (path) => {
   if (!yamlCache.has(path)) yamlCache.set(path, parse(readFileSync(resolve(root, path), "utf8")));
@@ -21,6 +25,11 @@ assert.equal(sha(pendingObservationBytes), "eff17d84f91e1e14483f41938fe0fd39bb6e
 const pendingObservations = JSON.parse(pendingObservationBytes);
 assert.equal(pendingObservations.decisionRef, ".product-experience/decision-log.md#PXD-108");
 assert.deepEqual(pendingObservations.records.map(({ claimId }) => claimId), ["MPSEM-0030-C001", "MPSEM-0187-C002", "MPSEM-0336-C006", "MPSEM-0349-C001", "MPSEM-0351-C001"]);
+const currentTargetObservationBytes = readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"));
+assert.equal(sha(currentTargetObservationBytes), "cb9805fa3dc32fb9bcdc799968f01ab7207a7147dcc9b9da83f2611487c4c920", "bounded current-owner target observations");
+const currentTargetObservations = JSON.parse(currentTargetObservationBytes);
+const migrationP0CurrentSourceObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json"), "utf8"));
+assert.equal(migrationP0CurrentSourceObservations.decisionRef, ".product-experience/decision-log.md#PXD-130");
 
 
 function resolveRef(ref) {
@@ -121,6 +130,14 @@ function assertClaimDisposition(claim) {
   if (claim.disposition === "NON_NORMATIVE_SOURCE_METADATA") {
     if (claim.claimId === "MPSEM-0001-C001") {
       assert.deepEqual(claim.metadataFields, ["document-id", "review-date", "document-status"]);
+    } else if (claim.claimId === "MPSEM-0030-C001") {
+      assert.deepEqual(claim.metadataFields, ["finding-id-and-summary-label"]);
+      assert.equal(claim.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L106");
+      assert.match(claim.rationale, /first-cell REV-10 finding label.*MPSEM-0030-C003 and C004/u);
+    } else if (claim.claimId === "MPSEM-0034-C001") {
+      assert.deepEqual(claim.metadataFields, ["finding-id-and-summary-label"]);
+      assert.equal(claim.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L113");
+      assert.match(claim.rationale, /first-cell REV-14 finding label.*C002-C004/u);
     } else if (claim.claimId === "MPSEM-0035-C001") {
       assert.deepEqual(claim.metadataFields, ["table-row-heading"]);
       assert.equal(claim.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L114");
@@ -183,6 +200,10 @@ function assertClaimDisposition(claim) {
   }
   assert.equal(claim.disposition, "ROUTED_TO_CURRENT_PDP_AUTHORITY", `unknown disposition for ${claim.claimId}`);
   assert.ok(claim.targetRef, `${claim.claimId} needs one exact authority selector`);
+  if (p0Only && downstreamOwner(claim.targetRef)) {
+    assert.equal(claim.acceptanceEffect, "none");
+    return; // Keep the all-row disposition/source census, but defer downstream owner semantics to that phase.
+  }
   const target = resolveRef(claim.targetRef);
   const targetText = typeof target === "string" ? target : JSON.stringify(target);
   const targetDigest = claim.coordinatorReviewStatus === "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE" && !claim.targetRef.includes(".md#line=")
@@ -196,10 +217,51 @@ function assertClaimDisposition(claim) {
     assert.equal(pendingObservation.acceptanceEffect, "none");
     assert.equal(claim.targetRef, pendingObservation.targetRef);
     assert.equal(claim.targetTextSha256, pendingObservation.priorHash, "immutable historical locator digest remains unchanged");
-    assert.equal(targetDigest, pendingObservation.currentHash, "current observed locator bytes remain exact");
-    assert.equal(sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))), pendingObservation.sourceFileSha256);
+    const p0Supplement = migrationP0CurrentSourceObservations.records.find((record) => record.claimId === claim.claimId);
+    if (p0Supplement) {
+      assert.equal(p0Supplement.historicalPxd108ObservationArtifactSha256, sha(pendingObservationBytes), "PXD-108 snapshot remains byte-pinned");
+      assert.equal(p0Supplement.historicalPxd108CurrentTargetSha256, pendingObservation.currentHash);
+      assert.equal(p0Supplement.historicalPxd108SourceFileSha256, pendingObservation.sourceFileSha256);
+      assert.equal(targetDigest, p0Supplement.currentTargetValueSha256, "PXD-130 additive current target observation is exact");
+    } else {
+      assert.equal(targetDigest, pendingObservation.currentHash, "current observed locator bytes remain exact");
+    }
+    const currentSourceFileSha = sha(readFileSync(resolve(root, claim.targetRef.split("#")[0])));
+    assert.equal(currentSourceFileSha, p0Supplement?.currentSourceFileSha256 ?? pendingObservation.currentSourceFileSha256 ?? pendingObservation.sourceFileSha256);
+    if (pendingObservation.currentSourceFileSha256) {
+      const historicalFilePin = claim.targetRef.includes("/capabilities.yaml#")
+        ? "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c"
+        : claim.targetRef.includes("/quality-policy.yaml#")
+          ? "2fcb91b7b5adb57d72775584bc56d4a40c50697f737bbfddf27f920d36bfe86e"
+          : assert.fail(`${claim.claimId} has no reviewed historical current-source pin`);
+      assert.equal(pendingObservation.sourceFileSha256, historicalFilePin, "immutable historical source file pin");
+      if (claim.targetRef.includes("/capabilities.yaml#")) {
+        assert.match(pendingObservation.currentSourceFileRationale, /ownerDefinedCapabilityIntentBinding/u);
+        assert.match(pendingObservation.currentSourceFileRationale, /Concrete operation and wire mappings are downstream PDP-1/u);
+      } else {
+        assert.match(pendingObservation.currentSourceFileRationale, /ownerQualityApplicabilityCrosswalk/u);
+        assert.match(pendingObservation.currentSourceFileRationale, /payload-schema dependencies on PDP-1 operation contracts/u);
+      }
+      assert.match(pendingObservation.currentSourceFileRationale, /does not (establish|assert) semantic equivalence/u);
+      assert.equal(pendingObservation.semanticEquivalence, "NOT_ASSERTED");
+      assert.equal(pendingObservation.acceptanceEffect, "none");
+    }
   } else {
+    const currentSourceObservation = migrationP0CurrentSourceObservations.records.find((record) => record.claimId === claim.claimId);
+    if (currentSourceObservation) {
+      assert.equal(currentSourceObservation.targetRef, claim.targetRef);
+      assert.match(currentSourceObservation.previousObservedTargetValueSha256, /^[a-f0-9]{64}$/u, "prior target digest is preserved as an observation");
+      assert.equal(currentSourceObservation.currentTargetValueSha256, targetDigest, "current target bytes are observed exactly");
+      assert.equal(currentSourceObservation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
+      assert.equal(currentSourceObservation.claimDisposition, claim.semanticReviewStatus);
+      if (currentSourceObservation.claimDisposition === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY")
+        assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
+      assert.equal(currentSourceObservation.semanticEquivalence, "NOT_ASSERTED");
+      assert.equal(currentSourceObservation.semanticPromotion, false);
+      assert.equal(currentSourceObservation.acceptanceEffect, "none");
+    } else {
     assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+    }
   }
   assert.equal(claim.acceptanceEffect, "none");
   assertHighRiskMigrationSemantics(claim);
@@ -224,6 +286,9 @@ function assertHighRiskMigrationSemantics(claim) {
     ["MPSEM-0002-C004-S01", ".product-experience/pdp-0-product-truth/constitution.yaml#/ownerDefinedExperienceRules/nativeProtectionAndQuality/requirement"],
     ["MPSEM-0002-C004-S02", ".product-experience/pdp-0-product-truth/constitution.yaml#/ownerDefinedExperienceRules/progressiveComplexity/requirement"],
     ["MPSEM-0046-C002", ".product-experience/pdp-0-product-truth/dependency-contracts.yaml#/ownerDefinedImportBoundary/ghatanaCoreConsumerRule"],
+    ["MPSEM-0181-C002", ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule"],
+    ["MPSEM-0374-C006", ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule"],
+    ["MPSEM-0459-C002", ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/mediaArchitectureRules/externalStackSelectionRule"],
     ["MPSEM-0388-C003", ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback"],
     ["MPSEM-0443-C002", ".product-experience/pdp-0-product-truth/glossary.yaml#/unitsAndConventions/rules/@id=media.unit.measurement-uncertainty/estimatePresentationRule"],
     ["MPSEM-0445-C002", ".product-experience/pdp-0-product-truth/glossary.yaml#/terms/@id=media.term.intent/conversationOutputRule"],
@@ -277,6 +342,16 @@ function assertHighRiskMigrationSemantics(claim) {
   } else if (claim.claimId === "MPSEM-0046-C002") {
     assert.match(target, /Ghatana core and neutral platform consumers use only immutable published Media artifacts/u);
     assert.match(target, /must not import Ghatana Media source trees, product implementation packages, generated implementation internals, or private modules/u);
+  } else if (["MPSEM-0181-C002", "MPSEM-0374-C006", "MPSEM-0459-C002"].includes(claim.claimId)) {
+    const rule = target;
+    assert.match(rule.reuseBeforeSelection, /Before selecting a new streaming stack, inspect the exact existing Ghatana-owned streaming modules and their public contracts/u);
+    assert.match(rule.reuseBeforeSelection, /Reuse an existing module when it satisfies the requirements of the exact admitted Media capability\/profile/u);
+    assert.match(rule.reuseBeforeSelection, /record the concrete profile requirement it cannot meet and the evidence for that reuse gap/u);
+    if (claim.claimId === "MPSEM-0181-C002") {
+      assert.equal(claim.exactSourceText, "Reuse existing Ghatana streaming modules before selecting a new stack.");
+    }
+    assert.match(rule.scope, /select the smallest stack/u);
+    assert.match(rule.scopeStatus, /no integration, candidate qualification, or runtime admission implied/u);
   }
 }
 
@@ -323,8 +398,13 @@ test("PDP-38 migration overlay exactly partitions all 260 historical unresolved 
   const metadata = leafClaims.filter(({ disposition }) => disposition === "NON_NORMATIVE_SOURCE_METADATA");
   const verified = routed.filter(({ semanticReviewStatus }) => semanticReviewStatus === "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
   const pending = routed.filter(({ semanticReviewStatus }) => semanticReviewStatus === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
-  assert.equal(metadata.length, 8);
-  assert.equal(routed.length, 862);
+  assert.equal(metadata.length, 10);
+  assert.deepEqual(new Set(metadata.map(({ claimId }) => claimId)), new Set([
+    "MPSEM-0001-C001", "MPSEM-0023-C001", "MPSEM-0030-C001", "MPSEM-0032-C001",
+    "MPSEM-0034-C001", "MPSEM-0035-C001", "MPSEM-0053-C001", "MPSEM-0055-C001",
+    "MPSEM-0066-C001", "MPSEM-0469-C001",
+  ]), "exact metadata-only claim cohort remains source-bound");
+  assert.equal(routed.length, 860);
   assert.equal(retained.length, 7);
   assert.equal(overlay.scopeSupersededClaimUnitCount, superseded.length);
   assert.equal(overlay.ownerAccountedPendingSemanticDefinitionCount, gaps.length);
@@ -335,9 +415,13 @@ test("PDP-38 migration overlay exactly partitions all 260 historical unresolved 
   assert.equal(overlay.nonNormativeSourceMetadataClaimUnitCount, metadata.length);
   assert.equal(overlay.currentOwnerTargetClaimUnitCount, routed.length);
   assert.equal(overlay.sourceOwnerRoutingCount, routed.length);
-  assert.equal(overlay.semanticParityVerifiedClaimUnitCount, verified.length);
-  assert.equal(overlay.candidateTargetPendingSemanticParityCount, pending.length);
-  assert.equal(verified.length + pending.length, routed.length, "Every routed claim remains in exactly one reviewed or pending partition; bounded approval suites check their exact immutable cohorts");
+  if (!p0Only) {
+    assert.equal(overlay.semanticParityVerifiedClaimUnitCount, verified.length);
+    assert.equal(overlay.candidateTargetPendingSemanticParityCount, pending.length);
+    assert.equal(verified.length + pending.length, routed.length, "Every routed claim remains in exactly one reviewed or pending partition; bounded approval suites check their exact immutable cohorts");
+  } else {
+    assert.ok(verified.length + pending.length <= routed.length, "P0 census retains reviewed/pending labels while downstream target review remains deferred");
+  }
   const historicalExplorer = leafClaims.find(({ claimId }) => claimId === "MPSEM-0160-C001");
   assert.equal(historicalExplorer.disposition, "RETAINED_AS_HISTORICAL_PROGRAM_TRUTH");
   assert.match(historicalExplorer.retainedSourceRef, /expert-reviewed-master-plan\.md#L332/u);
@@ -349,6 +433,46 @@ test("PDP-38 migration overlay exactly partitions all 260 historical unresolved 
   assert.equal(review.ownerDecisionOverlay.unresolvedBlockCount + review.ownerDecisionOverlay.ownerClassifiedNonNormativeBlockCount, 349);
   assert.equal(review.counts.blockStructureProposalCounts.total, 263);
   assert.equal(review.ownerDecisionOverlay.ownerClassifiedNonNormativeBlockCount, 89);
+});
+
+test("REV-10 finding label is metadata while its governance rules stay on the exact P0 owner", () => {
+  const review = readYaml(reviewPath);
+  const records = review.pdp38ClaimReconciliation.records;
+  const leaves = records.flatMap(({ claims }) => claims ?? []).flatMap((claim) => claim.subclaims ?? [claim]);
+  const label = leaves.find(({ claimId }) => claimId === "MPSEM-0030-C001");
+  assert.equal(label.disposition, "NON_NORMATIVE_SOURCE_METADATA");
+  assert.deepEqual(label.metadataFields, ["finding-id-and-summary-label"]);
+  assert.equal(label.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L106");
+  assert.equal(Object.hasOwn(label, "targetRef"), false);
+  assert.equal(label.acceptanceEffect, "none");
+  const localInference = leaves.find(({ claimId }) => claimId === "MPSEM-0030-C003");
+  const workerException = leaves.find(({ claimId }) => claimId === "MPSEM-0030-C004");
+  assert.equal(localInference.targetRef, ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/genericInferenceOwnershipBoundary");
+  assert.equal(workerException.targetRef, ".product-experience/pdp-0-product-truth/handoff-contracts.yaml#/handoffs/@id=ai-inference-execution/boundedWorkerExceptionRule");
+  assert.match(resolveRef(localInference.targetRef).rule, /local deployment eligibility and placement/u);
+  assert.match(resolveRef(workerException.targetRef).rule, /does not establish a general bypass around AI Inference/u);
+  assert.equal(localInference.acceptanceEffect, "none");
+  assert.equal(workerException.acceptanceEffect, "none");
+});
+
+test("REV-14 heading is metadata while graph/run-state rules remain on the current owners", { skip: p0Only }, () => {
+  const review = readYaml(reviewPath);
+  const leaves = review.pdp38ClaimReconciliation.records.flatMap(({ claims }) => claims ?? []).flatMap((claim) => claim.subclaims ?? [claim]);
+  const label = leaves.find(({ claimId }) => claimId === "MPSEM-0034-C001");
+  assert.equal(label.disposition, "NON_NORMATIVE_SOURCE_METADATA");
+  assert.deepEqual(label.metadataFields, ["finding-id-and-summary-label"]);
+  assert.equal(label.sourceEvidenceRef, "docs/migration/expert-reviewed-master-plan.md#L113");
+  assert.equal(Object.hasOwn(label, "targetRef"), false);
+  assert.equal(label.acceptanceEffect, "none");
+  const split = leaves.find(({ claimId }) => claimId === "MPSEM-0034-C003");
+  const authorization = leaves.find(({ claimId }) => claimId === "MPSEM-0034-C004");
+  assert.equal(split.disposition, "ROUTED_TO_CURRENT_PDP_AUTHORITY");
+  assert.equal(authorization.disposition, "ROUTED_TO_CURRENT_PDP_AUTHORITY");
+  assert.equal(split.acceptanceEffect, "none");
+  assert.equal(authorization.acceptanceEffect, "none");
+  assert.match(resolveRef(split.targetRef), /distinct records.*run never mutates/u);
+  assert.equal(authorization.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
+  assert.match(resolveRef(authorization.targetRef), /after current policy validation/u);
 });
 
 test("the MPSEM-0066 lead-in is classified from its exact colon-and-list source structure", () => {
@@ -419,6 +543,37 @@ test("model-acquisition review preserves the pinned snapshot and records the new
   assert.equal(claim.currentOwnerDeltaTextSha256, sha(JSON.stringify(delta)));
   assert.match(delta.rule, /does not create an exception to artifact identity/u);
   assert.match(delta.localExecutionDisposition, /DENY_UNADMITTED_MODEL/u);
+  const observation = currentTargetObservations.records.find(({ claimId }) => claimId === claim.claimId);
+  assert.equal(observation.targetRef, claim.targetRef);
+  if (claim.claimId === "MPSEM-0388-C003") {
+    assert.equal(observation.historicalCurrentTargetValueSha256, "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6");
+    assert.equal(observation.currentTargetValueSha256, claim.targetTextSha256);
+    assert.equal(observation.additionalRuleId, "media.policy.offline-entitlement-validity-window.v1");
+    assert.equal(observation.additionalOwnerRuleRef, `${claim.targetRef}/offlineEntitlementWindow`);
+    assert.equal(observation.disposition, "CURRENT_TARGET_EXTENDED_BY_UNRELATED_OWNER_RULE; CLAIM_PARITY_RETAINED");
+  }
+  const policy = resolveRef(claim.targetRef);
+  assert.equal(policy.automaticAcquisition.default, "DENY");
+  assert.match(policy.automaticAcquisition.unavailableBehavior, /do not download a model/u);
+  assert.equal(policy.fallback.default, "DENY_SILENT_FALLBACK");
+  assert.match(policy.fallback.localOnly, /always denied/u);
+  assert.match(policy.offlineEntitlementWindow.offlineBoundary, /Cached bytes .* do not prove a current entitlement/u);
+  const graphStateClaim = review.pdp38ClaimReconciliation.records.flatMap(({ claims }) => claims ?? []).flatMap(({ subclaims, ...claim }) => subclaims ?? [claim]).find(({ claimId }) => claimId === "MPSEM-0034-C002");
+  const graphStateObservation = currentTargetObservations.records.find(({ claimId }) => claimId === graphStateClaim.claimId);
+  assert.equal(graphStateObservation.targetRef, graphStateClaim.targetRef);
+  assert.equal(graphStateObservation.reportedReviewTargetValueSha256, "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925");
+  assert.equal(graphStateObservation.recomputedCurrentTargetValueSha256, graphStateClaim.targetTextSha256);
+  assert.equal(graphStateObservation.disposition, "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED");
+  assert.match(graphStateObservation.claimParityBasis, /each invocation has a separately identified run/u);
+  const currentClaims = review.pdp38ClaimReconciliation.records.flatMap(({ claims }) => claims ?? []).flatMap(({ subclaims, ...claim }) => subclaims ?? [claim]);
+  for (const claimId of ["MPSEM-0042-C003", "MPSEM-0316-C001"]) {
+    const claim = currentClaims.find(({ claimId: id }) => id === claimId);
+    const observation = currentTargetObservations.records.find(({ claimId: id }) => id === claimId);
+    assert.equal(observation.targetRef, claim.targetRef);
+    assert.equal(observation.reportedReviewTargetValueSha256, "63d8eefe808bfce7150d7dd1dfa6af1358f71de4c78c37a79761071de1a3dd0b");
+    assert.equal(observation.recomputedCurrentTargetValueSha256, claim.targetTextSha256);
+    assert.equal(observation.disposition, "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED");
+  }
 });
 
 test("known migration target corrections preserve the full claim clauses at exact owner sources", () => {
@@ -523,4 +678,43 @@ test("semantic assertions reject a stable but unrelated candidate target", () =>
   sequence.targetRef = ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.embedded/name";
   sequence.targetTextSha256 = sha(resolveRef(sequence.targetRef));
   assert.throws(() => assertClaimDisposition(sequence));
+});
+
+
+test("PXD-108 pins remain immutable while PXD-130 separately observes current source files", () => {
+  const expectedCapabilityClaims = ["MPSEM-0030-C001", "MPSEM-0336-C006", "MPSEM-0349-C001", "MPSEM-0351-C001"];
+  const historicalCapabilitiesSha = "f03fb72b7a3f1c8bb74d61a7dad101125c9dc1a1d4837d9cd2d8587446c04f1c";
+  const currentCapabilitiesSha = sha(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml")));
+  for (const claimId of expectedCapabilityClaims) {
+    const observation = pendingObservations.records.find((record) => record.claimId === claimId);
+    assert.ok(observation, `${claimId} pending observation`);
+    assert.equal(observation.sourceFileSha256, historicalCapabilitiesSha, `${claimId} historical file pin`);
+    assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(observation.disposition, "PENDING_LOCATOR_CURRENT_SOURCE_OBSERVATION_ONLY");
+    assert.equal(observation.acceptanceEffect, "none");
+    const target = resolveRef(observation.targetRef);
+    assert.equal(sha(typeof target === "string" ? target : JSON.stringify(target)), observation.currentHash, `${claimId} unchanged target hash`);
+    assert.equal(resolveRef(observation.targetRef), observation.currentValue, `${claimId} unchanged target value`);
+    const supplement = migrationP0CurrentSourceObservations.records.find((record) => record.claimId === claimId);
+    assert.equal(supplement.historicalPxd108ObservationArtifactSha256, sha(pendingObservationBytes));
+    assert.equal(supplement.historicalPxd108CurrentTargetSha256, observation.currentHash);
+    assert.equal(supplement.historicalPxd108SourceFileSha256, observation.sourceFileSha256);
+    assert.equal(supplement.currentSourceFileSha256, currentCapabilitiesSha, `${claimId} current file observation`);
+    assert.equal(supplement.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(supplement.acceptanceEffect, "none");
+  }
+  const qualityObservation = pendingObservations.records.find(({ claimId }) => claimId === "MPSEM-0187-C002");
+  assert.equal(qualityObservation.sourceFileSha256, "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de");
+  assert.equal(qualityObservation.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(qualityObservation.acceptanceEffect, "none");
+  const qualitySupplement = migrationP0CurrentSourceObservations.records.find(({ claimId }) => claimId === "MPSEM-0187-C002");
+  assert.equal(qualitySupplement.historicalPxd108ObservationArtifactSha256, sha(pendingObservationBytes));
+  assert.equal(qualitySupplement.historicalPxd108CurrentTargetSha256, qualityObservation.currentHash);
+  assert.equal(qualitySupplement.historicalPxd108SourceFileSha256, qualityObservation.sourceFileSha256);
+  assert.equal(qualityObservation.sourceFileSha256, "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de", "PXD-108 historical file pin remains immutable");
+  assert.equal(qualitySupplement.historicalPxd108ObservationArtifactSha256, "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec", "PXD-108 historical observation artifact pin remains immutable");
+  assert.equal(qualitySupplement.currentSourceFileSha256, "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d", "PXD-130 additive current-source pin is exact");
+  assert.equal(qualitySupplement.currentSourceFileSha256, sha(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"))));
+  assert.equal(qualitySupplement.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(qualitySupplement.acceptanceEffect, "none");
 });

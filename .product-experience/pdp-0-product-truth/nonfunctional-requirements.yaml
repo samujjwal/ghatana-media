@@ -86,10 +86,10 @@ requirements:
     related: [P0-007, P0-009]
   - id: NFR-COST-001
     area: cost-and-resource-safety
-    statement: Every job and optimization has finite CPU, memory, storage, GPU, process, time, retry, and monetary bounds; each fallback rechecks budget and quality authority.
+    statement: Every job and optimization must have finite CPU, system-memory, video-memory, GPU-time, storage, network-transfer, process-count, wall-time, retry-count, and monetary bounds for each applicable dimension before dispatch; an unknown or unevaluated applicable bound blocks admission, and each fallback rechecks budget and quality authority.
     priority: must
     owner: Media runtime and quality owners
-    acceptance: adversarial-resource-and-budget-exhaustion-fixtures-terminate-or-remain-explicitly-uncertain-without-unbounded-work
+    acceptance: unknown-applicable-bound-blocks-before-dispatch; adversarial-resource-and-budget-exhaustion-fixtures-terminate-or-remain-explicitly-uncertain-without-unbounded-work
     related: [STATE-ATTEMPT, QUALITY-BOUNDS]
   - id: NFR-TIME-001
     area: temporal-correctness
@@ -336,7 +336,7 @@ ownerMeasurementDefinitions:
     - id: media.nfr-measurement.NFR-COST-001.v1
       requirementRef: NFR-COST-001
       metric: per-job resource maximum, budget-exhaustion termination, and fallback reauthorization violations
-      unit: CPU-milliseconds, bytes, GPU-milliseconds, process count, wall-milliseconds, retry count, and currency minor units per job
+      unit: CPU-milliseconds per job; bytes of system memory per job; bytes of video memory per job; GPU-milliseconds per job; bytes of storage per job; bytes transferred over the network per job; process count per job; wall-milliseconds per job; retry count per job; currency minor units per job
       scope: Each exact capability/profile budget and every optimization/fallback path that can consume additional resources.
       samplePopulation:
         include: Versioned representative and adversarial jobs at each declared budget boundary, including one-unit-over, timeout, retry, fallback, and concurrent-load cases.

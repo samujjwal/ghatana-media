@@ -116,8 +116,9 @@ test("artifact, job, and lease identities preserve the source-specific keys with
   assert.match(artifactVersion, /identity: bounded-owner-key-\(tenantId,artifactId,versionId\); versionId-is-a-stable-opaque-immutable-version-identity-separate-from-content-digest/u);
   assert.match(artifactVersion, /separate-runtime-record-and-wire-versionId-not-observed; runtime-NOT_ADMITTED/u);
   assert.match(blockForId(domainObjects, "media.domain.upload-session"), /identity: bounded-canonical-key-\(tenantId,uploadId\); owner-scope-adds-principalId; client-request-key-is-separately-scoped-by-\(tenantId,principalId,idempotencyKey\)/u);
-  assert.match(job, /identity: Java-store-key-tenantId-plus-jobId; TypeScript-tenantId-and-id-fields; SQL-primary-key-\(tenant_id,job_id\); cross-interface-canonical-key-unbound/u);
-  assert.match(lease, /identity: Java-record-tenantId-plus-jobId-plus-ownerId-plus-fencingToken; PostgreSQL-lease-columns-on-job-row; no-standalone-lease-id/u);
+  assert.match(job, /identity: canonical-owner-tuple-\(tenantId,jobId\); stable-opaque-jobId-is-issued-within-tenant; render-and-verification-jobs-share-this-identity-namespace/u);
+  assert.match(job, /TypeScript fields `\(tenantId, id\)`; `id` requires an explicit adapter to canonical `jobId`/u);
+  assert.match(lease, /identity: canonical-owner-tuple-\(tenantId,jobId,ownerId,fencingToken\); temporary-claim-has-no-standalone-durable-lease-id; activeAttemptRef-is-a-separate-relationship/u);
   assert.match(typeScript, /id: IdentifierSchema,[\s\S]*?tenantId: IdentifierSchema,[\s\S]*?checksumSha256/u);
   assert.match(artifactSchema, /PRIMARY KEY \(tenant_id, artifact_id\)[\s\S]*?UNIQUE \(tenant_id, sha256, size_bytes\)/u);
   assert.match(runtime, /public record JobLease\([\s\S]*?String tenantId,[\s\S]*?String jobId,[\s\S]*?String ownerId,[\s\S]*?long fencingToken/u);

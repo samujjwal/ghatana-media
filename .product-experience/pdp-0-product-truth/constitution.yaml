@@ -1,7 +1,7 @@
 schemaVersion: media.product-constitution.v1
 productId: media
 authority: pdp-0-product-truth
-status: proposed-for-phase-0-review
+status: MEDIA_OWNER_DEFINITION_COMPLETE; HUMAN_REVIEW_PENDING; P0-010_INDEPENDENT_REVIEW_PENDING
 scopeNote: >-
   This materializes the 32 constitutional requirements from master-plan §4 as
   proposed Media product semantics. P0-001 boundary decisions remain accepted;
@@ -171,10 +171,10 @@ contractRealizationRule:
   scopeStatus: definition-only; generator support and consumer enforcement remain unverified
   knownGaps:
     - >-
-      The constitutional entries below currently provide a statement, role
-      references, review state, and source references; their required-field
-      completeness has not been established. Missing semantic details and
-      owner decisions remain for required review and independent P0-010.
+      All 32 constitutional records provide source-bound references for every
+      field in normativeRecordContract.requiredFields. Human/specialist review,
+      acceptanceState transitions, and independent P0-010 acceptance remain
+      pending; these are acceptance gates, not unestablished definition fields.
     - >-
       Record-level scopeStatus placement in requirements.yaml and
       capabilities.yaml requires normalization; those files are outside this
@@ -186,192 +186,1270 @@ requirements:
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-001/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.manage-artifact-lifecycle"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-001/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-001/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-001/acceptanceState"
   - id: MEDIA-CONST-002
     statement: Authenticate trusted boundaries, authorize each consequential action, and preserve tenant and principal isolation.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.security-privacy-lead
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-002/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.review-rights-and-consent"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-002/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-002/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-002/acceptanceState"
   - id: MEDIA-CONST-003
     statement: Normal user experiences shall let people act on intent and outcome without requiring them to select models, queues, engines, or infrastructure.
     ownerRoleRef: media.role.ux-architect
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-003/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.restore-project"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-003/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-003/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-003/acceptanceState"
   - id: MEDIA-CONST-004
     statement: Simple, Guided, and Expert shall expose progressively deeper controls over one semantic model and the same actions and state.
     ownerRoleRef: media.role.ux-architect
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-004/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.restore-project"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-004/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-004/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-004/acceptanceState"
   - id: MEDIA-CONST-005
     statement: Use AI and machine learning only where measured benefit justifies them; they are neither mandatory nor a separate isolated product area.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-005/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-005/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/ownerDefinedExperienceRules/mechanismSelection"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-005/acceptanceState"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/ownerDefinedExperienceRules/mechanismSelection/negativeCases"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-005/acceptanceState"
   - id: MEDIA-CONST-006
     statement: Prefer adequate deterministic DSP, computer vision, or procedural execution before more expensive or less predictable mechanisms.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-006/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-006/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/ownerDefinedExperienceRules/mechanismSelection"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-006/acceptanceState"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/ownerDefinedExperienceRules/mechanismSelection/negativeCases"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-006/acceptanceState"
   - id: MEDIA-CONST-007
     statement: Validate media structure and measure applicable quality; provider success alone shall not count as quality acceptance.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-007/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-007/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-007/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-007/acceptanceState"
   - id: MEDIA-CONST-008
     statement: Never silently weaken privacy, rights, safety, scientific fidelity, requested quality, or external-effect finality.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-008/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.review-rights-and-consent"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-008/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-008/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-008/acceptanceState"
   - id: MEDIA-CONST-009
     statement: Every meaningful operation shall have bounded, privacy-safe diagnostics and trace correlation.
     ownerRoleRef: media.role.sre
     acceptanceOwnerRoleRef: media.role.security-privacy-lead
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-12"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-009/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-readiness"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.sre"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-009/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.sre"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-009/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-009/acceptanceState"
   - id: MEDIA-CONST-010
     statement: Consequential operations shall have durable audit intent and truthful outcome and finality records.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-010/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.animate"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.simulate"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.resolve-job"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-010/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-010/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-010/acceptanceState"
   - id: MEDIA-CONST-011
     statement: Derived artifacts shall retain authorized lineage and processing provenance throughout their permitted lifecycle.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-011/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.inspect-provenance"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-011/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-011/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-011/acceptanceState"
   - id: MEDIA-CONST-012
     statement: Accessible operation, review, and suitable output alternatives shall be intrinsic product behavior and shall not require a paid add-on.
     ownerRoleRef: media.role.accessibility-lead
     acceptanceOwnerRoleRef: media.role.accessibility-lead
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-012/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-readiness"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.accessibility-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.accessibility-lead"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-012/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.accessibility-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.accessibility-lead"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-012/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-012/acceptanceState"
   - id: MEDIA-CONST-013
     statement: Failures shall preserve eligible completed work and expose safe recovery; an unknown outcome shall remain explicit.
     ownerRoleRef: media.role.sre
     acceptanceOwnerRoleRef: media.role.media-domain-lead
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-7"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-013/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.animate"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.simulate"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.resolve-job"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.sre"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-013/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.sre"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-013/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-013/acceptanceState"
   - id: MEDIA-CONST-014
     statement: Evaluate suitable Ghatana reuse first, then approved permissively licensed external software, before implementing replacement mechanics.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-3", "master-plan:section-15"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-014/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-014/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-014/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-014/acceptanceState"
   - id: MEDIA-CONST-015
     statement: Animation shall be a native creation mode and shall not be treated only as an incidental AI-video feature.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.product-manager
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-6"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-015/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.animate"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-015/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-015/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ANIMATION/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-015/acceptanceState"
   - id: MEDIA-CONST-016
     statement: Simulation shall be a native creation and control mode with explicit fidelity and reproducibility declarations.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-8"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-016/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.simulate"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-016/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-016/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-SIMULATION/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-016/acceptanceState"
   - id: MEDIA-CONST-017
     statement: Offer local or private execution only when the entire selected plan can satisfy the applicable policy.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-017/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.choose-eligible-processing-option"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-017/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-017/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROFILE/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-017/acceptanceState"
   - id: MEDIA-CONST-018
     statement: Web, CLI, API, SDK, embedded integrations, and Explorer shall refer to one domain, action, and state authority.
     ownerRoleRef: media.role.product-manager
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-5"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-018/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-018/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-018/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-018/acceptanceState"
   - id: MEDIA-CONST-019
     statement: Preserve ecosystem ownership and prohibit product-internal imports from the core Ghatana runtime.
     ownerRoleRef: media.role.platform-owner
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "product-truth:P0-001-boundary-slice"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-019/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-019/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-019/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-019/acceptanceState"
   - id: MEDIA-CONST-020
     statement: Exact text, branding, logos, captions, figures, and required disclosures shall use deterministic composition.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.publication-approver
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-020/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.publication-approver"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-020/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.publication-approver"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-020/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-COMPOSE/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-020/acceptanceState"
   - id: MEDIA-CONST-021
     statement: Disclose generative reconstruction; restoration shall not certify recovery of unknowable original detail.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-021/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-021/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-021/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ENHANCE-IMAGE/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-021/acceptanceState"
   - id: MEDIA-CONST-022
     statement: Reveal model, provider, or engine identity when needed for trust, rights, cost, reproducibility, or expert diagnosis.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.product-manager
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-022/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.inspect-provenance"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-022/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-022/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROVENANCE/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-022/acceptanceState"
   - id: MEDIA-CONST-023
     statement: Long-running remote work shall be independent of browser or CLI attachment; stopping observation shall not imply cancellation.
     ownerRoleRef: media.role.sre
     acceptanceOwnerRoleRef: media.role.media-domain-lead
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-7"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-023/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.animate"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.simulate"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.resolve-job"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.sre"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-023/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.sre"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-023/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-JOB/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-023/acceptanceState"
   - id: MEDIA-CONST-024
     statement: Every ordinary user-facing state shall have a clear next action and actionable explanation of material blockers.
     ownerRoleRef: media.role.ux-architect
     acceptanceOwnerRoleRef: media.role.ux-architect
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-14"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-024/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-readiness"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-024/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.ux-architect"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-024/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-HEALTH/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-024/acceptanceState"
   - id: MEDIA-CONST-025
     statement: Original bytes and accepted project revisions shall not be destructively overwritten by enhancement.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-6"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-025/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.restore-project"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-025/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-025/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-PROJECT/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-025/acceptanceState"
   - id: MEDIA-CONST-026
     statement: Customer assets shall not be used for training, content telemetry, or cross-tenant learning without separate authorization.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-026/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.review-rights-and-consent"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-026/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-026/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-026/acceptanceState"
   - id: MEDIA-CONST-027
     statement: Automatic repair shall be bounded by admissible changes, cost, time, attempts, and measured improvement.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-9"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-027/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-027/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-027/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-QUALITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-027/acceptanceState"
   - id: MEDIA-CONST-028
     statement: Capability, profile, license, and runtime status shall remain explicit; absence of evidence shall never imply availability.
     ownerRoleRef: media.role.media-domain-lead
     acceptanceOwnerRoleRef: media.role.quality-fidelity-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-6"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-028/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-028/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.media-domain-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.quality-fidelity-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-028/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-028/acceptanceState"
   - id: MEDIA-CONST-029
     statement: Deletion, consent revocation, cache reuse, and publication shall re-check current policy at the effect boundary.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.privacy-rights-reviewer
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-029/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.review-rights-and-consent"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-029/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.privacy-rights-reviewer"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-029/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RIGHTS/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-029/acceptanceState"
   - id: MEDIA-CONST-030
     statement: Explorer simulation, model qualification, runtime correctness, and external certification shall remain separate claims.
     ownerRoleRef: media.role.product-manager
     acceptanceOwnerRoleRef: media.role.product-manager
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-21"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-030/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-030/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.product-manager"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-030/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-030/acceptanceState"
   - id: MEDIA-CONST-031
     statement: Untrusted inputs, scripts, native tools, and models shall execute only through admitted, bounded isolation boundaries.
     ownerRoleRef: media.role.security-privacy-lead
     acceptanceOwnerRoleRef: media.role.security-privacy-lead
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-11"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-031/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.create"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.understand"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.edit"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.improve"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.deliver"
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.manage-artifact-lifecycle"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-031/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.security-privacy-lead"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-031/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-ARTIFACT/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-031/acceptanceState"
   - id: MEDIA-CONST-032
     statement: Convenience shall not create hidden duplicate authority, implementation, registry, state machine, or platform framework.
     ownerRoleRef: media.role.platform-owner
     acceptanceOwnerRoleRef: media.role.platform-owner
     acceptanceState: pending-human-review
     sourceRefs: ["master-plan:section-4", "master-plan:section-5"]
+    normativeFieldRefs:
+      what:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-032/statement"
+      why:
+        - ".product-experience/pdp-0-product-truth/goals-jtbd.yaml#/intents/@id=media.intent.check-processing-options"
+      who:
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+      context:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/capabilityIds"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/traceToIntentIds"
+      preconditions:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/preconditions"
+      requiredBehavior:
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-032/statement"
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/expectedBehavior"
+      outcome:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+      importantConsequences:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/consequences"
+      failureOrDegradedBehavior:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/failureDegradationRecovery"
+      authority:
+        - ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/productPolicy/semanticOwner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+        - ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/responsibilityRoles/@id=media.role.platform-owner"
+      acceptanceCriteria:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/acceptanceCases"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-032/acceptanceState"
+      scopeStatus:
+        - ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-CAPABILITY/scopeStatus"
+        - ".product-experience/pdp-0-product-truth/constitution.yaml#/requirements/@id=MEDIA-CONST-032/acceptanceState"
 
 ownerDefinedExperienceRules:
   authorityStatus: Media-owner authored PDP-0 definitions; independent review and phase acceptance remain pending.
@@ -389,3 +1467,45 @@ ownerDefinedExperienceRules:
       deeper controls over one semantic model and the same actions and state;
       ordinary product outcomes do not require Expert controls.
     sourceBasis: master-plan:section-4; exact source claim MPSEM-0002-C004
+  mechanismSelection:
+    id: media.constitution.mechanism-selection.v1
+    authority: media-product-owner
+    rule: >-
+      Select mechanisms per exact capability leaf and profile against that
+      candidate's declared acceptance criteria and hard constraints. When a
+      comparable deterministic DSP, computer-vision, or procedural candidate
+      satisfies those criteria and constraints, select it unless exact
+      task-specific evidence, evaluated under a predeclared decision rule and
+      materiality criterion tied to the capability/profile acceptance criteria
+      and applicable metrics, demonstrates a material benefit from an
+      alternative. When no comparable deterministic candidate exists, an AI/ML
+      candidate is eligible for admission only when it satisfies the explicit
+      capability acceptance criteria with measured evidence. Compare candidates
+      only with comparable inputs or corpus, evaluation scope, method/version,
+      applicable metric, and the relevant cost/resource and reproducibility
+      evidence. Never infer that a mechanism is cheaper, better, safer, or less
+      predictable from its category. This rule defines selection evidence only;
+      it admits no implementation, provider, model, or runtime.
+    missingEvidenceDisposition: NOT_ADMITTED; block selection until the acceptance criterion, predeclared decision rule/materiality criterion, baseline/evaluation scope, or required evidence is defined and available.
+    specialistAcceptance: pending; no independent quality, security, rights, or runtime approval is implied.
+    negativeCases:
+      - id: category-is-not-benefit-evidence
+        given: A candidate is called AI/ML, deterministic, procedural, or inexpensive without task-specific comparison evidence.
+        then: Do not infer benefit, adequacy, safety, cost, or predictability from the category; candidate is NOT_ADMITTED.
+      - id: missing-criterion-or-baseline
+        given: The exact capability/profile acceptance criterion, predeclared decision rule/materiality criterion, comparison baseline, or evaluation scope is absent.
+        then: NOT_ADMITTED; do not claim measured benefit or select an alternative on that claim.
+      - id: noncomparable-candidate-evidence
+        given: Candidate evidence uses different inputs/corpus, method/version, or evaluation scope without an established comparison.
+        then: Treat the comparison as UNKNOWN and do not use it to justify mechanism selection.
+      - id: deterministic-candidate-satisfies
+        given: A comparable deterministic candidate satisfies the exact acceptance criteria and hard constraints and no predeclared task-specific evidence demonstrates material alternative benefit.
+        then: Select the deterministic candidate; do not select AI/ML by category preference.
+      - id: ai-candidate-without-measured-acceptance
+        given: No comparable deterministic candidate exists, or a claimed alternative benefit is material, but the AI/ML candidate lacks measured evidence against explicit capability acceptance criteria.
+        then: NOT_ADMITTED; do not report provider success or plausible output as acceptance.
+      - id: evidence-does-not-satisfy-hard-constraint
+        given: A candidate's measured score improves while a declared rights, safety, fidelity, quality, locality, cost, or other hard constraint is violated or unknown.
+        then: Reject the candidate; a metric improvement cannot waive a hard constraint.
+    scopeStatus: PDP-0 product-level mechanism-selection meaning complete; comparative evidence and specialist/runtime acceptance remain unestablished.
+    sourceBasis: exact owner-authored MEDIA-CONST-005 and MEDIA-CONST-006; related quality, cost, resource, fidelity, rights, and profile clauses are linked in their normativeFieldRefs.

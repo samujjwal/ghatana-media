@@ -283,7 +283,7 @@ productPolicy:
     currentRuntimeArchitecture: docs/ARCHITECTURE.md
     currentPrivacyImplementationMap: docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md
     statusRule: These artifacts describe current source observations and future product requirements separately; neither text alone qualifies a production deployment.
-  requirementBinding: capability-and-requirement records now authored; owner-role binding and independent semantic closure remain pending-P0-010
+  requirementBinding: capability-and-requirement records are authored; product and platform owner-role bindings resolve through the named semanticOwner, mechanics owner, and policyOwner mappings above; independent specialist or external semantic acceptance remains separate and pending-P0-010
   adversarialFixtures:
     catalog: conformance/domain-contracts/p0-006-adversarial-policy-fixtures.yaml
     status: proposal-only-not-submitted-not-run

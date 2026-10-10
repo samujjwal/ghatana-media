@@ -30,19 +30,25 @@ test('J-02 source-mapped definition slice binds only upload, same-upload resume,
     'media.artifact.upload': {
       stepId: 'J02-2',
       operationRefs: ['media.operation-slice.begin-upload', 'media.operation-slice.append-upload-chunk', 'media.operation-slice.complete-upload'],
+      stepOperationRefs: ['media.operation-slice.begin-upload'],
     },
     'media.artifact.upload.resume': {
       stepId: 'J02-3',
       operationRefs: ['media.operation-slice.inspect-upload', 'media.operation-slice.append-upload-chunk', 'media.operation-slice.complete-upload'],
+      stepOperationRefs: ['media.operation-slice.inspect-upload', 'media.operation-slice.append-upload-chunk', 'media.operation-slice.complete-upload'],
     },
     'media.artifact.inspect': {
       stepId: 'J02-5',
       operationRefs: ['media.operation-slice.inspect-artifact'],
+      stepOperationRefs: ['media.operation-slice.inspect-artifact'],
     },
   };
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
   assert.equal(review.denominatorReconciliation.unresolvedCoverageDispositions, 383,
-    'partial source-slice definitions do not shrink the full-leaf applicability denominator');
+    'the historical operation-evidence review retains its full-leaf denominator');
+  assert.equal(review.ownerCapabilityLeafAdjudication.records.filter((row) =>
+    row.ownerDisposition === 'MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY').length, 383,
+  'the current P0 owner adjudication resolves those machine capability meanings without requiring operation IDs');
   assert.equal(selected.size, 4);
   for (const [capabilityId, binding] of Object.entries(expected)) {
     const leaf = selected.get(capabilityId);
@@ -58,7 +64,7 @@ test('J-02 source-mapped definition slice binds only upload, same-upload resume,
     assert.deepEqual(slice.actorRefs, sourceStep.actorRefs);
     assert.deepEqual(slice.channelRefs, journey.channels);
     assert.deepEqual(slice.operationSliceRefs, binding.operationRefs);
-    assert.deepEqual(sourceStep.requiredOperationRefs, binding.operationRefs);
+    assert.deepEqual(sourceStep.requiredOperationRefs, binding.stepOperationRefs);
     assert.ok(slice.operationSliceRefs.every((id) => sourceSlices.has(id)), `${capabilityId} maps only to canonical individual operation slices`);
     assert.deepEqual(slice.sourceContractRefs, binding.operationRefs.map((id) =>
       `.product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/${operations.individualOperationContracts.records.findIndex((record) => record.id === id)}`));
