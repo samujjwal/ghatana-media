@@ -2,85 +2,85 @@ TAP version 13
 # Subtest: PDP-2 reuse audit counts match the executable UI inventory
 ok 1 - PDP-2 reuse audit counts match the executable UI inventory
   ---
-  duration_ms: 113.004703
+  duration_ms: 155.304796
   type: 'test'
   ...
 # Subtest: PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
 ok 2 - PDP-2 reuse audit records exact cross-product reuse and semantic exclusions
   ---
-  duration_ms: 56.188712
+  duration_ms: 82.681591
   type: 'test'
   ...
 # Subtest: PDP-2 family crosswalk binds only source-exact public component exports and consumers
 ok 3 - PDP-2 family crosswalk binds only source-exact public component exports and consumers
   ---
-  duration_ms: 335.341166
+  duration_ms: 388.301117
   type: 'test'
   ...
 # Subtest: PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
 ok 4 - PDP-2 reuse audit covers the broader Ghatana workspace and dependency boundaries
   ---
-  duration_ms: 21.343886
+  duration_ms: 36.790882
   type: 'test'
   ...
 # Subtest: all 31 component families have one honest whole-family disposition
 ok 5 - all 31 component families have one honest whole-family disposition
   ---
-  duration_ms: 23.705616
+  duration_ms: 34.697044
   type: 'test'
   ...
 # Subtest: all 28 contract-only component families have typed, meaningful Media source definitions
 ok 6 - all 28 contract-only component families have typed, meaningful Media source definitions
   ---
-  duration_ms: 2348.790806
+  duration_ms: 2808.54354
   type: 'test'
   ...
 # Subtest: every family rejects a missing material field, an untyped field, and a missing semantic invariant
 ok 7 - every family rejects a missing material field, an untyped field, and a missing semantic invariant
   ---
-  duration_ms: 5121.107762
+  duration_ms: 4350.829061
   type: 'test'
   ...
 # Subtest: all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
 ok 8 - all 28 closed schemas validate positive values and reject invalid field types and contradictory state/variant pairs
   ---
-  duration_ms: 602.821264
+  duration_ms: 376.622054
   type: 'test'
   ...
 # Subtest: identity readiness requires an exact resolved upstream context tuple
 ok 9 - identity readiness requires an exact resolved upstream context tuple
   ---
-  duration_ms: 253.543653
+  duration_ms: 146.212257
   type: 'test'
   ...
 # Subtest: typed schema validators refresh when the current source bytes change
 ok 10 - typed schema validators refresh when the current source bytes change
   ---
-  duration_ms: 785.640974
+  duration_ms: 721.10868
   type: 'test'
   ...
 # Subtest: rational clock values and half-open intervals enforce exact bounded semantics
 ok 11 - rational clock values and half-open intervals enforce exact bounded semantics
   ---
-  duration_ms: 78.358727
+  duration_ms: 78.592954
   type: 'test'
   ...
 # Subtest: public-source dispositions remain distinct and are not mislabeled as typed Media contracts
 ok 12 - public-source dispositions remain distinct and are not mislabeled as typed Media contracts
   ---
-  duration_ms: 0.244794
+  duration_ms: 0.399184
   type: 'test'
   ...
 # Subtest: all 31 Media component families have an exact export or an explicit contract-only disposition
 ok 13 - all 31 Media component families have an exact export or an explicit contract-only disposition
   ---
-  duration_ms: 4.624126
+  duration_ms: 5.858514
   type: 'test'
   ...
 # Subtest: screen candidates, partial Shared reuse, and similar component exports never become family equivalence
 ok 14 - screen candidates, partial Shared reuse, and similar component exports never become family equivalence
   ---
-  duration_ms: 3.040925
+  duration_ms: 3.089244
   type: 'test'
   ...
 1..14
@@ -91,4 +91,4 @@ ok 14 - screen candidates, partial Shared reuse, and similar component exports n
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 9928.39912
+# duration_ms 9405.271473

@@ -2,277 +2,277 @@ TAP version 13
 # Subtest: tool registry records the exact four handler-observed contracts without implying admission
 ok 1 - tool registry records the exact four handler-observed contracts without implying admission
   ---
-  duration_ms: 4.365091
+  duration_ms: 10.27663
   type: 'test'
   ...
 # Subtest: all four entries inventory validated inputs while retaining output and operation admission gates
 ok 2 - all four entries inventory validated inputs while retaining output and operation admission gates
   ---
-  duration_ms: 1.496337
+  duration_ms: 4.666724
   type: 'test'
   ...
 # Subtest: tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
 ok 3 - tool registry rejects missing, extra, or duplicate handler entries and missing observed fields
   ---
-  duration_ms: 3.15004
+  duration_ms: 5.142659
   type: 'test'
   ...
 # Subtest: each handler input/error source drift is rejected independently
 ok 4 - each handler input/error source drift is rejected independently
   ---
-  duration_ms: 7.661013
+  duration_ms: 8.626396
   type: 'test'
   ...
 # Subtest: observed authoring inputs match exact handler defaults, bounds, and closed-field behavior
 ok 5 - observed authoring inputs match exact handler defaults, bounds, and closed-field behavior
   ---
-  duration_ms: 0.478631
+  duration_ms: 0.483938
   type: 'test'
   ...
 # Subtest: registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
 ok 6 - registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes
   ---
-  duration_ms: 0.601755
+  duration_ms: 0.573978
   type: 'test'
   ...
 # Subtest: registry rejects accidental runtime, operation, authority, or finality promotion
 ok 7 - registry rejects accidental runtime, operation, authority, or finality promotion
   ---
-  duration_ms: 2.395501
+  duration_ms: 2.252771
   type: 'test'
   ...
 # Subtest: runtime source observation does not turn Tools build resolution into Shared owner acceptance
 ok 8 - runtime source observation does not turn Tools build resolution into Shared owner acceptance
   ---
-  duration_ms: 2.531792
+  duration_ms: 2.177011
   type: 'test'
   ...
 # Subtest: owner-selected operation families remain definition-only until handler bindings and admission are proved
 ok 9 - owner-selected operation families remain definition-only until handler bindings and admission are proved
   ---
-  duration_ms: 1.773081
+  duration_ms: 1.666777
   type: 'test'
   ...
 # Subtest: adapter input validation and generic unknown outcome support do not admit Media tool execution
 ok 10 - adapter input validation and generic unknown outcome support do not admit Media tool execution
   ---
-  duration_ms: 1.936649
+  duration_ms: 1.891259
   type: 'test'
   ...
 # Subtest: bounded Media planning is a closed definition, not dynamic agent or dispatch authority
 ok 11 - bounded Media planning is a closed definition, not dynamic agent or dispatch authority
   ---
-  duration_ms: 306.793711
+  duration_ms: 238.282468
   type: 'test'
   ...
 # Subtest: Media Agent Tool contracts resolve exact canonical source records and stay definition-only
 ok 12 - Media Agent Tool contracts resolve exact canonical source records and stay definition-only
   ---
-  duration_ms: 14217.580793
+  duration_ms: 13490.269181
   type: 'test'
   ...
 # Subtest: host execution budget capability bounds join exactly to each selected canonical operation
 ok 13 - host execution budget capability bounds join exactly to each selected canonical operation
   ---
-  duration_ms: 1145.904763
+  duration_ms: 999.601283
   type: 'test'
   ...
 # Subtest: contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
 ok 14 - contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence
   ---
-  duration_ms: 307.56053
+  duration_ms: 279.521394
   type: 'test'
   ...
 # Subtest: input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
 ok 15 - input schemas enforce bounds, formats, and decoded byte counts at the exact 20 MiB boundary
   ---
-  duration_ms: 985.568749
+  duration_ms: 920.647239
   type: 'test'
   ...
 # Subtest: host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
 ok 16 - host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs
   ---
-  duration_ms: 168.248275
+  duration_ms: 156.897375
   type: 'test'
   ...
 # Subtest: closed result/error union uses bounded error codes and keeps unknown non-final
 ok 17 - closed result/error union uses bounded error codes and keeps unknown non-final
   ---
-  duration_ms: 66.710826
+  duration_ms: 56.470856
   type: 'test'
   ...
 # Subtest: pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
 ok 18 - pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct
   ---
-  duration_ms: 485.770133
+  duration_ms: 337.027993
   type: 'test'
   ...
 # Subtest: J03-2 submission grammar binds the existing operation and exact request, receipt, policy, and fingerprint semantics
 ok 19 - J03-2 submission grammar binds the existing operation and exact request, receipt, policy, and fingerprint semantics
   ---
-  duration_ms: 14403.288992
+  duration_ms: 14176.025846
   type: 'test'
   ...
 # Subtest: submission grammar rejects fingerprint, authority, and unknown-outcome scope broadening
 ok 20 - submission grammar rejects fingerprint, authority, and unknown-outcome scope broadening
   ---
-  duration_ms: 11565.709653
+  duration_ms: 12513.556249
   type: 'test'
   ...
 # Subtest: submission acknowledgement, job execution, and provider RPC interfaces remain separate
 ok 21 - submission acknowledgement, job execution, and provider RPC interfaces remain separate
   ---
-  duration_ms: 14.404667
+  duration_ms: 11.766155
   type: 'test'
   ...
 # Subtest: current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
 ok 22 - current method/path/action source matrix binds finite identities to owner and implementation evidence without parity promotion
   ---
-  duration_ms: 537.140771
+  duration_ms: 537.48649
   type: 'test'
   ...
 # Subtest: HTTP health and diagnostic identities have exact source-backed transport dispositions
 ok 23 - HTTP health and diagnostic identities have exact source-backed transport dispositions
   ---
-  duration_ms: 58.705497
+  duration_ms: 53.942805
   type: 'test'
   ...
 # Subtest: HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
 ok 24 - HTTP identities carry exact route, request/result, role, and bounded-or-candidate operation evidence
   ---
-  duration_ms: 10575.997584
+  duration_ms: 11695.526283
   type: 'test'
   ...
 # Subtest: HTTP crosswalk rejects semantic drift even when an identity and route still exist
 ok 25 - HTTP crosswalk rejects semantic drift even when an identity and route still exist
   ---
-  duration_ms: 39.557307
+  duration_ms: 24.619826
   type: 'test'
   ...
 # Subtest: gRPC transport and provider administration methods partition the exact observed service inventory
 ok 26 - gRPC transport and provider administration methods partition the exact observed service inventory
   ---
-  duration_ms: 10515.622875
+  duration_ms: 12033.349651
   type: 'test'
   ...
 # Subtest: gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
 ok 27 - gRPC crosswalk rejects request/result or streaming drift and invented domain equivalence
   ---
-  duration_ms: 1.58199
+  duration_ms: 2.296484
   type: 'test'
   ...
 # Subtest: gRPC identities retain every exact request/result field while leaving semantic field parity open
 ok 28 - gRPC identities retain every exact request/result field while leaving semantic field parity open
   ---
-  duration_ms: 10725.651637
+  duration_ms: 13618.717438
   type: 'test'
   ...
 # Subtest: TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
 ok 29 - TTS profile RPCs remain provider-engine administration and feedback remains explicitly unimplemented
   ---
-  duration_ms: 8.083759
+  duration_ms: 9.1728
   type: 'test'
   ...
 # Subtest: STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
 ok 30 - STT file-transcription candidate records the exact canonical adapter gaps and rejects false parity
   ---
-  duration_ms: 1.472088
+  duration_ms: 1.526625
   type: 'test'
   ...
 # Subtest: STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
 ok 31 - STT streaming candidate separates transport chunks from canonical versioned-stream inputs and receipts
   ---
-  duration_ms: 1.416929
+  duration_ms: 1.444458
   type: 'test'
   ...
 # Subtest: STT correction acknowledgement stub cannot be promoted to a canonical correction effect
 ok 32 - STT correction acknowledgement stub cannot be promoted to a canonical correction effect
   ---
-  duration_ms: 0.88694
+  duration_ms: 0.939064
   type: 'test'
   ...
 # Subtest: STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
 ok 33 - STT profile and adaptation identities retain source-exact effects while canonical ownership remains unresolved
   ---
-  duration_ms: 1.007258
+  duration_ms: 1.130137
   type: 'test'
   ...
 # Subtest: TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
 ok 34 - TTS synthesis remains a family candidate because its implementation lacks canonical authority and durable receipts
   ---
-  duration_ms: 0.719691
+  duration_ms: 0.804965
   type: 'test'
   ...
 # Subtest: TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
 ok 35 - TTS voice cloning remains unadmitted until exact voice-rights and enrollment-source semantics exist
   ---
-  duration_ms: 0.683043
+  duration_ms: 0.754077
   type: 'test'
   ...
 # Subtest: parity inventory fails closed on duplicate or stale disposition identities
 ok 36 - parity inventory fails closed on duplicate or stale disposition identities
   ---
-  duration_ms: 0.8447
+  duration_ms: 0.892757
   type: 'test'
   ...
 # Subtest: Media interface grammar resolves every source and preserves the complete finality safety vocabulary
 ok 37 - Media interface grammar resolves every source and preserves the complete finality safety vocabulary
   ---
-  duration_ms: 0.657031
+  duration_ms: 0.750447
   type: 'test'
   ...
 # Subtest: legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
 ok 38 - legacy and candidate SDK paths stay explicitly unadmitted when absent from the active route manifest
   ---
-  duration_ms: 0.573618
+  duration_ms: 0.644761
   type: 'test'
   ...
 # Subtest: remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
 ok 39 - remaining machine-channel identities are finite, source-backed, and explicitly non-accepted
   ---
-  duration_ms: 129.58538
+  duration_ms: 147.533937
   type: 'test'
   ...
 # Subtest: client callbacks and UI action intents are not canonical lifecycle events
 ok 40 - client callbacks and UI action intents are not canonical lifecycle events
   ---
-  duration_ms: 3.978678
+  duration_ms: 4.037797
   type: 'test'
   ...
 # Subtest: all UI action effect contracts are source-exact and stay separate from operation acceptance
 ok 41 - all UI action effect contracts are source-exact and stay separate from operation acceptance
   ---
-  duration_ms: 20.662491
+  duration_ms: 12.765056
   type: 'test'
   ...
 # Subtest: runtime lifecycle events and client notifications keep their distinct exact source roles
 ok 42 - runtime lifecycle events and client notifications keep their distinct exact source roles
   ---
-  duration_ms: 0.815641
+  duration_ms: 0.844976
   type: 'test'
   ...
 # Subtest: fixture CLI crosswalk rejects a different parser action and production-scope promotion
 ok 43 - fixture CLI crosswalk rejects a different parser action and production-scope promotion
   ---
-  duration_ms: 0.640623
+  duration_ms: 0.713694
   type: 'test'
   ...
 # Subtest: SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
 ok 44 - SDK crosswalk rejects wrong leaf bindings, client-local promotion, and unadmitted retry
   ---
-  duration_ms: 0.812583
+  duration_ms: 0.737982
   type: 'test'
   ...
 # Subtest: PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without accepting parity or runtime
 ok 45 - PDP-2 machine-interface grammar consumes the frozen PDP-1 handoff without accepting parity or runtime
   ---
-  duration_ms: 14504.960964
+  duration_ms: 14120.173028
   type: 'test'
   ...
 # Subtest: handoff grammar negative cases retain each machine-channel boundary
 ok 46 - handoff grammar negative cases retain each machine-channel boundary
   ---
-  duration_ms: 0.359278
+  duration_ms: 0.288662
   type: 'test'
   ...
 1..46
@@ -283,4 +283,4 @@ ok 46 - handoff grammar negative cases retain each machine-channel boundary
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 48227.849373
+# duration_ms 53165.816029

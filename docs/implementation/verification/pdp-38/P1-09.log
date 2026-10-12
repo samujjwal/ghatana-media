@@ -2,109 +2,109 @@ TAP version 13
 # Subtest: technical descriptors require all slots while unknown metadata cannot satisfy a profile
 ok 1 - technical descriptors require all slots while unknown metadata cannot satisfy a profile
   ---
-  duration_ms: 138.482646
+  duration_ms: 206.655845
   type: 'test'
   ...
 # Subtest: audio metadata separates sample truth, encoder delay and output-specific profiles
 ok 2 - audio metadata separates sample truth, encoder delay and output-specific profiles
   ---
-  duration_ms: 74.407387
+  duration_ms: 112.330179
   type: 'test'
   ...
 # Subtest: VFR mapping preserves exact presentation/decode times and never guesses duration from rate
 ok 3 - VFR mapping preserves exact presentation/decode times and never guesses duration from rate
   ---
-  duration_ms: 0.893924
+  duration_ms: 1.345396
   type: 'test'
   ...
 # Subtest: display aspect includes pixel aspect and rejects unsupported preservation or unknown permission
 ok 4 - display aspect includes pixel aspect and rejects unsupported preservation or unknown permission
   ---
-  duration_ms: 0.425909
+  duration_ms: 0.468428
   type: 'test'
   ...
 # Subtest: simulation and replay contracts cannot equate scene appearance with physics or scientific qualification
 ok 5 - simulation and replay contracts cannot equate scene appearance with physics or scientific qualification
   ---
-  duration_ms: 178.66632
+  duration_ms: 309.360748
   type: 'test'
   ...
 # Subtest: executable conversion limits bind to the exact owner profile, with no wire or scientific admission
 ok 6 - executable conversion limits bind to the exact owner profile, with no wire or scientific admission
   ---
-  duration_ms: 106.192825
+  duration_ms: 125.088359
   type: 'test'
   ...
 # Subtest: rational media time converts exactly without long-duration floating point drift
 ok 7 - rational media time converts exactly without long-duration floating point drift
   ---
-  duration_ms: 0.919622
+  duration_ms: 0.860434
   type: 'test'
   ...
 # Subtest: 29.97 rational frame boundaries preserve exact 30000/1001 cadence
 ok 8 - 29.97 rational frame boundaries preserve exact 30000/1001 cadence
   ---
-  duration_ms: 0.2366
+  duration_ms: 0.252949
   type: 'test'
   ...
 # Subtest: constant-rate frame boundaries use exact rational cadence and explicit origin; VFR uses source PTS
 ok 9 - constant-rate frame boundaries use exact rational cadence and explicit origin; VFR uses source PTS
   ---
-  duration_ms: 0.807529
+  duration_ms: 0.85864
   type: 'test'
   ...
 # Subtest: 24000/1001 cadence is never silently reinterpreted as an equal 24 fps frame count
 ok 10 - 24000/1001 cadence is never silently reinterpreted as an equal 24 fps frame count
   ---
-  duration_ms: 0.341601
+  duration_ms: 0.346572
   type: 'test'
   ...
 # Subtest: inexact conversion requires a selected rounding method and reports exact signed loss
 ok 11 - inexact conversion requires a selected rounding method and reports exact signed loss
   ---
-  duration_ms: 0.538765
+  duration_ms: 0.66554
   type: 'test'
   ...
 # Subtest: unknown clocks, implicit legacy fps/seconds and integer overflow fail closed
 ok 12 - unknown clocks, implicit legacy fps/seconds and integer overflow fail closed
   ---
-  duration_ms: 0.767183
+  duration_ms: 0.897322
   type: 'test'
   ...
 # Subtest: sample conversion distinguishes an end boundary from a valid sample and retains priming separation
 ok 13 - sample conversion distinguishes an end boundary from a valid sample and retains priming separation
   ---
-  duration_ms: 0.54988
+  duration_ms: 0.765608
   type: 'test'
   ...
 # Subtest: pixel boundary conversions round trip exactly and reject stale, ambiguous or out-of-bounds geometry
 ok 14 - pixel boundary conversions round trip exactly and reject stale, ambiguous or out-of-bounds geometry
   ---
-  duration_ms: 0.930859
+  duration_ms: 1.048483
   type: 'test'
   ...
 # Subtest: physical unit conversion preserves dimension and exact decimal ratios without scientific qualification
 ok 15 - physical unit conversion preserves dimension and exact decimal ratios without scientific qualification
   ---
-  duration_ms: 0.59888
+  duration_ms: 0.710523
   type: 'test'
   ...
 # Subtest: pixel centers retain their exact half-pixel offset and cannot be silently exchanged with boundaries
 ok 16 - pixel centers retain their exact half-pixel offset and cannot be silently exchanged with boundaries
   ---
-  duration_ms: 0.817019
+  duration_ms: 1.060509
   type: 'test'
   ...
 # Subtest: spatial transform declarations require registered explicit frames and never apply a 3D conversion
 ok 17 - spatial transform declarations require registered explicit frames and never apply a 3D conversion
   ---
-  duration_ms: 102.688848
+  duration_ms: 134.079471
   type: 'test'
   ...
 # Subtest: provider confidence and similarity compare only inside the exact declared measurement scope
 ok 18 - provider confidence and similarity compare only inside the exact declared measurement scope
   ---
-  duration_ms: 78.271099
+  duration_ms: 114.316565
   type: 'test'
   ...
 1..18
@@ -115,4 +115,4 @@ ok 18 - provider confidence and similarity compare only inside the exact declare
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 632.925247
+# duration_ms 925.81267

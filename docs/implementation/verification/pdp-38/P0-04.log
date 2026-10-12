@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions
 ok 1 - PDP-0 projects only the exact resolved P0-04 user intent actor and priority decisions
   ---
-  duration_ms: 3.750866
+  duration_ms: 3.70848
   type: 'test'
   ...
 # Subtest: PDP-0 preserves exact collaborator actor lists and only resolved initiating actors
 ok 2 - PDP-0 preserves exact collaborator actor lists and only resolved initiating actors
   ---
-  duration_ms: 1.835739
+  duration_ms: 1.55817
   type: 'test'
   ...
 # Subtest: PDP-0 requirement trace targets are limited to resolvable intents and unresolved targets stay in the review
 ok 3 - PDP-0 requirement trace targets are limited to resolvable intents and unresolved targets stay in the review
   ---
-  duration_ms: 0.861027
+  duration_ms: 0.884368
   type: 'test'
   ...
 # Subtest: P0-04 owner intent decisions are auditable and preserve collaborative actor references
 ok 4 - P0-04 owner intent decisions are auditable and preserve collaborative actor references
   ---
-  duration_ms: 3315.580674
+  duration_ms: 2269.304583
   type: 'test'
   ...
 # Subtest: P0-04 journey actors and requirement intent targets remain source-bound
 ok 5 - P0-04 journey actors and requirement intent targets remain source-bound
   ---
-  duration_ms: 2601.789601
+  duration_ms: 2126.158792
   type: 'test'
   ...
 1..5
@@ -37,4 +37,4 @@ ok 5 - P0-04 journey actors and requirement intent targets remain source-bound
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6224.55964
+# duration_ms 4688.027294
