@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "ghatana.media-historical-obligation-supersessions.v1",
+  "status": "Historical identity and source provenance preserved; rows excluded from active lifecycle obligations.",
+  "records": [
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.local-step-effect.j-08.step-02.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "action-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.local-step-effect.j-08.step-02.v1; source proposal: media.local-step-effect.j-08.step-02.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.local-step-effect.j-08.step-02.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#/records/media.local-step-effect.j-08.step-02.v1",
+            "recordId": "media.local-step-effect.j-08.step-02.v1",
+            "sourceDigest": "sha256:e9831e8b310325878e2898c97eed5ca710641a3cb9d7ef4dceaba1959b6c7685"
+          }
+        }
+      },
+      "supersessionReason": "J-08 step 02 is the remote submit-validated-request action; no local editor effect is defined.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.local-step-effect.j-09.step-09.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "action-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.local-step-effect.j-09.step-09.v1; source proposal: media.local-step-effect.j-09.step-09.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.local-step-effect.j-09.step-09.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#/records/media.local-step-effect.j-09.step-09.v1",
+            "recordId": "media.local-step-effect.j-09.step-09.v1",
+            "sourceDigest": "sha256:e9831e8b310325878e2898c97eed5ca710641a3cb9d7ef4dceaba1959b6c7685"
+          }
+        }
+      },
+      "supersessionReason": "Source local-step-effect catalog no longer contains this identity.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.local-step-effect.j-22.step-02.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "action-contract",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.local-step-effect.j-22.step-02.v1; source proposal: media.local-step-effect.j-22.step-02.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.local-step-effect.j-22.step-02.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#/records/media.local-step-effect.j-22.step-02.v1",
+            "recordId": "media.local-step-effect.j-22.step-02.v1",
+            "sourceDigest": "sha256:e9831e8b310325878e2898c97eed5ca710641a3cb9d7ef4dceaba1959b6c7685"
+          }
+        }
+      },
+      "supersessionReason": "Source local-step-effect catalog no longer contains this identity.",
+      "activeSuccessor": null
+    },
+    {
+      "supersededObligation": {
+        "schemaVersion": "ghatana.assurance.obligation",
+        "id": "media.pdp-3.requirement.media.pdp3.step-guard-binding.j-08-j-08-step-01.v1",
+        "closureSurfaceId": "media.product-definition",
+        "dimension": "transition",
+        "statement": "Review and establish the canonical PDP-3 source obligation for media.pdp3.step-guard-binding.j-08-j-08-step-01.v1; source proposal: media.pdp3.step-guard-binding.j-08-j-08-step-01.v1.",
+        "disposition": "REQUIRED",
+        "programId": "media.product-definition.v1",
+        "phaseSemantics": {
+          "applicableIn": [
+            "PDP-3"
+          ],
+          "blockingIn": [
+            "PDP-3"
+          ],
+          "affects": [
+            "PDP-3"
+          ]
+        },
+        "caseIds": [],
+        "observerIds": [],
+        "oracleIds": [],
+        "requirementIds": [
+          "media.pdp3.step-guard-binding.j-08-j-08-step-01.v1"
+        ],
+        "extensions": {
+          "media-source": {
+            "sourceRef": ".product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#/stepBindings/records/media.pdp3.step-guard-binding.j-08-j-08-step-01.v1",
+            "recordId": "media.pdp3.step-guard-binding.j-08-j-08-step-01.v1",
+            "sourceDigest": "sha256:b7b724bf9ad30226a776856ba981ed2c0947d1a4851dc399d854cb8256321422"
+          }
+        }
+      },
+      "supersessionReason": "Superseded by the current J-08 step 02 guard binding.",
+      "activeSuccessor": "media.pdp-3.requirement.media.pdp3.step-guard-binding.j-08-j-08-step-02.v1"
+    }
+  ]
+}

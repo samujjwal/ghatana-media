@@ -161,6 +161,19 @@ function deletePath(value, ref) {
   return delete parent[last.startsWith("[") ? Number(last.slice(1, -1)) : last];
 }
 
+function bindRequestFields(contract, request) {
+  const context = { request, contract: { operationRef: contract.operationRef, selectionKind: contract.selectionKind } };
+  for (const rule of contract.requestFieldRules ?? []) {
+    if (rule.scope !== "REQUEST_ALWAYS" || rule.operator !== "EXACT_EQUAL") {
+      throw new Error(`${rule.id} is not a supported positive-fixture equality binding`);
+    }
+    const selected = pathValue(context, rule.leftRef);
+    if (selected === undefined) throw new Error(`${rule.id} has no selected value at ${rule.leftRef}`);
+    setPath(context, rule.rightRef, selected);
+  }
+  return request;
+}
+
 function pathsForSchemaFormat(schema, value, prefix = "$") {
   if (!schema || value === undefined || value === null) return [];
   if (schema.format && typeof value === "string") return [prefix];
@@ -270,10 +283,11 @@ test("all eleven simulation-pass leaves have distinct, operation-bound schemas a
     assert.equal(contract.qualificationState, "NOT_EVALUATED");
 
     const inputValidate = ajv.compile(contract.requestSchema);
-    const input = sample(contract.requestSchema);
+    const input = bindRequestFields(contract, sample(contract.requestSchema));
     assert.equal(inputValidate(input), true, `${capabilityRef} has a schema-valid positive request fixture`);
-    assert.equal(validateOwnerLeafWireRequest(contract, input).valid, true,
-      `${capabilityRef} owner validator accepts its selected pass-contract request`);
+    const validatedRequest = validateOwnerLeafWireRequest(contract, input);
+    assert.equal(validatedRequest.valid, true,
+      `${capabilityRef} owner validator accepts its selected pass-contract request: ${JSON.stringify(validatedRequest)}`);
     const contradictoryPassContract = structuredClone(input);
     contradictoryPassContract.parameters.passContractRef = `${contradictoryPassContract.input2.payload.passContractRef}-other`;
     assert.equal(inputValidate(contradictoryPassContract), true,

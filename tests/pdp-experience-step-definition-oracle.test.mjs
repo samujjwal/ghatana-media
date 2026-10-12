@@ -22,6 +22,19 @@ for (const filename of (await readdir(`${base}/journey-contracts`)).filter((name
   journeys.push({ filename, document });
 }
 const operationDocument = parse(await readFile(".product-experience/pdp-1-domain-data/operations.yaml", "utf8"));
+const operationRecords = [
+  ...(operationDocument.operations ?? []),
+  ...(operationDocument.individualOperationContracts?.records ?? []),
+  ...(operationDocument.ownerDefinedOperationContracts?.records ?? []),
+  ...(operationDocument.capabilityOperationContracts?.records ?? []),
+];
+const operationsById = new Map(operationRecords.flatMap((operation) => [
+  [operation.id, operation],
+  ...(operation.operationRefs ?? []).map((ref) => [ref, operation]),
+]));
+const capabilityOperationsByRef = new Map((operationDocument.capabilityOperationContracts?.records ?? [])
+  .filter((record) => record.capabilityRef)
+  .map((record) => [record.capabilityRef, record]));
 const operationKinds = {};
 for (const collection of [operationDocument.operations ?? [], operationDocument.individualOperationContracts?.records ?? [], operationDocument.ownerDefinedOperationContracts?.records ?? [], operationDocument.capabilityOperationContracts?.records ?? []]) {
   for (const operation of collection) {
@@ -196,10 +209,10 @@ test("step source-binding coverage is not reported as guard-semantic completion"
   assert.equal(coverage.id, "media.pdp3.step-guard-fact-coverage.v1");
   assert.equal(coverage.stepCount, 130);
   assert.equal(coverage.sourceBindingsRecorded, 130);
-  assert.equal(coverage.guardedDomainIdentityWorkflowSteps, 94);
+  assert.equal(coverage.guardedDomainIdentityWorkflowSteps, 96);
   assert.equal(coverage.guardedDomainIdentityWorkflowFactEvaluators, 57);
   assert.equal(coverage.definitionFixturePredicateEvaluators, 57);
-  assert.equal(coverage.evaluatedGuardInstances, 254);
+  assert.equal(coverage.evaluatedGuardInstances, 260);
   assert.equal(coverage.unresolvedGuardFactInstances, 0);
   assert.equal(coverage.unresolvedGuardFactSteps, 0);
   assert.equal(coverage.trustedRuntimeGuardEvaluators, 0);
@@ -220,27 +233,28 @@ test("J-05 capability alternatives follow source-analysis purpose, not create-im
   assert.deepEqual(p0Journey.outcomeRefs, ["media.goal.understand-media", "media.goal.review-trustworthy-output"]);
   assert.deepEqual(journey.steps.slice(0, 3).map((step) => step.capabilityOptions.length), [13, 7, 1]);
   for (const step of journey.steps.slice(0, 3)) {
-    const result = validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Journey);
+    const result = validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Journey, operationsById);
     assert.deepEqual(result, { valid: true, reason: "EXACT_SOURCE_ANALYSIS_ALTERNATIVES" }, step.id);
     assert.equal(step.stepIntent.toLowerCase().includes("generation"), false, step.id);
   }
   const imageStep = journey.steps[0];
   const generatedCapability = capabilitiesById.get("media.generate.image.text-to-image");
+  const generatedBinding = capabilityOperationsByRef.get(generatedCapability.id);
   assert.ok(generatedCapability, "the wrong-purpose control is itself a valid source capability");
   const wrongButValidCapability = structuredClone(imageStep);
   wrongButValidCapability.capabilityOptions[0] = {
     capabilityRef: generatedCapability.id,
-    operationRefs: generatedCapability.ownerDefinition.operationRefs,
-    operationKind: generatedCapability.ownerDefinition.operationKind,
+    operationRefs: generatedBinding.operationRefs,
+    operationKind: generatedBinding.operationKind,
     requirementRefs: ["MEDIA-REQ-CAP-GENERATE-IMAGE"],
     admission: "NOT_ADMITTED",
   };
-  assert.deepEqual(validatePdp3StepCapabilityPurpose(wrongButValidCapability, capabilitiesById, p0Journey), {
+  assert.deepEqual(validatePdp3StepCapabilityPurpose(wrongButValidCapability, capabilitiesById, p0Journey, operationsById), {
     valid: false, reason: "CAPABILITY_OPTIONS_DO_NOT_MATCH_AUTHORED_PURPOSE_SET",
   });
   const falsifiedPurposeSet = structuredClone(wrongButValidCapability);
   falsifiedPurposeSet.purposeBinding.allowedCapabilityRefs[0] = generatedCapability.id;
-  assert.deepEqual(validatePdp3StepCapabilityPurpose(falsifiedPurposeSet, capabilitiesById, p0Journey), {
+  assert.deepEqual(validatePdp3StepCapabilityPurpose(falsifiedPurposeSet, capabilitiesById, p0Journey, operationsById), {
     valid: false, reason: "CAPABILITY_SOURCE_DOES_NOT_MATCH_ANALYSIS_PURPOSE",
   });
   assert.equal(imageStep.inputCases.find((item) => item.expectedDecision === "REJECT_WRONG_PURPOSE")?.selectedCapabilityRef,
@@ -270,4 +284,47 @@ test("step oracle rejects stale or forged source and target tuples and never tre
   const result = evaluatePdp3StepDefinition(binding, { ...base, fixtureGuardOutcomes: { ...verdicts, [unknownGuard]: "UNKNOWN" } }, oracleOptions);
   assert.equal(result.disposition, "HOLD_UNKNOWN");
   assert.equal(result.retryAuthorized, false);
+});
+
+test("J-06 operation identities remain distinct across the explicit invocation adapter chain", () => {
+  const { step } = steps.find(({ journey, index }) => journey.journeyId === "J-06" && index === 0);
+  const binding = step.stepDefinitionSemantics;
+  const actionOperation = "media.operation.action.submit-validated-request";
+  const capabilityOperation = "media.operation.capability.media-multimodal-observe-source-grounded";
+  assert.deepEqual(actionById.get(binding.action.actionRef).actionDefinitionSemantics.typedDefinition.exactOperationRefs, [actionOperation]);
+  assert.equal(binding.canonicalBindings.canonicalOperationRef, "media.operation.job.submit.v1");
+  assert.equal(binding.operationContractBinding.operationRef, capabilityOperation);
+  const actor = binding.action.actorRefs[0];
+  const verdicts = Object.fromEntries(binding.action.guards.map((guard) => [guard, "TRUE"]));
+  const result = evaluatePdp3StepDefinition(binding, inputFor(binding, actor, verdicts), oracleOptions);
+  assert.equal(result.reason, "SOURCE_TYPED_GUARD_FACT_EVALUATOR_NOT_BOUND");
+  assert.equal(result.dispatch, "NONE");
+  assert.equal(result.runtimeAdmission, "NOT_ADMITTED");
+
+  const malformed = structuredClone(binding);
+  malformed.invocationBindingChain.selectedCapabilityOperationRef = actionOperation;
+  const rejected = evaluatePdp3StepDefinition(malformed, inputFor(malformed, actor, verdicts), oracleOptions);
+  assert.equal(rejected.reason, "STEP_ACTION_OPERATION_MISMATCH");
+  assert.equal(rejected.dispatch, "NONE");
+});
+
+test("source-bound step scenario refs are exact in the step oracle", () => {
+  const oracleBySource = new Map(stepOracleSource.journeys.flatMap(({ steps: oracleJourneySteps }) =>
+    oracleJourneySteps.map((oracleStep) => [oracleStep.sourceRef, oracleStep])));
+  let linkedSteps = 0;
+  let linkedRefs = 0;
+  const distinctRefs = new Set();
+  for (const { journey, step, index } of steps) {
+    const sourceRefs = step.stepDefinitionSemantics?.canonicalBindings?.scenarioRefs ?? [];
+    const oracleStep = oracleBySource.get(step.stepDefinitionSemantics?.sourceRef);
+    assert.ok(oracleStep, `${journey.journeyId}/${index + 1} has an exact oracle row`);
+    assert.deepEqual(oracleStep.scenarioBindings?.stepSpecificScenarioRefs ?? [], sourceRefs,
+      `${journey.journeyId}/${index + 1} oracle scenario refs match the source contract`);
+    if (sourceRefs.length) linkedSteps += 1;
+    linkedRefs += sourceRefs.length;
+    sourceRefs.forEach((ref) => distinctRefs.add(ref));
+  }
+  assert.equal(linkedSteps, 19);
+  assert.equal(linkedRefs, 38);
+  assert.equal(distinctRefs.size, 31);
 });

@@ -5,11 +5,204 @@
  * narrow source extractors for the repository's authored formats, not YAML
  * parsers or semantic validators.
  */
+import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, relative, resolve, sep } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const read = (path) => readFileSync(join(root, path), "utf8");
+const requireTools = createRequire(resolve(root, "../ghatana-tools/package.json"));
+const { parse: parseYaml } = requireTools("yaml");
+const parsedYamlSources = new Map();
+const parseYamlSource = (source) => {
+  if (!parsedYamlSources.has(source)) parsedYamlSources.set(source, parseYaml(source));
+  return parsedYamlSources.get(source);
+};
+
+const DEFINITION_ONLY_DEFERRED = "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION";
+const TOOL_CONVENTIONS_PATH = ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml";
+const OPERATION_REVIEW_PATH = ".product-experience/pdp-1-domain-data/operations-current-source-review.json";
+
+function resolveYamlSelector(source, selector) {
+  let value = source;
+  for (const part of selector.split("/").filter(Boolean)) {
+    const keyed = /^@id=(.+)$/u.exec(part);
+    if (keyed) {
+      if (!Array.isArray(value)) return undefined;
+      const matches = value.filter((row) => row?.id === keyed[1]);
+      if (matches.length !== 1) return undefined;
+      [value] = matches;
+    } else value = Array.isArray(value) && /^\d+$/u.test(part) ? value[Number(part)] : value?.[part];
+  }
+  return value;
+}
+
+function exactAgentDefinitionBoundary(input) {
+  try {
+    const conventions = parseYamlSource(input.agentToolConventions ?? "");
+    const registry = parseYamlSource(input.agentToolRegistry ?? "");
+    const operations = parseYamlSource(input.pdp1Operations ?? "");
+    const definition = conventions?.mediaOwnedToolDefinitionContracts;
+    const contracts = definition?.contracts;
+    const tools = registry?.tools;
+    if (definition?.status !== "MEDIA_OWNER_DEFINITION_ONLY; public-runtime-binding-pending"
+      || definition.sharedBinding?.status !== "NOT_BOUND"
+      || !Array.isArray(contracts) || contracts.length !== 4
+      || !Array.isArray(tools) || tools.length !== 4
+      || new Set(contracts.map((row) => row.id)).size !== 4
+      || new Set(contracts.map((row) => row.toolId)).size !== 4
+      || new Set(tools.map((row) => row.id)).size !== 4) return false;
+    const contractByTool = new Map(contracts.map((row) => [row.toolId, row]));
+    for (const tool of tools) {
+      const contract = contractByTool.get(tool.id);
+      if (!contract || tool.mediaDefinitionContractRef !== `${TOOL_CONVENTIONS_PATH}#mediaOwnedToolDefinitionContracts/contracts/@id=${contract.id}`
+        || tool.executionAdmitted !== false
+        || tool.operationBinding?.status !== "owner-defined-operation-candidate; adapter-mapping-and-runtime-pending"
+        || contract.runtimeAdmission !== "NOT_ADMITTED"
+        || contract.operationBindingStatus !== "OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and runtime admission pending"
+        || contract.requestAdapter?.status !== "NOT_IMPLEMENTED"
+        || contract.resultAdapter?.status !== "NOT_IMPLEMENTED") return false;
+      const ref = contract.canonicalOperationRef;
+      const [sourcePath, selector] = typeof ref === "string" ? ref.split("#", 2) : [];
+      const operation = sourcePath === ".product-experience/pdp-1-domain-data/operations.yaml"
+        ? resolveYamlSelector(operations, selector ?? "") : undefined;
+      if (!operation || operation.id !== tool.operationBinding.value || !operation.id.startsWith("media.operation.")) return false;
+      const bound = resolveYamlSelector(operations, `capabilityOperationContracts/bounds/@id=${contract.executionBudgetBoundsRef?.split("@id=")[1] ?? ""}`);
+      if (!bound || contract.executionBudgetBoundsRef !== `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=${bound.id}`) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function exactOperationSourceReview(input) {
+  try {
+    const review = JSON.parse(input.operationCurrentSourceReview ?? "null");
+    const sha256 = createHash("sha256").update(input.pdp1Operations ?? "").digest("hex");
+    const wireSha256 = createHash("sha256").update(input.ownerActionWireContracts ?? "").digest("hex");
+    const operations = parseYamlSource(input.pdp1Operations ?? "");
+    const wire = parseYamlSource(input.ownerActionWireContracts ?? "");
+    const reconciliations = review?.currentSemanticReconciliation?.records;
+    return review?.schemaVersion === "media.pdp1-operation-current-source-review.v1"
+      && review.sourcePath === ".product-experience/pdp-1-domain-data/operations.yaml"
+      && review.currentSourceSha256 === sha256
+      && review.relatedOwnerSourceReconciliation?.sourcePath === ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml"
+      && review.relatedOwnerSourceReconciliation?.recordCount === 79
+      && review.relatedOwnerSourceReconciliation?.currentSourceSha256 === wireSha256
+      && wire?.records?.length === 79
+      && review.scope?.definitionStatus === "SOURCE_RECONCILED_FOR_DEVELOPMENT"
+      && review.scope?.runtimeAdmission === "NOT_ADMITTED"
+      && review.scope?.implementationClaim === "NONE"
+      && review.scope?.phaseAcceptanceClaim === "NONE"
+      && Array.isArray(reconciliations) && reconciliations.length === 11
+      && new Set(reconciliations.map((row) => row?.id)).size === 11
+      && new Set(reconciliations.map((row) => row?.selector)).size === 11
+      && [
+        "media.operation-slice.inspect-upload",
+        "media.operation-slice.inspect-artifact",
+        "media.operation-slice.inspect-job",
+        "media.operation-slice.submit-job",
+        "media.operation-slice.begin-upload",
+        "media.operation-slice.append-upload-chunk",
+        "media.operation-slice.complete-upload",
+        "media.operation-slice.inspect-provenance",
+        "media.operation.action.inspect-job-retry-policy",
+        "media.operation.job.submit.v1",
+        "media.operation.stream-session.inspect-execution-recovery.v1",
+      ].every((id) => reconciliations.some((row) => row?.id === id))
+      && reconciliations.every((row) => {
+        const selectorMatch = /^(individualOperationContracts|ownerDefinedOperationContracts)\.records\[@id=([^\]]+)\](?:\.(.+))?$/u.exec(row.selector ?? "");
+        if (!selectorMatch || !row.id || row.meaning?.length <= 30) return false;
+        const [, collection, recordId, fieldPath] = selectorMatch;
+        const recordPath = `${collection}/records/@id=${recordId}`;
+        const record = resolveYamlSelector(operations, recordPath);
+        const selected = fieldPath
+          ? resolveYamlSelector(operations, `${recordPath}/${fieldPath.replaceAll(".", "/")}`)
+          : record;
+        return record?.id === row.id && selected !== undefined;
+      })
+      && (() => {
+        const provenance = reconciliations.find(({ id }) => id === "media.operation-slice.inspect-provenance");
+        return provenance?.selector === "ownerDefinedOperationContracts.records[@id=media.operation-slice.inspect-provenance]"
+          && provenance.decisionRef === ".product-experience/decision-log.md#PXD-152"
+          && /exact opaque reference/u.test(provenance.meaning)
+          && /ProcessingJob or JobAttempt/u.test(provenance.meaning)
+          && /MediaRun is excluded/u.test(provenance.meaning)
+          && /runtime and transport remain NOT_ADMITTED/iu.test(provenance.meaning);
+      })()
+      && (() => {
+        const retryPolicy = reconciliations.find(({ id }) => id === "media.operation.action.inspect-job-retry-policy");
+        return retryPolicy?.selector === "ownerDefinedOperationContracts.records[@id=media.operation.action.inspect-job-retry-policy]"
+          && retryPolicy.decisionRef === ".product-experience/decision-log.md#PXD-155"
+          && retryPolicy.observationContractRef === ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1"
+          && /definitive no-effect or retryable-failure outcome/u.test(retryPolicy.meaning)
+          && /runtime observation, and retry execution remain NOT_ADMITTED/u.test(retryPolicy.meaning);
+      })()
+      && (() => {
+        const jobSubmit = reconciliations.find(({ id }) => id === "media.operation.job.submit.v1");
+        const wrapperSchema = resolveYamlSelector(operations,
+          "ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/requestSchema/definitions/typedInputs/preservation-and-enhancement-policy");
+        const canonical = operations?.capabilityOperationContracts?.inputPayloadSchemas?.filter(
+          (row) => row?.id === "media.typed-input.preservation-and-enhancement-policy");
+        const canonicalSchema = canonical?.length === 1 ? canonical[0].schema : undefined;
+        const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+        return jobSubmit?.selector === "ownerDefinedOperationContracts.records[@id=media.operation.job.submit.v1].ownerWireSchema.requestSchema.definitions.typedInputs.preservation-and-enhancement-policy"
+          && jobSubmit.decisionRef === ".product-experience/decision-log.md#PXD-157"
+          && /job\.submit wrapper exactly preserves the canonical closed preservation-and-enhancement-policy typed input/u.test(jobSubmit.meaning)
+          && wrapperSchema && canonicalSchema && same(wrapperSchema, canonicalSchema)
+          && wrapperSchema.additionalProperties === false
+          && wrapperSchema.properties?.payload?.additionalProperties === false
+          && wrapperSchema.properties?.payload?.properties?.rightsEvidenceRefs?.items?.format === "opaque-reference"
+          && wrapperSchema.properties?.payload?.properties?.rightsEvidenceRefs?.uniqueItems === true
+          && wrapperSchema.properties?.payload?.allOf?.some((rule) => rule?.then?.required?.includes("consentRef")
+            && rule.then.required.includes("enhancementDecisionRef"));
+      })()
+      && (() => {
+        const recovery = reconciliations.find(({ id }) => id === "media.operation.stream-session.inspect-execution-recovery.v1");
+        const record = resolveYamlSelector(operations,
+          "ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1");
+        return recovery?.selector === "ownerDefinedOperationContracts.records[@id=media.operation.stream-session.inspect-execution-recovery.v1]"
+          && recovery.decisionRef === ".product-experience/decision-log.md#PXD-160"
+          && /exact-session recovery QUERY/u.test(recovery.meaning)
+          && /host-attested tenant\/principal and one coherent read snapshot/u.test(recovery.meaning)
+          && /source-selected prior-effect interval/u.test(recovery.meaning)
+          && /incomplete or mismatched evidence is UNKNOWN/u.test(recovery.meaning)
+          && /No execution-reference identity, dispatch, replay, endpoint, or runtime admission/u.test(recovery.meaning)
+          && record?.operationKind === "QUERY"
+          && record?.executionAdmission === "NOT_ADMITTED"
+          && record?.trustedContext?.tenantId === "host-attested"
+          && record?.trustedContext?.principalId === "host-attested";
+      })();
+  } catch {
+    return false;
+  }
+}
+
+/** The top-level operations list is a proposal inventory. Its unresolved
+ * summaries remain useful diagnostics, but they are not the definition-only
+ * denominator: interface populations and the separately pinned wire review
+ * are checked by their own gates. Defer only this exact, still-proposal-shaped
+ * inventory after the current source review has been verified. */
+function exactProposalOperationInventory(input) {
+  try {
+    const catalog = parseYamlSource(input.pdp1Operations ?? "");
+    const records = catalog?.operations;
+    const ids = records?.map((row) => row?.id);
+    return catalog?.schemaVersion === "media.pdp-1.operations.v1"
+      && catalog?.artifactId === "media.pdp-1.operations"
+      && catalog?.scopeStatus === "proposal-only; nine-organizational-families-with-distinct-operation-identities; cross-interface-bindings-and-owner-review-pending"
+      && catalog?.mappingRules?.observationVsProposal === "observedBindings and sourceDenominators describe source records only; domainIntent and operationContract are proposals, not approved behavior"
+      && Array.isArray(records) && records.length === 14
+      && ids.every((id) => typeof id === "string" && /^media\.operation\.[a-z0-9-]+$/u.test(id))
+      && new Set(ids).size === 14
+      && records.every((row) => ["COMMAND", "QUERY"].includes(row.operationKind)
+        && typeof row.scopeStatus === "string" && row.scopeStatus.length > 0);
+  } catch {
+    return false;
+  }
+}
 
 export function discoverSdkSourceFiles(repositoryRoot, sourceDirectory = "libs/audio-video-client/src") {
   const rootPath = resolve(repositoryRoot);
@@ -322,20 +515,63 @@ function parseProtoRpcs(text) {
   return rows;
 }
 
-/** Global labels cannot accept an operation. Every exact record must carry its
- * own typed command/query semantics and owner disposition; incomplete families
- * remain unresolved even if the root status is changed to accepted. */
+/** Inspect only logical operation summaries. The operations.yaml file also
+ * contains ownerNormativeRuleRecords whose IDs share the media.operation.
+ * prefix; those rules are not operations and must not enter this denominator.
+ * Proposal/NOT_ADMITTED labels alone are not a development blocker, but
+ * unresolved meaning in an operation's semantic fields remains one. */
 export function canonicalOperationAcceptance(source) {
-  const records = [...source.matchAll(/^  - id: (media\.operation\.[^\s]+)\n([\s\S]*?)(?=^  - id: |^channelFamilies:|$(?![\s\S]))/gmu)];
-  const unresolved = records.filter(([, , body]) => {
-    const fields = ['ownerDecisionRef', 'operationKind', 'authority', 'context', 'preconditions',
-      'inputSemantics', 'effect', 'transition', 'commitFinality', 'failure', 'unknownOutcome', 'retry', 'idempotency'];
-    return !/^    operationKind: (?:COMMAND|QUERY)$/mu.test(body)
-      || !/^    ownerDecisionRef: \.product-experience\/decision-log\.md#PXD-\d+$/mu.test(body)
-      || fields.some(field => !new RegExp(`^    ${field}:`, 'mu').test(body))
-      || /unresolved|proposal|pending|unassessed/iu.test(body);
-  }).map(([ , id]) => id);
-  return { recordCount: records.length, unresolvedIds: unresolved, complete: records.length > 0 && unresolved.length === 0 };
+  let catalog;
+  try {
+    catalog = parseYamlSource(source);
+  } catch {
+    return { recordCount: 0, unresolvedIds: [], complete: false };
+  }
+  const records = Array.isArray(catalog?.operations) ? catalog.operations : [];
+  const detailedRecords = [
+    ...(catalog?.individualOperationContracts?.records ?? []),
+    ...(catalog?.ownerDefinedOperationContracts?.records ?? []),
+  ];
+  const isCompleteDetailedOperation = (detail) => {
+    const required = Object.hasOwn(detail ?? {}, 'sourceOperation')
+      ? ['sourceOperation', 'sourceRef', 'requestIdentity', 'stateBinding', 'outcomes', 'authority', 'preconditions', 'finality', 'negativeCases', 'ownerWireSchema']
+      : ['sourceRefs', 'capabilityRefs', 'requestSchema', 'authority', 'preconditions', 'resultSchema', 'finality', 'errors', 'retry', 'negativeCases', 'ownerWireSchema'];
+    return ['COMMAND', 'QUERY'].includes(detail?.operationKind)
+      && Array.isArray(detail?.actionIntentRefs)
+      && required.every((key) => detail[key] !== undefined && detail[key] !== null && detail[key] !== '');
+  };
+  const semanticFields = [
+    'consumerActor', 'authority', 'context', 'preconditions', 'inputSemantics',
+    'effect', 'transition', 'events', 'risk', 'reversibility', 'commitFinality',
+    'downstreamEffects', 'failure', 'partialSuccess', 'unknownOutcome', 'retry',
+    'idempotency', 'recovery',
+  ];
+  const unresolvedIds = records.filter((record) => {
+    const incompleteField = semanticFields.some((field) => {
+      const value = record?.[field];
+      if (value === undefined || value === null || value === '') return true;
+      const values = [];
+      const collect = (item) => {
+        if (typeof item === 'string') values.push(item);
+        else if (Array.isArray(item)) item.forEach(collect);
+        else if (item && typeof item === 'object') Object.values(item).forEach(collect);
+      };
+      collect(value);
+      return values.some((item) => /\b(?:unresolved|pending|unassessed)\b/iu.test(item));
+    });
+    // A proposal summary is superseded only when exact detailed operation
+    // records account for every action meaning it declares. A matching family
+    // label, operation ID, wire schema, or route is not enough to prove that.
+    const actionRefs = Array.isArray(record?.actionRefs) ? record.actionRefs : [];
+    const actionRefsCovered = actionRefs.length > 0 && actionRefs.every((actionRef) =>
+      detailedRecords.some((detail) => isCompleteDetailedOperation(detail)
+        && detail.actionIntentRefs.includes(actionRef)));
+    return !record?.id?.startsWith('media.operation.')
+      || !['COMMAND', 'QUERY'].includes(record.operationKind)
+      || incompleteField
+      || !actionRefsCovered;
+  }).map((record) => record.id ?? '(missing operation id)');
+  return { recordCount: records.length, unresolvedIds, complete: records.length > 0 && unresolvedIds.length === 0 };
 }
 
 export function retiredSdkRetryFindings(sources = {}) {
@@ -367,9 +603,11 @@ export function retiredSdkRetryFindings(sources = {}) {
 }
 
 /** Inputs are overridable for deterministic drift tests. */
-export function analyzeContractParity(input) {
+export function analyzeContractParity(input, { mode = "strict" } = {}) {
+  if (!new Set(["strict", "definition-only"]).has(mode)) throw new Error(`unsupported contract parity mode: ${mode}`);
   const gaps = [];
   const reconciledFindings = [];
+  const deferredFindings = [];
   const openapi = parseOpenApiRows(input.openapi);
   const runtime = parseRuntimeRows(input.runtimeManifest);
   const httpRegistry = parseYamlHttpRows(input.httpRegistry);
@@ -515,12 +753,38 @@ export function analyzeContractParity(input) {
   const retiredFindings = retiredSdkRetryFindings(input.sdkSourceFiles);
   if (semanticUnresolved) gaps.push(`semantic binding unresolved: PDP-1 operations remain ${operationStatus}; structural identities are not accepted mappings`);
   if (!input.pdp1Operations.includes("bindingStatus:")) gaps.push("semantic binding unresolved: PDP-1 binding status is absent");
+  if (mode === "definition-only") {
+    const toolFinding = gaps.find((gap) => gap === `Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`);
+    if (toolFinding && toolIds.length === 4 && exactAgentDefinitionBoundary(input)) {
+      gaps.splice(gaps.indexOf(toolFinding), 1);
+      deferredFindings.push({
+        id: "agent-tool-runtime-and-shared-admission",
+        status: DEFINITION_ONLY_DEFERRED,
+        finding: toolFinding,
+        reason: "The four exact Media definitions and source joins are present; runtime and Shared admission are separate from development definition completion.",
+      });
+    } else if (toolFinding) {
+      gaps.push("definition-only prerequisite failed: exact four-tool source definitions, operation joins, or NOT_ADMITTED/NOT_BOUND boundary are invalid");
+    }
+    const operationFinding = gaps.find((gap) => gap === `semantic binding unresolved: PDP-1 operations remain ${operationStatus}; structural identities are not accepted mappings`);
+    if (operationFinding && operationStatus.startsWith("proposal-only;")
+      && exactProposalOperationInventory(input) && exactOperationSourceReview(input)) {
+      gaps.splice(gaps.indexOf(operationFinding), 1);
+      deferredFindings.push({
+        id: "pdp1-owner-acceptance-and-runtime-admission",
+        status: DEFINITION_ONLY_DEFERRED,
+        finding: operationFinding,
+        reason: "The exact 14-row proposal inventory remains diagnostic; current operation and 79-wire source reviews are pinned and reconciled, while owner acceptance and runtime admission are not development-definition exit criteria.",
+      });
+    }
+  }
   // Keep the frozen source-observation census separate from newer typed
   // contract validation gaps. A new Media-owned type reference can add a
   // definition blocker, but it does not rewrite the historical 47-finding
   // inventory or its two open acceptance findings.
-  const historicalGaps = gaps.filter((gap) => gap.startsWith("Agent Tool structural inventory")
-    || gap.startsWith("semantic binding unresolved:"));
+  const historicalGaps = [...gaps, ...deferredFindings.map(({ finding }) => finding)]
+    .filter((gap) => gap.startsWith("Agent Tool structural inventory")
+      || gap.startsWith("semantic binding unresolved:"));
   const typedContractGaps = gaps.filter((gap) => gap.startsWith("typed contract binding:"));
 
   return {
@@ -537,7 +801,9 @@ export function analyzeContractParity(input) {
       sdkHttpCallSites: sdkCalls.length,
     },
     semanticStatus: semanticUnresolved ? "UNRESOLVED" : "REVIEW_REQUIRED",
-    observedFindingCount: gaps.length + reconciledFindings.length,
+    mode,
+    deferredFindings,
+    observedFindingCount: gaps.length + deferredFindings.length + reconciledFindings.length,
     historicalObservedFindingCount: historicalGaps.length + reconciledFindings.length,
     operationAcceptance,
     retiredFindings,
@@ -586,14 +852,24 @@ export function collectLiveInput() {
     typedContractBindings: read(".product-experience/interface-parity/typed-contract-bindings.json"),
     pdp1DomainObjects: read(".product-experience/pdp-1-domain-data/domain-objects.yaml"),
     agentToolRegistry: read(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"),
+    agentToolConventions: read(TOOL_CONVENTIONS_PATH),
+    ownerActionWireContracts: read(".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml"),
+    operationCurrentSourceReview: read(OPERATION_REVIEW_PATH),
     pdp1Operations: read(".product-experience/pdp-1-domain-data/operations.yaml"),
     pdp0StateModels: read(".product-experience/pdp-0-product-truth/state-models.yaml"),
   };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname)) {
-  const result = analyzeContractParity(collectLiveInput());
-  console.log(`Media contract parity: ${result.passed ? "PASS" : "NON-GREEN"}`);
+  const args = process.argv.slice(2);
+  const unknownArgs = args.filter((arg) => arg !== "--definition-only");
+  if (unknownArgs.length) {
+    console.error(`unknown argument(s): ${unknownArgs.join(", ")}`);
+    process.exitCode = 2;
+  } else {
+  const mode = args.includes("--definition-only") ? "definition-only" : "strict";
+  const result = analyzeContractParity(collectLiveInput(), { mode });
+  console.log(`Media contract parity${mode === "definition-only" ? " (definition-only)" : ""}: ${result.passed ? "PASS" : "NON-GREEN"}`);
   console.log(`  structural inventory: ${JSON.stringify(result.structural)}`);
   console.log(`  semantic binding: ${result.semanticStatus}`);
   console.log(`  source findings audited: ${result.observedFindingCount} (${result.reconciledFindings.length} dispositioned; ${result.gaps.length} unresolved)`);
@@ -602,9 +878,14 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.
   if (result.reconciledFindings.length) {
     console.log(`  source-dispositioned findings: ${result.reconciledFindings.length}`);
   }
+  if (result.deferredFindings.length) {
+    console.log(`  deferred for development completion: ${result.deferredFindings.length}`);
+    for (const row of result.deferredFindings) console.log(`  - ${row.id}: ${row.status}`);
+  }
   if (result.gaps.length) {
     console.error(`  explicit gaps (${result.gaps.length}):`);
     for (const gap of result.gaps) console.error(`  - ${gap}`);
     process.exitCode = 1;
+  }
   }
 }

@@ -1,6 +1,6 @@
 schemaVersion: media.experience-source-bindings.v1
 productId: media
-status: proposal-only; source-identity-and-state-links-pending-independent-review
+status: proposal-only; exact-source-identity-and-state-links-defined; independent-review-pending; runtime-not-admitted
 authority: Media PDP-3 scenario fixture registry, existing deterministic simulation seeds, and PDP-0 canonical state proposals
 sourceRefs:
   - .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml
@@ -533,7 +533,7 @@ j03TranscriptionSubmissionBindings:
   journeyRef: J-03
   sourceDecisionRef: .product-experience/decision-log.md#PXD-070
   grammarDecisionRef: .product-experience/decision-log.md#PXD-071
-  reviewDecisionRef: .product-experience/decision-log.md#PXD-072
+  reviewDecisionRef: .product-experience/decision-log.md#PXD-159
   runtimeAdmission: NOT_ADMITTED
   operationSource: .product-experience/pdp-1-domain-data/operations.yaml#/operations
   steps:
@@ -543,20 +543,46 @@ j03TranscriptionSubmissionBindings:
       actionRef: media.action.request-transcription
       operationRef: media.operation.transcription-submission
       requestModes: [SUBMIT_OR_REPLAY, RECONCILE]
-      submitRequiredFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
-      submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      commonRequiredFields: [requestMode]
+      commonAllowedFields: [requestMode]
+      submitRequiredFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs]
+      submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, languageHint]
       reconcileRequiredFields: [requestId, requestFingerprint]
       reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
-      commonAllowedFields: [requestMode]
       branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
       trustedHostFields: [tenantId, principalId, delegationRef]
       domainObjectRefs: [media.domain.artifact-version, media.domain.processing-job]
       stateRefs: []
       authority: Recheck current trusted identity/delegation and all source/rights/consent/purpose/retention/location/profile/license/budget/audit policy before submission or replay; reconciliation separately requires current scoped receipt-read authority and is not blocked merely by revoked processing permission.
-      fingerprintVersion: media.transcription-submission-fingerprint.v1
+      profilePreconstructionBoundary: absent-incomplete-stale-or-unqualified-optional-P0-profile-language-slot-returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction; never-default-or-reinterpret-absence-as-AUTO_REQUESTED
+      scalarNullability:
+        optionalDelegationRef: absent-is-canonical-null; if-present-must-be-a-nonempty-trusted-delegation-reference
+        consentRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context; canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required
+        retentionPolicyRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context; canonical-null-only-when-current-authoritative-policy-resolves-no-retention-policy
+        policyDecisionRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context; canonical-null-only-when-no-separate-policy-decision-reference-exists
+        requiredNonemptyStrings: [requestId, sourceArtifactId, sourceArtifactVersionId, profileId, profileVersion, purposeRef]
+        nonnullDigestFields: [profileConfigurationDigest, authoritativeSourceContentDigest]
+        rightsEvidenceRefs: nonempty-exact-reference-array-resolved-to-current-authoritative-rights-decisions; preserve-array-order-and-membership; caller-assertion-is-not-evidence
+        consentRetentionAndPolicyReferences: caller-provided-values-are-exact-locators-only; current-authoritative-owner-resolution-controls-effective-values-and-explicit-null; caller-cannot-assert-consent-retention-or-policy-authority
+        processingLocation: never-caller-asserted; resolve-only-from-current-trusted-policy-and-qualified-profile-context
+        reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
+        noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field; no-defaulting-or-ignored-payload-fields
+      policyFields: [purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef]
+      optionalReferenceWireFields: [consentRef, retentionPolicyRef, policyDecisionRef]
+      callerNullRule: optional-wire-reference-fields-must-be-absent-or-nonempty-strings; caller-supplied-null-is-rejected; canonical-null-is-host-produced-only-under-each-field-specific-current-policy-rule
+      requestResolution:
+        optionalAuthorityReferences: [consentRef, retentionPolicyRef, policyDecisionRef]
+        absentReferenceDisposition: resolve-from-current-authoritative-owner-context-or-canonical-null-only-when-policy-says-not-applicable
+        processingLocationDisposition: resolve-from-current-trusted-policy-and-qualified-profile-context; never-accept-a-caller-asserted-location
+        fingerprintUses: exact-owner-resolved-values-including-explicit-null-and-resolvedProcessingLocation
+      fingerprintValueSource: caller-supplied-reference-locators-are-only-input-to-current-owner-resolution; fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names; never-substitute-caller-locator-strings-for-resolved-values
+      fingerprintVersion: media.transcription-submission-fingerprint.v2
       fingerprintScope: [tenantId, principalId, operationId, requestId]
-      fingerprintFields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
-      snapshotPreparation: Canonically validate and retain the complete immutable submit payload and computed fingerprint before first dispatch; optional presence is explicit and strings remain exact with no trimming, case-folding, or default insertion.
+      fingerprintFields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, resolvedProcessingLocation]
+      fingerprintEncoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
+      fingerprintScalarEncoding: fixed-string-or-explicit-null-types-only; rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references; timestamps-is-one-of-none-segment-word-phoneme; speakerDiarization-is-a-JSON-boolean-without-coercion; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
+      fingerprintNormalization: validate-types-and-enums-first; preserve-exact-validated-string-values-and-optional-presence; no-trimming-case-folding-default-insertion-or-map-order-dependence
+      snapshotPreparation: Canonically validate and retain the complete immutable submit payload, current owner-resolved optional authority values, resolved processing location, and computed v2 fingerprint before first dispatch; optional presence is explicit and strings remain exact with no trimming, case-folding, or default insertion.
       transitionDisposition: NOT_APPLICABLE_WITH_REASON
       transitionReason: Request acceptance creates an operation-local receipt and logical job identity only; no job or attempt state transition is defined by submission.
       acknowledgement: REQUEST_ACKNOWLEDGED contains submissionReceiptId and stable logical jobId; no current job state, provider execution, recognition result, transcript, quality, approval, or publication is implied.
@@ -564,7 +590,7 @@ j03TranscriptionSubmissionBindings:
       replayAndRetry: Require exact full original request and fresh processing policy for same-key replay; conflict preserves the prior receipt and does not prove the earlier key had no effect; never blindly replay, mint a new key, or treat worker retry as this operation.
       acknowledgedFields: [outcome, requestId, requestFingerprint, submissionReceiptId, jobId, acceptedAt, replayDisposition]
       unknownFields: [outcome, requestId, requestFingerprint, observedAt, uncertaintyReason]
-      problemCodes: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
+      problemCodes: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, UNSUPPORTED_PROFILE, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT, UNAVAILABLE, UNKNOWN_OUTCOME]
       runtimeAdmission: NOT_ADMITTED
 j03TranscriptReviewBindings:
   status: SOURCE_DEFINED_OWNER_ACCEPTED
@@ -625,3 +651,412 @@ inspectionBindings:
     sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.trace, .product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/events.yaml, .product-experience/pdp-1-domain-data/state-adjudication.yaml]
   - inspectionId: media.inspection.synthetic-simulation
     sourceRefs: [.product-experience/pdp-3-product-experience/search-inspection-contracts.yaml#inspectionContracts/media.inspection.synthetic-simulation, .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml, .product-experience/explorer/scenario-fixtures.yaml]
+scenarioFixtureBindings:
+  status: ALL_31_SCENARIOS_HAVE_EXACT_TYPED_SYNTHETIC_PAYLOAD_AND_STATE_OR_CONTEXT_LINKS; JOURNEY_CHANNELS_INHERITED_ONLY_FROM_EXACT_SCENARIO_REFERENCES; DEFINITION_ONLY
+  sourceRefs: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures, libs/media-experience-simulation/src/fixtures.ts#seeds, .product-experience/pdp-3-product-experience/journey-contracts/]
+  channelSemanticsRef: .product-experience/pdp-3-product-experience/application-channel-registry.yaml#machineChannelSemantics
+  channelDisposition: Exact journey channel refs are definition applicability only; unresolved operation/route/RPC/SDK bindings remain unresolved and runtime is not admitted.
+  records:
+    - scenarioRef: media.scenario.upload-interrupted
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-interrupted
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.upload-interrupted
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.begin-artifact-upload", "media.action.resume-artifact-upload"]
+      canonicalOperationRefs: ["media.operation-slice.begin-upload", "media.operation-slice.inspect-upload"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.upload-checksum-mismatch
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-checksum-mismatch
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.upload-checksum-mismatch
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.inspect-artifact"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-artifact"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.upload-format-unsupported
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-format-unsupported
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.upload-format-unsupported
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.inspect-artifact"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-artifact"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.upload-quarantined
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-quarantined
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.upload-quarantined
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.inspect-artifact"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-artifact"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.upload-verified-available
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-verified-available
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.upload-verified-available
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.inspect-artifact"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-artifact"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.upload-outcome-unknown
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-outcome-unknown
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.upload-outcome-unknown
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.resume-artifact-upload"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-upload"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.upload-permission-revoked
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactIntakeExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/upload-permission-revoked
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.upload-permission-revoked
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.select-artifact-source", "media.action.resume-artifact-upload"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-upload"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.first-use-empty
+      sourceFixtureRef: FIXTURE-FIRST-USE-PROJECT-SETUP
+      typedPayload: FirstUseExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/first-use-empty
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.first-use-empty
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"]
+      channelRefs: ["media.channel.web"]
+      actionRefs: []
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.identity-required
+      sourceFixtureRef: FIXTURE-FIRST-USE-PROJECT-SETUP
+      typedPayload: FirstUseExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/identity-required
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.identity-required
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"]
+      channelRefs: ["media.channel.web"]
+      actionRefs: ["media.action.select-identity-confirmed-workspace"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.workspace-access-denied
+      sourceFixtureRef: FIXTURE-FIRST-USE-PROJECT-SETUP
+      typedPayload: FirstUseExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/workspace-access-denied
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.workspace-access-denied
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"]
+      channelRefs: ["media.channel.web"]
+      actionRefs: ["media.action.select-identity-confirmed-workspace"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.project-create-outcome-unknown
+      sourceFixtureRef: FIXTURE-FIRST-USE-PROJECT-SETUP
+      typedPayload: FirstUseExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/project-create-outcome-unknown
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.project-create-outcome-unknown
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"]
+      channelRefs: ["media.channel.web"]
+      actionRefs: ["media.action.create-project"]
+      canonicalOperationRefs: ["media.operation-slice.create-project"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.project-created-empty
+      sourceFixtureRef: FIXTURE-FIRST-USE-PROJECT-SETUP
+      typedPayload: FirstUseExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/project-created-empty
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.project-created-empty
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"]
+      channelRefs: ["media.channel.web"]
+      actionRefs: ["media.action.open-project"]
+      canonicalOperationRefs: ["media.operation-slice.inspect-project"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.intent-unavailable
+      sourceFixtureRef: FIXTURE-FIRST-USE-PROJECT-SETUP
+      typedPayload: FirstUseExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/intent-unavailable
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.intent-unavailable
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml"]
+      channelRefs: ["media.channel.web"]
+      actionRefs: ["media.action.create-project"]
+      canonicalOperationRefs: ["media.operation-slice.create-project"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.artifact-verification-running
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactVerificationExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/artifact-verification-running
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.artifact-verification-running
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.view-job-status"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.artifact-verification-outcome-unknown
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactVerificationExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/artifact-verification-outcome-unknown
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.artifact-verification-outcome-unknown
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.view-job-status"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.artifact-verification-completed
+      sourceFixtureRef: FIXTURE-UPLOAD-INTEGRITY-RECOVERY
+      typedPayload: ArtifactVerificationExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/artifact-verification-completed
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.artifact-verification-completed
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.http-api", "media.channel.sdk"]
+      actionRefs: ["media.action.view-job-status"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.source-available
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/source-available
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.source-available
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.choose-source"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.transcript-ready
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/transcript-ready
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.transcript-ready
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.review-transcript"]
+      canonicalOperationRefs: ["media.operation.transcript-version-read"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.language-uncertain
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/language-uncertain
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.language-uncertain
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.review-transcript"]
+      canonicalOperationRefs: ["media.operation.transcript-version-read"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.alignment-required
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/alignment-required
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.alignment-required
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.align-caption-timing"]
+      canonicalOperationRefs: ["media.operation.caption-draft-write"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.consent-revoked
+      sourceFixtureRef: FIXTURE-RIGHTS-DENIAL
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/consent-revoked
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.consent-revoked
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.request-transcription"]
+      canonicalOperationRefs: ["media.operation.transcription-submission"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.job-running
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/job-running
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.job-running
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.view-job-status"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.job-outcome-unknown
+      sourceFixtureRef: FIXTURE-PROVIDER-AMBIGUITY
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/job-outcome-unknown
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.job-outcome-unknown
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.request-transcription", "media.action.view-job-status"]
+      canonicalOperationRefs: ["media.operation.transcription-submission"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.caption-corrected
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/caption-corrected
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.caption-corrected
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.correct-caption", "media.action.save-caption-version"]
+      canonicalOperationRefs: ["media.operation.caption-draft-write", "media.operation.caption-version-write"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.caption-conflict
+      sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/caption-conflict
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.caption-conflict
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.correct-caption", "media.action.align-caption-timing", "media.action.save-caption-version"]
+      canonicalOperationRefs: ["media.operation.caption-draft-write", "media.operation.caption-version-write"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.job-outcome-confirmed
+      sourceFixtureRef: FIXTURE-PROVIDER-AMBIGUITY
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/job-outcome-confirmed
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.job-outcome-confirmed
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.view-job-status"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.job-retry-eligible
+      sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/job-retry-eligible
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.job-retry-eligible
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli"]
+      actionRefs: ["media.action.retry-job"]
+      canonicalOperationRefs: ["media.operation-slice.retry-job"]
+      fixtureDisposition: CONDITIONAL_SYNTHETIC_PRE_DISPATCH_ONLY
+      oracleDisposition: PRE_DISPATCH_ELIGIBILITY_ONLY; NO_RETRY_DISPATCH
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.job-retry-ineligible
+      sourceFixtureRef: FIXTURE-PROVIDER-AMBIGUITY
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/job-retry-ineligible
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.job-retry-ineligible
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli"]
+      actionRefs: ["media.action.check-job-outcome"]
+      canonicalOperationRefs: []
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.caption-version-comparison
+      sourceFixtureRef: FIXTURE-PODCAST-INTERVIEW
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/caption-version-comparison
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.caption-version-comparison
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.compare-caption-versions"]
+      canonicalOperationRefs: ["media.operation.caption-version-read"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.caption-source-mismatch
+      sourceFixtureRef: FIXTURE-PARTIAL-COMPLETION
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/caption-source-mismatch
+      startingStateBindingRef: null
+      startingContextBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingContextBindings/records/@scenarioRef=media.scenario.caption-source-mismatch
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.review-transcript", "media.action.compare-caption-versions"]
+      canonicalOperationRefs: ["media.operation.transcript-version-read", "media.operation.caption-version-read"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED
+    - scenarioRef: media.scenario.source-quarantined
+      sourceFixtureRef: FIXTURE-RIGHTS-DENIAL
+      typedPayload: TranscriptionExperienceState
+      payloadSourceRef: libs/media-experience-simulation/src/fixtures.ts#seeds/source-quarantined
+      startingStateBindingRef: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioStartingStateBindings/@scenarioRef=media.scenario.source-quarantined
+      startingContextBindingRef: null
+      journeyContractRefs: [".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml"]
+      channelRefs: ["media.channel.web", "media.channel.cli", "media.channel.grpc-api", "media.channel.sdk"]
+      actionRefs: ["media.action.review-transcript"]
+      canonicalOperationRefs: ["media.operation.transcript-version-read"]
+      fixtureDisposition: SEEDED_SYNTHETIC_DEFINITION
+      oracleDisposition: PROPOSAL_ONLY; NOT_OWNER_ACCEPTED
+      runtimeAdmission: NOT_ADMITTED

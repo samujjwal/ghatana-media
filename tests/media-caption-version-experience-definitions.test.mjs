@@ -7,7 +7,7 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 const root = '.product-experience/pdp-3-product-experience';
 const { parse } = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml');
 const readYaml = async (path) => parse(await readFile(path, 'utf8'));
-const [journey, operationSource, actionRegistry, bindings, writeScreen, compareScreen, editScreen, journeyRegistry] = await Promise.all([
+const [journey, operationSource, actionRegistry, bindings, writeScreen, compareScreen, editScreen, journeyRegistry, taxonomy] = await Promise.all([
   readYaml(`${root}/journey-contracts/transcribe-and-correct-captions.yaml`),
   readYaml('.product-experience/pdp-1-domain-data/operations.yaml'),
   readYaml(`${root}/action-registry.yaml`),
@@ -16,6 +16,7 @@ const [journey, operationSource, actionRegistry, bindings, writeScreen, compareS
   readYaml(`${root}/screen-contracts/compare-caption-versions.yaml`),
   readYaml(`${root}/screen-contracts/edit-captions.yaml`),
   readYaml(`${root}/journey-registry.yaml`),
+  readYaml(`${root}/public-effect-finality-taxonomy.yaml`),
 ]);
 const operations = [...operationSource.operations, ...operationSource.individualOperationContracts.records];
 const operation = (id) => operations.find((record) => record.id === id);
@@ -137,7 +138,7 @@ function assertSelectedBindings(j, ops, actions, source) {
       assert.ok(objectRefs.every((reference) => screen.domainObjectRefs.includes(reference)));
       assert.ok(screen.domainObjectRefs.includes('media.domain.transcript-version'));
     } else {
-      assert.deepEqual(screen.domainObjectRefs, objectRefs);
+      assert.deepEqual(screen.domainObjectRefs, [...objectRefs, 'media.domain.artifact']);
     }
     assert.equal(screen.journeyDefinitionBindings.decisionRef, decision);
     assert.equal(screen.journeyDefinitionBindings.runtimeAdmission, 'NOT_ADMITTED');
@@ -196,19 +197,24 @@ test('J-03 source bindings reject swapped lineage, unsafe request replay, promot
   assert.throws(() => assertSelectedBindings(journey, operations, forged, bindings), /deepStrictEqual|Expected values/u);
 });
 
-test('PXD-060 projects only the exact immutable-registration effect and rejects forged action, operation, grammar, source, or admission', () => {
-  const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, []);
+test('PXD-060 preserves the exact immutable-registration effect and taxonomy candidates stay non-admitted without Boolean coercion', () => {
+  const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, [], taxonomy);
   const historicalEffectIds = ['media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version'];
   const historicalFinalityIds = ['media.finality.attach-source-version', 'media.finality.create-empty-project', 'media.finality.register-caption-version'];
   assert.deepEqual(projection.effects.filter(({ id }) => historicalEffectIds.includes(id)).map(({ id }) => id).sort(), historicalEffectIds.sort());
   assert.deepEqual(projection.finality.filter(({ id }) => historicalFinalityIds.includes(id)).map(({ id }) => id).sort(), historicalFinalityIds.sort());
-  assert.equal(projection.effects.length, historicalEffectIds.length, 'typed source prose remains unmapped until separately reviewed public effect records exist');
-  assert.equal(projection.finality.length, historicalFinalityIds.length, 'typed source prose remains unmapped until separately reviewed public finality records exist');
+  const compareEffect = projection.effects.find(({ id }) => id === 'media.public-taxonomy.compare-caption-versions.effect');
+  const compareFinality = projection.finality.find(({ id }) => id === 'media.public-taxonomy.compare-caption-versions.finality');
+  assert.equal(compareEffect.reversibilityDisposition, 'UNKNOWN');
+  assert.equal(compareFinality.undoabilityDisposition, 'UNKNOWN');
+  assert.equal(Object.hasOwn(compareEffect, 'reversible'), false);
+  assert.equal(Object.hasOwn(compareFinality, 'undoable'), false);
   assert.deepEqual(projection.effects.find(({ id }) => id === 'media.effect.register-caption-version'),
     action('media.action.save-caption-version').actionDefinitionSemantics.publicEffect);
   assert.deepEqual(projection.finality.find(({ id }) => id === 'media.finality.register-caption-version'),
     action('media.action.save-caption-version').actionDefinitionSemantics.publicFinality);
-  assert.ok(projection.conditionalActions.includes('media.action.compare-caption-versions'));
+  assert.equal(action('media.action.compare-caption-versions').actionDefinitionSemantics.publicEffect, undefined);
+  assert.equal(action('media.action.compare-caption-versions').actionDefinitionSemantics.publicFinality, undefined);
 
   const mutateSave = (mutate) => {
     const actions = structuredClone(actionRegistry.actions);
@@ -224,7 +230,7 @@ test('PXD-060 projects only the exact immutable-registration effect and rejects 
     ['wrong review', (save) => { save.actionDefinitionSemantics.reviewDecisionRef = '.product-experience/decision-log.md#PXD-059'; }],
     ['forged admission', (save) => { save.actionDefinitionSemantics.runtimeAdmission = 'ADMITTED'; }],
   ]) {
-    assert.throws(() => resolveExperienceDefinitionSemantics(mutateSave(mutate), []), /unbounded action review|typed action definition mismatch|unbounded historical public record|historical decision scope drift/u, label);
+    assert.throws(() => resolveExperienceDefinitionSemantics(mutateSave(mutate), [], taxonomy), /unbounded action review|typed action definition mismatch|unbounded historical public record|historical decision scope drift/u, label);
   }
   const forgedUnrelatedReview = structuredClone(actionRegistry.actions);
   const unrelated = forgedUnrelatedReview.find(({ id }) => id === 'media.action.inspect-provenance');
@@ -232,12 +238,12 @@ test('PXD-060 projects only the exact immutable-registration effect and rejects 
     ...action('media.action.save-caption-version').actionDefinitionSemantics,
     actionRef: unrelated.id,
   };
-  assert.throws(() => resolveExperienceDefinitionSemantics(forgedUnrelatedReview, []), /unbounded action review|typed action definition mismatch/u,
+  assert.throws(() => resolveExperienceDefinitionSemantics(forgedUnrelatedReview, [], taxonomy), /unbounded action review|typed action definition mismatch/u,
     'PXD-060 cannot authorize an unrelated action');
   const falseBoolean = structuredClone(actionRegistry.actions);
   const compare = falseBoolean.find(({ id }) => id === 'media.action.compare-caption-versions');
   compare.actionDefinitionSemantics.publicEffect = {
     id: 'media.effect.false-reversible-read', name: 'Read', kind: 'other', description: 'read', reversible: true,
   };
-  assert.throws(() => resolveExperienceDefinitionSemantics(falseBoolean, []), /conditional boolean coercion|unbounded historical public record/u);
+  assert.throws(() => resolveExperienceDefinitionSemantics(falseBoolean, [], taxonomy), /conditional boolean coercion|unbounded historical public record/u);
 });

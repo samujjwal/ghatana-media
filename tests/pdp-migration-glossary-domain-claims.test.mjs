@@ -41,6 +41,9 @@ const digest = (value) => createHash('sha256').update(value).digest('hex');
 // Pin claim-specific owner-source bindings. Exact resolved values prevent a
 // neighboring valid record or broad summary from silently substituting.
 const reviewData = JSON.parse(readFileSync('docs/implementation/verification/pdp-38/migration-domain-review.json', 'utf8'));
+const pxd084Delta = JSON.parse(readFileSync('docs/implementation/verification/pdp-38/migration-pxd084-current-owner-delta.json', 'utf8'));
+const currentOwnerObservations = JSON.parse(readFileSync('docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'utf8'));
+const pxd084Approval = JSON.parse(readFileSync('docs/implementation/verification/pdp-38/migration-coordinator-review.json', 'utf8'));
 const rules = reviewData.records;
 const pendingRules = reviewData.pendingRecords ?? [];
 
@@ -161,17 +164,115 @@ test('authored owner semantics for source-authored high-risk claims preserve exa
     assert.equal(claim.targetRef, rule.targetRef, `${rule.claimId} migration overlay uses the reviewed exact owner target`);
     assert.equal(claim.semanticReviewStatus, 'CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED', `${rule.claimId} has a tested semantic mapping`);
     const target = resolveRef(rule.targetRef);
-    if (rule.currentOwnerDelta) {
+    if (rule.claimId === 'MPSEM-0459-C002') {
+      const currentOwnerObservation = currentOwnerObservations.records.find((record) => record.claimId === rule.claimId);
+      assert.ok(currentOwnerObservation, `${rule.claimId} has a separate PXD-120 current-owner observation`);
+      assert.equal(currentOwnerObservation.targetRef, rule.targetRef);
+      assert.equal(currentOwnerObservation.sourceText, rule.exactSourceText);
+      assert.equal(currentOwnerObservation.historicalTargetTextSha256, rule.targetValueSha256,
+        `${rule.claimId} preserves the prior approved target hash`);
+
+      const reviewedSnapshot = structuredClone(target);
+      delete reviewedSnapshot.reuseBeforeSelection;
+      delete reviewedSnapshot.additionalImplementationRule;
+      assert.deepEqual(reviewedSnapshot, rule.expectedOwnerValue,
+        `${rule.claimId} later reuse constraints are separate from the historical owner snapshot`);
+      assert.equal(digest(JSON.stringify(reviewedSnapshot)), rule.targetValueSha256,
+        `${rule.claimId} historical target digest remains exact`);
+      assert.equal(currentOwnerObservation.currentTargetValueSha256, digest(JSON.stringify(target)),
+        `${rule.claimId} PXD-120 observation binds the current owner target`);
+      assert.equal(claim.targetTextSha256, currentOwnerObservation.currentTargetValueSha256);
+      assert.equal(currentOwnerObservation.disposition,
+        'CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED');
+      assert.equal(currentOwnerObservation.acceptanceEffect, 'none');
+      assert.equal(currentOwnerObservation.runtimeAdmission, 'NOT_ADMITTED');
+      assert.match(target.rule, /candidate-library or engine selection is not an integration mandate/u);
+      assert.match(target.scope, /Do not integrate every listed package or engine/u);
+      assert.match(target.scope, /select the smallest stack/u);
+      assert.match(target.scopeStatus, /no integration, candidate qualification, or runtime admission implied/u);
+    } else if (rule.currentOwnerDelta) {
+      assert.equal(rule.claimId, 'MPSEM-0388-C003');
+      const approvedPxd084 = pxd084Approval.records.find((record) => record.claimId === rule.claimId);
+      assert.ok(approvedPxd084, `${rule.claimId} retains its historical PXD-084 approval`);
+      assert.equal(approvedPxd084.targetRef, rule.targetRef);
+      assert.equal(approvedPxd084.targetValueSha256, rule.targetValueSha256,
+        `${rule.claimId} historical PXD-084 target digest remains immutable`);
+
       const reviewedSnapshot = structuredClone(target);
       delete reviewedSnapshot.hardwareFootprintDoesNotWaiveAdmission;
+      delete reviewedSnapshot.offlineEntitlementWindow;
+      delete reviewedSnapshot.fallback.compatibilityDecisionRule;
       assert.deepEqual(reviewedSnapshot, rule.expectedOwnerValue, `${rule.claimId} preserves the previously reviewed owner snapshot`);
-      assert.equal(digest(JSON.stringify(reviewedSnapshot)), rule.targetValueSha256);
+      assert.equal(digest(JSON.stringify(reviewedSnapshot)), approvedPxd084.targetValueSha256,
+        `${rule.claimId} normalized current target matches the historical PXD-084 snapshot`);
+
+      const impact = JSON.parse(readFileSync('docs/implementation/verification/pdp-38/migration-reviewed-source-impact.json', 'utf8'))
+        .records.find((record) => record.claimId === rule.claimId);
+      assert.ok(impact, `${rule.claimId} retains the separately reviewed PXD-088 impact`);
+      const withoutLaterRules = structuredClone(target);
+      delete withoutLaterRules.offlineEntitlementWindow;
+      delete withoutLaterRules.fallback.compatibilityDecisionRule;
+      assert.deepEqual(withoutLaterRules, impact.currentExpectedOwnerValue,
+        `${rule.claimId} later-rule projection preserves the PXD-088 bounded impact`);
+
       const delta = resolveRef(rule.currentOwnerDelta.targetRef);
       assert.deepEqual(delta, rule.currentOwnerDelta.expectedOwnerValue, `${rule.claimId} current owner delta is exact`);
       assert.equal(digest(JSON.stringify(delta)), rule.currentOwnerDelta.targetValueSha256);
       for (const predicate of rule.currentOwnerDelta.materialPredicates) {
         assert.ok(JSON.stringify(delta).toLowerCase().includes(predicate.toLowerCase()), `${rule.claimId} delta predicate: ${predicate}`);
       }
+
+      const currentOwnerObservation = currentOwnerObservations.records.find((record) => record.claimId === rule.claimId);
+      assert.ok(currentOwnerObservation, `${rule.claimId} has a current-owner observation`);
+      assert.equal(currentOwnerObservation.targetRef, rule.targetRef);
+      assert.equal(currentOwnerObservation.historicalCurrentTargetValueSha256, impact.currentTargetValueSha256);
+      assert.equal(currentOwnerObservation.currentTargetValueSha256, digest(JSON.stringify(target)));
+      assert.equal(currentOwnerObservation.acceptanceEffect, 'none');
+      assert.equal(currentOwnerObservation.runtimeAdmission, 'NOT_ADMITTED');
+      assert.equal(currentOwnerObservation.disposition, 'CURRENT_TARGET_EXTENDED_BY_UNRELATED_OWNER_RULE; CLAIM_PARITY_RETAINED');
+
+      assert.equal(pxd084Delta.claimId, rule.claimId);
+      assert.equal(pxd084Delta.sourceTargetRef, rule.targetRef);
+      assert.equal(pxd084Delta.previousBoundedTargetSha256, impact.currentTargetValueSha256);
+      assert.equal(pxd084Delta.currentTargetSha256, currentOwnerObservation.currentTargetValueSha256);
+      assert.equal(pxd084Delta.projectionWithoutLaterRulesSha256, impact.currentTargetValueSha256);
+      assert.equal(digest(JSON.stringify(withoutLaterRules)), pxd084Delta.projectionWithoutLaterRulesSha256);
+      assert.equal(pxd084Delta.projectionMatchesPreviousBoundedImpact, true);
+      assert.equal(pxd084Delta.acceptanceEffect, 'none');
+      assert.equal(pxd084Delta.runtimeAdmission, 'NOT_ADMITTED');
+
+      const additions = pxd084Delta.additions.map((addition) => {
+        assert.equal(addition.disposition, 'SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW');
+        const value = resolveRef(addition.targetRef);
+        assert.equal(digest(JSON.stringify(value)), addition.valueSha256,
+          `${rule.claimId} exact later owner addition value hash`);
+        return { targetRef: addition.targetRef, id: value.id, valueSha256: addition.valueSha256 };
+      });
+      assert.deepEqual(additions, [
+        {
+          targetRef: `${rule.targetRef}/offlineEntitlementWindow`,
+          id: 'media.policy.offline-entitlement-validity-window.v1',
+          valueSha256: '69031c819ccc1104a9993f77f72ff726e9e8ad7b9ec3f95fa896f9b68b4be70f',
+        },
+        {
+          targetRef: `${rule.targetRef}/fallback/compatibilityDecisionRule`,
+          id: 'media.policy.fallback-compatibility-decision.v1',
+          valueSha256: '3353bdeec23a440287b9be4a2b41261c4a423537ac4beba3e616c32e265c703a',
+        },
+      ]);
+      assert.deepEqual(currentOwnerObservation.additionalOwnerRules.map(({ targetRef, id, valueSha256 }) => ({ targetRef, id, valueSha256 })), additions,
+        `${rule.claimId} current observation records both exact later owner additions`);
+      assert.ok(currentOwnerObservation.additionalOwnerRules.every(({ disposition }) =>
+        disposition === 'SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW'));
+      assert.equal(currentOwnerObservation.additionalOwnerRuleRef, additions[0].targetRef);
+      assert.equal(currentOwnerObservation.additionalRuleId, additions[0].id);
+
+      assert.equal(target.automaticAcquisition.default, 'DENY');
+      assert.match(target.automaticAcquisition.unavailableBehavior, /do not download .* automatically/u);
+      assert.equal(target.fallback.default, 'DENY_SILENT_FALLBACK');
+      assert.match(target.fallback.localOnly, /always denied/u);
+      assert.match(target.fallback.compatibilityDecisionRule.rule, /missing, stale, or unknown compatibility fact is not a match/u);
+      assert.match(target.offlineEntitlementWindow.rule, /missing, stale, malformed, revoked, expired-at-equality, or untrusted .* denies/u);
     } else {
       assert.deepEqual(target, rule.expectedOwnerValue, `${rule.claimId} owner value retains reviewed semantics`);
       assert.equal(digest(JSON.stringify(target)), rule.targetValueSha256);

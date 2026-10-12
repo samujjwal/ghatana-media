@@ -88,9 +88,9 @@ test("all 31 PDP-3 synthetic scenarios exercise their exact safe-action and non-
           jobId: "fixture-job-retryable-001", jobVersion: 12,
           retryBudgetRef: "fixture:policy:retry-budget:v4", now: "2026-10-09T12:01:00.000Z", maxAgeMs: 120_000,
         });
-        assert.equal(result.decision, "ELIGIBLE_FOR_EXPLICIT_REQUEST");
+        assert.equal(result.decision, "UNKNOWN", "source evidence is not available for the conditional retry scenario");
         mustDeny(actions, "media.action.retry-job", id);
-        assert.equal(result.effect, "NONE", "eligibility is not an automatic retry or runtime result");
+        assert.equal(result.effect, "NONE", "unknown eligibility never dispatches a retry");
         assert.equal(result.runtimeAdmission, "NOT_ADMITTED");
       }
     }

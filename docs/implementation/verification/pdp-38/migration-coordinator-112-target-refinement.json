@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "media.pdp38.migration-coordinator-target-refinement.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-090",
+  "claimId": "MPSEM-0181-C002",
+  "historicalApproval": {
+    "artifactRef": "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0181-C002",
+    "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule",
+    "targetValueSha256": "04718d69cc37bcbfc8325d9bb2ca043c7b6dc228f3722877424a42ce273eefbe",
+    "sourceCommit": "38b667399aba8361285b6f24f6259031554be716",
+    "sourceFileSha256": "cac69d8e51393ba9f61507cfb3c89c68f02b987a65ce62a5e28506c056fcff4a"
+  },
+  "currentOwnerTarget": {
+    "targetRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules/externalStackSelectionRule",
+    "targetValueSha256": "6746cb674f0777b39c2385fa1700701e2ca1f9b15989a1b5a6beb214ad0d3c17",
+    "sourceFileSha256": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
+    "additiveFields": [
+      {
+        "path": "reuseBeforeSelection",
+        "introducedBy": "a89157cb349812f9c510a844d52751f571b185e0",
+        "meaning": "Inspect exact existing Ghatana streaming modules and public contracts, reuse a fitting module, and record a concrete reuse gap before evaluating a new candidate."
+      },
+      {
+        "path": "additionalImplementationRule",
+        "introducedBy": "bda45da41fc7b334aa8d20b7fafdea72da860d4c",
+        "meaning": "Require an evidenced material gap, exact capability/profile, and separately versioned profile and qualification decision before considering a second implementation."
+      }
+    ]
+  },
+  "reconciliation": "The current target retains every field from the PXD-090 approved target unchanged and adds two owner-authored reuse constraints. The approved proposal and 112-row decision snapshot remain immutable; the current ledger locator records the current target digest.",
+  "acceptanceEffect": "none; this source observation does not change PXD-090 approval scope, migration acceptance, qualification, or runtime admission",
+  "runtimeAdmission": "NOT_ADMITTED"
+}

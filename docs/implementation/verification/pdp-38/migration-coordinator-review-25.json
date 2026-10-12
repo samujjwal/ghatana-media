@@ -7,7 +7,7 @@
   "historicalProposalRef": "docs/implementation/verification/pdp-38/migration-journey-owner-review.json",
   "historicalProposalSha256": "abd27d7c04c95f52131482d5d24c18f785f6aecc66b82bde841f5d21a6a11f6f",
   "sourceBaselineSha256": "41b68c2c41ad7ff9e06a6d3e1c4c90665dee13c7b4aed3b587ebbbcf7263c22f",
-  "journeySourceSha256": "167d8f3509a5120b43d004d489a8605d78db40a022776b974d51e85065fdd03f",
+  "journeySourceSha256": "557558efb724959262aecf069d58869fa7e5870ac3b9813ac9791585eafdf455",
   "reviewedRecordCount": 25,
   "normativeRouteCount": 24,
   "metadataClassificationCount": 1,

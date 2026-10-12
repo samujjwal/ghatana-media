@@ -61,6 +61,8 @@ function validate(files) {
   requireText("contractTs", "startMs: NonNegativeIntegerSchema");
   requireText("contractTs", "endMs: NonNegativeIntegerSchema");
   requireText("contractTs", "durationMs: NonNegativeIntegerSchema");
+  requireText("contractTs", "const ConfidenceSchema = z.number().min(0).max(1);");
+  requireText("contractTs", "confidence: ConfidenceSchema");
   requireText("java", "Duration leaseDuration");
   requireText("java", "if (leaseDuration == null || leaseDuration.isZero() || leaseDuration.isNegative()");
   requireText("java", "long sequence,");
@@ -74,6 +76,11 @@ function validate(files) {
     ttsProto: ["int64 duration_ms = 3;", "int64 timestamp_ms = 3;", "int32 sample_rate = 2;"],
     visionProto: ["int64 timestamp_ms = 2;", "int32 frame_number = 3;", "int32 sample_fps = 2;", "int64 video_duration_ms = 4;", "double x = 1;", "double width = 3;"],
     multimodalProto: ["int32 frame_sample_rate = 4;", "int64 timestamp_ms = 1;", "int64 analysis_window_ms = 3;", "double x = 1;", "double width = 3;"],
+  })) for (const marker of markers) requireText(file, marker);
+  for (const [file, markers] of Object.entries({
+    sttProto: ["message Transcription {", "float confidence = 3;", "float confidence_threshold = 5;"],
+    visionProto: ["message Detection {", "message ClassLabel {", "double confidence_threshold = 4;"],
+    multimodalProto: ["message AudioAnalysis {", "message VisualAnalysis {", "double alignment_score = 1;", "map<string, double> confidence_scores = 5;"],
   })) for (const marker of markers) requireText(file, marker);
 
   for (const marker of [
@@ -94,8 +101,25 @@ function validate(files) {
   ]) if (!files.animation.includes(marker)) errors.push(`animation grammar boundary missing ${marker}`);
   if (!files.valueObjects.includes("scopeStatus: proposed-values-and-observed-fields; pending-owner-review")) errors.push("PDP1 value-object owner review must remain pending");
   if (!files.interop.includes("semantic-and-consumer-parity-review-pending")) errors.push("interoperability semantics and consumer parity must remain pending");
+  for (const marker of [
+    "spatialTransformDeclarationContract:", "frameVersionRef", "handedness", "axisDirections",
+    "positionUnitRef", "orientationUnitRef", "orderedOperations", "mappingRef",
+    "result: DECLARED_NOT_APPLIED", "unknown, stale or mismatched descriptors",
+    "providerSignalContract:", "metricVersionRef", "methodVersionRef", "unitRef",
+    "crossProvider: NOT_COMPARABLE", "crossMetric: NOT_COMPARABLE",
+    "calibration, correctness, probability, ranking equivalence or scientific validity",
+  ]) if (!files.valueObjects.includes(marker)) errors.push(`P1-09 typed value contract missing ${marker}`);
+  for (const marker of [
+    "observedSpatialAndProviderSignalFields:", "media.observed-provider-signal.protobuf-stt",
+    "media.observed-provider-signal.protobuf-vision", "media.observed-provider-signal.protobuf-multimodal",
+    "Transcription.confidence", "Detection.confidence", "CrossModalResponse.alignment_score",
+    "no-versioned-adapter-or-calibration-binding-accepted", "confidence_threshold is an input policy threshold",
+    "WordTimestamp.confidence", "ClassLabel.confidence", "FaceDetection.confidence",
+    "TranscriptionOptions.confidence_threshold", "InsightsResponse.confidence_scores",
+  ]) if (!files.interop.includes(marker)) errors.push(`P1-09 source-specific signal boundary missing ${marker}`);
   if (!files.versioning.includes("scopeStatus: proposed-boundaries-with-observed-compatibility; pending-owner-review")) errors.push("versioning owner review must remain pending");
-  if (!files.provenance.includes("scopeStatus: lineage-semantics-proposed; pending-owner-review")) errors.push("provenance owner review must remain pending");
+  if (!files.provenance.includes("scopeStatus: owner-defined-conditional-lineage-semantics; event-and-runtime-observations-remain-explicitly-unknown")) errors.push("conditional lineage semantics must be owner-defined without claiming event/runtime observations");
+  if (!files.provenance.includes("scopeStatus: PDP-0-time-fidelity-proposal; pending-owner-review")) errors.push("time conversion policy must retain its separate PDP-0 owner-review boundary");
   return errors;
 }
 

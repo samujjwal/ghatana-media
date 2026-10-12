@@ -110,8 +110,8 @@
       "sourceTextSha256": "f36b8f6f09fdb0948b57a93c5b939e67fb3bda1ea8ca05b369d095750bf44b92",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-0 — Product Truth](#18-pdp-0-product-truth-legacy-plan-phase-0)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -125,8 +125,8 @@
           "sha256": "f36b8f6f09fdb0948b57a93c5b939e67fb3bda1ea8ca05b369d095750bf44b92"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-0 — Product Truth](#18-pdp-0-product-truth-legacy-plan-phase-0)); it adds no product behavior. Current sequential plan owns execution."
@@ -144,8 +144,8 @@
       "sourceTextSha256": "ef84c2541404db732ba2ef32234839ffd3a6a8e9c85ad98e6b6341e65455ce83",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (- [18.4 PDP-1 — Domain & Data authority mapping](#184-pdp-1-domain-data-authority-mapping)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -159,8 +159,8 @@
           "sha256": "ef84c2541404db732ba2ef32234839ffd3a6a8e9c85ad98e6b6341e65455ce83"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (- [18.4 PDP-1 — Domain & Data authority mapping](#184-pdp-1-domain-data-authority-mapping)); it adds no product behavior. Current sequential plan owns execution."
@@ -178,8 +178,8 @@
       "sourceTextSha256": "ef9a9abc147ffeaa664516e7f24c37d873d602d316e0636e323dc24636d3e411",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-2 — Design & Interface System](#19-pdp-2-design-interface-system-legacy-plan-phase-1)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -193,8 +193,8 @@
           "sha256": "ef9a9abc147ffeaa664516e7f24c37d873d602d316e0636e323dc24636d3e411"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-2 — Design & Interface System](#19-pdp-2-design-interface-system-legacy-plan-phase-1)); it adds no product behavior. Current sequential plan owns execution."
@@ -212,8 +212,8 @@
       "sourceTextSha256": "32426cc591c57d7ed8b308a14de26e57b5ea917e84bcd2e0892eb3f22ab003d4",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-3 — Complete Product Experience](#20-pdp-3-complete-product-experience-legacy-plan-phase-2)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -227,8 +227,8 @@
           "sha256": "32426cc591c57d7ed8b308a14de26e57b5ea917e84bcd2e0892eb3f22ab003d4"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-3 — Complete Product Experience](#20-pdp-3-complete-product-experience-legacy-plan-phase-2)); it adds no product behavior. Current sequential plan owns execution."
@@ -246,8 +246,8 @@
       "sourceTextSha256": "b9d393e6fbe71f0c3702713ace2700f93c595182cb536dd235f91a5bac1b78ff",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Experience Explorer — outside the PDP phases](#21-experience-explorer-outside-the-pdp-phases-legacy-plan-phase-3)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -261,8 +261,8 @@
           "sha256": "b9d393e6fbe71f0c3702713ace2700f93c595182cb536dd235f91a5bac1b78ff"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Experience Explorer — outside the PDP phases](#21-experience-explorer-outside-the-pdp-phases-legacy-plan-phase-3)); it adds no product behavior. Current sequential plan owns execution."
@@ -280,8 +280,8 @@
       "sourceTextSha256": "2a99640f58622a14886e58a62fee630dcf857b28114b2cf5b4f7ea129ca519ea",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (External candidate inventory — only after the Ghatana reuse gate](#appendix-b-external-candidate-inventory-only-after-the-ghatana-); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -295,8 +295,8 @@
           "sha256": "2a99640f58622a14886e58a62fee630dcf857b28114b2cf5b4f7ea129ca519ea"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (External candidate inventory — only after the Ghatana reuse gate](#appendix-b-external-candidate-inventory-only-after-the-ghatana-); it adds no product behavior. Current sequential plan owns execution."
@@ -586,8 +586,8 @@
       "sourceTextSha256": "dd9409632591609740aa073538b2d0c0461eb5ee0917c918ce00127a19cbd486",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-local gap/coverage/acceptance files are generated filtered views of the root records when useful, never competing editable led); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -601,8 +601,8 @@
           "sha256": "dd9409632591609740aa073538b2d0c0461eb5ee0917c918ce00127a19cbd486"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (PDP-local gap/coverage/acceptance files are generated filtered views of the root records when useful, never competing editable led); it adds no product behavior. Current sequential plan owns execution."
@@ -723,8 +723,8 @@
       "sourceTextSha256": "39f394f49664853409b8b182c5653142d186f7a47d5b41e2975f24d0631ef6b8",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (The source manifest records artifact ID, title, owner, authority class, owning PDP or workstream, exact path/reference, authored/g); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -738,8 +738,8 @@
           "sha256": "39f394f49664853409b8b182c5653142d186f7a47d5b41e2975f24d0631ef6b8"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (The source manifest records artifact ID, title, owner, authority class, owning PDP or workstream, exact path/reference, authored/g); it adds no product behavior. Current sequential plan owns execution."
@@ -928,8 +928,8 @@
       "sourceTextSha256": "9a0639726237feeb909f23c22835a1a427c6ced4e2c119492c8428cde88976a8",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (Full PDP-0–PDP-3 definition can proceed against that boundary while behavior-preserving migration is prepared.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -943,8 +943,8 @@
           "sha256": "9a0639726237feeb909f23c22835a1a427c6ced4e2c119492c8428cde88976a8"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (Full PDP-0–PDP-3 definition can proceed against that boundary while behavior-preserving migration is prepared.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -997,8 +997,8 @@
       "sourceTextSha256": "900d0818e286dc1f973445c7259d428291e954fbdd514fbe036468a63358a21f",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-0 — Product Truth (legacy plan Phase 0)); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1012,8 +1012,8 @@
           "sha256": "900d0818e286dc1f973445c7259d428291e954fbdd514fbe036468a63358a21f"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-0 — Product Truth (legacy plan Phase 0)); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1065,8 +1065,8 @@
       "sourceTextSha256": "156e60c7193158be86fd6a5acc30b6049903dd4fb5bac1d17df10038c70c65ee",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-0 passes when identity and ownership are unambiguous; all admitted requirements/capabilities/actors/outcomes reconcile; policy); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1080,8 +1080,8 @@
           "sha256": "156e60c7193158be86fd6a5acc30b6049903dd4fb5bac1d17df10038c70c65ee"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-0 passes when identity and ownership are unambiguous; all admitted requirements/capabilities/actors/outcomes reconcile; policy); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1099,8 +1099,8 @@
       "sourceTextSha256": "d95514461705a401b2eb03ab3883a36f07eff6630a4b8ec46197c72f53e77f7c",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-2 — Design & Interface System (legacy plan Phase 1)); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1114,8 +1114,8 @@
           "sha256": "d95514461705a401b2eb03ab3883a36f07eff6630a4b8ec46197c72f53e77f7c"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-2 — Design & Interface System (legacy plan Phase 1)); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1201,8 +1201,8 @@
       "sourceTextSha256": "149edf5cabda335a5aa312b6944c5194bf23ea8462680808ccce55cd6b80d730",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Under `pdp-2-design-interface-system/`, author `DESIGN-LANGUAGE.md`, `media-token-aliases.yaml`, `typography-layout.yaml`, `compon); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1216,8 +1216,8 @@
           "sha256": "149edf5cabda335a5aa312b6944c5194bf23ea8462680808ccce55cd6b80d730"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Under `pdp-2-design-interface-system/`, author `DESIGN-LANGUAGE.md`, `media-token-aliases.yaml`, `typography-layout.yaml`, `compon); it adds no product behavior. Current sequential plan owns execution."
@@ -1304,8 +1304,8 @@
       "sourceTextSha256": "79d23b2b25827f03c508cc25d0e1add4d576e5f26eff8b094cd1e58501427623",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-2 passes when every represented PDP-0/PDP-1 state/action/trust concept has a reusable rule, media-specific components have com); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1319,8 +1319,8 @@
           "sha256": "79d23b2b25827f03c508cc25d0e1add4d576e5f26eff8b094cd1e58501427623"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-2 passes when every represented PDP-0/PDP-1 state/action/trust concept has a reusable rule, media-specific components have com); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1338,8 +1338,8 @@
       "sourceTextSha256": "e46a1f70f4b20acf4ff6aba134cf9b3fc24c44375909023c9fb3d02261d22425",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-3 — Complete Product Experience (legacy plan Phase 2)); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1353,8 +1353,8 @@
           "sha256": "e46a1f70f4b20acf4ff6aba134cf9b3fc24c44375909023c9fb3d02261d22425"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-3 — Complete Product Experience (legacy plan Phase 2)); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1441,8 +1441,8 @@
       "sourceTextSha256": "814ea14ff65e386b2e6d58821c9fa84fa50e3bd783c541d2174a523a2cbc527b",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-3 passes when every admitted journey reaches an actual defined experience and completion; every action/navigation/control has ); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1456,8 +1456,8 @@
           "sha256": "814ea14ff65e386b2e6d58821c9fa84fa50e3bd783c541d2174a523a2cbc527b"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-3 passes when every admitted journey reaches an actual defined experience and completion; every action/navigation/control has ); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1509,8 +1509,8 @@
       "sourceTextSha256": "e53c8487275d7aee1a664c28de01ae45b9bcff2fa0d6fd548720d91649ef4896",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Explorer verification passes only when every applicable PDP-3 view/state/journey/CLI disposition is realizable from accepted PDP-0); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1524,8 +1524,8 @@
           "sha256": "e53c8487275d7aee1a664c28de01ae45b9bcff2fa0d6fd548720d91649ef4896"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Explorer verification passes only when every applicable PDP-3 view/state/journey/CLI disposition is realizable from accepted PDP-0); it adds no product behavior. Current sequential plan owns execution."
@@ -1577,8 +1577,8 @@
       "sourceTextSha256": "e9314c46fb8791e88eff0522217169e14d89ba8bf00890807b2ce090bdf0a9e5",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `.product-experience/pdp-0-product-truth/reuse-decisions.yaml; generated config/reuse-decisions.yaml; config/dependenc); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1592,8 +1592,8 @@
           "sha256": "e9314c46fb8791e88eff0522217169e14d89ba8bf00890807b2ce090bdf0a9e5"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `.product-experience/pdp-0-product-truth/reuse-decisions.yaml; generated config/reuse-decisions.yaml; config/dependenc); it adds no product behavior. Current sequential plan owns execution."
@@ -1611,8 +1611,8 @@
       "sourceTextSha256": "7aa249632131482d5d561383e44c7bef3c2921fa0c90d3290774058e44274dd4",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-001 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1626,8 +1626,8 @@
           "sha256": "7aa249632131482d5d561383e44c7bef3c2921fa0c90d3290774058e44274dd4"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-001 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -1645,8 +1645,8 @@
       "sourceTextSha256": "286b32f41cb4545097bb2c5701a98173c1e264d4773dc1e72307fb9ad8952b6e",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/PRODUCT-TRUTH.md; policy-authority-model.yaml; dependency-contracts.yaml; migration/contract-comp); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1660,8 +1660,8 @@
           "sha256": "286b32f41cb4545097bb2c5701a98173c1e264d4773dc1e72307fb9ad8952b6e"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/PRODUCT-TRUTH.md; policy-authority-model.yaml; dependency-contracts.yaml; migration/contract-comp); it adds no product behavior. Current sequential plan owns execution."
@@ -1679,8 +1679,8 @@
       "sourceTextSha256": "c80fd3ee911fbcbc7df42bd4093f1297894cf72726618296eb07b7d926b67f79",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** Enables migration registration/preparation and remaining PDP-0; does not authorize live cutove); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1694,8 +1694,8 @@
           "sha256": "c80fd3ee911fbcbc7df42bd4093f1297894cf72726618296eb07b7d926b67f79"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** Enables migration registration/preparation and remaining PDP-0; does not authorize live cutove); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -1713,8 +1713,8 @@
       "sourceTextSha256": "0a1ceb8660e13341364359146165aea738e625a58149d558129e85ac8cc19b89",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-002 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1728,8 +1728,8 @@
           "sha256": "0a1ceb8660e13341364359146165aea738e625a58149d558129e85ac8cc19b89"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-002 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -1747,8 +1747,8 @@
       "sourceTextSha256": "7afdfc859a92f214b93ae9f553c8c328e263a80a3a874fec341e5b8f3c501612",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/constitution.yaml; actors-responsibilities.yaml; goals-jtbd.yaml; glossary.yaml`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1762,8 +1762,8 @@
           "sha256": "7afdfc859a92f214b93ae9f553c8c328e263a80a3a874fec341e5b8f3c501612"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/constitution.yaml; actors-responsibilities.yaml; goals-jtbd.yaml; glossary.yaml`.); it adds no product behavior. Current sequential plan owns execution."
@@ -1781,8 +1781,8 @@
       "sourceTextSha256": "e59b33bc49ce3d33418a63791135830dc7a739ebb4a4ff498fa634340e0bb133",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Verification:** Proposed conformance/pdp-0-semantics.spec.ts plus PM/security/UX review; unresolved meaning is an explicit gap.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1796,8 +1796,8 @@
           "sha256": "e59b33bc49ce3d33418a63791135830dc7a739ebb4a4ff498fa634340e0bb133"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Verification:** Proposed conformance/pdp-0-semantics.spec.ts plus PM/security/UX review; unresolved meaning is an explicit gap.); it adds no product behavior. Current sequential plan owns execution."
@@ -1815,8 +1815,8 @@
       "sourceTextSha256": "cce4ce83caeedd741c1a807e22f93925d31e0e0c3ce88a5dde523bc4ec888c93",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-003 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1830,8 +1830,8 @@
           "sha256": "cce4ce83caeedd741c1a807e22f93925d31e0e0c3ce88a5dde523bc4ec888c93"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-003 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -1849,8 +1849,8 @@
       "sourceTextSha256": "caccbb2fa84e448ad04ec9d2a583d9467aae9a1f7dd74b24533b7281fca2ca64",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/capabilities.yaml; requirements.yaml; qualification-policy.yaml`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1864,8 +1864,8 @@
           "sha256": "caccbb2fa84e448ad04ec9d2a583d9467aae9a1f7dd74b24533b7281fca2ca64"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/capabilities.yaml; requirements.yaml; qualification-policy.yaml`.); it adds no product behavior. Current sequential plan owns execution."
@@ -1883,8 +1883,8 @@
       "sourceTextSha256": "b81f3998b40000961aff0e2d4f9e300df69ee50ab14feafe64661fabfda656c8",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-004 — PDP-1 — Domain & Data (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1898,8 +1898,8 @@
           "sha256": "b81f3998b40000961aff0e2d4f9e300df69ee50ab14feafe64661fabfda656c8"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-004 — PDP-1 — Domain & Data (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -1917,8 +1917,8 @@
       "sourceTextSha256": "60b9bd0aae2c323e82816e3c893eaa0022c0cafd549a5d4479d848b1a5976fbd",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `.product-experience/pdp-0-product-truth/domain-model.yaml` (source proposal); `.product-experience/pdp-1-domain-data/); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1932,8 +1932,8 @@
           "sha256": "60b9bd0aae2c323e82816e3c893eaa0022c0cafd549a5d4479d848b1a5976fbd"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `.product-experience/pdp-0-product-truth/domain-model.yaml` (source proposal); `.product-experience/pdp-1-domain-data/); it adds no product behavior. Current sequential plan owns execution."
@@ -1951,8 +1951,8 @@
       "sourceTextSha256": "36bde1c50f6c81aef642c8e25f81d9ca48260c68aba152003f85425ea8744f3c",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-005 — PDP-1 — Domain & Data (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -1966,8 +1966,8 @@
           "sha256": "36bde1c50f6c81aef642c8e25f81d9ca48260c68aba152003f85425ea8744f3c"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-005 — PDP-1 — Domain & Data (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -1985,8 +1985,8 @@
       "sourceTextSha256": "1a2a70aab896915a9fee0a800ed7dc467ecbfef22b4ed3224d2f7094e9ee8cc9",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `.product-experience/pdp-0-product-truth/state-models.yaml` (source proposal); `.product-experience/pdp-1-domain-data/); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2000,8 +2000,8 @@
           "sha256": "1a2a70aab896915a9fee0a800ed7dc467ecbfef22b4ed3224d2f7094e9ee8cc9"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `.product-experience/pdp-0-product-truth/state-models.yaml` (source proposal); `.product-experience/pdp-1-domain-data/); it adds no product behavior. Current sequential plan owns execution."
@@ -2019,8 +2019,8 @@
       "sourceTextSha256": "1e86fe5aee548c1ea5110520bc30a3c462244508cf26be274723059a67a219de",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-006 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2034,8 +2034,8 @@
           "sha256": "1e86fe5aee548c1ea5110520bc30a3c462244508cf26be274723059a67a219de"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-006 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2053,8 +2053,8 @@
       "sourceTextSha256": "cb276e0052901b7944d5657aca9825be56af791b909293ba72d347b0b658411e",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/policy-authority-model.yaml; nonfunctional-requirements.yaml; content-intent.yaml`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2068,8 +2068,8 @@
           "sha256": "cb276e0052901b7944d5657aca9825be56af791b909293ba72d347b0b658411e"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/policy-authority-model.yaml; nonfunctional-requirements.yaml; content-intent.yaml`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2087,8 +2087,8 @@
       "sourceTextSha256": "d4242f3c6d38a29ee503622030e6c5227a6b9dd955f4c1c528a5a06f43adc515",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-007 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2102,8 +2102,8 @@
           "sha256": "d4242f3c6d38a29ee503622030e6c5227a6b9dd955f4c1c528a5a06f43adc515"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-007 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2121,8 +2121,8 @@
       "sourceTextSha256": "dcb3cfe1f026ee94c90cf8a6324f2cfa7f1d93d6f47f47f24cfa11c252e50176",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/profile-semantics.yaml; quality-policy.yaml; qualification-policy.yaml`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2136,8 +2136,8 @@
           "sha256": "dcb3cfe1f026ee94c90cf8a6324f2cfa7f1d93d6f47f47f24cfa11c252e50176"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/profile-semantics.yaml; quality-policy.yaml; qualification-policy.yaml`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2155,8 +2155,8 @@
       "sourceTextSha256": "d16ffd09aaf0f336412871cc59c6961388e12b4cd6e46d6a735bb913d2602053",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-008 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2170,8 +2170,8 @@
           "sha256": "d16ffd09aaf0f336412871cc59c6961388e12b4cd6e46d6a735bb913d2602053"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-008 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2189,8 +2189,8 @@
       "sourceTextSha256": "3c96c3954a85539b810b5b6c10ad1371f47a0dc7f9b5e42ee341edf1bfcdccd8",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/dependency-contracts.yaml; reuse-decisions.yaml; .product-experience/gaps.yaml`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2204,8 +2204,8 @@
           "sha256": "3c96c3954a85539b810b5b6c10ad1371f47a0dc7f9b5e42ee341edf1bfcdccd8"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/dependency-contracts.yaml; reuse-decisions.yaml; .product-experience/gaps.yaml`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2223,8 +2223,8 @@
       "sourceTextSha256": "fec7b49ccb9aad0465de42868620edf51113f52ea6d0c8af71ccec4e4026988a",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-009 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2238,8 +2238,8 @@
           "sha256": "fec7b49ccb9aad0465de42868620edf51113f52ea6d0c8af71ccec4e4026988a"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-009 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2257,8 +2257,8 @@
       "sourceTextSha256": "405744ddf3b0a56fecb7de5d55fda0485ac292982da4e22d84f12660982976c3",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/information-architecture.yaml; applications-channels.yaml; journey-catalog.yaml; handoff-contract); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2272,8 +2272,8 @@
           "sha256": "405744ddf3b0a56fecb7de5d55fda0485ac292982da4e22d84f12660982976c3"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-0-product-truth/information-architecture.yaml; applications-channels.yaml; journey-catalog.yaml; handoff-contract); it adds no product behavior. Current sequential plan owns execution."
@@ -2291,8 +2291,8 @@
       "sourceTextSha256": "9c22d77ff2269bb98a67999454b07efa7c2993756a383e88548ca7b283c1b326",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** PDP-2/3 view contracts, performance fixtures and supported release lanes.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2306,8 +2306,8 @@
           "sha256": "9c22d77ff2269bb98a67999454b07efa7c2993756a383e88548ca7b283c1b326"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** PDP-2/3 view contracts, performance fixtures and supported release lanes.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -2325,8 +2325,8 @@
       "sourceTextSha256": "da3037b31a09d56013a9fabd0a47a2494cfd429099cf64f4ba9394ddaff949ad",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-010 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2340,8 +2340,8 @@
           "sha256": "da3037b31a09d56013a9fabd0a47a2494cfd429099cf64f4ba9394ddaff949ad"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P0-010 — PDP-0 — Product Truth (legacy P0 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2359,8 +2359,8 @@
       "sourceTextSha256": "9d2c2a567d25aac7bea79a82ed6586883d4ce11ed3214b6a9242e648f3c47038",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `root acceptance inputs; generated PDP-0 coverage/currentness`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2374,8 +2374,8 @@
           "sha256": "9d2c2a567d25aac7bea79a82ed6586883d4ce11ed3214b6a9242e648f3c47038"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `root acceptance inputs; generated PDP-0 coverage/currentness`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2393,8 +2393,8 @@
       "sourceTextSha256": "b25c1c3f9e7dc55485243bfc75aa93855d0d8ec326511b32f99295022133e49d",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Evidence: U2 legacy Phase 0 gate; §18.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2408,8 +2408,8 @@
           "sha256": "b25c1c3f9e7dc55485243bfc75aa93855d0d8ec326511b32f99295022133e49d"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Evidence: U2 legacy Phase 0 gate; §18.); it adds no product behavior. Current sequential plan owns execution."
@@ -2427,8 +2427,8 @@
       "sourceTextSha256": "4efbcf5c5b64b52dcdf4d08d88035baf01e141374621abbff8b496f4f1c2ab58",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Procedure:** Validate all PDP-0 schemas, IDs, aliases, refs and source roles; walk every outcome/capability/policy/failure path;); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2442,8 +2442,8 @@
           "sha256": "4efbcf5c5b64b52dcdf4d08d88035baf01e141374621abbff8b496f4f1c2ab58"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Procedure:** Validate all PDP-0 schemas, IDs, aliases, refs and source roles; walk every outcome/capability/policy/failure path;); it adds no product behavior. Current sequential plan owns execution."
@@ -2461,8 +2461,8 @@
       "sourceTextSha256": "012b448e5d8a83aa31c260ee4fcf07bf66aedcf749ce4ec12498d721457988fa",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Reconcile PDP-1 domain/state dependencies without accepting them by implication.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2476,8 +2476,8 @@
           "sha256": "012b448e5d8a83aa31c260ee4fcf07bf66aedcf749ce4ec12498d721457988fa"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Reconcile PDP-1 domain/state dependencies without accepting them by implication.); it adds no product behavior. Current sequential plan owns execution."
@@ -2495,8 +2495,8 @@
       "sourceTextSha256": "bbfbf2700d20be76cf5d465f9fbb8e423cc748bb603860d6a4b8c31fcb0e855d",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** Accepts PDP-0 definition only; unblocks dependent PDP-1/2/3 work subject to each owner’s input); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-      "ownerValueSha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2510,8 +2510,8 @@
           "sha256": "bbfbf2700d20be76cf5d465f9fbb8e423cc748bb603860d6a4b8c31fcb0e855d"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L100",
-          "sha256": "aabc673778ffa76e9fb6934dbc186e66d2578755042350e13daa17a725cf55dc"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** Accepts PDP-0 definition only; unblocks dependent PDP-1/2/3 work subject to each owner’s input); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -2529,8 +2529,8 @@
       "sourceTextSha256": "09bd297d6e1b9b2b5f0d700fc19d18f23d83d48ea499339f42a80a7a04b9256d",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-001 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2544,8 +2544,8 @@
           "sha256": "09bd297d6e1b9b2b5f0d700fc19d18f23d83d48ea499339f42a80a7a04b9256d"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-001 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2563,8 +2563,8 @@
       "sourceTextSha256": "65aaa9bca7ee71e41dd3fbf94e6395aa0897a16c595e936d0e50414616d6eb50",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-2-design-interface-system/media-token-aliases.yaml; typography-layout.yaml; Shared public component bindings`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2578,8 +2578,8 @@
           "sha256": "65aaa9bca7ee71e41dd3fbf94e6395aa0897a16c595e936d0e50414616d6eb50"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-2-design-interface-system/media-token-aliases.yaml; typography-layout.yaml; Shared public component bindings`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2597,8 +2597,8 @@
       "sourceTextSha256": "7347aa8dde017aacb07b27313feecd00b767462f53554cac5eeb35eeb505bb27",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-002 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2612,8 +2612,8 @@
           "sha256": "7347aa8dde017aacb07b27313feecd00b767462f53554cac5eeb35eeb505bb27"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-002 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2631,8 +2631,8 @@
       "sourceTextSha256": "8e97df2163f2acfec21095025fa3f18aa3732b92309a35271075fa087bc09094",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-2-design-interface-system/component-contracts.yaml; media-editing-grammar.yaml; animation-simulation-grammar.yaml); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2646,8 +2646,8 @@
           "sha256": "8e97df2163f2acfec21095025fa3f18aa3732b92309a35271075fa087bc09094"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-2-design-interface-system/component-contracts.yaml; media-editing-grammar.yaml; animation-simulation-grammar.yaml); it adds no product behavior. Current sequential plan owns execution."
@@ -2699,8 +2699,8 @@
       "sourceTextSha256": "a6011e549125b24e07c354b756305db357391b6cb789191906122cc9f33e7a73",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-003 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2714,8 +2714,8 @@
           "sha256": "a6011e549125b24e07c354b756305db357391b6cb789191906122cc9f33e7a73"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-003 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2768,8 +2768,8 @@
       "sourceTextSha256": "336c5f9c81ef3bc9fa9e95d02b172b552a3df7f6e3d96a27205c5896cc7b31e7",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-004 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2783,8 +2783,8 @@
           "sha256": "336c5f9c81ef3bc9fa9e95d02b172b552a3df7f6e3d96a27205c5896cc7b31e7"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-004 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2802,8 +2802,8 @@
       "sourceTextSha256": "a91ebaa5f6c7564e91b1e67a1df3171dd2fcce3d763b342129825a56faa49cd8",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-005 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2817,8 +2817,8 @@
           "sha256": "a91ebaa5f6c7564e91b1e67a1df3171dd2fcce3d763b342129825a56faa49cd8"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-005 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2836,8 +2836,8 @@
       "sourceTextSha256": "9986a21e11b1da1b969ae2fa2594109b943e659489cb4dc547dfbd7db6b54465",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-2-design-interface-system/cli-language.yaml; content-voice rules`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2851,8 +2851,8 @@
           "sha256": "9986a21e11b1da1b969ae2fa2594109b943e659489cb4dc547dfbd7db6b54465"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `pdp-2-design-interface-system/cli-language.yaml; content-voice rules`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2904,8 +2904,8 @@
       "sourceTextSha256": "0c53ffda609406641fa46ec5a95249fe32eea4b70490cd0b36f0b896ca23268e",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-006 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2919,8 +2919,8 @@
           "sha256": "0c53ffda609406641fa46ec5a95249fe32eea4b70490cd0b36f0b896ca23268e"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P1-006 — PDP-2 — Design & Interface System (legacy P1 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -2938,8 +2938,8 @@
       "sourceTextSha256": "2164184ba151860865c913020ea0d5bab6f222fb359e28a3dc0ffa5ab4882e4c",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `PDP-2 acceptance input; generated design coverage`.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2953,8 +2953,8 @@
           "sha256": "2164184ba151860865c913020ea0d5bab6f222fb359e28a3dc0ffa5ab4882e4c"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Target:** `PDP-2 acceptance input; generated design coverage`.); it adds no product behavior. Current sequential plan owns execution."
@@ -2972,8 +2972,8 @@
       "sourceTextSha256": "9f502088048b284024ca16d11ff1fc8ab1dd8fb66ca8ea63500befded9f281d9",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Procedure:** Walk every PDP-0/1 concept requiring representation against the PDP-2 pattern owner.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-      "ownerValueSha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -2987,8 +2987,8 @@
           "sha256": "9f502088048b284024ca16d11ff1fc8ab1dd8fb66ca8ea63500befded9f281d9"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L144",
-          "sha256": "6aa06506a303e2a2add3f0541d3fcdf42cbc7c20fef5a964ce1881a83217d840"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (**Procedure:** Walk every PDP-0/1 concept requiring representation against the PDP-2 pattern owner.); it adds no product behavior. Current sequential plan owns execution."
@@ -3006,8 +3006,8 @@
       "sourceTextSha256": "5f4f69cbdc5d2ed4cb6729c6f3bc0512e153564c7b25660216e7c1e3ec0e08d6",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** Unlocks PDP-3; future material design changes invalidate only dependent views/evidence.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3021,8 +3021,8 @@
           "sha256": "5f4f69cbdc5d2ed4cb6729c6f3bc0512e153564c7b25660216e7c1e3ec0e08d6"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (**Downstream and evidence effect:** Unlocks PDP-3; future material design changes invalidate only dependent views/evidence.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -3040,8 +3040,8 @@
       "sourceTextSha256": "a3465d003fb044361e6ef7382af06290763453ac8cc693dd4d64cf12d3057e03",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-001 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3055,8 +3055,8 @@
           "sha256": "a3465d003fb044361e6ef7382af06290763453ac8cc693dd4d64cf12d3057e03"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-001 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3074,8 +3074,8 @@
       "sourceTextSha256": "89a4830c6b7924ad42f6cf4a27386f342c3cecf147f0908203ba17d31b1ef6c3",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-002 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3089,8 +3089,8 @@
           "sha256": "89a4830c6b7924ad42f6cf4a27386f342c3cecf147f0908203ba17d31b1ef6c3"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-002 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3108,8 +3108,8 @@
       "sourceTextSha256": "1001bdbe824eca2a6407f82cfde9d029924f231c07365f73705c7d0e3ca52545",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-003 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3123,8 +3123,8 @@
           "sha256": "1001bdbe824eca2a6407f82cfde9d029924f231c07365f73705c7d0e3ca52545"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-003 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3142,8 +3142,8 @@
       "sourceTextSha256": "a910572fcde44eeac149f6f50b40340f67725539f4446b0e7ef90bebd3a8342d",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-004 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3157,8 +3157,8 @@
           "sha256": "a910572fcde44eeac149f6f50b40340f67725539f4446b0e7ef90bebd3a8342d"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-004 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3176,8 +3176,8 @@
       "sourceTextSha256": "ed03de3280a9c0e3eaebf159695c8f4d496d63766dd22a71feae8507fa58cf7e",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-005 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3191,8 +3191,8 @@
           "sha256": "ed03de3280a9c0e3eaebf159695c8f4d496d63766dd22a71feae8507fa58cf7e"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-005 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3210,8 +3210,8 @@
       "sourceTextSha256": "755b775de87e5ed250e0e014c073cf394d758b2937a64db76fafd0843db0754d",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-006 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3225,8 +3225,8 @@
           "sha256": "755b775de87e5ed250e0e014c073cf394d758b2937a64db76fafd0843db0754d"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-006 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3244,8 +3244,8 @@
       "sourceTextSha256": "f9e781b5089d314a7adb4b88f4732d488a88dc6fe3f8c4a4c294eaa0b73b6b9b",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-007 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3259,8 +3259,8 @@
           "sha256": "f9e781b5089d314a7adb4b88f4732d488a88dc6fe3f8c4a4c294eaa0b73b6b9b"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-007 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3312,8 +3312,8 @@
       "sourceTextSha256": "def49288035e37169caa2f80c5d261d61b39275501573dd3f58fb226d3c41657",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-008 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3327,8 +3327,8 @@
           "sha256": "def49288035e37169caa2f80c5d261d61b39275501573dd3f58fb226d3c41657"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (### P2-008 — PDP-3 — Complete Product Experience (legacy P2 task ID)); it adds no product behavior. Current sequential plan owns execution."
@@ -3448,8 +3448,8 @@
       "sourceTextSha256": "a0fa86c8269a4556528b6c1508403085e538d0d20f79c61f68fbf3fca39b56b7",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Build Media package adapters referencing PDP-0–PDP-3 fingerprints, render targets and fixtures.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3463,8 +3463,8 @@
           "sha256": "a0fa86c8269a4556528b6c1508403085e538d0d20f79c61f68fbf3fca39b56b7"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Build Media package adapters referencing PDP-0–PDP-3 fingerprints, render targets and fixtures.); it adds no product behavior. Current sequential plan owns execution."
@@ -3958,8 +3958,8 @@
       "sourceTextSha256": "12ac59633f2258b73e5e4cd17a7e61ab568f70a2e1164bc9716d6819bb35758f",
       "classification": "superseded",
       "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-0 boundary work may proceed in parallel with migration preparation.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -3973,8 +3973,8 @@
           "sha256": "12ac59633f2258b73e5e4cd17a7e61ab568f70a2e1164bc9716d6819bb35758f"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "superseded",
         "reason": "The exact source span carries a legacy phase label/gate or unlock sequence (PDP-0 boundary work may proceed in parallel with migration preparation.); current canonical phases and DEV_COMPLETE handoffs supersede that execution instruction."
@@ -4026,8 +4026,8 @@
       "sourceTextSha256": "4c093143637c4812034cb42d0befd274a5886b600115b5b90245dc482108a0ee",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Their source proposals require canonical reconciliation and owner review.); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-      "ownerValueSha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+      "ownerValueSha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -4041,8 +4041,8 @@
           "sha256": "4c093143637c4812034cb42d0befd274a5886b600115b5b90245dc482108a0ee"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L64",
-          "sha256": "9fcd7a1617804fbab70f9ccded383e3c79853319e572b5dbf4ae9bd2fabbc6fb"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L6",
+          "sha256": "7516cbfb1418c1dd7483f3a4be32669e0762e3f378295d10e1efee0c266f6e9c"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (Their source proposals require canonical reconciliation and owner review.); it adds no product behavior. Current sequential plan owns execution."
@@ -4233,8 +4233,8 @@
       "sourceTextSha256": "082e8e401846f7f8fa98dcc975020c6217146924a5a9614134ad5b2ebd4734b3",
       "classification": "execution-only",
       "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (At plan delivery: migration is **not executed**; PDP-0 through PDP-3 artifacts and the Experience Explorer are **not accepted by t); it adds no product behavior. Current sequential plan owns execution.",
-      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-      "ownerValueSha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16",
+      "ownerRef": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+      "ownerValueSha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544",
       "ownerRole": "sequential-plan-anchor",
       "acceptanceEffect": "none",
       "semanticEvidence": {
@@ -4248,8 +4248,8 @@
           "sha256": "082e8e401846f7f8fa98dcc975020c6217146924a5a9614134ad5b2ebd4734b3"
         },
         "currentOwner": {
-          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L162",
-          "sha256": "bcf14ffddff391ad72468d6201e85a0715ef51e0cf2b2f2ed09f1671c2fc4f16"
+          "ref": "docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md#L65",
+          "sha256": "f12ea36f088e3a4f639a9d010569f05ceb1ba032fec554617d998ad996015544"
         },
         "classification": "execution-only",
         "reason": "The exact source span is a task heading, target, procedure, evidence or implementation dependency (At plan delivery: migration is **not executed**; PDP-0 through PDP-3 artifacts and the Experience Explorer are **not accepted by t); it adds no product behavior. Current sequential plan owns execution."

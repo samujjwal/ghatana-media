@@ -10,6 +10,7 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const transitions = readYaml(".product-experience/pdp-1-domain-data/transitions.yaml");
+const privacy = readYaml(".product-experience/pdp-1-domain-data/privacy.yaml");
 const states = readYaml(".product-experience/pdp-1-domain-data/states.yaml");
 const guardContracts = readYaml(".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml");
 const allTransitions = [...transitions.transitionRecords, ...transitions.ownerDefinedTransitionRecords];
@@ -71,7 +72,7 @@ function allFactsTrue(expression, modelInputs = {}) {
   } else if (expression.all || expression.any) {
     (expression.all ?? expression.any).forEach((child) => allFactsTrue(child, modelInputs));
   } else if (expression.not) {
-    // The base positive fixture intentionally leaves the negated fact false.
+    modelInputs[expression.not.fact] = false;
   }
   return modelInputs;
 }
@@ -169,6 +170,336 @@ test("every guard fact is typed or explicitly definition-model-only", () => {
       assert.match(contract.truthBoundary, /synthetic|model input/iu, `${id} cannot claim runtime truth`);
     }
   }
+});
+
+test("retry eligibility is definition-only source-backed meaning used only to enter RUNNING", () => {
+  const fact = guardContracts.facts.retryBudgetAvailable;
+  const observationRef = ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1";
+  assert.equal(fact.inputKind, "DEFINITION_MODEL_INPUT");
+  assert.equal(fact.unknown, "deny");
+  assert.match(fact.truthBoundary, /synthetic model input for pure definition tests only; no runtime\/source truth is claimed/iu);
+
+  const matrix = transitions.ownerDefinedTransitionTriggerSemantics.guardFactContracts;
+  const row = matrix.find(({ fact: id }) => id === "retryBudgetAvailable");
+  assert.ok(row, "retry eligibility has a normative bounded-check row");
+  assert.equal(row.valueKind, "BOUNDED_CHECK_OBSERVATION");
+  assert.equal(row.observationContractRef, observationRef);
+  assert.ok(row.sourceRefs.includes(observationRef));
+  assert.deepEqual(row.valueOptions, ["PASS", "FAIL", "UNKNOWN"]);
+  assert.deepEqual(row.valueSchema.required, ["checkDisposition"]);
+  assert.deepEqual(row.valueSchema.properties.checkDisposition.enum, row.valueOptions,
+    "bounded-check positives must use a schema-valid disposition");
+  assert.match(row.valueSemantics, /^PASS only when the exact current typed observation/u);
+  assert.equal(row.bindingStatus, "OWNER_DEFINED_DEFINITION_ONLY_NO_ENDPOINT_OR_RUNTIME_BINDING");
+  assert.equal(row.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(row.acceptanceEffect, "none");
+  assert.match(row.resultRules.positive, /checkDisposition equals PASS only when/u);
+  assert.doesNotMatch(row.resultRules.positive, /checkDisposition equals RETRYABLE/u);
+  assert.match(row.resultRules.positive, /retryability RETRYABLE/u);
+  assert.match(row.resultRules.positive, /DEFINITIVE_NO_EFFECT/u);
+  assert.match(row.resultRules.positive, /DEFINITIVE_RETRYABLE_FAILURE/u);
+  assert.match(row.resultRules.positive, /retriesRemaining\s+greater than zero/u);
+  assert.match(row.resultRules.unknown, /missing, stale, foreign-scope, malformed, conflicting, wrong-version/iu);
+  assert.match(row.resultRules.unknown, /denies the edge/u);
+
+  const retryRead = operationSource.ownerTypedObservationContracts.records
+    .find(({ id }) => id === "media.observation-contract.retry-policy-current-read.v1");
+  assert.equal(retryRead.bindingStatus, "OWNER_DEFINED_DEFINITION_ONLY_NO_ENDPOINT_OR_RUNTIME_BINDING");
+  assert.equal(retryRead.scopeStatus,
+    "OWNER_DEFINED_QUERY_DEFINITION_ONLY; retry execution, endpoint, current policy publication, and runtime observation remain NOT_ADMITTED_OR_UNKNOWN");
+  assert.deepEqual(retryRead.requestSchema.required, ["queryId", "jobId", "priorAttemptId"]);
+  assert.ok(retryRead.trustedContext.requiredHostFacts.includes("tenantScopeRef"));
+  assert.ok(retryRead.trustedContext.requiredHostFacts.includes("principalRef"));
+  assert.ok(retryRead.trustedContext.requiredHostFacts.includes("expectedReadVersion"));
+  assert.equal(retryRead.resultSchema.properties.currentness.enum.includes("CURRENT"), true);
+  assert.equal(retryRead.resultSchema.properties.readAuthorityRef.enum.length, 1);
+  const observed = retryRead.resultSchema.properties.observation.oneOf[0];
+  for (const key of ["jobVersionRef", "attemptVersionRef", "policyVersionRef", "retryability", "outcomeClass", "retriesRemaining"]) {
+    assert.ok(observed.required.includes(key), `retry observation binds ${key}`);
+  }
+  assert.ok(observed.properties.retryability.enum.includes("RETRYABLE"));
+  assert.ok(observed.properties.outcomeClass.enum.includes("DEFINITIVE_NO_EFFECT"));
+  assert.ok(observed.properties.outcomeClass.enum.includes("DEFINITIVE_RETRYABLE_FAILURE"));
+  assert.equal(observed.properties.retriesRemaining.minimum, 0);
+});
+
+test("only T03 RETRY_PENDING to RUNNING consumes retry eligibility; exact outcomes govern the other edges", () => {
+  const transitionId = "media-job/T03";
+  const contract = byId.get(transitionId);
+  const edges = contract.edgeRules;
+  assert.deepEqual(edges.map(({ from, to }) => `${from}->${to}`), [
+    "RETRY_PENDING->RUNNING",
+    "RETRY_PENDING->CANCELLED",
+    "RETRY_PENDING->FAILED",
+    "RETRY_PENDING->OUTCOME_UNKNOWN",
+  ]);
+  const requiredByTarget = new Map(edges.map((edge) => [edge.to, transitionGuardFactRequirements({ edgeRules: [edge] })]));
+  assert.ok(requiredByTarget.get("RUNNING").includes("retryBudgetAvailable"));
+  for (const target of ["CANCELLED", "FAILED", "OUTCOME_UNKNOWN"]) {
+    assert.equal(requiredByTarget.get(target).includes("retryBudgetAvailable"), false, `${target} is not guarded by retry budget`);
+  }
+
+  const runningEdge = edges.find(({ to }) => to === "RUNNING");
+  const falseRetry = fixture(runningEdge);
+  falseRetry.modelInputs.retryBudgetAvailable = false;
+  assert.equal(evaluate(transitionId, "RETRY_PENDING", "RUNNING", falseRetry).allowed, false,
+    "a false retry eligibility fixture denies transition to RUNNING");
+  const missingRetry = fixture(runningEdge);
+  delete missingRetry.modelInputs.retryBudgetAvailable;
+  assert.equal(evaluate(transitionId, "RETRY_PENDING", "RUNNING", missingRetry).allowed, false,
+    "a missing retry eligibility fixture denies transition to RUNNING");
+
+  const semanticRecord = transitions.ownerDefinedTransitionTriggerSemantics.records
+    .find(({ transitionRef }) => transitionRef.endsWith(`/@id=${transitionId}`));
+  assert.ok(semanticRecord, "T03 has exact owner-defined trigger cases");
+  const byTarget = new Map(semanticRecord.triggerCases.map((row) => [row.toStateRef.split("/@id=").at(-1), row]));
+  const expectedObservationFacts = {
+    CANCELLED: "outcome.media.job.cancelled.supported",
+    FAILED: "outcome.media.job.failed.supported",
+    OUTCOME_UNKNOWN: "outcome.media.job.outcome.unknown.supported",
+  };
+  for (const [target, factId] of Object.entries(expectedObservationFacts)) {
+    const triggerCase = byTarget.get(target);
+    assert.ok(triggerCase, `${target} has an exact trigger case`);
+    assert.equal(triggerCase.triggerGuardFacts.some(({ fact }) => fact === "retryBudgetAvailable"), false);
+    const targetObservation = triggerCase.triggerGuardFacts.find(({ fact }) => fact === factId);
+    assert.equal(targetObservation?.valueKind, "EXACT_TARGET_STATE_OBSERVATION");
+    assert.ok(targetObservation.targetStateRef.endsWith(`/@id=${target}`));
+    assert.match(triggerCase.causalTriggerDefinition.triggerRule, /exact current observed state evidence/u);
+  }
+  assert.match(byTarget.get("CANCELLED").causalTriggerDefinition.triggerRule, /not a cancel command/u);
+  assert.match(byTarget.get("FAILED").causalTriggerDefinition.triggerRule, /terminal failure observation/u);
+  assert.match(byTarget.get("OUTCOME_UNKNOWN").causalTriggerDefinition.triggerRule, /never authorizes replay/u);
+
+  for (const target of ["CANCELLED", "FAILED", "OUTCOME_UNKNOWN"]) {
+    const edge = edges.find(({ to }) => to === target);
+    const facts = fixture(edge);
+    facts.modelInputs.retryBudgetAvailable = false;
+    assert.equal(evaluate(transitionId, "RETRY_PENDING", target, facts).allowed, true,
+      `${target} eligibility is independent of retryBudgetAvailable`);
+    const targetFact = expectedObservationFacts[target];
+    makePredicateFalse(facts, targetFact);
+    assert.equal(evaluate(transitionId, "RETRY_PENDING", target, facts).allowed, false,
+      `${target} requires its own positive exact-state outcome fact`);
+  }
+});
+
+test("166 facts partition into the 164 exact edge-evaluation contracts and two explicit hold dispositions", () => {
+  const factIds = Object.keys(guardContracts.facts);
+  const edgeFactIds = new Set();
+  for (const record of guardContracts.records) for (const edge of record.edgeRules) {
+    for (const id of transitionGuardFactRequirements({ edgeRules: [edge] })) edgeFactIds.add(id);
+  }
+  const matrix = transitions.ownerDefinedTransitionTriggerSemantics.guardFactContracts;
+  const matrixFacts = matrix.map(({ fact }) => fact);
+  assert.equal(factIds.length, 166);
+  assert.equal(matrix.length, 164);
+  assert.equal(new Set(matrixFacts).size, matrixFacts.length);
+  assert.deepEqual([...edgeFactIds].sort(), [...matrixFacts].sort(),
+    "every edge fact has exactly one source-owned authority/evaluation record");
+  assert.deepEqual(factIds.filter((id) => !edgeFactIds.has(id)).sort(), ["hold.unknown", "holdCheckPass"]);
+  assert.equal(guardContracts.facts.holdCheckPass.factDisposition,
+    "UNBOUND_UNUSED; retained only as an observed legacy fact identity; no current edge or exclusivity group may use it to authorize a transition.");
+  assert.equal(guardContracts.facts["hold.unknown"].factDisposition,
+    "EXCLUSIVITY_ONLY; a positive UNKNOWN disposition contradicts positive ACTIVE or ABSENT for the same current scoped hold read and never authorizes an edge.");
+  assert.equal(guardContracts.facts["hold.unknown"].authorityRef,
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/unknownRule");
+  assert.deepEqual(guardContracts.facts["hold.active"].sourceRefs, [
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/observationSchema",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/activeRule",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/unknownRule",
+  ]);
+  assert.deepEqual(guardContracts.facts["hold.absent"].sourceRefs, [
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/observationSchema",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/outcomeClassifier/currentReadReceiptSchema/properties/holdRead",
+    ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/confirmedRequires",
+  ]);
+  assert.equal(guardContracts.facts["hold.active"].inputKind, "DEFINITION_MODEL_INPUT");
+  assert.equal(guardContracts.facts["hold.absent"].inputKind, "DEFINITION_MODEL_INPUT");
+  assert.match(guardContracts.facts["hold.active"].truthBoundary, /Synthetic model input.*no runtime\/source truth/u);
+  assert.match(guardContracts.facts["hold.absent"].truthBoundary, /Synthetic model input.*no runtime\/source truth/u);
+  assert.match(privacy.ownerDefinedErasureInventoryContract.holds.unknownRule, /UNKNOWN and blocks irreversible deletion/u);
+});
+
+test("each source fact contract preserves exact consumer scope, freshness, version, and fail-closed boundaries", () => {
+  const matrix = transitions.ownerDefinedTransitionTriggerSemantics.guardFactContracts;
+  const matrixByFact = new Map(matrix.map((record) => [record.fact, record]));
+  const requiredTrustedInputs = ["tenantId", "expectedSubjectRef", "expectedSubjectVersionRef", "expectedAuthorityRef",
+    "expectedReadVersion", "now", "maxAgeMs"];
+  assert.equal(matrixByFact.size, 164, "every edge fact has exactly one source/evaluation contract");
+
+  for (const row of matrix) {
+    const fact = guardContracts.facts[row.fact] ?? guardContracts.commonFacts[row.fact];
+    assert.ok(fact, `${row.fact} has a guard fact definition`);
+    assert.ok(row.id, `${row.fact} has a stable provenance contract identity`);
+    assert.ok(row.sourceRefs?.length, `${row.fact} names exact source contract references`);
+    assert.ok(row.sourceRefs.some((ref) => ref.endsWith(`#facts/${row.fact}`) || ref.endsWith(`#commonFacts/${row.fact}`)),
+      `${row.fact} cites its exact guard fact identity`);
+    assert.ok(row.authorityRefs?.length, `${row.fact} names an authority boundary`);
+    assert.ok(row.transitionRefs?.length, `${row.fact} names exact transition consumers`);
+    assert.ok(row.predicateSourceRefs?.length, `${row.fact} points at exact guard predicate occurrences`);
+    assert.ok(Array.isArray(row.occurrenceSemantics) && row.occurrenceSemantics.length > 0,
+      `${row.fact} records scoped occurrences`);
+    assert.ok(row.trustedInputs?.length, `${row.fact} declares trusted scope/currentness inputs`);
+    for (const input of requiredTrustedInputs) assert.ok(row.trustedInputs.includes(input), `${row.fact} binds ${input}`);
+    assert.equal(fact.unknown, "deny", `${row.fact} denies unknown`);
+    assert.equal(row.runtimeAdmission, "NOT_ADMITTED", `${row.fact} does not claim runtime admission`);
+    assert.equal(row.acceptanceEffect, "none", `${row.fact} cannot create a runtime effect`);
+    assert.match(row.resultRules?.unknown ?? "", /missing.*stale.*foreign-scope.*UNKNOWN/iu,
+      `${row.fact} makes unavailable or stale source evidence unknown`);
+    assert.match(row.resultRules.unknown, /no transition or retry is implied|denies the edge/iu,
+      `${row.fact} cannot authorize a fallback effect`);
+
+    for (const occurrence of row.occurrenceSemantics) {
+      assert.ok(allTransitions.some(({ id }) => occurrence.transitionRef.endsWith(`/@id=${id}`)),
+        `${row.fact} occurrence names a current transition`);
+      assert.ok(occurrence.edgeRuleRef && occurrence.exactFromStateRef && occurrence.exactToStateRef && occurrence.predicateFactRef,
+        `${row.fact} occurrence binds exact edge, states, and predicate`);
+      assert.match(occurrence.effectBoundary ?? "", /Definition-only guard meaning; no deployed producer or transition persistence is asserted/u);
+    }
+    assert.deepEqual([...new Set(row.occurrenceSemantics.map(({ transitionRef }) => transitionRef))].sort(), [...row.transitionRefs].sort(),
+      `${row.fact} consumer inventory matches its occurrence semantics`);
+    assert.deepEqual([...new Set(row.occurrenceSemantics.map(({ predicateFactRef }) => predicateFactRef))].sort(), [...row.predicateSourceRefs].sort(),
+      `${row.fact} predicate sources match its occurrence semantics`);
+  }
+
+  const typedFacts = Object.entries(guardContracts.facts).filter(([, fact]) => fact.inputKind === "TYPED_OWNER_OBSERVATION").map(([id]) => id);
+  assert.deepEqual(typedFacts, ["consentPerEffectCurrent"], "only the explicit consent adapter consumes typed owner reads");
+  const consent = guardContracts.facts.consentPerEffectCurrent;
+  assert.deepEqual(consent.typedEvaluation.sourceContractRefs, [
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1",
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract",
+  ]);
+  assert.equal(consent.typedEvaluation.runtimeAdmission, "NOT_ADMITTED");
+});
+
+test("all 43 exclusivity groups bind valid same-transition facts and reject every contradictory pair", () => {
+  const recordsByGroupId = new Map(guardContracts.records.map((record) => {
+    const [machine, transitionSuffix] = record.transitionId.split("/T");
+    return [`outcome.${machine.replaceAll("/", ".")}.t${transitionSuffix.toLowerCase()}`, record];
+  }));
+  assert.equal(guardContracts.exclusiveFactGroups.length, 43);
+  assert.equal(new Set(guardContracts.exclusiveFactGroups.map(({ id }) => id)).size, 43);
+  for (const group of guardContracts.exclusiveFactGroups) {
+    const guardRecord = recordsByGroupId.get(group.id);
+    assert.ok(guardRecord, `${group.id} binds an exact transition identity`);
+    const transitionRecord = allTransitions.find(({ id }) => id === guardRecord.transitionId);
+    assert.ok(transitionRecord, `${group.id} resolves its owning transition`);
+    assert.equal(group.rule, "at-most-one-positive-outcome-fact");
+    if (/^outcome\.media-upload-and-artifact\.t0[5-9]$/u.test(group.id)) {
+      assert.deepEqual([...group.factIds].sort(), ["hold.absent", "hold.active", "hold.unknown"],
+        `${group.id} covers only mutually exclusive current hold dispositions`);
+    }
+    assert.ok(group.factIds.length >= 2);
+    assert.equal(new Set(group.factIds).size, group.factIds.length, `${group.id} contains no duplicate fact`);
+    const edgeFacts = new Set(transitionGuardFactRequirements({ edgeRules: guardRecord.edgeRules }));
+    for (const id of group.factIds) {
+      assert.ok(Object.hasOwn(guardContracts.facts, id), `${group.id} declares ${id}`);
+      assert.ok(edgeFacts.has(id) || id.startsWith("hold."), `${group.id} ${id} belongs to its edge family`);
+      assert.equal(guardContracts.facts[id].unknown, "deny");
+    }
+    for (let left = 0; left < group.factIds.length; left += 1) {
+      for (let right = left + 1; right < group.factIds.length; right += 1) {
+        const modelInputs = { [group.factIds[left]]: true, [group.factIds[right]]: true };
+        const result = evaluatePdpTransition({
+          transitions, states, guardContracts, transitionId: guardRecord.transitionId,
+          from: transitionRecord.from[0], to: transitionRecord.to[0], facts: { modelInputs },
+        });
+        assert.equal(result.allowed, false, `${group.id} must reject ${group.factIds[left]} + ${group.factIds[right]}`);
+        const overlappingGroups = guardContracts.exclusiveFactGroups.filter(({ factIds }) =>
+          factIds.includes(group.factIds[left]) && factIds.includes(group.factIds[right]));
+        assert.ok(overlappingGroups.some(({ id }) => result.reasonCodes.includes(`CONTRADICTORY_OUTCOME_FACTS:${id}`)),
+          `${group.id} expected a matching contradiction for ${group.factIds[left]} + ${group.factIds[right]}, got ${result.reasonCodes.join(",")}`);
+      }
+    }
+  }
+});
+
+test("unbound legacy hold aggregate and UNKNOWN hold fact cannot satisfy a deletion guard", () => {
+  const transitionId = "media-upload-and-artifact/T05";
+  const edge = byId.get(transitionId).edgeRules.find(({ to }) => to === "PHYSICAL_ERASURE_PENDING");
+  const unknownHold = fixture(edge);
+  removePredicate(unknownHold, "hold.absent");
+  unknownHold.modelInputs["hold.unknown"] = true;
+  assert.equal(evaluate(transitionId, edge.from, edge.to, unknownHold).allowed, false,
+    "UNKNOWN hold applicability cannot replace a current no-hold observation");
+
+  const staleAggregate = fixture(edge);
+  removePredicate(staleAggregate, "hold.absent");
+  staleAggregate.modelInputs.holdCheckPass = true;
+  assert.equal(evaluate(transitionId, edge.from, edge.to, staleAggregate).allowed, false,
+    "the unused aggregate holdCheckPass identity cannot stand in for an exact scoped hold status");
+});
+
+test("erasure edge outcomes preserve overlapping copy evidence and fail closed on holds", () => {
+  const edge = (transitionId, target) => byId.get(transitionId).edgeRules.find(({ to }) => to === target);
+  const run = (transitionId, target, updates = {}, removals = []) => {
+    const selected = edge(transitionId, target);
+    const facts = fixture(selected);
+    Object.assign(facts.modelInputs, updates);
+    for (const fact of removals) delete facts.modelInputs[fact];
+    return { facts, result: evaluate(transitionId, selected.from, selected.to, facts) };
+  };
+
+  // Inventory can reveal external uncertainty while controlled deletion proceeds.
+  const [t07Pending, t07External, t07Blocked] = [
+    run("media-upload-and-artifact/T07", "PHYSICAL_ERASURE_PENDING", { "erasure.externalCopyUnconfirmed": true }),
+    run("media-upload-and-artifact/T07", "EXTERNAL_ERASURE_UNCONFIRMED"),
+    run("media-upload-and-artifact/T07", "BLOCKED_BY_HOLD", { "erasure.externalCopyUnconfirmed": true }),
+  ];
+  assert.equal(t07Pending.result.allowed, true, "external uncertainty may coexist with controlled erasure work");
+  assert.equal(t07External.result.allowed, true, "an external-unconfirmed outcome is valid with a current absent-hold fact");
+  assert.equal(t07Blocked.result.allowed, true, "active hold selects BLOCKED_BY_HOLD even if external uncertainty is also known");
+  assert.equal(run("media-upload-and-artifact/T07", "PHYSICAL_ERASURE_PENDING", {
+    "hold.absent": false, "hold.active": true,
+  }).result.allowed, false, "active hold cannot select physical erasure work");
+  assert.equal(run("media-upload-and-artifact/T07", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true, "hold.absent": false, "hold.active": true,
+  }).result.allowed, false, "active hold cannot select the external-unconfirmed target");
+  assert.equal(run("media-upload-and-artifact/T07", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true, "hold.absent": false,
+  }, ["hold.absent"]).result.allowed, false, "unknown hold cannot select the external-unconfirmed target");
+
+  // Controlled copies may be confirmed while an external copy remains unknown.
+  const t08Confirmed = run("media-upload-and-artifact/T08", "ERASURE_CONFIRMED");
+  assert.equal(t08Confirmed.result.allowed, true, "current controlled-copy evidence plus absent hold permits confirmation when external uncertainty is false");
+  const bothCopyFacts = run("media-upload-and-artifact/T08", "ERASURE_CONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true,
+  });
+  assert.equal(bothCopyFacts.result.allowed, false, "external uncertainty blocks ERASURE_CONFIRMED even with controlled-copy confirmation");
+  assert.ok(!bothCopyFacts.result.reasonCodes.some((reason) => reason.startsWith("CONTRADICTORY_OUTCOME_FACTS:")),
+    "overlapping controlled and external copy evidence is not mislabeled contradictory");
+  assert.equal(run("media-upload-and-artifact/T08", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.allControlledCopiesConfirmed": true,
+  }).result.allowed, true, "both evidence facts may route to EXTERNAL_ERASURE_UNCONFIRMED when holds are absent");
+  assert.equal(run("media-upload-and-artifact/T08", "ERASURE_CONFIRMED", {}, ["erasure.externalCopyUnconfirmed"]).result.allowed, false,
+    "missing external-copy status stays UNKNOWN under the confirmed branch's negation");
+  assert.equal(run("media-upload-and-artifact/T08", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true, "hold.absent": false, "hold.active": true,
+  }).result.allowed, false, "active hold cannot select an external-unconfirmed terminal target");
+  assert.equal(run("media-upload-and-artifact/T08", "ERASURE_CONFIRMED", {
+    "hold.absent": false, "hold.active": true,
+  }).result.allowed, false, "active hold cannot select the confirmed terminal target");
+  assert.equal(run("media-upload-and-artifact/T08", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true, "hold.absent": false,
+  }, ["hold.absent"]).result.allowed, false, "unknown hold cannot select an external-unconfirmed terminal target");
+  assert.equal(run("media-upload-and-artifact/T08", "BLOCKED_BY_HOLD", {
+    "erasure.externalCopyUnconfirmed": true,
+  }).result.allowed, true, "active hold takes its blocked branch while external uncertainty remains factual");
+
+  assert.equal(run("media-upload-and-artifact/T09", "PHYSICAL_ERASURE_PENDING").result.allowed, true,
+    "released hold and current boundary evidence permit physical work to resume");
+  assert.equal(run("media-upload-and-artifact/T09", "EXTERNAL_ERASURE_UNCONFIRMED").result.allowed, true,
+    "released hold and external uncertainty permit the external-unconfirmed target");
+  assert.equal(run("media-upload-and-artifact/T09", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true, "hold.absent": false, "hold.active": true,
+  }).result.allowed, false, "active hold cannot be bypassed to select the external-unconfirmed target");
+  assert.equal(run("media-upload-and-artifact/T09", "EXTERNAL_ERASURE_UNCONFIRMED", {
+    "erasure.externalCopyUnconfirmed": true, "hold.absent": false,
+  }, ["hold.absent"]).result.allowed, false, "unknown hold fails closed on the external-unconfirmed target");
+  assert.equal(run("media-upload-and-artifact/T09", "PHYSICAL_ERASURE_PENDING", {
+    "hold.absent": false, "hold.active": true,
+  }).result.allowed, false, "active hold cannot resume physical erasure work");
 });
 
 test("bare guard booleans cannot satisfy authority or source-evidence predicates", () => {

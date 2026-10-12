@@ -74,6 +74,22 @@ test("scope guards derive truth from exact scoped identities and verified query 
   assert.equal(run(guard, { ...value, targetRefs: ["media.domain.other@v1"] }).truth, "UNKNOWN");
 });
 
+test("artifact inspection requires the exact immutable artifact-version pair", () => {
+  const guard = "exact-artifact-and-immutable-version-identity";
+  const value = {
+    artifactId: expected.targetRefs[0],
+    artifactVersionId: expected.targetVersionRefs[0],
+    tenantScopeRef: expected.tenantScopeRef,
+    principalRef: expected.principalRef,
+    currentness: "CURRENT",
+    observedAt: "2026-10-09T11:59:30.000Z",
+  };
+  assert.equal(run(guard, value).truth, "TRUE");
+  assert.equal(run(guard, { ...value, artifactVersionId: "media.domain.fixture@latest" }).truth, "FALSE");
+  assert.equal(run(guard, { ...value, artifactId: "media.domain.foreign" }).truth, "FALSE");
+  assert.equal(run(guard, { ...value, currentness: "STALE" }).truth, "UNKNOWN");
+});
+
 test("authority guards require exact actor, operation, target, scope, validity and admitted capability", () => {
   const guard = "current-project-create-authority";
   const value = { actorRef: expected.principalRef, operationRefs: sampleStep(guard).canonicalBindings.operationRefs, targetRefs: expected.targetRefs, purposeRef: expected.purposeRef,

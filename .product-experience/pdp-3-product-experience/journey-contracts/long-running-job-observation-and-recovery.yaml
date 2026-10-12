@@ -24,8 +24,12 @@ steps:
     screenContractRef: screen-contracts/transcription-progress.yaml
     action: media.action.view-job-status
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.job.view-status]
-    result: the-current-job-reference-is-used-without-submitting-another-request
+    capabilityRefs: [ media.job.view-status ]
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
     surfaceRefs: []
     objectRefs:
       - media.domain.project
@@ -38,10 +42,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[1].result
-      proposal: the-current-job-reference-is-used-without-submitting-another-request
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -56,7 +68,17 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -66,7 +88,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -93,10 +115,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
@@ -132,12 +157,26 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: follow one submitted transcription job and decide its safe next action
-        result: the-current-job-reference-is-used-without-submitting-another-request
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[1].result
-          proposal: the-current-job-reference-is-used-without-submitting-another-request
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -152,7 +191,17 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -183,12 +232,12 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         status: not-run
         requiredChecks:
@@ -335,8 +384,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -354,8 +403,12 @@ steps:
     screenContractRef: screen-contracts/job-status.yaml
     action: media.action.view-job-status
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.job.view-status]
-    result: state-attempt-state-finality-and-only-measured-progress-are-shown
+    capabilityRefs: [ media.job.view-status ]
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
     surfaceRefs: []
     objectRefs:
       - media.domain.project
@@ -368,10 +421,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[2].result
-      proposal: state-attempt-state-finality-and-only-measured-progress-are-shown
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -386,7 +447,17 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -396,7 +467,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -423,10 +494,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
@@ -462,12 +536,26 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: view-one-existing-job-status-and-choose-a-safe-next-action
-        result: state-attempt-state-finality-and-only-measured-progress-are-shown
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[2].result
-          proposal: state-attempt-state-finality-and-only-measured-progress-are-shown
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -482,7 +570,17 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -513,12 +611,12 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         status: not-run
         requiredChecks:
@@ -666,8 +764,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -685,8 +783,11 @@ steps:
     actionRef: media.action.view-job-status
     screenContractRef: screen-contracts/job-status.yaml
     navigation: stop-watching
-    result: observation-ends-for-this-view;
-      the-existing-job-state-and-finality-are-unchanged
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
     surfaceRefs: []
     objectRefs:
       - media.domain.project
@@ -699,11 +800,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[3].result
-      proposal: observation-ends-for-this-view;
-        the-existing-job-state-and-finality-are-unchanged
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -718,7 +826,17 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -728,7 +846,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -755,10 +873,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -795,14 +916,26 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: view-one-existing-job-status-and-choose-a-safe-next-action
-        result: observation-ends-for-this-view;
-          the-existing-job-state-and-finality-are-unchanged
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[3].result
-          proposal: observation-ends-for-this-view;
-            the-existing-job-state-and-finality-are-unchanged
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -817,7 +950,17 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -848,12 +991,12 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         status: not-run
         requiredChecks:
@@ -1004,8 +1147,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -1019,14 +1162,18 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
-    capabilityRefs: [media.job.view-status]
+    capabilityRefs: [ media.job.view-status ]
   - view: media.view.job-status
     screenContractRef: screen-contracts/job-status.yaml
     navigation: reattach-by-stable-job-reference
     action: media.action.view-job-status
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.job.view-status]
-    result: the-same-job-identity-is-refreshed-from-current-owner-evidence
+    capabilityRefs: [ media.job.view-status ]
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
     surfaceRefs: []
     objectRefs:
       - media.domain.project
@@ -1039,10 +1186,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[4].result
-      proposal: the-same-job-identity-is-refreshed-from-current-owner-evidence
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1057,7 +1212,17 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1067,7 +1232,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -1094,10 +1259,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
@@ -1133,12 +1301,26 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: view-one-existing-job-status-and-choose-a-safe-next-action
-        result: the-same-job-identity-is-refreshed-from-current-owner-evidence
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[4].result
-          proposal: the-same-job-identity-is-refreshed-from-current-owner-evidence
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1153,7 +1335,17 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1184,12 +1376,12 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         status: not-run
         requiredChecks:
@@ -1337,8 +1529,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -1356,9 +1548,12 @@ steps:
     screenContractRef: screen-contracts/job-status.yaml
     action: media.action.request-cancellation
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.job.cancel]
+    capabilityRefs: [ media.job.cancel ]
     when: queued-or-running-and-current-cancellation-authority-allows
-    result: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
+    result: Immediate result is a durable cancellation request or terminal job
+      observation with current job/attempt projection; request acknowledgement
+      does not prove stop or prevent a racing result.
+      [.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema]
     surfaceRefs: []
     objectRefs: []
     stateRefs: []
@@ -1368,10 +1563,17 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[5].result
-      proposal: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+      operationRef: media.operation-slice.cancel-job
+      meaning: Immediate result is a durable cancellation request or terminal job
+        observation with current job/attempt projection; request acknowledgement
+        does not prove stop or prevent a racing result.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1386,7 +1588,16 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: UNKNOWN_OUTCOME remains pending; preserve request identity and
+        reconcile owner evidence. Do not claim cancelled unless the job owner
+        confirms stop; allow a racing result.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1396,7 +1607,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -1423,10 +1634,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
@@ -1461,12 +1675,24 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
         intent: view-one-existing-job-status-and-choose-a-safe-next-action
-        result: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
+        result: Immediate result is a durable cancellation request or terminal job
+          observation with current job/attempt projection; request
+          acknowledgement does not prove stop or prevent a racing result.
+          [.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[5].result
-          proposal: cancellation-is-pending-until-the-job-owner-confirms-stop-or-reports-a-racing-result
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+          operationRef: media.operation-slice.cancel-job
+          meaning: Immediate result is a durable cancellation request or terminal job
+            observation with current job/attempt projection; request
+            acknowledgement does not prove stop or prevent a racing result.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1481,7 +1707,16 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: UNKNOWN_OUTCOME remains pending; preserve request identity and
+            reconcile owner evidence. Do not claim cancelled unless the job
+            owner confirms stop; allow a racing result.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1509,9 +1744,9 @@ steps:
         canonicalOperationRef: media.operation-slice.cancel-job
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
-        capabilityRefs: [media.job.cancel]
+        capabilityRefs: [ media.job.cancel ]
       verification:
         status: not-run
         requiredChecks:
@@ -1656,8 +1891,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.cancel]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.cancel ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
@@ -1668,10 +1903,12 @@ steps:
     screenContractRef: screen-contracts/job-status.yaml
     action: media.action.retry-job
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.job.retry]
+    capabilityRefs: [ media.job.retry ]
     when: prior-attempt-is-classified-retryable-and-current-retry-authority-policy-and-budget-allow-one-new-attempt
-    result: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity;
-      the-prior-attempt-and-its-finality-remain-visible
+    result: Immediate result, if owner-authorized and admitted, is the fenced
+      new-attempt identity under the same logical job; provider dispatch and
+      outcome remain separate. The operation is conditional and proposal-only.
+      [.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema]
     surfaceRefs: []
     objectRefs: []
     stateRefs: []
@@ -1681,11 +1918,17 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[6].result
-      proposal: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity;
-        the-prior-attempt-and-its-finality-remain-visible
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+      operationRef: media.operation-slice.retry-job
+      meaning: Immediate result, if owner-authorized and admitted, is the fenced
+        new-attempt identity under the same logical job; provider dispatch and
+        outcome remain separate. The operation is conditional and proposal-only.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1700,7 +1943,17 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: CONDITIONAL_SOURCE_BACKED_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: Missing/unknown prior-effect or retry-eligibility evidence
+        denies/holds without dispatch. Only retry on exact owner-classified
+        retryable prior attempt and confirmed no-effect under current
+        authorization/policy/budget; no blind retry.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1710,7 +1963,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -1737,10 +1990,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
@@ -1782,14 +2038,26 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
         intent: view-one-existing-job-status-and-choose-a-safe-next-action
-        result: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity;
-          the-prior-attempt-and-its-finality-remain-visible
+        result: Immediate result, if owner-authorized and admitted, is the fenced
+          new-attempt identity under the same logical job; provider dispatch and
+          outcome remain separate. The operation is conditional and
+          proposal-only.
+          [.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[6].result
-          proposal: one-new-fenced-attempt-is-created-under-the-same-logical-job-identity;
-            the-prior-attempt-and-its-finality-remain-visible
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+          operationRef: media.operation-slice.retry-job
+          meaning: Immediate result, if owner-authorized and admitted, is the fenced
+            new-attempt identity under the same logical job; provider dispatch
+            and outcome remain separate. The operation is conditional and
+            proposal-only.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1804,7 +2072,17 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: CONDITIONAL_SOURCE_BACKED_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: Missing/unknown prior-effect or retry-eligibility evidence
+            denies/holds without dispatch. Only retry on exact owner-classified
+            retryable prior attempt and confirmed no-effect under current
+            authorization/policy/budget; no blind retry.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1832,10 +2110,10 @@ steps:
         canonicalOperationRef: media.operation-slice.retry-job
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs:
           - media.scenario.job-retry-eligible
-        capabilityRefs: [media.job.retry]
+        capabilityRefs: [ media.job.retry ]
       verification:
         status: not-run
         requiredChecks:
@@ -1854,10 +2132,14 @@ steps:
         scenarios:
           - scenarioRef: media.scenario.job-retry-eligible
             sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures/media.scenario.job-retry-eligible
-            initialConditions: prior-attempt-is-classified-retryable-and-current-authority-policy-rights-license-resource-deployment-and-budget-checks-pass
+            initialConditions: prior-attempt-is-classified-retryable-and-prior-effect-is-explicitly-reconciled-as-no-effect;
+              current-actor-authority-policy-rights-consent-license-resource-and-deployment-checks-pass;
+              profile-is-current-and-qualified;
+              retry-budget-is-current-and-available
             expected: pre-dispatch-guard-returns-eligible-for-an-explicit-retry-request;
               no-retry-request-is-dispatched-and-no-new-attempt-or-fence-is-claimed
-            pdp3PayloadState: synthetic-pre-dispatch-eligibility-fixture-seeded; retry-request-not-dispatched; no-local-retry-reducer
+            pdp3PayloadState: synthetic-pre-dispatch-eligibility-fixture-seeded;
+              retry-request-not-dispatched; no-local-retry-reducer
         positiveBranch:
           status: candidate-proposal
           scope: existing-step-result
@@ -1998,8 +2280,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.retry]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.retry ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
@@ -2009,9 +2291,13 @@ steps:
     screenContractRef: screen-contracts/check-job-outcome.yaml
     action: media.action.check-job-outcome
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
-    capabilityRefs: [media.job.check-outcome]
+    capabilityRefs: [ media.job.check-outcome ]
     when: outcome-is-unknown-and-current-outcome-check-authority-allows
-    result: evidence-is-collected-for-the-same-job-without-a-new-dispatch
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
     surfaceRefs: []
     objectRefs:
       - media.domain.project
@@ -2024,10 +2310,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: existing-step-result
-      sourceRef: journey.steps[7].result
-      proposal: evidence-is-collected-for-the-same-job-without-a-new-dispatch
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.check-job-outcome
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -2042,7 +2336,17 @@ steps:
           response: disable-resubmission-and-check-the-existing-job-outcome
         - id: progress-unavailable
           response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -2052,7 +2356,7 @@ steps:
         starts only after the prior attempt is classified retryable and current
         owner policy allows it. The fixture slice does not execute retry.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       status: not-run
       requiredChecks:
@@ -2079,10 +2383,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
@@ -2118,12 +2425,26 @@ steps:
         noMutationReason: collect-evidence-for-the-existing-job-identity-without-new-dispatch
       stepSourceFacts:
         intent: check what happened to a job whose external outcome may be uncertain
-        result: evidence-is-collected-for-the-same-job-without-a-new-dispatch
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: existing-step-result
-          sourceRef: journey.steps[7].result
-          proposal: evidence-is-collected-for-the-same-job-without-a-new-dispatch
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.check-job-outcome
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -2138,7 +2459,17 @@ steps:
               response: disable-resubmission-and-check-the-existing-job-outcome
             - id: progress-unavailable
               response: state-that-progress-is-unmeasured; do-not-estimate-from-time-or-stage
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -2169,13 +2500,13 @@ steps:
         canonicalOperationRef: media.operation.action.check-job-outcome
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs:
           - media.scenario.job-retry-ineligible
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.check-outcome]
+        capabilityRefs: [ media.job.check-outcome ]
       verification:
         status: not-run
         requiredChecks:
@@ -2332,8 +2663,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.check-outcome]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.check-outcome ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml

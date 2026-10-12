@@ -156,6 +156,8 @@ steps:
         intent: resolve the current identity and authorized workspace before showing protected Media project
           data
         result: current-principal-and-authorized-workspace-are-resolved-or-a-recoverable-access-state-is-shown
+        resultSourceRef: .product-experience/pdp-3-product-experience/handoff-bindings.yaml#handoffs/@id=media.handoff.identity/mediaOwnerDefinition/adapterEnvelopeDefinition/result
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: external-identity-handoff
@@ -447,7 +449,7 @@ steps:
       journeyRef: J-01
       actionRef: null
       bindingStatus: PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH
-      observationDefinitionRef: .product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml#records/media.project-list-observation.v1
+      observationDefinitionRef: .product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml#records/@id=media.project-list-observation.v1
       selectionBasis: The step is a read-only authorized project collection observation; no separate Media
         interaction action is needed to bind its query semantics.
       candidateActionRefs: []
@@ -461,6 +463,8 @@ steps:
       requirementRefs: []
       result: authorized-query-scoped-project-summaries-or-empty-page
       effect: Read-only observation; no project or revision state changes.
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      noMutationReason: This passive QUERY observes the authorized project collection only; it does not create, update, or transition project state.
       nonhappy: Denied, stale, unavailable, or empty results remain scoped to the trusted principal,
         selected authorized workspace, and query; do not imply global absence.
       recovery: Re-observe only within the same tenant, principal, workspace, and query after current
@@ -474,6 +478,8 @@ steps:
         intent: null
         result: authorized-projects-or-a-purposeful-first-use-state-are-shown;
           no-cross-tenant-project-data-is-visible
+        resultSourceRef: .product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml#records/@id=media.project-list-observation.v1/result
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: authorized-project-collection-observation
@@ -717,6 +723,8 @@ steps:
       stepSourceFacts:
         intent: search authorized projects and create or open one in the selected workspace
         result: a-new-empty-project-is-created-only-after-current-authority-and-the-project-request-are-validated
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: atomic-project-and-initial-revision-commit
@@ -1077,6 +1085,8 @@ steps:
       stepSourceFacts:
         intent: show the current project's exact identity, version context, and safe next action
         result: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: exact-project-head-observation
@@ -1203,7 +1213,7 @@ steps:
           - media-project/ARCHIVED
           - media-project-version/COMMITTED
         operationRef: media.operation-slice.inspect-project
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
@@ -1216,7 +1226,7 @@ steps:
           transitionRef: TRANSITION_APPLICABILITY_UNRESOLVED
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: EXACT_SCENARIO_FIXTURE_REFS
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -1224,18 +1234,18 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
           lifecycle receipt
       versionedObjectObservation:
-        status: CANONICAL_OBJECT_SCOPE_UNRESOLVED
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        status: OWNER_RESULT_BINDS_EXACT_CURRENT_HEAD_REVISION
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project
         objectRefs:
           - media.domain.project
           - media.domain.project-revision
         versionIdentityRule: Exact immutable version identity is required whenever the source action names a
           version; do not substitute a newer version.
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
-        observation: the-exact-project-identity-and-version-are-visible-with-a-safe-next-action
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project
+        observation: headRevisionId and headRevisionSnapshot.revisionId identify the same exact opaque immutable revision as of observedAt
         runtimeAdmission: NOT_ADMITTED
       operationContractBinding:
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project
         operations:
           - operationRef: media.operation-slice.inspect-project
             operationKind: QUERY

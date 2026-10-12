@@ -139,9 +139,11 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
         intent: Source-grounded image analysis and geometry observations
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: Observations retain source artifact, timestamp/frame/region, model
             provenance, and confidence/uncertainty.
@@ -152,10 +154,12 @@ steps:
             - Uncertain detections, unsupported dimensions, VFR sampling loss,
               model unavailable, or no valid geometry.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry."
+          behavior: "Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -206,10 +210,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Observations retain source artifact, timestamp/frame/region, model
-            provenance, and confidence/uncertainty.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -230,10 +233,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: Observations retain source artifact, timestamp/frame/region, model
-              provenance, and confidence/uncertainty.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Request the explicitly named operation for the exact target only after
             fresh actor, capability, policy, and target checks.
           finality: external-effect-or-request; owner-acknowledgment-required;
@@ -254,7 +256,8 @@ steps:
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        status: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED
+        reason: The PDP-1 command contract describes a processing request and exact job/attempt state scope, but its receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.
         transitionRef: null
         stateRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-job
@@ -1020,7 +1023,8 @@ steps:
           - .product-experience/pdp-3-product-experience/screen-contracts/create-image.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-05.j-05.step-01
     requirementBindingState: Exact PDP0 owner capability refs; exact selected option
       required; operation/runtime admission open
     authorityRefs:
@@ -1143,9 +1147,11 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
         intent: Source-grounded video tracking and motion observations
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: Observations retain source artifact, timestamp/frame/region, model
             provenance, and confidence/uncertainty.
@@ -1156,10 +1162,12 @@ steps:
             - Uncertain detections, unsupported dimensions, VFR sampling loss,
               model unavailable, or no valid geometry.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry."
+          behavior: "Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -1210,10 +1218,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Observations retain source artifact, timestamp/frame/region, model
-            provenance, and confidence/uncertainty.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -1234,10 +1241,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: Observations retain source artifact, timestamp/frame/region, model
-              provenance, and confidence/uncertainty.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Request the explicitly named operation for the exact target only after
             fresh actor, capability, policy, and target checks.
           finality: external-effect-or-request; owner-acknowledgment-required;
@@ -1258,7 +1264,8 @@ steps:
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        status: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED
+        reason: The PDP-1 command contract describes a processing request and exact job/attempt state scope, but its receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.
         transitionRef: null
         stateRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-job
@@ -1989,9 +1996,11 @@ steps:
         bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       stepSourceFacts:
         intent: Applicable dimensions, abstentions, defects and repair plan
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: Observations retain source artifact, timestamp/frame/region, model
             provenance, and confidence/uncertainty.
@@ -2002,10 +2011,12 @@ steps:
             - Uncertain detections, unsupported dimensions, VFR sampling loss,
               model unavailable, or no valid geometry.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry."
+          behavior: "Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -2061,10 +2072,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Observations retain source artifact, timestamp/frame/region, model
-            provenance, and confidence/uncertainty.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -2085,10 +2095,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: Observations retain source artifact, timestamp/frame/region, model
-              provenance, and confidence/uncertainty.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -2482,9 +2491,11 @@ steps:
         bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: Observations retain source artifact, timestamp/frame/region, model
             provenance, and confidence/uncertainty.
@@ -2495,10 +2506,12 @@ steps:
             - Uncertain detections, unsupported dimensions, VFR sampling loss,
               model unavailable, or no valid geometry.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Uncertain detections, unsupported dimensions, VFR sampling loss, model unavailable, or no valid geometry."
+          behavior: "Mark observations unavailable or partial; preserve source; allow bounded manual inspection where admitted."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -2546,10 +2559,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Observations retain source artifact, timestamp/frame/region, model
-            provenance, and confidence/uncertainty.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -2586,10 +2598,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: Observations retain source artifact, timestamp/frame/region, model
-              provenance, and confidence/uncertainty.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality

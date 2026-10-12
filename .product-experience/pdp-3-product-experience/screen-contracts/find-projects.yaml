@@ -4,7 +4,7 @@ surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
 templateId: media.gui.template.collection
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.collection]
+layoutIds: [ media.gui.layout.collection ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.project-browser
@@ -13,44 +13,138 @@ patternIds:
   - media.gui.pattern.project-browser
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
-tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: [media.domain.project, media.domain.project-revision]
-domainObjectBindingStatus: PDP-1 exact project identities bound; runtime NOT_ADMITTED
-operationRefs: [media.operation-slice.list-projects, media.operation-slice.create-project, media.operation-slice.inspect-project]
-requirementRefs: [MEDIA-REQ-CAP-PROJECT]
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.project-revision
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+operationRefs:
+  - media.operation-slice.list-projects
+  - media.operation-slice.create-project
+  - media.operation-slice.inspect-project
+requirementRefs: [ MEDIA-REQ-CAP-PROJECT ]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-operationBindingStatus: PDP-1 exact project operations bound; runtime NOT_ADMITTED
-stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+stateRefs:
+  [
+    media-project/ACTIVE,
+    media-project/ARCHIVED,
+    media-project-version/COMMITTED
+  ]
 stateBindingStatus: PDP-1 exact project lifecycle states bound; no transition is implied
-entry: []
-entryBindingStatus: pending-canonical-entry-condition-binding
-exit: []
-exitBindingStatus: pending-canonical-exit-condition-binding
+entry:
+  - "Before media.action.open-project, require exact guards
+    [project-is-visible-in-current-workspace, current-project-read-authority];
+    absent, stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.open-project/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.create-project, require exact guards
+    [authenticated-principal, authorized-workspace,
+    current-project-create-authority, owner-approved-project-request-shape];
+    absent, stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.create-project/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exit:
+  - "media.action.open-project:
+    open-one-exact-project-revision-without-changing-project-or-artifact-bytes;
+    finality=read-only; recovery=keep-the-project-list-and-query-context;
+    hide-data-when-current-access-cannot-be-confirmed. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.open-project/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.create-project:
+    create-one-empty-versioned-project-in-the-selected-authorized-workspace;
+    finality=confirmed-only-after-the-project-identity-and-initial-revision-are\
+    -recorded; recovery=do-not-claim-creation-without-confirming-evidence;
+    reconcile-an-unknown-result-against-the-same-request-identity. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.create-project/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
 actionConsequences:
   - actionId: media.action.open-project
-    capabilityRefs: [media.project.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-PROJECT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.project.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-PROJECT
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation-slice.inspect-project
-    effectRef: null
-    consequence: Read the exact currently authorized project head; scoped absence is not global absence.
-    bindingStatus: source-defined under PXD-054/055; execution NOT_ADMITTED
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-project/actionDefinitionSemantics/typedDefinition
+    consequence: open-one-exact-project-revision-without-changing-project-or-artifact-bytes
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.inspect-project
+    finality: read-only
+    reversibilityDisposition: UNKNOWN
+    confirmationDisposition: UNRESOLVED
+    guardRefs:
+      - project-is-visible-in-current-workspace
+      - current-project-read-authority
+    failureRecovery: keep-the-project-list-and-query-context;
+      hide-data-when-current-access-cannot-be-confirmed
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.create-project
-    capabilityRefs: [media.project.create]
-    requirementRefs: [MEDIA-REQ-CAP-PROJECT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.project.create
+    requirementRefs:
+      - MEDIA-REQ-CAP-PROJECT
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation-slice.create-project
-    effectRef: null
-    consequence: Create one empty ACTIVE project and immutable COMMITTED initial revision atomically after current trusted-context/project-policy authorization and explicit request confirmation; UNKNOWN_OUTCOME requires same-request inspection.
-    bindingStatus: source-defined under PXD-054/055; execution NOT_ADMITTED
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.create-project/actionDefinitionSemantics/typedDefinition
+    consequence: create-one-empty-versioned-project-in-the-selected-authorized-workspace
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.create-project
+    finality: confirmed-only-after-the-project-identity-and-initial-revision-are-recorded
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - authenticated-principal
+      - authorized-workspace
+      - current-project-create-authority
+      - owner-approved-project-request-shape
+    failureRecovery: do-not-claim-creation-without-confirming-evidence;
+      reconcile-an-unknown-result-against-the-same-request-identity
+    actorRefs:
+      - media.creator
+      - media.administrator
+    runtimeAdmission: NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
 responsiveBehavior:
   ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
   screenOverrides: []
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.collection
+      responsiveRule: Keep filters and result identity in reading order; do not rely
+        on horizontal scrolling.
 fixtures:
-  refs: []
-  status: missing
+  refs:
+    - media.scenario.project-create-outcome-unknown
+    - media.scenario.intent-unavailable
+  status: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
+  sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.project-create-outcome-unknown.v1
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.intent-unavailable.v1
+    - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/2
+  unlinkedScreenFixtureRefs: []
+  negativeCases:
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
 verification:
   status: not-run
   evidenceRefs: []
@@ -67,55 +161,64 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy-shared-binding-pending
   patternIds: proposal-copy-PDP-2-acceptance-pending
-  tokenDependencies: pending
-  domainObjectRefs: pending
-  operationRefs: pending
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: pending-local-labels-not-canonical
-  entry: pending
-  exit: pending
-  actionConsequences: unresolved-pending-owner-binding
-  responsiveBehavior: proposal-unverified
-  fixtures: missing
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
   verification: not-run
+  recipeIds: Exact P2 recipe media.gui.recipe.collection; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.find-projects
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.administrator
+  - media.creator
+  - media.editor
+  - media.administrator
 intentRef: media.intent.restore-project
 purpose: search authorized projects and create or open one in the selected workspace
 contextGoalNowNext:
-  context: The current identity and workspace are resolved; project access is scoped to that context.
+  context: The current identity and workspace are resolved; project access is
+    scoped to that context.
   goal: Find a project or create an empty project with an explicit, current request.
-  now: Show project identity, version, available actions, query state, and any access or freshness limitation.
-  next: Open one authorized project or begin project creation after its request fields and authority are validated.
+  now: Show project identity, version, available actions, query state, and any
+    access or freshness limitation.
+  next: Open one authorized project or begin project creation after its request
+    fields and authority are validated.
 anatomy:
-- workspace-context
-- project-search
-- project-list
-- project-version-summary
-- create-project-action
-- empty-and-error-state
+  - workspace-context
+  - project-search
+  - project-list
+  - project-version-summary
+  - create-project-action
+  - empty-and-error-state
 componentRefs:
-- media.component.project-browser
+  - media.component.project-browser
 states:
-- loading
-- projects-available
-- no-matching-projects
-- workspace-empty
-- stale-results
-- create-pending
-- create-confirmed
-- create-outcome-unknown
-- access-denied
-- offline
+  - loading
+  - projects-available
+  - no-matching-projects
+  - workspace-empty
+  - stale-results
+  - create-pending
+  - create-confirmed
+  - create-outcome-unknown
+  - access-denied
+  - offline
 actions:
-- media.action.open-project
-- media.action.create-project
+  - media.action.open-project
+  - media.action.create-project
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -142,11 +245,11 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-01
 journeyDefinitionBindings:
@@ -154,7 +257,31 @@ journeyDefinitionBindings:
   decisionRef: .product-experience/decision-log.md#PXD-055
   runtimeAdmission: NOT_ADMITTED
   applicability: required-J01-view
-  operationRefs: [media.operation-slice.list-projects, media.operation-slice.create-project, media.operation-slice.inspect-project]
-  domainObjectRefs: [media.domain.project, media.domain.project-revision]
-  stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
-  semanticBoundary: Authorized scoped list, explicit create with exact title/requestId, and same-request reconciliation; no blind retry.
+  operationRefs:
+    [
+      media.operation-slice.list-projects,
+      media.operation-slice.create-project,
+      media.operation-slice.inspect-project
+    ]
+  domainObjectRefs: [ media.domain.project, media.domain.project-revision ]
+  stateRefs:
+    [
+      media-project/ACTIVE,
+      media-project/ARCHIVED,
+      media-project-version/COMMITTED
+    ]
+  semanticBoundary: Authorized scoped list, explicit create with exact
+    title/requestId, and same-request reconciliation; no blind retry.
+recipeIds:
+  - media.gui.recipe.collection
+recipeBindingStatus: Exact P2 GUI recipe selected by
+  media.gui.template.collection template recipeRefs; screen-instance admission
+  remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.find-projects

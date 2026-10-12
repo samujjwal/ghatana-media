@@ -4,7 +4,7 @@ surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-existing-web-channel-surface-inventory; acceptance-pending
 templateId: media.gui.template.task-setup
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.task-setup]
+layoutIds: [ media.gui.layout.task-setup ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.creation-plan-summary
@@ -17,76 +17,299 @@ patternIds:
   - media.gui.pattern.creation-plan-review
 patternBindingStatus: proposal-copied-from-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
-tokenBindingStatus: pending-canonical-token-binding
-domainObjectRefs: []
-domainObjectBindingStatus: pending-canonical-domain-object-binding
-operationRefs: []
-requirementRefs: [MEDIA-REQ-CAP-JOB]
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.artifact-version
+  - media.domain.processing-job
+  - media.domain.resolved-plan
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+operationRefs:
+  - media.operation.action.view-job-status
+  - media.operation.action.check-job-outcome
+  - media.operation-slice.cancel-job
+  - media.operation.action.submit-validated-request
+  - media.operation.action.compare-media-versions
+requirementRefs: [ MEDIA-REQ-CAP-JOB ]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
-operationBindingStatus: pending-canonical-operation-binding
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
 stateRefs: []
 stateBindingStatus: pending-PDP-1-state-binding; local-UI-state-labels-not-promoted
-entry: []
-entryBindingStatus: pending-canonical-entry-condition-binding
-exit: []
-exitBindingStatus: pending-canonical-exit-condition-binding
+entry:
+  - "Before media.action.view-job-status, require exact guards
+    [stable-job-reference]; absent, stale, or unknown evidence leaves the action
+    unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.check-job-outcome, require exact guards
+    [existing-job-is-outcome-unknown]; absent, stale, or unknown evidence leaves
+    the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.request-cancellation, require exact guards
+    [stable-job-reference, current-cancellation-authority]; absent, stale, or
+    unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinit\
+    ion; runtime NOT_ADMITTED."
+  - "Before media.action.edit-video-temporal-plan, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.edit-video-temporal-plan/actionDefinitionSemantics/typedDef\
+    inition; runtime NOT_ADMITTED."
+  - "Before media.action.submit-validated-request, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.submit-validated-request/actionDefinitionSemantics/typedDef\
+    inition; runtime NOT_ADMITTED."
+  - "Before media.action.compare-media-versions, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.compare-media-versions/actionDefinitionSemantics/typedDefin\
+    ition; runtime NOT_ADMITTED."
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exit:
+  - "media.action.view-job-status: read-current-job-and-attempt-evidence;
+    finality=read-only; recovery=keep-last-known-state-labelled-stale. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.check-job-outcome:
+    collect-evidence-for-the-existing-job-identity-without-new-dispatch;
+    finality=remains-unknown-until-evidence-classifies-outcome;
+    recovery=preserve-unknown-state-and-disable-resubmission. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.request-cancellation:
+    request-cancellation-for-the-existing-logical-job;
+    finality=pending-until-authoritative-stop-or-racing-result-is-recorded;
+    recovery=keep-job-visible-as-running-or-unknown. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinit\
+    ion; runtime NOT_ADMITTED."
+  - "media.action.edit-video-temporal-plan: Change only the current local draft
+    or selection; keep committed source and versioned objects unchanged until a
+    separately specified commit.; finality=local-draft-only;
+    not-a-committed-result;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.edit-video-temporal-plan/actionDefinitionSemantics/typedDef\
+    inition; runtime NOT_ADMITTED."
+  - "media.action.submit-validated-request: Request the explicitly named
+    operation for the exact target only after fresh actor, capability, policy,
+    and target checks.; finality=external-effect-or-request;
+    owner-acknowledgment-required; unknown-is-not-failure;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.submit-validated-request/actionDefinitionSemantics/typedDef\
+    inition; runtime NOT_ADMITTED."
+  - "media.action.compare-media-versions: Read or navigate using the exact
+    selected context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.compare-media-versions/actionDefinitionSemantics/typedDefin\
+    ition; runtime NOT_ADMITTED."
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
 actionConsequences:
   - actionId: media.action.view-job-status
-    capabilityRefs: [media.job.view-status]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.view-status
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.view-job-status
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+    consequence: read-current-job-and-attempt-evidence
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.view-job-status
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - stable-job-reference
+    failureRecovery: keep-last-known-state-labelled-stale
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.check-job-outcome
-    capabilityRefs: [media.job.check-outcome]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.check-outcome
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.check-job-outcome
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition
+    consequence: collect-evidence-for-the-existing-job-identity-without-new-dispatch
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.check-job-outcome
+    finality: remains-unknown-until-evidence-classifies-outcome
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - existing-job-is-outcome-unknown
+    failureRecovery: preserve-unknown-state-and-disable-resubmission
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.request-cancellation
-    capabilityRefs: [media.job.cancel]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.cancel
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation-slice.cancel-job
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinition
+    consequence: request-cancellation-for-the-existing-logical-job
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.cancel-job
+    finality: pending-until-authoritative-stop-or-racing-result-is-recorded
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - stable-job-reference
+      - current-cancellation-authority
+    failureRecovery: keep-job-visible-as-running-or-unknown
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.edit-video-temporal-plan
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.edit-video-temporal-plan/actionDefinitionSemantics/typedDefinition
+    consequence: Change only the current local draft or selection; keep committed
+      source and versioned objects unchanged until a separately specified
+      commit.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-draft-only; not-a-committed-result
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.submit-validated-request
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.submit-validated-request
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request/actionDefinitionSemantics/typedDefinition
+    consequence: Request the explicitly named operation for the exact target only
+      after fresh actor, capability, policy, and target checks.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.submit-validated-request
+    finality: external-effect-or-request; owner-acknowledgment-required;
+      unknown-is-not-failure
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.compare-media-versions
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.compare-media-versions
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-media-versions/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.compare-media-versions
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-capability-effect-finality-binding
 responsiveBehavior:
   ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
   screenOverrides: []
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.task-setup
+      responsiveRule: Keep the requested outcome, selected source identity,
+        eligibility, and next action together.
 fixtures:
   refs: []
-  status: missing
+  status: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
+  negativeCases:
+    - No screen fixture may be inferred from a neighboring view or from journey
+      membership alone.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
+  unlinkedScreenFixtureRefs: []
 verification:
   status: not-run
   evidenceRefs: []
@@ -103,78 +326,90 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy-shared-binding-pending
   patternIds: proposal-copy-PDP-2-acceptance-pending
-  tokenDependencies: pending
-  domainObjectRefs: pending
-  operationRefs: pending
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: pending-local-labels-not-canonical
-  entry: pending
-  exit: pending
-  actionConsequences: unresolved-pending-owner-binding
-  responsiveBehavior: proposal-unverified
-  fixtures: missing
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
   verification: not-run
+  recipeIds: Exact P2 recipe media.gui.recipe.task-setup; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.create-video
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.create
 purpose: Generation strategy, controls, progress and alternatives
 contextGoalNowNext:
-  context: The requested video outcome, source/reference versions, temporal controls, and generation job.
-  goal: Plan and review a video-generation request with explicit temporal scope and limitations.
-  now: Show admitted inputs and controls, expected duration/frame scope, continuity evidence, estimates, and job
-    finality.
-  next: Edit the plan, inspect candidates, or check an uncertain job outcome before any new request.
+  context: The requested video outcome, source/reference versions, temporal
+    controls, and generation job.
+  goal: Plan and review a video-generation request with explicit temporal scope
+    and limitations.
+  now: Show admitted inputs and controls, expected duration/frame scope,
+    continuity evidence, estimates, and job finality.
+  next: Edit the plan, inspect candidates, or check an uncertain job outcome
+    before any new request.
 anatomy:
-- video-outcome
-- source-and-reference-versions
-- temporal-and-keyframe-controls
-- continuity-notices
-- job-status-and-finality
-- candidate-comparison
-- safe-recovery-actions
+  - video-outcome
+  - source-and-reference-versions
+  - temporal-and-keyframe-controls
+  - continuity-notices
+  - job-status-and-finality
+  - candidate-comparison
+  - safe-recovery-actions
 componentRefs:
-- media.component.creation-plan-summary
-- media.component.storyboard
-- media.component.timeline-keyframe-editor
-- media.component.job-status-card
-- media.component.result-comparison
+  - media.component.creation-plan-summary
+  - media.component.storyboard
+  - media.component.timeline-keyframe-editor
+  - media.component.job-status-card
+  - media.component.result-comparison
 states:
-- draft
-- unsupported-control
-- rights-review-required
-- queued
-- running
-- partial
-- outcome-unknown
-- completed
-- failed
+  - draft
+  - unsupported-control
+  - rights-review-required
+  - queued
+  - running
+  - partial
+  - outcome-unknown
+  - completed
+  - failed
 actions:
-- media.action.view-job-status
-- media.action.check-job-outcome
-- media.action.request-cancellation
-- media.action.edit-video-temporal-plan
-- media.action.submit-validated-request
-- media.action.compare-media-versions
-actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+  - media.action.view-job-status
+  - media.action.check-job-outcome
+  - media.action.request-cancellation
+  - media.action.edit-video-temporal-plan
+  - media.action.submit-validated-request
+  - media.action.compare-media-versions
+actionBindingState: proposed-intent-action-refs;
+  owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
-- edit the temporal plan
-- submit a validated request
-- view the exact job status or check its outcome
-- compare returned candidates
+  - edit the temporal plan
+  - submit a validated request
+  - view the exact job status or check its outcome
+  - compare returned candidates
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -200,8 +435,8 @@ localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
   - J-05
@@ -209,3 +444,15 @@ journeyRefs:
   - J-09
   - J-10
   - J-29
+recipeIds:
+  - media.gui.recipe.task-setup
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.task-setup template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.create-video

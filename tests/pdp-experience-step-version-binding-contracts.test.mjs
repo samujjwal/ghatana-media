@@ -7,6 +7,8 @@ import { evaluatePdp3CanonicalVersionTuple, evaluatePdp3CaptionPairSourceVersion
 const parse = createRequire(new URL("../../ghatana-tools/package.json", import.meta.url))("yaml").parse;
 const root = ".product-experience/pdp-3-product-experience";
 const versionSource = parse(await readFile(`${root}/step-version-binding-contracts.yaml`, "utf8"));
+const purposeSource = parse(await readFile(`${root}/journey-purpose-bindings.yaml`, "utf8"));
+const localVersionSource = parse(await readFile(`${root}/local-step-effect-contracts.yaml`, "utf8"));
 const oracle = parse(await readFile(`${root}/step-definition-oracles.yaml`, "utf8"));
 const identities = parse(await readFile(".product-experience/pdp-1-domain-data/domain-objects.yaml", "utf8"));
 const operations = parse(await readFile(".product-experience/pdp-1-domain-data/operations.yaml", "utf8"));
@@ -120,6 +122,72 @@ test("all 130 step version-binding definitions join exact journey and P1 identit
   }
 });
 
+test("all projected journey steps have exact version semantics or a source-backed UNKNOWN disposition", async () => {
+  const candidate = JSON.parse(await readFile(`${root}/generated/experience-specification.candidate.json`, "utf8"));
+  const audit = candidate.candidateMappingReview.journeyBindingAudit;
+  assert.equal(audit.p3OrderedStepCount, 130);
+  assert.equal(audit.projectedStepCount, 130);
+  assert.equal(audit.typedStepSemanticsProjected, 130);
+  assert.equal(audit.typedStepSemanticsUnresolved, 0);
+  assert.deepEqual(audit.stepSemanticsFailures, []);
+  const projectedSteps = candidate.candidateModel.journeys.flatMap((journey) => journey.steps);
+  assert.equal(projectedSteps.length, 130);
+  const projectedSourceSteps = new Set();
+  for (const step of projectedSteps) {
+    assert.ok(step.semantics, `${step.stepId} carries typed source semantics`);
+    const stepSourceRef = step.semantics.sourceRefs.find((ref) => /journey-contracts\/[^#]+\.yaml#\/steps\/\d+$/u.test(ref));
+    assert.ok(stepSourceRef, `${step.stepId} retains its exact source step locator`);
+    assert.equal(projectedSourceSteps.has(stepSourceRef), false, `${stepSourceRef} is projected once`);
+    projectedSourceSteps.add(stepSourceRef);
+    for (const ref of step.semantics.objectVersionRefs) {
+      const match = ref.match(/step-version-binding-contracts\.yaml#records\/@id=([^/]+)\/versionFieldBindings\/@id=([^/]+)$/u);
+      assert.ok(match, `${step.stepId} objectVersionRef is an exact source locator`);
+      const record = versionSource.records.find(({ id }) => id === match[1]);
+      const binding = record?.versionFieldBindings.find(({ id }) => id === match[2]);
+      assert.ok(record && binding, `${step.stepId} objectVersionRef resolves to its source definition`);
+      assert.equal(record.stepRef, stepSourceRef);
+      assert.equal(record.runtimeAdmission, "NOT_ADMITTED");
+      assert.equal(record.acceptanceEffect, "none");
+      assert.deepEqual(binding.canonicalVersionIdentityRequirement.missingOrStaleDisposition, "UNKNOWN");
+      assert.deepEqual(binding.canonicalVersionIdentityRequirement.foreignTenantOrMixedVersionDisposition, "UNKNOWN");
+    }
+  }
+  assert.equal(projectedSourceSteps.size, 130);
+
+  const expectedLocalSelectionSteps = new Set([
+    ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/0",
+    ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/0",
+    ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0",
+  ]);
+  const localSelectionSteps = new Set();
+  const explicitlyUnknownSteps = new Set();
+  for (const record of versionSource.records) {
+    for (const binding of record.versionFieldBindings) {
+      if (binding.coverageDisposition === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN"
+        && binding.fields.length > 0) {
+        assert.ok(binding.fields.every((field) => field.direction === "LOCAL_SELECTION"));
+        const localContract = resolveSourceRef(binding.fields[0].requestSchemaRef);
+        assert.ok(localContract, `${record.id}: exact local selection input resolves`);
+        assert.equal(localContract, localBySource.get(record.stepRef).inputContract.mutation.candidateSchemaRef);
+        const candidateName = binding.fields[0].candidateSchemaRef.split("/").at(-1);
+        assert.ok(valueTypes.$defs[candidateName]);
+        assert.deepEqual(valueTypes.$defs.ExactArtifactVersionRef.required, ["tenantId", "artifactId", "versionId"]);
+        assert.equal(binding.fields[0].requiredVersionBinding, "LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH");
+        localSelectionSteps.add(record.stepRef);
+      } else if (binding.coverageDisposition === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN") {
+        assert.deepEqual(binding.fields, []);
+        assert.ok(binding.exactVersionTupleRequirement.length > 0);
+        assert.equal(binding.canonicalVersionIdentityRequirement.missingOrStaleDisposition, "UNKNOWN");
+        assert.equal(binding.canonicalVersionIdentityRequirement.foreignTenantOrMixedVersionDisposition, "UNKNOWN");
+        explicitlyUnknownSteps.add(record.stepRef);
+      }
+    }
+  }
+  assert.deepEqual(localSelectionSteps, expectedLocalSelectionSteps);
+  assert.ok(explicitlyUnknownSteps.size > 0, "no-source-version steps remain explicit UNKNOWN rather than inferred complete");
+  assert.equal(localVersionSource.records.length, localEffects.records.length);
+});
+
 test("local draft steps bind only their host-session revision CAS", () => {
   const localRows = versionSource.records.filter(({ localDraftRevisionContractRef }) => localDraftRevisionContractRef !== null);
   assert.equal(localRows.length, localEffects.records.length);
@@ -134,6 +202,18 @@ test("local draft steps bind only their host-session revision CAS", () => {
     assert.equal(local.effect.committedMediaObjects, "unchanged");
     assert.equal(local.effect.remoteDispatch, "none");
   }
+});
+
+test("J-02 begin-upload does not require an artifact version before the owner issues one", () => {
+  const binding = versionSource.records.find(({ id }) => id === "media.step-version-binding.j-02-02.v1");
+  assert.ok(binding);
+  const artifactVersion = binding.versionFieldBindings.find(({ objectRef }) => objectRef === "media.domain.artifact-version");
+  assert.ok(artifactVersion);
+  assert.equal(artifactVersion.applicabilityContract?.disposition, "NOT_YET_ISSUED_AT_THIS_STEP");
+  assert.equal(artifactVersion.coverageDisposition,
+    "NOT_APPLICABLE_BEFORE_OWNER_ISSUED_ARTIFACT_VERSION; BEGIN_UPLOAD_RETURNS_UPLOAD_SESSION_ONLY; IDENTITY_BINDS_AT_COMPLETE_UPLOAD_STEP");
+  assert.equal(binding.versionDisposition, "NOT_APPLICABLE_BEFORE_OWNER_ISSUED_ARTIFACT_VERSION",
+    "a not-yet-issued artifact version cannot simultaneously be required as an exact tuple at begin-upload");
 });
 
 test("canonical version joins compare a complete trusted tuple and reject valid-looking foreign aliases", () => {
@@ -281,7 +361,9 @@ test("versioned operation request selectors resolve exact operation fields and e
       }
       const schema = resolveRequestSchema(operation.operationRef);
       const hasRequestSemantics = Boolean(entry.row.inputSemantics);
-      const expectedDisposition = operation.operationRef === "media.operation.capability.media-multimodal-observe-source-grounded"
+      const expectedDisposition = operation.operationRef === "media.operation.stream-session.inspect-execution-recovery.v1"
+        ? "OWNER_DEFINED_EXACT_SINGLE_SNAPSHOT_QUERY; EXECUTION_NOT_ADMITTED"
+        : operation.operationRef === "media.operation.capability.media-multimodal-observe-source-grounded"
         ? "OWNER_REQUEST_SCHEMA_RESOLVED; TARGET_INPUT_ADAPTER_REQUIRED; RUNTIME_NOT_ADMITTED"
         : schema ? "OWNER_REQUEST_SCHEMA_RESOLVED"
           : hasRequestSemantics ? "OWNER_REQUEST_SEMANTICS_RESOLVED" : "OWNER_REQUEST_SCHEMA_NOT_PRESENT";
@@ -375,7 +457,7 @@ test("versioned operation request selectors resolve exact operation fields and e
       if (matching.length) exactBound += 1;
       else {
         explicitlyOpen += 1;
-        assert.match(versionBinding.coverageDisposition, /^(?:CANONICAL_CONSENT_REVISION_TUPLE_REQUIRED|NOT_APPLICABLE_BEFORE_OWNER_ISSUED_ARTIFACT_VERSION|NO_ARTIFACT_VERSION_EXISTS_AT_BEGIN_UPLOAD|ARTIFACT_VERSION_IS_TRANSITIVE|VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND)/u);
+        assert.match(versionBinding.coverageDisposition, /^(?:CANONICAL_CONSENT_REVISION_TUPLE_REQUIRED|NOT_APPLICABLE_BEFORE_OWNER_ISSUED_ARTIFACT_VERSION|NO_ARTIFACT_VERSION_EXISTS_AT_BEGIN_UPLOAD|ARTIFACT_VERSION_IS_TRANSITIVE|EXACT_VERSION_RESULT_FIELD_BOUND|VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND)/u);
       }
       for (const ref of versionBinding.sourceBoundaryRefs ?? []) {
         assert.ok(resolveSourceRef(ref), `${binding.id}: exact version boundary source resolves: ${ref}`);
@@ -463,6 +545,49 @@ test("versioned operation request selectors resolve exact operation fields and e
   assert.ok(versionSource.records.some(({ objectBindings }) => objectBindings.some(({ disposition }) => disposition === "SOURCE_OBSERVATION_NOT_CANONICAL_MEDIA_IDENTITY")));
   assert.ok(versionSource.records.every(({ versionDisposition }) => versionDisposition !== "CANONICAL_OBJECT_IDENTITY_CONTRACT_NOT_RESOLVED"),
     "legacy transcription observations are explicitly noncanonical, not an unresolved canonical identity");
+});
+
+test("J-01 project inspection binds the owner-returned exact head revision", () => {
+  const binding = versionSource.records.find(({ id }) => id === "media.step-version-binding.j-01-04.v1");
+  assert.ok(binding);
+  const versionFieldBinding = binding.versionFieldBindings.find(({ objectRef }) => objectRef === "media.domain.project-revision");
+  assert.equal(versionFieldBinding.coverageDisposition, "EXACT_VERSION_RESULT_FIELD_BOUND");
+  assert.equal(versionFieldBinding.fields.length, 1);
+  const field = versionFieldBinding.fields[0];
+  assert.equal(field.operationRef, "media.operation-slice.inspect-project");
+  assert.equal(field.fieldName, "headRevisionId");
+  assert.equal(resolveSourceRef(field.fieldSelector)?.format, "opaque-version-id");
+  assert.equal(field.requiredVersionBinding, "OWNER_OBSERVED_EXACT_IMMUTABLE_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT");
+  const { step } = contracts.get(binding.stepRef);
+  assert.equal(step.stepDefinitionSemantics.versionedObjectObservation.status,
+    "OWNER_RESULT_BINDS_EXACT_CURRENT_HEAD_REVISION");
+  assert.equal(step.stepDefinitionSemantics.versionedObjectObservation.runtimeAdmission, "NOT_ADMITTED");
+});
+
+test("J-02 exact-version inspection joins one owner query and both exact request identities", () => {
+  const binding = versionSource.records.find(({ id }) => id === "media.step-version-binding.j-02-05.v1");
+  const purpose = purposeSource.records.find(({ id }) => id === "media.pdp3.step-purpose-binding.j02-step-05.v1");
+  const semantic = oracleSteps.get(binding.stepRef);
+  assert.ok(binding && purpose && semantic);
+  assert.equal(binding.actionRef, "media.action.inspect-source");
+  assert.deepEqual(binding.operationBindings.map(({ operationRef }) => operationRef), [
+    "media.operation-slice.inspect-artifact-version",
+  ]);
+  const operation = binding.operationBindings[0];
+  assert.equal(operation.contractRef,
+    ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version");
+  assert.deepEqual(operation.requestReferenceFields.map(({ fieldSelector, allowedObjectRefs }) => [fieldSelector, allowedObjectRefs]), [
+    ["/properties/artifactId", ["media.domain.artifact"]],
+    ["/properties/artifactVersionId", ["media.domain.artifact-version"]],
+  ]);
+  const version = binding.versionFieldBindings.find(({ objectRef }) => objectRef === "media.domain.artifact-version");
+  assert.deepEqual(version.canonicalVersionIdentityRequirement.exactTupleFields, ["tenantId", "artifactId", "versionId"]);
+  assert.equal(version.fields[0].fieldSelector,
+    `${operation.requestSchemaRef}/properties/artifactVersionId`);
+  assert.deepEqual(purpose.allowedOperationRefs, ["media.operation-slice.inspect-artifact-version"]);
+  assert.deepEqual(purpose.stateRefs, [], "time-scoped recorded disposition does not assert current lifecycle state");
+  assert.match(semantic.expectedSemantics.positive.effect, /time-scoped-recorded-integrity-lifecycle-disposition/u);
+  assert.equal(semantic.runtimeAdmission, "NOT_ADMITTED");
 });
 
 test("J-22 delivery request binds one exact artifact version without claiming destination delivery", () => {

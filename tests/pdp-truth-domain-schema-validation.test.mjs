@@ -158,7 +158,7 @@ test("all 448 canonical capability request and result schemas close against exac
   const outputIds = new Set(contract.outputPayloadSchemas.map(({ id }) => id));
   const profileIds = new Set(contract.families.map(({ id }) => id));
   const boundsIds = new Set(contract.bounds.map(({ id }) => id));
-  assert.equal(contract.scalarTypeRecords.length, 29);
+  assert.equal(contract.scalarTypeRecords.length, 32);
   const ajv = buildAjv();
   for (const row of rows) {
     assert.ok(profileIds.has(row.familyProfileRef), `${row.id} unresolved profile`);
@@ -229,9 +229,11 @@ test("all 448 canonical capability request and result schemas close against exac
 });
 
 
-test("all 101 input and 72 output type definitions are material, closed, and reject missing required evidence", () => {
-  assert.equal(contract.inputPayloadSchemas.length, 101);
-  assert.equal(contract.outputPayloadSchemas.length, 72);
+test("all 128 input and 98 output type definitions are material, closed, and reject missing required evidence", () => {
+  assert.equal(contract.inputPayloadSchemas.length, 128);
+  assert.equal(contract.outputPayloadSchemas.length, 98);
+  assert.equal(contract.inputPayloadSchemaCount, contract.inputPayloadSchemas.length);
+  assert.equal(contract.outputPayloadSchemaCount, contract.outputPayloadSchemas.length);
   const ajv = buildAjv();
   const all = [...contract.inputPayloadSchemas, ...contract.outputPayloadSchemas];
   for (const row of all) {
@@ -253,8 +255,8 @@ test("all 101 input and 72 output type definitions are material, closed, and rej
     assert.equal(validate(missingMaterial), false, `${row.id} rejects missing material field`);
   }
   const template = contract.inputPayloadSchemas.find(({ id }) => id === "media.typed-input.typed-operation-request");
-  assert.match(template.ownerDefinition, /cannot carry executable caller values/u);
-  assert.equal(example(template.schema).payload.executionRole, "NON_EXECUTABLE_SCHEMA_DESCRIPTOR_ONLY");
+  assert.match(template.ownerDefinition, /Closed executable request values/u);
+  assert.equal(example(template.schema).payload.operationVersion, 1);
 });
 
 test("phase-noise-floor is an exact typed measurement result, not a mastered-media output", () => {
@@ -276,6 +278,27 @@ test("phase-noise-floor is an exact typed measurement result, not a mastered-med
   assert.equal(operation.resultSchema.properties.outputs.items.oneOf.some(({ properties }) =>
     properties?.artifactType?.const === "mastered-audio-candidate-with-measurements"), false,
   "analysis does not claim a mastered-media artifact");
+
+  const ajv = buildAjv();
+  const { result, outputSchemas } = resolvedSchemas(operation);
+  const validateResult = ajv.compile(result);
+  const validResult = example(result);
+  validResult.outcome = "SUCCEEDED";
+  validResult.outputs = outputSchemas.map(example);
+  assert.equal(validateResult(validResult), true,
+    `the exact source-bound measurement success validates: ${ajv.errorsText(validateResult.errors)}`);
+
+  const wrongMetric = structuredClone(validResult);
+  wrongMetric.outputs[0].payload.metricRef = "media.metric.loudness.v1";
+  assert.equal(validateResult(wrongMetric), false, "a measurement result with another metric is rejected");
+
+  const missingWindow = structuredClone(validResult);
+  delete missingWindow.outputs[0].payload.measurementWindow;
+  assert.equal(validateResult(missingWindow), false, "a measurement result without its sampled window is rejected");
+
+  const invalidWindow = structuredClone(validResult);
+  invalidWindow.outputs[0].payload.measurementWindow.sourceSampleCount = 0;
+  assert.equal(validateResult(invalidWindow), false, "a nonpositive sampled interval is rejected");
 });
 
 test("rational frame-rate limits use the exact BigInt validator and fail closed", () => {
@@ -451,14 +474,73 @@ test("all 14 existing-operation capability bindings resolve to their exact sourc
         }
       } else {
         const success = example(wire.resultSchema);
+        if (operationRef === "media.operation-slice.inspect-provenance") {
+          const requestSubject = {
+            artifactType: "artifact-or-execution-reference",
+            payload: { kind: "execution-reference", reference: "opaque:job-ref" },
+          };
+          success.outputs = [{
+            artifactType: "minimized-provenance-record-or-disclosure",
+            payload: {
+              kind: "lineage-observation",
+              requestBinding: { subject: requestSubject, resolutionDisposition: "RESOLVED_EXECUTION" },
+              resolvedExecutionIdentity: { kind: "ProcessingJob", tenantId: "tenant-1", jobId: "job-1" },
+              scopeRef: ".product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.provenance-manifest",
+              completeness: "COMPLETE_FOR_CALLER_VISIBLE_SCOPE",
+              completenessReason: "ALL_VISIBLE_MANIFESTS_AND_EDGES_RETURNED",
+              accessDisposition: "VISIBLE",
+              manifestRefs: [],
+              lineageEdges: [],
+            },
+          }];
+        }
+        if (operationRef === "media.operation.transcription-submission") {
+          Object.assign(success, {
+            requestId: "request-1",
+            requestFingerprint: "a".repeat(64),
+            submissionReceiptId: "receipt:1",
+            jobId: "job-1",
+            acceptedAt: "2026-10-08T12:00:00Z",
+            replayDisposition: "NEW_LOGICAL_REQUEST",
+          });
+          success.outputs = [{
+            artifactType: "accepted-media-job-reference-and-admission-observation",
+            payload: { jobId: "job-1" },
+          }];
+        }
         success.outcome = "SUCCEEDED";
-        success.outputs = wire.resultSchema.properties.outputs.items.oneOf.map(example);
+        if (operationRef !== "media.operation-slice.inspect-provenance"
+          && operationRef !== "media.operation.transcription-submission") {
+          success.outputs = wire.resultSchema.properties.outputs.items.oneOf.map(example);
+        }
         assert.equal(validateResult(success), true, `${operationRef} result: ${ajv.errorsText(validateResult.errors)}`);
+        if (operationRef === "media.operation-slice.inspect-provenance") {
+          const unknownResolution = structuredClone(success);
+          unknownResolution.outputs[0].payload = {
+            kind: "resolution-unknown",
+            requestBinding: {
+              subject: {
+                artifactType: "artifact-or-execution-reference",
+                payload: { kind: "execution-reference", reference: "opaque:missing-ref" },
+              },
+              resolutionDisposition: "UNKNOWN",
+            },
+            accessDisposition: "UNKNOWN",
+            resolutionReason: "UNRESOLVED_OR_NOT_VISIBLE",
+          };
+          assert.equal(validateResult(unknownResolution), true, `${operationRef} semantic unresolved lookup is a successful non-disclosing read`);
+        }
         assert.equal(validateResult({ ...success, outcome: "REJECTED" }), false, `${operationRef} cannot carry output on rejected result`);
         assert.equal(validateResult({ ...success, outcome: "UNKNOWN_OUTCOME" }), false, `${operationRef} cannot carry output on unknown result`);
         const noOutputRejection = { ...success, outcome: "REJECTED", outputs: [], error: { code: "ACCESS_DENIED" } };
-        delete noOutputRejection.requestId;
-        assert.equal(validateResult(noOutputRejection), true, `${operationRef} rejection without finality/output validates`);
+        if (operationRef === "media.operation-slice.inspect-provenance") {
+          noOutputRejection.requestSubject = success.outputs[0].payload.requestBinding.subject;
+        } else if (operationRef === "media.operation.transcription-submission") {
+          noOutputRejection.error.code = "AUTHORIZATION_DENIED";
+          noOutputRejection.requestFingerprint = "a".repeat(64);
+          for (const field of ["submissionReceiptId", "jobId", "acceptedAt", "replayDisposition"]) delete noOutputRejection[field];
+        } else delete noOutputRejection.requestId;
+        assert.equal(validateResult(noOutputRejection), true, `${operationRef} rejection without finality/output validates: ${ajv.errorsText(validateResult.errors)}`);
       }
       validatedWireIds.add(wire.id);
     }

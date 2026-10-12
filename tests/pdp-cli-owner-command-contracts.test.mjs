@@ -38,8 +38,9 @@ function resolveExact(ref) {
 }
 
 function resolveLocalSchemaRef(rootSchema, ref) {
-  if (typeof ref !== "string" || !ref.startsWith("#/")) return undefined;
-  return ref.slice(2).split("/").map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"))
+  const normalizedRef = typeof ref === "string" ? ref.replaceAll("\\#", "#") : ref;
+  if (typeof normalizedRef !== "string" || !normalizedRef.startsWith("#/")) return undefined;
+  return normalizedRef.slice(2).split("/").map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"))
     .reduce((value, part) => value?.[part], rootSchema);
 }
 
@@ -56,19 +57,44 @@ function closedObjectSchema(schema, resourceRoot = schema, options = {}) {
       return visit(resolved, path) && visit(siblings, path);
     }
     if (node.type === "object" && node.additionalProperties !== false) {
+      const jsonValueRef = node.additionalProperties?.$ref?.replaceAll("\\#", "#");
+      const dynamicTypedInputPayload = options.dynamicTypedInputPayload === true
+        && /\/typedInputs\/items\/oneOf\/\d+\/properties\/payload\/properties\/inputs\/items\/properties\/value\/properties\/payload$/u.test(path)
+        && jsonValueRef === "#/$defs/jsonValue";
+      const dynamicNestedTargetValues = options.dynamicParameters === true
+        && /\/typedInputs\/items\/oneOf\/\d+\/properties\/payload\/properties\/(parameters|directRequestFields)$/u.test(path)
+        && jsonValueRef === "#/$defs/jsonValue"
+        && (path.endsWith("/properties/parameters")
+          || options.dynamicTypedInputPayload === true
+          || /mandatory dynamic parameter resolver/u.test(node.description ?? "")
+          || (/exact target request schema/u.test(node.description ?? "") && /reject all other keys/u.test(node.description ?? "")));
       const dynamicParameters = options.dynamicParameters === true
         && ((path === "#/requestSchema/properties/parameters"
-          && node.additionalProperties === undefined
+          && (node.additionalProperties === undefined
+            || jsonValueRef === "#/$defs/jsonValue")
           && /mandatory dynamic parameter resolver/u.test(node.description ?? ""))
+          || dynamicTypedInputPayload
+          || dynamicNestedTargetValues
           || (path === "#/requestSchema/properties/directRequestFields"
-            && node.additionalProperties === true
+            && (node.additionalProperties === true
+              || jsonValueRef === "#/$defs/jsonValue")
             && /exact target request schema/u.test(node.description ?? "")
             && /reject all other keys/u.test(node.description ?? "")));
       if (!dynamicParameters) return false;
     }
     for (const [name, child] of Object.entries(node.properties ?? {})) if (!visit(child, `${path}/properties/${name}`)) return false;
     for (const [name, child] of Object.entries(node.patternProperties ?? {})) if (!visit(child, `${path}/patternProperties/${name}`)) return false;
-    if (node.additionalProperties && node.additionalProperties !== false && !visit(node.additionalProperties, `${path}/additionalProperties`)) return false;
+    const targetSchemaBoundParameters = options.dynamicParameters === true
+      && ["#/requestSchema/properties/parameters", "#/requestSchema/properties/directRequestFields"].includes(path)
+      && node.additionalProperties?.$ref?.replaceAll("\\#", "#") === "#/$defs/jsonValue";
+    const exactTypedInputPayload = options.dynamicTypedInputPayload === true
+      && /\/typedInputs\/items\/oneOf\/\d+\/properties\/payload\/properties\/inputs\/items\/properties\/value\/properties\/payload$/u.test(path)
+      && node.additionalProperties?.$ref?.replaceAll("\\#", "#") === "#/$defs/jsonValue";
+    const nestedTargetValues = options.dynamicParameters === true
+      && /\/typedInputs\/items\/oneOf\/\d+\/properties\/payload\/properties\/(parameters|directRequestFields)$/u.test(path)
+      && node.additionalProperties?.$ref?.replaceAll("\\#", "#") === "#/$defs/jsonValue";
+    if (node.additionalProperties && node.additionalProperties !== false && !targetSchemaBoundParameters && !exactTypedInputPayload && !nestedTargetValues
+      && !visit(node.additionalProperties, `${path}/additionalProperties`)) return false;
     if (node.items && !visit(node.items, `${path}/items`)) return false;
     for (const [index, child] of (node.prefixItems ?? []).entries()) if (!visit(child, `${path}/prefixItems/${index}`)) return false;
     for (const keyword of ["oneOf", "anyOf", "allOf"]) {
@@ -82,6 +108,18 @@ function closedObjectSchema(schema, resourceRoot = schema, options = {}) {
 function hasBoundDynamicParameters(operation, ownerWireSchema) {
   const rule = operation?.parameterBindingRule;
   const parameters = ownerWireSchema?.requestSchema?.properties?.parameters;
+  const jsonValue = resolveLocalSchemaRef(ownerWireSchema?.requestSchema, parameters?.additionalProperties?.$ref);
+  const recursiveJsonValue = jsonValue?.oneOf?.some((schema) => schema?.type === "object"
+    && schema.additionalProperties?.$ref?.replaceAll("\\#", "#") === "#/$defs/jsonValue")
+    && jsonValue.oneOf.some((schema) => schema?.type === "array"
+      && schema.items?.$ref?.replaceAll("\\#", "#") === "#/$defs/jsonValue")
+    && ["null", "boolean", "number", "string"].every((type) => jsonValue.oneOf.some((schema) => schema?.type === type));
+  const typedInputRule = operation?.requestSemantics?.typedInputValidator;
+  const hasExactTypedInputBinding = typedInputRule?.id === "media.job-submit.typed-input-slot-binding.v1"
+    && typedInputRule.module === "scripts/lib/pdp-job-submit-parameter-contract.mjs"
+    && typedInputRule.export === "validateJobSubmitTypedInputContract"
+    && typedInputRule.binding?.includes("exact target request slot")
+    && typedInputRule.binding?.includes("closed request schema");
   return Boolean(operation?.id === "media.operation.job.submit.v1"
     && rule?.id === "media.job-submit.operation-parameters.v1"
     && rule.definitionValidator?.module === "scripts/lib/pdp-job-submit-parameter-contract.mjs"
@@ -94,20 +132,23 @@ function hasBoundDynamicParameters(operation, ownerWireSchema) {
     && rule.fingerprint?.includes("targetOperationVersion")
     && rule.fingerprint?.includes("source closure SHA-256")
     && parameters?.type === "object"
-    && parameters.additionalProperties === undefined
-    && /mandatory dynamic parameter resolver/u.test(parameters.description ?? ""));
+    && parameters.additionalProperties?.$ref === "#/$defs/jsonValue"
+    && recursiveJsonValue
+    && /mandatory dynamic parameter resolver/u.test(parameters.description ?? "")
+    && hasExactTypedInputBinding);
 }
 
 function exactActionTriple(record) {
   if (!record.canonicalActionRef) return false;
   const action = resolveExact(`${".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id="}${record.canonicalActionRef}`);
-  const leaf = resolveExact(record.ownerLeafAdjudicationRef);
+  const capabilityBinding = resolveExact(record.operationContractRef);
   const sourceOperations = (record.canonicalSourceContractRefs ?? []).map(resolveExact);
   const operationRefs = action?.actionDefinitionSemantics?.exactOperationRefs
     ?? (action?.actionDefinitionSemantics?.operationRef ? [action.actionDefinitionSemantics.operationRef] : []);
   return action?.capabilityRefs?.includes(record.capabilityRef) === true
     && operationRefs.length > 0
-    && operationRefs.some((operationRef) => leaf?.operationRefs?.includes(operationRef) === true
+    && operationRefs.some((operationRef) => capabilityBinding?.capabilityRef === record.capabilityRef
+      && capabilityBinding.operationRefs?.includes(operationRef) === true
       && sourceOperations.some((operation) => operation?.id === operationRef || operation?.operationRef === operationRef));
 }
 
@@ -141,17 +182,20 @@ function validateContract(record) {
       ? record.capabilityRef === null && record.capabilitySourceRef === null && record.ownerLeafAdjudicationRef === null
       : capability?.id === record.capabilityRef && leaf?.capabilityRef === record.capabilityRef)
     && operation?.id
-    && Number.isInteger(record.operationVersion) && record.operationVersion === (operation.operationVersion ?? operation.contractVersion)
-    && (ownerLogicalOperation || leaf.operationContractRef === record.operationContractRef)
+    && Number.isInteger(record.operationVersion)
+    && record.operationVersion === (operation.operationVersion ?? operation.contractVersion)
+    && (ownerLogicalOperation || (operation?.capabilityRef === record.capabilityRef
+      && (operation.operationRefs?.some((operationRef) => sourceContracts.some((source) => source?.id === operationRef || source?.operationRef === operationRef))
+        || (sourceContracts.length === 0 && operation.operationRefs?.length === 1 && operation.operationRefs[0] === operation.id))))
     && (record.typedSchemaBindingStatus === "EXACT_OPERATION_TYPED_REQUEST_AND_RESULT_SCHEMAS"
       ? record.requestSchemaRef === `${record.operationContractRef}/requestSchema` && record.resultSchemaRef === `${record.operationContractRef}/resultSchema`
-        && closedObjectSchema(requestSchema, requestSchema, { dynamicParameters })
+        && closedObjectSchema(requestSchema, requestSchema, { dynamicParameters, dynamicTypedInputPayload: dynamicParameters })
         && closedObjectSchema(resultSchema, resultSchema)
       : record.typedSchemaBindingStatus === "EXACT_CANONICAL_OWNER_WIRE_REQUEST_AND_RESULT_SCHEMAS"
         ? Boolean(ownerWireSchemaRef)
           && record.requestSchemaRef === `${ownerWireSchemaRef}/requestSchema`
           && record.resultSchemaRef === `${ownerWireSchemaRef}/resultSchema`
-          && closedObjectSchema(requestSchema, requestSchema, { dynamicParameters })
+          && closedObjectSchema(requestSchema, requestSchema, { dynamicParameters, dynamicTypedInputPayload: dynamicParameters })
           && closedObjectSchema(resultSchema, resultSchema)
         : record.typedSchemaBindingStatus === "EXACT_OWNER_DEFINED_TYPED_REQUEST_AND_RESULT_SCHEMAS"
           ? ownerLogicalOperation
@@ -363,7 +407,8 @@ test("job-submit CLI accepts open parameters only through the exact closed targe
   const owner = resolveExact(row.canonicalSourceContractRefs[0]);
   const wire = resolveExact(`${row.canonicalSourceContractRefs[0]}/ownerWireSchema`);
   assert.equal(hasBoundDynamicParameters(owner, wire), true);
-  assert.equal(closedObjectSchema(wire.requestSchema, wire.requestSchema, { dynamicParameters: hasBoundDynamicParameters(owner, wire) }), true);
+  const dynamicParameters = hasBoundDynamicParameters(owner, wire);
+  assert.equal(closedObjectSchema(wire.requestSchema, wire.requestSchema, { dynamicParameters, dynamicTypedInputPayload: dynamicParameters }), true);
 
   const noFingerprint = structuredClone(owner);
   delete noFingerprint.parameterBindingRule.fingerprint;

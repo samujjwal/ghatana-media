@@ -13,6 +13,8 @@ const capabilities = read("capabilities").capabilities;
 const review = read("capability-leaf-review");
 const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json"), "utf8"));
 const driftInventory = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json"), "utf8"));
+const currentCorrectionReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json"), "utf8"));
+const uploadMinimumReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
 const policy = review.ownerTrustReconstructionDispositions;
 const rows = new Map(policy.records.map((row) => [row.capabilityRef, row]));
 const capById = new Map(capabilities.map((row) => [row.id, row]));
@@ -27,7 +29,7 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
   const records = doc.review.ownerTrustReconstructionDispositions.records;
   if (caps.size !== 462 || records.length !== 462 || new Set(records.map((row) => row.capabilityRef)).size !== 462) return false;
   if (inventory.counts.inputTypeMismatches !== 42 || inventory.counts.outputTypeMismatches !== 26 || inventory.counts.individualTypeMismatches !== 68) return false;
-  if (inventory.source.currentSourceFileSha256 !== sha(readFileSync(resolve(root, inventory.source.capabilitiesPath), "utf8"))) return false;
+  if (inventory.source.currentSourceFileSha256 !== "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22") return false;
   if (inventory.records.length !== 63 || inventory.mismatches.length !== 68) return false;
   const historicalMismatches = new Map();
   for (const mismatch of inventory.mismatches) {
@@ -37,6 +39,29 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
     historicalMismatches.set(key, mismatch);
   }
   if (semanticReview.source.currentSha256 !== inventory.source.currentSourceFileSha256) return false;
+  const latestCut = inventory.latestCurrentSourceCutRefresh;
+  const latestCapabilitySha = sha(readFileSync(resolve(root, inventory.source.capabilitiesPath), "utf8"));
+  const latestQualitySha = sha(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"), "utf8"));
+  if (!latestCut || latestCut.decisionRef !== currentCorrectionReview.decisionRef
+    || latestCut.priorSourceSha256 !== inventory.source.currentSourceFileSha256
+    || latestCut.currentSourceSha256 !== currentCorrectionReview.sources.capabilities.currentSha256
+    || latestCut.qualityPolicySourceSha256 !== currentCorrectionReview.sources.qualityPolicy.currentSha256
+    || latestCut.semanticEquivalence !== "NOT_ASSERTED" || latestCut.acceptanceEffect !== "none"
+    || JSON.stringify(latestCut.affectedCapabilityIds) !== JSON.stringify([
+      "media.artifact.derive", "media.artifact.output.register", "media.project.source-asset.attach",
+    ])) return false;
+  if (uploadMinimumReview.decisionRef !== ".product-experience/decision-log.md#PXD-153"
+    || uploadMinimumReview.supersedes.decisionRef !== latestCut.decisionRef
+    || uploadMinimumReview.supersedes.historicalCapabilitiesSha256 !== latestCut.currentSourceSha256
+    || uploadMinimumReview.source.currentSha256 !== latestCapabilitySha
+    || uploadMinimumReview.correction.capabilityId !== "media.artifact.upload"
+    || !uploadMinimumReview.correction.p0FieldRef.endsWith("/properties/declaredByteLength")
+    || uploadMinimumReview.correction.oldScalar.minimum !== 0
+    || uploadMinimumReview.correction.newScalar.minimum !== 1
+    || uploadMinimumReview.correction.oldScalar.maximum !== uploadMinimumReview.correction.newScalar.maximum
+    || uploadMinimumReview.acceptanceEffect !== "none; bounded current-source correction evidence only") return false;
+  const latestCorrections = new Map(latestCut.typedInputCorrections.map((item) => [item.capabilityId, item]));
+  if (latestCorrections.size !== 3) return false;
   const audit = inventory.duplicateSelectorAudit;
   if (!audit || audit.semanticEquivalence !== "NOT_ASSERTED" || audit.acceptanceEffect !== "none") return false;
   const distinctHistoricalBranches = new Set(audit.historicalDuplicateSelectorBranches
@@ -49,6 +74,23 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
     const currentOutputTypes = cap.ownerDefinition.successOutputs.map((output) => output.artifactType);
     if (JSON.stringify(row.inputArtifactTypes) !== JSON.stringify(currentInputTypes)) return false;
     if (JSON.stringify(row.outputArtifactTypes) !== JSON.stringify(currentOutputTypes)) return false;
+    const correction = latestCorrections.get(row.capabilityRef);
+    if (correction) {
+      const historicalTrust = structuredClone(row);
+      historicalTrust.inputArtifactTypes = correction.historicalInputArtifactTypes;
+      const currentAdjudication = adjudications.get(row.capabilityRef);
+      const historicalAdjudication = structuredClone(currentAdjudication);
+      historicalAdjudication.inputArtifactTypes = correction.historicalInputArtifactTypes;
+      if (JSON.stringify(correction.currentInputArtifactTypes) !== JSON.stringify(currentInputTypes)
+        || JSON.stringify(correction.currentAdjudicationInputArtifactTypes) !== JSON.stringify(currentInputTypes)
+        || JSON.stringify(correction.historicalInputArtifactTypes) !== JSON.stringify(correction.historicalCapabilityInputArtifactTypes)
+        || correction.historicalTrustRecordSha256 !== sha(historicalTrust)
+        || correction.currentTrustRecordSha256 !== sha(row)
+        || correction.historicalAdjudicationRecordSha256 !== sha(historicalAdjudication)
+        || correction.currentAdjudicationRecordSha256 !== sha(currentAdjudication)
+        || correction.semanticEquivalence !== "NOT_ASSERTED" || correction.acceptanceEffect !== "none") return false;
+      latestCorrections.delete(row.capabilityRef);
+    }
     for (const [kind, currentTypes] of [["INPUT_ARTIFACT_TYPES", currentInputTypes], ["OUTPUT_ARTIFACT_TYPES", currentOutputTypes]]) {
       const mismatch = historicalMismatches.get(`${row.capabilityRef}:${kind}`);
       if (!mismatch) continue;
@@ -91,6 +133,7 @@ function valid(doc, inventory = driftInventory, semanticReview = currentReview) 
       }
     }
   }
+  if (latestCorrections.size !== 0) return false;
   if (activeDistinctDuplicateSelectors !== 0) return false;
   const pxd128Ids = new Set(driftInventory.resultVariantReview?.capabilityIds?.map(({ capabilityId }) => capabilityId) ?? []);
   if (pxd128Ids.size !== 68) return false;

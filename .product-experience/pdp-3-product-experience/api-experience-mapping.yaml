@@ -4,81 +4,336 @@ status: logical-operation-proposal; exact-wire-parity-blocked-by-GAP-05
 sourceAuthority: .product-experience/pdp-0-product-truth/applications-channels.yaml
 mappings:
   - actionRef: media.action.begin-artifact-upload
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.begin-artifact-upload
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation-slice.begin-upload
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.http-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.http-api, media.channel.sdk]
     logicalOperation: begin-one-bounded-artifact-upload
     routeOrRpc: unresolved-under-GAP-05
     requestMeaning: exact-source-metadata-project-target-when-present-current-purpose-and-stable-request-identity
     responseMeaning: stable-upload-identity-and-owner-acknowledged-transfer-contract-not-an-available-artifact
   - actionRef: media.action.resume-artifact-upload
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resume-artifact-upload
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation-slice.inspect-upload
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.http-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.http-api, media.channel.sdk]
     logicalOperation: resume-one-matching-artifact-upload
     routeOrRpc: unresolved-under-GAP-05
     requestMeaning: existing-upload-identity-source-match-and-current-authority
     responseMeaning: current-owner-acknowledged-transfer-state-and-integrity-disposition
   - actionRef: media.action.inspect-artifact
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation-slice.inspect-artifact
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.http-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.http-api, media.channel.sdk]
     logicalOperation: inspect-one-exact-artifact-version-or-existing-upload
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: immutable-artifact-identity-integrity-metadata-and-separate-policy-dispositions
   - actionRef: media.action.attach-source-asset
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.attach-source-asset
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation-slice.attach-source-asset
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.http-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.http-api, media.channel.sdk]
     logicalOperation: attach-one-available-artifact-version-to-an-exact-project-revision
     routeOrRpc: unresolved-under-GAP-05
     requestMeaning: exact-project-revision-artifact-version-and-stable-request-identity
     responseMeaning: resulting-project-revision-and-recorded-artifact-reference-or-explicit-unknown-finality
   - actionRef: media.action.request-transcription
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-transcription
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation.transcription-submission
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: submit-transcription-for-source-version
     routeOrRpc: unresolved-under-GAP-05
     requestMeaning: exact-source-version-language-intent-purpose-and-idempotency-key
     responseMeaning: stable-job-reference-current-state-and-finality
   - actionRef: media.action.view-job-status
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status
+      ownerWireContractRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@actionRef=media.action.view-job-status
+      ownerWireDisposition: OWNER_TYPED_WIRE_CONTRACT
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: view-job-status
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: product-job-and-attempt-status-with-safe-next-action
   - actionRef: media.action.request-cancellation
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation-slice.cancel-job
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: request-cancellation-for-existing-job
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: cancellation-request-finality-and-any-racing-result
   - actionRef: media.action.check-job-outcome
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome
+      ownerWireContractRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@actionRef=media.action.check-job-outcome
+      ownerWireDisposition: OWNER_TYPED_WIRE_CONTRACT
+      canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.check-job-outcome
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: check-existing-job-outcome-without-new-dispatch
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: evidence-classified-outcome-or-explicitly-retained-unknown
   - actionRef: media.action.retry-job
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.retry-job
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation-slice.retry-job
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: retry-same-logical-job-after-a-classified-retryable-attempt
     routeOrRpc: unresolved-under-GAP-05
     requestMeaning: stable-job-reference-classified-prior-attempt-reference-explicit-retry-request-identity-and-current-authority
     responseMeaning: same-job-reference-with-one-new-attempt-identity-and-explicit-pending-or-ineligible-finality
   - actionRef: media.action.save-caption-version
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-caption-version
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation.caption-version-write
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: register-new-caption-artifact-version
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: immutable-version-reference-and-registration-finality
   - actionRef: media.action.review-transcript
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-transcript
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation.transcript-version-read
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: read-source-linked-transcript
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: transcript-version-time-language-uncertainty-and-provenance
   - actionRef: media.action.correct-caption
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.correct-caption
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation.caption-draft-write
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: create-source-linked-caption-draft
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: draft-version-and-explicit-persistence-state
   - actionRef: media.action.align-caption-timing
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.align-caption-timing
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation.caption-draft-write
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: update-caption-time-ranges
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: draft-version-with-source-clock-ranges-and-alignment-disposition
   - actionRef: media.action.resolve-caption-conflict
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resolve-caption-conflict
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: null
+      operationBinding: NOT_DECLARED_FOR_ACTION
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: resolve-caption-draft-against-latest-version
     routeOrRpc: unresolved-under-GAP-05
     responseMeaning: resolved-draft-parent-and-preserved-version-history
   - actionRef: media.action.compare-caption-versions
+    sourceContractBindings:
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-caption-versions
+      ownerWireContractRef: null
+      ownerWireDisposition: NO_OWNER_ACTION_WIRE_RECORD; preserve-definition-as-unresolved
+      canonicalOperationRef: media.operation.caption-version-read
+      operationBinding: EXACT_ACTION_SOURCE_REFERENCE
+      channels:
+      - media.channel.grpc-api
+      - media.channel.sdk
+      request: action-definition-and-owner-wire-request-schema-when-present; no-wire-shape-inferred
+      result: action-definition-and-owner-wire-result-schema-when-present; preserve-unknown-finality
+      errors: source-action-failure-and-recovery; transport-error-codes-unresolved
+      authority: source-action-preconditions-and-owner-wire-requestAuthority-when-present
+      finality: source-action-finality-and-owner-wire-semantics-when-present
+      retry: source-action-recovery; unknown-effects-remain-unknown-and-no-blind-replay
+      transportBinding: unresolved-route-or-rpc; no-endpoint-invented
+      runtimeAdmission: NOT_ADMITTED
     channels: [media.channel.grpc-api, media.channel.sdk]
     logicalOperation: compare-two-caption-versions
     routeOrRpc: unresolved-under-GAP-05

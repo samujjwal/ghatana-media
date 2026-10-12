@@ -3,8 +3,17 @@ export type { DefinitionActionChoiceDecision, DefinitionActionChoiceSet, Definit
 export { evaluateStreamRecoveryDefinition } from "./stream-recovery-definition.js";
 export type { FrameEffectEvidence, StreamConsentState, StreamLeaseState, StreamRecoveryDefinitionInput, StreamRecoveryDefinitionResult, StreamSessionState } from "./stream-recovery-definition.js";
 export { evaluateRetryEligibilityDefinition } from "./retry-eligibility-definition.js";
-export type { RetryEligibilityDecision, RetryEligibilityResult, RetryEligibilityTrustedContext } from "./retry-eligibility-definition.js";
-import { createFixtureState, mediaExperienceScenarioIds, syntheticTranscriptSegments } from "./fixtures.js";
+export type { RetryEligibilityDecision, RetryEligibilityEvidenceResolver, RetryEligibilityResult, RetryEligibilityTrustedContext } from "./retry-eligibility-definition.js";
+export { evaluateInspectionDefinition, evaluateSearchDefinition } from "./search-inspection-definition.js";
+export type { SearchInspectionDecision, SearchInspectionDefinitionResult } from "./search-inspection-definition.js";
+import {
+  createFixtureState,
+  createStaleDraftRevisionDefinitionFixture,
+  createStepBranchDefinitionFixture,
+  createVersionMismatchGuardDefinitionFixture,
+  mediaExperienceScenarioIds,
+  syntheticTranscriptSegments,
+} from "./fixtures.js";
 import type {
   AccessDisposition,
   RetryEligibilityEvidence,
@@ -27,6 +36,7 @@ export type {
   ArtifactIntakeStatus,
   AccessDisposition,
   RetryEligibilityEvidence,
+  RetryEligibilityEvidenceFact,
   ArtifactVerificationExperienceState,
   ArtifactVerificationState,
   ArtifactIntakeExperienceState,
@@ -40,12 +50,22 @@ export type {
   MediaAction,
   MediaExperienceState,
   ScenarioId,
+  StepBranchDefinitionFixture,
+  StaleDraftRevisionDefinitionFixture,
+  VersionMismatchGuardDefinitionFixture,
   SimulationEvent,
   TimedTextSegment,
   TranscriptionExperienceState,
   TransitionResult,
 } from "./model.js";
-export { createFixtureState, mediaExperienceScenarioIds, syntheticTranscriptSegments };
+export {
+  createFixtureState,
+  createStaleDraftRevisionDefinitionFixture,
+  createStepBranchDefinitionFixture,
+  createVersionMismatchGuardDefinitionFixture,
+  mediaExperienceScenarioIds,
+  syntheticTranscriptSegments,
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

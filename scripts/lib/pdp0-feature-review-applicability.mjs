@@ -70,7 +70,7 @@ function resolveSelector(ref, sourceDocuments) {
 }
 
 /** Resolve the full definition-only 15×38 dimension and 462-leaf applicability join. */
-export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
+export function resolvePdp0FeatureReviewApplicability({ applicability, requirements, capabilities, capabilityCrosswalk, channels, sourceDocuments, reviewedMaterialArtifact, reviewedMaterialArtifactText, reviewedReferenceCorrectionArtifact, reviewedReferenceCorrectionArtifactText, qualityMetricObservations, qualityPolicySourceText, qualityCurrentSourceReview, qualityCurrentSourceReviewText, animationRelationshipObservation, animationRelationshipObservationText, relationshipSourceText, textToImageObservation, textToImageObservationText, capabilitiesSourceText, capabilityIntentOwnerBindingObservation, capabilityIntentOwnerBindingObservationText, capabilitySemanticReview, capabilitySemanticReviewText, p0CurrentSourceCorrection, p0CurrentSourceCorrectionText, p0UploadByteLengthCorrection, p0UploadByteLengthCorrectionText, policyAuthorityObservation, policyAuthorityObservationText, policyAuthoritySourceText, cliChannelObservation, cliChannelObservationText, applicationsChannelsSourceText, qualificationPolicyObservation, qualificationPolicyObservationText, qualificationPolicySourceText }) {
   const fail = (reason) => { throw new Error(`Invalid PDP-0 feature applicability: ${reason}`); };
   const dimensions = applicability?.dimensions;
   const requirementRows = requirements?.requirements;
@@ -181,6 +181,11 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && qualitySourceReview?.sources?.qualityPolicy?.currentSha256 === qualitySourceSha256
     && qualitySourceReview?.sources?.capabilities?.path === ".product-experience/pdp-0-product-truth/capabilities.yaml"
     && qualitySourceReview?.sources?.capabilities?.currentSha256 === createHash("sha256").update(capabilitiesSourceText ?? "").digest("hex")
+    && qualitySourceReview?.currentSourceRefresh?.decisionRef === ".product-experience/decision-log.md#PXD-153"
+    && qualitySourceReview?.currentSourceRefresh?.priorSourceSha256 === "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf"
+    && qualitySourceReview?.currentSourceRefresh?.currentSourceSha256 === qualitySourceReview?.sources?.capabilities?.currentSha256
+    && qualitySourceReview?.currentSourceRefresh?.fieldRef === ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength/minimum"
+    && qualitySourceReview?.currentSourceRefresh?.acceptanceEffect === "none"
     && qualitySourceReview?.reviewedPopulation?.capabilityRows === 462
     && qualitySourceReview?.reviewedPopulation?.uniqueCapabilityRefs === 462
     && qualitySourceReview?.reviewedPopulation?.qualityDimensions === 6
@@ -373,6 +378,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     ? createHash("sha256").update(capabilitiesSourceText).digest("hex") : null;
   const capabilityIntentOwnerBindingExpectedSha256 = "e33af569db9ea0b510af334af8dfc4ae2e2c05cd0b2fa32e57a889e94023ba7a";
   const capabilitySemanticReviewExpectedSha256 = "1c187221d5c882b8559d7eb9fe5cebf2195a0e0bfb346d61c5277ed1e6081b4d";
+  const pxd122CapabilitySha256 = p0CurrentSourceCorrection?.historicalPins?.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122"))?.capabilitySha256;
   const jobSubmitExpiryRef = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.submit/ownerDefinition/idempotencyExpiryContract";
   const jobSubmitExpiryContract = resolveSelector(jobSubmitExpiryRef, sourceDocuments);
   const jobSubmitExpiryReview = capabilitySemanticReview?.currentSourceCorrections?.find(({ capabilityId }) => capabilityId === "media.job.submit");
@@ -388,7 +394,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && createHash("sha256").update(capabilitySemanticReviewText).digest("hex") === capabilitySemanticReviewExpectedSha256
     && capabilitySemanticReview?.schemaVersion === "media.pdp0.capability-semantic-current-source-review.v1"
     && capabilitySemanticReview?.source?.path === ".product-experience/pdp-0-product-truth/capabilities.yaml"
-    && capabilitySemanticReview?.source?.currentSha256 === textToImageSourceHash
+    && capabilitySemanticReview?.source?.currentSha256 === pxd122CapabilitySha256
     && capabilitySemanticReview?.source?.historicalComparison?.priorSha256 === capabilityIntentOwnerBindingObservation?.source?.currentSha256
     && capabilitySemanticReview?.source?.historicalComparison?.availability === "UNAVAILABLE_PRIOR_BYTES_NOT_RETAINED"
     && capabilitySemanticReview?.source?.historicalComparison?.parsedPathDelta === "NOT_ASSERTED"
@@ -400,7 +406,38 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
     && capabilitySemanticReview?.acceptanceEffect?.startsWith("none;")
     && capabilitySemanticReview?.currentSourceChecks?.length >= 5
     && jobSubmitExpiryReviewValid;
-  if (!capabilitySemanticReviewValid) fail("PXD-122 current capability semantic review is absent, stale, or overbroad");
+  const p0CurrentSourceCorrectionValid = typeof p0CurrentSourceCorrectionText === "string"
+    && p0CurrentSourceCorrection?.schemaVersion === "media.pdp0.existing-operation-semantic-corrections-current-source-review.v1"
+    && p0CurrentSourceCorrection?.decisionRef === ".product-experience/decision-log.md#PXD-142"
+    && p0CurrentSourceCorrection?.sources?.capabilities?.path === ".product-experience/pdp-0-product-truth/capabilities.yaml"
+    && p0CurrentSourceCorrection?.sources?.capabilities?.currentSha256 === "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf"
+    && p0CurrentSourceCorrection?.sources?.capabilities?.capabilityCount === 462
+    && JSON.stringify(p0CurrentSourceCorrection?.typedInputCorrections?.map(({ capabilityId }) => capabilityId).sort())
+      === JSON.stringify(["media.artifact.derive", "media.artifact.output.register", "media.project.source-asset.attach"])
+    && p0CurrentSourceCorrection?.optionalSuccessOutputCorrections?.length === 5
+    && p0CurrentSourceCorrection?.semanticEquivalence === "NOT_ASSERTED"
+    && p0CurrentSourceCorrection?.acceptanceEffect === "none; current-source review and regression evidence only";
+  const p0UploadByteLengthCorrectionValid = typeof p0UploadByteLengthCorrectionText === "string"
+    && p0UploadByteLengthCorrection?.schemaVersion === "media.pdp0.upload-byte-length-minimum-current-source-review.v1"
+    && p0UploadByteLengthCorrection?.decisionRef === ".product-experience/decision-log.md#PXD-153"
+    && p0UploadByteLengthCorrection?.source?.path === ".product-experience/pdp-0-product-truth/capabilities.yaml"
+    && p0UploadByteLengthCorrection?.source?.currentSha256 === textToImageSourceHash
+    && p0UploadByteLengthCorrection?.source?.capabilityCount === 462
+    && p0UploadByteLengthCorrection?.correction?.capabilityId === "media.artifact.upload"
+    && p0UploadByteLengthCorrection?.correction?.p0FieldRef === ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength"
+    && p0UploadByteLengthCorrection?.correction?.oldScalar?.minimum === 0
+    && p0UploadByteLengthCorrection?.correction?.newScalar?.minimum === 1
+    && p0UploadByteLengthCorrection?.correction?.newScalar?.maximum === 2147483648
+    && p0UploadByteLengthCorrection?.correction?.emptyDisposition === "NOT_EMPTY"
+    && p0UploadByteLengthCorrection?.p1Evidence?.expectedSizeBytesMinimum === 1
+    && p0UploadByteLengthCorrection?.p1Evidence?.expectedSizeBytesMaximum === 2147483648
+    && p0UploadByteLengthCorrection?.p1Evidence?.preservedBoundary?.maximumRequestBytes === 65536
+    && p0UploadByteLengthCorrection?.p1Evidence?.preservedBoundary?.runtimeAvailability === "NOT_ADMITTED"
+    && p0UploadByteLengthCorrection?.p1Evidence?.preservedBoundary?.qualification === "NOT_ESTABLISHED"
+    && p0UploadByteLengthCorrection?.acceptanceEffect === "none; bounded current-source correction evidence only";
+  if (!capabilitySemanticReviewValid) fail("PXD-122 historical capability review is absent, stale, or overbroad");
+  if (!p0CurrentSourceCorrectionValid) fail("PXD-142 current capability correction review is absent, stale, or overbroad");
+  if (!p0UploadByteLengthCorrectionValid) fail("PXD-153 upload byte-length minimum correction review is absent, stale, or overbroad");
   const capabilityIntentOwnerBindingValid = typeof capabilityIntentOwnerBindingObservationText === "string"
     && createHash("sha256").update(capabilityIntentOwnerBindingObservationText).digest("hex") === capabilityIntentOwnerBindingExpectedSha256
     && capabilityIntentOwnerBindingObservation?.schemaVersion === "media.pdp0.capability-intent-current-source-observation.v1"
@@ -446,7 +483,7 @@ export function resolvePdp0FeatureReviewApplicability({ applicability, requireme
   const textToImageHistoricalReferent = reviewedMaterialArtifact.records.some(({ referents = [] }) => referents.some(({ sourceRef, identity, contentSha256 }) =>
     sourceRef === textToImage.sourceRef && identity === textToImage.identity && contentSha256 === textToImage.historicalPxd098ContentSha256));
   if (!textToImageHistoricalReferent) fail("PXD-098 text-to-image observation lacks its exact historical referent");
-  if (capabilitySemanticReview?.source?.currentSha256 !== textToImageSourceHash) fail("PXD-122 capability review does not pin the current text-to-image source cut");
+  if (p0UploadByteLengthCorrection?.source?.currentSha256 !== textToImageSourceHash) fail("PXD-153 capability correction review does not pin the current source cut");
   approvedCurrentSourceObservation.set(textToImage.sourceRef, {
     ...textToImage,
     currentContentSha256: textToImageHash,

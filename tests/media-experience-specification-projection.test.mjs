@@ -26,6 +26,7 @@ const bindingReview = parse(await readFile('.product-experience/pdp-3-product-ex
 const viewPredicates = parse(await readFile('.product-experience/pdp-3-product-experience/view-observation-predicates.yaml', 'utf8'));
 const recoveryContracts = parse(await readFile('.product-experience/pdp-3-product-experience/recovery-finality-contracts.yaml', 'utf8'));
 const simulationFixtureSource = await readFile('libs/media-experience-simulation/src/fixtures.ts', 'utf8');
+const phaseProjectionGenerator = await readFile('scripts/generate-media-phase-projections.mjs', 'utf8');
 
 function assertUniqueKnownRefs(refs, known, label) {
   assert.equal(new Set(refs).size, refs.length, `${label} contains duplicate references`);
@@ -68,7 +69,7 @@ test('PDP-3 views project exact component, journey, and Media-local observation 
     }
   }
   assert.equal(sourceViews.reduce((count, view) => count + (contracts.get(view.id)?.journeyRefs?.length ?? 0), 0), 132);
-  assert.equal(model.views.reduce((count, view) => count + view.componentRefs.length, 0), 137);
+  assert.equal(model.views.reduce((count, view) => count + view.componentRefs.length, 0), 154);
   const viewsBlocker = specification.fieldMappingBlockers.find(({ field }) => field === 'views');
   assert.equal(viewsBlocker, undefined, 'view IDs and exact local state refs are fully source-mapped');
   assert.match(specification.candidateMappingReview.fieldDispositions.views.status, /LOCAL_OBSERVATION_STATE_MAPPING_364_PREDICATES/u);
@@ -86,6 +87,8 @@ test('PDP-3 public resolver rejects a view journey ref after its projected journ
 test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and step identity with unresolved transition metadata', async () => {
   const contracts = new Map();
   const sourceJourneyById = new Map(journeyCatalog.journeys.map((entry) => [entry.id, entry]));
+  const outcomeDecisions = parse(await readFile('.product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml', 'utf8'));
+  const outcomeDecisionByJourney = new Map((outcomeDecisions.records ?? []).map((record) => [record.journeyRef, record]));
   let stepCount = 0;
   let authoredStepIds = 0;
   let authoredIntents = 0;
@@ -152,7 +155,9 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.equal(model.journeys.reduce((count, journey) => count + journey.steps.length, 0), 130);
   assert.equal(model.journeys.find(({ id }) => id === 'J-29').steps.length, 4,
     'J-29 steps project from explicit owner-selected intents and exact view links');
-  assert.equal(model.journeys.filter(({ desiredOutcomeRef }) => desiredOutcomeRef).length, 5);
+  assert.equal(model.journeys.filter(({ desiredOutcomeRef }) => desiredOutcomeRef).length, 30);
+  const outcomeProjectionRows = new Map(specification.candidateMappingReview.journeyBindingAudit.projectedSourceRows
+    .map((row) => [row.journeyId, row]));
   const sourceActorIds = new Set(journeyActorResolutions.journeys.map(({ initiatingActorRef }) => initiatingActorRef));
   for (const journey of model.journeys) {
     assert.ok(sourceActorIds.has(journey.actorRef), `${journey.id} uses a resolved P0-04 actor`);
@@ -161,9 +166,39 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
     const expectedScenarioRefs = [...new Set([
       ...(contract.scenarioRefs ?? []),
       ...(contract.steps ?? []).flatMap((sourceStep) => sourceStep.scenarioRefs ?? []),
-    ])];
+    ])].sort();
     assert.deepEqual(journey.scenarioRefs ?? [], expectedScenarioRefs,
       `${journey.id} scenario links come only from exact contract-level and step-level source refs`);
+    const exactSourceOutcomeRefs = sourceJourneyById.get(journey.id)?.outcomeRefs ?? [];
+    assert.deepEqual(contract.outcomes ?? [], exactSourceOutcomeRefs,
+      `${journey.id} contract preserves its full PDP-0 outcome list`);
+    const outcomeAudit = outcomeProjectionRows.get(journey.id);
+    assert.ok(outcomeAudit, `${journey.id} has a source outcome audit row`);
+    assert.deepEqual(outcomeAudit.sourceOutcomeRefs, exactSourceOutcomeRefs,
+      `${journey.id} retains all plural PDP-0 outcomeRefs in mapping review`);
+    assert.equal(outcomeAudit.desiredOutcomeRef, journey.desiredOutcomeRef ?? null,
+      `${journey.id} audit matches its projected primary outcome`);
+    const outcomeDecision = outcomeDecisionByJourney.get(journey.id);
+    if (outcomeDecision) {
+      assert.equal(outcomeDecision.sourceJourneyRef,
+        `.product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=${journey.id}`);
+      assert.deepEqual(outcomeDecision.sourceOutcomeRefs, exactSourceOutcomeRefs,
+        `${journey.id} primary outcome decision covers the exact full source outcome list`);
+      assert.ok(exactSourceOutcomeRefs.includes(outcomeDecision.primaryDesiredOutcomeRef),
+        `${journey.id} explicit primary selection belongs to the source outcomes`);
+      assert.equal(outcomeDecision.selectionStatus, 'MEDIA_OWNER_EXPLICIT_PRIMARY_OUTCOME_SELECTION; REVIEW_PENDING');
+      assert.equal(outcomeDecision.runtimeAdmission, 'NOT_ADMITTED');
+      assert.equal(outcomeDecision.acceptanceEffect, 'none');
+      assert.equal(outcomeAudit.primaryOutcomeDecisionRef,
+        `.product-experience/pdp-3-product-experience/journey-outcome-projection-decisions.yaml#records/@id=${outcomeDecision.id}`);
+      assert.equal(journey.desiredOutcomeRef, outcomeDecision.primaryDesiredOutcomeRef);
+    } else if (exactSourceOutcomeRefs.length === 1) {
+      assert.equal(journey.desiredOutcomeRef, exactSourceOutcomeRefs[0],
+        `${journey.id} may use an exact singleton source outcome without a separate selection`);
+    } else {
+      assert.equal(journey.desiredOutcomeRef, undefined,
+        `${journey.id} cannot infer a primary outcome from a plural source list`);
+    }
     const sourceIds = (contract.steps ?? []).map(({ stepId }) => stepId).filter(Boolean);
     const sourceCounts = new Map(sourceIds.map((id) => [id, sourceIds.filter((candidate) => candidate === id).length]));
     for (const [index, step] of journey.steps.entries()) {
@@ -189,23 +224,26 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
   assert.ok(model.journeys.every((journey) => journey.steps.every((step) => !contracts.get(journey.id).steps.some((sourceStep) => sourceStep.result === step.intent))),
     'step result prose is never used as intent');
   const journeyBlocker = specification.fieldMappingBlockers.find((entry) => entry.field === 'journeys');
-  assert.match(journeyBlocker?.status ?? '', /PARTIAL_SOURCE_PROJECTION_30_OF_30_JOURNEYS_130_OF_130_STEPS/u);
-  assert.ok(journeyBlocker.reasons.join(' ').includes('partial source-grounded PDP-3 journey projection now includes 30/30 journeys and 130/130 steps'));
-  assert.match(journeyBlocker.reasons.join(' '), /step-view 130 linked\/0 unresolved/iu);
-  assert.match(journeyBlocker.reasons.join(' '), /step-action 18 linked\/112 unresolved/iu);
-  assert.match(journeyBlocker.reasons.join(' '), /128 source transitionRef values are null/u);
-  assert.match(journeyBlocker.reasons.join(' '), /One exact P3 binding supplies the P1 RECEIVING-to-VERIFYING upload-finalization edge/u);
+  assert.equal(journeyBlocker, undefined, 'every source step has typed semantics or a bounded source-backed version disposition');
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.resolvedCount, 30);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.sourceCount, 30);
   assert.match(specification.candidateMappingReview.journeyBindingAudit.p0InitiatorAvailability.disposition, /PROJECTED_AS_CANDIDATE_ACTOR_REFS/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.p3OrderedStepCount, 130);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.projectedStepCount, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.typedStepSemanticsProjected, 130);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.typedStepSemanticsUnresolved, 0);
+  assert.deepEqual(specification.candidateMappingReview.journeyBindingAudit.stepSemanticsFailures, []);
+  assert.deepEqual(specification.candidateMappingReview.journeyBindingAudit.journeyScenarioReferenceCounts, {
+    withRefs: 4,
+    withoutRefs: 26,
+    referenceCount: 31,
+    source: 'currentStepBindingObservation.scenarioReferences plus exact journey-contract scenarioRefs and steps[].scenarioRefs',
+  });
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.explicitSourceIntentCount, 112);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.linkedViewPurposeProposalOnlyCount, 18);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepIntentProjection.omitted.length, 0);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 128);
-  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNoMutationReasonCount, 13);
-  assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /required schema placeholder/u);
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.sourceNullCount, 129);
+  assert.match(specification.candidateMappingReview.journeyBindingAudit.transitionProjection.disposition, /schema-required candidate placeholder/u);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128);
   assert.deepEqual(model.transitions.map(({ id }) => id), ['media.pdp3.transition.upload-receiving-to-verifying.v1']);
   assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.stepViewUnresolved, 0);
@@ -241,6 +279,227 @@ test('PDP-3 journeys project source-grounded actor, outcome, intent, view, and s
     /actor owner resolver is required/u);
 });
 
+test('PDP-3 transition audit reads effective source dispositions and keeps request actions non-final', async () => {
+  const dispositionCounts = new Map();
+  const sourceStepsByJourney = new Map();
+  const unresolvedApplicableSourceRows = [];
+  const unresolvedSourceDispositionRows = [];
+  const initialAdmissionSourceRows = [];
+  const effectiveDispositionBySourceStep = new Map();
+  const domainOperations = parse(await readFile('.product-experience/pdp-1-domain-data/operations.yaml', 'utf8'));
+  const journeyOperationBindings = new Map((domainOperations.ownerDefinedJourneyOperationBindings?.records ?? [])
+    .map((binding) => [binding.journeyStepRef.replace(/#\/?steps\//u, '#/steps/'), binding]));
+  const operationKindsByRef = new Map();
+  const addOperationKind = (record, fallbackKind) => {
+    if (!record || typeof record !== 'object') return;
+    const kind = record.operationKind ?? record.ownerDefinition?.operationKind ?? fallbackKind;
+    if (kind !== 'COMMAND' && kind !== 'QUERY') return;
+    for (const ref of [record.id, ...(record.operationRefs ?? [])]) if (typeof ref === 'string') operationKindsByRef.set(ref, kind);
+  };
+  for (const record of domainOperations.operations ?? []) addOperationKind(record);
+  for (const collection of ['individualOperationContracts', 'ownerDefinedOperationContracts', 'capabilityOperationContracts']) {
+    for (const record of domainOperations[collection]?.records ?? []) addOperationKind(record);
+  }
+  for (const record of domainOperations.ownerTypedObservationContracts?.records ?? []) {
+    if (typeof record.operationRef === 'string') operationKindsByRef.set(record.operationRef, 'QUERY');
+  }
+  let legacyNullTransitionRefCount = 0;
+  for (const entry of journeyRegistry.journeys) {
+    const contract = parse(await readFile(`.product-experience/pdp-3-product-experience/${entry.contract}`, 'utf8'));
+    sourceStepsByJourney.set(entry.id, contract.steps ?? []);
+    for (const [stepIndex, step] of (contract.steps ?? []).entries()) {
+      legacyNullTransitionRefCount += step.transitionRef == null ? 1 : 0;
+      const evidenceValues = [step.transitionDisposition, step.stepDefinitionSemantics?.transitionDisposition,
+        step.stepDefinitionSemantics?.action?.transitionDisposition,
+        step.transitionApplicability, step.stepDefinitionSemantics?.transitionApplicability].filter((value) => value !== undefined && value !== null);
+      const evidenceParts = evidenceValues.map((value) => typeof value === 'string' ? value : JSON.stringify(value)).map((value) => value.toUpperCase());
+      const evidence = evidenceParts.join(' ');
+      const sourceStepRef = `.product-experience/pdp-3-product-experience/${entry.contract}#/steps/${stepIndex}`;
+      const p1JourneyOperationBinding = journeyOperationBindings.get(sourceStepRef);
+      const p1LocalDraftNoTransition = p1JourneyOperationBinding?.stateBindingDisposition === 'SESSION_LOCAL_REVISION_ONLY; no canonical domain-state transition.'
+        && Array.isArray(p1JourneyOperationBinding.stateRefs) && p1JourneyOperationBinding.stateRefs.length === 0;
+      const actionScopeParts = [step.stepDefinitionSemantics?.action?.effectKind,
+        step.stepDefinitionSemantics?.action?.effect, step.stepDefinitionSemantics?.action?.finality]
+        .filter((value) => value !== undefined && value !== null).map((value) => String(value).toUpperCase());
+      const requestAction = [step.action, step.actionRef, step.stepDefinitionSemantics?.action?.actionRef,
+        step.canonicalOperationRef, step.stepDefinitionSemantics?.action?.operationRef,
+        step.stepDefinitionSemantics?.canonicalBindings?.canonicalOperationRef].filter(Boolean).join(' ').toUpperCase();
+      const operationRefs = [step.canonicalOperationRef, ...(step.requiredOperationRefs ?? []),
+        ...(step.resumeWorkflow?.orderedOperationRefs ?? []), ...(step.stepDefinitionSemantics?.action?.operationRefs ?? []),
+        step.stepDefinitionSemantics?.canonicalBindings?.canonicalOperationRef,
+        step.stepDefinitionSemantics?.transitionApplicability?.operationRef, step.transitionApplicability?.operationRef]
+        .flatMap((value) => typeof value === 'string' ? value.split(/[;,]/u).map((ref) => ref.trim()) : []);
+      const hasCommandOperation = operationRefs.some((ref) => operationKindsByRef.get(ref) === 'COMMAND');
+      const hasQueryOperation = operationRefs.some((ref) => operationKindsByRef.get(ref) === 'QUERY');
+      const ownerStateDisposition = String(p1JourneyOperationBinding?.stateBindingDisposition ?? '').toUpperCase();
+      const topLevelTransitionReason = step.transitionDisposition?.reason ?? step.stepDefinitionSemantics?.transitionDisposition?.reason;
+      const exactTopLevelNoTransition = step.transitionDisposition?.status === 'NOT_APPLICABLE_WITH_REASON'
+        && typeof topLevelTransitionReason === 'string' && /NO .*TRANSITION|READ[- ]ONLY|EXTERNAL .*HANDOFF|NO MEDIA MUTATION/iu.test(topLevelTransitionReason);
+      const explicitNoTransition = [...evidenceParts, ...actionScopeParts].some((part) => /NOT[_ -]?APPLICABLE|NO (?:MEDIA |PDP-1 |DOMAIN )?TRANSITION|NO[_ -]DOMAIN[_ -]TRANSITION|OBSERVATION[_ -]ONLY|READ[_ -]ONLY|QUERY|LOCAL[_ -](?:DRAFT|REVISION)|LOCAL_DRAFT_UPDATE|SESSION.LOCAL.DRAFT|NO MUTATION/iu.test(part)
+        && !/UNRESOLVED|PENDING/u.test(part));
+      const hasUnresolvedApplicability = /TRANSITION_APPLICABILITY_UNRESOLVED|UNRESOLVED_APPLICABLE/iu.test(evidence);
+      const hasUnboundCanonicalEdge = /CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND/iu.test(evidence);
+      const disposition = /REQUEST-CANCELLATION|RETRY-JOB|REQUEST-LIVE-SESSION-RECONNECT|SESSION-RECONNECT/u.test(requestAction)
+        || /REQUEST[_ -]?ONLY|CONDITIONAL|REQUEST ACCEPTANCE|RECONNECT REQUEST|ASYNC_COMMAND_WITHOUT_LOCAL_DOMAIN_TRANSITION/iu.test(evidence) ? 'CONDITIONAL_OR_REQUEST_OBSERVATION'
+        : /INITIAL_AGGREGATE_ADMISSION|INITIAL_STATE_ON_COMMITTED_SUCCESS/iu.test(`${evidence} ${ownerStateDisposition}`) ? 'SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION'
+          : p1LocalDraftNoTransition ? 'SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION'
+            : /APPEND_ONLY_VERSION|IMMUTABLE_RECORD/u.test(ownerStateDisposition) ? 'SOURCE_BACKED_NO_TRANSITION'
+              : p1JourneyOperationBinding?.operationKind === 'QUERY' ? 'SOURCE_BACKED_NO_TRANSITION'
+                : p1JourneyOperationBinding?.operationKind === 'COMMAND' && /LOGICAL REQUEST.*RECEIPT|ACCEPTANCE IS NOT A JOB STATE|NO JOB.STATE OR ATTEMPT TRANSITION/iu.test(p1JourneyOperationBinding.ownerResultSemantics ?? '') ? 'CONDITIONAL_OR_REQUEST_OBSERVATION'
+                  : /LOCAL_SELECTION_ONLY_NO_CANONICAL_TRANSITION/iu.test(JSON.stringify(step.stepDefinitionSemantics?.transitionApplicability ?? step.transitionApplicability ?? '')) ? 'SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION'
+                    : exactTopLevelNoTransition ? 'SOURCE_BACKED_NO_TRANSITION'
+          : /APPLICABLE_WITH_BOUNDS|APPLICABLE TRANSITION/iu.test(evidence) ? 'APPLICABLE_BOUNDED_CANDIDATE'
+            : hasUnresolvedApplicability && explicitNoTransition ? 'MIXED_OR_OTHER_SOURCE_DISPOSITION'
+              : hasUnboundCanonicalEdge ? 'UNRESOLVED_APPLICABLE_COMMAND'
+              : hasUnresolvedApplicability && hasCommandOperation ? 'UNRESOLVED_APPLICABLE_COMMAND'
+                : hasUnresolvedApplicability ? 'MIXED_OR_OTHER_SOURCE_DISPOSITION'
+                  : explicitNoTransition || (hasQueryOperation && /TRANSITION_APPLICABILITY_UNRESOLVED/iu.test(evidence)) ? 'SOURCE_BACKED_NO_TRANSITION'
+                    : hasCommandOperation && (step.transitionRef == null || /UNRESOLVED|PENDING/iu.test(evidence)) ? 'UNRESOLVED_APPLICABLE_COMMAND'
+                      : evidenceValues.length ? 'MIXED_OR_OTHER_SOURCE_DISPOSITION'
+                        : step.transitionRef == null ? 'MIXED_OR_OTHER_SOURCE_DISPOSITION' : 'UNRESOLVED_TRANSITION_REFERENCE';
+      dispositionCounts.set(disposition, (dispositionCounts.get(disposition) ?? 0) + 1);
+      effectiveDispositionBySourceStep.set(`${entry.id}/${stepIndex + 1}`, disposition);
+      if (disposition === 'SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION') {
+        initialAdmissionSourceRows.push(`${entry.id}/${stepIndex + 1}:${step.stepId ?? '-'}`);
+      }
+      if (disposition === 'UNRESOLVED_APPLICABLE_COMMAND') unresolvedApplicableSourceRows.push({ journeyId: entry.id, stepOrdinal: stepIndex + 1, sourceStepId: step.stepId ?? null });
+      if (['UNRESOLVED_SOURCE_DISPOSITION', 'UNRESOLVED_SOURCE_APPLICABILITY', 'UNRESOLVED_TRANSITION_REFERENCE',
+        'UNRESOLVED_APPLICABLE_COMMAND', 'MIXED_OR_OTHER_SOURCE_DISPOSITION'].includes(disposition)) {
+        unresolvedSourceDispositionRows.push({ journeyId: entry.id, stepOrdinal: stepIndex + 1, sourceStepId: step.stepId ?? null, disposition });
+      }
+    }
+  }
+  assert.deepEqual(Object.fromEntries([...dispositionCounts].sort(([a], [b]) => a.localeCompare(b))), {
+    APPLICABLE_BOUNDED_CANDIDATE: 1,
+    CONDITIONAL_OR_REQUEST_OBSERVATION: 10,
+    SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION: 11,
+    SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION: 5,
+    SOURCE_BACKED_NO_TRANSITION: 103,
+  }, 'the effective source disposition census is exact across all 130 steps');
+  assert.equal(unresolvedApplicableSourceRows.length, 0, 'no applicable command remains after source-backed local draft evidence is accounted for');
+  assert.deepEqual(initialAdmissionSourceRows, [
+    'J-01/3:J01-3', 'J-05/1:-', 'J-05/2:-', 'J-09/4:-', 'J-09/7:-', 'J-10/2:-',
+    'J-13/3:-', 'J-14/4:-', 'J-18/5:-', 'J-19/4:-', 'J-28/3:-',
+  ], 'initial aggregate admissions have no prior aggregate transition and keep owner observation separate');
+  assert.equal(legacyNullTransitionRefCount, 129, '129 legacy source transitionRefs are null across 130 steps');
+  const transitionAudit = specification.candidateMappingReview.journeyBindingAudit.transitionProjection;
+  assert.equal(transitionAudit.sourceNullCount, 129, 'generated source-null census counts legacy transitionRef values');
+  assert.equal(transitionAudit.rows.length, 130, 'generated transition audit has one row per journey step');
+  assert.equal(specification.candidateMappingReview.journeyBindingAudit.stepBindingCounts.transitionRefsNull, 128,
+    'the separate registry step-binding observation remains its independently authored 128 count');
+  assert.deepEqual(unresolvedSourceDispositionRows.map(({ journeyId, stepOrdinal, sourceStepId, disposition }) =>
+    `${journeyId}/${stepOrdinal}:${sourceStepId ?? '-'}:${disposition}`), [],
+  'all 130 steps have a source-backed, conditional, bounded, or explicitly unresolved status; no mixed rows are hidden');
+  assert.deepEqual(unresolvedApplicableSourceRows.map(({ journeyId, stepOrdinal }) => `${journeyId}/${stepOrdinal}`), []);
+  const reconciledSourceDispositionCases = [
+    ['J-01', 1, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-01', 3, 'SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION'],
+    ['J-01', 4, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-02', 5, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-03', 2, 'CONDITIONAL_OR_REQUEST_OBSERVATION'],
+    ['J-03', 4, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-03', 7, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-03', 8, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-06', 3, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-08', 1, 'SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION'],
+    ['J-21', 3, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-23', 2, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-24', 4, 'SOURCE_BACKED_NO_TRANSITION'],
+    ['J-26', 2, 'SOURCE_BACKED_NO_TRANSITION'],
+  ];
+  for (const [journeyId, ordinal, expectedDisposition] of reconciledSourceDispositionCases) {
+    assert.equal(effectiveDispositionBySourceStep.get(`${journeyId}/${ordinal}`), expectedDisposition,
+      `${journeyId}/${ordinal} follows its exact source applicability and owner-operation evidence`);
+    const sourceStep = sourceStepsByJourney.get(journeyId)[ordinal - 1];
+    if (journeyId === 'J-08') {
+      assert.equal((sourceStep.stepDefinitionSemantics?.transitionApplicability ?? sourceStep.transitionApplicability)?.disposition,
+        'LOCAL_SELECTION_ONLY_NO_CANONICAL_TRANSITION');
+    } else {
+      const disposition = sourceStep.transitionDisposition ?? sourceStep.stepDefinitionSemantics?.transitionDisposition
+        ?? sourceStep.stepDefinitionSemantics?.action?.transitionDisposition;
+      if (typeof disposition === 'string') {
+        assert.equal(disposition, 'NOT_APPLICABLE_WITH_REASON', `${journeyId}/${ordinal} keeps its exact nested source disposition`);
+      } else if (disposition === undefined) {
+        const binding = journeyOperationBindings.get(`.product-experience/pdp-3-product-experience/${journeyRegistry.journeys.find(({ id }) => id === journeyId).contract}#/steps/${ordinal - 1}`);
+        assert.ok(binding?.operationKind === 'QUERY', `${journeyId}/${ordinal} relies on its exact owner QUERY binding when no top-level reason is authored`);
+        assert.match(binding.stateBindingDisposition ?? '', /QUERY|OBSERVATION|NO STATE TRANSITION/iu);
+      } else {
+        assert.equal(disposition?.status, 'NOT_APPLICABLE_WITH_REASON', `${journeyId}/${ordinal} preserves its explicit source no-transition reason`);
+        assert.ok(typeof disposition.reason === 'string' && disposition.reason.length > 0,
+          `${journeyId}/${ordinal} preserves the source-authored reason`);
+      }
+    }
+  }
+  for (const [journeyId, ordinal, bindingId, contract, actionRef] of [
+    ['J-03', 5, 'media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-5', 'transcribe-and-correct-captions.yaml', 'media.action.correct-caption'],
+    ['J-03', 6, 'media.pdp1.journey-operation-binding.transcribe-and-correct-captions.J03-6', 'transcribe-and-correct-captions.yaml', 'media.action.align-caption-timing'],
+    ['J-16', 3, 'media.pdp1.journey-operation-binding.translate-and-dub-existing-video.index-2', 'translate-and-dub-existing-video.yaml'],
+    ['J-18', 4, 'media.pdp1.journey-operation-binding.compose-and-render-reviewed-media.index-3', 'compose-and-render-reviewed-media.yaml'],
+  ]) {
+    const binding = journeyOperationBindings.get(`.product-experience/pdp-3-product-experience/journey-contracts/${contract}#/steps/${ordinal - 1}`);
+    assert.equal(binding?.id, bindingId, `${journeyId}/${ordinal} has the exact frozen P1 journey-operation binding`);
+    assert.equal(binding.operationRef, 'media.operation.caption-draft-write');
+    assert.equal(binding.actionRef, actionRef ?? 'media.action.correct-caption');
+    assert.equal(binding.operationDefinitionRef, '.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write');
+    assert.deepEqual(binding.stateRefs, []);
+    assert.equal(binding.stateBindingDisposition, 'SESSION_LOCAL_REVISION_ONLY; no canonical domain-state transition.');
+    assert.match(binding.ownerResultSemantics, /session-local draft revision using compare-and-swap/u);
+    assert.ok(binding.failClosedCases.some((condition) => /Stale draft revision/u.test(condition)));
+    assert.equal(effectiveDispositionBySourceStep.get(`${journeyId}/${ordinal}`), 'SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION');
+    if (journeyId === 'J-16' || journeyId === 'J-18') {
+      const sourceStep = sourceStepsByJourney.get(journeyId)[ordinal - 1];
+      assert.equal((sourceStep.stepDefinitionSemantics?.transitionApplicability ?? sourceStep.transitionApplicability)?.status, 'TRANSITION_APPLICABILITY_UNRESOLVED',
+        'the exact P1 owner binding resolves the stale applicability marker without changing its authored contract');
+    }
+  }
+  const auditRow = (journeyId, stepOrdinal) => transitionAudit.rows.find((row) => row.journeyId === journeyId && row.stepOrdinal === stepOrdinal);
+  const projectedJourney = (journeyId) => model.journeys.find(({ id }) => id === journeyId);
+  const projectedRequests = [
+    { journeyId: 'J-20', ordinal: 5, stepId: 'J-20.step-05', actionRef: 'media.action.request-cancellation' },
+    { journeyId: 'J-20', ordinal: 6, stepId: 'J-20.step-06', actionRef: 'media.action.retry-job' },
+    { journeyId: 'J-29', ordinal: 4, stepId: 'present-bounded-return-state', actionRef: 'media.action.request-live-session-reconnect' },
+  ];
+  for (const expected of projectedRequests) {
+    const projected = projectedJourney(expected.journeyId)?.steps.find(({ stepId }) => stepId === expected.stepId);
+    const audit = auditRow(expected.journeyId, expected.ordinal);
+    assert.ok(projected, `${expected.journeyId} projected request step exists`);
+    assert.ok(audit, `${expected.journeyId} source row ${expected.ordinal} is in the transition audit`);
+    assert.deepEqual(projected.transitionRefs, [], `${expected.actionRef} request acceptance has no projected transition`);
+    assert.deepEqual(audit.projectedTransitionRefs, [], `${expected.actionRef} source row has no projected transition`);
+    assert.ok(projected.semantics?.actionRefs?.includes(expected.actionRef), `${expected.actionRef} remains the exact action identity`);
+    assert.equal(Object.hasOwn(projected, 'stateRef') || Object.hasOwn(projected, 'stateRefs'), false,
+      'request acceptance does not assert a resulting state');
+  }
+  assert.deepEqual(model.transitions.map(({ id }) => id), ['media.pdp3.transition.upload-receiving-to-verifying.v1']);
+  const requestStateClaims = projectedRequests.map(({ journeyId, stepId }) => {
+    const step = projectedJourney(journeyId).steps.find((candidate) => candidate.stepId === stepId);
+    return { stepId, transitionRefs: step.transitionRefs, stateRef: step.stateRef, stateRefs: step.stateRefs,
+      resultingStateRef: step.resultingStateRef, resultingStateRefs: step.resultingStateRefs };
+  });
+  assert.doesNotMatch(JSON.stringify(requestStateClaims), /CANCELLED|RUNNING|restored-session/iu,
+    'cancel/retry/reconnect requests have no resulting-state claim; their semantic stateRefs remain guards/eligibility bindings');
+  assert.match(phaseProjectionGenerator, /step\.stepDefinitionSemantics\?\.action\?\.transitionDisposition/u);
+  assert.match(phaseProjectionGenerator, /step\.stepDefinitionSemantics\?\.transitionDisposition/u);
+  assert.match(phaseProjectionGenerator, /step\.transitionApplicability/u);
+  assert.match(phaseProjectionGenerator, /step\.stepDefinitionSemantics\?\.transitionApplicability/u);
+  assert.match(phaseProjectionGenerator, /ownerStateDisposition\.includes\("SESSION_LOCAL_REVISION_ONLY; NO CANONICAL DOMAIN-STATE TRANSITION"\)/u);
+  assert.match(phaseProjectionGenerator, /p1OperationRef: ownerBinding\?\.operationRef/u);
+  assert.match(phaseProjectionGenerator, /p1OperationDefinitionRef: ownerBinding\?\.operationDefinitionRef/u);
+  assert.match(phaseProjectionGenerator, /p1StateRefs: ownerBinding\?\.stateRefs/u);
+  assert.match(phaseProjectionGenerator, /sourceTransitionDisposition: step\.transitionDisposition \?\? null/u,
+    'the source-authored top-level disposition and reason remain visible in projection audit rows');
+  assert.match(phaseProjectionGenerator, /unresolvedApplicableCommandCount/u);
+  assert.match(phaseProjectionGenerator, /step\.transitionRef == null/u);
+  assert.match(phaseProjectionGenerator, /if \(authored\.length > 0\) return "MIXED_OR_OTHER_SOURCE_DISPOSITION"/u,
+    'unknown authored source statuses fail closed as mixed/unresolved evidence');
+  assert.match(phaseProjectionGenerator, /request acceptance does not project CANCELLED, RUNNING, or restored state/u);
+  assert.doesNotMatch(phaseProjectionGenerator, /Other PDP-1 transition rows lack a complete operation\/action\/guard edge binding/u);
+  assert.deepEqual(['J-29/1', 'J-29/3'].map((key) => effectiveDispositionBySourceStep.get(key)),
+    ['SOURCE_BACKED_NO_TRANSITION', 'SOURCE_BACKED_NO_TRANSITION']);
+  assert.deepEqual(['J-29/2', 'J-29/4'].map((key) => effectiveDispositionBySourceStep.get(key)),
+    ['CONDITIONAL_OR_REQUEST_OBSERVATION', 'CONDITIONAL_OR_REQUEST_OBSERVATION']);
+});
+
 test('PDP-3 interactions inherit preconditions from their exact referenced action source', () => {
   const actions = new Map(actionRegistry.actions.map((action) => [action.id, action]));
   const projected = new Map(model.interactions.map((interaction) => [interaction.id, interaction]));
@@ -255,17 +514,16 @@ test('PDP-3 interactions inherit preconditions from their exact referenced actio
   assert.equal(specification.candidateMappingReview.fieldDispositions.interactions.status, 'DIRECT_INTERACTION_AND_ACTION_PRECONDITION_MAPPING');
 });
 
-test('PDP-3 report retains only genuinely unresolved specification mappings', () => {
+test('PDP-3 report has no unresolved field mappings while owner review remains distinct', () => {
   const reportResult = spawnSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
     encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
   });
   assert.ok([0, 1].includes(reportResult.status), reportResult.stderr);
   const report = JSON.parse(reportResult.stdout);
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
-  assert.equal(pdp3.unresolvedFieldCount, 5);
-  assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), [
-    'actions', 'effects', 'finality', 'journeys', 'transitions',
-  ]);
+  assert.equal(pdp3.unresolvedFieldCount, 0);
+  assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), []);
+  assert.ok(pdp3.ownerReviewPendingFields.includes('journeys'));
   assert.equal(specification.acceptance, 'NOT_CLAIMED');
   assert.match(specification.candidateMappingReview.ownerDecisionStatus, /PENDING/);
 });
@@ -346,10 +604,14 @@ test('PDP-3 action/effect candidate projection preserves original census, review
   const historicalIds = allActions.flatMap((action) => action.actionDefinitionSemantics?.publicEffect ? [action.actionDefinitionSemantics.publicEffect.id] : []).sort();
   assert.deepEqual(historicalIds, ['media.effect.attach-source-version', 'media.effect.create-empty-project', 'media.effect.register-caption-version']);
   assert.deepEqual(model.effects.filter(({ id }) => historicalIds.includes(id)).map(({ id }) => id).sort(), historicalIds);
-  const blocker = specification.fieldMappingBlockers.find(({ field }) => field === 'effects');
-  assert.match(blocker.status, /145[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
-  assert.match(blocker.status, /RUNTIME_AND_PHASE_ACCEPTANCE_PENDING/u);
-  assert.match(blocker.reasons.join(' '), /2 actions remain unmapped/u);
+  assert.equal(specification.fieldMappingBlockers.find(({ field }) => field === 'effects'), undefined,
+    'every applicable action has an exact effect disposition; unadmitted handoffs remain explicit in the source mapping');
+  assert.equal(specification.fieldMappingBlockers.find(({ field }) => field === 'actions'), undefined);
+  assert.equal(specification.fieldMappingBlockers.find(({ field }) => field === 'finality'), undefined);
+  assert.match(specification.candidateMappingReview.fieldDispositions.effects.status, /145[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.effects.status, /RUNTIME_AND_PHASE_ACCEPTANCE_PENDING/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.actions.status, /TWO_SHARED_HANDOFFS_EXPLICITLY_UNADMITTED_EXTERNAL_OWNER_ROLES/u);
+  assert.match(specification.candidateMappingReview.fieldDispositions.finality.status, /145[_ ]BOUNDED[_ ]ENUM[_ ]CANDIDATES/u);
 });
 
 test('PDP-3 scenarios and fixture descriptors require exact state, journey, and simulation-source links', async () => {

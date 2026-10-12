@@ -138,9 +138,13 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Scene entities/material/camera/light and model bindings
-        result: null
+        result: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.scene-entities replaced; committed media objects are unchanged and no remote dispatch occurs."
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-14.step-01.v1/effect
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-14.step-01.v1/finality
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Measurements/passes and any animation/render remain traceable to
@@ -209,11 +213,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Measurements/passes and any animation/render remain traceable to
-            domain model and declared fidelity.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-14.step-01.v1
+          summary: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.scene-entities replaced; committed media objects are unchanged and no remote dispatch occurs."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -240,11 +242,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.add-scene-entity
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Measurements/passes and any animation/render remain traceable to
-              domain model and declared fidelity.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-14.step-01.v1
+            summary: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.scene-entities replaced; committed media objects are unchanged and no remote dispatch occurs."
           effect: Change only the current local draft or selection; keep committed source
             and versioned objects unchanged until a separately specified commit.
           finality: local-draft-only; not-a-committed-result
@@ -456,9 +456,11 @@ steps:
           evidence.
       stepSourceFacts:
         intent: Initial conditions, domain fidelity, time control and instruments
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-simulation-result; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Measurements/passes and any animation/render remain traceable to
@@ -527,11 +529,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Measurements/passes and any animation/render remain traceable to
-            domain model and declared fidelity.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-simulation-result; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -578,11 +578,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-simulation-result
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Measurements/passes and any animation/render remain traceable to
-              domain model and declared fidelity.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-simulation-result; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read the result and declared measurements for the exact simulation run;
             distinguish missing, partial, and unavailable evidence.
           finality: read-only; no-write-finality
@@ -679,7 +677,8 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-14.j-14.step-02
     capabilityRefs: []
   - view: media.view.review-quality
     legacyViewRef: M-QUALITY
@@ -799,9 +798,11 @@ steps:
         noMutationReason: read-version-bound-source-and-processing-lineage
       stepSourceFacts:
         intent: Applicable dimensions, abstentions, defects and repair plan
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Measurements/passes and any animation/render remain traceable to
@@ -867,11 +868,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Measurements/passes and any animation/render remain traceable to
-            domain model and declared fidelity.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -898,11 +897,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Measurements/passes and any animation/render remain traceable to
-              domain model and declared fidelity.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -1134,9 +1131,11 @@ steps:
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
       stepSourceFacts:
         intent: Snapshot/profile, validation, cost and submission
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-render; fields requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt; finality: only durable job admission is confirmed; render completion and delivery require separate observations; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Measurements/passes and any animation/render remain traceable to
@@ -1204,11 +1203,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Measurements/passes and any animation/render remain traceable to
-            domain model and declared fidelity.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-render; fields requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt; finality: only durable job admission is confirmed; render completion and delivery require separate observations; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1254,11 +1251,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-render
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Measurements/passes and any animation/render remain traceable to
-              domain model and declared fidelity.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-render; fields requestId, logicalJobId, sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt; finality: only durable job admission is confirmed; render completion and delivery require separate observations; no unstated downstream effect or journey completion is implied."
           effect: Request the explicitly named operation for the exact target only after
             fresh actor, capability, policy, and target checks.
           finality: external-effect-or-request; owner-acknowledgment-required;
@@ -1279,7 +1274,8 @@ steps:
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        status: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED
+        reason: The PDP-1 command contract describes a processing request and exact job/attempt state scope, but its receipt does not assert QUEUED, RUNNING, or a later result; owner state observation is required, and no initial aggregate edge is declared.
         transitionRef: null
         stateRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-job

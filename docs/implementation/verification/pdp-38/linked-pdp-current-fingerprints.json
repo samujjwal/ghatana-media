@@ -15,7 +15,18 @@
     },
     {
       "path": ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml",
-      "sha256": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
+      "sha256": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
+      "priorCurrentObservationSha256": "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a",
+      "observationDelta": {
+        "comparisonBaseCommit": "b3ded8cf5eaf1ac960ec1f280a09ea2d4847de38",
+        "currentSourceCommit": "a89157cb349812f9c510a844d52751f571b185e0",
+        "changedFields": [
+          ".personas/@id=media.persona.campaign-producer/context",
+          ".personas/@id=media.persona.archive-restorer/context"
+        ],
+        "migrationDisposition": "keep-stale-needs-claim-level-reconciliation",
+        "acceptanceEffect": "none"
+      },
       "historicalAddedSpan": [
         28,
         107
@@ -26,7 +37,21 @@
     },
     {
       "path": ".product-experience/pdp-0-product-truth/constitution.yaml",
-      "sha256": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
+      "sha256": "adde6bb5e9b0b67637e411b557b54e4a9110da7d383436209022f73b38fcd67b",
+      "priorCurrentObservationSha256": "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03",
+      "observationDelta": {
+        "comparisonBaseCommit": "b3ded8cf5eaf1ac960ec1f280a09ea2d4847de38",
+        "currentSourceCommit": "a89157cb349812f9c510a844d52751f571b185e0",
+        "changedFields": [
+          ".status",
+          ".contractRealizationRule.knownGaps/0",
+          ".requirements/0..31/normativeFieldRefs"
+        ],
+        "normativeRecordCount": 32,
+        "fieldBindingCountPerRecord": 12,
+        "migrationDisposition": "keep-stale-needs-claim-level-reconciliation",
+        "acceptanceEffect": "none"
+      },
       "historicalAddedSpan": [
         19,
         65

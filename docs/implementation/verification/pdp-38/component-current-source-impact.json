@@ -197,6 +197,34 @@
   ],
   "supportingReviewArtifactRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json",
   "supportingReviewArtifactSha256": "a597387dff0b49118cf552ee0ccb487d48edad52eec5fcb8228366768734061a",
+  "postReviewCurrentSourceDelta": {
+    "status": "SOURCE_BYTES_RECONCILED_ONLY; NO_SEMANTIC_REVIEW_OR_ACCEPTANCE",
+    "priorSourceSha256": "e5ae2177fe08fe5ffe69ec7e47eb2d9446c792f35a3cb659c8c257f31b08bc93",
+    "currentSourceSha256": "6bcd90f59bee7df018bcbff57776fa53290e22eac1cf18519c4759551d71bb63",
+    "addedFields": [
+      {
+        "jsonPointer": "/components/6/typedDefinition/positiveFixture/sourceTime/originRef",
+        "value": "origin-source-1"
+      },
+      {
+        "jsonPointer": "/components/6/typedDefinition/positiveFixture/timebaseRef/originRef",
+        "value": "origin-source-1"
+      },
+      {
+        "jsonPointer": "/components/8/typedDefinition/positiveFixture/sourceTimebaseRef/originRef",
+        "value": "origin-source-1"
+      },
+      {
+        "jsonPointer": "/components/16/typedDefinition/positiveFixture/timebaseRef/originRef",
+        "value": "origin-composition-1"
+      },
+      {
+        "jsonPointer": "/components/17/typedDefinition/positiveFixture/timebaseRef/originRef",
+        "value": "origin-timeline-1"
+      }
+    ],
+    "acceptanceEffect": "none; current source-byte delta only, with no semantic review, component admission, Lifecycle proof, or phase acceptance"
+  },
   "wholeTaskCriterionEstablished": false,
   "nativeLifecycleReceipt": null,
   "acceptanceEffect": "none; current source impact review only"

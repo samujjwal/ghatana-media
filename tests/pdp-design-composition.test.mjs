@@ -45,7 +45,9 @@ test("all 47 selected screen compositions resolve central patterns, layouts, com
     assert.deepEqual(validateComposition(contract), [], `${view.id} composition source must be structurally complete against central PDP-2 grammar`);
     assert.equal(contract.validation?.status, "proposal-validation-pending-owner-review", `${view.id} stays a candidate, not an admitted screen`);
     assert.equal(contract.verification?.status, "not-run", `${view.id} cannot claim rendered or keyboard acceptance`);
-    assert.equal(contract.responsiveBehavior.status, "proposal-unverified", `${view.id} keeps viewport verification open`);
+    assert.equal(contract.responsiveBehavior.status,
+      "P2 layout responsive rule bound; screen-specific overrides empty; rendering verification NOT_RUN",
+      `${view.id} keeps viewport verification open`);
   }
 });
 

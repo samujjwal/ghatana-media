@@ -17,9 +17,24 @@ const sharedRoot = resolve(root, "../ghatana");
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 const sha256 = (text) => createHash("sha256").update(text).digest("hex");
+function eventPlaneStoredId(callerEventId) {
+  const bytes = createHash("md5").update(callerEventId, "utf8").digest();
+  bytes[6] = (bytes[6] & 0x0f) | 0x30;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = bytes.toString("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
 
 function source() {
   return parse(read(".product-experience/pdp-1-domain-data/events.yaml"));
+}
+
+function evidenceSource() {
+  return parse(read(".product-experience/pdp-1-domain-data/evidence.yaml"));
+}
+
+function provenanceSource() {
+  return parse(read(".product-experience/pdp-1-domain-data/provenance.yaml"));
 }
 
 function sample() {
@@ -29,6 +44,7 @@ function sample() {
     payloadFingerprint: "a".repeat(64), publisherAuthorityRef: ".product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/@id=media.event-contract.media-job-completed/producer",
     lookupAuthorityRef: "../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get/x-ghatana-security",
   };
+  expected.storedEventId = eventPlaneStoredId(expected.eventId);
   const queryId = "read-event-7";
   const now = "2026-10-09T12:00:00.000Z";
   const requestFingerprint = sha256(JSON.stringify([expected.tenantId, expected.streamId, expected.eventId, queryId, expected.lookupAuthorityRef]));
@@ -91,6 +107,13 @@ test("P1-08 binds the exact public Event Plane append and lookup dependency with
   const exactLookupRequirement = service.requirements.find(({ id }) => id === "EVT-EXACT-LOOKUP-001");
   assert.equal(append.operationId, "appendStreamEvent");
   assert.equal(append.responses["201"].content["application/json"].schema.$ref, "#/components/schemas/AppendEventResponse");
+  const appendReceipt = api.components.schemas.AppendEventResponse;
+  const eventRecord = api.components.schemas.EventRecord;
+  assert.deepEqual(appendReceipt.required, ["eventId", "storedEventId", "streamId", "offset"]);
+  assert.ok(eventRecord.required.includes("callerEventId"));
+  assert.ok(eventRecord.required.includes("eventId"), "EventRecord.eventId is the stored UUID, separate from callerEventId");
+  assert.match(protocol.eventPlaneDependency.requiredAppendReceipt.acceptanceRule, /storedEventId.*stable UUID mapping/u);
+  assert.match(protocol.eventPlaneDependency.exactLookup.matchingRecordRule, /callerEventId.*stable UUID mapping/u);
   assert.equal(exactLookup.operationId, "getStreamEvent");
   assert.deepEqual(exactLookup["x-ghatana-security"].requiredPermissions, ["event-plane:event:read"]);
   assert.match(protocol.eventPlaneDependency.exactLookup.authorityRef, /events~1\{eventId\}\/get\/x-ghatana-security$/u);
@@ -98,6 +121,9 @@ test("P1-08 binds the exact public Event Plane append and lookup dependency with
   assert.equal(append["x-ghatana-idempotency"].required, false);
   assert.match(append["x-ghatana-idempotency"].reason, /must not automatically retry/u);
   assert.equal(protocol.eventPlaneDependency.contractMismatch.disposition.includes("MUST NOT automatically repeat"), true);
+  const handler = readFileSync(resolve(sharedRoot, "services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java"), "utf8");
+  assert.match(handler, /eventId\(stableUuid\(callerEventId\)\)/u);
+  assert.match(handler, /return UUID\.nameUUIDFromBytes\(callerEventId\.getBytes\(StandardCharsets\.UTF_8\)\)/u);
 });
 
 test("P1-08 outbox eligibility requires one exact same-transaction tenant/event/fingerprint/version tuple", () => {
@@ -162,6 +188,7 @@ test("P1-08 ambiguous append remains UNKNOWN until an exact current trusted look
     exactLookup(expected, binding, { readReceipt: { ...exactLookup(expected, binding).readReceipt, currentness: "STALE" } }),
     exactLookup(expected, binding, { readReceipt: { ...exactLookup(expected, binding).readReceipt, authorityRef: "foreign-authority" } }),
     exactLookup(expected, { ...binding, tenantId: "tenant-b" }),
+    exactLookup(expected, { ...binding, storedEventId: "a37fdc71-11a7-4e36-a772-809c438f10f4" }),
     exactLookup(expected, { ...binding, payloadFingerprint: "b".repeat(64) }),
     exactLookup(expected, binding, { queryBinding: { ...exactLookup(expected, binding).queryBinding, eventId: "foreign-event" } }),
     exactLookup(expected, binding, { readReceipt: { ...exactLookup(expected, binding).readReceipt, observedAt: "2026-02-30T00:00:00Z" } }),
@@ -177,7 +204,16 @@ test("P1-08 exact append receipts and all nine event identities fail closed on c
   const contracts = events.ownerEventContracts;
   assert.equal(contracts.records.length, 9);
   assert.equal(contracts.notificationRecords.length, 15);
+  const protocol = contracts.deliveryProtocol;
+  assert.equal(protocol.eventPlaneDependency.executionAdmission, "NOT_ADMITTED");
+  assert.equal(protocol.externalOwnerReviewRequest.status, "PENDING_SHARED_CONTRACT_RECONCILIATION");
   for (const contract of contracts.records) {
+    assert.match(contract.durability.delivery, /conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation/u,
+      `${contract.id} conditions delivery on the accepted dependency contract`);
+    assert.match(contract.durability.delivery, /consumer deduplicates duplicate observations/u,
+      `${contract.id} preserves duplicate handling`);
+    assert.match(contract.durability.delivery, /no current delivery guarantee/u,
+      `${contract.id} makes no present delivery claim`);
     assert.match(contract.durability.dispatch, /do not issue another append until the published Event Plane contract explicitly permits safe replay/u,
       `${contract.id} preserves the Shared retry boundary`);
     assert.equal(contract.executionAdmission, "NOT_ADMITTED");
@@ -189,7 +225,7 @@ test("P1-08 exact append receipts and all nine event identities fail closed on c
     assert.match(notification.finality, /not a domain event/u);
   }
   const { expected, binding } = sample();
-  const response = { eventId: expected.eventId, storedEventId: "a37fdc71-11a7-4e36-a772-809c438f10f4", streamId: expected.streamId, offset: "11" };
+  const response = { eventId: expected.eventId, storedEventId: expected.storedEventId, streamId: expected.streamId, offset: "11" };
   assert.deepEqual(evaluateMediaEventDelivery({ expected, append: { status: 201, response, authorityRef: expected.publisherAuthorityRef, trustedRequestBinding: binding } }), {
     disposition: "EVENT_PLANE_ACCEPTED", source: "EXACT_APPEND_RECEIPT",
   });
@@ -197,6 +233,7 @@ test("P1-08 exact append receipts and all nine event identities fail closed on c
     { ...response, eventId: "other-event" },
     { ...response, streamId: "other-stream" },
     { ...response, storedEventId: "not-a-uuid" },
+    { ...response, storedEventId: "a37fdc71-11a7-4e36-a772-809c438f10f4" },
     { ...response, offset: "-1" },
   ]) {
     assert.equal(evaluateMediaEventDelivery({ expected, append: { status: 201, response: altered, authorityRef: expected.publisherAuthorityRef, trustedRequestBinding: binding } }).disposition, "UNKNOWN_QUARANTINE");
@@ -210,4 +247,31 @@ test("P1-08 exact append receipts and all nine event identities fail closed on c
   assert.equal(evaluateMediaEventDelivery({ expected, append: { status: 401, authorityRef: expected.publisherAuthorityRef, trustedRequestBinding: binding } }).disposition, "NOT_ACCEPTED_RETAIN_INTENT");
   assert.equal(new Set(contracts.records.map(({ eventType }) => eventType)).size, 9);
   assert.equal(new Set(contracts.notificationRecords.map(({ eventName }) => eventName)).size, 15);
+});
+
+test("P1-08 distinguishes Event Plane append acceptance evidence from consumer effect", () => {
+  const events = source();
+  const evidence = evidenceSource().eventEvidenceBindings.eventPlaneAcceptanceEvidence;
+  const provenance = provenanceSource().eventProvenanceObservations;
+  const observed = events.observedEnvelope.lifecyclePublisherInventory.records;
+  const provenanceBindings = provenance.eventBindings.records;
+  const evidenceBindings = evidenceSource().eventEvidenceBindings.eventBindings.records;
+  assert.equal(provenance.eventBindings.status, "proposal-only; pending-owner-review");
+  assert.equal(new Set(provenanceBindings.map(({ eventType }) => eventType)).size, 9);
+  assert.equal(new Set(evidenceBindings.map(({ eventType }) => eventType)).size, 9);
+  for (const event of observed) {
+    const provenanceBinding = provenanceBindings.find(({ eventType }) => eventType === event.eventType);
+    const evidenceBinding = evidenceBindings.find(({ eventType }) => eventType === event.eventType);
+    assert.equal(provenanceBinding?.sourceRef, event.sourceRef, `${event.eventType} lineage candidate points to its observed source`);
+    assert.equal(evidenceBinding?.sourceObservationCandidate, event.sourceRef, `${event.eventType} evidence candidate points to its observed source`);
+    assert.match(evidenceBinding?.evidenceAvailable ?? "", /source-observation/u);
+    assert.equal(evidenceBinding?.finalityAndDelivery, "unavailable");
+  }
+  assert.equal(evidence.status, "OWNER_DEFINED_DEFINITION_ONLY; runtime-receipt-evidence-unavailable");
+  assert.deepEqual(evidence.requiredReceiptFields, ["eventId", "storedEventId", "streamId", "offset"]);
+  assert.equal(evidence.proves, "exact-matched-record-accepted-by-Event-Plane-append");
+  assert.ok(evidence.doesNotProve.includes("consumer-processed"));
+  assert.ok(evidence.doesNotProve.includes("downstream-effect-committed"));
+  assert.equal(evidence.executionAdmission, "NOT_ADMITTED");
+  assert.match(evidenceSource().eventEvidenceBindings.publicationAttemptEvidence, /discards the append response body/u);
 });

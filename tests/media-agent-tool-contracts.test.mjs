@@ -189,6 +189,19 @@ test("each handler input/error source drift is rejected independently", () => {
   }
 });
 
+test("observed authoring inputs match exact handler defaults, bounds, and closed-field behavior", () => {
+  const registry = registryText();
+  const tts = getBlock(registry, "av.text-to-speech");
+  const vision = getBlock(registry, "av.vision-analysis");
+  const multimodal = getBlock(registry, "av.multimodal-inference");
+  assert.ok(sources["TextToSpeechToolHandler.java"].includes('AgentToolInput.requiredString(input, "text", 10_000)'));
+  assert.match(tts, /over-10000-character text/u);
+  assert.ok(sources["VisionAnalysisToolHandler.java"].includes('input.getOrDefault("analysisTypes", List.of("OBJECT_DETECTION"))'));
+  assert.match(vision, /name: analysisTypes, type: List<String>, presence: optional, default: \[OBJECT_DETECTION\]/u);
+  assert.ok(sources["MultimodalInferenceToolHandler.java"].includes('Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode")'));
+  assert.match(multimodal, /unknown top-level fields/u);
+});
+
 test("registry distinguishes pre-dispatch local failures from ambiguous post-dispatch outcomes", () => {
   for (const definition of definitions) {
     const source = sources[definition.source];

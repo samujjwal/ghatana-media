@@ -5,14 +5,22 @@
   "sources": {
     "qualityPolicy": {
       "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-      "currentSha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d"
+      "currentSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770"
     },
     "capabilities": {
       "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "currentSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+      "currentSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
       "capabilityCount": 462,
       "identityField": "id"
     }
+  },
+  "currentSourceRefresh": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-153",
+    "priorSourceSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+    "currentSourceSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    "fieldRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength/minimum",
+    "assessment": "Only the upload declaredByteLength minimum changed from 0 to 1. The quality applicability joins over capability identities and input/output artifact types remain unchanged; the full current-source crosswalk regression revalidates those joins.",
+    "acceptanceEffect": "none"
   },
   "reviewedPopulation": {
     "capabilityRows": 462,
@@ -116,12 +124,13 @@
   },
   "currentSourceChecks": [
     "462 unique crosswalk capabilityRef values join exactly to the frozen 462 capability ids",
-    "Each crosswalk inputArtifactTypes and outputArtifactTypes array exactly equals its capability inputArtifactTypes and outputArtifactTypes",
+    "Each crosswalk inputArtifactTypes and outputArtifactTypes array exactly equals its capability inputArtifactTypes and outputArtifactTypes arrays; applicable media metric subjectInputArtifactTypes resolve to the current exact P0 media subject input.",
     "Every crosswalk row contains a disposition for all six dimensions and all sixteen metrics",
     "Every metric measurementState and qualificationState is NOT_EVALUATED",
     "P0 crosswalk includes no PDP-1 operation, schema, or domain-object dependency",
     "The 26 exact typed video identity subjects, including the direct identity assessor input, are APPLICABLE with the authorized video-or-frame-reference condition; measurement and qualification remain NOT_EVALUATED.",
-    "Authorized speaker identification binds its typed authorized-speaker-reference input and purpose/consent authority in the exact P0 quality applicability row."
+    "Authorized speaker identification binds its typed authorized-speaker-reference input and purpose/consent authority in the exact P0 quality applicability row.",
+    "The PXD-142 projection refresh changes no dimension/metric applicability, measurement, qualification, or channel disposition."
   ],
   "historicalBoundary": {
     "historicalComparison": "NOT_ASSERTED",
@@ -201,5 +210,23 @@
     "measurementState": "NOT_EVALUATED",
     "qualificationState": "NOT_EVALUATED",
     "rationale": "Exact P0 typed candidate/derived video outputs make the metric applicable; reference authorization/alignment remains a conditional evaluation prerequisite and no P1 schema binding is an applicability gate."
+  },
+  "historicalSourceSnapshots": {
+    "supersededCurrentReviewSha256": "28e455e427859439a2cbf9b284a8eb2e6a522a8bbb0e3aec9a7183accfe4d885",
+    "supersededCapabilitySha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+    "qualityPolicySha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+    "note": "Preserves the previously reviewed PXD-141 capability and PXD-098/PXD-105 quality-policy source cut as history; current input-type projection differences are scoped by the additive PXD-142 correction review."
+  },
+  "correctionOverlay": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-142",
+    "artifactPath": "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
+    "artifactSha256": "0fbfa4af3150238d67be9e968d9f3aa4c9e06ad42a36ce55998c374331c30a4a",
+    "correctedCapabilityIds": [
+      "media.project.source-asset.attach",
+      "media.artifact.derive",
+      "media.artifact.output.register"
+    ],
+    "qualityApplicabilityDecisionsChanged": false,
+    "channelApplicabilityDecisionsChanged": false
   }
 }

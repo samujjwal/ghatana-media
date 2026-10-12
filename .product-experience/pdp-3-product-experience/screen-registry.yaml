@@ -644,35 +644,22 @@ coverage:
   currentContractObservation:
     status: source-inventory-only; semantic-acceptance-pending
     canonicalScreenContractCount: 47
-    templateId:
-      recordedExactCatalogIdCandidates: 47
-      unresolvedOrNull: 0
-      acceptance: 47 exact top-level composition-link approvals; no screen admission
-    layoutIds:
-      recordedExactCatalogIdCandidates: 47
-      empty: 0
-      acceptance: 47 exact top-level composition-link approvals; no screen admission
-    tokenDependencies:
-      empty: 47
-      blocker: screen-specific-token-dependencies-are-not-bound
-    domainObjectRefs:
-      empty: 47
-      blocker: PDP-1-domain-records-remain-proposal-only-and-screen-bindings-are-not-declared
-    operationRefs:
-      empty: 47
-      blocker: action-to-operation-and-effect-bindings-remain-unresolved
-    stateRefs:
-      empty: 47
-      blocker: canonical-PDP-1-screen-state-bindings-remain-unresolved
-    actionConsequences:
-      total: 182
-      withBoundOperation: 0
-      withBoundEffect: 0
-      pending: 182
-    verification:
-      notRun: 47
-      accepted: 0
-    evidenceBasis: parsed-screen-contract-directory; counts-are-inventory-only-and-do-not-establish-behavior-design-acceptance-or-currentness
+    templateId: {recordedExactCatalogIdCandidates: 47, unresolvedOrNull: 0, acceptance: "47 owner-approved composition links; no screen admission"}
+    layoutIds: {recordedExactCatalogIdCandidates: 47, empty: 0, acceptance: "47 owner-approved composition links; no screen admission"}
+    recipeIds: {exactP2RecipeBindings: 47, missing: 0, admission: PENDING}
+    componentIds: {exactP2ComponentCatalogBindings: 47, dangling: 0, bindingAcceptance: PENDING}
+    tokenDependencies: {empty: 46, status: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY on screens without overrides; PDP-2 component contracts own internal styling"}
+    domainObjectRefs: {empty: 1, status: "Empty only where exact action and linked journey sources declare no screen domain object; explicit NO_APPLICABLE includes a negative case"}
+    operationRefs: {empty: 1, status: "Empty only where exact action and linked journey steps declare no Media operation; explicit NO_APPLICABLE includes a negative case"}
+    stateRefs: {empty: 40, status: "Canonical PDP-1 state refs are separate from displayed local states; per-view display-state mapping is source-linked"}
+    actionConsequences: {total: 182, withBoundOperation: 131, withBoundEffect: 182, pending: 0}
+    entryExit: {empty: 0, sourceBound: 47, status: "Entry guards and exit effect/finality/recovery are bound to exact action definitions; runtime NOT_ADMITTED"}
+    responsiveRules: {exactSelectedLayoutRules: 47, globalRuleRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, verification: NOT_RUN}
+    keyboardSemantics: {exactAccessibilityRuleRefs: 47, sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence, verification: NOT_RUN}
+    displayStateBindings: {exactViewDispositionRefs: 47, unresolved: 0}
+    fixtures: {empty: 32, exactStepBoundScreens: 15, unlinkedScreenProposalRefs: 12, previewBoundary: "P3-B/P3-F definition-only previews may have no scenario fixture; unlinked refs do not establish screen-step coverage"}
+    verification: {notRun: 47, accepted: 0}
+    evidenceBasis: "Parsed screen contracts and exact P2/P1/P3 source crosswalks; counts are inventory-only and do not establish behavior/design acceptance, runtime admission, or currentness"
 compositionLinkOwnerReview:
   decision: MEDIA_OWNER_APPROVED_COMPOSITION_LINKS_ONLY
   decisionRef: .product-experience/decision-log.md#PXD-037

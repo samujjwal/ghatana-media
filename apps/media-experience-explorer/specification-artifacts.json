@@ -161,6 +161,13 @@
     "title": "README"
   },
   {
+    "artifactId": "ART-P1-INTERFACE-CURRENT-SOURCE-REVIEW",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/interface-parity/current-source-review.json",
+    "title": "Current Source Review"
+  },
+  {
     "artifactId": "ART-GOV-INTERFACE-OPERATION-PARITY",
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
@@ -462,6 +469,13 @@
     "title": "Evidence"
   },
   {
+    "artifactId": "ART-P1-CANONICAL-DOMAIN-HANDOFFS",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
+    "title": "Handoff Contracts"
+  },
+  {
     "artifactId": "ART-MEDIA-6B1179C045DD",
     "authorityClass": "DOMAIN_DATA_AUTHORITY",
     "phase": "PDP-1",
@@ -474,6 +488,13 @@
     "phase": "PDP-1",
     "path": ".product-experience/pdp-1-domain-data/offline-sync.yaml",
     "title": "Offline Sync"
+  },
+  {
+    "artifactId": "ART-P1-OPERATION-CURRENT-SOURCE-REVIEW",
+    "authorityClass": "DOMAIN_DATA_AUTHORITY",
+    "phase": "PDP-1",
+    "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
+    "title": "Operations Current Source Review"
   },
   {
     "artifactId": "ART-MEDIA-A8AB9C932FE9",
@@ -873,6 +894,13 @@
     "phase": "PDP-2",
     "path": ".product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml",
     "title": "Catalog"
+  },
+  {
+    "artifactId": "ART-P2-DESIGN-INTERFACE-HANDOFFS",
+    "authorityClass": "DESIGN_INTERFACE_AUTHORITY",
+    "phase": "PDP-2",
+    "path": ".product-experience/pdp-2-design-interface-system/handoff-contracts.yaml",
+    "title": "Handoff Contracts"
   },
   {
     "artifactId": "ART-P2-CROSS-CHANNEL-INTERFACE-GRAMMAR",

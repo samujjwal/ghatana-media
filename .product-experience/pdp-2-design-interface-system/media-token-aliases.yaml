@@ -56,7 +56,7 @@ sharedPublicContract:
     method: Compile-time-and-runtime-resolution-of-each-authored-semanticColorRoles-path-through-the-isolated-packed-public-@ghatana/tokens/semantic-roles-export
     status: PASS_LOCAL_SOURCE_SNAPSHOT_ONLY
     observedAt: '2026-10-08'
-    limitations: [registry-publication-unverified, immutable-release-binding-unverified, Shared-owner-review-pending, visual-and-accessibility-acceptance-pending, CSS-recipe-variable-and-unit-bridge-unresolved]
+    limitations: [registry-publication-unverified, immutable-release-binding-unverified, Shared-owner-review-pending, visual-and-accessibility-acceptance-pending]
     packagingReproducibility:
       package: "@ghatana/design-system"
       sourceRepository: samujjwal/ghatana-shared
@@ -113,14 +113,29 @@ aliases:
     purpose: communicate a verified completed product outcome
     sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.success"
     darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.success"
+    currentCssConsumer:
+      publicExport: "@ghatana/tokens/tokens.css"
+      lightCssVariable: --gh-colors-palette-success-main
+      darkCssVariable: --gh-colors-palette-success-light
+      usedBy: libs/audio-video-ui/src/styles.css#media-progress--success
   - id: media.token.state.in-progress
     purpose: communicate current bounded work without implying completion
     sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.info"
     darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.info"
+    currentCssConsumer:
+      publicExport: "@ghatana/tokens/tokens.css"
+      lightCssVariable: --gh-colors-palette-info-700
+      darkCssVariable: --gh-colors-palette-info-light
+      usedBy: libs/audio-video-ui/src/styles.css#media-progress--info
   - id: media.token.state.needs-review
     purpose: communicate a human decision or uncertainty that blocks acceptance
     sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.warning"
     darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.warning"
+    currentCssConsumer:
+      publicExport: "@ghatana/tokens/tokens.css"
+      lightCssVariable: --gh-colors-palette-warning-main
+      darkCssVariable: --gh-colors-palette-warning-light
+      usedBy: libs/audio-video-ui/src/styles.css#media-progress--warning
   - id: media.token.state.blocked
     purpose: communicate a missing precondition and the next safe action
     sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.warning"
@@ -145,3 +160,267 @@ aliases:
     purpose: distinguish derived, editable, or reviewable output from source material
     sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.surfaceElevated"
     darkModeEquivalent: "@ghatana/tokens/semantic-roles#semanticColorRoles.dark.surfaceElevated"
+
+# Exact public CSS-variable contract consumed by libs/audio-video-ui. These
+# records bind Shared variables and Media semantic aliases separately so a
+# numeric Shared geometry token is never confused with a CSS length. The
+# source is the pinned Shared development snapshot; this is not release or
+# owner acceptance.
+cssVariableBindings:
+  sourcePackage: "@ghatana/tokens"
+  publicExport: "@ghatana/tokens#./tokens.css"
+  sourceRepository: samujjwal/ghatana-shared
+  sourceRevision: c6d182af472c8954438f219c08d0202d1faa63a3
+  sourceSemanticAuthority: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens
+  consumerStylesheet: libs/audio-video-ui/src/styles.css
+  resolutionStatus: VERIFIED_AGAINST_PINNED_PUBLIC_SOURCE_SNAPSHOT; registry-publication-and-immutable-release-pending
+  typeRules:
+    typographyFontSize: CSS-length-rem-from-Shared-semantic-typography; preserve-user-text-zoom
+    typographyLineHeight: unitless-ratio-from-Shared-semantic-typography
+    typographyFontWeight: unitless-number-from-Shared-semantic-typography
+    geometry: finite-numeric-CSS-pixel-value-from-Shared-semantic-geometry; Media-adapter-multiplies-by-1px-exactly-once
+  bindings:
+    - id: media.shared-css.typography.body.font-size
+      cssVariable: --gh-semantic-typography-body-font-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-body-font-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.body.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.body.font-size
+    - id: media.shared-css.typography.body.line-height
+      cssVariable: --gh-semantic-typography-body-line-height
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-body-line-height"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.body.lineHeight
+      valueType: unitless-ratio
+      consumerBinding: media.token.css.typography.body.line-height
+    - id: media.shared-css.typography.body.font-weight
+      cssVariable: --gh-semantic-typography-body-font-weight
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-body-font-weight"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.body.fontWeight
+      valueType: unitless-number
+      consumerBinding: direct-public-variable-use
+    - id: media.shared-css.typography.page-title.font-size
+      cssVariable: --gh-semantic-typography-page-title-font-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-page-title-font-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.pageTitle.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.page-title.font-size
+    - id: media.shared-css.typography.page-title.line-height
+      cssVariable: --gh-semantic-typography-page-title-line-height
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-page-title-line-height"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.pageTitle.lineHeight
+      valueType: unitless-ratio
+      consumerBinding: media.token.css.typography.page-title.line-height
+    - id: media.shared-css.typography.section-title.font-size
+      cssVariable: --gh-semantic-typography-section-title-font-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-section-title-font-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.sectionTitle.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.section-title.font-size
+    - id: media.shared-css.typography.section-title.font-weight
+      cssVariable: --gh-semantic-typography-section-title-font-weight
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-section-title-font-weight"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.sectionTitle.fontWeight
+      valueType: unitless-number
+      consumerBinding: media.token.css.typography.section-title.font-weight
+    - id: media.shared-css.typography.supporting.font-size
+      cssVariable: --gh-semantic-typography-supporting-font-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-supporting-font-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.supporting.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.supporting.font-size
+    - id: media.shared-css.typography.supporting.line-height
+      cssVariable: --gh-semantic-typography-supporting-line-height
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-supporting-line-height"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.supporting.lineHeight
+      valueType: unitless-ratio
+      consumerBinding: media.token.css.typography.supporting.line-height
+    - id: media.shared-css.typography.metadata.font-size
+      cssVariable: --gh-semantic-typography-metadata-font-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-metadata-font-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.metadata.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.metadata.font-size
+    - id: media.shared-css.typography.button.font-size
+      cssVariable: --gh-semantic-typography-button-font-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-typography-button-font-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.button.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.button.font-size
+    - id: media.shared-css.geometry.gutter.compact
+      cssVariable: --gh-semantic-geometry-gutter-compact
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-geometry-gutter-compact"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry.gutter.compact
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.gutter.compact
+    - id: media.shared-css.geometry.gutter.standard
+      cssVariable: --gh-semantic-geometry-gutter-standard
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-geometry-gutter-standard"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry.gutter.standard
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.gutter.standard
+    - id: media.shared-css.geometry.gutter.comfortable
+      cssVariable: --gh-semantic-geometry-gutter-comfortable
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-geometry-gutter-comfortable"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry.gutter.comfortable
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.gutter.comfortable
+    - id: media.shared-css.geometry.section-rhythm.compact
+      cssVariable: --gh-semantic-geometry-section-rhythm-compact
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-geometry-section-rhythm-compact"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry.sectionRhythm.compact
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.section-rhythm.compact
+    - id: media.shared-css.geometry.section-rhythm.standard
+      cssVariable: --gh-semantic-geometry-section-rhythm-standard
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-geometry-section-rhythm-standard"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry.sectionRhythm.standard
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.section-rhythm.standard
+    - id: media.shared-css.geometry.section-rhythm.comfortable
+      cssVariable: --gh-semantic-geometry-section-rhythm-comfortable
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-semantic-geometry-section-rhythm-comfortable"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.geometry.sectionRhythm.comfortable
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.section-rhythm.comfortable
+    - id: media.shared-css.geometry.interactive-target.minimum
+      cssVariable: --gh-breakpoints-touch-targets-minimum
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-breakpoints-touch-targets-minimum"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/breakpoints.ts#touchTargets.minimum
+      valueType: finite-number-css-pixels
+      consumerBinding: media.token.css.geometry.interactive-target.minimum
+    - id: media.shared-css.color.state.completed.light
+      cssVariable: --gh-colors-palette-success-main
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-colors-palette-success-main"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.light.success
+      valueType: CSS-color
+      consumerBinding: media.token.state.completed#light-css-role
+    - id: media.shared-css.color.state.completed.dark
+      cssVariable: --gh-colors-palette-success-light
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-colors-palette-success-light"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.dark.success
+      valueType: CSS-color
+      consumerBinding: media.token.state.completed#dark-css-role
+    - id: media.shared-css.color.state.in-progress.light
+      cssVariable: --gh-colors-palette-info-700
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-colors-palette-info-700"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.light.info
+      valueType: CSS-color
+      consumerBinding: media.token.state.in-progress#light-css-role
+    - id: media.shared-css.color.state.in-progress.dark
+      cssVariable: --gh-colors-palette-info-light
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-colors-palette-info-light"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.dark.info
+      valueType: CSS-color
+      consumerBinding: media.token.state.in-progress#dark-css-role
+    - id: media.shared-css.color.state.needs-review.light
+      cssVariable: --gh-colors-palette-warning-main
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-colors-palette-warning-main"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.light.warning
+      valueType: CSS-color
+      consumerBinding: media.token.state.needs-review#light-css-role
+    - id: media.shared-css.color.state.needs-review.dark
+      cssVariable: --gh-colors-palette-warning-light
+      publicCssRef: "@ghatana/tokens/tokens.css#--gh-colors-palette-warning-light"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.dark.warning
+      valueType: CSS-color
+      consumerBinding: media.token.state.needs-review#dark-css-role
+    - id: media.token.css.typography.body.font-size
+      cssVariable: --media-font-body
+      sharedCssVariableRef: --gh-semantic-typography-body-font-size
+      valueType: CSS-length-rem
+      projection: unchanged-public-CSS-length
+    - id: media.token.css.typography.body.line-height
+      cssVariable: --media-line-body
+      sharedCssVariableRef: --gh-semantic-typography-body-line-height
+      valueType: unitless-ratio
+      projection: unchanged-unitless-ratio
+    - id: media.token.css.typography.page-title.font-size
+      cssVariable: --media-font-page-title
+      sharedCssVariableRef: --gh-semantic-typography-page-title-font-size
+      valueType: CSS-length-rem
+      projection: unchanged-public-CSS-length
+    - id: media.token.css.typography.page-title.line-height
+      cssVariable: --media-line-title
+      sharedCssVariableRef: --gh-semantic-typography-page-title-line-height
+      valueType: unitless-ratio
+      projection: unchanged-unitless-ratio
+    - id: media.token.css.typography.section-title.font-size
+      cssVariable: --media-font-section-title
+      sharedCssVariableRef: --gh-semantic-typography-section-title-font-size
+      valueType: CSS-length-rem
+      projection: unchanged-public-CSS-length
+    - id: media.token.css.typography.section-title.font-weight
+      cssVariable: --media-weight-emphasis
+      sharedCssVariableRef: --gh-semantic-typography-section-title-font-weight
+      valueType: unitless-number
+      projection: unchanged-unitless-number
+    - id: media.token.css.typography.supporting.font-size
+      cssVariable: --media-font-supporting
+      sharedCssVariableRef: --gh-semantic-typography-supporting-font-size
+      valueType: CSS-length-rem
+      projection: unchanged-public-CSS-length
+    - id: media.token.css.typography.metadata.font-size
+      cssVariable: --media-font-metadata
+      sharedCssVariableRef: --gh-semantic-typography-metadata-font-size
+      valueType: CSS-length-rem
+      projection: unchanged-public-CSS-length
+    - id: media.token.css.typography.button.font-size
+      cssVariable: --media-font-button
+      sharedCssVariableRef: --gh-semantic-typography-button-font-size
+      valueType: CSS-length-rem
+      projection: unchanged-public-CSS-length
+    - id: media.token.css.typography.supporting.line-height
+      cssVariable: --media-line-supporting
+      sharedCssVariableRef: --gh-semantic-typography-supporting-line-height
+      valueType: unitless-ratio
+      projection: unchanged-unitless-ratio
+    - id: media.token.css.geometry.gutter.compact
+      cssVariable: --media-space-compact
+      sharedCssVariableRef: --gh-semantic-geometry-gutter-compact
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.geometry.gutter.standard
+      cssVariable: --media-space-standard
+      sharedCssVariableRef: --gh-semantic-geometry-gutter-standard
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.geometry.gutter.comfortable
+      cssVariable: --media-space-comfortable
+      sharedCssVariableRef: --gh-semantic-geometry-gutter-comfortable
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.geometry.section-rhythm.compact
+      cssVariable: --media-rhythm-compact
+      sharedCssVariableRef: --gh-semantic-geometry-section-rhythm-compact
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.geometry.section-rhythm.standard
+      cssVariable: --media-rhythm-standard
+      sharedCssVariableRef: --gh-semantic-geometry-section-rhythm-standard
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.geometry.section-rhythm.comfortable
+      cssVariable: --media-rhythm-comfortable
+      sharedCssVariableRef: --gh-semantic-geometry-section-rhythm-comfortable
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.geometry.interactive-target.minimum
+      cssVariable: --media-interactive-target
+      sharedCssVariableRef: --gh-breakpoints-touch-targets-minimum
+      valueType: CSS-length-px
+      projection: calc-Shared-numeric-CSS-pixel-value-times-1px
+    - id: media.token.css.color.state.completed
+      cssVariable: --media-color-state-completed
+      sharedCssVariableRef: --gh-colors-palette-success-main
+      valueType: CSS-color
+      projection: exact-public-light-dark-role-variables-selected-by-host-mode
+    - id: media.token.css.color.state.in-progress
+      cssVariable: --media-color-state-in-progress
+      sharedCssVariableRef: --gh-colors-palette-info-700
+      valueType: CSS-color
+      projection: exact-public-light-dark-role-variables-selected-by-host-mode
+    - id: media.token.css.color.state.needs-review
+      cssVariable: --media-color-state-needs-review
+      sharedCssVariableRef: --gh-colors-palette-warning-main
+      valueType: CSS-color
+      projection: exact-public-light-dark-role-variables-selected-by-host-mode

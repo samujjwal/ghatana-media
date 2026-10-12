@@ -112,6 +112,7 @@ describe("Media contract screen composition", () => {
     expect(element.type).toBe(MediaContractScreen);
     const html = renderToStaticMarkup(React.createElement(MediaProductRenderer, { kind: "contract-screen", ...props }));
     expect(html).toContain("Authenticate And Select Context");
+    expect(html).toContain("Definition-only preview candidate. Product route not admitted.");
     expect(html).toContain("context-denied");
     expect(html).toContain("media.view.find-projects");
     expect(html).toContain("Context was denied.");
@@ -128,6 +129,7 @@ describe("Media contract screen composition", () => {
       context,
     });
     const invalidHtml = renderToStaticMarkup(invalid);
+    expect(invalidHtml).toContain("Definition-only preview candidate. Product route not admitted.");
     expect(invalidHtml).toContain("does not match its source contract");
     expect(invalidHtml).not.toContain("Return</button>");
 

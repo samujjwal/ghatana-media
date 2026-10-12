@@ -18,11 +18,13 @@ tokenDependencies: []
 domainObjectRefs:
   - media.domain.caption-version
   - media.domain.artifact-version
+  - media.domain.artifact
 operationRefs:
   - media.operation.caption-version-read
   - media.operation-slice.inspect-provenance
 requirementRefs:
   - MEDIA-REQ-CAP-ARTIFACT
+  - MEDIA-REQ-CAP-PROVENANCE
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
 entry:
@@ -49,9 +51,11 @@ actionConsequences:
     capabilityRefs:
       - media.artifact.inspect
       - media.artifact.provenance.export
+      - media.provenance.source-lineage.inspect
     requirementRefs:
       - MEDIA-REQ-CAP-ARTIFACT
-    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+      - MEDIA-REQ-CAP-PROVENANCE
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
       PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation-slice.inspect-provenance
     operationRefs:
@@ -64,12 +68,19 @@ actionConsequences:
       - current-read-authority
     failureRecovery: disclose-missing-provenance-fields
     status: Media-owner-definition; runtime NOT_ADMITTED
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    confirmationDisposition: NOT_REQUIRED
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.compare-caption-versions
     capabilityRefs:
       - media.artifact.inspect
     requirementRefs:
       - MEDIA-REQ-CAP-ARTIFACT
-    referenceBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
       PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation.caption-version-read
     operationRefs:
@@ -83,16 +94,35 @@ actionConsequences:
       - two-caption-versions-readable
     failureRecovery: label-source-mismatch-or-incomplete-comparison-explicitly
     status: Media-owner-definition; runtime NOT_ADMITTED
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    confirmationDisposition: UNRESOLVED
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    runtimeAdmission: NOT_ADMITTED
 responsiveBehavior:
   reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
   screenSpecificOverrides: []
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.review
+      responsiveRule: Keep compared version identities adjacent to comparison content
+        at every width.
 fixtures:
   refs:
     - media.scenario.caption-version-comparison
     - media.scenario.caption-source-mismatch
-  status: linked-to-deterministic-simulation-seeds;
-    owner-review-and-behavior-verification-pending
+  status: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
+  sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.caption-version-comparison.v1
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.caption-source-mismatch.v1
+    - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/7
+  unlinkedScreenFixtureRefs: []
+  negativeCases:
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
 verification:
   status: not-run
   evidenceRefs: []
@@ -111,17 +141,24 @@ fieldBindingStatus:
     source playback, paired result comparison, and provenance; renderer and
     acceptance pending
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
-  tokenDependencies: unresolved-no-direct-canonical-reference
-  domainObjectRefs: unresolved-no-direct-canonical-reference
-  operationRefs: unresolved-no-direct-canonical-reference
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
-  entry: unresolved-no-direct-canonical-reference
-  exit: unresolved-no-direct-canonical-reference
-  actionConsequences: pending-owner-operation-and-effect-binding
-  responsiveBehavior: proposal-unverified; PDP-2-acceptance-pending
-  fixtures: source-proposal; behavior-unverified
+  entry: Exact action-registry typed-definition guards in actionConsequences.guardRefs; runtime NOT_ADMITTED
+  exit: Exact action-registry typed-definition effects, finality, and recovery in actionConsequences; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
   verification: not-run; no-evidence-refs
+  recipeIds: Exact P2 recipe media.gui.recipe.review-and-compare; runtime NOT_ADMITTED
+entryBindingStatus: Exact action-registry typed-definition guards in actionConsequences.guardRefs; runtime NOT_ADMITTED
+exitBindingStatus: Exact action-registry typed-definition effects, finality, and recovery in actionConsequences; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.compare-caption-versions
 status: proposal; human-review-pending
@@ -209,3 +246,21 @@ authorityRefs: []
 recoveryRefs:
   - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinition
   - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.compare-caption-versions/actionDefinitionSemantics/typedDefinition
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.review-and-compare
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.review-and-compare template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.compare-caption-versions

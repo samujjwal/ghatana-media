@@ -103,6 +103,50 @@ test('all 146 PDP-3 actions retain exact authored actor, guard, effect, finality
       assert.equal(semantics.publicEffect, undefined, `${action.id} must not coerce conditional/unknown reversibility`);
       assert.equal(semantics.publicFinality, undefined, `${action.id} must not coerce conditional/unknown undoability`);
     }
+    if (envelope.classificationBasis?.includes('without-an-exact-registered-operation-reference')) {
+      assert.deepEqual(envelope.exactOperationRefs, [], `${action.id} cannot claim no exact registered reference while declaring exact operation refs`);
+    }
+  }
+
+  const exactOperationClassification = 'source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED';
+  const correctedBoundActionIds = [
+    'media.action.attach-source-asset',
+    'media.action.apply-authorized-rights-restriction',
+    'media.action.continue-within-recorded-scope',
+    'media.action.deliver-exact-version',
+    'media.action.export-authorized-provenance',
+    'media.action.record-authorized-attestation',
+    'media.action.record-candidate-for-review',
+    'media.action.record-review-comment',
+    'media.action.record-review-follow-up',
+    'media.action.record-version-review-decision',
+    'media.action.request-admitted-speech-operation',
+    'media.action.request-authorized-review',
+    'media.action.request-cancellation',
+    'media.action.request-plan-validation',
+    'media.action.request-rights-review',
+    'media.action.retry-job',
+    'media.action.restore-prior-setting-preference',
+    'media.action.revoke-authorized-consent',
+    'media.action.save-dubbing-version',
+    'media.action.save-new-revision',
+    'media.action.save-setting-preference',
+    'media.action.save-storyboard-revision',
+    'media.action.save-versioned-edit',
+    'media.action.share-diagnostics-after-explicit-choice',
+    'media.action.stop-authorized-voice-use',
+    'media.action.submit-admitted-plan',
+    'media.action.submit-render',
+    'media.action.submit-simulation',
+    'media.action.submit-validated-request',
+  ];
+  assert.equal(correctedBoundActionIds.length, 29);
+  for (const actionId of correctedBoundActionIds) {
+    const action = actionById.get(actionId);
+    assert.ok(action, `${actionId} must remain in the PDP-3 action registry`);
+    const envelope = action.actionDefinitionSemantics.sourceEnvelope;
+    assert.ok(envelope.exactOperationRefs?.length > 0, `${actionId} must retain its exact operation binding`);
+    assert.equal(envelope.classificationBasis, exactOperationClassification, `${actionId} classification must accurately preserve the transport/runtime boundary`);
   }
 
   const retry = actionById.get('media.action.retry-job');

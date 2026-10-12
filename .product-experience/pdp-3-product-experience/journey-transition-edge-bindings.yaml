@@ -251,7 +251,6 @@ records:
         when:
           all:
             - fact: tenant.matches
-            - fact: retryBudgetAvailable
             - fact: policyCurrent
             - fact: authorityCurrent
             - fact: outcome.media.job.cancelled.supported
@@ -264,7 +263,6 @@ records:
         when:
           all:
             - fact: tenant.matches
-            - fact: retryBudgetAvailable
             - fact: policyCurrent
             - fact: authorityCurrent
             - fact: outcome.media.job.failed.supported
@@ -277,7 +275,6 @@ records:
         when:
           all:
             - fact: tenant.matches
-            - fact: retryBudgetAvailable
             - fact: policyCurrent
             - fact: authorityCurrent
             - fact: outcome.media.job.outcome.unknown.supported
@@ -1380,6 +1377,7 @@ records:
           all:
             - fact: tenant.matches
             - fact: copyInventoryComplete
+            - fact: hold.absent
             - fact: erasure.externalCopyUnconfirmed
     exactJourneyBindings: []
     journeyActionDisposition: NO_EXACT_P3_JOURNEY_TRANSITION_REF; DO_NOT_INFER_ACTION_FROM_STATE_OR_OPERATION_NAMES
@@ -1424,7 +1422,11 @@ records:
           all:
             - fact: tenant.matches
             - fact: deletionEvidenceRecorded
-            - fact: erasure.allControlledCopiesConfirmed
+            - fact: hold.absent
+            - all:
+                - fact: erasure.allControlledCopiesConfirmed
+                - not:
+                    fact: erasure.externalCopyUnconfirmed
       - id: media.transition-edge-binding.media-upload-and-artifact-t08.02.v1
         edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/1
         fromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
@@ -1446,6 +1448,7 @@ records:
           all:
             - fact: tenant.matches
             - fact: deletionEvidenceRecorded
+            - fact: hold.absent
             - fact: erasure.externalCopyUnconfirmed
     exactJourneyBindings: []
     journeyActionDisposition: NO_EXACT_P3_JOURNEY_TRANSITION_REF; DO_NOT_INFER_ACTION_FROM_STATE_OR_OPERATION_NAMES
@@ -1498,6 +1501,7 @@ records:
           all:
             - fact: tenant.matches
             - fact: holdReleaseOrBoundaryEvidence
+            - fact: hold.absent
             - fact: erasure.externalCopyUnconfirmed
     exactJourneyBindings: []
     journeyActionDisposition: NO_EXACT_P3_JOURNEY_TRANSITION_REF; DO_NOT_INFER_ACTION_FROM_STATE_OR_OPERATION_NAMES

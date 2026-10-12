@@ -4,7 +4,8 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
-import { analyzeContractParity, collectLiveInput, discoverSdkSourceFiles, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkOpenApiDispositions, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
+import { createHash } from "node:crypto";
+import { analyzeContractParity, canonicalOperationAcceptance, collectLiveInput, discoverSdkSourceFiles, parseNotAdmittedSdkRoutes, parseSdkHttpCalls, parseSdkOpenApiDispositions, parseSdkRegistryMethods, validateTypedContractBindings } from "../scripts/check-media-contract-parity.mjs";
 
 const typedBindingFixture = {
   schemaVersion: "media.interface-parity.typed-contract-bindings.v1",
@@ -166,10 +167,20 @@ test("four SDK identities without OpenAPI routes have explicit NOT_ADMITTED pari
   for (const identity of unresolvedRouteMethods) {
     assert.equal(byIdentity.get(identity)?.disposition, "NOT_ADMITTED", `${identity} must stay outside OpenAPI binding`);
   }
-  assert.match(parity, /media\.sdk\.legacy\.AudioVideoClient\.transcribe[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
-  assert.match(parity, /media\.sdk\.legacy\.AudioVideoClient\.synthesize[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
-  assert.match(parity, /media\.sdk\.retryOperation[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
-  assert.match(parity, /media\.sdk\.getOperationResult[\s\S]*?semanticBinding: unresolved[\s\S]*?openApiBindingDisposition: NOT_ADMITTED/u);
+  const expectedSemanticBindings = new Map([
+    ["media.sdk.legacy.AudioVideoClient.transcribe", "legacy-provider-call-not-equivalent-to-transcript-version-operation"],
+    ["media.sdk.legacy.AudioVideoClient.synthesize", "legacy-provider-call-not-equivalent-to-canonical-synthesis"],
+    ["media.sdk.retryOperation", "not-admitted-to-current-media-runtime"],
+    ["media.sdk.getOperationResult", "legacy-unvalidated-result-observation-not-canonical-result"],
+  ]);
+  for (const [identity, semanticBinding] of expectedSemanticBindings) {
+    const identityBlock = parity.match(new RegExp(
+      `- identity: ${identity.replaceAll(".", "\\.")}\\n([\\s\\S]*?)(?=\\n- identity:|\\ntypedInterfaceIdentityDispositions:)`,
+      "u",
+    ))?.[1] ?? "";
+    assert.match(identityBlock, new RegExp(`semanticBinding: ${semanticBinding}`, "u"), `${identity} retains its source-backed semantic disposition`);
+    assert.match(identityBlock, /openApiBindingDisposition: NOT_ADMITTED/u, `${identity} remains outside OpenAPI binding`);
+  }
 
   const reconciled = analyzeContractParity(validStructuralInput({
     sdkOperationIds: unresolvedRouteMethods,
@@ -665,4 +676,159 @@ test("live source finding census keeps unresolved owner gaps and retired routes 
   assert.equal(result.retiredFindings.length, 5);
   assert.match(result.gaps.join("\n"), /Agent Tool structural inventory found 4 tools/u);
   assert.match(result.gaps.join("\n"), /PDP-1 operations remain proposal-only/u);
+});
+
+test("definition-only mode defers the pinned proposal inventory while retaining its diagnostics", () => {
+  const result = analyzeContractParity(collectLiveInput(), { mode: "definition-only" });
+  assert.equal(result.mode, "definition-only");
+  assert.equal(result.passed, true);
+  assert.equal(result.operationAcceptance.recordCount, 14);
+  assert.equal(result.operationAcceptance.unresolvedIds.length, 14, "proposal summaries remain visible as diagnostics");
+  assert.ok(result.deferredFindings.some(({ id, finding, reason }) => id === "pdp1-owner-acceptance-and-runtime-admission"
+    && finding.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")
+    && reason.includes("exact 14-row proposal inventory")));
+  assert.equal(result.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")), false);
+  assert.deepEqual(result.deferredFindings.map(({ id, status }) => [id, status]), [
+    ["agent-tool-runtime-and-shared-admission", "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION"],
+    ["pdp1-owner-acceptance-and-runtime-admission", "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION"],
+  ]);
+  assert.equal(result.semanticStatus, "UNRESOLVED", "the mode does not promote owner acceptance");
+  assert.equal(result.historicalUnresolvedCount, 2, "historical owner/runtime findings remain visible in the source census");
+  assert.equal(result.observedFindingCount, 47, "deferred findings remain in the observed census");
+});
+
+test("operation semantic denominator excludes owner rules and requires detailed exact coverage for each family summary", () => {
+  const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
+  const result = canonicalOperationAcceptance(operations);
+  assert.equal(result.recordCount, 14, "only the logical operations collection belongs in this denominator");
+  assert.deepEqual(result.unresolvedIds, [
+    "media.operation.artifact-ingest", "media.operation.job-lifecycle", "media.operation.transcription",
+    "media.operation.transcription-submission", "media.operation.transcript-version-read",
+    "media.operation.caption-draft-write", "media.operation.caption-version-write",
+    "media.operation.caption-version-read", "media.operation.synthesis", "media.operation.vision-analysis",
+    "media.operation.multimodal-analysis", "media.operation.stream-session", "media.operation.consent",
+    "media.operation.health-capability",
+  ]);
+
+  const semanticallyCompleteProposal = `operations:\n  - id: media.operation.example\n    operationKind: COMMAND\n    actionRefs: [media.action.example]\n    consumerActor: media-user\n    authority: media-owner\n    context: exact-tenant-context\n    preconditions: current-authorization-required\n    inputSemantics: exact-typed-request\n    effect: bounded-domain-effect\n    transition: exact-state-transition\n    events: exact-domain-event\n    risk: bounded-content-risk\n    reversibility: irreversible-effect-explicit\n    commitFinality: durable-receipt-only\n    downstreamEffects: explicit-no-inference\n    failure: typed-definitive-failure\n    partialSuccess: explicitly-disallowed\n    unknownOutcome: preserve-unknown-and-reconcile\n    retry: no-blind-replay\n    idempotency: exact-request-identity\n    recovery: inspect-exact-resource\n    scopeStatus: proposal-only; runtime-NOT_ADMITTED\nindividualOperationContracts:\n  records:\n    - id: media.operation-slice.example\n      sourceOperation: executeExample\n      sourceRef: exact-source-reference\n      requestIdentity: canonical-request-identity\n      stateBinding: exact-state-projection\n      outcomes: definitive-outcomes\n      authority: media-owner\n      preconditions: current-authorization-required\n      finality: durable-receipt-only\n      negativeCases: fail-closed-cases\n      ownerWireSchema: exact-closed-schema\n      actionIntentRefs: [media.action.example]\n      operationKind: COMMAND\nownerDefinedOperationContracts:\n  records: []\nownerNormativeRuleRecords:\n  - id: media.operation.non-operation-rule.v1\n    status: unresolved-rule-body\n`;
+  const complete = canonicalOperationAcceptance(semanticallyCompleteProposal);
+  assert.equal(complete.recordCount, 1);
+  assert.deepEqual(complete.unresolvedIds, [], "owner/runtime status and similarly prefixed rule IDs do not invalidate a complete, exactly covered operation");
+});
+
+test("definition-only mode still fails exact RPC/source identity, typed schema, and orphan disposition gaps", () => {
+  const input = collectLiveInput();
+  const missingRpc = analyzeContractParity({
+    ...input,
+    grpcRegistry: input.grpcRegistry.replace("    method: Transcribe", "    method: TranscribeRenamed"),
+  }, { mode: "definition-only" });
+  assert.equal(missingRpc.passed, false);
+  assert.ok(missingRpc.gaps.some((gap) => gap.includes("protobuf RPC missing from gRPC registry: STTService.Transcribe")));
+
+  const invalidTypedSchema = JSON.parse(input.typedContractBindings);
+  invalidTypedSchema.bindings.push({ ...invalidTypedSchema.bindings[0], schema: "OrphanSchema", type: "Orphan" });
+  const typeError = analyzeContractParity({ ...input, typedContractBindings: invalidTypedSchema }, { mode: "definition-only" });
+  assert.equal(typeError.passed, false);
+  assert.ok(typeError.gaps.some((gap) => gap.includes("duplicate type binding") || gap.includes("stale schema binding: OrphanSchema")));
+
+  const orphan = analyzeContractParity({
+    ...input,
+    sdkOpenApiDispositions: [...(input.sdkOpenApiDispositions ?? []), {
+      identity: "media.sdk.orphaned", disposition: "NOT_ADMITTED",
+    }],
+  }, { mode: "definition-only" });
+  assert.equal(orphan.passed, false);
+  assert.ok(orphan.gaps.some((gap) => gap.includes("stale SDK OpenAPI disposition has no current SDK identity: media.sdk.orphaned")));
+
+  const staleOperationPin = analyzeContractParity({
+    ...input,
+    pdp1Operations: `${input.pdp1Operations}\n# source changed after current review`,
+  }, { mode: "definition-only" });
+  assert.equal(staleOperationPin.passed, false);
+  assert.ok(staleOperationPin.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")));
+  assert.equal(staleOperationPin.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false);
+
+  const staleWirePin = analyzeContractParity({
+    ...input,
+    ownerActionWireContracts: `${input.ownerActionWireContracts}\n# wire source changed after current review`,
+  }, { mode: "definition-only" });
+  assert.equal(staleWirePin.passed, false);
+  assert.ok(staleWirePin.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")));
+  assert.equal(staleWirePin.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false);
+
+  const malformedOperations = input.pdp1Operations.replace("scopeStatus: proposal-only;", "scopeStatus: approved;");
+  const malformedReview = JSON.parse(input.operationCurrentSourceReview);
+  malformedReview.currentSourceSha256 = createHash("sha256").update(malformedOperations).digest("hex");
+  const malformedStatus = analyzeContractParity({
+    ...input,
+    pdp1Operations: malformedOperations,
+    operationCurrentSourceReview: JSON.stringify(malformedReview),
+  }, { mode: "definition-only" });
+  assert.equal(malformedStatus.passed, false);
+  assert.ok(malformedStatus.gaps.some((gap) => gap.startsWith("semantic binding unresolved:")));
+  assert.equal(malformedStatus.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false);
+
+  const wrongExecutionReferenceDecision = JSON.parse(input.operationCurrentSourceReview);
+  wrongExecutionReferenceDecision.currentSemanticReconciliation.records
+    .find(({ id }) => id === "media.operation-slice.inspect-provenance").decisionRef = ".product-experience/decision-log.md#PXD-146";
+  const unreviewedExecutionReference = analyzeContractParity({
+    ...input,
+    operationCurrentSourceReview: JSON.stringify(wrongExecutionReferenceDecision),
+  }, { mode: "definition-only" });
+  assert.equal(unreviewedExecutionReference.passed, false);
+  assert.ok(unreviewedExecutionReference.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")));
+  assert.equal(unreviewedExecutionReference.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false,
+    "the accepted definition-only deferment requires the exact reviewed PXD-152 decision");
+
+  const wrongJobSubmitDecision = JSON.parse(input.operationCurrentSourceReview);
+  wrongJobSubmitDecision.currentSemanticReconciliation.records
+    .find(({ id }) => id === "media.operation.job.submit.v1").decisionRef = ".product-experience/decision-log.md#PXD-152";
+  const unreviewedJobSubmitSchema = analyzeContractParity({
+    ...input,
+    operationCurrentSourceReview: JSON.stringify(wrongJobSubmitDecision),
+  }, { mode: "definition-only" });
+  assert.equal(unreviewedJobSubmitSchema.passed, false);
+  assert.ok(unreviewedJobSubmitSchema.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")));
+  assert.equal(unreviewedJobSubmitSchema.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false,
+    "the exact job-submit wrapper/canonical-schema reconciliation requires PXD-157");
+
+  const unreviewedRecoveryDecision = JSON.parse(input.operationCurrentSourceReview);
+  unreviewedRecoveryDecision.currentSemanticReconciliation.records
+    .find(({ id }) => id === "media.operation.stream-session.inspect-execution-recovery.v1").decisionRef = ".product-experience/decision-log.md#PXD-152";
+  const unreviewedRecovery = analyzeContractParity({
+    ...input,
+    operationCurrentSourceReview: JSON.stringify(unreviewedRecoveryDecision),
+  }, { mode: "definition-only" });
+  assert.equal(unreviewedRecovery.passed, false);
+  assert.ok(unreviewedRecovery.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")));
+  assert.equal(unreviewedRecovery.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false,
+    "the J-29 recovery definition requires its exact PXD-160 reconciliation");
+
+  for (const alterRecords of [
+    (records) => { records[9] = { ...records[9], id: records[8].id, selector: records[8].selector }; },
+    (records) => { records.splice(10, 1); records.push({ ...records[0] }); },
+  ]) {
+    const incompleteReview = JSON.parse(input.operationCurrentSourceReview);
+    alterRecords(incompleteReview.currentSemanticReconciliation.records);
+    const incompleteCoverage = analyzeContractParity({
+      ...input,
+      operationCurrentSourceReview: JSON.stringify(incompleteReview),
+    }, { mode: "definition-only" });
+    assert.equal(incompleteCoverage.passed, false);
+    assert.ok(incompleteCoverage.gaps.some((gap) => gap.startsWith("semantic binding unresolved: PDP-1 operations remain proposal-only")));
+    assert.equal(incompleteCoverage.deferredFindings.some(({ id }) => id === "pdp1-owner-acceptance-and-runtime-admission"), false,
+      "duplicate or missing semantic reconciliation records cannot satisfy the source review gate");
+  }
+
+  for (const result of [missingRpc, typeError, orphan]) {
+    assert.deepEqual(result.deferredFindings.map(({ id }) => id), [
+      "agent-tool-runtime-and-shared-admission",
+      "pdp1-owner-acceptance-and-runtime-admission",
+    ]);
+  }
+  for (const result of [staleOperationPin, staleWirePin, malformedStatus]) {
+    assert.deepEqual(result.deferredFindings.map(({ id }) => id), [
+      "agent-tool-runtime-and-shared-admission",
+    ]);
+  }
 });

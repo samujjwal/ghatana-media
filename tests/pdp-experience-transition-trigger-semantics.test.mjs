@@ -116,6 +116,7 @@ function flattenGuardFacts(node, sourcePrefix, path, output = []) {
   if (node.factRef) {
     output.push({ fact: node.fact, sourceRef: node.factRef });
   } else {
+    if (node.not) flattenGuardFacts(node.not, sourcePrefix, `${path}/not`, output);
     for (const operator of ["all", "any"]) {
       (node[operator] ?? []).forEach((child, index) => flattenGuardFacts(child, sourcePrefix, `${path}/${operator}/${index}`, output));
     }
@@ -306,6 +307,10 @@ function expectedGuardDecision(definition, factContractsByRef, receipts, trusted
   }
   const evaluate = (node) => {
     if (node?.factRef) return verdicts.get(node.factRef) === "SATISFIED" ? true : verdicts.get(node.factRef) === "DENIED" ? false : null;
+    if (node?.not) {
+      const value = evaluate(node.not);
+      return value === null ? null : !value;
+    }
     const op = Array.isArray(node?.all) ? "all" : Array.isArray(node?.any) ? "any" : null;
     if (!op || node[op].length === 0) return null;
     const values = node[op].map(evaluate);
@@ -343,6 +348,8 @@ test("all transition trigger definitions resolve exact guard facts, state endpoi
       function collect(node, path) {
         if (typeof node === "string" || node?.fact) {
           expectedFacts.push({ fact: typeof node === "string" ? node : node.fact, sourceRef: `${row.guardContractRef}/edgeRules/${index}/when/all/${path}` });
+        } else if (node?.not) {
+          collect(node.not, `${path}/not`);
         } else if (node?.all || node?.any) {
           for (const operator of ["all", "any"]) (node[operator] ?? []).forEach((child, childIndex) => collect(child, `${path}/${operator}/${childIndex}`));
         }
@@ -853,6 +860,19 @@ test("the remaining edge population has per-fact closed evidence schemas and der
     const expectedPositive = expectedGuardDecision(definition, contracts, factReceipts, trusted);
     assert.equal(evaluateMediaGuardFactReceiptSetDefinition({ definition, input, trusted, validateInputSchema: validate, factContractsByRef: contracts }).decision,
       expectedPositive === "APPLIED" ? "APPLIED_DEFINITION_ONLY" : expectedPositive, `${definition.id} derives only supported predicates and preserves unresolved ones`);
+
+    if (definition.transitionRef.endsWith("transitionRecords/@id=media-upload-and-artifact/T08") &&
+        definition.edgeRuleRef.endsWith("media-upload-and-artifact.t08/edgeRules/0")) {
+      const notNode = definition.guardExpression.all[3].all[1].not;
+      const negatedFact = definition.triggerGuardFacts.find(({ sourceRef }) => sourceRef === notNode.factRef);
+      const contract = contracts.get(negatedFact.factContractRef);
+      const receipt = input.factReceipts.find(({ factRef }) => factRef === negatedFact.sourceRef);
+      assert.equal(contract.valueKind, "UNRESOLVED_OWNER_PREDICATE", "the nested erasure fact has no source-supported resolved value contract");
+      assert.equal(receipt.value.observationDisposition, "UNKNOWN", "the fixture carries an explicit unresolved observation, not an owner assertion");
+      assert.equal(input.decision, "UNKNOWN", "NOT UNKNOWN remains UNKNOWN for the source-backed T08 erasure guard");
+      assert.equal(evaluateMediaGuardFactReceiptSetDefinition({ definition, input, trusted, validateInputSchema: validate, factContractsByRef: contracts }).decision,
+        "UNKNOWN", "negation preserves UNKNOWN instead of treating it as false");
+    }
 
     if (definition.triggerGuardFacts.some((fact) => contracts.get(fact.factContractRef)?.valueKind === "CURRENT_PER_EFFECT_CONSENT_SET")) {
       const consentReceipt = input.factReceipts.find((row) => contracts.get(row.contractRef)?.valueKind === "CURRENT_PER_EFFECT_CONSENT_SET");

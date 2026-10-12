@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "media.pdp38-pxd086-profile-source-observation.v1",
+  "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json",
+  "sourcePath": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+  "priorSourceCommit": "86f533c6b8abeb6bd88872f770669f4e9af2d08d",
+  "priorSourceFileSha256": "5aaefa570478dbc2250c274e890e29c7e550c45ceda5e29b6c9ebd9be4648424",
+  "currentSourceFileSha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
+  "changedClaim": {
+    "claimId": "MPSEM-0291-C009",
+    "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#bindingProfileRule",
+    "historicalTargetSha256": "22517b43debb68fa84ad63522a03cc14c32ed8c52b2ea7ae574a187c47c312bb",
+    "currentTargetSha256": "47148e7a5c9189c0e80aa5de633ae206a29c6af191c1c59bf502050949d3efd0",
+    "currentOwnerObservationRef": "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json#/records/@claimId=MPSEM-0291-C009",
+    "scopeStatusField": "scopeStatus",
+    "historicalOwnerValue": "OWNER_DEFINED_PROFILE_SEMANTICS; no binding or runtime qualification is claimed.",
+    "currentOwnerValue": "PDP-0_PROFILE_SEMANTICS_COMPLETE; exact bindings and runtime qualification are separate and not claimed.",
+    "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+    "acceptanceEffect": "none"
+  },
+  "scope": "The profile source is a later current cut. PXD-086 source/meaning snapshots remain immutable; the exact PXD-086 claims are checked individually, and this one target receives its separate current-value observation.",
+  "nonClaims": [
+    "No PXD-086 cohort expansion",
+    "No whole-task or phase acceptance",
+    "No runtime qualification or admission"
+  ],
+  "acceptanceEffect": "none",
+  "runtimeAdmission": "NOT_ADMITTED"
+}

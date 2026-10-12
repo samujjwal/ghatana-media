@@ -3,7 +3,7 @@ const I64_MIN=-(1n<<63n), I64_MAX=(1n<<63n)-1n;
 export const conversionContract = Object.freeze({
  version:'media.definition.temporal-spatial-conversion.v1',
  clockKinds:Object.freeze(['media','simulation','story']),
- tickBits:64,timeBaseBits:64,sampleRateBits:32,sampleCountBits:64,imageDimensionBits:32,
+ tickBits:64,timeBaseBits:64,sampleRateBits:32,sampleCountBits:64,frameCountBits:64,imageDimensionBits:32,
  rounding:Object.freeze(['exact','floor','ceil','nearest-ties-even']),
  pixelConvention:'pixel-boundary; top-left; right-down',
  pixelCenterConvention:'pixel-center-index; top-left; right-down; normalized=(index+1/2)/dimension',
@@ -20,7 +20,7 @@ const sub=(a,b)=>rational(a.n*b.d-b.n*a.d,a.d*b.d);
 const boundedInteger=(n,min,max)=>{if(typeof n!=='bigint'||n<min||n>max)throw new Error('INTEGER_RANGE_OR_EXACT_REPRESENTATION');return n;};
 function timeBase(base){boundedInteger(base?.numerator,1n,I64_MAX);boundedInteger(base?.denominator,1n,I64_MAX);return rational(base.numerator,base.denominator);}
 function clock(value){
- if(!conversionContract.clockKinds.includes(value?.clockKind)||typeof value.clockId!=='string'||!value.clockId||typeof value.streamId!=='string'||!value.streamId)throw new Error('EXPLICIT_MEDIA_CLOCK_AND_STREAM_REQUIRED');
+ if(!conversionContract.clockKinds.includes(value?.clockKind)||typeof value.clockId!=='string'||!value.clockId||typeof value.streamId!=='string'||!value.streamId||typeof value.originRef!=='string'||!value.originRef)throw new Error('EXPLICIT_MEDIA_CLOCK_STREAM_AND_ORIGIN_REQUIRED');
  boundedInteger(value.ticks,I64_MIN,I64_MAX);return timeBase(value.timeBase);
 }
 function rounded(value,mode){
@@ -35,17 +35,30 @@ function rounded(value,mode){
 }
 export function convertMediaTime(source,target){
  const from=clock(source);
- if(source.clockKind!==target?.clockKind||source.clockId!==target.clockId||source.streamId!==target.streamId)throw new Error('CLOCK_ALIGNMENT_REQUIRED');
+ if(source.clockKind!==target?.clockKind||source.clockId!==target.clockId||source.streamId!==target.streamId||source.originRef!==target.originRef)throw new Error('CLOCK_ALIGNMENT_REQUIRED');
  const to=timeBase(target.timeBase), exactTicks=rational(source.ticks*from.n*to.d,from.d*to.n);
  const ticks=boundedInteger(rounded(exactTicks,target.rounding),I64_MIN,I64_MAX);
  const discardedTicks=sub(exactTicks,rational(ticks));
- return {timestamp:{clockKind:source.clockKind,clockId:source.clockId,streamId:source.streamId,ticks,timeBase:{...target.timeBase}},
+ return {timestamp:{clockKind:source.clockKind,clockId:source.clockId,streamId:source.streamId,originRef:source.originRef,ticks,timeBase:{...target.timeBase}},
   loss:{lossless:discardedTicks.n===0n,rounding:target.rounding,discardedTicks,discardedSeconds:mul(discardedTicks,to)},
   provenance:{model:'media.definition.time-conversion.v1',sourceClock:source.clockId,sourceStream:source.streamId,sourceTimeBase:{...source.timeBase},targetTimeBase:{...target.timeBase},qualification:'NOT_EVALUATED'}};
 }
+// Constant-cadence frame boundaries map exactly; VFR positions must arrive as
+// explicit per-frame presentation timestamps and cannot use this constructor.
+export function constantRateFrameBoundaryToMediaTime({clockKind,clockId,streamId,originRef,frameIndex,frameCount,cadenceKind,frameRate}){
+ if(cadenceKind!=='CONSTANT_RATE')throw new Error('CONSTANT_RATE_FRAME_MAP_REQUIRED');
+ boundedInteger(frameIndex,0n,I64_MAX);boundedInteger(frameCount,0n,I64_MAX);
+ if(frameIndex>frameCount)throw new Error('FRAME_BOUNDARY_OUTSIDE_STREAM');
+ boundedInteger(frameRate?.numerator,1n,I64_MAX);boundedInteger(frameRate?.denominator,1n,I64_MAX);
+ const timeBase=rational(frameRate.denominator,frameRate.numerator);
+ const timestamp={clockKind,clockId,streamId,originRef,ticks:frameIndex,timeBase:{numerator:timeBase.n,denominator:timeBase.d}};
+ clock(timestamp);
+ return {...timestamp,
+  frameIndex,endpoint:frameIndex===frameCount?'half-open-end-boundary':'frame-start-boundary',qualification:'NOT_EVALUATED'};
+}
 export function timeToSample(source,{sampleRate,sampleCount,rounding}){
  boundedInteger(sampleRate,1n,(1n<<32n)-1n);boundedInteger(sampleCount,0n,I64_MAX);
- const converted=convertMediaTime(source,{clockKind:source.clockKind,clockId:source.clockId,streamId:source.streamId,timeBase:{numerator:1n,denominator:sampleRate},rounding});
+ const converted=convertMediaTime(source,{clockKind:source.clockKind,clockId:source.clockId,streamId:source.streamId,originRef:source.originRef,timeBase:{numerator:1n,denominator:sampleRate},rounding});
  if(converted.timestamp.ticks<0n||converted.timestamp.ticks>sampleCount)throw new Error('SAMPLE_BOUNDARY_OUTSIDE_STREAM');
  return {...converted,sampleIndex:converted.timestamp.ticks,endpoint:'half-open-boundary; sampleCount is end, not a sample'};
 }
@@ -81,4 +94,58 @@ export function convertPhysicalQuantity(value,fromUnit,toUnit){
  if(!Object.hasOwn(units,fromUnit)||!Object.hasOwn(units,toUnit))throw new Error('UNSUPPORTED_UNIT');
  const from=units[fromUnit],to=units[toUnit];if(from[0]!==to[0])throw new Error('INCOMPATIBLE_DIMENSION');
  return {value:mul(rational(value?.n,value?.d),rational(from[1]*to[2],from[2]*to[1])),unit:toUnit,dimension:to[0],lossless:true,qualification:'NOT_EVALUATED'};
+}
+
+const signedAxes=new Set(['+X','-X','+Y','-Y','+Z','-Z']);
+const requiredFrameFields=['frameRef','frameVersionRef','handedness','positionUnitRef','orientationUnitRef'];
+const requiredSignalScope=['providerRef','metricRef','metricVersionRef','methodRef','methodVersionRef','unitRef'];
+const nonemptyString=(v)=>typeof v==='string'&&v.trim().length>0;
+function exactKeys(value,required){
+ return Boolean(value&&typeof value==='object'&&!Array.isArray(value)
+  &&Object.keys(value).length===required.length&&required.every((key)=>Object.hasOwn(value,key)));
+}
+function frameDeclaration(frame){
+ if(!exactKeys(frame,['frameRef','frameVersionRef','handedness','axisDirections','positionUnitRef','orientationUnitRef']))throw new Error('SPATIAL_FRAME_FIELDS_NOT_CLOSED');
+ if(!frame||requiredFrameFields.some((key)=>!nonemptyString(frame[key])))throw new Error('SPATIAL_FRAME_DECLARATION_REQUIRED');
+ if(!['RIGHT_HANDED','LEFT_HANDED'].includes(frame.handedness))throw new Error('SPATIAL_HANDEDNESS_REQUIRED');
+ if(!exactKeys(frame.axisDirections,['x','y','z']))throw new Error('SPATIAL_AXIS_DIRECTIONS_NOT_CLOSED');
+ if(!frame.axisDirections||!['x','y','z'].every((axis)=>signedAxes.has(frame.axisDirections[axis])))throw new Error('SPATIAL_AXIS_DIRECTIONS_REQUIRED');
+ if(new Set(Object.values(frame.axisDirections).map((axis)=>axis.slice(1))).size!==3)throw new Error('SPATIAL_AXIS_BASIS_MUST_BE_ORTHOGONAL');
+ const directions=['x','y','z'].map((axis)=>frame.axisDirections[axis]);
+ const permutation=directions.map((axis)=>'XYZ'.indexOf(axis[1]));
+ let inversions=0;for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)if(permutation[i]>permutation[j])inversions++;
+ const sign=(inversions%2===0?1:-1)*directions.reduce((product,axis)=>product*(axis[0]==='+'?1:-1),1);
+ const determinantHandedness=sign===1?'RIGHT_HANDED':'LEFT_HANDED';
+ if(frame.handedness!==determinantHandedness)throw new Error('SPATIAL_HANDEDNESS_AXIS_PARITY_MISMATCH');
+ return frame;
+}
+const registryGet=(registry,key)=>registry instanceof Map?registry.get(key):registry?.[key];
+const stableJson=(value)=>Array.isArray(value)?`[${value.map(stableJson).join(',')}]`
+ :value&&typeof value==='object'?`{${Object.keys(value).sort().map((key)=>`${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`
+ :JSON.stringify(value);
+const sameJson=(a,b)=>stableJson(a)===stableJson(b);
+
+// Validates an explicitly registered declaration only. It never computes or applies a transform.
+export function validateSpatialTransformDeclaration(declaration,registries){
+ if(!exactKeys(declaration,['transformPlanRef','sourceFrame','targetFrame','orderedOperations','mappingRef','lossDisposition']))throw new Error('SPATIAL_TRANSFORM_FIELDS_NOT_CLOSED');
+ if(!declaration||!nonemptyString(declaration.transformPlanRef)||!nonemptyString(declaration.mappingRef))throw new Error('SPATIAL_TRANSFORM_PLAN_AND_MAPPING_REQUIRED');
+ if(!Array.isArray(declaration.orderedOperations)||declaration.orderedOperations.length===0||declaration.orderedOperations.some((v)=>!nonemptyString(v)))throw new Error('SPATIAL_TRANSFORM_ORDER_REQUIRED');
+ if(!nonemptyString(declaration.lossDisposition))throw new Error('SPATIAL_TRANSFORM_LOSS_DISPOSITION_REQUIRED');
+ if(!Array.isArray(registries?.lossDispositions)||!registries.lossDispositions.includes(declaration.lossDisposition))throw new Error('UNKNOWN_SPATIAL_TRANSFORM_LOSS_DISPOSITION');
+ const source=frameDeclaration(declaration.sourceFrame),target=frameDeclaration(declaration.targetFrame);
+ const registeredSource=registryGet(registries?.frames,source.frameVersionRef),registeredTarget=registryGet(registries?.frames,target.frameVersionRef);
+ if(!registeredSource||!registeredTarget)throw new Error('UNKNOWN_SPATIAL_FRAME_VERSION');
+ if(!sameJson(source,registeredSource)||!sameJson(target,registeredTarget))throw new Error('SPATIAL_FRAME_DESCRIPTOR_MISMATCH');
+ const registeredPlan=registryGet(registries?.transformPlans,declaration.transformPlanRef);
+ if(!registeredPlan)throw new Error('UNKNOWN_SPATIAL_TRANSFORM_PLAN');
+ const expected={sourceFrameRef:source.frameVersionRef,targetFrameRef:target.frameVersionRef,orderedOperations:declaration.orderedOperations,mappingRef:declaration.mappingRef,lossDisposition:declaration.lossDisposition};
+ if(!sameJson(expected,registeredPlan))throw new Error('SPATIAL_TRANSFORM_PLAN_MISMATCH');
+ return {status:'DECLARED_NOT_APPLIED',transformPlanRef:declaration.transformPlanRef,mappingRef:declaration.mappingRef,sourceFrameVersionRef:source.frameVersionRef,targetFrameVersionRef:target.frameVersionRef,orderedOperations:[...declaration.orderedOperations],lossDisposition:declaration.lossDisposition,qualification:'NOT_EVALUATED'};
+}
+
+export function providerSignalsShareDeclaredScope(left,right){
+ for(const signal of [left,right]){
+  if(!signal||!['CONFIDENCE','SIMILARITY'].includes(signal.signalKind)||requiredSignalScope.some((key)=>!nonemptyString(signal[key]))||typeof signal.value!=='number'||!Number.isFinite(signal.value))throw new Error('SCOPED_PROVIDER_SIGNAL_REQUIRED');
+ }
+ return left.signalKind===right.signalKind&&requiredSignalScope.every((key)=>left[key]===right[key]);
 }

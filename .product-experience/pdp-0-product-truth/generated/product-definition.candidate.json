@@ -133,8 +133,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/authority.yaml",
-      "sha256": "a40189894bdd006daed947a783b2a3e5d52b85890260301182fc467892ebb248",
-      "bytes": 19236,
+      "sha256": "0f3b6cd8ffdc48f2fbb8adbeaaf8e61d7de93752f45972bcba90e700201cb6c0",
+      "bytes": 19524,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.authority.v1",
       "authority": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -179,8 +179,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml",
-      "sha256": "8ee7825e7f24b4a7a1333959d46794c2b6e32819d937522c87e38d792b419ce1",
-      "bytes": 41676,
+      "sha256": "c5b4fb181a6353baf0517975235f0f28767b425efc06959f54cbe4f74866aa92",
+      "bytes": 51456,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.privacy.v1",
       "authority": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
@@ -219,6 +219,7 @@
         "media.privacy.classification",
         "media.privacy.consent",
         "media.privacy.erasure-inventory-and-tombstone.v1",
+        "media.privacy.erasure-outcome-classifier.v1",
         "media.privacy.external-copy-revocation-boundary.v1",
         "media.privacy.locality-egress",
         "media.privacy.managed-content-classes.v1",
@@ -2662,7 +2663,7 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
-      "sha256": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+      "sha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
       "bytes": 27371,
       "format": "yaml",
       "schemaVersion": "media.profile-semantics.v1",
@@ -2866,8 +2867,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-      "sha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
-      "bytes": 7875129,
+      "sha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      "bytes": 7878414,
       "format": "yaml",
       "schemaVersion": "media.capabilities.v1",
       "authority": "prospective-Phase-0-definition; not runtime authority or qualification evidence",
@@ -3410,8 +3411,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
-      "sha256": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
-      "bytes": 7587987,
+      "sha256": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+      "bytes": 7592295,
       "format": "yaml",
       "schemaVersion": "media.capability-leaf-review.v1",
       "authority": null,
@@ -4907,8 +4908,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-      "sha256": "7f9ca297a5f56148e08e18de181cf29a23ba724ea7ed965044455f0ab51694ae",
-      "bytes": 194381,
+      "sha256": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+      "bytes": 219748,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.domain-objects.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -4919,6 +4920,7 @@
         "canonicalIdentityAdjudication",
         "canonicalRelationshipAdjudication",
         "objects",
+        "ownerDefinedLogicalSemantics",
         "ownerOutputArtifactTypeCrosswalk",
         "ownerTypedIdentityContracts",
         "productId",
@@ -5441,8 +5443,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
-      "sha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
-      "bytes": 3569474,
+      "sha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+      "bytes": 3569882,
       "format": "yaml",
       "schemaVersion": "media.quality-policy.v1",
       "authority": "prospective-Phase-0-policy; does not establish measurements, calibration, qualification, or runtime support",
@@ -6885,8 +6887,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/decisions.yaml",
-      "sha256": "b10580f89fc80936b4ed1b4af115df87c3f6f472bffabdab24fd7abf8bf0d4a2",
-      "bytes": 6918,
+      "sha256": "e5ec641ef93f9429ec940a2ca695bbed3ccd845a0f26706c7ee55ca42a0a07df",
+      "bytes": 8379,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.decisions.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -6919,8 +6921,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/events.yaml",
-      "sha256": "0eb92d2e1068c3f11f95baaa8e3d5ae7dc3cb30551649e1a8ff09ef9a28c5d14",
-      "bytes": 123538,
+      "sha256": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
+      "bytes": 126885,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.events.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -6975,8 +6977,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/evidence.yaml",
-      "sha256": "2f477abea3a58b86b2f5a79460d34cee173e65649eb1e589496d3edcfdfa10a5",
-      "bytes": 6508,
+      "sha256": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
+      "bytes": 7295,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.evidence.v1",
       "authority": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
@@ -7003,8 +7005,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/interoperability.yaml",
-      "sha256": "cbc3d729ccf6a53ced0ac76cc102c48e40465b22a7ac85f40b59e23287d6621d",
-      "bytes": 9917,
+      "sha256": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+      "bytes": 20419,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.interoperability.v1",
       "authority": ".product-experience/pdp-0-product-truth/schema-bindings.yaml",
@@ -7015,6 +7017,7 @@
         "canonicalDefinitionConversionBinding",
         "crossProductReferences",
         "mappingRules",
+        "observedSpatialAndProviderSignalFields",
         "packageCompatibilityBoundary",
         "productId",
         "projections",
@@ -7022,22 +7025,37 @@
         "scopeStatus",
         "semanticOwner",
         "sourceRefs",
-        "unresolved"
+        "unresolved",
+        "unresolvedItemAdjudication"
       ],
       "declaredIds": [
+        "artifact-version-key-and-byte-identity-contract",
+        "canonical-versioned-domain-wire-schema",
+        "complete-transcript-caption-and-derived-artifact-ancestry",
+        "consumer-inventory-and-compatibility-proof",
+        "exact-runtime-contract-path-and-operation-map-for-each-protobuf-family",
         "media.interop.database",
         "media.interop.legacy-audio-video-package-preservation",
         "media.interop.lifecycle-publisher",
         "media.interop.openapi",
         "media.interop.protobuf",
         "media.interop.runtime-java",
-        "media.interop.typescript"
+        "media.interop.typescript",
+        "media.observed-provider-signal.legacy-typescript",
+        "media.observed-provider-signal.protobuf-multimodal",
+        "media.observed-provider-signal.protobuf-stt",
+        "media.observed-provider-signal.protobuf-vision",
+        "media.observed-provider-signal.typescript-contracts",
+        "provider-signal-calibration-and-cross-provider-equivalence",
+        "spatial-frame-transform-registry-and-3d-algorithm",
+        "tool-protocol-and-SDK-release-support-status",
+        "verified-cross-product-artifact-reference-and-version-semantics"
       ]
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/offline-sync.yaml",
-      "sha256": "530ca18cb42107f4feb2f00e71f5fa1085d871cbbde2ce13388810afd34c3ea9",
-      "bytes": 7806,
+      "sha256": "0d4d5acb1bdff5972a5014f6c053cf9f0f9d21adec0b7753acd08bfa9f913d2a",
+      "bytes": 9395,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.offline-sync.v1",
       "authority": ".product-experience/pdp-0-product-truth/state-models.yaml",
@@ -7055,7 +7073,7 @@
         "sourceObservations",
         "sourceRefs",
         "unboundProtocol",
-        "unresolved"
+        "unboundRuntimeAndQualification"
       ],
       "declaredIds": []
     },
@@ -7199,8 +7217,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/transitions.yaml",
-      "sha256": "d08dcc0d15946d8af68a85728fc83441d999c6b5db43cd24115d202ab67dbb7c",
-      "bytes": 7378757,
+      "sha256": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
+      "bytes": 7384202,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.transitions.v1",
       "authority": null,
@@ -7868,8 +7886,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml",
-      "sha256": "28e0a01b60742535f80c157328bcb7db41750c2b947b4027be240c6a0bd30f0e",
-      "bytes": 186431,
+      "sha256": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
+      "bytes": 188300,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.transition-guard-contracts.v1",
       "authority": null,
@@ -7990,8 +8008,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml",
-      "sha256": "b21bcab8675dbd21e200aef9ba181fe535fa55c27920b7f27ce79d095c55a916",
-      "bytes": 83624,
+      "sha256": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+      "bytes": 94131,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.value-objects.v1",
       "authority": ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml",
@@ -8003,10 +8021,13 @@
         "observedTemporalSpatialFields",
         "ownerDescriptorDefinitions",
         "productId",
+        "providerSignalContract",
         "schemaVersion",
         "scopeStatus",
         "semanticOwner",
         "sourceRefs",
+        "spatialTransformDeclarationContract",
+        "valueDefinitionAdjudication",
         "values"
       ],
       "declaredIds": [
@@ -8024,6 +8045,7 @@
         "media.value.classification",
         "media.value.dimensioned-scalar",
         "media.value.duration",
+        "media.value.frame-boundary-index",
         "media.value.frame-rate",
         "media.value.image-pixel-boundary",
         "media.value.image-pixel-center",
@@ -8046,8 +8068,8 @@
     },
     {
       "sourceRef": ".product-experience/pdp-1-domain-data/versioning.yaml",
-      "sha256": "77dce60266fb72b7ac324e81aa8289ceaa9026a777aeb1b1308dcef3180835ac",
-      "bytes": 6772,
+      "sha256": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+      "bytes": 13979,
       "format": "yaml",
       "schemaVersion": "media.pdp-1.versioning.v1",
       "authority": ".product-experience/pdp-0-product-truth/domain-model.yaml",
@@ -8055,6 +8077,7 @@
       "topLevelFields": [
         "artifactId",
         "authority",
+        "definitionAdjudication",
         "gaps",
         "observed",
         "ownerDefinedRevisionSemantics",
@@ -8079,12 +8102,12 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/accessibility.yaml",
-      "sha256": "2448d6410c360e8da767af209a1c3e9e1119cae68f3b4d6aa82007d5f6e9bb3b",
-      "bytes": 10358,
+      "sha256": "27e01c343a96029393f0b710bebb75a59fdc11680ffc71eb73803b56cb3ae105",
+      "bytes": 10362,
       "format": "yaml",
       "schemaVersion": "media.accessibility-language.v1",
       "authority": "Media-specific accessibility contracts over Shared primitives",
-      "status": "authored-proposal; accessibility-specialist-and-P0-010-review-pending",
+      "status": "MEDIA_OWNER_REQUIREMENTS_DEFINED; accessibility-specialist-review-pending",
       "topLevelFields": [
         "acceptance",
         "accessibilityRules",
@@ -8144,12 +8167,12 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/localization-content.yaml",
-      "sha256": "8f9762c2169d044f9b21bf916e553974e99595e3c3acb67eb76b477bec6a275a",
-      "bytes": 7340,
+      "sha256": "138f1b3764d41591942cedc7a1ccc68b84df311779468ae4396d76ddf1cb2aad",
+      "bytes": 7348,
       "format": "yaml",
       "schemaVersion": "media.localization-content.v1",
       "authority": "Media language, locale, and content behavior",
-      "status": "authored-proposal; locale-owner-and-P0-010-review-pending",
+      "status": "MEDIA_OWNER_DEFINITION_ACCEPTED; locale-specialist-review-pending",
       "topLevelFields": [
         "authority",
         "copyReview",
@@ -8172,12 +8195,12 @@
     },
     {
       "sourceRef": ".product-experience/pdp-2-design-interface-system/typography-layout.yaml",
-      "sha256": "2ff8716238442b488f1a295b45395cd3c9a96fc8f83117ed7ff4fd3ee33460f6",
-      "bytes": 13360,
+      "sha256": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
+      "bytes": 13407,
       "format": "yaml",
       "schemaVersion": "media.typography-layout.v1",
       "authority": "Media reading hierarchy and layout behavior; Shared owns typography and layout primitives",
-      "status": "authored-proposal; shared-token-binding-and-P0-010-pending",
+      "status": "MEDIA_OWNER_DEFINITION_ACCEPTED; shared-token-binding-and-independent-visual-accessibility-review-pending",
       "topLevelFields": [
         "authority",
         "comprehensionRubric",
@@ -8538,9 +8561,66 @@
       "declaredIds": []
     },
     {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
+      "sha256": "0fbfa4af3150238d67be9e968d9f3aa4c9e06ad42a36ce55998c374331c30a4a",
+      "bytes": 21952,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.existing-operation-semantic-corrections-current-source-review.v1",
+      "authority": null,
+      "status": null,
+      "topLevelFields": [
+        "acceptanceEffect",
+        "artifactId",
+        "channelLeafCurrentSourceObservation",
+        "decisionRef",
+        "decisionRefStatus",
+        "developmentEvidence",
+        "historicalPins",
+        "inputShapePopulationProjection",
+        "optionalSuccessOutputCorrections",
+        "ownerMeasureApplicabilityPreservation",
+        "qualityAndChannelDecisionBoundary",
+        "qualityCrosswalkProjectionCorrections",
+        "qualityDispositionPreservation",
+        "regressionSources",
+        "reviewBoundary",
+        "schemaVersion",
+        "scope",
+        "semanticEquivalence",
+        "sourceDelta",
+        "sources",
+        "typedInputCorrections",
+        "validationSources"
+      ],
+      "declaredIds": []
+    },
+    {
+      "sourceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+      "sha256": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
+      "bytes": 4906,
+      "format": "yaml",
+      "schemaVersion": "media.pdp0.upload-byte-length-minimum-current-source-review.v1",
+      "authority": null,
+      "status": "APPROVED_BOUNDED_CURRENT_SOURCE_CORRECTION; finite P0 gate PASS; PDP-0 DEV_COMPLETE",
+      "topLevelFields": [
+        "acceptanceEffect",
+        "artifactId",
+        "correction",
+        "decisionRef",
+        "p1Evidence",
+        "phaseGateEvidence",
+        "regressionEvidence",
+        "schemaVersion",
+        "source",
+        "status",
+        "supersedes"
+      ],
+      "declaredIds": []
+    },
+    {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json",
-      "sha256": "28e455e427859439a2cbf9b284a8eb2e6a522a8bbb0e3aec9a7183accfe4d885",
-      "bytes": 8111,
+      "sha256": "344e4cefa3210a7420c7c098153b6f16e1c9f75c415d4fe42f2c2a0508efafa6",
+      "bytes": 10256,
       "format": "yaml",
       "schemaVersion": "media.pdp0.quality-current-source-review.v1",
       "authority": null,
@@ -8548,8 +8628,11 @@
       "topLevelFields": [
         "acceptanceEffect",
         "artifactId",
+        "correctionOverlay",
         "currentSourceChecks",
+        "currentSourceRefresh",
         "historicalBoundary",
+        "historicalSourceSnapshots",
         "reviewBoundary",
         "reviewedDimensions",
         "reviewedPopulation",
@@ -9167,7 +9250,7 @@
       {
         "id": "media.project.source-asset.attach",
         "name": "Attach source asset",
-        "description": "Intended result: associate a source asset with the project. The asset identity and version, and the exact project relation, are not specified by this leaf.",
+        "description": "Associate the exact immutable version of one source asset as source-asset membership of the selected project version. The operation does not attach a derived asset or change source bytes.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-PROJECT"
         ]
@@ -9263,7 +9346,7 @@
       {
         "id": "media.artifact.derive",
         "name": "Derive artifact",
-        "description": "The P0 meaning of a derivation result is bound to exact source-version references, transformation-profile identity, requested output/media type, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion.",
+        "description": "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-ARTIFACT"
         ]
@@ -9271,7 +9354,7 @@
       {
         "id": "media.artifact.output.register",
         "name": "Register output",
-        "description": "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage, content digest, policy decision, and target project revision are identity constraints; a registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality.",
+        "description": "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage is an explicit set of exact source versions, which may be empty only to identify source-free output generated from the request; source-free registration does not require a source artifact. Content digest, media type, byte length, and policy decision are identity constraints; an authorized target workspace is required. Workspace-only registration may omit the exact project version; project-targeted registration requires it for stale-version checking. A registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality.",
         "requirementRefs": [
           "MEDIA-REQ-CAP-ARTIFACT"
         ]

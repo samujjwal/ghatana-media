@@ -32808,8 +32808,8 @@ pdp38ClaimReconciliation:
   currentClaimRecordCount: 260
   currentClaimUnitCount: 884
   sourceOwnerRoutingCount: 860
-  semanticParityVerifiedClaimUnitCount: 499
-  candidateTargetPendingSemanticParityCount: 361
+  semanticParityVerifiedClaimUnitCount: 500
+  candidateTargetPendingSemanticParityCount: 360
   nonNormativeSourceMetadataClaimUnitCount: 10
   semanticParityRule: Route existence and target digests assign an owner locator only. A claim is parity-verified only when its semanticReviewStatus is CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED and a claim-specific test preserves its material meaning; other routed claims remain explicit historical candidate targets pending semantic review and do not gate current P0-03 development exit.
   scopeSupersessionClaimIds: [MPSEM-0005-C002, MPSEM-0005-C003, MPSEM-0005-C004, MPSEM-0006-C001, MPSEM-0006-C002, MPSEM-1222-C005]
@@ -38656,8 +38656,8 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-0-product-truth/profile-semantics.yaml#fallbackSemantics"
-          targetTextSha256: "f03734b6b377ede43583d36e3cc1b147d980bd5bbdfea1c2c99f7f300ddf50b1"
-          rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
+          targetTextSha256: "4299b95621c00c9d46a7f3ed56304c081c230c414694e3804f67aba17f7d27d2"
+          rationale: "PXD-100 current-source observation confirms the fallback permission record still denies frame-rate and duration changes by default; any permitted change requires explicit allowed rates, temporal deviation, duration bounds and edit/narrative disposition. Added currentness and authority fields remain fail-closed. No runtime, independent acceptance or Lifecycle receipt is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0291-C003"
           coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE
@@ -39023,8 +39023,8 @@ pdp38ClaimReconciliation:
           disposition: ROUTED_TO_CURRENT_PDP_AUTHORITY
           semanticReviewStatus: "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED"
           targetRef: ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk"
-          targetTextSha256: "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd"
-          rationale: "PXD-100: full exact source clause reviewed against its material owner definition; historical external license statement is preserved and checked against the official source only. No runtime, independent acceptance, legal clearance or Lifecycle receipt is granted."
+          targetTextSha256: "d5f6f00dfde6fb8eaef4ea064b65016216fc5db44791b627adcf5dceb1c483e0"
+          rationale: "PXD-100 current-source observation confirms zero-based contiguous chunk indices, matching persisted receipts for duplicate replay, conflict rejection without a second write, no automatic replay after UNKNOWN_OUTCOME, and no artifact finality on chunk acknowledgement. Added trusted tenant/principal and qualification boundaries remain explicit. No runtime or independent qualification is granted."
           acceptanceEffect: none
           semanticReviewRef: "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0303-C002"
           coordinatorReviewStatus: APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE

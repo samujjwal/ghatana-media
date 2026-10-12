@@ -83,7 +83,7 @@ const mappedClaims = [
   ["MPSEM-0033-C003", ".product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml#ownerDefinedClockPresentation", ["rationalMediaAndSimulationStoryTime", "sampleBoundary", "sourceFrameSampleMapping", "cross-clock, cross-stream, timebase, frame-rate, sample-rate, and drift conversion", "wallClock"]],
   ["MPSEM-0035-C004", ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.bounded-repair-loop.v1", ["finite per-operation bound for attempt count, elapsed time, and resource budget", "an unknown outcome is reconciled before continuing"]],
   ["MPSEM-0041-C001", ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#/ownerDefinedComponentRules/@id=media.component.navigation-and-safety-visibility.v1", ["keeping the current location, primary task navigation, Cancel, Undo", "access/rights denial, uncertainty, and safety warnings discoverable and operable"]],
-  ["MPSEM-0042-C003", ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1", ["Every command in the one canonical registry has one unique command ID", "explicit actionRef that resolves by exact ID to the Media action registry", "exact operation ID/version or an explicit non-domain disposition", "no command or alias may be inferred", "sole source for help/completion", "current command registry contains 12 synthetic fixture commands", "does not establish production CLI/Web/API transport binding or runtime admission"]],
+  ["MPSEM-0042-C003", ".product-experience/pdp-2-design-interface-system/cli-language.yaml#/ownerDefinedInvocationRules/@id=media.cli.cross-channel-canonical-action-identity.v1", ["one unique command ID in the finite Media command registry", "exact actionRef", "exact operation/version binding", "explicit machine-only applicability disposition", "No command or alias may be inferred", "sole source for help/completion", "current owner-defined registry contains 47 finite command identities", "Six command rows have exact source action/operation candidates", "machine-only disposition", "does not establish production CLI/Web/API transport binding or runtime admission"]],
   ["MPSEM-0042-C005", ".product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedMachineOutputRules", ["stdout contains exactly one versioned result or error object", "cannot change stable JSON keys, reason codes, command effects, or exit-code meaning", "stdout contains only one complete JSON object per line", "Ctrl-C or another local interruption while waiting stops the local wait only", "remote cancellation is a separate explicit operation"]],
   ["MPSEM-0074-C001", ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.state-presentation-not-state-machine.v1", ["Brand strings, CSS classes, screen names, and localized labels never create states, transitions, finality, or scheduling policy"]],
   ["MPSEM-0193-C004", ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml#/ownerDefinedStatePresentationRules/@id=media.ui.no-semantic-dummy-input.v1", ["does not require a placeholder artifact, source file, or dummy input", "necessary to the selected Media operation"]],
@@ -225,7 +225,7 @@ test("one canonical CLI registry binds every fixture command to an exact action 
   assert.equal(isBound(cli, actionMap), true);
   assert.equal(cli.status, "implemented-local-fixture-command-simulator; production-runtime-cli-not-connected");
   assert.equal(identityRule.canonicalRegistryRef, ".product-experience/pdp-3-product-experience/cli-command-registry.yaml");
-  assert.match(identityRule.registryCoverageRule, /Every command in the one canonical registry/u);
+  assert.match(identityRule.registryCoverageRule, /one unique command ID in the finite Media command registry/u);
   for (const mutate of [
     (registry) => { registry.commands[0].actionRef = "media.action.invented-by-command-name"; },
     (registry) => { registry.commands[0].id = registry.commands[1].id; },
@@ -312,7 +312,9 @@ test("CLI identity contract requires exact action and operation bindings across 
   assert.ok(rule.equalityRules.some((text) => text.includes("webBindingRef.actionId==canonicalActionId")));
   assert.ok(rule.equalityRules.some((text) => text.includes("apiBindingRef.actionId==canonicalActionId")));
   assert.ok(rule.equalityRules.some((text) => text.includes("everyBinding.operationVersion==operationVersion")));
-  assert.match(rule.currentPopulation, /12 synthetic fixture commands/u);
+  assert.match(rule.currentPopulation, /47 finite command identities/u);
+  assert.match(rule.currentPopulation, /Six command rows have exact source action\/operation candidates/u);
+  assert.match(rule.currentPopulation, /machine-only disposition/u);
   assert.match(rule.currentPopulation, /does not establish production CLI\/Web\/API transport binding/u);
   assert.equal(rule.scopeStatus.includes("NOT_ADMITTED"), true);
   const bindingValid = (candidate) => candidate?.commandId && candidate.canonicalActionId && candidate.operationId

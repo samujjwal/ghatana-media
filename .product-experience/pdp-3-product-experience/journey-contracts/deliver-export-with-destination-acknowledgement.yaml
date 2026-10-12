@@ -35,7 +35,8 @@ steps:
     actionBindingState: journey-specific-action-binding-pending;
       candidate-refs-come-from-screen-contract-only
     stateRefs: []
-    stateBindingState: request-receipt-only; delivery-outcome-requires-later-authoritative-destination-acknowledgment
+    stateBindingState: request-receipt-only;
+      delivery-outcome-requires-later-authoritative-destination-acknowledgment
     candidateActionRefs:
       - media.action.inspect-artifact
       - media.action.inspect-provenance
@@ -53,11 +54,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: This step requests delivery of the exact artifact version. Only a later owner acknowledgment bound to
-        the same request, destination, and version can establish delivery.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -68,7 +76,17 @@ steps:
             occurred, or approval scope mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -93,17 +111,21 @@ steps:
     bindingStatus:
       surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
         channel admission and step-specific mapping remain pending
-      objectRefs: exact-artifact-version-and-delivery-outcome-defined-by-P1-operation
+      objectRefs: exact-render-outcome-and-artifact-version-set-defined-by-the-bound-P1-inspect-query
       stateRefs: no-media-state-transition; external-delivery-finality-is-separate
-      canonicalOperationRef: media.operation.action.deliver-exact-version; runtime route not admitted
+      canonicalOperationRef: media.operation.action.inspect-output-preview-and-version;
+        runtime NOT_ADMITTED
       authorityRef: P1 identity and privileged-effect recheck
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -145,13 +167,26 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Playback/download/review/provenance and delivery action
-        result: null
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Package validity, transport, and external publication are reported as
-            distinct finality outcomes.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.inspect-output-preview-and-version
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -162,7 +197,17 @@ steps:
                 occurred, or approval scope mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -216,8 +261,9 @@ steps:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
-          proposal: Only an owner acknowledgment tied to the exact request, destination, and artifact version establishes
-            delivery; this request step does not assert destination receipt.
+          proposal: Only an owner acknowledgment tied to the exact request, destination,
+            and artifact version establishes delivery; this request step does
+            not assert destination receipt.
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -273,12 +319,14 @@ steps:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-exact-version-destination-and-request-identity; explain denial or incomplete evidence;
-            keep any post-dispatch outcome unknown until reconciled
+          failure: preserve-exact-version-destination-and-request-identity; explain denial
+            or incomplete evidence; keep any post-dispatch outcome unknown until
+            reconciled
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
-          recovery: inspect or reconcile the same request and destination acknowledgment; never substitute a newer version
-            or dispatch another delivery while outcome is unknown
+          recovery: inspect or reconcile the same request and destination acknowledgment;
+            never substitute a newer version or dispatch another delivery while
+            outcome is unknown
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
         status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
@@ -354,8 +402,14 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-22.j-22.step-01
     capabilityRefs: []
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
   - view: media.view.deliver-output
     legacyViewRef: M-DELIVERY
     screenContractRef: screen-contracts/deliver-output.yaml
@@ -370,17 +424,24 @@ steps:
       - media.surface.public-http
       - media.surface.cli
       - media.surface.integrations
-    objectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+    objectRefs: [ media.domain.artifact-version, media.domain.delivery-outcome ]
     canonicalOperationRef: media.operation.action.deliver-exact-version
     authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     decisionRef: null
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Request acceptance is distinct from package validity, transport, and destination delivery; only an authoritative acknowledgment bound to the request, destination, and exact artifact version proves delivery.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+      operationRef: media.operation.action.deliver-exact-version
+      meaning: Immediate result is the delivery request/owner receipt for the exact
+        artifactVersionId and destinationRef; destination delivery remains
+        UNKNOWN until authoritative destination evidence.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -391,7 +452,17 @@ steps:
             occurred, or approval scope mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/criticalNonhappyPaths
+      disposition: Unavailable, stale, or mismatched destination evidence leaves
+        delivery UNKNOWN; hold exact request/version identity and reconcile with
+        an authoritative destination observation. Acknowledgement or dispatch is
+        not delivery; never replay blindly.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -423,10 +494,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -450,15 +524,16 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Request delivery of one exact immutable artifact version to the exact selected authorized
-          destination under the selected delivery profile; this requests delivery and does not assert receipt.
+        effect: Request the explicitly named operation for the exact target only after
+          fresh actor, capability, policy, and target checks.
         reversibilityDisposition: NOT_REVERSIBLE
-        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
+        finality: external-effect-or-request; owner-acknowledgment-required;
+          unknown-is-not-failure
         failureRecovery: preserve-the-exact-target-and-current-draft;
           explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
-        exactOperationRefs: [media.operation.action.deliver-exact-version]
+        exactOperationRefs: [ media.operation.action.deliver-exact-version ]
         runtimeAdmission: NOT_ADMITTED
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
@@ -466,13 +541,24 @@ steps:
         noMutationReason: null
       stepSourceFacts:
         intent: Destination/format/rights/approval and publication finality
-        result: null
+        result: Immediate result is the delivery request/owner receipt for the exact
+          artifactVersionId and destinationRef; destination delivery remains
+          UNKNOWN until authoritative destination evidence.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Only a destination owner acknowledgment tied to this request and exact version establishes
-            delivery; request acceptance alone is not delivery.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+          operationRef: media.operation.action.deliver-exact-version
+          meaning: Immediate result is the delivery request/owner receipt for the exact
+            artifactVersionId and destinationRef; destination delivery remains
+            UNKNOWN until authoritative destination evidence.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -483,7 +569,17 @@ steps:
                 occurred, or approval scope mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/criticalNonhappyPaths
+          disposition: Unavailable, stale, or mismatched destination evidence leaves
+            delivery UNKNOWN; hold exact request/version identity and reconcile
+            with an authoritative destination observation. Acknowledgement or
+            dispatch is not delivery; never replay blindly.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -505,10 +601,10 @@ steps:
           - media.surface.public-http
           - media.surface.cli
           - media.surface.integrations
-        objectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+        objectRefs: [ media.domain.artifact-version, media.domain.delivery-outcome ]
         stateRefs: []
         canonicalOperationRef: media.operation.action.deliver-exact-version
-        authorityRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         transitionRef: null
         requirementRefs: []
         scenarioRefs: []
@@ -561,11 +657,13 @@ steps:
           intendedResult:
             status: REQUEST_ACCEPTED_OR_UNKNOWN; DELIVERY_NOT_ASSERTED
             sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
-            proposal: A request receipt identifies the exact version and destination; only later authoritative
-              destination acknowledgment establishes delivery.
+            proposal: A request receipt identifies the exact version and destination; only
+              later authoritative destination acknowledgment establishes
+              delivery.
           effect: Change only the current local draft or selection; keep committed source
             and versioned objects unchanged until a separately specified commit.
-          finality: request-accepted-or-unknown; destination-acknowledgment-required-for-delivery
+          finality: request-accepted-or-unknown;
+            destination-acknowledgment-required-for-delivery
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.deliver-exact-version
           guards:
@@ -582,7 +680,8 @@ steps:
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: EXTERNAL_DELIVERY_REQUEST_ONLY; NO_MEDIA_STATE_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED
+        status: EXTERNAL_DELIVERY_REQUEST_ONLY;
+          NO_MEDIA_STATE_TRANSITION_OR_DELIVERY_SUCCESS_INFERRED
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.action.deliver-exact-version
@@ -607,16 +706,18 @@ steps:
         noAcceptanceInference: source bindings do not establish independent review,
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
-        status: OWNER_REQUEST_REQUIRES_EXACT_ARTIFACT_VERSION; ISSUED_INSTANCE_NOT_SUPPLIED_BY_DEFINITION
+        status: OWNER_REQUEST_REQUIRES_EXACT_ARTIFACT_VERSION;
+          ISSUED_INSTANCE_NOT_SUPPLIED_BY_DEFINITION
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
         objectRefs:
           - media.domain.artifact-version
           - media.domain.delivery-outcome
-        versionIdentityRule: Request artifactVersionId must join the trusted tenant and exact immutable artifact version; no latest alias.
+        versionIdentityRule: Request artifactVersionId must join the trusted tenant and
+          exact immutable artifact version; no latest alias.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema/properties/artifactVersionId
         observation: null
         runtimeAdmission: NOT_ADMITTED
-        canonicalObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+        canonicalObjectRefs: [ media.domain.artifact-version, media.domain.delivery-outcome ]
       intentBinding:
         status: STEP_INTENT_SOURCE
         intent: Destination/format/rights/approval and publication finality
@@ -637,7 +738,7 @@ steps:
         screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/deliver-output.yaml#purpose
         actionRef: media.action.deliver-exact-version
         candidateActionRefs: []
-        operationRefs: [media.operation.action.deliver-exact-version]
+        operationRefs: [ media.operation.action.deliver-exact-version ]
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
@@ -649,6 +750,10 @@ steps:
         acceptance: crosswalk source only; no independent review/runtime admission
     scenarioRefs: []
     capabilityRefs: []
+    result: Immediate result is the delivery request/owner receipt for the exact
+      artifactVersionId and destinationRef; destination delivery remains UNKNOWN
+      until authoritative destination evidence.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema]
   - view: media.view.job-status
     legacyViewRef: M-JOB
     screenContractRef: screen-contracts/job-status.yaml
@@ -677,11 +782,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Package validity, transport, and external publication are reported as
-        distinct finality outcomes.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -692,7 +804,17 @@ steps:
             occurred, or approval scope mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -725,10 +847,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -765,13 +890,26 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: Progress, outputs, cancel, retry/reconcile and uncertainty
-        result: null
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Package validity, transport, and external publication are reported as
-            distinct finality outcomes.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -782,7 +920,17 @@ steps:
                 occurred, or approval scope mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-22/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -983,6 +1131,11 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: [ media.job.view-status ]
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

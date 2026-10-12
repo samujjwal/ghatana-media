@@ -1,55 +1,196 @@
 schemaVersion: media.screen-contract.v2
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
-surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory; owner-binding-pending
+surfaceBindingStatus: candidate; derived-from-web-channel-and-surface-inventory;
+  owner-binding-pending
 templateId: media.gui.template.task-setup
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.task-setup]
+layoutIds: [ media.gui.layout.task-setup ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.identity-context-boundary
 patternIds:
   - media.gui.pattern.safe-confirmation-and-unknown-outcome
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.artifact-version
+  - media.domain.processing-job
+operationRefs:
+  - media.operation.action.return-to-requested-destination-after-identity-confirmation
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
-entry: []
-exit: []
+entry:
+  - "Before media.action.start-upstream-identity-handoff, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.start-upstream-identity-handoff/actionDefinitionSemantics/t\
+    ypedDefinition; runtime NOT_ADMITTED."
+  - "Before media.action.select-identity-confirmed-workspace, require exact
+    guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.select-identity-confirmed-workspace/actionDefinitionSemanti\
+    cs/typedDefinition; runtime NOT_ADMITTED."
+  - "Before
+    media.action.return-to-requested-destination-after-identity-confirmation,
+    require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.return-to-requested-destination-after-identity-confirmation\
+    /actionDefinitionSemantics/typedDefinition; runtime NOT_ADMITTED."
+exit:
+  - "media.action.start-upstream-identity-handoff: Transfer navigation to the
+    configured Shared identity handoff while preserving the requested Media
+    destination; Media never collects or mirrors credentials.;
+    finality=upstream-identity-result-required;
+    starting-the-handoff-does-not-confirm-authentication-or-workspace-access;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.start-upstream-identity-handoff/actionDefinitionSemantics/t\
+    ypedDefinition; runtime NOT_ADMITTED."
+  - "media.action.select-identity-confirmed-workspace: Delegate workspace
+    selection to the configured Shared identity service; Media accepts a
+    workspace only after the upstream service confirms current access.;
+    finality=upstream-workspace-authorization-confirmation-required;
+    remembered-selection-is-not-authority;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.select-identity-confirmed-workspace/actionDefinitionSemanti\
+    cs/typedDefinition; runtime NOT_ADMITTED."
+  - "media.action.return-to-requested-destination-after-identity-confirmation:
+    Return to the preserved Media destination only after the upstream identity
+    contract confirms current access to the selected workspace.;
+    finality=navigation-only-after-upstream-authorization-confirmation;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.return-to-requested-destination-after-identity-confirmation\
+    /actionDefinitionSemantics/typedDefinition; runtime NOT_ADMITTED."
 actionConsequences:
   - actionId: media.action.start-upstream-identity-handoff
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.start-upstream-identity-handoff/actionDefinitionSemantics/typedDefinition
+    consequence: Transfer navigation to the configured Shared identity handoff while
+      preserving the requested Media destination; Media never collects or
+      mirrors credentials.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: upstream-identity-result-required;
+      starting-the-handoff-does-not-confirm-authentication-or-workspace-access
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.select-identity-confirmed-workspace
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.select-identity-confirmed-workspace/actionDefinitionSemantics/typedDefinition
+    consequence: Delegate workspace selection to the configured Shared identity
+      service; Media accepts a workspace only after the upstream service
+      confirms current access.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: upstream-workspace-authorization-confirmation-required;
+      remembered-selection-is-not-authority
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.return-to-requested-destination-after-identity-confirmation
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.return-to-requested-destination-after-identity-confirmation
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.return-to-requested-destination-after-identity-confirmation/actionDefinitionSemantics/typedDefinition
+    consequence: Return to the preserved Media destination only after the upstream
+      identity contract confirms current access to the selected workspace.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.return-to-requested-destination-after-identity-confirmation
+    finality: navigation-only-after-upstream-authorization-confirmation
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
 responsiveBehavior:
   reference: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
   screenSpecificOverrides: []
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.task-setup
+      responsiveRule: Keep the requested outcome, selected source identity,
+        eligibility, and next action together.
 fixtures:
-  refs: []
-  status: missing
+  refs:
+    - media.scenario.identity-required
+    - media.scenario.workspace-access-denied
+  status: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
+  sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.identity-required.v1
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.workspace-access-denied.v1
+    - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/0
+  unlinkedScreenFixtureRefs: []
+  negativeCases:
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
 verification:
   status: not-run
   evidenceRefs: []
@@ -66,53 +207,64 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copied-from-existing-componentRefs; Shared-binding-pending
   patternIds: proposal-copied-from-existing-patternRefs; PDP-2-acceptance-pending
-  tokenDependencies: unresolved-no-direct-canonical-reference
-  domainObjectRefs: unresolved-no-direct-canonical-reference
-  operationRefs: unresolved-no-direct-canonical-reference
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved-no-PDP-1-canonical-reference; local-UI-states-not-promoted
-  entry: unresolved-no-direct-canonical-reference
-  exit: unresolved-no-direct-canonical-reference
-  actionConsequences: pending-owner-operation-and-effect-binding
-  responsiveBehavior: proposal-unverified; PDP-2-acceptance-pending
-  fixtures: missing-no-existing-fixtureRefs
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
   verification: not-run; no-evidence-refs
+  recipeIds: Exact P2 recipe media.gui.recipe.task-setup; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.authenticate-and-select-context
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.administrator
+  - media.creator
+  - media.editor
+  - media.administrator
 intentRef: media.intent.restore-project
-purpose: resolve the current identity and authorized workspace before showing protected Media project data
+purpose: resolve the current identity and authorized workspace before showing
+  protected Media project data
 contextGoalNowNext:
-  context: A requested Media destination may be waiting behind an identity or workspace handoff.
-  goal: Resolve a current principal and authorized tenant/workspace through Shared's public identity contract.
-  now: Show the handoff state and the destination to return to; Media does not collect credentials.
-  next: Return to the requested Media view only after the upstream identity contract confirms current access.
+  context: A requested Media destination may be waiting behind an identity or
+    workspace handoff.
+  goal: Resolve a current principal and authorized tenant/workspace through
+    Shared's public identity contract.
+  now: Show the handoff state and the destination to return to; Media does not
+    collect credentials.
+  next: Return to the requested Media view only after the upstream identity
+    contract confirms current access.
 anatomy:
-- return-destination
-- identity-handoff
-- workspace-selection-when-authorized
-- access-state
-- recovery-guidance
+  - return-destination
+  - identity-handoff
+  - workspace-selection-when-authorized
+  - access-state
+  - recovery-guidance
 componentRefs:
-- media.component.identity-context-boundary
+  - media.component.identity-context-boundary
 handoffRefs:
-- media.handoff.identity
+  - media.handoff.identity
 states:
-- identity-required
-- reauthentication-required
-- context-selectable
-- context-denied
-- service-unavailable
-- offline
+  - identity-required
+  - reauthentication-required
+  - context-selectable
+  - context-denied
+  - service-unavailable
+  - offline
 actions:
-- media.action.start-upstream-identity-handoff
-- media.action.select-identity-confirmed-workspace
-- media.action.return-to-requested-destination-after-identity-confirmation
+  - media.action.start-upstream-identity-handoff
+  - media.action.select-identity-confirmed-workspace
+  - media.action.return-to-requested-destination-after-identity-confirmation
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -139,11 +291,11 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-01
 journeyDefinitionBindings:
@@ -154,4 +306,26 @@ journeyDefinitionBindings:
   operationRefs: []
   domainObjectRefs: []
   stateRefs: []
-  semanticBoundary: External Shared identity handoff only; no Media-owned authentication action or project query before trusted context.
+  semanticBoundary: External Shared identity handoff only; no Media-owned
+    authentication action or project query before trusted context.
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.task-setup
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.task-setup template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.authenticate-and-select-context

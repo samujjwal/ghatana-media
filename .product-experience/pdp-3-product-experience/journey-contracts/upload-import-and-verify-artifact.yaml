@@ -37,7 +37,7 @@ steps:
   - view: media.view.browse-media
     actionRef: media.action.select-artifact-source
     screenContractRef: screen-contracts/browse-media.yaml
-    result: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+    result: show-a-bounded-page-of-governed-artifact-records-for-the-exact-source-or-project-under-rights-and-retention-context; ordering-and-completeness-remain-unspecified
     surfaceRefs:
       - media.surface.web
     objectRefs:
@@ -163,7 +163,9 @@ steps:
       stepSourceFacts:
         intent: browse authorized immutable artifact versions and reach an admitted
           source-import action
-        result: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+        result: show-a-bounded-page-of-governed-artifact-records-for-the-exact-source-or-project-under-rights-and-retention-context; ordering-and-completeness-remain-unspecified
+        resultSourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.list/outcome
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: authorized-observation-only
@@ -275,7 +277,7 @@ steps:
         actionRef: media.action.select-artifact-source
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.select-artifact-source
-          intendedResult: show-only-currently-authorized-artifact-versions-and-an-admitted-import-entry-point
+          intendedResult: show-a-bounded-page-of-governed-artifact-records-for-the-exact-source-or-project-under-rights-and-retention-context; ordering-and-completeness-remain-unspecified
           effect: bind-one-exact-source-selection-to-the-current-upload-draft-without-transferring-bytes
           finality: local-selection-only
         nonhappy:
@@ -496,7 +498,7 @@ steps:
           - exact-source-selected
           - current-upload-and-import-authority
           - rights-consent-retention-and-format-admission
-        effect: create-or-replay-one-stable-upload-session; no-transfer-part-or-artifact-version-is-accepted-by-begin
+        effect: establish-one-stable-upload-identity-and-accept-only-owner-acknowledged-bounded-parts
         reversibilityDisposition: CONDITIONAL
         finality: upload-receipt-is-not-artifact-availability;
           verification-must-record-size-digest-format-and-policy-disposition
@@ -511,14 +513,13 @@ steps:
         intent: admit one authorized source and report its actual transfer and integrity
           state
         result: one-stable-upload-identity-is-established-and-only-acknowledged-transfer-progress-is-reported
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: begin-command-and-subordinate-phases
           sourceRef: media.operation-slice.begin-upload
-          proposal: Create or replay one tenant/principal/idempotency-key-bound session
-            and report only acknowledged contiguous parts. Successful
-            finalization enters VERIFYING only after exact size and digest
-            verification; not AVAILABLE.
+          proposal: Create or replay one tenant/principal/idempotency-key-bound upload session and report its exact session identity. Begin-upload accepts no parts and creates no artifact version; completion and verification belong to later steps.
         failure:
           status: source-defined; runtime-admission-pending
           scope: bounded-command
@@ -921,6 +922,11 @@ steps:
           state
         result: resume-the-matching-upload-or-explain-why-it-cannot-resume;
           never-create-a-duplicate-from-an-unknown-result
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-upload/ownerWireSchema/resultSchema
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk/ownerWireSchema/resultSchema
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: ordered-compound-resume-action
@@ -1233,8 +1239,8 @@ steps:
     actionRef: media.action.view-job-status
     screenContractRef: screen-contracts/job-status.yaml
     when: the-owner-contract-returns-a-stable-job-identity-for-asynchronous-integrity-or-format-verification
-    result: show-the-existing-verification-job-and-finality;
-      do-not-label-a-transfer-id-as-a-processing-job
+    result: generic-query-envelope(requestId, exactTargetRef, ownerReceipt, observedAt);
+      job-status-and-finality-remain-UNKNOWN-until-authoritative-observer-fields-are-bound; do-not-label-a-transfer-id-as-a-processing-job
     surfaceRefs:
       - media.surface.web
     objectRefs:
@@ -1367,8 +1373,10 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: view-one-existing-job-status-and-choose-a-safe-next-action
-        result: show-the-existing-verification-job-and-finality;
-          do-not-label-a-transfer-id-as-a-processing-job
+        result: generic-query-envelope(requestId, exactTargetRef, ownerReceipt, observedAt);
+          job-status-and-finality-remain-UNKNOWN-until-authoritative-observer-fields-are-bound; do-not-label-a-transfer-id-as-a-processing-job
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: conditional-same-job-observation
@@ -1511,8 +1519,8 @@ steps:
         actionRef: media.action.view-job-status
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
-          intendedResult: show-the-existing-verification-job-and-finality;
-            do-not-label-a-transfer-id-as-a-processing-job
+          intendedResult: generic-query-envelope(requestId, exactTargetRef, ownerReceipt, observedAt);
+            job-status-and-finality-remain-UNKNOWN-until-authoritative-observer-fields-are-bound; do-not-label-a-transfer-id-as-a-processing-job
           effect: read-current-job-and-attempt-evidence
           finality: read-only
         nonhappy:
@@ -1565,8 +1573,8 @@ steps:
         versionIdentityRule: Exact immutable version identity is required whenever the
           source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
-        observation: show-the-existing-verification-job-and-finality;
-          do-not-label-a-transfer-id-as-a-processing-job
+        observation: generic-query-envelope(requestId, exactTargetRef, ownerReceipt, observedAt);
+          job-status-and-finality-remain-UNKNOWN-until-authoritative-observer-fields-are-bound; do-not-label-a-transfer-id-as-a-processing-job
         runtimeAdmission: NOT_ADMITTED
       intentBinding:
         status: SCREEN_PURPOSE_SOURCE
@@ -1617,11 +1625,11 @@ steps:
     capabilityRefs: [ media.job.view-status ]
   - view: media.view.inspect-media
     screenContractRef: screen-contracts/inspect-media.yaml
-    action: media.action.inspect-artifact
+    action: media.action.inspect-source
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [ media.artifact.inspect ]
-    when: the-artifact-state-is-AVAILABLE-or-an-authorized-review-is-required
-    result: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
+    when: an-exact-immutable-artifact-version-is-selected-for-inspection-under-current-read-authority
+    result: show-the-exact-version-metadata-and-time-scoped-recorded-integrity-and-lifecycle-disposition-at-observedAt; no-current-availability-rights-consent-retention-or-processing-claim
     surfaceRefs:
       - media.surface.web
     objectRefs:
@@ -1632,7 +1640,7 @@ steps:
       - media-upload-and-artifact/AVAILABLE
       - media-upload-and-artifact/QUARANTINED
       - media-upload-and-artifact/REJECTED
-    canonicalOperationRef: media.operation-slice.inspect-artifact
+    canonicalOperationRef: media.operation-slice.inspect-artifact-version
     authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
     decisionRef: .product-experience/decision-log.md#PXD-040
     transitionRef: null
@@ -1640,21 +1648,22 @@ steps:
     success:
       status: source-defined; runtime-admission-pending
       scope: principal-scoped-exact-version-read
-      sourceRef: media.operation-slice.inspect-artifact
-      proposal: Show exact authorized version, recorded integrity evidence, and
-        separate policy disposition. Show AVAILABLE only when authoritative
-        state records it after all T02 criteria.
+      sourceRef: media.operation-slice.inspect-artifact-version
+      proposal: Show metadata and the recorded integrity/lifecycle disposition for
+        this exact immutable version at observedAt. This observation does not establish current
+        availability, rights, consent, retention authority, or permission to process
+        or deliver.
     failure:
       status: source-defined; runtime-admission-pending
       scope: metadata-read-only
-      sourceRef: media.operation-slice.inspect-artifact
+      sourceRef: media.operation-slice.inspect-artifact-version
       proposal: Keep unknown metadata unknown. Inaccessible/absent responses remain
         scoped; inspection cannot expose bytes, grant rights, or mutate state.
     degradedBehavior: null
     recovery:
       status: source-defined; runtime-admission-pending
       scope: same-version-read-only
-      sourceRef: media.operation-slice.inspect-artifact
+      sourceRef: media.operation-slice.inspect-artifact-version
       proposal: Re-read the same artifact version after current authority check; no
         transition, attachment, or processing is implied.
     postconditions:
@@ -1704,7 +1713,7 @@ steps:
     actorBindingReason: Only PDP-0 J-02 collaborators; tenant/principal identity
       comes from trusted host context, not actor alias.
     requiredOperationRefs:
-      - media.operation-slice.inspect-artifact
+      - media.operation-slice.inspect-artifact-version
     transitionDisposition:
       status: NOT_APPLICABLE_WITH_REASON
       transitionRef: null
@@ -1728,40 +1737,44 @@ steps:
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       action:
-        actionRef: media.action.inspect-artifact
+        actionRef: media.action.inspect-source
         semanticRole: DOMAIN_OPERATION
         actorRefs:
           - media.creator
           - media.editor
-          - media.reviewer
         guards:
-          - exact-artifact-or-upload-identity
+          - exact-artifact-and-immutable-version-identity
           - current-read-authority
-        effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
-        reversibilityDisposition: UNKNOWN
-        finality: read-only;
-          inspection-does-not-promote-quarantine-or-attach-to-a-project
-        failureRecovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
-        domainOperationDisposition: EXACT_OPERATION_REFERENCE
+        effect: read-source-metadata-for-one-exact-artifact-version
+        reversibilityDisposition: REVERSIBLE
+        finality: read-only
+        failureRecovery: explain-unavailable-metadata-without-rejecting-the-source-implicitly
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
-          - media.operation-slice.inspect-artifact
+          - media.operation-slice.inspect-artifact-version
         runtimeAdmission: NOT_ADMITTED
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
-        intent: inspect one exact artifact version, its integrity evidence, metadata,
-          and separately governed lifecycle
-        result: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
+        intent: inspect metadata and the time-scoped recorded integrity and lifecycle
+          disposition for one exact immutable artifact version
+        result: show-the-exact-version-metadata-and-time-scoped-recorded-integrity-and-lifecycle-disposition-at-observedAt; no-current-availability-rights-consent-retention-or-processing-claim
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/resultSchema/semantics
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
+          - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/finality
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: source-defined; runtime-admission-pending
           scope: principal-scoped-exact-version-read
-          sourceRef: media.operation-slice.inspect-artifact
-          proposal: Show exact authorized version, recorded integrity evidence, and
-            separate policy disposition. Show AVAILABLE only when authoritative
-            state records it after all T02 criteria.
+          sourceRef: media.operation-slice.inspect-artifact-version
+          proposal: Show metadata and the recorded integrity/lifecycle disposition for
+            this exact immutable version at observedAt. This observation does not
+            establish current availability, rights, consent, retention authority,
+            or permission to process or deliver.
         failure:
           status: source-defined; runtime-admission-pending
           scope: metadata-read-only
-          sourceRef: media.operation-slice.inspect-artifact
+          sourceRef: media.operation-slice.inspect-artifact-version
           proposal: Keep unknown metadata unknown. Inaccessible/absent responses remain
             scoped; inspection cannot expose bytes, grant rights, or mutate
             state.
@@ -1769,7 +1782,7 @@ steps:
         recovery:
           status: source-defined; runtime-admission-pending
           scope: same-version-read-only
-          sourceRef: media.operation-slice.inspect-artifact
+          sourceRef: media.operation-slice.inspect-artifact-version
           proposal: Re-read the same artifact version after current authority check; no
             transition, attachment, or processing is implied.
         postconditions:
@@ -1800,7 +1813,7 @@ steps:
           - media-upload-and-artifact/AVAILABLE
           - media-upload-and-artifact/QUARANTINED
           - media-upload-and-artifact/REJECTED
-        canonicalOperationRef: media.operation-slice.inspect-artifact
+        canonicalOperationRef: media.operation-slice.inspect-artifact-version
         authorityRef: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints.artifact-fetch-and-cache-reuse
         transitionRef: null
         requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
@@ -1853,43 +1866,44 @@ steps:
         positiveBranch:
           status: source-defined; runtime-admission-pending
           scope: principal-scoped-exact-version-read
-          sourceRef: media.operation-slice.inspect-artifact
-          proposal: Show exact authorized version, recorded integrity evidence, and
-            separate policy disposition. Show AVAILABLE only when authoritative
-            state records it after all T02 criteria.
+          sourceRef: media.operation-slice.inspect-artifact-version
+          proposal: Show metadata and the recorded integrity/lifecycle disposition for
+            this exact immutable version at observedAt. This observation does not
+            establish current availability, rights, consent, retention authority,
+            or permission to process or deliver.
         nonhappyBranch:
           status: source-defined; runtime-admission-pending
           scope: metadata-read-only
-          sourceRef: media.operation-slice.inspect-artifact
+          sourceRef: media.operation-slice.inspect-artifact-version
           proposal: Keep unknown metadata unknown. Inaccessible/absent responses remain
             scoped; inspection cannot expose bytes, grant rights, or mutate
             state.
         recoveryBranch:
           status: source-defined; runtime-admission-pending
           scope: same-version-read-only
-          sourceRef: media.operation-slice.inspect-artifact
+          sourceRef: media.operation-slice.inspect-artifact-version
           proposal: Re-read the same artifact version after current authority check; no
             transition, attachment, or processing is implied.
         executable: true
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
-        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
-        actionRef: media.action.inspect-artifact
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-source
+        actionRef: media.action.inspect-source
         positive:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
-          intendedResult: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
-          effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-source
+          intendedResult: show-the-exact-version-metadata-and-time-scoped-recorded-integrity-and-lifecycle-disposition-at-observedAt; no-current-availability-rights-consent-retention-or-processing-claim
+          effect: read-source-metadata-for-one-exact-artifact-version
           finality: read-only;
             inspection-does-not-promote-quarantine-or-attach-to-a-project
         nonhappy:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-source
           guards:
-            - exact-artifact-or-upload-identity
+            - exact-artifact-and-immutable-version-identity
             - current-read-authority
           failure: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
         recovery:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-artifact
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-source
           recovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
@@ -1900,7 +1914,7 @@ steps:
           - media-upload-and-artifact/AVAILABLE
           - media-upload-and-artifact/QUARANTINED
           - media-upload-and-artifact/REJECTED
-        operationRef: media.operation-slice.inspect-artifact
+        operationRef: media.operation-slice.inspect-artifact-version
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
@@ -1928,19 +1942,19 @@ steps:
         versionIdentityRule: Exact immutable version identity is required whenever the
           source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
-        observation: show-the-exact-artifact-version-integrity-state-and-separately-recorded-policy-dispositions
+        observation: show-the-exact-version-metadata-and-time-scoped-recorded-integrity-and-lifecycle-disposition-at-observedAt; no-current-availability-rights-consent-retention-or-processing-claim
         runtimeAdmission: NOT_ADMITTED
       operationContractBinding:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
         operations:
-          - operationRef: media.operation-slice.inspect-artifact
+          - operationRef: media.operation-slice.inspect-artifact-version
             operationKind: QUERY
             domainObjectRefs: []
             stateRefs: []
             authorityRefs: []
             profileRef: null
             transitionRefs: []
-            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.inspect-artifact/stateBinding
+            stateApplicabilitySource: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records/media.operation-slice.inspect-artifact-version/stateBinding
             stateApplicability:
               artifact: returns-stored-immutable-artifact-metadata-and-opaque-object-reference-without-mutation
               productLifecycle: state-is-not-present-in-the-wire-observation;
@@ -1954,8 +1968,8 @@ steps:
         runtimeAdmission: NOT_ADMITTED
       intentBinding:
         status: SCREEN_PURPOSE_SOURCE
-        intent: inspect one exact artifact version, its integrity evidence, metadata,
-          and separately governed lifecycle
+        intent: inspect metadata and the time-scoped recorded integrity and lifecycle
+          disposition for one exact immutable artifact version
         intentSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#purpose
         screenContractRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml
       screenActorScope:
@@ -1972,10 +1986,10 @@ steps:
         kind: EXACT_SOURCE_ACTION
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
         screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-media.yaml#purpose
-        actionRef: media.action.inspect-artifact
+        actionRef: media.action.inspect-source
         candidateActionRefs: []
         operationRefs:
-          - media.operation-slice.inspect-artifact
+          - media.operation-slice.inspect-artifact-version
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;

@@ -76,9 +76,13 @@ test('refreshes the nine operation-source fingerprints only after their semantic
   const directCriteria = readJson('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json');
   const currentP001 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')?.currentCorrectiveReview;
   assert.equal(currentP001?.status, 'APPROVED_CURRENT_CORRECTION');
-  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-106');
-  assert.equal(currentP001?.sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml'], currentSourceDigest,
-    'the current operations source is checked against PXD-106 separately from historical PXD-094');
+  assert.equal(currentP001?.decisionRef, '.product-experience/decision-log.md#PXD-153');
+  const historicalP106 = directCriteria.records.find(({ taskId }) => taskId === 'P0-01')
+    ?.historicalCorrectiveReviews.find(({ decisionRef }) => decisionRef === '.product-experience/decision-log.md#PXD-106');
+  assert.equal(historicalP106?.status, 'APPROVED_CURRENT_CORRECTION');
+  assert.equal(historicalP106?.sourceFingerprints['.product-experience/pdp-1-domain-data/operations.yaml'],
+    'a30090468032dea1e94d4acbeb46ae7deca2fdeabf616b4c0355c84d2398b5a5',
+    'PXD-106 keeps its historical operations-source pin; current operation bytes are reconciled separately above');
   assert.equal(currentReview.currentSha256, 'f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d',
     'the older additive source overlay remains immutable history rather than being rewritten to the newer review');
   assert.equal(reviewedSourcePin.sha256, review.transcriptionSubmissionDefinitionSourceReconciliations.find(record => record.path === '.product-experience/pdp-1-domain-data/operations.yaml').currentSha256, 'the historical SDK source pin remains immutable');
@@ -162,10 +166,21 @@ test('PDP-2 obligation fingerprints change only after exact source-record impact
       assert.equal(currentReview.decisionRef, '.product-experience/decision-log.md#PXD-083');
       const supplemental = readJson('docs/implementation/verification/pdp-38/component-current-source-impact.json');
       assert.equal(supplemental.priorSourceSha256,currentReview.sourceFingerprints[sourcePath]);
-      assert.equal(`sha256:${supplemental.currentSourceSha256}`,digest);
+      assert.equal(supplemental.currentSourceSha256, 'e5ae2177fe08fe5ffe69ec7e47eb2d9446c792f35a3cb659c8c257f31b08bc93',
+        'PXD-104 remains pinned to the exact reviewed component source bytes');
+      const laterDelta = supplemental.postReviewCurrentSourceDelta;
+      assert.equal(laterDelta.priorSourceSha256, supplemental.currentSourceSha256);
+      assert.equal(`sha256:${laterDelta.currentSourceSha256}`, digest);
       const currentTree=parse(sourceText);
-      const {ownerDefinedComponentRules,normativeRuleRecords,...unchanged}=currentTree;
-      assert.equal(createHash('sha256').update(JSON.stringify(unchanged)).digest('hex'),supplemental.unchangedPriorParsedTreeSha256);
+      const {ownerDefinedComponentRules,normativeRuleRecords,...currentUnchanged}=currentTree;
+      for (const { jsonPointer, value } of laterDelta.addedFields) {
+        const segments = jsonPointer.split('/').slice(1).map((segment) => segment.replaceAll('~1', '/').replaceAll('~0', '~'));
+        const target = segments.slice(0, -1).reduce((node, key) => node[key], currentUnchanged);
+        assert.equal(target[segments.at(-1)], value, `${jsonPointer} matches the source-backed current delta`);
+        delete target[segments.at(-1)];
+      }
+      assert.equal(createHash('sha256').update(JSON.stringify(currentUnchanged)).digest('hex'),supplemental.unchangedPriorParsedTreeSha256,
+        'the only post-PXD-104 fields are the exact positive-fixture origin references recorded in the current delta');
       assert.deepEqual(ownerDefinedComponentRules.map(r=>({id:r.id,recordSha256:createHash('sha256').update(JSON.stringify(r)).digest('hex'),negativeCases:r.negativeCases})),supplemental.addedRuleRecords);
       assert.equal(normativeRuleRecords.length,12);
       assert.equal(supplemental.wholeTaskCriterionEstablished,false);assert.equal(supplemental.nativeLifecycleReceipt,null);
@@ -174,7 +189,28 @@ test('PDP-2 obligation fingerprints change only after exact source-record impact
     } else {
       const currentImpact = readJson('docs/implementation/verification/pdp-38/media-token-aliases-current-impact.json');
       assert.equal(currentImpact.historicalSourcePin, impact.currentSha256);
-      assert.equal(`sha256:${currentImpact.currentSourceSha256}`, digest);
+      assert.equal(currentImpact.currentSourceSha256, 'acaf3c0674ff542c77346fb7651a7e5193ac94738cf6be8bbae897d9f2a55637',
+        'the prior source-impact cut remains pinned to its exact reviewed bytes');
+      const laterDelta = currentImpact.postReviewCurrentSourceDelta;
+      assert.equal(laterDelta.priorSourceSha256, currentImpact.currentSourceSha256);
+      assert.equal(`sha256:${laterDelta.currentSourceSha256}`, digest);
+      assert.equal(laterDelta.acceptanceEffect.startsWith('none;'), true);
+      const currentTree = parse(sourceText);
+      for (const change of laterDelta.changes) {
+        const segments = change.jsonPointer.split('/').slice(1).map((segment) => segment.replaceAll('~1', '/').replaceAll('~0', '~'));
+        const currentParent = segments.slice(0, -1).reduce((node, key) => node[key], currentTree);
+        const key = segments.at(-1);
+        if (change.operation === 'REPLACE') {
+          assert.deepEqual(currentParent[key], change.currentValue);
+          currentParent[key] = structuredClone(change.priorValue);
+        } else {
+          assert.equal(createHash('sha256').update(JSON.stringify(currentParent[key])).digest('hex'), change.currentValueSha256);
+          if (change.jsonPointer === '/cssVariableBindings') assert.equal(currentParent[key].bindings.length, change.bindingCount);
+          delete currentParent[key];
+        }
+      }
+      assert.equal(createHash('sha256').update(JSON.stringify(currentTree)).digest('hex'), laterDelta.priorParsedSourceSha256,
+        'the source delta contains only the cited alias limitation, three CSS consumers, and CSS-variable binding subtree');
       assert.equal(currentImpact.unchangedSemanticRecords.aliasCount, 9);
       assert.equal(currentImpact.unchangedSemanticRecords.semanticAliasValuesChanged, false);
       assert.equal(currentImpact.coordinatorReview.wholeTaskCriterionEstablished, false);

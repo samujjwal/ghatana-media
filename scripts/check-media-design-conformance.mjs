@@ -8,7 +8,12 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-import { validateAllScreenCompositionSources } from "./lib/pdp-design-composition-validator.mjs";
+import {
+  loadCompositionCatalogs,
+  validateAllScreenCompositionSources,
+  validateCatalogRelations,
+  validateTypedComponentContracts,
+} from "./lib/pdp-design-composition-validator.mjs";
 
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { parse: parseYaml } = createRequire(resolve(DEFAULT_ROOT, "../ghatana-tools/package.json"))("yaml");
@@ -54,6 +59,62 @@ const sectionScalar = (source, section, key) => {
   return body.match(new RegExp(`^  ${key}:\\s*([^\\r\\n#]+)`, 'm'))?.[1]?.trim() ?? null;
 };
 const listIds = (source, key) => [...(source?.matchAll(new RegExp(`^\\s*- ${key}:\\s*([^\\r\\n#]+)`, "gmu")) ?? [])].map((match) => match[1].trim());
+
+function resolveCssVariableBindings(document) {
+  const errors = [];
+  const bindings = document?.cssVariableBindings;
+  const records = bindings?.bindings;
+  const accepted = new Set((document?.aliases ?? []).map((alias) => alias?.cssVariable)
+    .filter((name) => typeof name === "string" && /^--[a-z][a-z0-9-]*$/u.test(name)));
+  if (!Array.isArray(records)) return { accepted, errors };
+
+  const pinnedRevision = document?.sharedPublicContract?.pinnedDevelopmentSnapshotQualification?.sourceRevision;
+  if (bindings.sourcePackage !== "@ghatana/tokens"
+      || bindings.publicExport !== "@ghatana/tokens#./tokens.css"
+      || bindings.sourceRepository !== "samujjwal/ghatana-shared"
+      || !/^[a-f0-9]{40}$/u.test(bindings.sourceRevision ?? "")
+      || bindings.sourceRevision !== pinnedRevision
+      || bindings.resolutionStatus !== "VERIFIED_AGAINST_PINNED_PUBLIC_SOURCE_SNAPSHOT; registry-publication-and-immutable-release-pending") {
+    errors.push("Shared CSS bindings must name the exact pinned public token stylesheet snapshot without claiming release admission");
+  }
+
+  const ids = new Set();
+  const variables = new Set();
+  const sharedVariables = new Set();
+  for (const record of records) {
+    if (!record || typeof record.id !== "string" || ids.has(record.id)) {
+      errors.push("CSS variable bindings must have unique exact identities");
+      continue;
+    }
+    ids.add(record.id);
+    if (typeof record.cssVariable !== "string" || !/^--[a-z][a-z0-9-]*$/u.test(record.cssVariable) || variables.has(record.cssVariable)) {
+      errors.push(`${record.id}: CSS variable binding must have a unique valid CSS variable`);
+      continue;
+    }
+    variables.add(record.cssVariable);
+    if (record.publicCssRef) {
+      const valid = record.id.startsWith("media.shared-css.")
+        && record.publicCssRef === `@ghatana/tokens/tokens.css#${record.cssVariable}`
+        && typeof record.semanticSource === "string"
+        && /^sibling-repository:ghatana-shared\/platform\/typescript\/tokens\/src\/[A-Za-z0-9._/-]+#[A-Za-z0-9._-]+$/u.test(record.semanticSource)
+        && typeof record.valueType === "string" && record.valueType.length > 0
+        && typeof record.consumerBinding === "string" && record.consumerBinding.length > 0;
+      if (!valid) errors.push(`${record.id}: Shared CSS variable must resolve to its exact public export, pinned semantic source, value type, and consumer binding`);
+      else {
+        accepted.add(record.cssVariable);
+        sharedVariables.add(record.cssVariable);
+      }
+    } else {
+      const valid = record.id.startsWith("media.token.css.")
+        && typeof record.sharedCssVariableRef === "string" && sharedVariables.has(record.sharedCssVariableRef)
+        && typeof record.valueType === "string" && record.valueType.length > 0
+        && typeof record.projection === "string" && record.projection.length > 0;
+      if (!valid) errors.push(`${record.id}: Media CSS alias must project an exact Shared variable with an explicit value type and conversion`);
+      else accepted.add(record.cssVariable);
+    }
+  }
+  return { accepted, errors };
+}
 
 const GOVERNANCE_GATES = Object.freeze({
   "style-semantics-source": { source: PATHS.style, field: "scopeStatus", sourceStatus: "MEDIA_OWNER_ACCEPTED", disposition: "RESOLVED_OWNER" },
@@ -174,8 +235,15 @@ function validateDesignGovernance(governance, sourceByPath, root) {
   return errors;
 }
 
-/** Analyze a repository root. Findings are observations, never acceptance. */
-export function analyzeDesignConformance(root = DEFAULT_ROOT) {
+/**
+ * Analyze a repository root. Findings are observations, never acceptance.
+ * `definitionOnly` defers only external package and independent-review gates;
+ * malformed source, incomplete Media definitions, and unexplained design
+ * findings remain blocking. `includeP3ScreenInstances` defaults to the strict
+ * full-repository screen check; PDP-2 phase status can set it false so that
+ * reusable PDP-2 grammar is validated without requiring PDP-3 instance links.
+ */
+export function analyzeDesignConformance(root = DEFAULT_ROOT, { definitionOnly = false, includeP3ScreenInstances = true } = {}) {
   const findings = [];
   const blockers = [];
   const add = (kind, path, line, detail, disposition = "unexplained", rootCauseKey = `${kind}:${path}`) => findings.push({ kind, path, line, detail, disposition, rootCauseKey });
@@ -204,7 +272,11 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   for (const error of validateDesignGovernance(governance, sourceByPath, root)) block(`design-governance: ${error}`);
   if (Array.isArray(governance?.gates)) {
     const pending = governance.gates.filter((gate) => gate.disposition !== "RESOLVED_OWNER");
-    for (const gate of pending) block(`design-governance gate ${gate.id} remains ${gate.disposition}`);
+    const deferredAdmissionGates = pending.filter((gate) => definitionOnly
+      && ["EXTERNAL_PENDING", "INDEPENDENT_PENDING"].includes(gate.disposition));
+    for (const gate of pending) {
+      if (!deferredAdmissionGates.includes(gate)) block(`design-governance gate ${gate.id} remains ${gate.disposition}`);
+    }
   }
 
   if (style) {
@@ -227,8 +299,15 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const productCssFiles = cssFiles.filter(({ scope }) => scope === "product");
   const explorerFixtureCssFiles = cssFiles.filter(({ scope }) => scope === "explorer-fixture");
   const css = productCssFiles.map(({ content }) => content).join("\n");
-  const aliasIds = new Set(listIds(aliases, "id"));
-  const aliasCssVariables = new Set([...(aliases?.matchAll(/^\s*cssVariable:\s*(--[a-z][a-z0-9-]*)\s*$/gimu) ?? [])].map((match) => match[1]));
+  let aliasDocument = null;
+  if (aliases) {
+    try { aliasDocument = parseYaml(aliases); }
+    catch (error) { block(`semantic token alias source is invalid YAML: ${error.message}`); }
+  }
+  const aliasIds = new Set((aliasDocument?.aliases ?? []).map((alias) => alias?.id).filter((id) => typeof id === "string"));
+  const cssBindingReview = resolveCssVariableBindings(aliasDocument);
+  for (const error of cssBindingReview.errors) block(`design-token CSS binding: ${error}`);
+  const aliasCssVariables = cssBindingReview.accepted;
   const tokenVars = new Set([...css.matchAll(/(--[a-z][a-z0-9-]*)\s*:/giu)].map((match) => match[1]));
   const declaredTokenRefs = new Set([...css.matchAll(/var\((--[a-z][a-z0-9-]*)/giu)].map((match) => match[1]));
   const explorerFixturePath = style?.match(/^\s*explorerFixtureSource:\s*([^\s#]+)/mu)?.[1];
@@ -262,7 +341,7 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
     }
   }
   for (const variable of declaredTokenRefs) {
-    if (!tokenVars.has(variable)) add("unknown-token-provenance", productCssFiles[0]?.path ?? PATHS.productSources[0], null, `${variable} is referenced but has no local declaration or verified alias binding`, "unexplained", `unknown-token:${variable}`);
+    if (!tokenVars.has(variable) && !aliasCssVariables.has(variable)) add("unknown-token-provenance", productCssFiles[0]?.path ?? PATHS.productSources[0], null, `${variable} is referenced but has no local declaration or verified alias binding`, "unexplained", `unknown-token:${variable}`);
   }
   for (const variable of tokenVars) {
     if (!aliasCssVariables.has(variable)) add("unknown-token-provenance", productCssFiles[0]?.path ?? PATHS.productSources[0], null, `${variable} is locally defined but is not explicitly mapped from a PDP-2 semantic alias`, "unexplained", `unknown-token:${variable}`);
@@ -324,20 +403,32 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   }
 
   const templateIds = new Set(listIds(templateCatalog, "id"));
-  for (const error of validateAllScreenCompositionSources(root)) block(`screen composition definition invalid: ${error}`);
   const screenDir = join(root, PATHS.screens);
-  const screenFiles = existsSync(screenDir) ? readdirSync(screenDir).filter((name) => name.endsWith(".yaml") && name !== "artifact-verification-job-family.yaml") : [];
-  if (screenFiles.length === 0) block(`screen-contract inventory is missing or empty: ${PATHS.screens}`);
-  for (const file of screenFiles) {
-    const path = `${PATHS.screens}/${file}`;
-    const content = read(root, path);
-    const templateRef = content?.match(/^templateId:\s*([^\r\n#]+)/mu)?.[1]?.trim();
-    if (!templateRef || /^(?:null|~|TBD|pending)$/iu.test(templateRef)) add("missing-template-binding", path, null, "screen has no concrete templateId");
-    else if (!templateIds.has(templateRef)) add("missing-template-binding", path, null, `template ${templateRef} is not in the PDP-2 template catalog`);
-    const layoutLine = content?.match(/^layoutIds:\s*(.*)$/mu)?.[1]?.trim() ?? "";
-    const layoutRefs = [...layoutLine.matchAll(/([a-z][a-z0-9]*(?:[.-][a-z0-9]+)+)/giu)].map((match) => match[1]);
-    if (!layoutRefs.length) add("missing-layout-binding", path, null, "screen has no concrete layoutIds");
-    else for (const layoutRef of layoutRefs) if (!layout?.includes(layoutRef)) add("missing-layout-binding", path, null, `layout ${layoutRef} is not described by the PDP-2 layout authority`);
+  const screenFiles = includeP3ScreenInstances && existsSync(screenDir)
+    ? readdirSync(screenDir).filter((name) => name.endsWith(".yaml") && name !== "artifact-verification-job-family.yaml")
+    : [];
+  const deferredP3ScreenCompositionFindings = [];
+  if (includeP3ScreenInstances) {
+    const screenCompositionErrors = validateAllScreenCompositionSources(root);
+    for (const error of screenCompositionErrors) block(`screen composition definition invalid: ${error}`);
+    if (screenFiles.length === 0) block(`screen-contract inventory is missing or empty: ${PATHS.screens}`);
+    for (const file of screenFiles) {
+      const path = `${PATHS.screens}/${file}`;
+      const content = read(root, path);
+      const templateRef = content?.match(/^templateId:\s*([^\r\n#]+)/mu)?.[1]?.trim();
+      if (!templateRef || /^(?:null|~|TBD|pending)$/iu.test(templateRef)) add("missing-template-binding", path, null, "screen has no concrete templateId");
+      else if (!templateIds.has(templateRef)) add("missing-template-binding", path, null, `template ${templateRef} is not in the PDP-2 template catalog`);
+      const layoutLine = content?.match(/^layoutIds:\s*(.*)$/mu)?.[1]?.trim() ?? "";
+      const layoutRefs = [...layoutLine.matchAll(/([a-z][a-z0-9]*(?:[.-][a-z0-9]+)+)/giu)].map((match) => match[1]);
+      if (!layoutRefs.length) add("missing-layout-binding", path, null, "screen has no concrete layoutIds");
+      else for (const layoutRef of layoutRefs) if (!layout?.includes(layoutRef)) add("missing-layout-binding", path, null, `layout ${layoutRef} is not described by the PDP-2 layout authority`);
+    }
+  } else {
+    const reusableCompositionErrors = [
+      ...validateCatalogRelations(loadCompositionCatalogs(root)),
+      ...validateTypedComponentContracts(root),
+    ];
+    for (const error of reusableCompositionErrors) block(`reusable composition grammar invalid: ${error}`);
   }
   if (templateCatalog && templateIds.size === 0) add("missing-template-catalog", PATHS.templates, null, "template catalog contains no template identifiers");
   if (!layout || !/^layoutRules:/mu.test(layout)) add("missing-layout-authority", PATHS.layout, null, "PDP-2 layout rules are absent");
@@ -380,7 +471,17 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
   const rootCauseCount = new Set(unexplained.map((item) => item.rootCauseKey)).size;
   const governanceGates = Array.isArray(governance?.gates) ? governance.gates : [];
   const openGates = governanceGates.filter((gate) => gate.disposition !== "RESOLVED_OWNER");
-  return { ok: blockers.length === 0 && unexplained.length === 0, findings, blockers, summary: {
+  const deferredAdmissionGates = definitionOnly && Array.isArray(governance?.gates)
+    ? governance.gates.filter((gate) => ["EXTERNAL_PENDING", "INDEPENDENT_PENDING"].includes(gate.disposition))
+      .map((gate) => ({ id: gate.id, disposition: gate.disposition }))
+    : [];
+  return { ok: blockers.length === 0 && unexplained.length === 0,
+    mode: definitionOnly ? "DEFINITION_ONLY" : "STRICT_CONFORMANCE",
+    acceptanceClaim: "NONE",
+    screenInstanceScope: includeP3ScreenInstances ? "FULL_PDP3_INSTANCE_VALIDATION" : "DEFERRED_PDP3_INSTANCE_VALIDATION",
+    deferredAdmissionGates,
+    deferredP3ScreenCompositionFindings: includeP3ScreenInstances ? [] : deferredP3ScreenCompositionFindings,
+    findings, blockers, summary: {
     sourceFiles: sourceFiles.length,
     productSourceFiles: productSourceFiles.length,
     explorerFixtureFiles: explorerFixtureFiles.length,
@@ -400,10 +501,20 @@ export function analyzeDesignConformance(root = DEFAULT_ROOT) {
 }
 
 function main() {
-  const result = analyzeDesignConformance();
-  console.log(`Media design conformance ${result.ok ? "passed" : "BLOCKED"}`);
+  const definitionOnly = process.argv.includes("--definition-only");
+  const unknownArguments = process.argv.slice(2).filter((argument) => argument !== "--definition-only");
+  if (unknownArguments.length) {
+    console.error(`Unknown argument(s): ${unknownArguments.join(", ")}`);
+    process.exitCode = 2;
+    return;
+  }
+  const result = analyzeDesignConformance(DEFAULT_ROOT, { definitionOnly });
+  console.log(`Media design ${definitionOnly ? "definition-only check" : "conformance"} ${result.ok ? "passed" : "BLOCKED"}`);
   console.log(`  scanned ${result.summary.productSourceFiles} product source files and ${result.summary.explorerFixtureFiles} Explorer fixture files (${result.summary.productCssFiles} product stylesheets; ${result.summary.explorerFixtureCssFiles} fixture stylesheets), ${result.summary.screenContracts} canonical screen contracts`);
   console.log(`  design governance: ${result.summary.resolvedOwnerGates}/${result.summary.governanceGateCount} Media owner decisions resolved; ${result.summary.openGovernanceGates.length} external, independent, or source-incomplete gates remain open`);
+  if (definitionOnly && result.deferredAdmissionGates.length) {
+    console.log(`  deferred admission gates (not design-definition blockers): ${result.deferredAdmissionGates.map(({ id, disposition }) => `${id}=${disposition}`).join(", ")}`);
+  }
   console.log(`  ${result.summary.productLiteralColors} product literal color(s), ${result.summary.explorerFixtureObservations} fixture-only observations, ${result.summary.unexplained} unexplained findings across ${result.summary.unexplainedRootCauses} root causes`);
   const byKind = new Map();
   for (const item of result.findings) byKind.set(item.kind, [...(byKind.get(item.kind) ?? []), item]);

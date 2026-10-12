@@ -143,9 +143,11 @@ steps:
           evidence.
       stepSourceFacts:
         intent: Initial conditions, domain fidelity, time control and instruments
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-simulation-result; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Refinement preserves accepted domain measurements or reports the exact
@@ -212,11 +214,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Refinement preserves accepted domain measurements or reports the exact
-            failed validation and fidelity consequence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-simulation-result; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -262,11 +262,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-simulation-result
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Refinement preserves accepted domain measurements or reports the exact
-              failed validation and fidelity consequence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-simulation-result/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-simulation-result; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read the result and declared measurements for the exact simulation run;
             distinguish missing, partial, and unavailable evidence.
           finality: read-only; no-write-finality
@@ -363,7 +361,8 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-15.j-15.step-01
     capabilityRefs: []
   - view: media.view.review-creation-plan
     legacyViewRef: M-PLAN
@@ -480,9 +479,11 @@ steps:
           from a negative result.
       stepSourceFacts:
         intent: Proposed graph, estimates, material decisions and validation
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.review-processing-parameters; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Refinement preserves accepted domain measurements or reports the exact
@@ -546,11 +547,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Refinement preserves accepted domain measurements or reports the exact
-            failed validation and fidelity consequence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.review-processing-parameters; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -593,11 +592,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.review-processing-parameters
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Refinement preserves accepted domain measurements or reports the exact
-              failed validation and fidelity consequence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.review-processing-parameters; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read the exact artifact, measurement, or declared parameter context;
             preserve source versions and distinguish missing evidence from a
             negative result.
@@ -803,9 +800,11 @@ steps:
         noMutationReason: read-version-bound-source-and-processing-lineage
       stepSourceFacts:
         intent: Applicable dimensions, abstentions, defects and repair plan
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Refinement preserves accepted domain measurements or reports the exact
@@ -869,11 +868,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Refinement preserves accepted domain measurements or reports the exact
-            failed validation and fidelity consequence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -899,11 +896,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Refinement preserves accepted domain measurements or reports the exact
-              failed validation and fidelity consequence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -1132,9 +1127,11 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Refinement preserves accepted domain measurements or reports the exact
@@ -1197,11 +1194,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Refinement preserves accepted domain measurements or reports the exact
-            failed validation and fidelity consequence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1243,11 +1238,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Refinement preserves accepted domain measurements or reports the exact
-              failed validation and fidelity consequence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality

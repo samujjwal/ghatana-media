@@ -170,3 +170,24 @@ test("PDP-2 reuse audit covers the broader Ghatana workspace and dependency boun
   assert.equal(packages.get("@gharbatai/forms-react-hook-form and @gharbatai/table-tanstack")?.workspacePackage, false);
   assert.match(review.verificationBoundary.acceptanceBoundary, /No new component/u);
 });
+
+test("all 31 component families have one honest whole-family disposition", () => {
+  const audit = parse(readFileSync(resolve(root, ".product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml"), "utf8"));
+  const rule = audit.componentFamilyDispositionRule;
+  const rows = audit.componentFamilyCrosswalk;
+  const counts = Object.fromEntries(Object.keys(rule.counts).map((key) => [key, rows.filter((row) => row.familyDisposition === key).length]));
+
+  assert.deepEqual(counts, rule.counts);
+  assert.equal(rows.length, 31);
+  assert.equal(new Set(rows.map((row) => row.componentRef)).size, 31);
+  assert.ok(rows.every((row) => row.dispositionRationale.trim().length > 0));
+  assert.deepEqual(rows.filter((row) => row.familyDisposition === "MEDIA_PUBLIC_COMPOSITION").map((row) => row.componentRef).sort(), [
+    "media.component.progress-indicator",
+    "media.component.task-flow",
+    "media.component.voice-production-workflow",
+  ]);
+  assert.equal(rule.counts.SHARED_PUBLIC_EXPORT, 0, "partial EmptyState/FileUpload composition is not a whole-family Shared export");
+  assert.match(rule.meaning, /generic renderer and the contract review harness are not evidence that 28 product families run/u);
+  assert.equal(rows.find((row) => row.componentRef === "media.component.progress-indicator").familyDisposition, "MEDIA_PUBLIC_COMPOSITION");
+  assert.equal(rows.find((row) => row.componentRef === "media.component.voice-production-workflow").familyDisposition, "MEDIA_PUBLIC_COMPOSITION");
+});

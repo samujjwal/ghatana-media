@@ -499,10 +499,12 @@ mediaOwnedToolDefinitionContracts:
         - delegationChainRef
         - purposeRef
         - resourceBindings
+        - policyDecisionRefs
         - invocationId
         - deadline
         - idempotencyDisposition
         - cancellationRef
+        - executionBudget
       properties:
         principalRef:
           type: string
@@ -540,8 +542,36 @@ mediaOwnedToolDefinitionContracts:
           type: string
           minLength: 1
           maxLength: 512
+        executionBudget:
+          type: object
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [disposition, budgetRef, policyVersionRef, capabilityBoundsRef]
+              properties:
+                disposition:
+                  const: BOUNDED
+                budgetRef:
+                  type: string
+                  minLength: 1
+                  maxLength: 1024
+                policyVersionRef:
+                  type: string
+                  minLength: 1
+                  maxLength: 512
+                capabilityBoundsRef:
+                  type: string
+                  minLength: 1
+                  maxLength: 1024
+            - type: object
+              additionalProperties: false
+              required: [disposition]
+              properties:
+                disposition:
+                  const: UNSUPPORTED_NO_DISPATCH
         policyDecisionRefs:
           type: array
+          minItems: 1
           maxItems: 32
           uniqueItems: true
           items:
@@ -644,6 +674,10 @@ mediaOwnedToolDefinitionContracts:
       - The host schema validates shape only; trusted runtime verifies issuer,
         signature, currentness, authorization, expiry, and source resolution. A
         valid-looking ref is not proof.
+      - The executionBudget tuple is host-issued and binds one invocation
+        allocation, its policy version, and the exact selected PDP-1 capability
+        bounds. Media input, planning output, or observed media content cannot
+        set, replace, enlarge, or renew any member of that tuple.
   invocationSemantics:
     authority: Deny when principal, tenant, delegation chain, purpose, exact
       resource/version, rights/consent, or current policy evidence is missing,
@@ -652,6 +686,13 @@ mediaOwnedToolDefinitionContracts:
     deadline: Require a finite host-issued deadline covering queue and downstream
       execution. Expiry after dispatch yields UNKNOWN unless authoritative
       reconciliation proves an outcome.
+    executionBudget: Require a current host-issued BOUNDED allocation bound to
+      the exact operation's PDP-1 capabilityBounds record and policy version
+      before dispatch. If the allocation, current policy version, or applicable
+      owner-defined capability bound is absent or unsupported, return
+      UNSUPPORTED_NO_DISPATCH. These source bounds are conservative product
+      definition ceilings, not provider pricing, measured capacity, or runtime
+      admission.
     idempotency: Read-only queries use READ_ONLY_NO_KEY. Mutations require a stable
       scoped key and owner-confirmed deduplication contract; absent proof means
       UNSUPPORTED_NO_DISPATCH. Never retry an unresolved effect.
@@ -683,6 +724,18 @@ mediaOwnedToolDefinitionContracts:
       CANCELLATION_REQUESTED: Request acknowledgment only; no rollback or stopped-effect claim.
       CANCELLED: Only owner-confirmed cancellation finality; does not imply artifact
         erasure or rollback of an already-applied effect.
+    resultErrorContract:
+      id: media.agent-tool-result-error-union.v1
+      schemaRef: each-contract-resultSchema
+      rule: >-
+        Each closed resultSchema is the one discriminated result/error contract.
+        REJECTED_PRE_DISPATCH and FAILED are error outcomes with only a bounded
+        safeErrorCode and required outcome evidence; exception messages and
+        arbitrary error details are forbidden. CANCELLATION_REQUESTED and
+        CANCELLED are control/finality outcomes, not generic error aliases.
+        OUTCOME_UNKNOWN is a non-final outcome with no success payload and
+        preserves the known operation identity or explicit unresolved identity
+        disposition. A separate error endpoint/schema would duplicate this union.
     id: media.agent-tool-invocation-policy.v1
     scopeStatus: MEDIA_OWNER_DEFINITION_ONLY; host verification, public binding, and
       runtime admission pending
@@ -780,7 +833,7 @@ mediaOwnedToolDefinitionContracts:
           maxLength: 256
         planVersion:
           type: string
-          pattern: '^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$'
+          pattern: '^[1-9][0-9]*\.[0-9]+\.[0-9]+$'
         members:
           type: array
           minItems: 1
@@ -896,6 +949,28 @@ mediaOwnedToolDefinitionContracts:
       - If content would alter a closed envelope or exceed a declared target,
         purpose, or budget, reject that requested expansion and keep the original
         scoped operation unchanged.
+    immutableAuthorityTargetBudgetTuple:
+      fields:
+        - toolId
+        - contractId
+        - operationRef
+        - principalRef
+        - tenantRef
+        - delegationChainRef
+        - purposeRef
+        - resourceBindings
+        - policyDecisionRefs
+        - executionBudget
+        - deadline
+        - idempotencyDisposition
+        - idempotencyKeyRef
+        - cancellationRef
+      rule: >-
+        These fields are fixed by the authenticated caller, host registry, and
+        current owner policy for one invocation. Media text, OCR, metadata, and
+        model output cannot change any value, add a tool/operation/target, or
+        enlarge or renew the budget. A proposal that differs from this tuple is
+        rejected before dispatch; an unavailable budget is UNSUPPORTED_NO_DISPATCH.
     adversarialCases:
       - id: media.agent-tool-untrusted-case.transcript-tool-injection.v1
         inputClass: transcript-text-and-recognized-speech
@@ -920,6 +995,8 @@ mediaOwnedToolDefinitionContracts:
       handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java
       operationFamilyRef: media.operation.transcription
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission
+      executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-speech-transcription-file
+      resultSchemaRole: CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION
       operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
         runtime admission pending
       requestAdapter:
@@ -1200,6 +1277,8 @@ mediaOwnedToolDefinitionContracts:
       handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java
       operationFamilyRef: media.operation.synthesis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech
+      executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-speech-synthesis-text-to-speech
+      resultSchemaRole: CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION
       operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
         runtime admission pending
       requestAdapter:
@@ -1561,6 +1640,8 @@ mediaOwnedToolDefinitionContracts:
       handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java
       operationFamilyRef: media.operation.vision-analysis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect
+      executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-vision-detect
+      resultSchemaRole: CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION
       operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
         runtime admission pending
       requestAdapter:
@@ -1965,6 +2046,8 @@ mediaOwnedToolDefinitionContracts:
       handlerSource: libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
       operationFamilyRef: media.operation.multimodal-analysis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal
+      executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-multimodal-analyze-cross-modal
+      resultSchemaRole: CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION
       operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
         runtime admission pending
       requestAdapter:

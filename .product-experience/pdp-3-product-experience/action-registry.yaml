@@ -588,7 +588,7 @@ actions:
         - media.operation-slice.attach-source-asset
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: [MEDIA-REQ-CAP-PROJECT]
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -1140,6 +1140,7 @@ actions:
     - media.editor
   capabilityRefs: [media.artifact.inspect]
   preconditions:
+    - exact-artifact-and-immutable-version-identity
     - current-read-authority
   effect: read-source-metadata-for-one-exact-artifact-version
   reversible: true
@@ -1159,6 +1160,7 @@ actions:
         - media.creator
         - media.editor
       applicabilityGuards:
+        - exact-artifact-and-immutable-version-identity
         - current-read-authority
       effect: read-source-metadata-for-one-exact-artifact-version
       sourceReversibleValue: true
@@ -1192,6 +1194,7 @@ actions:
         - media.creator
         - media.editor
       preconditions:
+        - exact-artifact-and-immutable-version-identity
         - current-read-authority
       effect: read-source-metadata-for-one-exact-artifact-version
       reversible: true
@@ -1614,7 +1617,7 @@ actions:
         - media.operation-slice.cancel-job
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: [MEDIA-REQ-CAP-JOB]
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -1848,7 +1851,7 @@ actions:
         - media.operation-slice.retry-job
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: [MEDIA-REQ-CAP-JOB]
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -2288,7 +2291,7 @@ actions:
     - media.creator
     - media.editor
     - media.reviewer
-  capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+  capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export, media.provenance.source-lineage.inspect]
   preconditions:
     - current-read-authority
   effect: read-version-bound-source-and-processing-lineage
@@ -2373,7 +2376,7 @@ actions:
       capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
       requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     - sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/inspect-provenance.yaml
-      capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
+      capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export, media.provenance.source-lineage.inspect]
       requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
     - sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
       capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
@@ -2807,7 +2810,7 @@ actions:
         - media.operation.action.apply-authorized-rights-restriction
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -3857,7 +3860,7 @@ actions:
         - media.operation.action.continue-within-recorded-scope
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -3973,7 +3976,7 @@ actions:
         - media.operation.action.deliver-exact-version
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -5038,7 +5041,7 @@ actions:
         - media.operation.action.export-authorized-provenance
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -8311,7 +8314,7 @@ actions:
         - media.operation.action.record-authorized-attestation
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -8439,7 +8442,7 @@ actions:
         - media.operation.action.record-candidate-for-review
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -8558,7 +8561,7 @@ actions:
         - media.operation.action.record-review-comment
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -8677,7 +8680,7 @@ actions:
         - media.operation.action.record-review-follow-up
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -8796,7 +8799,7 @@ actions:
         - media.operation.action.record-version-review-decision
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -9315,7 +9318,7 @@ actions:
         - media.operation.action.request-admitted-speech-operation
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -9436,7 +9439,7 @@ actions:
         - media.operation.action.request-authorized-review
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -9557,7 +9560,7 @@ actions:
         - media.operation.action.request-plan-validation
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -9677,7 +9680,7 @@ actions:
         - media.operation.action.request-rights-review
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -9790,7 +9793,7 @@ actions:
         - media.operation.action.restore-prior-setting-preference
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11047,7 +11050,7 @@ actions:
         - media.operation.action.revoke-authorized-consent
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11163,7 +11166,7 @@ actions:
         - media.operation.action.save-dubbing-version
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11289,7 +11292,7 @@ actions:
         - media.operation.action.save-new-revision
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11408,7 +11411,7 @@ actions:
         - media.operation.action.save-setting-preference
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11527,7 +11530,7 @@ actions:
         - media.operation.action.save-storyboard-revision
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11646,7 +11649,7 @@ actions:
         - media.operation.action.save-versioned-edit
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -11897,8 +11900,7 @@ actions:
   handoffRefs: []
   viewRefs:
     - media.view.find-task-guidance
-  journeyRefs:
-    - J-06
+  journeyRefs: []
   preconditions:
     - resolve-the-current-workspace-and-exact-target-before-access-or-change
     - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
@@ -13096,7 +13098,7 @@ actions:
         - media.operation.action.share-diagnostics-after-explicit-choice
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -13322,7 +13324,7 @@ actions:
         - media.operation.action.stop-authorized-voice-use
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -13449,7 +13451,7 @@ actions:
         - media.operation.action.submit-admitted-plan
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -13574,7 +13576,7 @@ actions:
         - media.operation.action.submit-render
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -13698,7 +13700,7 @@ actions:
         - media.operation.action.submit-simulation
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
@@ -13723,6 +13725,7 @@ actions:
   journeyRefs:
     - J-03
     - J-05
+    - J-06
     - J-07
     - J-08
     - J-09
@@ -13825,7 +13828,7 @@ actions:
         - media.operation.action.submit-validated-request
       ownerDefinitionStatus: Media-owner-source-classification; independent-PDP3-and-PDP1-review-open;
         runtime-not-admitted
-      classificationBasis: source-describes-a-domain-or-external-effect-without-an-exact-registered-operation-reference
+      classificationBasis: source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
   requirementRefs: []
   capabilityBindingStatus: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED

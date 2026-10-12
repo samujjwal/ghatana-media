@@ -40,6 +40,24 @@ designAuthority:
     - .product-experience/pdp-2-design-interface-system/gui
     - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
   forbidden: Screen-local design-rule authority or local redefinition of central PDP-2 decisions.
+actorSemantics:
+  sourceRef: .product-experience/pdp-0-product-truth/actors-responsibilities.yaml#/interpretation/actorsModel
+  screenAudienceField: actors
+  screenAudienceMeaning: >-
+    The top-level actors field identifies the usage actors whose experience the
+    Web screen is intended to serve. It is not an authenticated identity, RBAC
+    grant, or the exhaustive list of actors allowed by every action or channel.
+  actionActorField: actionConsequences[].actorRefs
+  actionActorMeaning: >-
+    Each action's actorRefs preserves the exact channel-agnostic actor refs in
+    its action definition and may include machine actors or actors used through
+    another channel. These source actor refs are not themselves an authorization
+    grant and do not imply that this Web screen exposes the action to every
+    listed actor. Screen availability and consequential authority still require
+    the exact channel disposition and current trusted identity/policy checks.
+  channelField: channel
+  channelDispositionField: channelDispositions
+  authorityRef: .product-experience/pdp-3-product-experience/action-registry.yaml
 provenance:
   preserveExistingV1Fields: true
   interpretation: Existing v1 fields and meanings are retained as proposal provenance only, not accepted bindings or semantic authority.

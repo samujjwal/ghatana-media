@@ -15,10 +15,10 @@ const readYaml = (path) => parse(readFileSync(path, "utf8"));
 const conventions = () => readYaml(conventionsPath);
 const registry = () => readYaml(registryPath);
 const expected = new Map([
-  ["av.speech-to-text", ["media.agent-tool-contract.speech-to-text.v1", "media.operation.transcription", "media.operation.transcription-submission", "operations/@id=media.operation.transcription-submission"]],
-  ["av.text-to-speech", ["media.agent-tool-contract.text-to-speech.v1", "media.operation.synthesis", "media.operation.capability.media-speech-synthesis-text-to-speech", "capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech"]],
-  ["av.vision-analysis", ["media.agent-tool-contract.vision-analysis.v1", "media.operation.vision-analysis", "media.operation.capability.media-vision-detect", "capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect"]],
-  ["av.multimodal-inference", ["media.agent-tool-contract.multimodal-inference.v1", "media.operation.multimodal-analysis", "media.operation.capability.media-multimodal-analyze-cross-modal", "capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal"]],
+  ["av.speech-to-text", ["media.agent-tool-contract.speech-to-text.v1", "media.operation.transcription", "media.operation.transcription-submission", "operations/@id=media.operation.transcription-submission", "media.capability-bounds.media-speech-transcription-file", "capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file"]],
+  ["av.text-to-speech", ["media.agent-tool-contract.text-to-speech.v1", "media.operation.synthesis", "media.operation.capability.media-speech-synthesis-text-to-speech", "capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech", "media.capability-bounds.media-speech-synthesis-text-to-speech", "capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech"]],
+  ["av.vision-analysis", ["media.agent-tool-contract.vision-analysis.v1", "media.operation.vision-analysis", "media.operation.capability.media-vision-detect", "capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect", "media.capability-bounds.media-vision-detect", "capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect"]],
+  ["av.multimodal-inference", ["media.agent-tool-contract.multimodal-inference.v1", "media.operation.multimodal-analysis", "media.operation.capability.media-multimodal-analyze-cross-modal", "capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal", "media.capability-bounds.media-multimodal-analyze-cross-modal", "capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal"]],
 ]);
 
 function resolveSelector(value, selector) {
@@ -68,7 +68,7 @@ function validateDefinitions(source) {
   if (contracts.length !== 4 || new Set(ids).size !== 4) errors.push("expected four unique versioned tool contracts");
   if (source.mediaOwnedToolDefinitionContracts?.status !== "MEDIA_OWNER_DEFINITION_ONLY; public-runtime-binding-pending") errors.push("Media definition-only status missing");
   for (const [toolId, tuple] of expected) {
-    const [contractId, familyRef, operationId, selector] = tuple;
+    const [contractId, familyRef, operationId, selector, boundId, budgetOwnerSelector] = tuple;
     const contract = contracts.find((item) => item.id === contractId);
     if (!contract) { errors.push(`${toolId}: missing ${contractId}`); continue; }
     const sourceOperation = resolveSourceRef(`.product-experience/pdp-1-domain-data/operations.yaml#${selector}`);
@@ -76,6 +76,12 @@ function validateDefinitions(source) {
     if (contract.toolId !== toolId || contract.operationFamilyRef !== familyRef || contract.canonicalOperationRef !== `.product-experience/pdp-1-domain-data/operations.yaml#${selector}`) errors.push(`${toolId}: identity/canonical operation mismatch`);
     if (contract.operationBindingStatus !== "OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and runtime admission pending") errors.push(`${toolId}: candidate binding promoted`);
     if (contract.runtimeAdmission !== "NOT_ADMITTED") errors.push(`${toolId}: runtime admission promoted`);
+    if (contract.executionBudgetBoundsRef !== `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=${boundId}`) errors.push(`${toolId}: execution budget must bind its exact PDP-1 capability bound`);
+    const bound = resolveSourceRef(contract.executionBudgetBoundsRef);
+    const budgetOwner = resolveSourceRef(`.product-experience/pdp-1-domain-data/operations.yaml#${budgetOwnerSelector}`);
+    if (!bound || bound.id !== boundId || !budgetOwner || budgetOwner.boundsRef !== boundId) errors.push(`${toolId}: execution budget bound does not resolve through its applicable PDP-1 operation binding`);
+    if (!/owner-selected conservative definition limits; not measured capacity, model quality, scientific accuracy, license, or runtime admission/u.test(bound?.basis ?? "")) errors.push(`${toolId}: capability bound must remain definition-only, not a runtime or pricing claim`);
+    if (contract.resultSchemaRole !== "CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION") errors.push(`${toolId}: closed result/error union role is not explicit`);
     if (contract.inputSchema?.$schema !== "https://json-schema.org/draft/2020-12/schema" || !contract.inputSchema.$id?.endsWith(":v1")) errors.push(`${toolId}: input schema is not versioned Draft 2020-12`);
     if (contract.resultSchema?.$schema !== "https://json-schema.org/draft/2020-12/schema" || !contract.resultSchema.$id?.endsWith(":v1")) errors.push(`${toolId}: result schema is not versioned Draft 2020-12`);
     errors.push(...closedSchema(contract.inputSchema, `${toolId}.inputSchema`), ...closedSchema(contract.resultSchema, `${toolId}.resultSchema`));
@@ -96,7 +102,7 @@ function validateDefinitions(source) {
       for (const field of ["payloadTypeRef", "payloadSchemaRef", "subjectObjectRef", "subjectVersionRef", "producerRef", "profileRef", "profileVersionRef", "provenanceRef", "evidenceRefs", "observedAt"]) if (!payload?.required?.includes(field)) errors.push(`${toolId}: success payload omits ${field}`);
     }
     const fields = new Set(Object.keys(contract.inputSchema?.properties ?? {}));
-    for (const forbidden of ["tenantId", "principalId", "delegation", "policyDecision", "idempotencyKey", "deadline", "cancellationToken"]) if (fields.has(forbidden)) errors.push(`${toolId}: trusted context field ${forbidden} must not be model supplied`);
+    for (const forbidden of ["tenantId", "principalId", "delegation", "policyDecision", "idempotencyKey", "deadline", "cancellationToken", "executionBudget", "budgetRef", "capabilityBoundsRef"]) if (fields.has(forbidden)) errors.push(`${toolId}: trusted context field ${forbidden} must not be model supplied`);
     for (const ref of contract.authorityRefs ?? []) if (!resolveSourceRef(ref)) errors.push(`${toolId}: authority source reference does not resolve: ${ref}`);
     for (const ref of [contract.canonicalOperationRef, contract.requestAdapter?.canonicalContractRef]) if (!resolveSourceRef(ref)) errors.push(`${toolId}: canonical source reference does not resolve: ${ref}`);
     const requestSource = resolveSourceRef(contract.requestAdapter?.canonicalContractRef);
@@ -106,7 +112,29 @@ function validateDefinitions(source) {
     if (registryTool?.operationBinding?.value !== operationId || registryTool.operationBinding.status !== "owner-defined-operation-candidate; adapter-mapping-and-runtime-pending") errors.push(`${toolId}: registry binding scope mismatch`);
     if (registryTool?.executionAdmitted !== false || contract.requestAdapter?.status !== "NOT_IMPLEMENTED" || contract.resultAdapter?.status !== "NOT_IMPLEMENTED") errors.push(`${toolId}: candidate admission/adapter boundary promoted`);
   }
+  const host = source.mediaOwnedToolDefinitionContracts?.hostInvocationContext?.schema;
+  if (!host?.required?.includes("executionBudget")) errors.push("host invocation context must require an execution budget disposition");
+  const resultErrorContract = source.mediaOwnedToolDefinitionContracts?.invocationSemantics?.resultErrorContract;
+  if (resultErrorContract?.id !== "media.agent-tool-result-error-union.v1" || resultErrorContract.schemaRef !== "each-contract-resultSchema") errors.push("closed result/error union contract is not explicit");
   return errors;
+}
+
+function validateHostExecutionBudget(toolId, hostContext) {
+  const source = conventions();
+  const tuple = expected.get(toolId);
+  if (!tuple) return false;
+  const [contractId, , , operationSelector, , boundsOwnerSelector] = tuple;
+  const contract = source.mediaOwnedToolDefinitionContracts.contracts.find((item) => item.id === contractId);
+  const operation = resolveSourceRef(`.product-experience/pdp-1-domain-data/operations.yaml#${operationSelector}`);
+  const boundsOwner = resolveSourceRef(`.product-experience/pdp-1-domain-data/operations.yaml#${boundsOwnerSelector}`);
+  const budget = hostContext?.executionBudget;
+  if (!contract || !operation || !boundsOwner || !boundsOwner.boundsRef || budget?.disposition !== "BOUNDED") return false;
+  const canonicalBoundsRef = `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=${boundsOwner.boundsRef}`;
+  const resolvedBounds = resolveSourceRef(budget.capabilityBoundsRef);
+  return contract.canonicalOperationRef === `.product-experience/pdp-1-domain-data/operations.yaml#${operationSelector}`
+    && contract.executionBudgetBoundsRef === canonicalBoundsRef
+    && budget.capabilityBoundsRef === contract.executionBudgetBoundsRef
+    && resolvedBounds?.id === boundsOwner.boundsRef;
 }
 
 const makeAjv = () => { const ajv = new Ajv2020({strict:false, validateFormats:true, allErrors:true}); addFormats(ajv); return ajv; };
@@ -123,6 +151,28 @@ test("Media Agent Tool contracts resolve exact canonical source records and stay
   assert.equal(media.sharedBinding.status, "NOT_BOUND");
   assert.equal(media.sharedBinding.adapterStatus, "NOT_IMPLEMENTED; no Media adapter currently maps the proposed Media result schemas to the installed Tools SPI.");
   assert.equal(media.status, "MEDIA_OWNER_DEFINITION_ONLY; public-runtime-binding-pending");
+});
+
+test("host execution budget capability bounds join exactly to each selected canonical operation", () => {
+  const contracts = conventions().mediaOwnedToolDefinitionContracts.contracts;
+  const budgetRefFor = (contract) => contract.executionBudgetBoundsRef;
+  for (const [toolId, [contractId]] of expected) {
+    const contract = contracts.find((item) => item.id === contractId);
+    assert.ok(contract, `${toolId}: expected contract exists`);
+    const invocation = { executionBudget: { disposition: "BOUNDED", capabilityBoundsRef: budgetRefFor(contract) } };
+    assert.equal(validateHostExecutionBudget(toolId, invocation), true, `${toolId}: exact operation/bounds join is accepted`);
+
+    const otherContract = contracts.find((item) => item.id !== contractId);
+    assert.equal(validateHostExecutionBudget(toolId, { executionBudget: { disposition: "BOUNDED", capabilityBoundsRef: budgetRefFor(otherContract) } }), false,
+      `${toolId}: cross-tool bounds reference is rejected`);
+    assert.equal(validateHostExecutionBudget(toolId, { executionBudget: { disposition: "BOUNDED", capabilityBoundsRef: `${budgetRefFor(contract)}-stale` } }), false,
+      `${toolId}: stale bounds reference is rejected`);
+    assert.equal(validateHostExecutionBudget(toolId, { executionBudget: { disposition: "BOUNDED", capabilityBoundsRef: budgetRefFor(contract).replace(/media\.capability-bounds\./u, "media.capability-bounds.substituted-") } }), false,
+      `${toolId}: substituted bounds reference is rejected`);
+  }
+  const media = conventions().mediaOwnedToolDefinitionContracts;
+  assert.equal(media.status, "MEDIA_OWNER_DEFINITION_ONLY; public-runtime-binding-pending");
+  assert.equal(media.sharedBinding.status, "NOT_BOUND");
 });
 
 test("contract validator rejects exact-ref substitutions, admitted bindings, missing unknown semantics, and weak success evidence", () => {
@@ -189,10 +239,12 @@ test("input schemas enforce bounds, formats, and decoded byte counts at the exac
 test("host context requires exact object/version/tenant/purpose authority evidence, not opaque resource refs", () => {
   const host=conventions().mediaOwnedToolDefinitionContracts.hostInvocationContext;
   const schema=host.schema; const check=compile(schema);
-  const tuple={principalRef:"principal:1",tenantRef:"tenant:1",delegationChainRef:"delegation:1",purposeRef:"purpose:transcription",resourceBindings:[{objectRef:"media.domain.artifact",versionRef:"artifact-version:1",tenantRef:"tenant:1",purposeRef:"purpose:transcription",authorityDecisionRef:"decision:1",decision:"AUTHORIZED",evidenceRef:"evidence:1",observedAt:"2026-10-09T12:00:00Z",validUntil:"2026-10-09T13:00:00Z"}],invocationId:"invocation:1",deadline:"2026-10-09T12:30:00Z",idempotencyDisposition:"REQUIRED_SCOPED_KEY",idempotencyKeyRef:"key:1",cancellationRef:"cancel:1"};
+  const tuple={principalRef:"principal:1",tenantRef:"tenant:1",delegationChainRef:"delegation:1",purposeRef:"purpose:transcription",resourceBindings:[{objectRef:"media.domain.artifact",versionRef:"artifact-version:1",tenantRef:"tenant:1",purposeRef:"purpose:transcription",authorityDecisionRef:"decision:1",decision:"AUTHORIZED",evidenceRef:"evidence:1",observedAt:"2026-10-09T12:00:00Z",validUntil:"2026-10-09T13:00:00Z"}],policyDecisionRefs:["decision:1"],invocationId:"invocation:1",deadline:"2026-10-09T12:30:00Z",idempotencyDisposition:"REQUIRED_SCOPED_KEY",idempotencyKeyRef:"key:1",cancellationRef:"cancel:1",executionBudget:{disposition:"BOUNDED",budgetRef:"budget:1",policyVersionRef:"policy:v1",capabilityBoundsRef:".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-speech-transcription-file"}};
   const tupleValid=(x,now="2026-10-09T12:01:00Z")=>check(x)&&x.resourceBindings.every(b=>b.tenantRef===x.tenantRef&&b.purposeRef===x.purposeRef&&b.decision==="AUTHORIZED"&&Date.parse(b.observedAt)<=Date.parse(now)&&Date.parse(now)<Date.parse(b.validUntil));
   assert.equal(tupleValid(tuple),true);
   assert.equal(check({...tuple,resourceBindings:[{...tuple.resourceBindings[0],decision:"DENIED"}]}),false,"denied resource tuples are not invocation context");
+  assert.equal(check({...tuple,policyDecisionRefs:undefined}),false,"invocation context requires explicit current policy decision evidence");
+  assert.equal(check({...tuple,policyDecisionRefs:[]}),false,"invocation context cannot omit policy decision evidence");
   assert.equal(check({...tuple,deadline:"2026-02-31T12:30:00Z"}),false,"host deadline uses a validated date-time");
   assert.equal(check({...tuple,idempotencyDisposition:"READ_ONLY_NO_KEY",idempotencyKeyRef:"key:1"}),false,"read-only calls cannot carry mutation idempotency keys");
   assert.equal(check({...tuple,idempotencyDisposition:"REQUIRED_SCOPED_KEY",idempotencyKeyRef:undefined}),false,"effectful calls require a scoped key");
@@ -200,6 +252,32 @@ test("host context requires exact object/version/tenant/purpose authority eviden
   assert.equal(tupleValid({...tuple,resourceBindings:[{...tuple.resourceBindings[0],tenantRef:"tenant:other"}]}),false);
   assert.equal(tupleValid({...tuple,resourceBindings:[{...tuple.resourceBindings[0],decision:"UNKNOWN"}]}),false);
   assert.equal(tupleValid({...tuple,resourceBindings:[{...tuple.resourceBindings[0],validUntil:"2026-10-09T12:00:00Z"}]}),false);
+  assert.equal(check({...tuple,executionBudget:{disposition:"BOUNDED",budgetRef:"budget:1"}}),false,"bounded invocation requires host budget, policy, and source-bound refs");
+  assert.equal(check({...tuple,executionBudget:{disposition:"UNSUPPORTED_NO_DISPATCH",budgetRef:"budget:1"}}),false,"unsupported budget disposition cannot carry a usable allocation");
+  const unsupported={...tuple,executionBudget:{disposition:"UNSUPPORTED_NO_DISPATCH"}};
+  assert.equal(check(unsupported),true,"unsupported budget can be represented as a closed no-dispatch context");
+  assert.notEqual(unsupported.executionBudget.disposition,"BOUNDED","unsupported budget is never dispatchable");
+});
+
+test("closed result/error union uses bounded error codes and keeps unknown non-final", () => {
+  const definition=conventions().mediaOwnedToolDefinitionContracts;
+  assert.match(definition.invocationSemantics.resultErrorContract.rule,/one discriminated result\/error contract/u);
+  assert.match(definition.invocationSemantics.resultErrorContract.rule,/arbitrary error details are forbidden/u);
+  for(const contract of definition.contracts){
+    assert.equal(contract.resultSchemaRole,"CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION");
+    for(const outcome of ["REJECTED_PRE_DISPATCH","FAILED"]){
+      const variant=contract.resultSchema.oneOf.find((branch)=>branch.properties?.outcome?.const===outcome);
+      assert.ok(variant,`${contract.toolId}: ${outcome} error variant exists`);
+      assert.equal(variant.additionalProperties,false,`${contract.toolId}: ${outcome} rejects undeclared error detail`);
+      assert.ok(variant.required.includes("safeErrorCode"),`${contract.toolId}: ${outcome} requires safeErrorCode`);
+      assert.ok(variant.properties.safeErrorCode.pattern,`${contract.toolId}: error code is bounded`);
+      assert.equal(variant.properties.message,undefined,`${contract.toolId}: error message is not exposed`);
+    }
+    const unknown=contract.resultSchema.oneOf.find((branch)=>branch.properties?.outcome?.const==="OUTCOME_UNKNOWN");
+    assert.ok(unknown);
+    assert.equal(unknown.properties.canonicalPayload,undefined,`${contract.toolId}: unknown cannot carry success payload`);
+    assert.equal(unknown.properties.payloadRef,undefined,`${contract.toolId}: unknown cannot carry a success reference`);
+  }
 });
 
 test("pre-dispatch failure, accepted receipt, unknown dispatch, and completion remain distinct", () => {

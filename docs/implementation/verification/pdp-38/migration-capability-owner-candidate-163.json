@@ -2068,7 +2068,16 @@
         "relatedSourceRefs": [
           ".product-experience/pdp-1-domain-data/value-objects.yaml#observedTemporalSpatialFields/nonEquivalences"
         ],
-        "relatedTargetValueSha256": "50fa22f1cf96aaf50e8d3c9f8dbfaecf83da42d7b8f78b723a6b72efeb42c045"
+        "relatedTargetValueSha256": "50fa22f1cf96aaf50e8d3c9f8dbfaecf83da42d7b8f78b723a6b72efeb42c045",
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions",
+          "currentTargetValueSha256": "c2c52aa421ed90cfb17f5a6ee6da83ba5135570b915ec81877f88cfa2d3b8f3c",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "eb9a249c193bf09af7fe299f857d75d3d4832db119a31b9714b2d8aa6ee55b17",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -2258,7 +2267,16 @@
         "relatedTargetValueSha256s": [
           "50fa22f1cf96aaf50e8d3c9f8dbfaecf83da42d7b8f78b723a6b72efeb42c045",
           "f9b96e47841bad229ea14a27c61bc94c06a200b84a044357efe3329efbd4dc0c"
-        ]
+        ],
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions",
+          "currentTargetValueSha256": "c2c52aa421ed90cfb17f5a6ee6da83ba5135570b915ec81877f88cfa2d3b8f3c",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "eb9a249c193bf09af7fe299f857d75d3d4832db119a31b9714b2d8aa6ee55b17",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -3072,7 +3090,7 @@
         "acceptanceEffect": "none",
         "currentTargetObservation": {
           "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract",
-          "currentTargetValueSha256": "82a209e1bd859514a9c2d9b964c9de1deb83e95905b00fca0a23f55a35a772d2",
+          "currentTargetValueSha256": "7ae28cafccc46a9c82a2ec84e80c0dbf8ba345d405b1f6ad47f911d0e2243e7e",
           "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
           "previousCandidateTargetValueSha256": "3d1de67153ea83f7e5d4e6412888f57cea992fa2a2a07d27b8bfffb46b36d9c3",
           "semanticPromotion": false,
@@ -3443,7 +3461,7 @@
         "acceptanceEffect": "none",
         "currentTargetObservation": {
           "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract",
-          "currentTargetValueSha256": "82a209e1bd859514a9c2d9b964c9de1deb83e95905b00fca0a23f55a35a772d2",
+          "currentTargetValueSha256": "7ae28cafccc46a9c82a2ec84e80c0dbf8ba345d405b1f6ad47f911d0e2243e7e",
           "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
           "previousCandidateTargetValueSha256": "3d1de67153ea83f7e5d4e6412888f57cea992fa2a2a07d27b8bfffb46b36d9c3",
           "semanticPromotion": false,
@@ -4686,10 +4704,11 @@
         "currentTargetObservation": {
           "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/familyDefinitionPolicy",
           "currentTargetValueSha256": "09cdf4f4ab0fdab6388014a4c52b02946696edfe13cd1a34d35e55747b2f63c7",
-          "previousCandidateTargetValueSha256": "919e6a7f25b3ba58440d8e1059750b81a79ab28fb8eee35e2489f8ea26b6429e",
           "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "919e6a7f25b3ba58440d8e1059750b81a79ab28fb8eee35e2489f8ea26b6429e",
           "semanticPromotion": false,
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
         }
       },
       "currentDisposition": {
@@ -6049,10 +6068,11 @@
         "currentTargetObservation": {
           "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/familyDefinitionPolicy",
           "currentTargetValueSha256": "09cdf4f4ab0fdab6388014a4c52b02946696edfe13cd1a34d35e55747b2f63c7",
-          "previousCandidateTargetValueSha256": "919e6a7f25b3ba58440d8e1059750b81a79ab28fb8eee35e2489f8ea26b6429e",
           "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "919e6a7f25b3ba58440d8e1059750b81a79ab28fb8eee35e2489f8ea26b6429e",
           "semanticPromotion": false,
-          "acceptanceEffect": "none"
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
         }
       },
       "currentDisposition": {
@@ -6335,7 +6355,16 @@
         ],
         "runtimeAdmission": "NOT_ADMITTED",
         "qualification": "NOT_EVALUATED",
-        "acceptanceEffect": "none"
+        "acceptanceEffect": "none",
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/boundedPlanningSemantics",
+          "currentTargetValueSha256": "cfd40fd76cb1c8e81bff2b61b82c8defbca2dff1c4dcad61150fa38cfe0b223c",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "67c181622ccebda68824b80d2793dc5c7a10360f0ba1a31a08825462c0da469a",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -9498,15 +9527,6 @@
         "runtimeAdmission": "NOT_ADMITTED",
         "qualification": "NOT_EVALUATED",
         "acceptanceEffect": "none",
-        "currentTargetObservation": {
-          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image/requestSchema",
-          "currentTargetValueSha256": "844c85878052b49a7e19302a18e729aa5cc4171f2e7949605ecc5d7f3e71a9d6",
-          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
-          "previousCandidateTargetValueSha256": "c783a1eccf25de9e1d0d8ddf1cf3d9ad30d01ee85a5df3cdf64440758deec880",
-          "semanticPromotion": false,
-          "acceptanceEffect": "none",
-          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
-        },
         "relatedTargetObservations": [
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.text-to-image",
@@ -9517,7 +9537,16 @@
             "acceptanceEffect": "none",
             "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
           }
-        ]
+        ],
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-image-text-to-image/requestSchema",
+          "currentTargetValueSha256": "16db2bcd990a8b33f1d168dcbc5e5ede0896654062feddc092e57c3a4650da47",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "c783a1eccf25de9e1d0d8ddf1cf3d9ad30d01ee85a5df3cdf64440758deec880",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -10084,7 +10113,7 @@
           "previousCandidateTargetValueSha256": "bfc03b70eafe2183e4a01a3c02eb53ce303c7652ed2cdc73d62bfdd42c531a24",
           "semanticPromotion": false,
           "acceptanceEffect": "none",
-          "note": "Current exact requirement selector and replacement clauses were verified; digest records source drift only and does not promote claim parity."
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
         }
       },
       "currentDisposition": {
@@ -11216,7 +11245,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-rgb.v1",
-              "currentTargetValueSha256": "170d1ea23f04863b0272275817cb1ca5cc7ac0cc756a3b4b64b8ebff372ba41b",
+              "currentTargetValueSha256": "d77d9b2f6f67adb67f8cf940c0e69c870847ccf28186adfcaf067092ed75dd86",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "9968e67d8c73dc51f569535888090b57a334e25775b80f1d94c797c797c6b0cb",
               "semanticPromotion": false,
@@ -11237,7 +11266,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-depth.v1",
-              "currentTargetValueSha256": "7fe21a9349dc2a7504587081149690a5f2804ac9b574cdf31327033646894acf",
+              "currentTargetValueSha256": "1df8441c6e12d27354fdfe0da1896fdae530fcfbbc1be0cc5d949bad8ff38050",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "ac8b52277a89d0969a4edb50942c616a64e73dfc686abde875b4554e9c8c4f33",
               "semanticPromotion": false,
@@ -11258,7 +11287,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-normals.v1",
-              "currentTargetValueSha256": "a6661631d01391597d16c09b9a9e198a008fffb53efe708eb30fa4e8d3b4229d",
+              "currentTargetValueSha256": "e5b1844cd9218cb9a6358eb7a93c98aa201062374782176e16a4fc833b6e8c61",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "44afdbd91b4233ff2cf35f9fe7a9746c9f19ad2a2a7c65fa34cb57a92185e678",
               "semanticPromotion": false,
@@ -11279,7 +11308,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-segmentation.v1",
-              "currentTargetValueSha256": "32b6e40a43dd868a02565adc78ba2bb0df114eef4e49cc97788c4898e52ec4f6",
+              "currentTargetValueSha256": "73ff99233d943200f9f1f2098d49053897c634c60ce1b2d349c53aff5dd5db5d",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "f35e6925707a705306495dcfe5335c62289a35874dce27474aaf3403eb3341c9",
               "semanticPromotion": false,
@@ -11300,7 +11329,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-optical-flow.v1",
-              "currentTargetValueSha256": "d18c7898ae5b761404b6d738fff2546f87fde5ee60e3a7f0079a7d784270fbae",
+              "currentTargetValueSha256": "2697183d77c0d93f4566c56e83b078106bb9fc58b70241750ee17f30045ffd29",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "b0cbf834fb773790c2125d252a92fcc4678c9854ea14dd5a18f40cdc915c680e",
               "semanticPromotion": false,
@@ -11321,7 +11350,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-motion-vectors.v1",
-              "currentTargetValueSha256": "e57bcee114d95f6b237b1578a93d9ce79dc89b839fa6b7bf7c049b28e4ad3857",
+              "currentTargetValueSha256": "e7a2662dc5d5c6730865d5cb7f1c145f0741ce5c8f76139124e3ee9e9f498bed",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "b75b8dec8deb57faaad9b7672e1d94a0fd0f6beb7f4dc148883bd8b705e66404",
               "semanticPromotion": false,
@@ -11342,7 +11371,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-object-ids.v1",
-              "currentTargetValueSha256": "6700bf5ddb1dae95cd422b6d08cedf2242dcd3185756004bed2657811213e032",
+              "currentTargetValueSha256": "6c2d9612020f148c6b74db3248f2fca56ff6b4436b6491859e555dee96f064dd",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "c4e783f26e20268ffb2cf96bb9375099e7059167d14eaf1267a3d8460da3dd0e",
               "semanticPromotion": false,
@@ -11363,7 +11392,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-contacts.v1",
-              "currentTargetValueSha256": "ab813c278bb5916f0949c9e2ea485bbcc1ac725b93f16e38320c1428e043004d",
+              "currentTargetValueSha256": "bda5b957ade2449d3ab42238e1ef751e09c0d1a1914527ddedac0a5def44d2a0",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "7d330b0f7edad457f0b265cf7042875181f64c203d97778ed384dcfad581ed77",
               "semanticPromotion": false,
@@ -11384,7 +11413,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-physical-events.v1",
-              "currentTargetValueSha256": "ea5e4c05a13ddc30eb0406575fdda6197bfea0b24aaab0f7fd7a447a37615a2e",
+              "currentTargetValueSha256": "82fb0b9545f021ca218a0949588d505fb563e76f51c4318471165a1bf8b766d5",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "f4aff1574f184969f5a4a82dcc1c40d02e930e4e2275203502a99002522e6e0a",
               "semanticPromotion": false,
@@ -11405,7 +11434,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-measurements.v1",
-              "currentTargetValueSha256": "2c37aa80f0e92ff1f3ae75ab472f6e6dcee43073f6af6ee1dbef1921ba3d8dcf",
+              "currentTargetValueSha256": "ee118a98289600ad0363bc6809446f43a12b41b42154b907fcee8663d488c839",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "ec3b1c46b4116467c8fb6dbffad3b4a63fb1517b38adf116c185c214b42b3bfa",
               "semanticPromotion": false,
@@ -11426,7 +11455,7 @@
             "profileBound": true,
             "currentTargetObservation": {
               "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-timestamped-state.v1",
-              "currentTargetValueSha256": "0659e07bb9fe23b90bf473fa3eed2a24f9fb0a1e2a88ce4fcabd70d31a5d484a",
+              "currentTargetValueSha256": "395ce87f269490e5ec16433a6939a62f698edc876f3b9446a77351de21205ea0",
               "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
               "previousCandidateTargetValueSha256": "a85f049e38a0a0a572f70ecc162618d36528f182c80cc5c9bb8483afd2f5f77e",
               "semanticPromotion": false,
@@ -11452,7 +11481,16 @@
         ],
         "acceptanceEffect": "none",
         "runtimeAdmission": "NOT_ADMITTED",
-        "qualification": "NOT_EVALUATED"
+        "qualification": "NOT_EVALUATED",
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=media.owner-wire-contract.simulation-rgb.v1",
+          "currentTargetValueSha256": "d77d9b2f6f67adb67f8cf940c0e69c870847ccf28186adfcaf067092ed75dd86",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "9968e67d8c73dc51f569535888090b57a334e25775b80f1d94c797c797c6b0cb",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -44054,7 +44092,16 @@
         },
         "runtimeAdmission": "NOT_ADMITTED",
         "qualification": "NOT_EVALUATED",
-        "acceptanceEffect": "none"
+        "acceptanceEffect": "none",
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#/ownerDefinedPdp10Boundary/identity",
+          "currentTargetValueSha256": "a393c2f1fcb20b911976e89845c617f16372301a929455563c2543498628056c",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "aa77a58a80cd13fa6cf4bfd5b42bc18f917620deb8121279abda33faeb70e3c5",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -59086,7 +59133,16 @@
         ],
         "runtimeAdmission": "NOT_ADMITTED",
         "qualification": "NOT_EVALUATED",
-        "acceptanceEffect": "none"
+        "acceptanceEffect": "none",
+        "currentTargetObservation": {
+          "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract",
+          "currentTargetValueSha256": "7ae28cafccc46a9c82a2ec84e80c0dbf8ba345d405b1f6ad47f911d0e2243e7e",
+          "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+          "previousCandidateTargetValueSha256": "82a209e1bd859514a9c2d9b964c9de1deb83e95905b00fca0a23f55a35a772d2",
+          "semanticPromotion": false,
+          "acceptanceEffect": "none",
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+        }
       },
       "currentDisposition": {
         "status": "OWNER_SOURCE_ROUTE_PENDING_MATERIAL_REVIEW",
@@ -59671,7 +59727,16 @@
           {
             "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/tombstones",
             "targetValueSha256": "7ecf5b5d8573b5b4c9d02b4f12f8ee2b8d69286df822734d0522e6723b9cf8c0",
-            "meaning": "Hold and restore-time tombstone replay preserve deletion scope and uncertainty."
+            "meaning": "Hold and restore-time tombstone replay preserve deletion scope and uncertainty.",
+            "currentTargetObservation": {
+              "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/tombstones",
+              "currentTargetValueSha256": "b3dbe509a79dac1078d65eb4b81eb49e6b46a2fffa29e9154f2d28f12d466564",
+              "status": "STALE_CANDIDATE_REQUIRES_REVIEW",
+              "previousCandidateTargetValueSha256": "7ecf5b5d8573b5b4c9d02b4f12f8ee2b8d69286df822734d0522e6723b9cf8c0",
+              "semanticPromotion": false,
+              "acceptanceEffect": "none",
+              "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
+            }
           }
         ]
       }
@@ -65831,7 +65896,7 @@
           "previousCandidateTargetValueSha256": "8a516f950581e2d984481aa712c1f2c51ebe8c830431ba705b644929b8ab4c4a",
           "semanticPromotion": false,
           "acceptanceEffect": "none",
-          "note": "Current exact selector and five required clauses match; this digest records source drift only and does not promote claim parity."
+          "note": "Live owner selector and pending route clauses were rechecked; this current digest records source drift only and does not promote claim parity."
         }
       },
       "currentDisposition": {

@@ -3,139 +3,374 @@ contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-
 surfaceId: media.surface.web
 templateId: media.gui.template.review-and-compare
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.review]
+layoutIds: [ media.gui.layout.review ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.source-player, media.component.artifact-integrity-summary, media.component.provenance-summary, media.component.quality-inspector]
-patternIds: [media.gui.pattern.quality-and-uncertainty]
+componentIds:
+  [
+    media.component.source-player,
+    media.component.artifact-integrity-summary,
+    media.component.provenance-summary,
+    media.component.quality-inspector
+  ]
+patternIds: [ media.gui.pattern.quality-and-uncertainty ]
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+domainObjectRefs:
+  - media.domain.render-outcome
+  - media.domain.artifact-version
+  - media.domain.quality-assessment
+  - media.domain.artifact
+operationRefs:
+  - media.operation-slice.inspect-artifact
+  - media.operation-slice.inspect-provenance
+  - media.operation.action.inspect-output-preview-and-version
+  - media.operation.action.inspect-quality-evidence
+  - media.operation.action.open-admitted-delivery-action
+requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-PROVENANCE ]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs: []
-entry: []
-exit: []
+entry:
+  - "Before media.action.inspect-artifact, require exact guards
+    [exact-artifact-or-upload-identity, current-read-authority]; absent, stale,
+    or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.inspect-provenance, require exact guards
+    [current-read-authority]; absent, stale, or unknown evidence leaves the
+    action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinitio\
+    n; runtime NOT_ADMITTED."
+  - "Before media.action.inspect-output-preview-and-version, require exact
+    guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-output-preview-and-version/actionDefinitionSemantic\
+    s/typedDefinition; runtime NOT_ADMITTED."
+  - "Before media.action.inspect-quality-evidence, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-quality-evidence/actionDefinitionSemantics/typedDef\
+    inition; runtime NOT_ADMITTED."
+  - "Before media.action.open-admitted-delivery-action, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.open-admitted-delivery-action/actionDefinitionSemantics/typ\
+    edDefinition; runtime NOT_ADMITTED."
+exit:
+  - "media.action.inspect-artifact:
+    read-the-exact-artifact-version-integrity-metadata-and-separately-governed-\
+    policy-dispositions; finality=read-only;
+    inspection-does-not-promote-quarantine-or-attach-to-a-project;
+    recovery=keep-the-identity-visible-only-as-permitted-and-distinguish-unavai\
+    lable-metadata-from-a-negative-result. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.inspect-provenance:
+    read-version-bound-source-and-processing-lineage; finality=read-only;
+    recovery=disclose-missing-provenance-fields. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinitio\
+    n; runtime NOT_ADMITTED."
+  - "media.action.inspect-output-preview-and-version: Read or navigate using the
+    exact selected context; do not mutate a source object or infer permission
+    from its presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-output-preview-and-version/actionDefinitionSemantic\
+    s/typedDefinition; runtime NOT_ADMITTED."
+  - "media.action.inspect-quality-evidence: Read or navigate using the exact
+    selected context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-quality-evidence/actionDefinitionSemantics/typedDef\
+    inition; runtime NOT_ADMITTED."
+  - "media.action.open-admitted-delivery-action: Read or navigate using the
+    exact selected context; do not mutate a source object or infer permission
+    from its presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.open-admitted-delivery-action/actionDefinitionSemantics/typ\
+    edDefinition; runtime NOT_ADMITTED."
 actionConsequences:
   - actionId: media.action.inspect-artifact
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation-slice.inspect-artifact
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition
+    consequence: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.inspect-artifact
+    finality: read-only; inspection-does-not-promote-quarantine-or-attach-to-a-project
+    reversibilityDisposition: UNKNOWN
+    confirmationDisposition: UNRESOLVED
+    guardRefs:
+      - exact-artifact-or-upload-identity
+      - current-read-authority
+    failureRecovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.inspect-provenance
-    capabilityRefs: [media.artifact.inspect, media.artifact.provenance.export]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    capabilityRefs:
+      - media.artifact.inspect
+      - media.artifact.provenance.export
+      - media.provenance.source-lineage.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+      - MEDIA-REQ-CAP-PROVENANCE
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation-slice.inspect-provenance
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinition
+    consequence: read-version-bound-source-and-processing-lineage
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.inspect-provenance
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - current-read-authority
+    failureRecovery: disclose-missing-provenance-fields
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.inspect-output-preview-and-version
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.inspect-output-preview-and-version
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-output-preview-and-version/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.inspect-output-preview-and-version
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.inspect-quality-evidence
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.inspect-quality-evidence
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-quality-evidence/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.inspect-quality-evidence
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.open-admitted-delivery-action
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.open-admitted-delivery-action
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-admitted-delivery-action/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
-responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
-fixtures: {refs: [], status: missing}
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.open-admitted-delivery-action
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
+responsiveBehavior:
+  {
+    ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive,
+    status: P2 layout responsive rule bound; screen-specific overrides empty;
+      rendering verification NOT_RUN,
+    screenOverrides: [],
+    layoutRules:
+      [
+        {
+            layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.review,
+            responsiveRule: Keep compared version identities adjacent to comparison content
+              at every width.
+          }
+      ]
+  }
+fixtures:
+  refs: []
+  status: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
+  negativeCases:
+    - No screen fixture may be inferred from a neighboring view or from journey
+      membership alone.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
+  unlinkedScreenFixtureRefs: []
 verification:
   status: not-run
   evidenceRefs: []
-  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+  checks:
+    {
+      structural: not-proven,
+      rendering: not-proven,
+      behavior: not-proven,
+      responsive: not-proven,
+      keyboard: not-proven,
+      accessibility: not-proven
+    }
 fieldBindingStatus:
   surfaceId: candidate-binding-pending-owner-review
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
-  tokenDependencies: no-canonical-references-declared
-  domainObjectRefs: no-canonical-references-declared
-  operationRefs: no-canonical-references-declared
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: no-PDP1-state-references-declared
-  entry: no-canonical-entry-contract-declared
-  exit: no-canonical-exit-contract-declared
-  actionConsequences: unresolved; owner-effect-binding-pending
-  responsiveBehavior: proposal-only; unverified
-  fixtures: missing
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
   verification: not-run
+  recipeIds: Exact P2 recipe media.gui.recipe.review-and-compare; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.inspect-output
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.deliver
 purpose: Playback/download/review/provenance and delivery action
 contextGoalNowNext:
-  context: One exact output artifact version, its playback or preview, provenance, integrity, and allowed delivery
-    actions.
-  goal: Inspect an output version and its recorded origin before deciding whether to use or deliver it.
-  now: Show the preview, artifact identity, integrity and quality evidence, provenance limitations, and current
-    rights state.
-  next: Download, request approval, or return to the output list only when the relevant action is admitted.
+  context: One exact output artifact version, its playback or preview, provenance,
+    integrity, and allowed delivery actions.
+  goal: Inspect an output version and its recorded origin before deciding whether
+    to use or deliver it.
+  now: Show the preview, artifact identity, integrity and quality evidence,
+    provenance limitations, and current rights state.
+  next: Download, request approval, or return to the output list only when the
+    relevant action is admitted.
 anatomy:
-- output-version-identity
-- accessible-preview
-- integrity-and-quality-summary
-- provenance-and-limitations
-- rights-and-approval-state
-- allowed-next-actions
+  - output-version-identity
+  - accessible-preview
+  - integrity-and-quality-summary
+  - provenance-and-limitations
+  - rights-and-approval-state
+  - allowed-next-actions
 componentRefs:
-- media.component.source-player
-- media.component.artifact-integrity-summary
-- media.component.provenance-summary
-- media.component.quality-inspector
+  - media.component.source-player
+  - media.component.artifact-integrity-summary
+  - media.component.provenance-summary
+  - media.component.quality-inspector
 states:
-- loading
-- available
-- verifying
-- quarantined
-- rejected
-- metadata-incomplete
-- rights-blocked
-- preview-unavailable
+  - loading
+  - available
+  - verifying
+  - quarantined
+  - rejected
+  - metadata-incomplete
+  - rights-blocked
+  - preview-unavailable
 actions:
-- media.action.inspect-artifact
-- media.action.inspect-provenance
-- media.action.inspect-output-preview-and-version
-- media.action.inspect-quality-evidence
-- media.action.open-admitted-delivery-action
-actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+  - media.action.inspect-artifact
+  - media.action.inspect-provenance
+  - media.action.inspect-output-preview-and-version
+  - media.action.inspect-quality-evidence
+  - media.action.open-admitted-delivery-action
+actionBindingState: proposed-intent-action-refs;
+  owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
-- inspect an output preview and exact version
-- review provenance and quality limits
-- continue to an admitted delivery action
+  - inspect an output preview and exact version
+  - review provenance and quality limits
+  - continue to an admitted delivery action
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -161,8 +396,8 @@ localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-04
   - J-06
@@ -174,3 +409,24 @@ journeyRefs:
   - J-21
   - J-22
   - J-25
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.review-and-compare
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.review-and-compare template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.inspect-output

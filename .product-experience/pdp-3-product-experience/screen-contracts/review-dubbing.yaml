@@ -3,132 +3,341 @@ contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-
 surfaceId: media.surface.web
 templateId: media.gui.template.review-and-compare
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.review]
+layoutIds: [ media.gui.layout.review ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.source-player, media.component.caption-track-editor, media.component.rights-retention-review, media.component.result-comparison, media.component.provenance-summary]
-patternIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
+componentIds:
+  [
+    media.component.source-player,
+    media.component.caption-track-editor,
+    media.component.rights-retention-review,
+    media.component.result-comparison,
+    media.component.provenance-summary
+  ]
+patternIds: [ media.gui.pattern.safe-confirmation-and-unknown-outcome ]
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.artifact-version
+  - media.domain.processing-job
+  - media.domain.project-revision
+  - media.domain.timeline
+  - media.domain.composition-config
+operationRefs:
+  - media.operation.action.review-translated-segment
+  - media.operation.action.inspect-voice-authorization
+  - media.operation.action.save-dubbing-version
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
-entry: []
-exit: []
+entry:
+  - "Before media.action.review-translated-segment, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.review-translated-segment/actionDefinitionSemantics/typedDe\
+    finition; runtime NOT_ADMITTED."
+  - "Before media.action.inspect-voice-authorization, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-voice-authorization/actionDefinitionSemantics/typed\
+    Definition; runtime NOT_ADMITTED."
+  - "Before media.action.revise-dubbing-segment, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.revise-dubbing-segment/actionDefinitionSemantics/typedDefin\
+    ition; runtime NOT_ADMITTED."
+  - "Before media.action.save-dubbing-version, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.save-dubbing-version/actionDefinitionSemantics/typedDefinit\
+    ion; runtime NOT_ADMITTED."
+exit:
+  - "media.action.review-translated-segment: Read or navigate using the exact
+    selected context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.review-translated-segment/actionDefinitionSemantics/typedDe\
+    finition; runtime NOT_ADMITTED."
+  - "media.action.inspect-voice-authorization: Read or navigate using the exact
+    selected context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-voice-authorization/actionDefinitionSemantics/typed\
+    Definition; runtime NOT_ADMITTED."
+  - "media.action.revise-dubbing-segment: Change only the current local draft or
+    selection; keep committed source and versioned objects unchanged until a
+    separately specified commit.; finality=local-draft-only;
+    not-a-committed-result;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.revise-dubbing-segment/actionDefinitionSemantics/typedDefin\
+    ition; runtime NOT_ADMITTED."
+  - "media.action.save-dubbing-version: Append a new version or review record to
+    the exact identified target; preserve prior versions and require an
+    authoritative receipt.; finality=append-only-record;
+    exact-owner-receipt-required;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.save-dubbing-version/actionDefinitionSemantics/typedDefinit\
+    ion; runtime NOT_ADMITTED."
 actionConsequences:
   - actionId: media.action.review-translated-segment
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.review-translated-segment
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-translated-segment/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.review-translated-segment
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.inspect-voice-authorization
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.inspect-voice-authorization
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-voice-authorization/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.inspect-voice-authorization
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.revise-dubbing-segment
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revise-dubbing-segment/actionDefinitionSemantics/typedDefinition
+    consequence: Change only the current local draft or selection; keep committed
+      source and versioned objects unchanged until a separately specified
+      commit.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-draft-only; not-a-committed-result
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.save-dubbing-version
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.save-dubbing-version
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-dubbing-version/actionDefinitionSemantics/typedDefinition
+    consequence: Append a new version or review record to the exact identified
+      target; preserve prior versions and require an authoritative receipt.
     status: pending-owner-binding
-responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
-fixtures: {refs: [], status: missing}
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.save-dubbing-version
+    finality: append-only-record; exact-owner-receipt-required
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
+responsiveBehavior:
+  {
+    ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive,
+    status: P2 layout responsive rule bound; screen-specific overrides empty;
+      rendering verification NOT_RUN,
+    screenOverrides: [],
+    layoutRules:
+      [
+        {
+            layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.review,
+            responsiveRule: Keep compared version identities adjacent to comparison content
+              at every width.
+          }
+      ]
+  }
+fixtures:
+  refs: []
+  status: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
+  negativeCases:
+    - No screen fixture may be inferred from a neighboring view or from journey
+      membership alone.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
+  unlinkedScreenFixtureRefs: []
 verification:
   status: not-run
   evidenceRefs: []
-  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+  checks:
+    {
+      structural: not-proven,
+      rendering: not-proven,
+      behavior: not-proven,
+      responsive: not-proven,
+      keyboard: not-proven,
+      accessibility: not-proven
+    }
 fieldBindingStatus:
   surfaceId: candidate-binding-pending-owner-review
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
-  tokenDependencies: no-canonical-references-declared
-  domainObjectRefs: no-canonical-references-declared
-  operationRefs: no-canonical-references-declared
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: no-PDP1-state-references-declared
-  entry: no-canonical-entry-contract-declared
-  exit: no-canonical-exit-contract-declared
-  actionConsequences: unresolved; owner-effect-binding-pending
-  responsiveBehavior: proposal-only; unverified
-  fixtures: missing
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
   verification: not-run
+  recipeIds: Exact P2 recipe media.gui.recipe.review-and-compare; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.review-dubbing
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.edit
 purpose: Translation, voice, timing, meaning review and sync
 contextGoalNowNext:
-  context: Source and target language versions, approved voice choice, translated meaning, timed segments, and synchronized
-    audio/video.
-  goal: Review dubbing for meaning, timing, voice authorization, and synchronization before registering an output.
-  now: Show original and translated text, voice-use authority, source/output timing, sync observations, and unresolved
-    segments.
-  next: Revise a segment, request authorized timing or voice review, or save a reviewable output version.
+  context: Source and target language versions, approved voice choice, translated
+    meaning, timed segments, and synchronized audio/video.
+  goal: Review dubbing for meaning, timing, voice authorization, and
+    synchronization before registering an output.
+  now: Show original and translated text, voice-use authority, source/output
+    timing, sync observations, and unresolved segments.
+  next: Revise a segment, request authorized timing or voice review, or save a
+    reviewable output version.
 anatomy:
-- source-and-target-languages
-- source-and-output-player
-- translated-segment-pairs
-- voice-authorization
-- timing-and-sync-observations
-- version-and-review-state
+  - source-and-target-languages
+  - source-and-output-player
+  - translated-segment-pairs
+  - voice-authorization
+  - timing-and-sync-observations
+  - version-and-review-state
 componentRefs:
-- media.component.source-player
-- media.component.caption-track-editor
-- media.component.rights-retention-review
-- media.component.result-comparison
-- media.component.provenance-summary
+  - media.component.source-player
+  - media.component.caption-track-editor
+  - media.component.rights-retention-review
+  - media.component.result-comparison
+  - media.component.provenance-summary
 states:
-- translation-draft
-- meaning-review-required
-- voice-authorization-required
-- timing-incomplete
-- sync-review-required
-- partial
-- ready-for-review
-- saved
+  - translation-draft
+  - meaning-review-required
+  - voice-authorization-required
+  - timing-incomplete
+  - sync-review-required
+  - partial
+  - ready-for-review
+  - saved
 actions:
-- media.action.review-translated-segment
-- media.action.inspect-voice-authorization
-- media.action.revise-dubbing-segment
-- media.action.save-dubbing-version
-actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+  - media.action.review-translated-segment
+  - media.action.inspect-voice-authorization
+  - media.action.revise-dubbing-segment
+  - media.action.save-dubbing-version
+actionBindingState: proposed-intent-action-refs;
+  owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
-- review a translated segment against source
-- inspect voice authorization
-- correct timing or meaning
-- save a revised dubbing version
+  - review a translated segment against source
+  - inspect voice authorization
+  - correct timing or meaning
+  - save a revised dubbing version
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -154,7 +363,28 @@ localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-16
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.review-and-compare
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.review-and-compare template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.review-dubbing

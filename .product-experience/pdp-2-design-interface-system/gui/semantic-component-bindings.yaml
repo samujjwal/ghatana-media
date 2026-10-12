@@ -622,3 +622,111 @@ definitionBindings:
     complete anatomy, interaction and authority semantics; screen fragments or similarly named foreign widgets are not
     substitutes.
   candidateEvidence: []
+rendererAdapterBindings:
+- id: media.gui.renderer-adapter.value-view.v1
+  implementationExport: ValueView
+  implementationCandidate: libs/audio-video-ui/src/components/MediaComponentFamilies.tsx
+  componentRefs:
+  - media.component.identity-context-boundary
+  - media.component.intent-launcher
+  - media.component.project-browser
+  - media.component.project-context-summary
+  - media.component.creation-plan-summary
+  - media.component.source-picker
+  - media.component.source-player
+  - media.component.transcript-review
+  - media.component.caption-track-editor
+  - media.component.job-status-card
+  - media.component.provenance-summary
+  - media.component.artifact-source-picker
+  - media.component.artifact-transfer-status
+  - media.component.artifact-integrity-summary
+  - media.component.artifact-browser
+  - media.component.waveform-spectrogram
+  - media.component.storyboard
+  - media.component.timeline-keyframe-editor
+  - media.component.audio-mixer
+  - media.component.mask-tracking-editor
+  - media.component.scene-inspector
+  - media.component.simulation-instruments
+  - media.component.result-comparison
+  - media.component.quality-inspector
+  - media.component.delivery-profile-picker
+  - media.component.rights-retention-review
+  - media.component.activity-recovery-feed
+  - media.component.cli-output
+  adapterRole: typed-read-only-value-disclosure
+  scope: Generic value projection helper; not an independently reusable Media component family or screen implementation.
+  admission: SOURCE_BINDING_ONLY; runtime-and-accessibility-review-pending
+- id: media.gui.renderer-adapter.media-family.v1
+  implementationExport: MediaFamily
+  implementationCandidate: libs/audio-video-ui/src/components/MediaComponentFamilies.tsx
+  componentRefs:
+  - media.component.identity-context-boundary
+  - media.component.intent-launcher
+  - media.component.project-browser
+  - media.component.project-context-summary
+  - media.component.creation-plan-summary
+  - media.component.source-picker
+  - media.component.source-player
+  - media.component.transcript-review
+  - media.component.caption-track-editor
+  - media.component.job-status-card
+  - media.component.provenance-summary
+  - media.component.artifact-source-picker
+  - media.component.artifact-transfer-status
+  - media.component.artifact-integrity-summary
+  - media.component.artifact-browser
+  - media.component.waveform-spectrogram
+  - media.component.storyboard
+  - media.component.timeline-keyframe-editor
+  - media.component.audio-mixer
+  - media.component.mask-tracking-editor
+  - media.component.scene-inspector
+  - media.component.simulation-instruments
+  - media.component.result-comparison
+  - media.component.quality-inspector
+  - media.component.delivery-profile-picker
+  - media.component.rights-retention-review
+  - media.component.activity-recovery-feed
+  - media.component.cli-output
+  adapterRole: shared-shell-for-typed-component-definition-projections
+  styleBindings: [libs/audio-video-ui/src/styles.css#media-family]
+  scope: The CSS class shell and focus treatment are registered to this local renderer helper; this does not upgrade the contract-only families to product implementations.
+  admission: SOURCE_BINDING_ONLY; runtime-and-accessibility-review-pending
+- id: media.gui.renderer-adapter.contract-screen.v1
+  implementationExport: MediaContractScreen
+  implementationCandidate: libs/audio-video-ui/src/screens/MediaContractScreen.tsx
+  componentRefs:
+  - media.component.identity-context-boundary
+  - media.component.intent-launcher
+  - media.component.project-browser
+  - media.component.project-context-summary
+  - media.component.creation-plan-summary
+  - media.component.source-picker
+  - media.component.source-player
+  - media.component.transcript-review
+  - media.component.caption-track-editor
+  - media.component.job-status-card
+  - media.component.provenance-summary
+  - media.component.artifact-source-picker
+  - media.component.artifact-transfer-status
+  - media.component.artifact-integrity-summary
+  - media.component.artifact-browser
+  - media.component.waveform-spectrogram
+  - media.component.storyboard
+  - media.component.timeline-keyframe-editor
+  - media.component.audio-mixer
+  - media.component.mask-tracking-editor
+  - media.component.scene-inspector
+  - media.component.simulation-instruments
+  - media.component.result-comparison
+  - media.component.quality-inspector
+  - media.component.delivery-profile-picker
+  - media.component.rights-retention-review
+  - media.component.activity-recovery-feed
+  - media.component.cli-output
+  sourceMap: libs/audio-video-ui/src/screens/MediaContractScreen.tsx#MEDIA_SCREEN_COMPONENTS
+  adapterRole: PDP-3-contract-component-projection
+  scope: Candidate screen-contract renderer source; component projection and focused tests do not admit the screen population or claim all families run in production.
+  admission: SOURCE_BINDING_ONLY; runtime-and-accessibility-review-pending

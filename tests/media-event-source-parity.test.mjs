@@ -9,6 +9,8 @@ const conventionsPath = ".product-experience/pdp-2-design-interface-system/event
 const runtimePath = "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java";
 const publisherPath = "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java";
 const clientPath = "libs/audio-video-client/src/index.ts";
+const eventPlaneOpenApiPath = "../ghatana/services/event-plane/contracts/openapi/event-plane.yaml";
+const eventPlaneHandlerPath = "../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java";
 const read = (path) => readFileSync(path, "utf8");
 
 const lifecycleTypes = [
@@ -30,7 +32,7 @@ function section(text, startMarker, endMarker) {
   return text.slice(start, end < 0 ? undefined : end);
 }
 
-function validate({ registry, domainEvents, conventions, runtime, publisher, client }) {
+function validate({ registry, domainEvents, conventions, runtime, publisher, client, eventPlaneOpenApi, eventPlaneHandler }) {
   const errors = [];
   const runtimePopulation = section(registry, "  runtimeLifecyclePublisherTypes:\n", "  clientLocalTypeScriptNotifications:\n");
   const registeredRuntimeTypes = [...runtimePopulation.matchAll(/^      - (media\.[^\s]+)$/gmu)].map(([, id]) => id);
@@ -152,7 +154,7 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
     ['Idempotency-Key', '.header("Idempotency-Key", event.eventId())', 'event.eventId()'],
     ['eventId', 'body.put("eventId", event.eventId())', 'event.eventId()'],
     ['eventType', 'body.put("eventType", event.eventType())', 'event.eventType()'],
-    ['eventVersion', 'body.put("eventVersion", "1.0")', 'literal-1.0'],
+    ['eventVersion', 'body.put("eventVersion", "1.0.0")', 'literal-1.0.0'],
     ['timestamp', 'body.put("timestamp", event.occurredAt().toString())', 'event.occurredAt().toString()'],
     ['correlationId', 'body.put("correlationId", event.correlationId())', 'event.correlationId()'],
     ['causationId', 'if (!event.causationId().isBlank()) body.put("causationId", event.causationId())', 'event.causationId()'],
@@ -175,6 +177,27 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
       errors.push(`PDP1 transport projection binding ${field} must match publisher source and mapped value`);
     }
   }
+  const ownerContracts = domainEvents.slice(domainEvents.indexOf("ownerEventContracts:"));
+  const eventVersions = [...ownerContracts.matchAll(/^    eventVersion: ([^\n]+)$/gmu)].map(([, value]) => value.trim());
+  if (eventVersions.length !== 9 || new Set(eventVersions).size !== 1 || eventVersions[0] !== "1.0.0") {
+    errors.push("all nine owner event schema versions must use exact version 1.0.0");
+  }
+  if (!ownerContracts.includes("status: OWNER_DEFINED_EXACT_IDENTITY_PROJECTION")
+      || !ownerContracts.includes('ownerValue: "1.0.0"')
+      || !ownerContracts.includes('wireValue: "1.0.0"')
+      || !ownerContracts.includes("mapping: identity")
+      || !ownerContracts.includes("whole Event Plane dependency remains NOT_ADMITTED")) {
+    errors.push("Event Plane version projection must directly preserve the owner schema version without promoting dependency admission");
+  }
+  const appendRequest = section(eventPlaneOpenApi, "    AppendEventRequest:\n", "    BatchEventRequest:\n");
+  if (!appendRequest.includes('eventVersion: { type: string, default: "1.0" }') || /eventVersion:[\s\S]{0,160}(?:enum:|const:)/u.test(appendRequest)) {
+    errors.push("public Event Plane AppendEventRequest must accept an explicit eventVersion string without a conflicting fixed value");
+  }
+  const handlerVersionProjection = section(eventPlaneHandler, "String eventVersion = optionalBoundedText(", "return builder.build();");
+  if (!handlerVersionProjection.includes('request.get("eventVersion"), "1.0", "eventVersion"')
+      || !handlerVersionProjection.includes(".eventVersion(eventVersion)")) {
+    errors.push("Event Plane handler must preserve an explicitly supplied eventVersion string unchanged");
+  }
   if (!registry.includes("durableDeduplication: unverified")) errors.push("Idempotency-Key must not imply durable deduplication");
   for (const marker of ["durable-outbox", "retry-policy", "replay", "retention", "ordering", "delivery-cardinality", "consumer-acknowledgement", "recovery"]) {
     if (!runtimePopulation.includes(marker)) errors.push(`unproven delivery guarantee ${marker} must remain explicitly not established`);
@@ -191,6 +214,8 @@ const base = {
   runtime: read(runtimePath),
   publisher: read(publisherPath),
   client: read(clientPath),
+  eventPlaneOpenApi: read(eventPlaneOpenApiPath),
+  eventPlaneHandler: read(eventPlaneHandlerPath),
 };
 
 test("event registry binds exact runtime and client source populations while preserving unproven guarantees", () => {

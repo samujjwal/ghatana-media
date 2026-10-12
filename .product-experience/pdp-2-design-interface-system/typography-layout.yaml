@@ -1,7 +1,7 @@
 schemaVersion: media.typography-layout.v1
 productId: media
 authority: Media reading hierarchy and layout behavior; Shared owns typography and layout primitives
-status: authored-proposal; shared-token-binding-and-P0-010-pending
+status: MEDIA_OWNER_DEFINITION_ACCEPTED; shared-token-binding-and-independent-visual-accessibility-review-pending
 mediaOwnerDefinitionDecision:
   status: MEDIA_OWNER_ACCEPTED_DEFINITION_ONLY
   authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate

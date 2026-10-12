@@ -10,6 +10,8 @@ const root = process.cwd();
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const approvalPath = "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json";
 const approval = JSON.parse(readFileSync(resolve(root, approvalPath), "utf8"));
+const targetRefinementPath = "docs/implementation/verification/pdp-38/migration-coordinator-112-target-refinement.json";
+const targetRefinement = JSON.parse(readFileSync(resolve(root, targetRefinementPath), "utf8"));
 const migrationPath = ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml";
 const review = parse(readFileSync(resolve(root, migrationPath), "utf8"));
 const ledger = review.pdp38ClaimReconciliation;
@@ -57,6 +59,21 @@ function resolveRef(ref) {
   return value;
 }
 
+function resolveHistoricalRef(ref, sourceCommit) {
+  const marker = ref.indexOf("#");
+  const path = ref.slice(0, marker);
+  let value = parse(execFileSync("git", ["show", `${sourceCommit}:${path}`], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }));
+  for (const encoded of ref.slice(marker + 1).replace(/^\//u, "").split("/")) {
+    if (!encoded) continue;
+    const token = encoded.replace(/~1/gu, "/").replace(/~0/gu, "~");
+    if (token.startsWith("@id=")) value = value.find((entry) => entry.id === token.slice(4));
+    else if (Array.isArray(value)) value = value[Number(token)];
+    else value = value[token];
+    assert.notEqual(value, undefined, `resolves historical ${ref} at ${token}`);
+  }
+  return value;
+}
+
 test("PXD-090 approves the exact 112-row proposal set without rewriting proposal snapshots", () => {
   assert.equal(approval.decisionRef, ".product-experience/decision-log.md#PXD-090");
   assert.equal(approval.reviewedRecordCount, 112);
@@ -94,13 +111,32 @@ test("PXD-090 approves the exact 112-row proposal set without rewriting proposal
       const target = resolveRef(record.proposedTargetRef);
       assert.equal(approved.currentTargetRef, record.proposedTargetRef);
       assert.equal(approved.proposedTargetRef, record.proposedTargetRef);
-      assert.equal(approved.currentTargetValueSha256, jsonSha(target));
       assert.equal(approved.currentTargetValueSha256, record.proposedTargetValueSha256);
       assert.equal(approved.targetHashEncoding, "SHA-256(UTF-8(JSON.stringify(resolved YAML/JSON value)))");
       assert.equal(current.disposition, "ROUTED_TO_CURRENT_PDP_AUTHORITY");
       assert.equal(current.targetRef, approved.currentTargetRef);
-      assert.equal(current.targetTextSha256, approved.currentTargetValueSha256);
       assert.equal(current.semanticReviewStatus, "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
+      if (approved.claimId === "MPSEM-0181-C002") {
+        const approvedTarget = resolveHistoricalRef(record.proposedTargetRef, "38b667399aba8361285b6f24f6259031554be716");
+        assert.equal(jsonSha(approvedTarget), approved.currentTargetValueSha256, "PXD-090 retains its exact approved target snapshot");
+        assert.equal(targetRefinement.decisionRef, approval.decisionRef);
+        assert.equal(targetRefinement.claimId, approved.claimId);
+        assert.equal(targetRefinement.historicalApproval.targetValueSha256, approved.currentTargetValueSha256);
+        assert.equal(targetRefinement.currentOwnerTarget.targetValueSha256, jsonSha(target));
+        assert.equal(targetRefinement.currentOwnerTarget.sourceFileSha256, sha(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/reuse-decisions.yaml"), "utf8")));
+        const targetAtPxd090 = structuredClone(target);
+        delete targetAtPxd090.reuseBeforeSelection;
+        delete targetAtPxd090.additionalImplementationRule;
+        assert.deepEqual(targetAtPxd090, approvedTarget, "later owner-authored reuse constraints are additive to the approved target");
+        assert.match(target.reuseBeforeSelection, /Reuse an existing module when it satisfies the requirements/u);
+        assert.ok(target.additionalImplementationRule.requiredFacts.includes("exact capability and versioned profile identity"));
+        assert.equal(current.targetTextSha256, targetRefinement.currentOwnerTarget.targetValueSha256, "the live ledger locator follows the current source digest");
+        assert.equal(targetRefinement.acceptanceEffect.startsWith("none;"), true);
+        assert.equal(targetRefinement.runtimeAdmission, "NOT_ADMITTED");
+      } else {
+        assert.equal(approved.currentTargetValueSha256, jsonSha(target));
+        assert.equal(current.targetTextSha256, approved.currentTargetValueSha256);
+      }
     } else {
       assert.equal(record.proposedDisposition, "NON_NORMATIVE_SOURCE_METADATA");
       assert.equal(approved.proposedDisposition, record.proposedDisposition);
@@ -165,9 +201,9 @@ test("the goal-rule addition is isolated and does not rewrite prior goal measure
   const currentText = readFileSync(resolve(root, impact.sourcePath), "utf8");
   const current = parse(currentText);
   const criteria = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"), "utf8"));
-  const p006 = criteria.records.find(({ taskId }) => taskId === "P0-06")?.currentCorrectiveReview;
+  const p006Record = criteria.records.find(({ taskId }) => taskId === "P0-06");
+  const p006 = p006Record?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === ".product-experience/decision-log.md#PXD-141");
   assert.equal(p006?.status, "APPROVED_CURRENT_CORRECTION");
-  assert.equal(p006?.decisionRef, ".product-experience/decision-log.md#PXD-105");
-  assert.equal(p006?.sourceFingerprints[impact.sourcePath], sha(currentText), "the current goal source is checked against the separate PXD-105 correction");
+  assert.equal(p006?.sourceFingerprints[impact.sourcePath], sha(currentText), "PXD-141 remains bound to its reviewed goal-source cut");
   assert.equal(current.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.measureApplicabilityRecords.records.length, 1848);
 });

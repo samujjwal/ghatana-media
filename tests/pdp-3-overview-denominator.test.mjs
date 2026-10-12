@@ -32,10 +32,14 @@ test("PDP-3 overview reports the registered baseline and extension journey denom
   assert.equal(projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0), 130);
   assert.equal(projectedJourneys.find(({ id }) => id === "J-29").steps.length, 4);
   assert.deepEqual(journeyAudit.stepIntentProjection.omitted, []);
+  assert.equal(journeyAudit.typedStepSemanticsProjected, 130);
+  assert.equal(journeyAudit.typedStepSemanticsUnresolved, 0);
   assert.match(overview, /30 journey records with 130 of 130 source\s+steps/u);
-  assert.match(overview, /Four J-29 step intents and all eight J-29\/J-30 step-view links are now explicit/u);
-  assert.match(overview, /Empty\s+`transitionRefs` arrays are schema placeholders/u);
-  assert.match(overview, /five semantic blockers/u);
-  assert.match(overview, /does not imply full PDP-3 acceptance, owner or\s+independent review, or Lifecycle currentness and closure/u);
+  assert.match(overview, /Four J-29 step intents and all eight J-29\/J-30 step-view links are explicit/u);
+  assert.match(overview, /Empty\s+`transitionRefs` arrays remain\s+schema placeholders/u);
+  assert.match(overview, /`fieldMappingBlockers` is empty/u);
+  assert.match(overview, /59 source binding occurrences across 48 distinct journey\/step\/\s*operation bindings/u);
+  assert.match(overview, /PXD-160\s+query is a supporting read only/u);
+  assert.match(overview, /does not establish full PDP-3 acceptance, independent\s+review, runtime admission, or Lifecycle currentness and closure/u);
   assert.doesNotMatch(overview, /0 schema-shaped journeys|no schema-shaped journey is emitted/u);
 });

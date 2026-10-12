@@ -10,6 +10,8 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const candidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
 const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-material-review.json"), "utf8"));
+const currentSourceSupplement = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-material-source-observations.json"), "utf8"));
+const pxd153SourceCorrection = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const cache = new Map();
 function resolveRef(ref) {
@@ -51,8 +53,24 @@ function assertCurrentMaterial(record) {
     const observation = binding.currentProposalObservation;
     assert.equal(serialized.includes(binding.requiredSourcePhrase), true, `${record.claimId} exact material phrase`);
     assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
-    assert.equal(observation.currentSourceFileSha256, sha(source));
-    assert.equal(observation.currentSourceValueSha256, sha(serialized));
+    assert.ok(observation.currentSourceFileSha256, "PXD-139 source-file pin remains recorded as historical review evidence");
+    assert.ok(observation.currentSourceValueSha256, "PXD-139 target-value pin remains recorded as historical review evidence");
+    const refreshed = currentSourceSupplement.records.find((item) => item.claimId === record.claimId)?.materials.find((item) => item.targetRef === binding.ref);
+    assert.ok(refreshed, `${record.claimId} has an additive current-source observation`);
+    const historicalPxd139Material = currentReview.records.find((item) => item.claimId === record.claimId)?.materials.find((item) => item.targetRef === binding.ref);
+    assert.ok(historicalPxd139Material, `${record.claimId} has its original PXD-139 material pin`);
+    assert.equal(refreshed.historicalCurrentSourceFileSha256, historicalPxd139Material.currentSourceFileSha256);
+    assert.equal(refreshed.historicalCurrentTargetValueSha256, historicalPxd139Material.currentTargetValueSha256);
+    if (binding.ref.startsWith(".product-experience/pdp-0-product-truth/capabilities.yaml#")) {
+      assert.equal(refreshed.sourceCorrectionDecisionRef, pxd153SourceCorrection.decisionRef);
+      assert.equal(refreshed.sourceCorrectionEvidenceRef, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json");
+      assert.equal(pxd153SourceCorrection.supersedes.historicalCapabilitiesSha256, refreshed.historicalCurrentSourceFileSha256);
+      assert.equal(pxd153SourceCorrection.source.currentSha256, refreshed.currentSourceFileSha256);
+    }
+    assert.equal(refreshed.currentSourceFileSha256, sha(source));
+    assert.equal(refreshed.currentTargetValueSha256, sha(serialized));
+    assert.equal(refreshed.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(refreshed.acceptanceEffect, "none");
   }
 }
 
@@ -125,8 +143,14 @@ function assertCurrentReviewRecord(record) {
     const { source, value } = resolveRef(material.targetRef);
     const serialized = typeof value === "string" ? value : JSON.stringify(value);
     assert.equal(material.requiredSourcePhrase, binding.requiredSourcePhrase);
-    assert.equal(material.currentSourceFileSha256, sha(source));
-    assert.equal(material.currentTargetValueSha256, sha(serialized));
+    assert.ok(material.currentSourceFileSha256, "PXD-139 historical current-source file pin remains present");
+    assert.ok(material.currentTargetValueSha256, "PXD-139 historical target pin remains present");
+    const refreshed = currentSourceSupplement.records.find((item) => item.claimId === record.claimId)?.materials.find((item) => item.targetRef === material.targetRef);
+    assert.ok(refreshed, `${record.claimId} has an additive current-source observation`);
+    assert.equal(refreshed.historicalCurrentSourceFileSha256, material.currentSourceFileSha256);
+    assert.equal(refreshed.historicalCurrentTargetValueSha256, material.currentTargetValueSha256);
+    assert.equal(refreshed.currentSourceFileSha256, sha(source));
+    assert.equal(refreshed.currentTargetValueSha256, sha(serialized));
     assert.equal(serialized.includes(material.requiredSourcePhrase), true, `${record.claimId} phrase remains present in exact target`);
     assert.match(material.targetRef, /^\.product-experience\/pdp-0-product-truth\//u, `${record.claimId} target remains in PDP-0 owner boundary`);
   }
@@ -152,9 +176,11 @@ test("PXD-139 P0 migration material proposal pins exact claims, source history, 
     assert.equal(record.source.exactText, owner.exactSourceText);
     assert.equal(sha(record.source.exactText), record.source.textSha256, `${record.claimId} exact source text hash`);
     assert.equal(currentPlan.includes(record.source.exactText), true, `${record.claimId} exact source text remains in the source plan`);
-    assert.deepEqual(record.ownerProposalObservation, owner.currentProposalObservation,
-      `${record.claimId} preserves owner proposal status and history without promotion`);
-    assert.equal(record.ownerProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+    assert.equal(record.ownerProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW",
+      `${record.claimId} preserves the PXD-139 historical pending disposition`);
+    assert.ok(record.ownerProposalObservation.priorSourceFileSha256, `${record.claimId} retains the pre-review source pin`);
+    if (record.ownerProposalObservation.previousCurrentSourceFileSha256)
+      assert.match(record.ownerProposalObservation.previousCurrentSourceFileSha256, /^[a-f0-9]{64}$/u);
     assertCurrentReviewRecord(record);
   }
 

@@ -1632,7 +1632,7 @@ components:
       - {state: "video", variant: "video"}
       - {state: "loading", variant: "loading"}
       - {state: "unavailable", variant: "unavailable"}
-    positiveFixture: {"sourceVersionRef":{"tenantId":"tenant-a","artifactId":"artifact-1","versionId":"version-1"},"playbackState":"loading","sourceTime":{"clockKind":"media","clockId":"clock-source-1","streamId":"stream-a","ticks":"3","secondsPerTick":{"numerator":"1","denominator":"2"}},"timebaseRef":{"clockKind":"media","clockId":"clock-source-1","streamId":"stream-a","secondsPerTick":{"numerator":"1","denominator":"48000"},"originTicks":"0","discontinuityPolicy":"explicit-segments"},"state":"audio","variant":"audio","actionIntents":["media.action.play-source"],"keyboardBehavior":"keyboard-play-pause-and-seek; no-drag-only-control"}
+    positiveFixture: {"sourceVersionRef":{"tenantId":"tenant-a","artifactId":"artifact-1","versionId":"version-1"},"playbackState":"loading","sourceTime":{"clockKind":"media","clockId":"clock-source-1","streamId":"stream-a","originRef":"origin-source-1","ticks":"3","secondsPerTick":{"numerator":"1","denominator":"2"}},"timebaseRef":{"clockKind":"media","clockId":"clock-source-1","streamId":"stream-a","originRef":"origin-source-1","secondsPerTick":{"numerator":"1","denominator":"48000"},"originTicks":"0","discontinuityPolicy":"explicit-segments"},"state":"audio","variant":"audio","actionIntents":["media.action.play-source"],"keyboardBehavior":"keyboard-play-pause-and-seek; no-drag-only-control"}
     states:
       - "audio"
       - "video"
@@ -2147,7 +2147,7 @@ components:
       - {state: "version-conflict", variant: "version-conflict"}
       - {state: "saved", variant: "saved"}
       - {state: "read-only", variant: "read-only"}
-    positiveFixture: {"sourceVersionRef":{"tenantId":"tenant-a","artifactId":"artifact-1","versionId":"version-1"},"captionDraftRef":"media.test.0","sourceTimebaseRef":{"clockKind":"media","clockId":"clock-source-1","streamId":"stream-a","secondsPerTick":{"numerator":"1","denominator":"48000"},"originTicks":"0","discontinuityPolicy":"explicit-segments"},"cues":[],"validationDisposition":"valid","saveAsNewVersionAction":"media.action.save-caption-version","state":"draft","variant":"draft","actionIntents":["media.action.correct-caption"],"keyboardBehavior":"select-and-edit-by-row; provide-numeric-time-edit-alternative-to-dragging"}
+    positiveFixture: {"sourceVersionRef":{"tenantId":"tenant-a","artifactId":"artifact-1","versionId":"version-1"},"captionDraftRef":"media.test.0","sourceTimebaseRef":{"clockKind":"media","clockId":"clock-source-1","streamId":"stream-a","originRef":"origin-source-1","secondsPerTick":{"numerator":"1","denominator":"48000"},"originTicks":"0","discontinuityPolicy":"explicit-segments"},"cues":[],"validationDisposition":"valid","saveAsNewVersionAction":"media.action.save-caption-version","state":"draft","variant":"draft","actionIntents":["media.action.correct-caption"],"keyboardBehavior":"select-and-edit-by-row; provide-numeric-time-edit-alternative-to-dragging"}
     states:
       - "draft"
       - "needs-alignment"
@@ -4378,7 +4378,7 @@ components:
       - {state: "conflict", variant: "conflict"}
       - {state: "saved", variant: "ready-for-review"}
       - {state: "read-only", variant: "read-only"}
-    positiveFixture: {"compositionVersionRef":{"tenantId":"tenant-a","compositionId":"composition-a","versionId":"version-8"},"scenes":[],"timebaseRef":{"clockKind":"media","clockId":"clock-composition-1","streamId":"stream-a","secondsPerTick":{"numerator":"1001","denominator":"24000"},"originTicks":"0","unit":"frame"},"transitionSpecs":[],"validationDisposition":"valid","storyboardActionIntents":[],"state":"no-scenes","variant":"empty","actionIntents":["media.action.add-storyboard-scene"],"keyboardBehavior":"Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on the moved scene."}
+    positiveFixture: {"compositionVersionRef":{"tenantId":"tenant-a","compositionId":"composition-a","versionId":"version-8"},"scenes":[],"timebaseRef":{"clockKind":"media","clockId":"clock-composition-1","streamId":"stream-a","originRef":"origin-composition-1","secondsPerTick":{"numerator":"1001","denominator":"24000"},"originTicks":"0","unit":"frame"},"transitionSpecs":[],"validationDisposition":"valid","storyboardActionIntents":[],"state":"no-scenes","variant":"empty","actionIntents":["media.action.add-storyboard-scene"],"keyboardBehavior":"Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on the moved scene."}
     states:
       - "no-scenes"
       - "editing"
@@ -4727,7 +4727,7 @@ components:
       - {state: "saved", variant: "audio-video-timeline"}
       - {state: "conflict", variant: "version-conflict"}
       - {state: "read-only", variant: "read-only"}
-    positiveFixture: {"compositionVersionRef":{"tenantId":"tenant-a","compositionId":"composition-a","versionId":"version-8"},"timebaseRef":{"clockKind":"media","clockId":"clock-timeline-1","streamId":"stream-a","secondsPerTick":{"numerator":"1001","denominator":"24000"},"originTicks":"0","discontinuityPolicy":"explicit-segments"},"tracks":[],"keyframes":[],"editConstraints":[],"validationDisposition":"valid","state":"loading","variant":"loading","actionIntents":["media.action.select-track-or-region"],"keyboardBehavior":"Provide keyboard selection, trim, reorder, keyframe insertion/removal, and numeric time/value entry; expose visible focus and deterministic shortcuts."}
+    positiveFixture: {"compositionVersionRef":{"tenantId":"tenant-a","compositionId":"composition-a","versionId":"version-8"},"timebaseRef":{"clockKind":"media","clockId":"clock-timeline-1","streamId":"stream-a","originRef":"origin-timeline-1","secondsPerTick":{"numerator":"1001","denominator":"24000"},"originTicks":"0","discontinuityPolicy":"explicit-segments"},"tracks":[],"keyframes":[],"editConstraints":[],"validationDisposition":"valid","state":"loading","variant":"loading","actionIntents":["media.action.select-track-or-region"],"keyboardBehavior":"Provide keyboard selection, trim, reorder, keyframe insertion/removal, and numeric time/value entry; expose visible focus and deterministic shortcuts."}
     states:
       - "loading"
       - "ready"

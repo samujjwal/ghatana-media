@@ -25,12 +25,23 @@ const operationById = new Map([
 ].map((record) => [record.id, record]));
 
 test("job status screen binds the normalized read model and exact safe command meanings", () => {
-  assert.deepEqual(screen.domainObjectRefs, ["media.domain.processing-job", "media.domain.job-attempt", "media.domain.job-lease"]);
+  assert.deepEqual(screen.domainObjectRefs, [
+    "media.domain.processing-job",
+    "media.domain.job-attempt",
+    "media.domain.job-lease",
+    "media.domain.project",
+    "media.domain.artifact-version",
+    "media.domain.stream-session",
+    "media.domain.stream-frame",
+    "media.domain.consent-reference",
+  ]);
   for (const operationRef of screen.operationRefs) {
     assert.ok(operationById.has(operationRef), `exact owner operation resolves: ${operationRef}`);
   }
   assert.ok(screen.operationRefs.includes("media.operation.job-status.read-dimensions.v1"));
   assert.ok(screen.operationRefs.includes("media.operation.action.inspect-job-retry-policy"));
+  assert.ok(screen.operationRefs.includes("media.operation.action.view-job-status"));
+  assert.ok(screen.operationRefs.includes("media.operation.action.check-job-outcome"));
   assert.ok(screen.authorityRefs.includes(".product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/jobStatusRead"));
   assert.match(screen.entry.join(" "), /authenticated tenant and principal/u);
   assert.match(screen.entry.join(" "), /expected read authority and read version/u);
@@ -45,8 +56,8 @@ test("job status screen binds the normalized read model and exact safe command m
   ];
   assert.deepEqual(screen.stateRefs, expectedStateRefs);
   const expectedOperations = new Map([
-    ["media.action.view-job-status", "media.operation.job-status.read-dimensions.v1"],
-    ["media.action.check-job-outcome", "media.operation.job-status.read-dimensions.v1"],
+    ["media.action.view-job-status", "media.operation.action.view-job-status"],
+    ["media.action.check-job-outcome", "media.operation.action.check-job-outcome"],
     ["media.action.request-cancellation", "media.operation-slice.cancel-job"],
     ["media.action.retry-job", "media.operation-slice.retry-job"],
   ]);
@@ -74,7 +85,7 @@ test("job-status screen rejects command/query substitution, foreign state dimens
   const wrongRead = structuredClone(screen);
   wrongRead.actionConsequences.find((row) => row.actionId === "media.action.view-job-status").operationRef = "media.operation-slice.retry-job";
   assert.notEqual(wrongRead.actionConsequences.find((row) => row.actionId === "media.action.view-job-status").operationRef,
-    "media.operation.job-status.read-dimensions.v1");
+    "media.operation.action.view-job-status");
 
   const wrongState = structuredClone(screen);
   wrongState.stateRefs[0] = "media-upload-and-artifact/AVAILABLE";

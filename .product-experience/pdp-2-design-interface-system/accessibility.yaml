@@ -1,7 +1,7 @@
 schemaVersion: media.accessibility-language.v1
 productId: media
 authority: Media-specific accessibility contracts over Shared primitives
-status: authored-proposal; accessibility-specialist-and-P0-010-review-pending
+status: MEDIA_OWNER_REQUIREMENTS_DEFINED; accessibility-specialist-review-pending
 mediaOwnerDefinitionDecision:
   status: MEDIA_OWNER_ACCEPTED_REQUIREMENTS_ONLY
   authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate

@@ -7,7 +7,7 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 const root = '.product-experience/pdp-3-product-experience';
 const { parse } = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml');
 const yaml = async (path) => parse(await readFile(path, 'utf8'));
-const [journey, registry, bindings, screen, operations, grammar, journeyRegistry] = await Promise.all([
+const [journey, registry, bindings, screen, operations, grammar, journeyRegistry, taxonomy] = await Promise.all([
   yaml(`${root}/journey-contracts/transcribe-and-correct-captions.yaml`),
   yaml(`${root}/action-registry.yaml`),
   yaml(`${root}/experience-source-bindings.yaml`),
@@ -15,6 +15,7 @@ const [journey, registry, bindings, screen, operations, grammar, journeyRegistry
   yaml('.product-experience/pdp-1-domain-data/operations.yaml'),
   yaml('.product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml'),
   yaml(`${root}/journey-registry.yaml`),
+  yaml(`${root}/public-effect-finality-taxonomy.yaml`),
 ]);
 const selected = journey.steps.find(({ stepId }) => stepId === 'J03-2');
 const action = registry.actions.find(({ id }) => id === 'media.action.request-transcription');
@@ -22,7 +23,8 @@ const operation = operations.operations.find(({ id }) => id === 'media.operation
 const binding = bindings.j03TranscriptionSubmissionBindings;
 const sourceDecision = '.product-experience/decision-log.md#PXD-070';
 const grammarDecision = '.product-experience/decision-log.md#PXD-071';
-const reviewDecision = '.product-experience/decision-log.md#PXD-072';
+const reviewDecision = '.product-experience/decision-log.md#PXD-159';
+const actionReviewDecision = '.product-experience/decision-log.md#PXD-072';
 
 function validateSelected(value, actionRecord = action) {
   assert.equal(value.stepId, 'J03-2');
@@ -30,6 +32,7 @@ function validateSelected(value, actionRecord = action) {
   assert.equal(value.canonicalOperationRef, 'media.operation.transcription-submission');
   assert.deepEqual(value.requiredOperationRefs, ['media.operation.transcription-submission']);
   assert.equal(value.decisionRef, reviewDecision);
+  assert.equal(value.transitionDisposition.decisionRef, reviewDecision);
   assert.equal(value.sourceDecisionRef, sourceDecision);
   assert.equal(value.grammarDecisionRef, grammarDecision);
   assert.deepEqual(value.stateRefs, []);
@@ -37,12 +40,18 @@ function validateSelected(value, actionRecord = action) {
   assert.equal(value.transitionDisposition.transitionRef, null);
   assert.equal(value.definitionVerification.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(actionRecord.actionDefinitionSemantics.operationRef, 'media.operation.transcription-submission');
+  assert.equal(actionRecord.actionDefinitionSemantics.reviewDecisionRef, actionReviewDecision,
+    'the action-definition lineage remains under PXD-072');
   assert.equal(actionRecord.actionDefinitionSemantics.effectKind, 'REQUEST_ACCEPTANCE');
   assert.equal(actionRecord.actionDefinitionSemantics.reversibility.kind, 'UNKNOWN');
   assert.equal(actionRecord.actionDefinitionSemantics.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(actionRecord.actionDefinitionSemantics.publicEffect, undefined);
   assert.equal(actionRecord.actionDefinitionSemantics.publicFinality, undefined);
-  assert.equal(resolveExperienceDefinitionSemantics([actionRecord], []).effects.length, 0);
+  const projection = resolveExperienceDefinitionSemantics([actionRecord], [], taxonomy);
+  const effect = projection.effects.find(({ id }) => id === 'media.public-taxonomy.request-transcription.effect');
+  const finality = projection.finality.find(({ id }) => id === 'media.public-taxonomy.request-transcription.finality');
+  assert.equal(effect?.reversibilityDisposition, 'UNKNOWN');
+  assert.equal(finality?.undoabilityDisposition, 'UNKNOWN');
 }
 
 test('J03-2 binds only the existing audio transcription-submission identity', async () => {
@@ -60,58 +69,105 @@ test('J03-2 binds only the existing audio transcription-submission identity', as
   assert.deepEqual(binding.steps[0].stateRefs, []);
 });
 
-test('request snapshot, scoped key, profile, language, receipt, and reconciliation match PDP1/PDP2', () => {
-  const expectedSubmit = ['requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'languageIntent', 'profileId', 'profileVersion', 'profileConfigurationDigest', 'purpose', 'consentRef', 'rightsEvidenceRef', 'retentionPolicyRef', 'processingLocation'];
-  const expectedFingerprint = ['tenantId', 'principalId', 'delegationRef', 'operationId', 'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'authoritativeSourceContentDigest', 'languageIntent', 'profileId', 'profileVersion', 'profileConfigurationDigest', 'purpose', 'consentRef', 'rightsEvidenceRef', 'retentionPolicyRef', 'processingLocation'];
-  assert.deepEqual(selected.submissionSemantics.submitRequiredFields, expectedSubmit);
-  assert.deepEqual(operation.inputSemantics.submitRequiredFields, expectedSubmit);
-  assert.deepEqual(selected.submissionSemantics.commonRequiredFields, ['requestMode']);
-  assert.deepEqual(selected.submissionSemantics.commonAllowedFields, ['requestMode']);
-  assert.deepEqual(selected.submissionSemantics.submitAllowedFields, operation.inputSemantics.submitAllowedFields);
-  assert.deepEqual(selected.submissionSemantics.reconcileAllowedFields, operation.inputSemantics.reconcileAllowedFields);
-  assert.equal(selected.submissionSemantics.branchFieldRule, operation.inputSemantics.branchFieldRule);
-  assert.deepEqual(selected.submissionSemantics.reconcileRequiredFields, ['requestId', 'requestFingerprint']);
-  assert.deepEqual(selected.submissionSemantics.requestFingerprint.binds, expectedFingerprint);
-  assert.deepEqual(operation.inputSemantics.requestFingerprint.fields, expectedFingerprint);
-  assert.equal(selected.submissionSemantics.requestFingerprint.version, 'media.transcription-submission-fingerprint.v1');
-  assert.deepEqual(operation.inputSemantics.requestFingerprint.languageIntentEncoding.EXPLICIT, ['EXPLICIT', 'exact-languageTag']);
-  assert.deepEqual(operation.inputSemantics.requestFingerprint.languageIntentEncoding.AUTO_REQUESTED, ['AUTO_REQUESTED']);
-  assert.deepEqual(selected.submissionSemantics.languageIntent.variants.EXPLICIT.allowedFields, operation.inputSemantics.languageIntent.EXPLICIT.allowedFields);
-  assert.deepEqual(selected.submissionSemantics.languageIntent.variants.AUTO_REQUESTED.allowedFields, operation.inputSemantics.languageIntent.AUTO_REQUESTED.allowedFields);
-  assert.match(selected.submissionSemantics.scalarNullability.consentRef, /explicit-null-only/u);
-  assert.match(selected.submissionSemantics.scalarNullability.rightsEvidenceRef, /required-nonnull-locator-resolved-to-current-authoritative-rights-decision/u);
-  assert.match(selected.submissionSemantics.scalarNullability.reconcileRequestFingerprint, /required-nonnull-lowercase-64-hex-SHA256/u);
-  assert.match(selected.submissionSemantics.requestFingerprint.encoding, /fixed ordered tuples/u);
-  assert.match(selected.submissionSemantics.requestFingerprint.replay, /retain the complete validated canonical submit snapshot/u);
-  assert.deepEqual(selected.submissionSemantics.acknowledgedFields, operation.outputSemantics.acknowledgedFields);
-  assert.deepEqual(selected.submissionSemantics.unknownFields, operation.outputSemantics.unknownFields);
-  assert.match(selected.submissionSemantics.asynchronousBoundary, /no job state, provider execution, recognition completion/u);
-  assert.match(selected.submissionSemantics.reconciliation, /separately rechecked current scoped receipt-read authority/u);
-  assert.match(selected.submissionSemantics.reconciliation, /after processing authority revocation/u);
-  assert.match(selected.submissionSemantics.reconciliation, /absence\/expiry\/unavailability never proves no effect/u);
-  assert.match(selected.submissionSemantics.retries, /no blind replay, no new key/u);
-  assert.deepEqual(binding.steps[0].submitRequiredFields, expectedSubmit);
-  assert.deepEqual(binding.steps[0].submitAllowedFields, operation.inputSemantics.submitAllowedFields);
-  assert.deepEqual(binding.steps[0].reconcileAllowedFields, operation.inputSemantics.reconcileAllowedFields);
-  assert.deepEqual(binding.steps[0].fingerprintFields, expectedFingerprint);
-  assert.deepEqual(grammar.boundedTranscriptionSubmissionSlice.operation.submitFields, expectedSubmit);
-  assert.deepEqual(grammar.boundedTranscriptionSubmissionSlice.operation.requestFingerprint.fields, expectedFingerprint);
-  assert.equal(grammar.boundedTranscriptionSubmissionSlice.runtimeAdmission, 'NOT_ADMITTED');
+test('request snapshot, scoped key, profile, language, receipt, and reconciliation match P1/P2/P3', () => {
+  const p1 = operation.inputSemantics;
+  const p2 = grammar.boundedTranscriptionSubmissionSlice;
+  const p2Operation = p2.operation;
+  const p3 = selected.submissionSemantics;
+  const sourceBinding = binding.steps[0];
+  const expectedSubmit = p1.submitRequiredFields;
+  const expectedFingerprint = p1.requestFingerprint.fields;
+  const expectedContextPreservation = [
+    'tenantId', 'principalId', 'delegationRef', 'operationId', 'requestId', 'requestFingerprint',
+    'sourceArtifactId', 'sourceArtifactVersionId', 'authoritativeSourceContentDigest', 'languageIntent',
+    'profileId', 'profileVersion', 'profileConfigurationDigest', 'timestamps', 'speakerDiarization',
+    'purposeRef', 'rightsEvidenceRefs', 'consentRef', 'retentionPolicyRef', 'policyDecisionRef',
+    'resolvedProcessingLocation', 'submissionReceiptId', 'jobId',
+  ];
+
+  assert.deepEqual(p2Operation.submitFields, expectedSubmit);
+  assert.deepEqual(p2Operation.submitAllowedFields, p1.submitAllowedFields);
+  assert.deepEqual(p2Operation.reconcileFields, p1.reconcileRequiredFields);
+  assert.deepEqual(p2Operation.reconcileAllowedFields, p1.reconcileAllowedFields);
+  assert.deepEqual(p2Operation.requestFingerprint, p1.requestFingerprint);
+  assert.deepEqual(p2Operation.scalarNullability, p1.scalarNullability);
+
+  assert.deepEqual(p3.submitRequiredFields, expectedSubmit);
+  assert.deepEqual(p3.submitAllowedFields, p1.submitAllowedFields);
+  assert.deepEqual(p3.commonRequiredFields, p1.commonRequiredFields);
+  assert.deepEqual(p3.commonAllowedFields, p1.commonAllowedFields);
+  assert.deepEqual(p3.reconcileRequiredFields, p1.reconcileRequiredFields);
+  assert.deepEqual(p3.reconcileAllowedFields, p1.reconcileAllowedFields);
+  assert.equal(p3.branchFieldRule, p1.branchFieldRule);
+  assert.deepEqual(selected.contextPreservation, expectedContextPreservation);
+  assert.deepEqual(selected.stepDefinitionSemantics.stepSourceFacts.contextPreservation, expectedContextPreservation);
+  assert.deepEqual(p3.requestFingerprint.binds, expectedFingerprint);
+  assert.equal(p3.requestFingerprint.version, 'media.transcription-submission-fingerprint.v2');
+  assert.equal(p3.requestFingerprint.encoding, p1.requestFingerprint.encoding);
+  assert.deepEqual(p3.requestFingerprint.languageIntentEncoding, p1.requestFingerprint.languageIntentEncoding);
+  assert.deepEqual(p3.requestFingerprint.scalarEncoding, p1.requestFingerprint.scalarEncoding);
+  assert.equal(p3.requestFingerprint.normalization, p1.requestFingerprint.normalization);
+  assert.deepEqual(p3.scalarNullability, p1.scalarNullability);
+  assert.deepEqual(p3.requestResolution, p2Operation.requestResolution);
+  assert.equal(p3.fingerprintValueSource, p2Operation.fingerprintValueSource);
+  assert.deepEqual(p3.policyFields, p2Operation.policyFields);
+  assert.deepEqual(p3.optionalReferenceWireFields, p2Operation.optionalReferenceWireFields);
+  assert.equal(p3.callerNullRule, p2Operation.callerNullRule);
+  assert.equal(p3.profilePreconstructionBoundary, p2Operation.profilePreconstructionBoundary);
+
+  assert.deepEqual(sourceBinding.submitRequiredFields, expectedSubmit);
+  assert.deepEqual(sourceBinding.submitAllowedFields, p1.submitAllowedFields);
+  assert.deepEqual(sourceBinding.commonRequiredFields, p1.commonRequiredFields);
+  assert.deepEqual(sourceBinding.commonAllowedFields, p1.commonAllowedFields);
+  assert.deepEqual(sourceBinding.reconcileRequiredFields, p1.reconcileRequiredFields);
+  assert.deepEqual(sourceBinding.reconcileAllowedFields, p1.reconcileAllowedFields);
+  assert.deepEqual(sourceBinding.requestResolution, p2Operation.requestResolution);
+  assert.equal(sourceBinding.fingerprintValueSource, p2Operation.fingerprintValueSource);
+  assert.deepEqual(sourceBinding.fingerprintFields, expectedFingerprint);
+  assert.equal(sourceBinding.fingerprintVersion, p1.requestFingerprint.version);
+  assert.equal(sourceBinding.fingerprintEncoding, p1.requestFingerprint.encoding);
+  assert.equal(sourceBinding.fingerprintScalarEncoding, p1.requestFingerprint.scalarEncoding);
+  assert.equal(sourceBinding.fingerprintNormalization, p1.requestFingerprint.normalization);
+  assert.deepEqual(sourceBinding.scalarNullability, p1.scalarNullability);
+  assert.deepEqual(sourceBinding.policyFields, p2Operation.policyFields);
+  assert.deepEqual(sourceBinding.optionalReferenceWireFields, p2Operation.optionalReferenceWireFields);
+  assert.equal(sourceBinding.callerNullRule, p2Operation.callerNullRule);
+  assert.equal(sourceBinding.profilePreconstructionBoundary, p2Operation.profilePreconstructionBoundary);
+
+  assert.deepEqual(p1.languageIntent.EXPLICIT.allowedFields, p3.languageIntent.variants.EXPLICIT.allowedFields);
+  assert.deepEqual(p1.languageIntent.AUTO_REQUESTED.allowedFields, p3.languageIntent.variants.AUTO_REQUESTED.allowedFields);
+  assert.match(p3.scalarNullability.consentRef, /canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required/u);
+  assert.match(p3.scalarNullability.rightsEvidenceRefs, /nonempty-exact-reference-array/u);
+  assert.match(p3.callerNullRule, /caller-supplied-null-is-rejected/u);
+  assert.match(p3.profilePreconstructionBoundary, /returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction/u);
+  assert.match(p3.profilePreconstructionBoundary, /never-default-or-reinterpret-absence-as-AUTO_REQUESTED/u);
+  assert.match(p3.requestFingerprint.replay, /owner-resolved optional authority values, resolved processing location/u);
+  assert.match(p3.reconciliation, /separately rechecked current scoped receipt-read authority/u);
+  assert.match(p3.reconciliation, /after processing authority revocation/u);
+  assert.match(p3.reconciliation, /absence\/expiry\/unavailability never proves no effect/u);
+  assert.match(p3.retries, /no blind replay, no new key/u);
+  assert.deepEqual(p3.acknowledgedFields, operation.outputSemantics.acknowledgedFields);
+  assert.deepEqual(p3.unknownFields, operation.outputSemantics.unknownFields);
+  assert.equal(p2.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(binding.runtimeAdmission, 'NOT_ADMITTED');
 });
 
-test('the screen consequence presents the receipt without promising state and leaves status/cancellation unresolved', () => {
+test('the screen preserves the selected submission consequence and keeps every bound action not admitted', () => {
   const request = screen.actionConsequences.find(({ actionId }) => actionId === 'media.action.request-transcription');
   const status = screen.actionConsequences.find(({ actionId }) => actionId === 'media.action.view-job-status');
   const cancellation = screen.actionConsequences.find(({ actionId }) => actionId === 'media.action.request-cancellation');
   assert.equal(request.operationRef, 'media.operation.transcription-submission');
-  assert.match(request.consequence, /submission receipt only/u);
-  assert.match(request.consequence, /no current job state or recognition completion/u);
-  assert.equal(request.bindingStatus, 'SOURCE_DEFINED_OWNER_ACCEPTED under PXD-072; runtime-and-screen-admission-pending');
-  assert.equal(status.operationRef, null);
-  assert.equal(cancellation.operationRef, null);
-  assert.match(screen.entry.join(' '), /reconcile the same requestId and full fingerprint/u);
-  assert.match(screen.entry.join(' '), /revoked processing permission blocks replay/u);
-  assert.match(screen.entry.join(' '), /no blind replay or new key/u);
+  assert.equal(request.consequence, 'submit-one-logical-transcription-request-for-the-exact-source-version');
+  assert.match(request.finality, /stable-submission-receipt-and-logical-job-identity-only/u);
+  assert.match(request.finality, /no-job-state-or-recognition-finality/u);
+  assert.equal(request.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(request.bindingStatus, 'source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED');
+  assert.equal(status.operationRef, 'media.operation.action.view-job-status');
+  assert.equal(status.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(cancellation.operationRef, 'media.operation-slice.cancel-job');
+  assert.equal(cancellation.runtimeAdmission, 'NOT_ADMITTED');
+  assert.match(screen.exit.join(' '), /never-submit-duplicate-on-unknown/u);
+  assert.match(screen.exit.join(' '), /no-job-state-or-recognition-finality/u);
   assert.match(screen.operationRefsBindingStatus, /other job actions remain unresolved/u);
 });
 
@@ -131,6 +187,18 @@ test('negative mutations reject wrong IDs, broadened effects, status edges, and 
   const callerIdentity = structuredClone(selected.submissionSemantics);
   callerIdentity.submitAllowedFields.push('principalId');
   assert.notDeepEqual(callerIdentity.submitAllowedFields, operation.inputSemantics.submitAllowedFields);
+  const wrongFingerprintVersion = structuredClone(selected.submissionSemantics);
+  wrongFingerprintVersion.requestFingerprint.version = 'media.transcription-submission-fingerprint.v1';
+  assert.throws(() => assert.equal(wrongFingerprintVersion.requestFingerprint.version, operation.inputSemantics.requestFingerprint.version), /Expected values/u);
+  const wrongFingerprintField = structuredClone(selected.submissionSemantics);
+  wrongFingerprintField.requestFingerprint.binds.push('processingLocation');
+  assert.throws(() => assert.deepEqual(wrongFingerprintField.requestFingerprint.binds, operation.inputSemantics.requestFingerprint.fields), /Expected values|deepStrictEqual/u);
+  const nullableLocator = structuredClone(selected.submissionSemantics);
+  nullableLocator.callerNullRule = 'optional-wire-reference-fields-may-be-null';
+  assert.throws(() => assert.equal(nullableLocator.callerNullRule, grammar.boundedTranscriptionSubmissionSlice.operation.callerNullRule), /Expected values/u);
+  const defaultedProfile = structuredClone(selected.submissionSemantics);
+  defaultedProfile.profilePreconstructionBoundary = 'absence-defaults-to-AUTO_REQUESTED';
+  assert.throws(() => assert.equal(defaultedProfile.profilePreconstructionBoundary, grammar.boundedTranscriptionSubmissionSlice.operation.profilePreconstructionBoundary), /Expected values/u);
   const publicFinality = structuredClone(action);
   publicFinality.actionDefinitionSemantics.publicFinality = { undoable: false };
   assert.throws(() => validateSelected(selected, publicFinality), /Expected values|publicFinality/u);

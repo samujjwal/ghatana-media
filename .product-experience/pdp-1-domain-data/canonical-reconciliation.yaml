@@ -168,19 +168,119 @@ concepts:
     cardinality: one output to multiple delivery attempts/destinations unresolved
     history: recipient acknowledgement and remote finality are distinct; durable history absent
     disposition: proposed-concept; owner-decision-required
+# Historical proposal questions retained as stable source anchors. Their
+# Media-owned logical meanings are resolved by currentDefinitionAdjudication;
+# only the listed external authority or implementation evidence remains open.
 openDecisions:
   - id: canonical-tenant-and-global-identity
+    status: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_AUTHORITY_BINDING_DEFERRED
     requires: Media-domain-owner-and-identity-owner
-    question: whether domain identifiers are globally unique or tenant-scoped, and how authenticated tenant/principal claims bind across interfaces
+    question: Historical owner question; tenant-scoped logical identity is defined in currentDefinitionAdjudication. Authenticated tenant/principal claim binding and any cross-tenant identity or deduplication remain with external identity/storage owners.
   - id: canonical-artifact-version-and-lineage
+    status: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_AND_RETENTION_ENFORCEMENT_DEFERRED
     requires: Media-domain-owner-and-storage-owner
-    question: version key, byte immutability, content deduplication, derived ancestry, retention and erasure evidence
+    question: Historical owner question; artifact-version identity and exact-version lineage are defined in currentDefinitionAdjudication. Durable byte immutability, deduplication, retention/erasure, and cycle enforcement remain implementation evidence.
   - id: canonical-job-and-attempt-history
+    status: MEDIA_LOGICAL_MEANING_RESOLVED; DURABLE_HISTORY_AND_RECONCILIATION_DEFERRED
     requires: Media-domain-owner-and-runtime-owner
-    question: durable attempt identity/history, fencing relation, aggregate history and reconciliation contract
+    question: Historical owner question; logical job, attempt, and lease identity meanings are defined in currentDefinitionAdjudication. Durable history and provider reconciliation remain implementation evidence.
   - id: transcript-caption-output-versioning
+    status: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_CONSUMER_BINDING_AND_MATERIALIZATION_DEFERRED
     requires: Media-domain-owner-and-consumer-owners
-    question: immutable version identity, source ancestry, output multiplicity and cross-product references
+    question: Historical owner question; transcript, caption, and output identity meanings are defined in currentDefinitionAdjudication. Published consumer compatibility and durable producer ancestry/multiplicity remain deferred evidence.
   - id: consent-and-rights-authority
+    status: MEDIA_LOGICAL_MEANING_RESOLVED; CONSENT_AND_POLICY_AUTHORITY_DEFERRED
     requires: Media-policy-owner-and-consent-authority-owner
-    question: whether RightsDecision is distinct from consent, decision keys, version/history and effect disposition
+    question: Historical owner question; ConsentReference, ConsentRecord, and RightsDecision remain distinct in currentDefinitionAdjudication. Authority-issued key format, policy semantics, currentness, and effect decisions remain with consent/policy authorities.
+
+# Current PDP-1 semantic dispositions. These resolve the Media-owned logical
+# questions while keeping source projections, external authority and durable
+# implementation evidence explicitly separate. They do not accept the proposal
+# set, change runtime admission, or create a phase-status claim.
+currentDefinitionAdjudication:
+  authority: user-delegated-Media-domain-definition; no decision-log approval asserted
+  sourceCut:
+    domainObjects: .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
+    typedIdentities: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records
+    relationships: .product-experience/pdp-1-domain-data/relationships.yaml#relationships
+    versioning: .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
+    productTruth: .product-experience/pdp-0-product-truth/domain-model.yaml
+    stateTruth: .product-experience/pdp-0-product-truth/state-models.yaml
+  records:
+    - id: canonical-tenant-and-global-identity
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_AUTHORITY_BINDING_DEFERRED
+      disposition: >-
+        Canonical object references are tenant-scoped unless an explicit owner
+        contract defines another scope. Trusted tenant context comes from the
+        authenticated host; principal authorization remains a separate access
+        decision. A tenant-scoped storage key does not prove global uniqueness,
+        cross-tenant deduplication, or principal identity.
+      definitionRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/tupleRules/@id=media.identity-rule.trusted-tenant-scope
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records
+        - .product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-project
+      remaining: Authenticated tenant/principal claim binding and any cross-tenant identity or deduplication contract require their external identity/storage owners; until then cross-tenant joins are denied or UNKNOWN.
+    - id: canonical-artifact-version-and-lineage
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_AND_RETENTION_ENFORCEMENT_DEFERRED
+      disposition: >-
+        ArtifactVersion identity is tenantId + artifactId + opaque versionId.
+        Registered version content is immutable; a correction, transformation,
+        or regeneration creates a distinct version with explicit exact-version
+        ancestry. A digest is verified integrity evidence, never a version key.
+        Retention and erasure remain separate policy/lifecycle decisions.
+      definitionRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/tupleRules/@id=media.identity-rule.content-digest-not-identity
+        - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion
+        - .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.derived-artifact
+        - .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion
+      remaining: Durable byte immutability, version persistence, deduplication, retention/erasure completeness and cycle enforcement are not established by the current runtime or storage projections.
+    - id: canonical-job-and-attempt-history
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; DURABLE_HISTORY_AND_RECONCILIATION_DEFERRED
+      disposition: >-
+        ProcessingJob is the stable logical request identity. Each execution
+        attempt has a distinct attemptId under tenantId + jobId; a lease and
+        fencing token are authority epochs, not attempt identity. Aggregate
+        version fields and restart OUTCOME_UNKNOWN observations do not prove
+        append-only attempt history or remote provider finality.
+      definitionRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-attempt
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-lease
+        - .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.job-attempt
+        - .product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-job
+      remaining: Durable attempt/lease history, provider reconciliation, conflict authority and no-blind-replay enforcement require runtime/storage evidence and are not admitted.
+    - id: transcript-caption-output-versioning
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_CONSUMER_BINDING_AND_MATERIALIZATION_DEFERRED
+      disposition: >-
+        TranscriptVersion and CaptionVersion are immutable identities distinct
+        from legacy transcription UUIDs, provider result IDs and content
+        digests. Caption identity includes the exact source artifact version;
+        transcript/caption parents and derived outputs use explicit typed
+        version references. An output outcome is separate from the referenced
+        output ArtifactVersion. Unknown source or parent version blocks a
+        canonical join; no artifact-only or latest-version fallback is valid.
+      definitionRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.transcript-version
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.caption-version
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.render-outcome
+        - .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.derived-artifact
+        - .product-experience/decision-log.md#PXD-058
+        - .product-experience/decision-log.md#PXD-062
+      remaining: Downstream package reference semantics and published consumer compatibility need consumer-owner contracts; durable producer ancestry, output multiplicity and history need implementation evidence.
+    - id: consent-and-rights-authority
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; CONSENT_AND_POLICY_AUTHORITY_DEFERRED
+      disposition: >-
+        ConsentReference, ConsentRecord and RightsDecision remain distinct
+        typed references. Media does not infer permission from metadata,
+        identity, another consent purpose/region, or a compatible-looking
+        version field. Exact authority-issued identifiers and revision/policy
+        versions are required; currentness and the decision to grant/revoke
+        belong to the designated consent/policy authority.
+      definitionRefs:
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.consent-reference
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.consent-record
+        - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.rights-decision
+        - .product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest
+        - .product-experience/pdp-0-product-truth/state-models.yaml#consent
+      remaining: Authority-issued key format, policy semantics, currentness, history and downstream-effect disposition remain with external consent/policy owners; no authority decision is fabricated here.

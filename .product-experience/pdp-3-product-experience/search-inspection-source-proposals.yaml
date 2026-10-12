@@ -40,8 +40,9 @@ searchObservations:
     exactResultAndError: 200-jobs-array-observed; canonical-error-mapping-not-declared
     staleOrUnknown: outcome-unknown-is-a-job-status-not-a-search-result; freshness-semantics-unresolved
   unresolvedSemantics:
-    ownerDecision: PXD-027 selects the search definition semantics in the canonical source; query filters, counts, sort, continuation, error shape and freshness remain unresolved where no source contract exists.
-    fields: [request-filter-schema, permission-safe-count-rules, sort-keys-and-order, pagination-continuation, exact-search-error-shape, search-freshness-and-unknown-outcome]
+    ownerDecision: PXD-027 selects the definition semantics in the canonical source. The canonical search contracts define filters, ordering, bounded cursor behavior, authorization-before-discovery, and stale/unknown-result distinctions. This observation artifact does not claim those semantics are implemented on a transport.
+    fields: [wire-request-schema, cursor-encoding-and-expiry, transport-error-envelope, source-backed-index-revision-and-freshness-measurement, explicit-count-field-if-a-future-source-adds-one]
+    nonClaims: [canonical-search-endpoint, production-query-execution, index-freshness-evidence, permission-safe-count-implementation]
 inspectionObservations:
   status: source-index-and-evidence-availability-observations-only; canonical-inspection-definitions-in-search-inspection-contracts.yaml
   specification:

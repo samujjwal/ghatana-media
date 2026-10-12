@@ -42,6 +42,7 @@ test("linked PDP source changes remain stale until their migration item claims a
   const impactRecords = ledger.linkedPdpPinImpact.records;
   assert.equal(impactRecords.length, 3);
   assert.deepEqual(new Set(impactRecords.map(({ path }) => path)), new Set(expected.keys()));
+  const currentObservation = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/linked-pdp-current-fingerprints.json'), 'utf8'));
 
   for (const record of impactRecords) {
     const path = record.path;
@@ -53,14 +54,14 @@ test("linked PDP source changes remain stale until their migration item claims a
       const current = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8'));
       const latestOwnerCut = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json'), 'utf8'));
       const directCriteria = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json'), 'utf8'));
-      const currentP006Cut = directCriteria.records.find(({ taskId }) => taskId === 'P0-06')?.currentCorrectiveReview;
+      const currentP006Cut = directCriteria.records.find(({ taskId }) => taskId === 'P0-06')?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === '.product-experience/decision-log.md#PXD-141');
       assert.equal(record.observedCurrentSha256, '74f9a10de4e959d1874e7e83d42fb6ff04b25b5a427230e1bf343c6ece8520d2', 'preserve prior impact observation');
       assert.equal(current.decisionRef, '.product-experience/decision-log.md#PXD-081', 'the four-measure observation remains an immutable historical cut');
       assert.equal(latestOwnerCut.decisionRef, '.product-experience/decision-log.md#PXD-090');
       assert.equal(latestOwnerCut.currentFileSha256, '28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea', 'PXD-090 remains an immutable historical goal-source cut');
       assert.equal(currentP006Cut?.status, 'APPROVED_CURRENT_CORRECTION');
-      assert.equal(currentP006Cut?.decisionRef, '.product-experience/decision-log.md#PXD-105');
-      assert.equal(currentP006Cut?.sourceFingerprints[path], currentHash, 'the latest exact P0-06 review binds current goal-source bytes');
+      assert.equal(currentP006Cut?.decisionRef, '.product-experience/decision-log.md#PXD-141');
+      assert.equal(currentP006Cut?.sourceFingerprints[path], currentHash, 'the historical PXD-141 review remains bound to its goal-source bytes');
     } else {
       const historicalHashes = {
         '.product-experience/pdp-0-product-truth/actors-responsibilities.yaml': '9f077be079a1815ea15988fd0a01a142351ab8137f299d24d1be7b72c8bd2af1',
@@ -69,16 +70,15 @@ test("linked PDP source changes remain stale until their migration item claims a
       if (historicalHashes[path]) assert.equal(record.observedCurrentSha256, historicalHashes[path], 'retain prior source-impact observation');
       else assert.equal(record.observedCurrentSha256, currentHash);
     }
-    const currentObservation = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/linked-pdp-current-fingerprints.json'), 'utf8'));
     if (path.endsWith('/goals-jtbd.yaml')) {
       const directCriteria = JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json'), 'utf8'));
-      const currentP006Cut = directCriteria.records.find(({ taskId }) => taskId === 'P0-06')?.currentCorrectiveReview;
+      const currentP006Cut = directCriteria.records.find(({ taskId }) => taskId === 'P0-06')?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === '.product-experience/decision-log.md#PXD-141');
       assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256,
         JSON.parse(readFileSync(resolve(root, 'docs/implementation/verification/pdp-38/goal-measure-current-impact.json'), 'utf8')).currentSha256,
         'the PXD-081 measurement snapshot remains preserved after later owner-source reviews');
       assert.notEqual(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash,
         'the old current-fingerprint artifact is not silently rewritten to the later reviewed cut');
-      assert.equal(currentP006Cut?.sourceFingerprints[path], currentHash, 'PXD-105 separately records the exact reviewed current correction');
+      assert.equal(currentP006Cut?.sourceFingerprints[path], currentHash, 'PXD-141 remains the exact historical current-source correction');
     } else assert.equal(currentObservation.sources.find(source => source.path === path)?.sha256, currentHash);
     assert.match(currentObservation.authority, /Does not establish migration semantic parity/);
     assert.notEqual(pin, currentHash, `${path} remains stale pending reconciliation`);
@@ -104,6 +104,43 @@ test("linked PDP source changes remain stale until their migration item claims a
     assert.equal(citation.exactPdpRefCount, citedItems.filter((item) => item.exactPdpRefs?.includes(path)).length);
     assert.equal(citation.exactPdpRefCount, 0, `${path} has no claim-exact migration links`);
   }
+
+  const currentSourceByPath = new Map(currentObservation.sources.map((source) => [source.path, source]));
+  const actorPath = ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml";
+  const actorObservation = currentSourceByPath.get(actorPath);
+  assert.equal(actorObservation.priorCurrentObservationSha256, "dacdd26ebf108b05f9884b5967bb73c4dc5fff9e6e183d4aaa934b8e828a7a7a");
+  assert.deepEqual(actorObservation.observationDelta.changedFields, [
+    ".personas/@id=media.persona.campaign-producer/context",
+    ".personas/@id=media.persona.archive-restorer/context",
+  ]);
+  assert.equal(actorObservation.observationDelta.migrationDisposition, "keep-stale-needs-claim-level-reconciliation");
+  assert.equal(actorObservation.observationDelta.acceptanceEffect, "none");
+  const actorBaseline = parse(execFileSync("git", ["show", `${actorObservation.observationDelta.comparisonBaseCommit}:${actorPath}`], {
+    cwd: root, encoding: "utf8",
+  }));
+  const actors = readYaml(actorPath);
+  const persona = (source, id) => source.personas.find((row) => row.id === id).context;
+  assert.notEqual(persona(actorBaseline, "media.persona.campaign-producer"), persona(actors, "media.persona.campaign-producer"));
+  assert.match(persona(actors, "media.persona.campaign-producer"), /marketing or campaign producer/u);
+  assert.notEqual(persona(actorBaseline, "media.persona.archive-restorer"), persona(actors, "media.persona.archive-restorer"));
+  assert.match(persona(actors, "media.persona.archive-restorer"), /archival or historical material/u);
+
+  const constitutionPath = ".product-experience/pdp-0-product-truth/constitution.yaml";
+  const constitutionObservation = currentSourceByPath.get(constitutionPath);
+  assert.equal(constitutionObservation.priorCurrentObservationSha256, "05cfb45a63b74380b145bf74e06cb8725a735c4abbf531121c12b065ce82ea03");
+  assert.equal(constitutionObservation.observationDelta.normativeRecordCount, 32);
+  assert.equal(constitutionObservation.observationDelta.fieldBindingCountPerRecord, 12);
+  assert.equal(constitutionObservation.observationDelta.migrationDisposition, "keep-stale-needs-claim-level-reconciliation");
+  assert.equal(constitutionObservation.observationDelta.acceptanceEffect, "none");
+  const constitutionBaseline = parse(execFileSync("git", ["show", `${constitutionObservation.observationDelta.comparisonBaseCommit}:${constitutionPath}`], {
+    cwd: root, encoding: "utf8",
+  }));
+  const constitution = readYaml(constitutionPath);
+  assert.equal(constitutionBaseline.status, "proposed-for-phase-0-review");
+  assert.equal(constitution.status, "MEDIA_OWNER_DEFINITION_COMPLETE; HUMAN_REVIEW_PENDING; P0-010_INDEPENDENT_REVIEW_PENDING");
+  assert.equal(constitution.requirements.length, 32);
+  assert.ok(constitution.requirements.every(({ normativeFieldRefs, acceptanceState }) =>
+    Object.keys(normativeFieldRefs ?? {}).length === 12 && acceptanceState === "pending-human-review"));
 
   assert.equal(review.counts.uniqueContentUnits, 1340);
   assert.equal(review.counts.uniqueUnitsByClassification.UNRESOLVED, 260);
@@ -160,7 +197,7 @@ test("the stale pin impact describes the exact newly added PDP claims", () => {
   assert.equal(latestOwnerCut.currentFileSha256,"28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
     "PXD-090 remains an immutable historical current-file fingerprint");
   const directCriteria=JSON.parse(readFileSync(resolve(root,"docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"),"utf8"));
-  const currentP006=directCriteria.records.find(({taskId})=>taskId==="P0-06")?.currentCorrectiveReview;
+  const currentP006=directCriteria.records.find(({taskId})=>taskId==="P0-06")?.historicalCorrectiveReviews?.find(({decisionRef})=>decisionRef===".product-experience/decision-log.md#PXD-141");
   assert.equal(currentP006?.sourceFingerprints[ currentImpact.source ],hashFile(currentImpact.source),
     "PXD-105 separately binds the exact current goal bytes");
   assert.deepEqual(currentImpact.historicalSuccessMeasureBlock.span,goalImpact.additionalCurrentBlocks[0].span);

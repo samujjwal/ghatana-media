@@ -34,6 +34,14 @@ searchContracts:
     absentResults: Separate no-match, no-read-permission, unavailable index and stale-index observations.
     availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk]
     runtimeBinding: NOT_ADMITTED
+    machineContract:
+      request: query-text-optional; only-listed-filters; bounded-cursor; stable-sort-key; unknown-keys-rejected
+      result: authorized-project-identities-and-visible-revisions; empty-no-match-denied-unavailable-and-stale-observations-distinct
+      errors: INVALID_QUERY-shape-unresolved; ACCESS_DENIED-with-no-protected-counts-or-suggestions; INDEX_UNAVAILABLE; STALE_OBSERVATION
+      authority: trusted-current-tenant-and-principal; filter-by-current-scope-before-match-count-suggestion-or-pagination
+      finality: read-only-observation-at-recorded-index-revision; never-a-domain-mutation-or-currentness-proof
+      unknownAndRetry: index-unavailable-or-expired-cursor-is-not-empty; restart-the-same-query-under-fresh-authority; no-write-replay
+      transportBinding: no-source-explicit-query-route-or-rpc
   - id: media.search.authorized-artifacts
     name: Find authorized artifact versions
     searchableTypes: [media.domain.artifact-version]
@@ -45,6 +53,14 @@ searchContracts:
     absentResults: Distinguish empty, filtered, forbidden, quarantined and index-unavailable results where disclosure is allowed.
     availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk, media.channel.cli]
     runtimeBinding: NOT_ADMITTED
+    machineContract:
+      request: query-text-optional; only-listed-filters; bounded-cursor; stable-sort-key; unknown-keys-rejected
+      result: exact-authorized-artifact-version-identities-with-integrity-and-provenance-dispositions; no-content-without-read-authority
+      errors: INVALID_QUERY-shape-unresolved; ACCESS_DENIED-with-no-content-or-count-leak; INDEX_UNAVAILABLE; STALE_OBSERVATION; QUARANTINED
+      authority: tenant-project-source-version-rights-consent-retention-quarantine-and-read-policy-before-discovery-or-content
+      finality: search-result-is-an-index-observation; availability-and-current-policy-must-be-rechecked-for-an-effect
+      unknownAndRetry: unavailable-or-stale-index-is-not-absence; reissue-the-same-query-under-fresh-authority; no-write-replay
+      transportBinding: no-source-explicit-query-route-or-rpc
   - id: media.search.authorized-jobs
     name: Find processing jobs and attempt outcomes
     searchableTypes: [media.domain.processing-job, media.domain.artifact-verification-job]
@@ -56,6 +72,14 @@ searchContracts:
     absentResults: Distinguish no-match, policy-denied, unknown-outcome and stale-observation where permitted.
     availableChannels: [media.channel.web, media.channel.http-api, media.channel.sdk, media.channel.cli]
     runtimeBinding: NOT_ADMITTED
+    machineContract:
+      request: query-text-optional; only-listed-filters; bounded-cursor; updated-at-descending-stable-job-id; unknown-keys-rejected
+      result: exact-job-and-attempt-identities-with-authoritative-state-and-separately-measured-observation-freshness; no-aggregate-count
+      errors: INVALID_QUERY-shape-unresolved; ACCESS_DENIED-with-no-state-progress-cost-or-provenance-leak; INDEX_UNAVAILABLE; STALE_OBSERVATION
+      authority: resolve-trusted-identity-tenant-job-and-artifact-scope-before-returning-state-progress-cost-or-provenance
+      finality: request-receipt-is-not-job-finality; result-state-and-observation-freshness-remain-separate
+      unknownAndRetry: OUTCOME_UNKNOWN-is-job-state-not-search-failure; inspect-the-same-logical-job; do-not-submit-or-retry-from-search
+      transportBinding: observed-listMediaJobs-transport-is-not-a-canonical-search-operation-binding
 inspections:
   - id: media.inspection.specification
     projectionKind: specification
@@ -79,30 +103,65 @@ inspectionContracts:
     authorityRefs: [.product-experience/pdp-0-product-truth/, .product-experience/pdp-1-domain-data/, .product-experience/pdp-2-design-interface-system/, .product-experience/pdp-3-product-experience/]
     requiredContext: [contract-id, source-revision, channel, authority-status]
     runtimeBinding: DEFINITION_ONLY
+    machineContract:
+      request: contract-id-source-revision-channel-authority-status
+      result: source-indexed-definition-with-proposal-versus-implementation-disposition
+      errors: INVALID_SELECTOR; SOURCE_UNAVAILABLE; SOURCE_REVISION_MISMATCH
+      authority: inspect-only-source-access; source revisions are reported, never silently upgraded to current
+      finality: read-only-definition-observation
+      retry: retry-the-same-selector-after-source-availability-or-revision-is-confirmed
   - id: media.inspection.authority
     projectionKind: authority
     description: Inspect the exact artifact, project, version, rights/consent and caller scope without revealing content outside current policy.
     authorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml, .product-experience/pdp-1-domain-data/versioning.yaml, .product-experience/pdp-1-domain-data/privacy.yaml]
     requiredContext: [tenant-project-context, exact-resource-version, current-principal, policy-issuer]
     runtimeBinding: NOT_ADMITTED
+    machineContract:
+      request: tenant-project-context-exact-resource-version-current-principal-policy-issuer
+      result: authorized-redacted-resource-observation-or-scope-safe-not-found
+      errors: ACCESS_DENIED; RESOURCE_NOT_FOUND_IN_CALLER_SCOPE; POLICY_UNAVAILABLE; STALE_AUTHORITY
+      authority: resolve-current-policy-before-content-or-metadata-disclosure; never reveal existence by count or suggestion
+      finality: read-observation-only; no permission grant or lifecycle transition
+      retry: refresh-authority-and-retry-the-same-exact-resource-version; unavailable-is-not-absence
   - id: media.inspection.evidence
     projectionKind: evidence
     description: Inspect available quality, provenance, result and external delivery evidence with metric domains, sources and UNKNOWN/NOT_QUALIFIED distinguished from measured failure.
     authorityRefs: [.product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-1-domain-data/evidence.yaml, .product-experience/pdp-1-domain-data/provenance.yaml]
     requiredContext: [source-version, output-version, assessment-profile, evidence-issuer, observation-time]
     runtimeBinding: NOT_ADMITTED
+    machineContract:
+      request: source-version-output-version-assessment-profile-evidence-issuer-observation-time
+      result: evidence-records-with-source-metric-domain-and-qualification-disposition
+      errors: ACCESS_DENIED; EVIDENCE_NOT_FOUND_IN_CALLER_SCOPE; EVIDENCE_UNAVAILABLE; STALE_OBSERVATION
+      authority: current scoped read policy for source, output, and evidence issuer
+      finality: UNKNOWN-and-NOT_QUALIFIED-are-distinct-from-measured-failure; evidence presence-is-not-approval
+      retry: re-read-the-same-evidence-selector; never recast unavailable evidence as failure or pass
   - id: media.inspection.trace
     projectionKind: trace
     description: Inspect causal job, attempt, dispatch, provider and delivery statuses across observations without manufacturing finality or permissions.
     authorityRefs: [.product-experience/pdp-1-domain-data/states.yaml, .product-experience/pdp-1-domain-data/events.yaml, .product-experience/pdp-1-domain-data/state-adjudication.yaml]
     requiredContext: [logical-job-id, attempt-ids, source-version, evidence-fingerprint]
     runtimeBinding: NOT_ADMITTED
+    machineContract:
+      request: logical-job-id-attempt-ids-source-version-evidence-fingerprint
+      result: causal-observations-with-per-record-origin-and-freshness; no-inferred-missing-event
+      errors: ACCESS_DENIED; TRACE_NOT_FOUND_IN_CALLER_SCOPE; TRACE_UNAVAILABLE; INCOMPLETE_TRACE
+      authority: current scoped read policy for job, attempt, source, and provenance
+      finality: observations-do-not-manufacture-cancellation-completion-delivery-or-permission-finality
+      retry: refresh-the-same-trace-selector; missing-or-delayed-events-remain-unknown
   - id: media.inspection.synthetic-simulation
     projectionKind: simulation
     description: Inspect deterministic experience scenario inputs and expected transitions as explicitly synthetic examples, never production media evidence or provider qualification.
     authorityRefs: [.product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml, .product-experience/explorer/scenario-fixtures.yaml]
     requiredContext: [fixture-id, scenario-id, source-revision, synthetic-status]
     runtimeBinding: DEFINITION_ONLY
+    machineContract:
+      request: fixture-id-scenario-id-source-revision-synthetic-status
+      result: deterministic-fixture-state-and-declared-simulation-output-with-isSimulation-true
+      errors: INVALID_FIXTURE_SELECTOR; FIXTURE_NOT_FOUND; SOURCE_REVISION_MISMATCH
+      authority: synthetic-data-only; never accepts or reveals production media
+      finality: simulation-output-is-not-owner-evidence-runtime-result-or-provider-qualification
+      retry: reset-to-the-same-fixture-seed-and-replay-the-same-explicit-action-sequence
 policy:
   - All searches and inspections must be usable through semantic text and machine-readable contracts; non-GUI apps do not require synthetic GUI screens.
   - Unqualified runtime surfaces remain documented experience definitions and cannot be invoked as production actions.

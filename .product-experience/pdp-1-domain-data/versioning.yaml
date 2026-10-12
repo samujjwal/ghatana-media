@@ -89,3 +89,57 @@ ownerDefinedRevisionSemantics:
     conflict: Same key with different digest is rejected.
     unknown: Unknown outcome is reconciled before retry; transport retries do not create new semantic requests.
   eventHistory: A state receipt or event observation is append-only evidence only when its canonical owner contract explicitly guarantees durable ordering and retention; this source definition does not claim runtime durability.
+
+definitionAdjudication:
+  authority: user-delegated-Media-domain-definition; no decision-log approval asserted
+  sourceRefs:
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts
+    - .product-experience/pdp-1-domain-data/relationships.yaml#relationships
+    - .product-experience/pdp-0-product-truth/domain-model.yaml
+    - .product-experience/pdp-0-product-truth/state-models.yaml
+  ruleDispositions:
+    - ruleId: authored-specification-versioning
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED
+      definition: Semantic edits to an authored immutable specification produce a new semantic version; drafts are not canonical committed versions.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.recipe, .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.scene-graph, .product-experience/pdp-0-product-truth/domain-model.yaml#MediaProcessingGraph]
+      notEstablished: Runtime persistence, concurrent-write implementation, and producer coverage.
+    - ruleId: resolved-plan-versioning
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED
+      definition: A resolved plan is immutable for its bound run/request; replanning creates a distinct successor plan and never silently mutates the accepted plan.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.resolved-plan, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.job-plan, .product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan]
+      notEstablished: Runtime plan registry, persistence, and execution admission.
+    - ruleId: run-and-attempt-history
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; DURABLE_HISTORY_DEFERRED
+      definition: Run, checkpoint, logical job, attempt, and lease are distinct identities; attempts and checkpoints do not overwrite source plan or prior observations; fencing rejects stale writes but does not prove stopped work.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.checkpoint, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.job-attempt, .product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-attempt]
+      notEstablished: Durable append-only storage, provider reconciliation, retention, and runtime fencing completeness.
+    - ruleId: source-artifact-immutability
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_ENFORCEMENT_DEFERRED
+      definition: A registered ArtifactVersion's bytes are immutable; replacement or correction uses a distinct version identity. Digest verifies bytes and never replaces version identity.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/tupleRules/@id=media.identity-rule.content-digest-not-identity, .product-experience/pdp-0-product-truth/domain-model.yaml#MediaArtifact-and-ArtifactVersion]
+      notEstablished: Physical immutability, content-addressing/deduplication policy, and retention/erasure enforcement.
+    - ruleId: derived-artifact-identity
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; STORAGE_ENFORCEMENT_DEFERRED
+      definition: Derived versions have stable version identities and exact typed parent-version references; the owner-defined directed lineage graph is acyclic; missing parent identity blocks registration.
+      sourceRefs: [.product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.derived-artifact, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/tupleRules/@id=media.identity-rule.immutable-version-lineage]
+      notEstablished: Database constraints, migration, and producer enforcement.
+    - ruleId: transcript-caption-ancestry
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; PRODUCER_AND_CONSUMER_BINDINGS_DEFERRED
+      definition: Transcript and caption versions require exact source artifact version references; caption parent is a typed transcript or caption version; legacy transcription IDs and untyped fixture parent IDs are not equivalent.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.transcript-version, .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.caption-version, .product-experience/decision-log.md#PXD-058, .product-experience/decision-log.md#PXD-062]
+      notEstablished: Runtime producer persistence and cross-product published reference contracts.
+    - ruleId: output-finality-and-reconciliation
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; PROVIDER_FINALITY_AND_DURABILITY_DEFERRED
+      definition: Output ArtifactVersion, RenderOutcome, DeliveryOutcome, logical job state, and remote publication receipt are distinct. Unknown result remains UNKNOWN pending authorized reconciliation; transport retry alone cannot create a new semantic request.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.render-outcome, .product-experience/pdp-1-domain-data/domain-objects.yaml#objects/@id=media.domain.delivery-outcome, .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics, .product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-job]
+      notEstablished: Provider-side finality, durable event ordering, and complete reconciliation.
+    - ruleId: cross-boundary-references
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; EXTERNAL_CONSUMER_MAPPING_DEFERRED
+      definition: Canonical references use stable opaque typed identities and include an exact immutable version whenever content/version matters; digests and latest aliases cannot substitute.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts, .product-experience/pdp-1-domain-data/relationships.yaml#relationships]
+      notEstablished: External consumer acceptance, product-specific transport field mapping, or published artifact compatibility.
+    - ruleId: wire-compatibility
+      classification: MEDIA_SOURCE_PRESERVATION_RULE_DEFINED; ADAPTER_AND_CONSUMER_ACCEPTANCE_DEFERRED
+      definition: Existing field names, scalar units, enum meanings, package exports and wire shapes are preserved as observations until a versioned adapter/change mapping is reviewed; structural compatibility does not license semantic reinterpretation.
+      sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary, .product-experience/pdp-1-domain-data/interoperability.yaml#mappingRules]
+      notEstablished: Published consumer inventory, deprecation window, adapter qualification, and external acceptance.

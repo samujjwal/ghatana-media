@@ -3974,7 +3974,7 @@ capabilities:
     operation: source-asset.attach
     label: Attach source asset
     definitionState: IN_SCOPE_DRAFT
-    outcome: "Intended result: associate a source asset with the project. The asset identity and version, and the exact project relation, are not specified by this leaf."
+    outcome: "Associate the exact immutable version of one source asset as source-asset membership of the selected project version. The operation does not attach a derived asset or change source bytes."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Create, inspect, update, search, organize, archive, version,
@@ -3987,7 +3987,7 @@ capabilities:
     actorRoles: *id002
     actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs;
       owner-acceptance-pending
-    inputArtifactTypes: [ user-intent, versioned-project ]
+    inputArtifactTypes: [ user-intent, exact-versioned-project, source-asset-with-immutable-version ]
 
     outputArtifactTypes:
       - versioned-project-state
@@ -4166,7 +4166,11 @@ capabilities:
           cardinality: EXACTLY_ONE
           required: true
         - slotId: input2
-          sourceType: versioned-project
+          sourceType: exact-versioned-project
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input3
+          sourceType: source-asset-with-immutable-version
           cardinality: EXACTLY_ONE
           required: true
       parameterSchema:
@@ -4182,10 +4186,10 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "Intended result: associate a source asset with the project. The asset identity and version, and the exact project relation, are not specified by this leaf."
+        result: "Associate the exact immutable version of one source asset as source-asset membership of the selected project version. The operation does not attach a derived asset or change source bytes."
         outputDistinctions:
           - "This concerns source-asset association, distinct from association of a derived asset."
-          - "The preserve-source goal requires recoverable source bytes and understandable version/lineage for derived results; this leaf does not identify the source artifact or assert a particular lineage record."
+          - "The exact source artifact version and selected project version are inputs; association does not assert copying or preservation of source bytes."
         unknownDisposition: "Unknown attachment result remains unknown; do not claim the source asset was attached, copied, or preserved in project state."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-project-source-asset-attach.v1"
@@ -4198,7 +4202,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-02"
           - ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-PROJECT"
       effect:
-        semanticOutcome: "Intended result: associate a source asset with the project. The asset identity and version, and the exact project relation, are not specified by this leaf."
+        semanticOutcome: "Associate the exact immutable version of one source asset as source-asset membership of the selected project version. The operation does not attach a derived asset or change source bytes."
         sourcePreservationRequired: false
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -5601,7 +5605,7 @@ capabilities:
         properties:
           declaredByteLength:
             type: integer
-            minimum: 0
+            minimum: 1
             maximum: 2147483648
           declaredMediaType:
             type: iana-media-type
@@ -5610,9 +5614,9 @@ capabilities:
         - artifactType: stable-uploadId-and-owner-acknowledged-transfer-state
           requiredOnSuccess: true
         - artifactType: verification-job-reference-only-if-issued-by-owner-contract
-          requiredOnSuccess: true
+          requiredOnSuccess: false
         - artifactType: artifact-version-reference-only-after-owner-confirmed-registration
-          requiredOnSuccess: true
+          requiredOnSuccess: false
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
@@ -5938,7 +5942,7 @@ capabilities:
         - artifactType: newly-acknowledged-ranges-only
           requiredOnSuccess: true
         - artifactType: verification-reference-only-if-issued-by-owner-contract
-          requiredOnSuccess: true
+          requiredOnSuccess: false
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
@@ -6258,9 +6262,9 @@ capabilities:
         - artifactType: import-observation-and-source-resolution-evidence
           requiredOnSuccess: true
         - artifactType: artifact-version-reference-only-after-owner-confirmed-registration
-          requiredOnSuccess: true
+          requiredOnSuccess: false
         - artifactType: verification-or-quarantine-state-when-issued
-          requiredOnSuccess: true
+          requiredOnSuccess: false
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
@@ -6570,7 +6574,7 @@ capabilities:
         - artifactType: integrity-and-lifecycle-disposition
           requiredOnSuccess: true
         - artifactType: rights-retention-and-provenance-references-when-authorized
-          requiredOnSuccess: true
+          requiredOnSuccess: false
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []
@@ -7533,7 +7537,7 @@ capabilities:
     operation: derive
     label: Derive artifact
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 meaning of a derivation result is bound to exact source-version references, transformation-profile identity, requested output/media type, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
+    outcome: "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download,
@@ -7546,7 +7550,7 @@ capabilities:
     actorRoles: *id020
     actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs;
       owner-acceptance-pending
-    inputArtifactTypes: [ source-media-or-project-reference, rights-and-retention-context ]
+    inputArtifactTypes: [ exact-source-versioned-media-or-project-reference, transformation-profile-identity-version-and-digest, requested-output-artifact-type-media-type-and-byte-budget, purpose-and-rights-decision-context ]
 
     outputArtifactTypes:
       - governed-artifact-reference-or-lifecycle-observation
@@ -7556,7 +7560,7 @@ capabilities:
         and within declared bounds.
       - Capability, profile, license, policy, resource, and deployment admission
         are checked at the effect boundary.
-    supportedParameters: "P0 defines no additional parameter fields in ownerDefinition.parameterSchema; this leaf's P0 ownerDefinition.typedInputSlots carry request meaning. No additional fields are implied; support, qualification, and runtime availability remain separate decisions."
+    supportedParameters: "The typed input slots carry exact source versions, selected transformation profile/version/configuration digest, requested output artifact type/media type/byte budget, and purpose/rights-decision context. No additional fields are implied; support, qualification, and runtime availability remain separate decisions."
     constraints:
       [ "No product default/model/provider is inferred from names, package presence, tests, or source documentation.", Unsupported combinations remain explicit; no silent substitution., Preserve exact source lineage only for source-derived outputs; source-free authored or generated outputs identify their origin without fabricating a source artifact. Report reconstruction or estimation distinctly from measured/ground-truth output. ]
     actionStateReferences:
@@ -7747,14 +7751,22 @@ capabilities:
       channelApplicabilityRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.artifact-derive/channelApplicability
       typedInputSlots:
         - slotId: input1
-          sourceType: source-media-or-project-reference
+          sourceType: exact-source-versioned-media-or-project-reference
           cardinality: EXACTLY_ONE_OF_DECLARED_ALTERNATIVES
           required: true
           alternatives:
             - source-media
             - project-reference
         - slotId: input2
-          sourceType: rights-and-retention-context
+          sourceType: transformation-profile-identity-version-and-digest
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input3
+          sourceType: requested-output-artifact-type-media-type-and-byte-budget
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input4
+          sourceType: purpose-and-rights-decision-context
           cardinality: EXACTLY_ONE
           required: true
       parameterSchema:
@@ -7770,7 +7782,7 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 meaning of a derivation result is bound to exact source-version references, transformation-profile identity, requested output/media type, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
+        result: "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
         outputDistinctions:
           - "queued job versus produced derived content"
           - "derived content versus registered artifact version"
@@ -7788,7 +7800,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.derive/preconditions"
       effect:
-        semanticOutcome: "The P0 meaning of a derivation result is bound to exact source-version references, transformation-profile identity, requested output/media type, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
+        semanticOutcome: "The P0 meaning of a derivation result is bound to exact source-version references, a selected transformation-profile identity/version/configuration digest, requested output artifact type/media type/byte budget, purpose, and rights decision. Distinguish a queued-job observation from derived content and derived content from a registered artifact-version identity; exact source lineage is required and an identified profile is not an assumed default. Unknown source, authority, or result remains UNKNOWN. This P0 meaning does not establish dispatch, job creation, persistence, derived content, registration, or completion."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -7835,7 +7847,7 @@ capabilities:
     operation: output.register
     label: Register output
     definitionState: IN_SCOPE_DRAFT
-    outcome: "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage, content digest, policy decision, and target project revision are identity constraints; a registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."
+    outcome: "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage is an explicit set of exact source versions, which may be empty only to identify source-free output generated from the request; source-free registration does not require a source artifact. Content digest, media type, byte length, and policy decision are identity constraints; an authorized target workspace is required. Workspace-only registration may omit the exact project version; project-targeted registration requires it for stale-version checking. A registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."
     sourceScope:
       masterPlanSection: §6.2
       sourcePhrase: Ingest, upload, resume, import, inspect, search/list, download,
@@ -7848,7 +7860,7 @@ capabilities:
     actorRoles: *id020
     actorBindingState: resolved-to-proposed-canonical-actor-and-role-refs;
       owner-acceptance-pending
-    inputArtifactTypes: [ source-media-or-project-reference, rights-and-retention-context ]
+    inputArtifactTypes: [ exact-source-version-lineage-set, rights-and-retention-context, output-candidate-with-lineage, content-digest, media-type-and-byte-length, policy-decision-reference, authorized-target-workspace, optional-exact-project-version ]
 
     outputArtifactTypes:
       - governed-artifact-reference-or-lifecycle-observation
@@ -8049,16 +8061,38 @@ capabilities:
       channelApplicabilityRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@id=media.capability-adjudication.artifact-output-register/channelApplicability
       typedInputSlots:
         - slotId: input1
-          sourceType: source-media-or-project-reference
-          cardinality: EXACTLY_ONE_OF_DECLARED_ALTERNATIVES
+          sourceType: exact-source-version-lineage-set
+          cardinality: ZERO_OR_MORE
           required: true
-          alternatives:
-            - source-media
-            - project-reference
+          emptyDisposition: EXPLICIT_SOURCE_FREE_OUTPUT_GENERATED_FROM_REQUEST
         - slotId: input2
           sourceType: rights-and-retention-context
           cardinality: EXACTLY_ONE
           required: true
+        - slotId: input3
+          sourceType: output-candidate-with-lineage
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input4
+          sourceType: content-digest
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input5
+          sourceType: media-type-and-byte-length
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input6
+          sourceType: policy-decision-reference
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input7
+          sourceType: authorized-target-workspace
+          cardinality: EXACTLY_ONE
+          required: true
+        - slotId: input8
+          sourceType: optional-exact-project-version
+          cardinality: ZERO_OR_ONE
+          required: false
       parameterSchema:
         type: object
         additionalProperties: false
@@ -8072,12 +8106,13 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage, content digest, policy decision, and target project revision are identity constraints; a registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."
+        result: "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage is an explicit set of exact source versions, which may be empty only to identify source-free output generated from the request; source-free registration does not require a source artifact. Content digest, media type, byte length, and policy decision are identity constraints; an authorized target workspace is required. Workspace-only registration may omit the exact project version; project-targeted registration requires it for stale-version checking. A registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."
         outputDistinctions:
           - "candidate versus immutable registered version"
           - "accepted registration versus rejected/unknown outcome"
           - "registration versus project attachment, export, or publication"
           - "retained source lineage and digest versus reconstructed lineage"
+          - "non-empty exact source lineage versus an explicitly empty source-free generation origin"
         unknownDisposition: "A rejected, unknown, stale, or unauthorized result does not establish a registered version; preserve the candidate identity and uncertainty. This definition does not imply mutation, registration, persistence, or finality before an authoritative owner state is known."
         sourceRefs:
           - ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerTrustReconstructionDispositions/records/@id=media.capability-trust-reconstruction.media-capability-adjudication-artifact-output-register.v1"
@@ -8090,7 +8125,7 @@ capabilities:
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.output.register/constraints"
           - ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.output.register/preconditions"
       effect:
-        semanticOutcome: "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage, content digest, policy decision, and target project revision are identity constraints; a registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."
+        semanticOutcome: "The P0 meaning of output registration distinguishes the supplied candidate from an immutable Media artifact-version identity, an accepted registration result from rejected or unknown outcomes, and registration from project attachment, export, delivery, or publication. Candidate lineage is an explicit set of exact source versions, which may be empty only to identify source-free output generated from the request; source-free registration does not require a source artifact. Content digest, media type, byte length, and policy decision are identity constraints; an authorized target workspace is required. Workspace-only registration may omit the exact project version; project-targeted registration requires it for stale-version checking. A registered version is not inferred from the request. This P0 meaning does not establish mutation, registration, persistence, or finality."
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: CANONICAL_PRODUCT_STATE_CHANGE
@@ -8098,11 +8133,13 @@ capabilities:
         preconditions:
           - Candidate is an exact immutable output reference with matching
             declared SHA-256, media type and byte length.
-          - All exact source version refs and lineage evidence are available and
-            rights/consent/purpose/retention policy remains current for
+          - If source lineage is non-empty, all exact source versions and lineage
+            evidence are available and rights/consent/purpose/retention policy
+            remains current for registration; an explicit empty set identifies
+            source-free output generated from the request.
+          - The target workspace is authorized. If registering into a project,
+            the exact project version is supplied and compared to prevent stale
             registration.
-          - Target workspace/project is authorized; project revision
-            compare-and-set prevents stale registration.
           - Candidate is not already registered under a conflicting identity;
             duplicate request with same semantic fingerprint replays the
             original immutable registration receipt.
@@ -22188,9 +22225,9 @@ capabilities:
         - artifactType: owner-issued-transcription-job-reference
           requiredOnSuccess: true
         - artifactType: transcript-draft-with-source-version-and-timebase-if-produced
-          requiredOnSuccess: true
+          requiredOnSuccess: false
         - artifactType: language-and-recognition-evidence-when-provided
-          requiredOnSuccess: true
+          requiredOnSuccess: false
       nonSuccessOutputs:
         REJECTED: []
         UNKNOWN_OUTCOME: []

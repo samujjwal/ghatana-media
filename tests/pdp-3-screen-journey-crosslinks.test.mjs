@@ -186,7 +186,7 @@ test("PDP-3 screen and journey contracts preserve exact registry cross-links", (
     // `step.action` is the retained historical screen-consequence subset. The
     // current 120 action/actionRef bindings and one owner action are asserted
     // separately against currentStepBindingObservation below.
-    actionLinks: 18, requirementLinks: 40, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 95,
+    actionLinks: 18, requirementLinks: 41, capabilityLinks: 41, outcomeLinks: 72, operationLinks: 95,
   });
 });
 
@@ -313,7 +313,9 @@ test("PDP-3 J-29/J-30 step views use exact owner-selected source contracts and p
       if (journeyId === "J-29" && index < 3) {
         assert.equal(semanticAction, null, `${journeyId}/${step.stepId} remains an explicit observation/gate without dispatch`);
         assert.equal(step.ownerActionRef, undefined);
-        assert.equal(semantics.bindingStatus, "OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN");
+        assert.equal(semantics.bindingStatus, index === 1
+          ? "OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; EXACT_SUPPORTING_QUERY_BOUND; INDEPENDENT_REVIEW_OPEN"
+          : "OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN");
         assert.equal(semantics.action.semanticRole, "NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE");
         assert.equal(semantics.canonicalBindings.canonicalOperationRef, null);
       } else if (journeyId === "J-29") {
@@ -347,7 +349,8 @@ test("PDP-3 J-29/J-30 step views use exact owner-selected source contracts and p
 
 test("J-02 upload workflow binds exact slices and preserves verification authority", () => {
   const c=readYaml(`${experience}/journey-contracts/upload-import-and-verify-artifact.yaml`);
-  const records=readYaml(".product-experience/pdp-1-domain-data/operations.yaml").individualOperationContracts.records;
+  const operationDoc=readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
+  const records=[...operationDoc.individualOperationContracts.records,...operationDoc.ownerDefinedOperationContracts.records];
   const ids=new Set(records.map(x=>x.id));
   assert.equal(c.runtimeAdmission,"NOT_ADMITTED");
   assert.equal(c.definitionReview.status,"SOURCE_DEFINED_OWNER_ACCEPTED");
@@ -363,6 +366,10 @@ test("J-02 upload workflow binds exact slices and preserves verification authori
   assert.ok(c.steps[2].resumeWorkflow.guards.some(x=>x.includes("unknown")&&x.includes("never-authorizes")));
   assert.ok(c.steps[2].resumeWorkflow.guards.some(x=>x.includes("never-authorizes-append")&&x.includes("FINALIZING")));
   assert.deepEqual(c.steps.map(x=>x.actorRefs),Array(5).fill(["media.creator","media.editor"]));
+  assert.equal(c.steps[4].action, "media.action.inspect-source");
+  assert.equal(c.steps[4].canonicalOperationRef, "media.operation-slice.inspect-artifact-version");
+  assert.ok(ids.has(c.steps[4].canonicalOperationRef), "exact-version inspection resolves to its owner-defined operation contract");
+  assert.equal(c.steps[4].stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED");
   assert.deepEqual(c.steps.map(x=>x.transitionDisposition.status),["NOT_APPLICABLE_WITH_REASON","NOT_APPLICABLE_TO_BEGIN_UPLOAD; NO_DOMAIN_TRANSITION","APPLICABLE_WITH_BOUNDS","NOT_APPLICABLE_WITH_REASON","NOT_APPLICABLE_WITH_REASON"]);
   for(const step of c.steps)for(const ref of step.requiredOperationRefs??[])assert.ok(ids.has(ref),`unknown operation slice ${ref}`);
   assert.match(c.terminalSuccess,/T02/u); assert.match(c.terminalSuccess,/AVAILABLE only when verification authority records current positive evidence/u);
@@ -440,7 +447,7 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
         assert.deepEqual(typedRefs, exactRefs, `${journey.id}/${actionRef} matches the exact owner-reviewed PDP-1 slice`);
       }
       if (journey.id === "J-03" && step.stepId === "J03-2") {
-        assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-072");
+        assert.equal(step.decisionRef, ".product-experience/decision-log.md#PXD-159");
         assert.equal(step.sourceDecisionRef, ".product-experience/decision-log.md#PXD-070");
         assert.equal(step.grammarDecisionRef, ".product-experience/decision-log.md#PXD-071");
         assert.deepEqual(step.requiredOperationRefs, ["media.operation.transcription-submission"]);
@@ -485,6 +492,6 @@ test("PDP-3 step operation candidates follow the explicit PDP-1 action crosswalk
     }
   }
   assert.equal(mappedActionIds.size, 13, "13 of the 14 family-level candidates occur in current journey steps");
-  assert.equal(mappedOccurrences, 31, "count current mapped action occurrences, including actionRef-bound steps");
+  assert.equal(mappedOccurrences, 30, "count current explicit-crosswalk action occurrences; owner-defined J-02 inspection is checked separately");
   assert.match(operations.scopeStatus, /proposal-only/u);
 });

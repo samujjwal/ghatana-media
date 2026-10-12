@@ -1,7 +1,7 @@
 schemaVersion: media.motion-language.v1
 productId: media
 authority: Media motion purpose and reduced-motion behavior
-status: authored-proposal; accessibility-review-pending
+status: MEDIA_OWNER_RULES_DEFINED; accessibility-review-pending
 rules:
   - Motion may show a direct state transition or media-time relationship; it is not decoration on a consequential action.
   - Never animate generated or estimated content in a way that implies truth or confidence.

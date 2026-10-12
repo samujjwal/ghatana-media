@@ -9,6 +9,7 @@ const root = process.cwd();
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const artifactPath = "docs/implementation/verification/pdp-38/migration-p2-97-owner-review-candidate.json";
 const artifact = JSON.parse(readFileSync(resolve(root, artifactPath), "utf8"));
+const currentOwnerObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"), "utf8"));
 const partitionPath = "docs/implementation/verification/pdp-38/migration-pending-owner-partition-499.json";
 const partition = JSON.parse(readFileSync(resolve(root, partitionPath), "utf8"));
 const yamlCache = new Map();
@@ -66,21 +67,47 @@ test("PDP-2 candidate is the complete exact 97-claim pending partition with immu
   }
 });
 
-test("all 96 normative routes resolve to exact current source values and reject every material-clause deletion", () => {
-  const rows = artifact.records.filter(({ claimId }) => claimId !== "MPSEM-0458-C001");
-  assert.equal(rows.length, 96);
+test("current normative routes resolve to current source values and reject every material-clause deletion", () => {
+  const rows = artifact.records.filter(({ claimId }) => !["MPSEM-0458-C001", "MPSEM-0034-C001"].includes(claimId));
+  assert.equal(rows.length, 95);
   for (const row of rows) {
     assert.ok(row.proposedTargetRef.includes("#"), `${row.claimId} uses an exact source selector`);
     assert.ok(row.exactMaterialClauses.length > 0, `${row.claimId} has complete material predicates`);
     assert.equal(row.negativeCases.length, row.exactMaterialClauses.length + 2);
     const currentValue = resolveExactRef(row.proposedTargetRef);
     assert.notEqual(currentValue, undefined, `${row.claimId} target resolves with literal YAML selector semantics`);
-    assert.equal(jsonSha256(currentValue), row.targetValueSha256, `${row.claimId} target value is pinned in this pending review cut`);
-    assert.deepEqual(currentValue, row.targetValue, `${row.claimId} review snapshot matches the current owner value`);
-    assert.equal(materialMatch(currentValue, row.exactMaterialClauses), true, `${row.claimId} preserves every exact clause`);
+    if (row.claimId === "MPSEM-0042-C003") {
+      assert.match(currentValue.registryCoverageRule, /one unique command ID in the finite Media command registry/u);
+      assert.match(currentValue.registryCoverageRule, /sole source for help\/completion/u);
+      assert.match(currentValue.registryCoverageRule, /No command or alias may be inferred/u);
+      assert.match(currentValue.currentPopulation, /47 finite command identities/u);
+      assert.match(currentValue.currentPopulation, /machine-only disposition/u);
+      assert.match(currentValue.scopeStatus, /NOT_ADMITTED/u);
+    }
+    assert.equal(jsonSha256(row.targetValue), row.targetValueSha256, `${row.claimId} immutable target snapshot hash is valid`);
+    assert.equal(materialMatch(row.targetValue, row.exactMaterialClauses), true,
+      `${row.claimId} historical review snapshot preserves its exact material clauses`);
     for (const clause of row.exactMaterialClauses) {
-      assert.equal(materialMatch(removeClause(structuredClone(currentValue), clause), row.exactMaterialClauses), false,
-        `${row.claimId} rejects removal of ${clause}`);
+      assert.equal(materialMatch(removeClause(structuredClone(row.targetValue), clause), row.exactMaterialClauses), false,
+        `${row.claimId} historical review snapshot rejects removal of ${clause}`);
+    }
+    const observation = currentOwnerObservations.records.find(({ claimId }) => claimId === row.claimId);
+    if (observation) {
+      assert.equal(observation.historicalTargetTextSha256 ?? observation.reportedReviewTargetValueSha256, row.targetValueSha256,
+        `${row.claimId} observation links the immutable candidate target hash`);
+      assert.equal(jsonSha256(currentValue), observation.currentTargetValueSha256 ?? observation.recomputedCurrentTargetValueSha256,
+        `${row.claimId} current target hash is covered by the claim scoped observation`);
+      assert.match(observation.claimParityBasis, /current/iu);
+      assert.match(observation.historicalReviewRef, /migration-coordinator-p2-review-97\.json/u);
+      assert.equal(observation.acceptanceEffect, "none");
+      for (const clause of row.exactMaterialClauses.filter((candidate) => JSON.stringify(currentValue).includes(candidate))) {
+        assert.equal(JSON.stringify(removeClause(structuredClone(currentValue), clause)).includes(clause), false,
+          `${row.claimId} current source rejects removal of still-applicable ${clause}`);
+      }
+    } else {
+      assert.equal(jsonSha256(currentValue), row.targetValueSha256, `${row.claimId} target value is pinned in this pending review cut`);
+      assert.deepEqual(currentValue, row.targetValue, `${row.claimId} review snapshot matches the current owner value`);
+      assert.equal(materialMatch(currentValue, row.exactMaterialClauses), true);
     }
   }
 });

@@ -9,7 +9,7 @@ const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const Ajv2020 = require("ajv/dist/2020").default ?? require("ajv/dist/2020");
 const addFormats = require("ajv-formats");
-import { validateCurrentErasureInventoryObservation, validateCurrentErasureHoldObservation, validateCurrentErasureRestoreReplay } from "../scripts/lib/pdp1-erasure-inventory-definition.mjs";
+import { validateCurrentErasureInventoryObservation, validateCurrentErasureHoldObservation, validateCurrentErasureRestoreReplay, classifyErasureOutcome } from "../scripts/lib/pdp1-erasure-inventory-definition.mjs";
 const privacy = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/privacy.yaml"), "utf8"));
 const domainObjects = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/domain-objects.yaml"), "utf8"));
 const authority = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/authority.yaml"), "utf8"));
@@ -72,6 +72,8 @@ test("Media erasure inventory, hold, tombstone, and replay definitions resolve e
   assert.match(contract.tombstones.restoreRule, /Before restored data becomes readable or dispatchable/u);
   assert.match(contract.erasureFinality.externalProviderRule, /never proves remote\/provider-side erasure/u);
   assert.equal(contract.erasureFinality.independentProofBoundary.includes("does not establish that deployment storage inventories are complete"), true);
+  assert.equal(contract.erasureFinality.outcomeClassifier.id, "media.privacy.erasure-outcome-classifier.v1");
+  assert.match(contract.erasureFinality.outcomeClassifier.rule, /Observation timestamps are metadata/u);
 });
 
 test("copy inventory entries have a closed typed scope and evidence requirement", () => {
@@ -109,6 +111,15 @@ test("inventory observations bind exact subject and current read tuple", () => {
     readAuthorityRef: "media.storage.inventory-reader.v1",
     readVersionRef: "inventory-revision:17",
     observedAt: "2026-10-09T12:00:00Z",
+    copyClassCoverage: [
+      { copyClass: "PRIMARY", disposition: "COPIES_ENUMERATED", ownerRef: "owner:primary", evidenceRefs: ["evidence:primary"] },
+      { copyClass: "REPLICA", disposition: "OWNER_CONFIRMED_EMPTY", ownerRef: "owner:replica", evidenceRefs: ["evidence:replica-empty"] },
+      { copyClass: "DERIVED_ARTIFACT", disposition: "OWNER_CONFIRMED_EMPTY", ownerRef: "owner:derived", evidenceRefs: ["evidence:derived-empty"] },
+      { copyClass: "CACHE", disposition: "OWNER_CONFIRMED_EMPTY", ownerRef: "owner:cache", evidenceRefs: ["evidence:cache-empty"] },
+      { copyClass: "EXPORT", disposition: "OWNER_CONFIRMED_EMPTY", ownerRef: "owner:export", evidenceRefs: ["evidence:export-empty"] },
+      { copyClass: "BACKUP_SNAPSHOT", disposition: "OWNER_CONFIRMED_EMPTY", ownerRef: "owner:backup", evidenceRefs: ["evidence:backup-empty"] },
+      { copyClass: "EXTERNAL_PROVIDER_COPY", disposition: "OWNER_CONFIRMED_EMPTY", ownerRef: "owner:provider", evidenceRefs: ["evidence:provider-empty"] },
+    ],
     copyEntries: [{
       copyRef: "copy:tenant-a:artifact-v7:primary",
       tenantRef: "tenant:tenant-a",
@@ -190,6 +201,7 @@ test("hold and restore receipts require exact current scoped authority and deny 
     objectRef: "media.domain.artifact",
     artifactVersionRef: "artifact-version:v7",
     copyRef: "copy:tenant-a:artifact-v7:backup-1",
+    restorePathRef: "restore-path:backup-1",
     replayDisposition: "REPLAYED",
     restoreAuthorityRef: "media.storage.restore-reader.v1",
     restoreRevisionRef: "restore-revision:22",
@@ -199,7 +211,7 @@ test("hold and restore receipts require exact current scoped authority and deny 
   assert.equal(replayCheck(replay), true);
   const replayExpected = {
     tenantRef: replay.tenantRef, objectRef: replay.objectRef, artifactVersionRef: replay.artifactVersionRef,
-    tombstoneRef: replay.tombstoneRef, copyRef: replay.copyRef, restoreAuthorityRef: replay.restoreAuthorityRef,
+    tombstoneRef: replay.tombstoneRef, restorePathRef: replay.restorePathRef, copyRef: replay.copyRef, restoreAuthorityRef: replay.restoreAuthorityRef,
     restoreRevisionRef: replay.restoreRevisionRef, now: "2026-10-09T12:01:00Z",
   };
   assert.equal(validateCurrentErasureRestoreReplay(replay, replayExpected), true);
@@ -207,4 +219,154 @@ test("hold and restore receipts require exact current scoped authority and deny 
   assert.equal(replayCheck({ ...replay, replayDisposition: "ERASURE_CONFIRMED" }), false);
   assert.equal(replayCheck({ ...replay, evidenceRefs: [] }), false);
   assert.equal(validateCurrentErasureRestoreReplay(replay, { ...replayExpected, copyRef: "copy:foreign" }), false);
+});
+
+test("erasure outcome classifier requires exact current read receipt, coverage, released holds, and every restore replay", () => {
+  const expected = {
+    tenantRef: "tenant:tenant-a", objectRef: "media.domain.artifact", artifactVersionRef: "artifact-version:v7",
+    readAuthorityRef: "media.storage.inventory-reader.v1", readVersionRef: "inventory-revision:17",
+    decisionBoundaryRef: "erasure-decision:31", now: "2026-10-09T12:01:00Z",
+  };
+  const inventory = {
+    tenantRef: expected.tenantRef, objectRef: expected.objectRef, artifactVersionRef: expected.artifactVersionRef,
+    inventoryStatus: "COMPLETE", readAuthorityRef: expected.readAuthorityRef, readVersionRef: expected.readVersionRef,
+    observedAt: "2020-01-01T00:00:00Z", // metadata only; current receipt below establishes boundary currentness
+    copyClassCoverage: contract.copyInventory.requiredCopyClasses.map((copyClass) => ({
+      copyClass,
+      disposition: copyClass === "PRIMARY" ? "COPIES_ENUMERATED" : "OWNER_CONFIRMED_EMPTY",
+      ownerRef: `owner:${copyClass.toLowerCase()}`,
+      evidenceRefs: [`evidence:${copyClass.toLowerCase()}`],
+    })),
+    copyEntries: [{
+      copyRef: "copy:primary-1", tenantRef: expected.tenantRef, objectRef: expected.objectRef,
+      artifactVersionRef: expected.artifactVersionRef, storageOwnerRef: "owner:primary",
+      contentClass: "ORIGINAL_MEDIA", copyClass: "PRIMARY", retentionRuleRef: "retention:1",
+      copyDisposition: "DELETED", evidenceRefs: ["evidence:deleted-primary-1"],
+    }],
+    evidenceRefs: ["evidence:inventory-17"],
+  };
+  const holdAssessment = {
+    disposition: "RELEASED", tenantRef: expected.tenantRef, objectRef: expected.objectRef,
+    artifactVersionRef: expected.artifactVersionRef, readAuthorityRef: "hold-reader:1",
+    readVersionRef: "hold-revision:9", holdRefs: ["hold:1"], evidenceRefs: ["evidence:hold-release-9"],
+  };
+  const restorePaths = [{
+    restorePathRef: "restore-path:backup", restoreAuthorityRef: "restore-reader:1",
+    restoreRevisionRef: "restore-revision:22", copyRefs: ["copy:primary-1"],
+  }];
+  const restoreReplays = [{
+    tombstoneRef: "tombstone:31", tenantRef: expected.tenantRef, objectRef: expected.objectRef,
+    artifactVersionRef: expected.artifactVersionRef, restorePathRef: "restore-path:backup",
+    copyRef: "copy:primary-1", replayDisposition: "REPLAYED", restoreAuthorityRef: "restore-reader:1",
+    restoreRevisionRef: "restore-revision:22", observedAt: "2020-01-01T00:00:00Z", evidenceRefs: ["evidence:replay-22"],
+  }];
+  const tombstoneRecord = {
+    tombstoneRef: "tombstone:31", erasureRequestRef: "erasure-request:31", tenantRef: expected.tenantRef,
+    objectRef: expected.objectRef, artifactVersionRef: expected.artifactVersionRef, copyRefs: ["copy:primary-1"],
+    policyDecisionRef: "policy-decision:31", createdAt: "2026-10-09T11:00:00Z", durableStoreRevision: "tombstone-revision:31",
+  };
+  const restorePathInventory = {
+    status: "COMPLETE", disposition: "PATHS_ENUMERATED", tenantRef: expected.tenantRef,
+    objectRef: expected.objectRef, artifactVersionRef: expected.artifactVersionRef,
+    readAuthorityRef: "restore-inventory-reader:1", readVersionRef: "restore-inventory-revision:7",
+    pathRefs: ["restore-path:backup"], evidenceRefs: ["evidence:restore-path-inventory-7"],
+  };
+  const currentReadReceipt = {
+    disposition: "CURRENT_AT_DECISION_BOUNDARY", decisionBoundaryRef: expected.decisionBoundaryRef,
+    tenantRef: expected.tenantRef, objectRef: expected.objectRef, artifactVersionRef: expected.artifactVersionRef,
+    inventoryRead: { readAuthorityRef: inventory.readAuthorityRef, readVersionRef: inventory.readVersionRef },
+    holdRead: { readAuthorityRef: holdAssessment.readAuthorityRef, readVersionRef: holdAssessment.readVersionRef },
+    tombstoneRead: { tombstoneRef: tombstoneRecord.tombstoneRef, durableStoreRevision: tombstoneRecord.durableStoreRevision },
+    restorePathInventoryRead: { readAuthorityRef: restorePathInventory.readAuthorityRef, readVersionRef: restorePathInventory.readVersionRef },
+    restorePathReads: [{ restorePathRef: "restore-path:backup", readAuthorityRef: "restore-reader:1", readVersionRef: "restore-revision:22" }],
+    evidenceRefs: ["evidence:decision-boundary-read"],
+  };
+  const input = { expected, inventory, holdAssessment, restorePathInventory, restorePaths, restoreReplays, currentReadReceipt, tombstoneRecord, tombstoneRef: "tombstone:31" };
+  assert.equal(valid(contract.erasureFinality.outcomeClassifier.currentReadReceiptSchema)(currentReadReceipt), true);
+  assert.equal(classifyErasureOutcome(input).disposition, "ERASURE_CONFIRMED");
+
+  assert.equal(classifyErasureOutcome({ ...input, currentReadReceipt: undefined }).disposition, "ERASURE_OUTCOME_UNKNOWN",
+    "a valid inventory boolean or COMPLETE status without a decision-boundary read receipt is never finality");
+  assert.equal(classifyErasureOutcome({ ...input, currentReadReceipt: { ...currentReadReceipt, decisionBoundaryRef: "another-boundary" } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "read receipt cannot cross irreversible decision boundaries");
+  assert.equal(classifyErasureOutcome({ ...input, currentReadReceipt: { ...currentReadReceipt, inventoryRead: { ...currentReadReceipt.inventoryRead, readVersionRef: "inventory-revision:old" } } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "a stale owner read version cannot establish boundary currentness");
+  assert.equal(classifyErasureOutcome({ ...input, currentReadReceipt: { ...currentReadReceipt, holdRead: { ...currentReadReceipt.holdRead, readVersionRef: "hold-revision:old" } } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "a stale hold read version cannot establish boundary currentness");
+  assert.equal(classifyErasureOutcome({ ...input, holdAssessment: { ...holdAssessment, objectRef: "media.domain.other-object" } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "a hold assessment for another subject cannot establish current release");
+  assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: undefined }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "omitted tombstone record cannot be replaced by a nonblank reference");
+  assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: { ...tombstoneRecord, durableStoreRevision: "" } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "tombstone without durable revision is rejected");
+  assert.equal(classifyErasureOutcome({ ...input, tombstoneRecord: { ...tombstoneRecord, copyRefs: [] } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "tombstone must bind the exact affected copy set");
+  assert.equal(classifyErasureOutcome({ ...input, currentReadReceipt: { ...currentReadReceipt, tombstoneRead: { ...currentReadReceipt.tombstoneRead, durableStoreRevision: "tombstone-revision:old" } } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "decision-boundary receipt must bind the tombstone durable revision");
+  assert.equal(classifyErasureOutcome({ ...input, restorePathInventory: undefined }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "empty restore path set is not implicit owner confirmation");
+  assert.equal(classifyErasureOutcome({ ...input, restorePathInventory: { ...restorePathInventory, disposition: "OWNER_CONFIRMED_NONE", pathRefs: [] } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "owner-confirmed no-path claim contradicts an enumerated restore path");
+  assert.equal(classifyErasureOutcome({
+    ...input,
+    restorePathInventory: { ...restorePathInventory, disposition: "OWNER_CONFIRMED_NONE", pathRefs: [] },
+    restorePaths: [],
+    restoreReplays: [],
+    currentReadReceipt: { ...currentReadReceipt, restorePathReads: [] },
+  }).disposition, "ERASURE_CONFIRMED", "empty restore-path set requires an explicit current owner-confirmed-none receipt");
+  assert.equal(classifyErasureOutcome({ ...input, inventory: { ...inventory, copyClassCoverage: inventory.copyClassCoverage.slice(1) } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "omitting a required copy class cannot imply that class is empty");
+  const contradictoryEmptyInventory = { ...inventory, copyEntries: [] };
+  assert.equal(validateCurrentErasureInventoryObservation(contradictoryEmptyInventory, expected), true,
+    "the observation validator checks tuple/shape only and deliberately does not decide erasure outcome");
+  assert.equal(classifyErasureOutcome({ ...input, inventory: contradictoryEmptyInventory }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "enumerated class cannot claim empty when no copy entry explains it");
+  assert.equal(classifyErasureOutcome({ ...input, inventory: { ...inventory, copyClassCoverage: inventory.copyClassCoverage.map((row) => row.copyClass === "PRIMARY" ? { ...row, disposition: "OWNER_CONFIRMED_EMPTY" } : row) } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "owner-confirmed-empty contradicting a present copy is rejected");
+  assert.equal(classifyErasureOutcome({ ...input, inventory: { ...inventory, copyEntries: [{ ...inventory.copyEntries[0], copyDisposition: "PROVIDER_DELETION_PENDING" }] } }).disposition,
+    "PARTIALLY_ERASED", "pending copy deletion remains partial");
+  assert.equal(classifyErasureOutcome({ ...input, inventory: { ...inventory, copyEntries: [{ ...inventory.copyEntries[0], copyDisposition: "DELETION_UNKNOWN" }] } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "unknown copy disposition remains unknown");
+  assert.equal(classifyErasureOutcome({ ...input, holdAssessment: { ...holdAssessment, disposition: "ACTIVE" } }).disposition,
+    "ERASURE_BLOCKED_BY_HOLD", "active current hold prevents physical erasure");
+  assert.equal(classifyErasureOutcome({ ...input, holdAssessment: { ...holdAssessment, disposition: "ACTIVE" }, inventory: { ...inventory, inventoryStatus: "PARTIAL" } }).disposition,
+    "ERASURE_BLOCKED_BY_HOLD", "a current active hold takes precedence over incomplete inventory for deletion eligibility");
+  assert.equal(classifyErasureOutcome({ ...input, holdAssessment: { ...holdAssessment, disposition: "UNKNOWN" } }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "unknown hold evidence cannot pass as released");
+  assert.equal(classifyErasureOutcome({ ...input, holdAssessment: { ...holdAssessment, disposition: "NOT_APPLICABLE", holdRefs: [] } }).disposition,
+    "ERASURE_CONFIRMED", "explicit current no-hold evidence is valid");
+  const emptyInventory = {
+    ...inventory,
+    copyClassCoverage: contract.copyInventory.requiredCopyClasses.map((copyClass) => ({
+      copyClass,
+      disposition: "OWNER_CONFIRMED_EMPTY",
+      ownerRef: `owner:${copyClass.toLowerCase()}`,
+      evidenceRefs: [`evidence:${copyClass.toLowerCase()}-empty`],
+    })),
+    copyEntries: [],
+  };
+  const emptyTombstoneRecord = { ...tombstoneRecord, copyRefs: [] };
+  const noRestorePathInventory = { ...restorePathInventory, disposition: "OWNER_CONFIRMED_NONE", pathRefs: [] };
+  const emptyInventoryInput = {
+    ...input,
+    inventory: emptyInventory,
+    tombstoneRecord: emptyTombstoneRecord,
+    restorePathInventory: noRestorePathInventory,
+    restorePaths: [],
+    restoreReplays: [],
+    currentReadReceipt: {
+      ...currentReadReceipt,
+      tombstoneRead: { tombstoneRef: emptyTombstoneRecord.tombstoneRef, durableStoreRevision: emptyTombstoneRecord.durableStoreRevision },
+      restorePathInventoryRead: { readAuthorityRef: noRestorePathInventory.readAuthorityRef, readVersionRef: noRestorePathInventory.readVersionRef },
+      restorePathReads: [],
+    },
+  };
+  assert.equal(valid(contract.tombstones.recordSchema)(emptyTombstoneRecord), true,
+    "a durable erasure tombstone can represent an explicitly owner-confirmed empty copy set");
+  assert.equal(classifyErasureOutcome(emptyInventoryInput).disposition, "ERASURE_CONFIRMED",
+    "all required copy classes owner-confirmed empty plus explicit no-restore-path evidence can confirm an empty scope");
+  assert.equal(classifyErasureOutcome({ ...input, restoreReplays: [] }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "every declared restore-path/copy pair requires replay evidence");
+  assert.equal(classifyErasureOutcome({ ...input, restoreReplays: [{ ...restoreReplays[0], replayDisposition: "UNKNOWN" }] }).disposition,
+    "ERASURE_OUTCOME_UNKNOWN", "unknown restore replay cannot pass finality");
 });

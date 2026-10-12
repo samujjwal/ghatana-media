@@ -7,12 +7,13 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 const toolsRequire = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url));
 const { parse } = toolsRequire('yaml');
 const base = '.product-experience/pdp-3-product-experience';
-const [actions, recovery, bindings, journey, operations] = await Promise.all([
+const [actions, recovery, bindings, journey, operations, taxonomy] = await Promise.all([
   readFile(`${base}/action-registry.yaml`, 'utf8').then(parse),
   readFile(`${base}/recovery-finality-contracts.yaml`, 'utf8').then(parse),
   readFile(`${base}/experience-source-bindings.yaml`, 'utf8').then(parse),
   readFile(`${base}/journey-contracts/upload-import-and-verify-artifact.yaml`, 'utf8').then(parse),
   readFile('.product-experience/pdp-1-domain-data/operations.yaml', 'utf8').then(parse),
+  readFile(`${base}/public-effect-finality-taxonomy.yaml`, 'utf8').then(parse),
 ]);
 const reviewRef = '.product-experience/decision-log.md#PXD-052';
 const selected = (id) => actions.actions.find((entry) => entry.id === id);
@@ -70,6 +71,13 @@ test('conditional upload effects and read observations are not coerced to public
   const inspect = selected('media.action.inspect-artifact').actionDefinitionSemantics;
   assert.equal(inspect.reversibility.kind, 'UNKNOWN');
   assert.equal(inspect.operationRef, 'media.operation-slice.inspect-artifact');
+  const inspectSource = selected('media.action.inspect-source').actionDefinitionSemantics;
+  assert.equal(inspectSource.typedDefinition.ownerDefinitionDecisionRef, '.product-experience/decision-log.md#PXD-075');
+  assert.equal(inspectSource.operationRef, 'media.operation-slice.inspect-artifact-version');
+  assert.deepEqual(inspectSource.typedDefinition.applicabilityGuards, [
+    'exact-artifact-and-immutable-version-identity', 'current-read-authority',
+  ]);
+  assert.equal(inspectSource.typedDefinition.runtimeAdmission, 'NOT_ADMITTED');
 });
 
 test('attachment definition maps only its supported immutable project-reference effect', () => {
@@ -84,13 +92,13 @@ test('attachment definition maps only its supported immutable project-reference 
   assert.equal(semantics.publicFinality.confirmationRequired, true);
   assert.equal(semantics.publicFinality.undoable, false);
   assert.equal(semantics.publicEffect.kind, semantics.effectKind);
-  const projected = resolveExperienceDefinitionSemantics(actions.actions, recovery.contracts);
+  const projected = resolveExperienceDefinitionSemantics(actions.actions, recovery.contracts, taxonomy);
   assert.ok(projected.effects.some(({ id }) => id === semantics.publicEffect.id));
   assert.ok(projected.finality.some(({ id }) => id === semantics.publicFinality.id));
 });
 
 test('existing recovery records remain manual, source-defined, and non-admitted', () => {
-  const projected = resolveExperienceDefinitionSemantics(actions.actions, recovery.contracts);
+  const projected = resolveExperienceDefinitionSemantics(actions.actions, recovery.contracts, taxonomy);
   assert.equal(projected.recoveries.length, 5);
   for (const contract of recovery.contracts) {
     const definition = contract.definitionSemantics;

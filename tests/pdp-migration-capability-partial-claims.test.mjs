@@ -67,7 +67,7 @@ test('MPSEM-0298-C001 and MPSEM-0298-C002: generic job request is closed, typed,
   assert.ok(!Object.hasOwn(request.properties, 'tenantId'));
   assert.ok(!Object.hasOwn(request.properties, 'principalId'));
   assert.match(submit.parameterBindingRule.validation, /closed JSON Schema semantics/u);
-  assert.match(submit.parameterBindingRule.fingerprint, /canonical parameter values/u);
+  assert.match(submit.parameterBindingRule.fingerprint, /canonical JSON parameter values/u);
   assert.equal(submit.parameterBindingRule.definitionValidator.export, 'validateJobSubmitParameterContract');
   assert.match(submit.ownerWireSchema.ownerDefinition, /host identity and authority are never request fields/u);
 });
@@ -136,7 +136,9 @@ test('MPSEM-0310-C001 and MPSEM-0310-C003: observation is bounded and missing pr
   const watch = cap('media.job.watch');
   assert.match(watch.constraints[0], /monotonic continuation identifiers when the event stream is admitted/u);
   assert.match(watch.constraints[2], /Unknown or missing progress remains unknown/u);
-  assert.match(watch.supportedParameters, /Exact units, bounds, event IDs, retention, and resume behavior require the owning contract/u);
+  assert.match(watch.supportedParameters, /no additional parameter fields in ownerDefinition\.parameterSchema/u);
+  assert.match(watch.supportedParameters, /typedInputSlots carry request meaning/u);
+  assert.match(watch.supportedParameters, /support, qualification, and runtime availability remain separate decisions/u);
 });
 
 test('MPSEM-0312-C002: operation-specific closed schemas reject undeclared parameters', () => {

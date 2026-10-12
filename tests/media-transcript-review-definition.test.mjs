@@ -7,7 +7,7 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 const root = '.product-experience/pdp-3-product-experience';
 const { parse } = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url))('yaml');
 const readYaml = async (path) => parse(await readFile(path, 'utf8'));
-const [journey, p1Objects, p1Operations, actionRegistry, bindings, screen, registry, decisions, grammar] = await Promise.all([
+const [journey, p1Objects, p1Operations, actionRegistry, bindings, screen, registry, decisions, grammar, taxonomy] = await Promise.all([
   readYaml(`${root}/journey-contracts/transcribe-and-correct-captions.yaml`),
   readYaml('.product-experience/pdp-1-domain-data/domain-objects.yaml'),
   readYaml('.product-experience/pdp-1-domain-data/operations.yaml'),
@@ -17,6 +17,7 @@ const [journey, p1Objects, p1Operations, actionRegistry, bindings, screen, regis
   readYaml(`${root}/journey-registry.yaml`),
   readFile('.product-experience/decision-log.md', 'utf8'),
   readYaml('.product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml'),
+  readYaml(`${root}/public-effect-finality-taxonomy.yaml`),
 ]);
 const sourceDecision = '.product-experience/decision-log.md#PXD-062';
 const grammarDecision = '.product-experience/decision-log.md#PXD-063';
@@ -154,17 +155,20 @@ test('review screen binds only the exact query while local playback actions rema
   assert.deepEqual(screen.actionConsequences.filter(({ actionId }) => ['media.action.play-source', 'media.action.seek-source'].includes(actionId)).map(({ operationRef }) => operationRef), [null, null]);
 });
 
-test('read action stays UNKNOWN for reversibility and cannot project or forge an unapproved public boolean', () => {
-  const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, []);
-  assert.ok(projection.conditionalActions.includes('media.action.review-transcript'));
-  assert.ok(!projection.effects.some(({ id }) => id === 'media.effect.review-transcript'));
-  assert.ok(!projection.finality.some(({ id }) => id === 'media.finality.review-transcript'));
+test('read action stays UNKNOWN for reversibility and cannot forge a public Boolean', () => {
+  const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, [], taxonomy);
+  const candidateEffect = projection.effects.find(({ id }) => id === 'media.public-taxonomy.review-transcript.effect');
+  const candidateFinality = projection.finality.find(({ id }) => id === 'media.public-taxonomy.review-transcript.finality');
+  assert.equal(candidateEffect.reversibilityDisposition, 'UNKNOWN');
+  assert.equal(candidateFinality.undoabilityDisposition, 'UNKNOWN');
+  assert.equal(reviewAction.actionDefinitionSemantics.publicEffect, undefined);
+  assert.equal(reviewAction.actionDefinitionSemantics.publicFinality, undefined);
   const forged = structuredClone(actionRegistry.actions);
   const review = forged.find(({ id }) => id === 'media.action.review-transcript');
   review.actionDefinitionSemantics.publicEffect = {
     id: 'media.effect.reversible-transcript-read', name: 'Read transcript', kind: 'query', description: 'Read', reversible: true,
   };
-  assert.throws(() => resolveExperienceDefinitionSemantics(forged, []), /conditional boolean coercion|unbounded historical public record|unbounded action review|historical decision scope drift/u);
+  assert.throws(() => resolveExperienceDefinitionSemantics(forged, [], taxonomy), /conditional boolean coercion|unbounded historical public record|unbounded action review|historical decision scope drift/u);
 });
 
 test('PXD-064 cannot be reused for a different action, operation, authority, decision, or admission', () => {
@@ -178,7 +182,7 @@ test('PXD-064 cannot be reused for a different action, operation, authority, dec
   ]) {
     const forged = structuredClone(actionRegistry.actions);
     mutate(forged.find(({ id }) => id === 'media.action.review-transcript').actionDefinitionSemantics);
-    assert.throws(() => resolveExperienceDefinitionSemantics(forged, []), /unbounded historical public record|unbounded action review|typed action definition mismatch|unlinked exact operation|historical decision scope drift/u, label);
+    assert.throws(() => resolveExperienceDefinitionSemantics(forged, [], taxonomy), /unbounded historical public record|unbounded action review|typed action definition mismatch|unlinked exact operation|historical decision scope drift/u, label);
   }
 
   const wrongJourney = structuredClone(journey);

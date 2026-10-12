@@ -25,6 +25,8 @@ function expectedParameterMeaning(leaf) {
     : "P0 defines no additional parameter fields in ownerDefinition.parameterSchema; this leaf's P0 ownerDefinition.typedInputSlots carry request meaning. No additional fields are implied; support, qualification, and runtime availability remain separate decisions.";
 }
 
+const deriveTypedSlotMeaning = "The typed input slots carry exact source versions, selected transformation profile/version/configuration digest, requested output artifact type/media type/byte budget, and purpose/rights-decision context. No additional fields are implied; support, qualification, and runtime availability remain separate decisions.";
+
 function validateP0ParameterMeaning(leaf) {
   const schema = leaf.ownerDefinition?.parameterSchema;
   const slots = leaf.ownerDefinition?.typedInputSlots;
@@ -40,13 +42,14 @@ function validateP0ParameterMeaning(leaf) {
   if ((propertyNames.length === 0) !== (schema.emptyDisposition === "NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES")) return false;
   const slotIds = slots.map(({ slotId }) => slotId);
   if (slotIds.some((id) => !id) || new Set(slotIds).size !== slots.length) return false;
-  const cardinalities = new Set(["CONDITIONALLY_ONE", "EXACTLY_ONE", "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES", "ZERO_OR_ONE"]);
-  if (slots.some(({ sourceType, cardinality, required, alternatives, condition }) => {
+  const cardinalities = new Set(["CONDITIONALLY_ONE", "EXACTLY_ONE", "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES", "ZERO_OR_ONE", "ZERO_OR_MORE"]);
+  if (slots.some(({ sourceType, cardinality, required, alternatives, condition, emptyDisposition }) => {
     if (!sourceType || !cardinalities.has(cardinality) || typeof required !== "boolean") return true;
     if (cardinality === "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES" || alternatives !== undefined) {
       return !Array.isArray(alternatives) || alternatives.length < 2 || new Set(alternatives).size !== alternatives.length;
     }
     if (cardinality === "CONDITIONALLY_ONE") return required !== false || typeof condition !== "string" || condition.length === 0;
+    if (cardinality === "ZERO_OR_MORE") return required !== true || typeof emptyDisposition !== "string" || emptyDisposition.length === 0;
     return condition !== undefined;
   })) return false;
   const detailedProjectReviewMeaning = leaf.id === "media.project.review"
@@ -54,7 +57,8 @@ function validateP0ParameterMeaning(leaf) {
     && /quality, rights, provenance, and approval/u.test(leaf.supportedParameters)
     && /comment, approve, reject, or request-changes/u.test(leaf.supportedParameters)
     && /Support, qualification, and runtime availability remain separate decisions/u.test(leaf.supportedParameters);
-  if (leaf.supportedParameters !== expectedParameterMeaning(leaf) && !detailedProjectReviewMeaning) return false;
+  const sourceAlignedDeriveMeaning = leaf.id === "media.artifact.derive" && leaf.supportedParameters === deriveTypedSlotMeaning;
+  if (leaf.supportedParameters !== expectedParameterMeaning(leaf) && !detailedProjectReviewMeaning && !sourceAlignedDeriveMeaning) return false;
   return !/Not yet enumerated|Proposed typed request fields|Proposed fields|Proposed input|Proposed query fields|Proposed observation fields/u.test(leaf.supportedParameters);
 }
 
@@ -69,10 +73,10 @@ test("P0-02 reconciles supportedParameters with each P0 parameter schema and typ
   assert.equal(slotOnly.length, 332, "332 leaves carry request meaning only in typed input slots");
   assert.ok(capabilities.capabilities.every(validateP0ParameterMeaning), "every top-level parameter description matches its P0 schema and slots");
   const slots = capabilities.capabilities.flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
-  const sharedShapeKey = ({ sourceType, cardinality, required, alternatives, condition }) =>
-    JSON.stringify({ sourceType, cardinality, required, alternatives, condition });
-  assert.equal(slots.length, 930, "all 462 leaves reconcile through their explicit input slots");
-  assert.equal(new Set(slots.map(sharedShapeKey)).size, 129,
+  const sharedShapeKey = ({ sourceType, cardinality, required, alternatives, condition, emptyDisposition }) =>
+    JSON.stringify({ sourceType, cardinality, required, alternatives, condition, emptyDisposition });
+  assert.equal(slots.length, 939, "all 462 leaves reconcile through their explicit input slots");
+  assert.equal(new Set(slots.map(sharedShapeKey)).size, 142,
     "repeated request shapes are reusable only when all semantic slot fields match");
   const alternativeLeaf = capabilities.capabilities.find(({ ownerDefinition }) =>
     ownerDefinition.typedInputSlots.some(({ cardinality }) => cardinality === "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES"));

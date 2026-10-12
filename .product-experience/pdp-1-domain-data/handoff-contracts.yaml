@@ -1,0 +1,155 @@
+schemaVersion: media.pdp-1.phase-handoffs.v1
+semanticOwner: media
+authority: user-delegated-Media-semantic-definition
+handoffs:
+  pdp1ToPdp2CanonicalDomain:
+    id: media.pdp1-pdp2.canonical-domain-handoff.v1
+    sourcePhase: PDP-1
+    consumerPhase: PDP-2
+    status: DEFINITION_HANDOFF_CONTRACT
+    authorityBoundary: >-
+      This contract exports the stable domain and protocol meanings that PDP-2 may present or invoke. It does not
+      claim independent domain approval, external owner acceptance, runtime admission, package publication, or release.
+    sourcePopulations:
+      domainObjects:
+        count: 39
+        source: .product-experience/pdp-1-domain-data/domain-objects.yaml#/objects
+        meaning: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records
+      registeredObjectIdentities:
+        count: 38
+        canonicalMediaIdentities: 37
+        sourceObservationWithoutCanonicalIdentity: 1
+        source: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records
+      valueObjects:
+        count: 13
+        source: .product-experience/pdp-1-domain-data/value-objects.yaml#values
+        definitions: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions
+      relationships:
+        count: 13
+        source: .product-experience/pdp-1-domain-data/relationships.yaml#relationships
+      stateMachines:
+        count: 11
+        source: .product-experience/pdp-1-domain-data/states.yaml#stateMachines
+      transitions:
+        count: 55
+        source: ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords + #ownerDefinedTransitionRecords"
+      guardContracts:
+        count: 55
+        source: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records
+      typedGuardFacts:
+        count: 166
+        source: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts
+      commonGuardFacts:
+        count: 1
+        source: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#commonFacts
+      guardExclusivityGroups:
+        count: 43
+        source: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#exclusiveFactGroups
+      ownerActionWireContracts:
+        count: 79
+        actionLinkedCount: 78
+        operationOnlyQueryCount: 1
+        operationOnlyQueryId: media.owner-action-wire.inspect-job-retry-policy.v1
+        source: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records
+      uiActions:
+        count: 147
+        registryActions: 146
+        ownerDefinedActions: 1
+        ownerDefinedActionId: media.action.request-live-session-reconnect
+        ownerDefinedOperationRef: media.operation.capability.media-stream-session-reconnect
+        source: ".product-experience/pdp-3-product-experience/action-registry.yaml#actions + #ownerDefinedActions"
+      canonicalOperations:
+        count: 448
+        capabilityOperationRecordCount: 462
+        existingOperationBindingCount: 14
+        source: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
+      ownerDefinedOperations:
+        count: 106
+        source: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
+      interfaceIdentities:
+        http: {count: 27, source: contracts/openapi/media.yaml#/paths}
+        grpc:
+          count: 43
+          sources:
+            - modules/speech/stt-service/src/main/proto/stt_service.proto#service.rpc
+            - modules/speech/tts-service/src/main/proto/tts_service.proto#service.rpc
+            - modules/vision/vision-service/src/main/proto/vision_service.proto#service.rpc
+            - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto#service.rpc
+        sdk: {count: 30, rawRegistryRows: 33, parserTokensExcluded: 3, source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#methods}
+        cli: {count: 11, source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml#commands}
+        agentTools: {count: 4, source: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#tools}
+        events: {count: 9, source: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records}
+        clientNotifications: {count: 15, source: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords}
+    requiredMeaning:
+      identitiesAndLineage: >-
+        Preserve exact tenant and object/version identity tuples, immutable revision lineage, typed references,
+        source-versus-derived provenance, conflict semantics, and explicit missing/unknown dispositions.
+      operationsAndWireContracts: >-
+        Preserve canonical operation identity, closed typed request/result/error meaning, actor and authority scope,
+        preconditions, effects, idempotency, cancellation, unknown finality, and safe reconciliation. The 79 wire
+        contracts remain the single owner-action request/result source; the operation-only query exception is not a UI action.
+        The separately inventoried owner-defined operation population includes read contracts that are not capability
+        mappings or action wire contracts and must retain their exact source identity and meaning.
+      statesAndGuards: >-
+        Preserve independent machine dimensions, legal transitions, typed current-fact origins, exact guard scope,
+        deny-on-unknown behavior, and distinctions between accepted, queued, executing, cancelled, failed, and unknown.
+      rightsAndPrivacy: >-
+        Preserve tenant/principal delegation, consent and rights authority boundaries, retention/hold behavior,
+        erasure finality, offline conflict rules, and the prohibition on treating user-provided claims as authority.
+      timeSpaceAndProvenance: >-
+        Preserve rational time and frame declarations, explicit units and loss, source/target lineage, and scoped
+        provider signals. A declaration is not a transform, calibration, or scientific qualification.
+      interfaceDisposition: >-
+        Preserve exact transport and client identities and their declared role (domain operation, local/session,
+        transport-only, provider administration, compatibility, external-owner, or not admitted). Similar names,
+        route reachability, or generated fingerprints do not establish semantic equivalence.
+    consumerObligations:
+      - Bind every PDP-2 control and machine-interface grammar to the exact PDP-1 source meaning it presents or invokes.
+      - Represent unknown, denied, pending, accepted, completed, partially completed, and outcome-unknown as distinct states where the source contract distinguishes them.
+      - Preserve request identity, tenant and version scope, authorization boundary, safe retry/reconciliation rules, and source provenance in reusable interaction patterns.
+      - Keep a contract-only or not-admitted interface visibly distinct from an implemented or available capability.
+      - Do not add domain operations, states, effects, permissions, routes, or availability claims to repair a presentation limitation.
+      - Use the exact current source references and revisions; reject missing, duplicate, stale, renamed, or substituted identities.
+    negativeCases:
+      - A UI or machine-interface result treats an accepted request as a completed effect.
+      - A timeout or unknown outcome is presented as failure, success, or safe blind retry.
+      - A control binds by display name or route reachability while its exact operation, request, result, or error meaning differs.
+      - A user-provided identity, consent, rights, or guard boolean is presented as trusted owner authority.
+      - A version, tenant, source lineage, time unit, coordinate frame, or provider-signal scope is omitted or inferred.
+      - A contract-only or NOT_ADMITTED interface is presented as callable, available, or runtime verified.
+    deferredEvidence:
+      - External operation-owner acceptance and published package/schema compatibility.
+      - Runtime route, storage, provider, event-delivery, and Shared identity admission.
+      - Independent domain/security certification, Lifecycle receipts, convergence, release readiness, and production deployment.
+    deferredDownstreamFindings:
+      - id: P3-CAPABILITY-INVOCATION-OPERATION-REF-SHAPE
+        ownerPhase: PDP-3
+        disposition: RESOLVED_SOURCE_CROSSWALK
+        candidates: [J-05, J-06, J-08]
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml
+          - .product-experience/pdp-1-domain-data/operations.yaml
+          - scripts/lib/pdp3-step-capability-purpose.mjs
+          - tests/pdp-experience-capability-invocation-adapters.test.mjs
+        observation: >-
+          The current adapter validator resolves each selected capability through the exact PDP-1
+          capabilityOperationContracts binding and confirms the target operation is the matching async COMMAND.
+          The J-05, J-06, and J-08 focused source-only adapter cases pass; PDP-0 leaves need no synthetic
+          operationRefs. This source crosswalk is reconciled, while the full PDP-3 gate and runtime/transport
+          admission remain pending and NOT_ADMITTED.
+      - id: P3-PROVENANCE-ACTION-CAPABILITY-CROSSWALK
+        ownerPhase: PDP-3
+        disposition: RESOLVED_SOURCE_CROSSWALK
+        candidates: [media.action.inspect-provenance, media.provenance.source-lineage.inspect]
+        sourceRefs:
+          - .product-experience/pdp-0-product-truth/capabilities.yaml
+          - .product-experience/pdp-1-domain-data/operations.yaml
+          - .product-experience/pdp-3-product-experience/action-registry.yaml
+          - .product-experience/interface-parity/current-source-review.json
+          - .product-experience/decision-log.md#PXD-152
+        observation: >-
+          media.action.inspect-provenance now includes media.provenance.source-lineage.inspect, whose exact PDP-1
+          QUERY binding is media.operation-slice.inspect-provenance. PXD-152 accepts the caller-scoped, definition-only
+          execution-reference branch; its source review records the crosswalk as reconciled. The full PDP-3 gate
+          remains pending, and runtime/transport admission remains NOT_ADMITTED.
+    scopeStatus: canonical-domain-and-interface-meaning-exported-for-PDP2; development-gate-status-is-recorded-separately

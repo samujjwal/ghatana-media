@@ -28,6 +28,26 @@ function checkWithScreenMutation(mutate, contract = "create-media.yaml") {
   }
 }
 
+function checkWithTransitionMutation(mutate) {
+  const fixture = mkdtempSync(`${tmpdir()}/media-pdp-check-`);
+  try {
+    for (const path of [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"]) {
+      cpSync(resolve(repositoryRoot, path), resolve(fixture, path), { recursive: true });
+    }
+    const transitionPath = resolve(fixture, ".product-experience/pdp-1-domain-data/transitions.yaml");
+    const source = readFileSync(transitionPath, "utf8");
+    const mutated = mutate(source);
+    assert.notEqual(mutated, source, "test mutation must change the fixture");
+    writeFileSync(transitionPath, mutated);
+    return spawnSync(process.execPath, ["scripts/check-product-experience-local.mjs", `--root=${fixture}`], {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+    });
+  } finally {
+    rmSync(fixture, { recursive: true, force: true });
+  }
+}
+
 test("Product Definition local invariant check covers all phase denominators", () => {
   const output = execFileSync(process.execPath, ["scripts/check-product-experience-local.mjs"], {
     cwd: repositoryRoot,
@@ -72,11 +92,67 @@ test("accepted or complete screen binding statuses are rejected", () => {
   }
 });
 
-test("screen requirement references must equal the direct action-capability crosswalk", () => {
+test("screen binding statuses decode quoted, folded, and multiline YAML scalars exactly", () => {
+  const cases = [
+    [
+      "surfaceId: candidate-pending-acceptance",
+      "surfaceId: >-\n    candidate-pending-acceptance",
+      "folded",
+    ],
+    [
+      "surfaceId: candidate-pending-acceptance",
+      'surfaceId: "candidate-pending-acceptance"',
+      "quoted",
+    ],
+    [
+      'fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest\n    definition-only previews',
+      'fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest definition-only\n    previews',
+      "multiline quoted",
+    ],
+  ];
+  for (const [before, after, style] of cases) {
+    const result = checkWithScreenMutation((source) => source.replace(before, after));
+    assert.doesNotMatch(result.stderr, /unknown fieldBindingStatus for surfaceId|lacks a fieldBindingStatus entry for surfaceId/u, `${style} scalar should parse to its exact allowed status`);
+    assert.doesNotMatch(result.stderr, /unknown fieldBindingStatus for fixtures|lacks a fieldBindingStatus entry for fixtures/u, `${style} scalar should not cause a fixtures status parse error`);
+  }
+});
+
+test("nested triggerCases IDs are not parsed as top-level transitions", () => {
+  const result = checkWithTransitionMutation((source) => source.replace(
+    "  - id: media-job/T01\n    sourceMachineId: media-job",
+    "  - id: media-job/T01\n    triggerCases:\n      - id: media.transition-trigger-edge.fixture.v1\n    sourceMachineId: media-job",
+  ));
+  assert.doesNotMatch(result.stderr, /Transition media\.transition-trigger-edge\.fixture\.v1/u);
+  assert.doesNotMatch(result.stderr, /has an unresolved state-machine reference/u);
+});
+
+test("action-capability crosswalk accepts valid block-list and multiline flow-list refs", () => {
+  const blockListResult = checkWithScreenMutation((source) => source.replace(
+    "surfaceId: media.surface.web",
+    'surfaceId: "media.surface.web"',
+  ), "select-source.yaml");
+  assert.doesNotMatch(blockListResult.stderr, /media\.view\.select-source(?: action .* (?:lacks a|do not match)| (?:lacks a|do not match))/u);
+
+  const flowListResult = checkWithScreenMutation((source) => source.replace(
+    "surfaceId: media.surface.web",
+    'surfaceId: "media.surface.web"',
+  ), "work-with-speech.yaml");
+  assert.doesNotMatch(flowListResult.stderr, /media\.view\.work-with-speech(?: action .* (?:lacks a|do not match)| (?:lacks a|do not match)| has a malformed)/u);
+});
+
+test("mismatched block-list capability refs still fail exact crosswalk validation", () => {
   const result = checkWithScreenMutation((source) => source.replace(
-    /^requirementRefs: \[[^\]]+\]$/mu,
-    "requirementRefs: []",
-  ), "correct-captions.yaml");
+    "  - actionId: media.action.choose-source\n    capabilityRefs:\n      - media.artifact.inspect",
+    "  - actionId: media.action.choose-source\n    capabilityRefs:\n      - media.project.inspect",
+  ), "select-source.yaml");
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /media\.view\.select-source action media\.action\.choose-source capabilityRefs do not match the PDP-3 Action Registry/u);
+});
+
+test("screen requirement references must equal the direct action-capability crosswalk", () => {
+  const result = checkWithScreenMutation((source) => source
+    .replace(/^requirementRefs:[ \t]*\[[^\]]+\]$/mu, "requirementRefs: []")
+    .replace(/^requirementRefs:[ \t]*\n(?:^[ \t]+-[^\n]*\n)+/mu, "requirementRefs: []\n"), "correct-captions.yaml");
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /media\.view\.correct-captions requirementRefs do not match/u);
 });

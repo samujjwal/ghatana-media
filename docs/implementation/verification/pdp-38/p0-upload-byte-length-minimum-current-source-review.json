@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "media.pdp0.upload-byte-length-minimum-current-source-review.v1",
+  "artifactId": "P0-UPLOAD-BYTE-LENGTH-MINIMUM-CURRENT-SOURCE-REVIEW-001",
+  "decisionRef": ".product-experience/decision-log.md#PXD-153",
+  "status": "APPROVED_BOUNDED_CURRENT_SOURCE_CORRECTION; finite P0 gate PASS; PDP-0 DEV_COMPLETE",
+  "supersedes": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-142",
+    "scope": "Only the declaredByteLength minimum; PXD-142 historical source pin is unchanged.",
+    "historicalCapabilitiesSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf"
+  },
+  "source": {
+    "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "currentSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+    "capabilityCount": 462
+  },
+  "correction": {
+    "capabilityId": "media.artifact.upload",
+    "p0FieldRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength",
+    "oldScalar": {
+      "minimum": 0,
+      "maximum": 2147483648
+    },
+    "newScalar": {
+      "minimum": 1,
+      "maximum": 2147483648
+    },
+    "emptyDisposition": "NOT_EMPTY",
+    "rationale": "P0 declaredByteLength maps to the P1 begin-upload expectedSizeBytes field, whose accepted source contract requires a positive expected size. The minimum therefore matches the owner-defined operation boundary without widening the P1 request body or maximum."
+  },
+  "p1Evidence": {
+    "operationRef": "media.operation-slice.begin-upload",
+    "expectedSizeBytesRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/ownerWireSchema/requestSchema/properties/expectedSizeBytes",
+    "expectedSizeBytesMinimum": 1,
+    "expectedSizeBytesMaximum": 2147483648,
+    "sourceBoundsRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload/sourceBounds",
+    "sourceBoundsEvidence": "Runtime constructor requires positive expected size.",
+    "preservedBoundary": {
+      "maximumRequestBytes": 65536,
+      "runtimeAvailability": "NOT_ADMITTED",
+      "qualification": "NOT_ESTABLISHED"
+    }
+  },
+  "regressionEvidence": {
+    "testFile": "tests/pdp0-existing-operation-semantic-corrections.test.mjs",
+    "testName": "PXD-153 aligns upload byte-length minimum with the positive begin-upload size",
+    "status": "PASS",
+    "command": "node --test --test-name-pattern='PXD-153 aligns upload byte-length minimum with the positive begin-upload size' tests/pdp0-existing-operation-semantic-corrections.test.mjs",
+    "tests": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "phaseGateEvidence": {
+    "testSuites": "PASS",
+    "phaseStatus": "DEV_COMPLETE",
+    "note": "Final finite P0 reporter run passes all P0-01 through P0-08 criteria on the current source cut; P0-03 includes 10 historical skips and P0-08 passes 96/96. This records development verification only.",
+    "suiteResults": {
+      "P0-01": {
+        "status": "PASS",
+        "tests": 22,
+        "passed": 22,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-01.log"
+      },
+      "P0-02": {
+        "status": "PASS",
+        "tests": 11,
+        "passed": 11,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-02.log"
+      },
+      "P0-03": {
+        "status": "PASS",
+        "tests": 60,
+        "passed": 50,
+        "skipped": 10,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-03.log"
+      },
+      "P0-04": {
+        "status": "PASS",
+        "tests": 5,
+        "passed": 5,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-04.log"
+      },
+      "P0-05": {
+        "status": "PASS",
+        "tests": 8,
+        "passed": 8,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-05.log"
+      },
+      "P0-06": {
+        "status": "PASS",
+        "tests": 10,
+        "passed": 10,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-06.log"
+      },
+      "P0-07": {
+        "status": "PASS",
+        "tests": 8,
+        "passed": 8,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-07.log"
+      },
+      "P0-08": {
+        "status": "PASS",
+        "tests": 96,
+        "passed": 96,
+        "skipped": 0,
+        "evidenceRef": "docs/implementation/verification/pdp-38/P0-08.log"
+      }
+    },
+    "evidenceBoundary": "Finite PDP-0 development gate only; does not assert independent P0-010 acceptance, runtime/provider admission, qualification, or Lifecycle evidence."
+  },
+  "acceptanceEffect": "none; bounded current-source correction evidence only"
+}

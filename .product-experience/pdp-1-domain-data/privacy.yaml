@@ -210,6 +210,12 @@ ownerDefinedPdp10Boundary:
     - delegation
     - workspaceAuthority
     disposition: Reject caller-supplied identity authority; resolve resource only within host-attested tenant/workspace and exact owner principal scope; unknown or mismatch is DENY.
+    authorityGuard:
+      requiredObservation: Current host-authenticated identity/delegation observation bound to the request and exact tenant, principal, workspace and identity epoch.
+      userControlledClaims: >-
+        Never authority: role names, consent booleans, owner labels, tenant/principal/workspace fields,
+        and delegation claims supplied by a user or model cannot establish identity, grant or scope.
+      missingStaleOrMismatched: DENY_BEFORE_LOOKUP_OR_EFFECT; do not fall back to a global tenant, principal, workspace or cached grant.
   effectBoundary:
     recheckBefore:
     - provider dispatch
@@ -236,10 +242,20 @@ ownerDefinedPdp10Boundary:
     providerRetention: Unknown provider retention is ineligible when the selected policy requires bounded/no retention.
     locality: Private does not imply local; unknown locality cannot satisfy a local-only or residency restriction.
   consentRevocation:
+    authorityGuard:
+      requiredObservation: Current consent-authority owner observation for the exact tenant, principal, subjectVersion, consentRef, purpose, region and operation; bind issuerRef, authorityVersion, observedAt and decisionRef.
+      consentMutation: A request to grant, change or revoke consent is only an intent. Only the trusted consent authority may issue the resulting versioned record and decision; a caller boolean or claimed role is never proof of grant, revocation or identity.
+      history: Consent changes append a distinct immutable consent version. A revocation is effective for new effects at the next effect boundary when the current owner observation reports it; stale or missing observations are not ACTIVE.
+      mismatchOrUnavailable: DENY new governed effects and return UNKNOWN when current consent state cannot be authoritatively read; do not infer ACTIVE from a previously cached record.
     futureDispatch: Block new governed dispatch at the next effect boundary after revocation.
     inFlight: Record affected exact job/session/effect identities and reconcile; cancellation, provider stop, recall and deletion are separate outcomes.
     unknownProviderOutcome: Keep effect finality UNKNOWN until an authoritative observer resolves it; never claim revocation recalled already disclosed data.
   retentionAndErasure:
+    authorityGuard:
+      requiredObservation: Current retention and legal-hold owner observations scoped to exact tenant, object, immutable artifactVersion, copyRef or declared copy class, and decision boundary.
+      holdCurrentness: A hold disposition is authoritative only with issuer, readAuthorityRef, readVersionRef, observedAt, exact held scope, effectiveFrom and effectiveUntil or an explicit open-ended duration.
+      unknownDisposition: UNKNOWN hold/currentness, incomplete inventory or missing owner observation blocks physical purge and prevents ERASURE_CONFIRMED; preserve ERASURE_OUTCOME_UNKNOWN or ERASURE_BLOCKED_BY_HOLD as applicable.
+      holdRelease: Release requires a newer current owner observation for the same hold and scope; elapsed local time or user assertion alone does not release a hold.
     accessRevocation: Immediately deny new reads/uses under revoked authority; this is not physical deletion.
     erasureStates:
     - REQUESTED
@@ -258,6 +274,10 @@ ownerDefinedPdp10Boundary:
     sameKeyDifferentDigest: Reject with IDEMPOTENCY_CONFLICT.
     ambiguousOutcome: Reconcile the same request identity with authoritative effect owner before retry; no blind replay.
     providerWithoutReplayProtection: Do not automatically repeat a consequential external effect.
+  subjectVersionBinding:
+    requiredIdentity: Every governed consent, rights, retention and effect decision binds the exact immutable subject/artifact version; a mutable latest alias, digest alone, job version or caller-selected parent cannot substitute.
+    lineage: Corrections and derived content create a distinct version with an exact typed parent/source-version edge; missing or changed ancestry is DENY registration/use pending explicit review.
+    sourceRef: .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics
   nonClaims:
   - This definition does not assert implementation, provider-side deletion, authorization integration, storage-wide inventory, qualified policy enforcement, or independent review.
 ownerDefinedPdp05InvariantMappings:
@@ -370,6 +390,7 @@ ownerDefinedErasureInventoryContract:
       - EXTERNAL_PROVIDER_COPY
     entryIdentity: Each copy entry has its own opaque copyRef plus exact tenantRef, objectRef, optional artifactVersionRef, storageOwnerRef, copyClass, retentionRuleRef, lifecycle state, and evidenceRefs.
     completeness: Inventory completeness is explicit COMPLETE, PARTIAL, or UNKNOWN for one tenant/object/version and observation time; missing stores, copies, or owner acknowledgements keep it PARTIAL or UNKNOWN.
+    classCoverage: COMPLETE inventory evidence includes exactly one owner-evidenced coverage row for every requiredCopyClass. COPIES_ENUMERATED requires at least one matching copy entry; OWNER_CONFIRMED_EMPTY explicitly attests that the owner found no copy in that class. Missing, duplicate, or contradictory coverage prevents confirmation.
     noSyntheticCopies: Do not claim a copy exists or is absent from a package name, deployment label, artifact digest, or provider capability declaration; the responsible storage/provider owner supplies the observed inventory.
     sharedReferenceRule: >-
       Physical deletion of shared bytes is permitted only after exact versioned-reference inventory
@@ -380,7 +401,7 @@ ownerDefinedErasureInventoryContract:
     observationSchema:
       type: object
       additionalProperties: false
-      required: [tenantRef, objectRef, artifactVersionRef, inventoryStatus, readAuthorityRef, readVersionRef, observedAt, copyEntries, evidenceRefs]
+      required: [tenantRef, objectRef, artifactVersionRef, inventoryStatus, readAuthorityRef, readVersionRef, observedAt, copyClassCoverage, copyEntries, evidenceRefs]
       $defs:
         copyInventoryEntry:
           type: object
@@ -397,6 +418,15 @@ ownerDefinedErasureInventoryContract:
             retentionRuleRef: {type: string, minLength: 1, pattern: "\\S"}
             copyDisposition: {enum: [PRESENT, OWNER_CONFIRMED_ABSENT, DELETED, PROVIDER_DELETION_PENDING, DELETION_UNKNOWN]}
             evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1, pattern: "\\S"}}
+        copyClassCoverage:
+          type: object
+          additionalProperties: false
+          required: [copyClass, disposition, ownerRef, evidenceRefs]
+          properties:
+            copyClass: {enum: [PRIMARY, REPLICA, DERIVED_ARTIFACT, CACHE, EXPORT, BACKUP_SNAPSHOT, EXTERNAL_PROVIDER_COPY]}
+            disposition: {enum: [COPIES_ENUMERATED, OWNER_CONFIRMED_EMPTY]}
+            ownerRef: {type: string, minLength: 1, pattern: "\\S"}
+            evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1, pattern: "\\S"}}
       properties:
         tenantRef: {type: string, minLength: 1, pattern: "\\S"}
         objectRef: {type: string, minLength: 1, pattern: "\\S"}
@@ -405,6 +435,7 @@ ownerDefinedErasureInventoryContract:
         readAuthorityRef: {type: string, minLength: 1, pattern: "\\S"}
         readVersionRef: {type: string, minLength: 1, pattern: "\\S"}
         observedAt: {type: string, format: date-time}
+        copyClassCoverage: {type: array, items: {$ref: "#/$defs/copyClassCoverage"}}
         copyEntries: {type: array, items: {$ref: "#/$defs/copyInventoryEntry"}}
         evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1, pattern: "\\S"}}
   holds:
@@ -431,7 +462,7 @@ ownerDefinedErasureInventoryContract:
         observedAt: {type: string, format: date-time}
         evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
   tombstones:
-    identity: A tombstone binds erasureRequestRef, tenantRef, exact objectRef/versionRef, affected copyRef set, policyDecisionRef, createdAt, and durable store revision.
+    identity: A tombstone binds erasureRequestRef, tenantRef, exact objectRef/versionRef, exact affected copyRef set, policyDecisionRef, createdAt, and durable store revision. Finality requires validating this exact record and its complete copy set.
     restoreRule: Before restored data becomes readable or dispatchable, replay applicable tombstones against every restored copy and deny access until reconciliation finishes.
     retentionRule: Keep a tombstone while any backup, replica, cache, export, or provider copy can still be restored or can reappear; removal requires a separately evidenced owner rule after the last restoration path expires.
     replayFailure: Missing, stale, or failed tombstone replay leaves the affected scope ACCESS_RESTRICTED or ERASURE_OUTCOME_UNKNOWN; never expose restored bytes as current.
@@ -445,19 +476,20 @@ ownerDefinedErasureInventoryContract:
         tenantRef: {type: string, minLength: 1}
         objectRef: {type: string, minLength: 1}
         artifactVersionRef: {type: string, minLength: 1}
-        copyRefs: {type: array, minItems: 1, uniqueItems: true, items: {type: string, minLength: 1}}
+        copyRefs: {type: array, uniqueItems: true, items: {type: string, minLength: 1}}
         policyDecisionRef: {type: string, minLength: 1}
         createdAt: {type: string, format: date-time}
         durableStoreRevision: {type: string, minLength: 1}
     restoreReplaySchema:
       type: object
       additionalProperties: false
-      required: [tombstoneRef, tenantRef, objectRef, artifactVersionRef, copyRef, replayDisposition, restoreAuthorityRef, restoreRevisionRef, observedAt, evidenceRefs]
+      required: [tombstoneRef, tenantRef, objectRef, artifactVersionRef, restorePathRef, copyRef, replayDisposition, restoreAuthorityRef, restoreRevisionRef, observedAt, evidenceRefs]
       properties:
         tombstoneRef: {type: string, minLength: 1}
         tenantRef: {type: string, minLength: 1}
         objectRef: {type: string, minLength: 1}
         artifactVersionRef: {type: string, minLength: 1}
+        restorePathRef: {type: string, minLength: 1}
         copyRef: {type: string, minLength: 1}
         replayDisposition: {enum: [REPLAYED, NOT_RESTORED, UNKNOWN]}
         restoreAuthorityRef: {type: string, minLength: 1}
@@ -475,6 +507,110 @@ ownerDefinedErasureInventoryContract:
       - holdsStatus: CURRENT_AND_RELEASED or NOT_APPLICABLE with an exact current evidence basis
       - everyCopy: exact copyRef is deleted, provider-confirmed, or independently established as not materialized by its responsible owner
       - restoreSafety: tombstones are durable and replayed by every declared restore path
+    outcomeClassifier:
+      id: media.privacy.erasure-outcome-classifier.v1
+      rule: >-
+        ERASURE_CONFIRMED is emitted only by the definition classifier when a COMPLETE inventory has
+        exact current decision-boundary receipt evidence, exactly one owner-evidenced coverage row per
+        required copy class, every enumerated copy is DELETED or OWNER_CONFIRMED_ABSENT with evidence,
+        holds are currently RELEASED or explicitly NOT_APPLICABLE, and a current tombstone replay
+        observation covers every declared restore-path/copy pair. The exact tombstone record must
+        match the subject and complete inventory copy set, including its durable store revision in
+        the boundary receipt. Restore-path inventory must be current and complete; an empty set needs
+        explicit OWNER_CONFIRMED_NONE evidence. Observation timestamps are metadata;
+        currentness is bound by the exact host-supplied read receipt for the same tenant, object version,
+        and irreversible decision boundary. Missing or mismatched evidence never means empty or current.
+      outputMapping:
+        activeHold: ERASURE_BLOCKED_BY_HOLD
+        incompleteInventoryOrPendingCopy: PARTIALLY_ERASED
+        unknownOrStaleEvidence: ERASURE_OUTCOME_UNKNOWN
+        allConfirmationRequirementsSatisfied: ERASURE_CONFIRMED
+      scopeStatus: DEFINITION_ONLY; no runtime reader, storage completeness, provider deletion, policy approval, or enforcement is asserted
+      currentReadReceiptSchema:
+        type: object
+        additionalProperties: false
+        required: [disposition, decisionBoundaryRef, tenantRef, objectRef, artifactVersionRef, inventoryRead, holdRead, tombstoneRead, restorePathInventoryRead, restorePathReads, evidenceRefs]
+        properties:
+          disposition: {const: CURRENT_AT_DECISION_BOUNDARY}
+          decisionBoundaryRef: {type: string, minLength: 1}
+          tenantRef: {type: string, minLength: 1}
+          objectRef: {type: string, minLength: 1}
+          artifactVersionRef: {type: string, minLength: 1}
+          inventoryRead:
+            type: object
+            additionalProperties: false
+            required: [readAuthorityRef, readVersionRef]
+            properties:
+              readAuthorityRef: {type: string, minLength: 1}
+              readVersionRef: {type: string, minLength: 1}
+          holdRead:
+            type: object
+            additionalProperties: false
+            required: [readAuthorityRef, readVersionRef]
+            properties:
+              readAuthorityRef: {type: string, minLength: 1}
+              readVersionRef: {type: string, minLength: 1}
+          tombstoneRead:
+            type: object
+            additionalProperties: false
+            required: [tombstoneRef, durableStoreRevision]
+            properties:
+              tombstoneRef: {type: string, minLength: 1}
+              durableStoreRevision: {type: string, minLength: 1}
+          restorePathInventoryRead:
+            type: object
+            additionalProperties: false
+            required: [readAuthorityRef, readVersionRef]
+            properties:
+              readAuthorityRef: {type: string, minLength: 1}
+              readVersionRef: {type: string, minLength: 1}
+          restorePathReads:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [restorePathRef, readAuthorityRef, readVersionRef]
+              properties:
+                restorePathRef: {type: string, minLength: 1}
+                readAuthorityRef: {type: string, minLength: 1}
+                readVersionRef: {type: string, minLength: 1}
+          evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+      restorePathInventorySchema:
+        type: object
+        additionalProperties: false
+        required: [status, disposition, tenantRef, objectRef, artifactVersionRef, readAuthorityRef, readVersionRef, pathRefs, evidenceRefs]
+        properties:
+          status: {enum: [COMPLETE, PARTIAL, UNKNOWN]}
+          disposition: {enum: [PATHS_ENUMERATED, OWNER_CONFIRMED_NONE]}
+          tenantRef: {type: string, minLength: 1}
+          objectRef: {type: string, minLength: 1}
+          artifactVersionRef: {type: string, minLength: 1}
+          readAuthorityRef: {type: string, minLength: 1}
+          readVersionRef: {type: string, minLength: 1}
+          pathRefs: {type: array, uniqueItems: true, items: {type: string, minLength: 1}}
+          evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+      holdAssessmentSchema:
+        type: object
+        additionalProperties: false
+        required: [disposition, tenantRef, objectRef, artifactVersionRef, readAuthorityRef, readVersionRef, holdRefs, evidenceRefs]
+        properties:
+          disposition: {enum: [ACTIVE, RELEASED, NOT_APPLICABLE, UNKNOWN]}
+          tenantRef: {type: string, minLength: 1}
+          objectRef: {type: string, minLength: 1}
+          artifactVersionRef: {type: string, minLength: 1}
+          readAuthorityRef: {type: string, minLength: 1}
+          readVersionRef: {type: string, minLength: 1}
+          holdRefs: {type: array, uniqueItems: true, items: {type: string, minLength: 1}}
+          evidenceRefs: {type: array, minItems: 1, items: {type: string, minLength: 1}}
+      restorePathSchema:
+        type: object
+        additionalProperties: false
+        required: [restorePathRef, restoreAuthorityRef, restoreRevisionRef, copyRefs]
+        properties:
+          restorePathRef: {type: string, minLength: 1}
+          restoreAuthorityRef: {type: string, minLength: 1}
+          restoreRevisionRef: {type: string, minLength: 1}
+          copyRefs: {type: array, uniqueItems: true, items: {type: string, minLength: 1}}
     externalProviderRule: A local delete or request acknowledgement never proves remote/provider-side erasure; absent an exact current provider receipt, retain the copy as PENDING or UNKNOWN and do not emit ERASURE_CONFIRMED.
     independentProofBoundary: This contract defines Media's required semantics. It does not establish that deployment storage inventories are complete, provider deletion is available, tombstones are durable, or legal retention requirements have been approved.
 ownerNormativeRuleRecords:

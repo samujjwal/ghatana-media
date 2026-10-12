@@ -125,7 +125,7 @@ function validateCapabilityIntentHandoff(capabilities, handoff, trustReview) {
     if (slotIds.some((id) => typeof id !== "string" || !id.trim()) || new Set(slotIds).size !== slotIds.length) return false;
     if (typedInputSlots.some(({ sourceType, cardinality, required: isRequired }) =>
       !isMeaningfulValue(sourceType)
-      || !["EXACTLY_ONE", "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES", "ZERO_OR_ONE", "CONDITIONALLY_ONE"].includes(cardinality)
+      || !["EXACTLY_ONE", "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES", "ZERO_OR_ONE", "ZERO_OR_MORE", "CONDITIONALLY_ONE"].includes(cardinality)
       || typeof isRequired !== "boolean")) return false;
     for (const field of ["actorRefs", "intentRefs", "outcomeRefs", "requirementIds", "inputArtifactTypes", "outputArtifactTypes", "preconditions", "constraints", "requiredAuthority", "rightsPrivacyImplications", "provenance", "qualificationDimensions", "supportedChannels", "explicitUnsupportedCases"]) {
       if (!Array.isArray(leaf[field]) || leaf[field].length === 0) return false;

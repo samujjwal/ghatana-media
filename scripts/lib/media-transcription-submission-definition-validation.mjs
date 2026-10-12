@@ -21,10 +21,12 @@ export function validateMediaTranscriptionSubmissionDefinition({ operations, act
     input.selectorField === 'requestMode' && JSON.stringify(input.commonRequiredFields) === JSON.stringify(['requestMode']),
   'submission and same-operation reconciliation must be mutually exclusive requestMode branches');
   add(JSON.stringify(input.submitRequiredFields) === JSON.stringify([
-    'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'languageIntent', 'profileId', 'profileVersion', 'profileConfigurationDigest', 'purpose', 'consentRef', 'rightsEvidenceRef', 'retentionPolicyRef', 'processingLocation',
+    'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'languageIntent', 'profileId', 'profileVersion', 'profileConfigurationDigest', 'timestamps', 'speakerDiarization', 'purposeRef', 'rightsEvidenceRefs',
   ]) && JSON.stringify(input.reconcileRequiredFields) === JSON.stringify(['requestId', 'requestFingerprint']) &&
     JSON.stringify(input.commonAllowedFields) === JSON.stringify(['requestMode']) &&
-    JSON.stringify(input.submitAllowedFields) === JSON.stringify(['requestMode', ...input.submitRequiredFields]) &&
+    JSON.stringify(input.submitAllowedFields) === JSON.stringify([
+      'requestMode', ...input.submitRequiredFields, 'consentRef', 'retentionPolicyRef', 'policyDecisionRef', 'languageHint',
+    ]) &&
     JSON.stringify(input.reconcileAllowedFields) === JSON.stringify(['requestMode', ...input.reconcileRequiredFields]) &&
     has(input.branchFieldRule, /exactly-the-allowedFields-for-selected-requestMode.*reject-unknown-branch-mixed-caller-identity-or-ignored-fields/u) &&
     has(input.submitReplayRule, /entire-submitRequiredFields-set.*never-replays-a-subset/u),
@@ -39,29 +41,34 @@ export function validateMediaTranscriptionSubmissionDefinition({ operations, act
   'language intent must be explicit and profile support cannot be inferred');
   const nullability = input.scalarNullability ?? {};
   add(has(nullability.optionalDelegationRef, /absent-is-canonical-null.*nonempty-trusted-delegation-reference/u) &&
-    has(nullability.consentRef, /explicit-null-only-when-current-authoritative-policy-says-consent-is-not-required/u) &&
+    has(nullability.consentRef, /optional-exact-reference-locator.*canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required/u) &&
     JSON.stringify(nullability.requiredNonemptyStrings) === JSON.stringify([
-      'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'profileId', 'profileVersion', 'purpose', 'rightsEvidenceRef', 'retentionPolicyRef', 'processingLocation',
+      'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'profileId', 'profileVersion', 'purposeRef',
     ]) && JSON.stringify(nullability.nonnullDigestFields) === JSON.stringify(['profileConfigurationDigest', 'authoritativeSourceContentDigest']) &&
-    has(nullability.rightsEvidenceRef, /required-nonnull-locator-resolved-to-current-authoritative-rights-decision/u) &&
+    has(nullability.rightsEvidenceRefs, /nonempty-exact-reference-array-resolved-to-current-authoritative-rights-decisions/u) &&
+    has(nullability.consentRef, /optional-exact-reference-locator.*canonical-null-only/u) &&
+    has(nullability.retentionPolicyRef, /optional-exact-reference-locator.*canonical-null-only/u) &&
+    has(nullability.policyDecisionRef, /optional-exact-reference-locator.*canonical-null-only/u) &&
+    nullability.rightsEvidenceRef === undefined &&
+    has(nullability.processingLocation, /never-caller-asserted.*current-trusted-policy/u) &&
     has(nullability.reconcileRequestFingerprint, /required-nonnull-lowercase-64-hex-SHA256/u) &&
     has(nullability.noOtherNulls, /reject-null-for-required-fields.*no-defaulting-or-ignored-payload-fields/u),
   'scalar nullability must be explicit; required identities and resolved rights evidence cannot be absent or caller-invented');
   add(has(input.profileIdentity, /exact-profileId-profileVersion-and-profileConfigurationDigest.*current-authoritative-profile-evidence/u),
     'profile identity/configuration must be explicit and qualification evidence current');
-  add(has(input.authorityReferences, /locators-or-intent-only.*authoritative-current-policy-owner/u),
+  add(has(input.authorityReferences, /exact-input-references-only.*optional-exact-locators.*authoritative-owner-resolution.*not-self-grants/u),
     'caller references must not be treated as rights, consent, or policy grants');
   add(JSON.stringify(fingerprint.fields) === JSON.stringify([
-    'tenantId', 'principalId', 'delegationRef', 'operationId', 'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'authoritativeSourceContentDigest', 'languageIntent', 'profileId', 'profileVersion', 'profileConfigurationDigest', 'purpose', 'consentRef', 'rightsEvidenceRef', 'retentionPolicyRef', 'processingLocation',
+    'tenantId', 'principalId', 'delegationRef', 'operationId', 'requestId', 'sourceArtifactId', 'sourceArtifactVersionId', 'authoritativeSourceContentDigest', 'languageIntent', 'profileId', 'profileVersion', 'profileConfigurationDigest', 'timestamps', 'speakerDiarization', 'purposeRef', 'rightsEvidenceRefs', 'consentRef', 'retentionPolicyRef', 'policyDecisionRef', 'resolvedProcessingLocation',
   ]) && fingerprint.algorithm === 'SHA-256' && fingerprint.encoding === 'compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence' &&
     JSON.stringify(fingerprint.languageIntentEncoding?.EXPLICIT) === JSON.stringify(['EXPLICIT', 'exact-languageTag']) &&
     JSON.stringify(fingerprint.languageIntentEncoding?.AUTO_REQUESTED) === JSON.stringify(['AUTO_REQUESTED']) &&
     has(fingerprint.languageIntentEncoding?.rule, /fixed-ordered-tuples-never-an-unordered-object/u) &&
-    has(fingerprint.scalarEncoding, /fixed-string-or-explicit-null-types-only.*lowercase-64-hex-SHA256/u) &&
+    has(fingerprint.scalarEncoding, /fixed-string-or-explicit-null-types-only.*ordered-array-of-exact-validated-references.*speakerDiarization-is-a-JSON-boolean-without-coercion.*lowercase-64-hex-SHA256/u) &&
     has(fingerprint.digestField, /lowercase-64-hex-SHA256/u) &&
     has(fingerprint.normalization, /preserve-exact-validated-string-values.*no-trimming-case-folding-default-insertion-or-map-order-dependence/u),
   'fingerprint must cover the exact full immutable request and trusted authority scope deterministically');
-  add(has(input.submitSnapshot, /before-first-dispatch.*retains-the-complete-immutable-submit-field-snapshot-and-computed-fingerprint.*never-depend-on-a-server-returned-fingerprint/u) &&
+  add(has(input.submitSnapshot, /before-first-dispatch.*retains-the-complete-immutable-submit-field-snapshot.*computed-fingerprint.*never-depend-on-a-server-returned-fingerprint/u) &&
     has(input.reconciliation, /read-only-selector-on-this-existing-operation.*current-scoped-receipt-read-authority.*missing-expired-or-unavailable.*UNKNOWN_OUTCOME/u),
   'host must retain the exact pre-dispatch request snapshot, and reconciliation must use current scoped read authority');
   add(JSON.stringify(op.context?.requestKeyScope) === JSON.stringify(['tenantId', 'principalId', 'operationId', 'requestId']) &&

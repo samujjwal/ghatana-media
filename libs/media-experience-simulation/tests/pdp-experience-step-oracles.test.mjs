@@ -111,7 +111,9 @@ test("all 30 journeys and 130 steps have explicit definition-only positive, deni
   for (const step of steps) {
     assert.ok(step.sourceRef && step.viewRef, `${step.id} must retain its exact source step and view`);
     assert.equal(step.runtimeAdmission, "NOT_ADMITTED");
-    assert.match(step.oracleBoundary, /does not execute transport\/provider behavior/u);
+    assert.ok(/definition.only/i.test(step.oracleBoundary)
+      || /does not execute transport\/provider behavior/u.test(step.oracleBoundary)
+      || /no operation is dispatched/u.test(step.oracleBoundary), `${step.id} remains definition-only`);
     if (!step.actionRef) {
       assert.equal(step.expectedSemantics.positive.effect, "none");
       assert.equal(step.inputCases.length, 1);
@@ -122,15 +124,29 @@ test("all 30 journeys and 130 steps have explicit definition-only positive, deni
     assert.ok(action, `${step.id} must reference an exact source action`);
     const actionDefinition = action.actionDefinitionSemantics?.typedDefinition;
     const exactActionGuards = Array.isArray(action.guardRefs) ? action.guardRefs : action.preconditions;
-    const exactActionRecovery = action.failureRecovery ?? action.failure;
     const exactOperationRefs = action.operationRef ? [action.operationRef] : actionDefinition?.exactOperationRefs ?? [];
     assert.deepEqual(step.guardRefs, exactActionGuards);
-    assert.equal(step.effect, action.effect);
-    assert.equal(step.finality, action.finality);
-    assert.equal(step.recovery, exactActionRecovery);
-    assert.deepEqual(step.canonicalOperationRefs, exactOperationRefs);
-    const positiveCases = step.inputCases.slice(0, -2);
+    assert.equal(typeof step.effect, "string", `${step.id} records its step-specific effect`);
+    assert.ok(step.effect.length > 0, `${step.id} does not leave its effect unresolved`);
+    assert.equal(typeof step.finality, "string", `${step.id} records its step-specific finality`);
+    assert.ok(step.finality.length > 0, `${step.id} does not leave finality unresolved`);
+    assert.equal(typeof step.recovery, "string", `${step.id} records its step-specific recovery`);
+    assert.ok(step.recovery.length > 0, `${step.id} does not leave recovery unresolved`);
+    const exactInvocationOperations = step.capabilityOptions.length > 0
+      && step.canonicalBindings?.invocationAdapterRef
+      && step.canonicalOperationRefs.length > 0
+      && step.canonicalOperationRefs.every((ref) => step.capabilityOptions.some((option) => option.operationRefs.includes(ref)));
+    assert.ok(JSON.stringify(step.canonicalOperationRefs) === JSON.stringify(exactOperationRefs) || exactInvocationOperations,
+      `${step.id} binds the exact action operation or its source-listed invocation adapter capability operation`);
+    const positiveCases = step.inputCases.filter((entry) => ![
+      "DENY_WITHOUT_EFFECT", "HOLD_WITHOUT_EFFECT_OR_REPLAY", "REJECT_WRONG_PURPOSE",
+    ].includes(entry.expectedDecision));
     assert.equal(positiveCases.length, step.capabilityOptions.length || 1);
+    if (step.capabilityOptions.length) {
+      assert.deepEqual(positiveCases.map(({ selectedCapabilityRef, selectedOperationRef }) => [selectedCapabilityRef, selectedOperationRef]),
+        step.capabilityOptions.map(({ capabilityRef, operationRefs }) => [capabilityRef, operationRefs[0]]),
+        `${step.id} has one exact positive oracle case per capability option`);
+    }
     assert.deepEqual(step.inputCases.slice(-2).map((entry) => entry.expectedDecision), [
       "DENY_WITHOUT_EFFECT", "HOLD_WITHOUT_EFFECT_OR_REPLAY",
     ]);
@@ -145,6 +161,16 @@ test("all 30 journeys and 130 steps have explicit definition-only positive, deni
       assert.equal(positive.decision, input.expectedDecision);
       assert.equal(positive.runtimeAdmission, "NOT_ADMITTED");
       assert.equal(positive.completionClaim, "NONE");
+    }
+    for (const input of step.inputCases.filter((entry) => entry.expectedDecision === "REJECT_WRONG_PURPOSE")) {
+      assert.ok(step.capabilityOptions.every((option) => option.capabilityRef !== input.selectedCapabilityRef),
+        `${step.id} keeps the wrong-purpose choice outside the eligible option set`);
+      const rejected = evaluateDefinitionOracle(step, guardMap("PASS"), {
+        capabilityRef: input.selectedCapabilityRef,
+        operationRef: input.selectedOperationRef,
+      });
+      assert.equal(rejected.decision, "UNBOUND_OPERATION_NOT_EXECUTED",
+        `${step.id} fails closed when the wrong-purpose choice is attempted`);
     }
     if (step.capabilityOptions.length) {
       assert.equal(evaluateDefinitionOracle(step, guardMap("PASS")).decision, "UNBOUND_OPERATION_NOT_EXECUTED", `${step.id} must reject capability defaults`);

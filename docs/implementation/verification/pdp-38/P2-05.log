@@ -1,46 +1,124 @@
 TAP version 13
-# Subtest: all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
-ok 1 - all 47 selected screen compositions resolve central patterns, layouts, components, actions, and responsive grammar
+# Subtest: missing admissions pass with zero exact identities proven
+ok 1 - missing admissions pass with zero exact identities proven
   ---
-  duration_ms: 130.954155
+  duration_ms: 10.671952
   type: 'test'
   ...
-# Subtest: the reusable composition validator is part of actual source validation and enforces reciprocal catalogs
-ok 2 - the reusable composition validator is part of actual source validation and enforces reciprocal catalogs
+# Subtest: the review host imports the exact candidate product-renderer export intended for production
+ok 2 - the review host imports the exact candidate product-renderer export intended for production
   ---
-  duration_ms: 1601.94009
+  duration_ms: 5.898913
   type: 'test'
   ...
-# Subtest: owner-defined PDP-3 actions participate in actual composition reference resolution
-ok 3 - owner-defined PDP-3 actions participate in actual composition reference resolution
+# Subtest: public Explorer render binding carries typed ports and the Tools Product viewport consumes it
+ok 3 - public Explorer render binding carries typed ports and the Tools Product viewport consumes it
   ---
-  duration_ms: 284.217774
+  duration_ms: 2.699039
   type: 'test'
   ...
-# Subtest: composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
-ok 4 - composition validation rejects stale patterns, missing keyboard semantics, and local responsive overrides
+# Subtest: admitted Web record passes only with identical public export and resolvable PDP-2 provenance
+ok 4 - admitted Web record passes only with identical public export and resolvable PDP-2 provenance
   ---
-  duration_ms: 61.434123
+  duration_ms: 4.84449
   type: 'test'
   ...
-# Subtest: every uncertain action retains a template-level unknown-finality recovery pattern
-ok 5 - every uncertain action retains a template-level unknown-finality recovery pattern
+# Subtest: rejects missing host identity and unresolved design provenance
+ok 5 - rejects missing host identity and unresolved design provenance
   ---
-  duration_ms: 211.275211
+  duration_ms: 4.674015
   type: 'test'
   ...
-# Subtest: central layout and accessibility rules retain critical facts at every density and color mode
-ok 6 - central layout and accessibility rules retain critical facts at every density and color mode
+# Subtest: rejects an admitted symbol absent from the representation export map
+ok 6 - rejects an admitted symbol absent from the representation export map
   ---
-  duration_ms: 15.334304
+  duration_ms: 5.221204
   type: 'test'
   ...
-1..6
-# tests 6
+# Subtest: rejects presentation-to-review dependencies and production scenario fixtures
+ok 7 - rejects presentation-to-review dependencies and production scenario fixtures
+  ---
+  duration_ms: 3.825935
+  type: 'test'
+  ...
+# Subtest: rejects deep source imports and package subpaths absent from exports
+ok 8 - rejects deep source imports and package subpaths absent from exports
+  ---
+  duration_ms: 2.803511
+  type: 'test'
+  ...
+# Subtest: validates declared screen-to-token design links and reports broken candidate links
+ok 9 - validates declared screen-to-token design links and reports broken candidate links
+  ---
+  duration_ms: 1.791215
+  type: 'test'
+  ...
+# Subtest: counts a resolved admitted screen design chain
+ok 10 - counts a resolved admitted screen design chain
+  ---
+  duration_ms: 8.722799
+  type: 'test'
+  ...
+# Subtest: an unresolved admitted screen design link is a hard failure
+ok 11 - an unresolved admitted screen design link is a hard failure
+  ---
+  duration_ms: 4.76798
+  type: 'test'
+  ...
+# Subtest: unresolved candidate screen design links remain nonfatal
+ok 12 - unresolved candidate screen design links remain nonfatal
+  ---
+  duration_ms: 4.413412
+  type: 'test'
+  ...
+# Subtest: a missing pattern nested under an admitted screen template is a hard failure
+ok 13 - a missing pattern nested under an admitted screen template is a hard failure
+  ---
+  duration_ms: 4.197144
+  type: 'test'
+  ...
+# Subtest: a missing pattern nested under a candidate screen template stays nonfatal
+ok 14 - a missing pattern nested under a candidate screen template stays nonfatal
+  ---
+  duration_ms: 3.348652
+  type: 'test'
+  ...
+# Subtest: a template pattern with an unresolved component source fails only when admitted
+ok 15 - a template pattern with an unresolved component source fails only when admitted
+  ---
+  duration_ms: 4.234392
+  type: 'test'
+  ...
+# Subtest: PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
+ok 16 - PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
+  ---
+  duration_ms: 3187.377619
+  type: 'test'
+  ...
+# Subtest: PDP-2 rejects stale, duplicate, and cross-domain chain references
+ok 17 - PDP-2 rejects stale, duplicate, and cross-domain chain references
+  ---
+  duration_ms: 2.648221
+  type: 'test'
+  ...
+# Subtest: PDP-2 reusable composition catalogs preserve the exact template/layout/recipe/pattern populations
+ok 18 - PDP-2 reusable composition catalogs preserve the exact template/layout/recipe/pattern populations
+  ---
+  duration_ms: 5.531193
+  type: 'test'
+  ...
+# Subtest: PDP-2 reusable composition validator rejects broken reciprocal and semantic chains
+ok 19 - PDP-2 reusable composition validator rejects broken reciprocal and semantic chains
+  ---
+  duration_ms: 53.342732
+  type: 'test'
+  ...
+1..19
+# tests 19
 # suites 0
-# pass 6
+# pass 19
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 3247.798897
+# duration_ms 3364.603035

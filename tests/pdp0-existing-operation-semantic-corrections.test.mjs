@@ -1,0 +1,193 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { resolve } from "node:path";
+
+const root = resolve(new URL("..", import.meta.url).pathname);
+const parse = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml").parse;
+const source = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"), "utf8"));
+const operations = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const byId = new Map(source.capabilities.map((row) => [row.id, row]));
+
+function owner(id) {
+  const row = byId.get(id);
+  assert.ok(row, `P0 capability exists: ${id}`);
+  return row.ownerDefinition;
+}
+
+function slotTypes(id) {
+  return owner(id).typedInputSlots.map(({ sourceType }) => sourceType);
+}
+
+function outputRequiredness(id) {
+  return Object.fromEntries(owner(id).successOutputs.map(({ artifactType, requiredOnSuccess }) => [artifactType, requiredOnSuccess]));
+}
+
+const correctionReviewPath = "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json";
+const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+
+test("source-asset attachment names the exact source and project versions", () => {
+  const id = "media.project.source-asset.attach";
+  assert.deepEqual(slotTypes(id), ["user-intent", "exact-versioned-project", "source-asset-with-immutable-version"]);
+  assert.deepEqual(byId.get(id).inputArtifactTypes, slotTypes(id));
+  assert.match(owner(id).semanticOutcomeContract.result, /exact immutable version of one source asset/u);
+  assert.match(owner(id).semanticOutcomeContract.result, /source-asset membership of the selected project version/u);
+});
+
+test("artifact derivation types source version, profile version, output type, purpose, and rights", () => {
+  const id = "media.artifact.derive";
+  assert.deepEqual(slotTypes(id), [
+    "exact-source-versioned-media-or-project-reference",
+    "transformation-profile-identity-version-and-digest",
+    "requested-output-artifact-type-media-type-and-byte-budget",
+    "purpose-and-rights-decision-context",
+  ]);
+  assert.deepEqual(byId.get(id).inputArtifactTypes, slotTypes(id));
+  assert.match(owner(id).semanticOutcomeContract.result, /selected transformation-profile identity\/version\/configuration digest/u);
+  assert.match(owner(id).semanticOutcomeContract.result, /configuration digest/u);
+  assert.match(owner(id).semanticOutcomeContract.result, /requested output artifact type\/media type\/byte budget/u);
+});
+
+test("output registration types candidate lineage, digest, media metadata, policy, and optional project revision", () => {
+  const id = "media.artifact.output.register";
+  assert.deepEqual(slotTypes(id), [
+    "exact-source-version-lineage-set",
+    "rights-and-retention-context",
+    "output-candidate-with-lineage",
+    "content-digest",
+    "media-type-and-byte-length",
+    "policy-decision-reference",
+    "authorized-target-workspace",
+    "optional-exact-project-version",
+  ]);
+  assert.deepEqual(byId.get(id).inputArtifactTypes, slotTypes(id));
+  const sourceLineage = owner(id).typedInputSlots[0];
+  assert.equal(sourceLineage.cardinality, "ZERO_OR_MORE");
+  assert.equal(sourceLineage.required, true);
+  assert.equal(sourceLineage.emptyDisposition, "EXPLICIT_SOURCE_FREE_OUTPUT_GENERATED_FROM_REQUEST");
+  assert.deepEqual(owner(id).typedInputSlots.slice(-2).map(({ cardinality, required }) => [cardinality, required]), [
+    ["EXACTLY_ONE", true],
+    ["ZERO_OR_ONE", false],
+  ]);
+  const meaning = owner(id).semanticOutcomeContract.result;
+  for (const term of ["Candidate lineage", "Content digest", "media type", "byte length", "policy decision", "authorized target workspace", "Workspace-only registration may omit the exact project version", "project-targeted registration requires it for stale-version checking", "source-free registration does not require a source artifact"]) assert.ok(meaning.includes(term));
+  assert.match(owner(id).guards.preconditions.join(" "), /If registering into a project, the exact project version is supplied and compared to prevent stale registration/u);
+});
+
+test("conditional upload, import, inspection, and transcription outputs are not guaranteed on every success", () => {
+  const optional = {
+    "media.artifact.upload": [
+      "verification-job-reference-only-if-issued-by-owner-contract",
+      "artifact-version-reference-only-after-owner-confirmed-registration",
+    ],
+    "media.artifact.upload.resume": ["verification-reference-only-if-issued-by-owner-contract"],
+    "media.artifact.import": [
+      "artifact-version-reference-only-after-owner-confirmed-registration",
+      "verification-or-quarantine-state-when-issued",
+    ],
+    "media.artifact.inspect": ["rights-retention-and-provenance-references-when-authorized"],
+    "media.speech.transcription.file": [
+      "transcript-draft-with-source-version-and-timebase-if-produced",
+      "language-and-recognition-evidence-when-provided",
+    ],
+  };
+  for (const [id, conditionalOutputs] of Object.entries(optional)) {
+    const requiredness = outputRequiredness(id);
+    for (const artifactType of conditionalOutputs) assert.equal(requiredness[artifactType], false, `${id} ${artifactType} is conditional`);
+  }
+  assert.equal(outputRequiredness("media.artifact.upload")["stable-uploadId-and-owner-acknowledged-transfer-state"], true);
+  assert.equal(outputRequiredness("media.artifact.import")["import-observation-and-source-resolution-evidence"], true);
+  assert.equal(outputRequiredness("media.artifact.inspect")["authorized-artifact-version-summary"], true);
+  assert.equal(outputRequiredness("media.speech.transcription.file")["owner-issued-transcription-job-reference"], true);
+
+  const review = JSON.parse(readFileSync(resolve(root, correctionReviewPath), "utf8"));
+  const capabilityBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"));
+  const qualityPolicyBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"));
+  const channelReviewBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml"));
+  const profileSemanticsBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/profile-semantics.yaml"));
+  assert.equal(review.decisionRef, ".product-experience/decision-log.md#PXD-142");
+  assert.equal(review.decisionRefStatus, "APPROVED_BOUNDED_CURRENT_SOURCE_CORRECTION; see .product-experience/decision-log.md#PXD-142");
+  assert.equal(review.sources.capabilities.currentSha256, "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+    "PXD-142's capability fingerprint remains a historical source pin after the separate PXD-153 reopen");
+  assert.equal(review.sources.qualityPolicy.currentSha256, sha256(qualityPolicyBytes));
+  assert.equal(review.sources.channelApplicability.currentSha256, sha256(channelReviewBytes));
+  assert.equal(review.sources.profileSemantics.currentSha256, sha256(profileSemanticsBytes));
+  assert.deepEqual(review.typedInputCorrections.map(({ capabilityId }) => capabilityId).sort(), [
+    "media.artifact.derive",
+    "media.artifact.output.register",
+    "media.project.source-asset.attach",
+  ]);
+  assert.equal(review.optionalSuccessOutputCorrections.length, 5);
+  assert.ok(review.optionalSuccessOutputCorrections.every(({ outputs }) => outputs.every(({ requiredOnSuccess }) => requiredOnSuccess === false)));
+  const inputSlots = source.capabilities.flatMap(({ ownerDefinition }) => ownerDefinition.typedInputSlots);
+  const shapeIdentity = (slot) => JSON.stringify({
+    sourceType: slot.sourceType,
+    cardinality: slot.cardinality,
+    required: slot.required,
+    alternatives: slot.alternatives,
+    condition: slot.condition,
+  });
+  assert.deepEqual(review.inputShapePopulationProjection.current, {
+    capabilityCount: 462,
+    slotCount: inputSlots.length,
+    distinctSharedShapeCount: new Set(inputSlots.map(shapeIdentity)).size,
+  });
+  assert.deepEqual(review.inputShapePopulationProjection.prior, {
+    capabilityCount: 462,
+    slotCount: 930,
+    distinctSharedShapeCount: 129,
+  });
+  assert.equal(review.inputShapePopulationProjection.identityPopulationUnchanged, true);
+  assert.ok(review.regressionSources.includes("tests/pdp0-development-handoff.test.mjs"));
+  assert.ok(review.regressionSources.includes("tests/pdp0-bounded-resource-admission.test.mjs"));
+  assert.equal(review.qualityAndChannelDecisionBoundary.qualityApplicabilityDecisionsChanged, false);
+  assert.equal(review.qualityAndChannelDecisionBoundary.channelApplicabilityDecisionsChanged, false);
+  assert.ok(review.qualityAndChannelDecisionBoundary.sourceProjectionChanges.length > 0);
+  assert.equal(review.developmentEvidence.focusedTestStatus, "PASS");
+  assert.equal(review.developmentEvidence.focusedTestCount, 62);
+  assert.equal(review.developmentEvidence.phaseGateStatus, "PASS");
+  assert.equal(review.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(review.acceptanceEffect, "none; current-source review and regression evidence only");
+});
+
+test("PXD-153 aligns upload byte-length minimum with the positive begin-upload size", () => {
+  const capabilityBytes = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/capabilities.yaml"));
+  const decisionText = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
+  const currentReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"), "utf8"));
+  const upload = owner("media.artifact.upload");
+  const parameterSchema = upload.parameterSchema;
+  const expectedSize = operations.individualOperationContracts.records
+    .find(({ id }) => id === "media.operation-slice.begin-upload")
+    .ownerWireSchema.requestSchema.properties.expectedSizeBytes;
+  const operation = operations.individualOperationContracts.records
+    .find(({ id }) => id === "media.operation-slice.begin-upload");
+
+  assert.equal(parameterSchema.properties.declaredByteLength.minimum, 1);
+  assert.equal(parameterSchema.properties.declaredByteLength.maximum, 2147483648);
+  assert.equal(parameterSchema.emptyDisposition, "NOT_EMPTY");
+  assert.equal(expectedSize.minimum, 1);
+  assert.equal(expectedSize.maximum, 2147483648);
+  assert.match(operation.sourceBounds, /positive expected size/u);
+  assert.equal(currentReview.decisionRef, ".product-experience/decision-log.md#PXD-153");
+  assert.match(decisionText, /### PXD-153 — Reopen only the upload declared-byte-length minimum/u);
+  assert.match(decisionText, /supersedes only PXD-142's historical interpretation/u);
+  assert.equal(currentReview.source.currentSha256, sha256(capabilityBytes));
+  assert.equal(currentReview.correction.p0FieldRef,
+    ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.upload/ownerDefinition/parameterSchema/properties/declaredByteLength");
+  assert.equal(currentReview.correction.oldScalar.minimum, 0);
+  assert.equal(currentReview.correction.newScalar.minimum, 1);
+  assert.equal(currentReview.correction.newScalar.maximum, parameterSchema.properties.declaredByteLength.maximum);
+  assert.equal(currentReview.correction.emptyDisposition, "NOT_EMPTY");
+  assert.equal(currentReview.p1Evidence.expectedSizeBytesMinimum, expectedSize.minimum);
+  assert.equal(currentReview.p1Evidence.expectedSizeBytesMaximum, expectedSize.maximum);
+  assert.equal(currentReview.p1Evidence.preservedBoundary.maximumRequestBytes, 65536);
+  assert.equal(currentReview.p1Evidence.preservedBoundary.runtimeAvailability, "NOT_ADMITTED");
+  assert.equal(currentReview.p1Evidence.preservedBoundary.qualification, "NOT_ESTABLISHED");
+  assert.equal(currentReview.regressionEvidence.status, "PASS");
+  assert.equal(currentReview.regressionEvidence.tests, 1);
+  assert.equal(currentReview.regressionEvidence.passed, 1);
+  assert.equal(currentReview.regressionEvidence.failed, 0);
+  assert.equal(currentReview.acceptanceEffect, "none; bounded current-source correction evidence only");
+});

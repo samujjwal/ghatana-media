@@ -1,6 +1,6 @@
 schemaVersion: media.application-channel-registry.v1
 productId: media
-status: selected-lane-first-use-and-upload-proposals; P0-010-and-P1-006-pending
+status: selected-PDP3-definition-channels-bound; transport-parity-and-runtime-admission-open
 source: .product-experience/pdp-0-product-truth/applications-channels.yaml
 laneRef: .product-experience/lanes/transcribe-and-correct-captions.yaml
 scopeRule: This registry covers the selected caption lane only; unlisted P0 channels remain in full scope with no support or admission implied.
@@ -20,6 +20,108 @@ channels:
   - channelRef: media.channel.http-api
     role: compatible-machine-readable-project-and-artifact-lifecycle-actions
     support: logical-operation-only; exact-route-version-and-consumer-parity-pending-GAP-05
+machineChannelSemantics:
+  status: DEFINITION_CONTRACTS_ONLY; transport-parity-and-runtime-admission-open
+  contractRule: >-
+    An operation name is not an endpoint binding. Every mapped action links to its exact Media action definition and, when one
+    exists, the existing owner action wire contract. Unbound operation, route, RPC, or SDK identities remain null or unresolved;
+    do not synthesize transport identities. Request, result, error, authority, finality, unknown-outcome, and retry semantics are
+    inherited from those source records and the transport-specific observation below.
+  channels:
+    - channelRef: media.channel.http-api
+      operationInventoryRef: .product-experience/pdp-3-product-experience/api/api-registry.yaml#operations
+      actionMappingRef: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml#mappings
+      requestResultErrorRef: .product-experience/pdp-3-product-experience/api/operations/
+      semantics: Exact OpenAPI/route-manifest identities are observations; only individually source-crosslinked PDP-1 operation slices carry bounded product meaning. Preserve observed status/schema error envelopes. An unavailable or ambiguous effect stays unknown and is inspected using the same resource/request identity.
+      authority: Trusted tenant/principal and current owner policy are evaluated at the effect boundary; caller-supplied actor labels or identifiers are not authority.
+      finality: HTTP success status is transport acknowledgement only unless the bound operation explicitly defines a stronger result; artifact verification, job completion, cancellation, and delivery finality remain separate.
+      retry: No automatic replay after an ambiguous effect. Reconcile or inspect the same identity; replay only when the exact owner contract permits it.
+      routeBinding: EXACT_SOURCE_INVENTORY; per-action logical binding remains as recorded; no new endpoint
+      definitionFixtureRefs:
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.upload-interrupted
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.upload-verified-available
+      fixtureDisposition: scenario-definitions-only; no-HTTP-adapter-execution-fixture
+      runtimeAdmission: NOT_ADMITTED
+    - channelRef: media.channel.grpc-api
+      operationInventoryRef: .product-experience/pdp-3-product-experience/grpc/service-registry.yaml#rpcs
+      actionMappingRef: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml#mappings
+      requestResultErrorRef: .product-experience/pdp-3-product-experience/grpc/operations/
+      semantics: Protobuf service and message identities are exact source observations. Proposed logical-operation matches do not establish identical request, result, authority, or finality semantics; unresolved RPC mappings remain unresolved.
+      authority: Source operation preconditions and trusted host context govern; protobuf message fields alone grant no authority.
+      finality: A response is interpreted only under a source-backed operation binding; provider execution and completed output are not inferred from submission acknowledgement.
+      retry: Unknown effect blocks another dispatch; use an exact source-defined observation or outcome-check operation where available, otherwise retain UNKNOWN.
+      routeBinding: SOURCE_RPC_INVENTORY; per-action exact semantic crosswalk not established
+      definitionFixtureRefs:
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.job-outcome-unknown
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.transcript-ready
+      fixtureDisposition: scenario-definitions-only; no-gRPC-adapter-execution-fixture
+      runtimeAdmission: NOT_ADMITTED
+    - channelRef: media.channel.sdk
+      operationInventoryRef: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#operations
+      actionMappingRef: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml#mappings
+      requestResultErrorRef: libs/audio-video-client/src/operations.ts
+      semantics: Preserve exact public method and DTO identities. Apply only bounded method-level source contracts; legacy or unresolved methods are not equated with a canonical Media action by name similarity.
+      authority: Immutable configured tenant/principal is host context, not a caller override; recheck current operation authority before each effect.
+      finality: Preserve the method's documented result/finality distinction, including upload receipt versus availability and accepted job versus completed job.
+      retry: Keep same idempotency/request identity and honor method-specific unknown-outcome rules; never automatically replay an ambiguous write.
+      routeBinding: EXACT_ONLY_WHERE_SDK_SOURCE_CROSSWALK_EXISTS; remaining parity unresolved
+      definitionFixtureRefs:
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.job-outcome-unknown
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.transcript-ready
+      fixtureDisposition: scenario-definitions-only; no-published-SDK-consumer-fixture
+      runtimeAdmission: NOT_ADMITTED
+    - channelRef: media.channel.cli
+      operationInventoryRef: .product-experience/pdp-3-product-experience/cli/command-registry.yaml#commands
+      actionMappingRef: .product-experience/pdp-3-product-experience/cli/command-registry.yaml#commands/@actionBinding
+      requestResultErrorRef: libs/media-experience-simulation/src/cli.ts
+      semantics: The 11 listed commands execute only against deterministic synthetic fixture state. Strict option parsing yields INVALID_ARGUMENT before action execution; action results are projections of shared simulation state.
+      authority: CLI inputs select fixture identity and typed arguments; they do not establish tenant, principal, rights, or current production authority.
+      finality: Simulator state/effects are marked synthetic and do not establish remote effect finality.
+      retry: Unknown outcome requires same-job or same-upload inspection; no blind replay. Retry eligibility never dispatches from unknown.
+      routeBinding: FIXTURE_COMMANDS_ONLY; no production CLI admission
+      definitionFixtureRefs:
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.job-outcome-unknown
+        - .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records/@scenarioRef=media.scenario.transcript-ready
+      fixtureDisposition: implemented-local-synthetic-command-simulator-only
+      runtimeAdmission: NOT_ADMITTED
+    - channelRef: media.channel.agent
+      operationInventoryRef: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#tools
+      actionMappingRef: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#tools/@operationBinding
+      requestResultErrorRef: .product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#contractObservationPolicy
+      semantics: Registered handler identities are observations only. Each tool envelope must bind the exact tool/version/action class; handler validation and delegate output bounds do not establish canonical operation meaning or an admitted execution runtime.
+      authority: Trusted host and delegate enforce tenant, principal, current policy, rights, consent, and source scope; tool arguments and agent identity do not grant authority.
+      finality: Preserve delegate result and failure channel; post-dispatch effect ambiguity remains OUTCOME_UNKNOWN. Do not infer durable effect from handler completion alone.
+      retry: Never blindly replay effectful calls after timeout, malformed output, or uncertain delegate completion; reconcile the same request only under a source-defined operation contract.
+      routeBinding: OBSERVED_HANDLER_INVENTORY; operation parity unresolved
+      definitionFixtureRefs: []
+      fixtureDisposition: no-scenario-channel-reference-exists-for-agent-tools-in-the-31-fixture-population
+      runtimeAdmission: NOT_ADMITTED
+eventContractBoundary:
+  sourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml
+  status: OBSERVED_POPULATIONS_ONLY; CANONICAL_EVENT_TAXONOMY_AND_DELIVERY_CONTRACT_NOT_ADMITTED
+  operation: Existing event identities are notifications/observations, not request commands; use the source operation/action definition for the originating effect.
+  request: Event envelope and publisher fields are source-observed only; no canonical producer request is inferred.
+  result: Publication is a separate observation; it does not change the originating Media operation result or domain finality.
+  errors: Preserve publisher failure/skip observations; do not reinterpret them as owner-operation failure or success.
+  authority: Event receipt is not a grant. Consumer must perform a fresh scoped read under current trusted identity and policy.
+  finality: Ordering, durable delivery, replay, consumer acknowledgement, and delivery cardinality remain NOT_ESTABLISHED.
+  retry: No consumer or publisher retry rule is inferred where source contracts do not define it; uncertain publication remains unconfirmed.
+  runtimeAdmission: NOT_ADMITTED
+otherPdp0Channels:
+  - channelRef: media.channel.api
+    disposition: PROTOCOL_NEUTRAL_DEFINITION; no-independent-wire-operation-invented
+    sourceRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.api
+  - channelRef: media.channel.embedded
+    disposition: NO_SCENARIO_BINDING_IN_THE_31_FIXTURE_POPULATION
+    sourceRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.embedded
+  - channelRef: media.channel.product-integration
+    disposition: NO_SCENARIO_BINDING_IN_THE_31_FIXTURE_POPULATION
+    sourceRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.product-integration
+  - channelRef: media.channel.legacy-desktop
+    disposition: ARCHIVED_SOURCE_ONLY; NOT_A_CURRENT_APPLICATION_CHANNEL_BINDING
+    sourceRef: .product-experience/pdp-0-product-truth/applications-channels.yaml#channels/@id=media.channel.legacy-desktop
+eventContractIsChannel: false
+eventContractReason: Events are observations/delivery contracts attached to operation outcomes; they are not an independent application channel or substitute for an operation result.
 crossChannelInvariants:
   - The same source version, job identity, transcript/caption version, authority outcome, and finality are represented everywhere.
   - A channel may have different controls; it may not make an unsafe action safe or hide uncertainty.

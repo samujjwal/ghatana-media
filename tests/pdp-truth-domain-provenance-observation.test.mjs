@@ -10,6 +10,7 @@ const { parse } = require("yaml");
 const Ajv = require("ajv").default;
 const addFormats = require("ajv-formats");
 const operations = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const provenance = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/provenance.yaml"), "utf8"));
 const operationId = "media.operation-slice.inspect-provenance";
 const operation = operations.ownerDefinedOperationContracts.records.find(({ id }) => id === operationId);
 const schema = operation.ownerWireSchema.resultSchema;
@@ -28,6 +29,13 @@ const success = {
     artifactType: "minimized-provenance-record-or-disclosure",
     payload: {
       kind: "lineage-observation",
+      requestBinding: {
+        subject: {
+          artifactType: "artifact-or-execution-reference",
+          payload: { kind: "artifact", artifactId: "artifact-9", versionId: "artifact-version-9" },
+        },
+        resolutionDisposition: "ARTIFACT_VERSION",
+      },
       subjectArtifactVersionId: "artifact-version-9",
       scopeRef: ".product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.provenance-manifest",
       completeness: "COMPLETE_FOR_CALLER_VISIBLE_SCOPE",
@@ -48,7 +56,7 @@ test("provenance observation schema carries exact caller-scoped version, lineage
   assert.ok(operation, "the canonical provenance query exists");
   assert.equal(operation.operationKind, "QUERY");
   assert.equal(operation.ownerWireSchema.requestSchema.additionalProperties, false);
-  assert.deepEqual(operation.ownerWireSchema.requestSchema.required, ["subjectArtifactVersionId"]);
+  assert.deepEqual(operation.ownerWireSchema.requestSchema.required, ["subject"]);
   assert.equal(validate(success), true, JSON.stringify(validate.errors));
 
   const missingEdgeIdentity = structuredClone(success);
@@ -58,7 +66,8 @@ test("provenance observation schema carries exact caller-scoped version, lineage
   const wrongSubject = structuredClone(success);
   wrongSubject.outputs[0].payload.subjectArtifactVersionId = "another-version";
   assert.equal(validate(wrongSubject), true, "structural schema cannot assert equality to request; caller oracle must bind exact requested subject");
-  assert.equal(operation.requestResultBinding.subjectArtifactVersionId, "EXACT_REQUEST_SUBJECT_ARTIFACT_VERSION_ID");
+  assert.match(operation.requestResultBinding.subjectArtifactVersionId, /EXACT_REQUEST_ARTIFACT_VERSION_ID_ON_ARTIFACT_BRANCH/u);
+  assert.match(operation.requestResultBinding.subjectArtifactVersionId, /ABSENT_ON_EXECUTION_REFERENCE_BRANCH/u);
 
   const falseGlobalCompleteness = structuredClone(success);
   falseGlobalCompleteness.outputs[0].payload.completeness = "COMPLETE_FOR_CALLER_VISIBLE_SCOPE";
@@ -87,4 +96,32 @@ test("provenance observation schema carries exact caller-scoped version, lineage
     uncertainty: "AUTHORITY_READ_UNAVAILABLE",
   };
   assert.equal(validate(unknown), true, JSON.stringify(validate.errors));
+
+  const unresolvedExecution = structuredClone(success);
+  unresolvedExecution.outputs[0].payload = {
+    kind: "resolution-unknown",
+    requestBinding: {
+      subject: {
+        artifactType: "artifact-or-execution-reference",
+        payload: { kind: "execution-reference", reference: "opaque:unresolved" },
+      },
+      resolutionDisposition: "UNKNOWN",
+    },
+    accessDisposition: "UNKNOWN",
+    resolutionReason: "UNRESOLVED_OR_NOT_VISIBLE",
+  };
+  assert.equal(validate(unresolvedExecution), true, "unresolved execution lookup is a completed non-disclosing SUCCEEDED read");
+});
+
+test("lineage distinguishes source-free authorship from consumed source versions", () => {
+  const boundary = provenance.ownerDefinedLineageBoundary;
+  assert.equal(boundary.authority, ".product-experience/pdp-0-product-truth/capabilities.yaml");
+  assert.match(boundary.sourceOriginRule, /Record authored intent for source-free creation/u);
+  assert.match(boundary.sourceOriginRule, /exact consumed artifact version/u);
+  assert.match(boundary.sourceOriginRule, /optional reference does not establish source derivation/u);
+  assert.match(boundary.sourceOriginRule, /unknown linkage stays UNKNOWN/u);
+  assert.match(boundary.sourceFreeRule, /Do not fabricate a source artifact or version/u);
+  assert.match(boundary.derivedRule, /exact immutable artifact version/u);
+  assert.ok(boundary.nonClaims.includes("lineage-does-not-prove-rights-consent-quality-or-identity"));
+  assert.match(boundary.scopeStatus, /runtime observation.*not claimed/u);
 });

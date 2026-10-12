@@ -42,6 +42,7 @@ class MediaLifecyclePublisherTest {
 
         assertThat(idempotencyKey).hasValue("media:media.job.completed:job-1:3");
         assertThat(body.get())
+                .contains("\"eventVersion\":\"1.0.0\"")
                 .contains("\"source\":\"media\"")
                 .contains("\"aggregateId\":\"job-1\"")
                 .doesNotContain("rawMedia", "payloadBase64", "transcript");

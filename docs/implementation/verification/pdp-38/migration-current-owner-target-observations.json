@@ -11,9 +11,26 @@
       "additionalOwnerRuleRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/offlineEntitlementWindow",
       "additionalRuleId": "media.policy.offline-entitlement-validity-window.v1",
       "meaning": "The current policy subtree adds an owner-defined offline entitlement validity boundary. It denies new protected work when the exact current entitlement tuple or trusted time/authority/version evidence is absent, stale, malformed, revoked, expired, or outside the half-open validity window. This addition does not authorize automatic model downloads or silent/cloud fallback; the existing DENY acquisition and fallback clauses remain intact.",
+      "additionalOwnerRules": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/offlineEntitlementWindow",
+          "id": "media.policy.offline-entitlement-validity-window.v1",
+          "valueSha256": "69031c819ccc1104a9993f77f72ff726e9e8ad7b9ec3f95fa896f9b68b4be70f",
+          "meaning": "Require an exact current offline entitlement tuple and trusted time, authority, and version evidence; missing or stale evidence denies protected work.",
+          "disposition": "SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/fallback/compatibilityDecisionRule",
+          "id": "media.policy.fallback-compatibility-decision.v1",
+          "valueSha256": "3353bdeec23a440287b9be4a2b41261c4a423537ac4beba3e616c32e265c703a",
+          "meaning": "Require the exact authorized alternate and typed compatibility facts, recheck policy before its effect boundary, and deny unknown compatibility without silent substitution.",
+          "disposition": "SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW"
+        }
+      ],
       "claimParityBasis": "The source claim concerns automatic acquisition and cloud fallback. The current automaticAcquisition.default remains DENY, unavailableBehavior forbids automatic model download, fallback.default remains DENY_SILENT_FALLBACK, localOnly forbids cloud/provider egress, and otherProfiles still require an exact owner-approved alternate plus current policy checks. Existing negative predicates remain regression-tested. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
       "disposition": "CURRENT_TARGET_EXTENDED_BY_UNRELATED_OWNER_RULE; CLAIM_PARITY_RETAINED",
-      "acceptanceEffect": "none"
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
     },
     {
       "claimId": "MPSEM-0034-C002",
@@ -25,6 +42,18 @@
       "claimParityBasis": "The exact current owner rule states that a versioned workflow definition contains declared stages, typed parameters, policy references and dependency edges; each invocation has a separately identified run; run status does not rewrite the definition; parameters and policy do not stand in for run state; and a graph alone grants no dispatch authority or runtime execution. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
       "disposition": "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED",
       "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0303-C002",
+      "targetRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+      "historicalTargetTextSha256": "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd",
+      "currentTargetValueSha256": "d5f6f00dfde6fb8eaef4ea064b65016216fc5db44791b627adcf5dceb1c483e0",
+      "sourceText": "define index base and idempotent part replay |",
+      "claimParityBasis": "The exact current operation retains zero-based contiguous chunk indexes, accepts a new chunk only at the current nextChunkIndex, requires a persisted index/length/digest receipt for repeated prior indexes, rejects conflicting content without a second write, prohibits automatic replay after an unknown outcome, and keeps a chunk acknowledgement from entering VERIFYING or AVAILABLE. Current owner semantics additionally bind the upload session to the currently authorized workspace scope and require exact versioned acknowledgement ranges in a successful wire result. Those additions do not alter the claimed indexing and replay predicates, do not authorize automatic retries, and do not establish implementation, qualification, or runtime admission.",
+      "disposition": "CURRENT_TARGET_EXTENDED_WITH_WORKSPACE_SCOPE_AND_TYPED_ACKNOWLEDGEMENT; CLAIM_PARITY_REVIEWED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0303-C002",
+      "runtimeAdmission": "NOT_ADMITTED"
     },
     {
       "claimId": "MPSEM-0042-C003",
@@ -69,6 +98,17 @@
       "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
       "acceptanceEffect": "none",
       "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json#/records/@claimId=MPSEM-0291-C009"
+    },
+    {
+      "claimId": "MPSEM-0291-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#fallbackSemantics",
+      "historicalTargetTextSha256": "f03734b6b377ede43583d36e3cc1b147d980bd5bbdfea1c2c99f7f300ddf50b1",
+      "currentTargetValueSha256": "4299b95621c00c9d46a7f3ed56304c081c230c414694e3804f67aba17f7d27d2",
+      "sourceText": "allowed frame/duration change",
+      "claimParityBasis": "The current fallbackSemantics continues to deny frame-rate and duration changes by default. Any permitted change requires a versioned owner authorization with explicit allowed rates, maximum temporal deviation, minimum and maximum duration, and edit/narrative disposition. The additional authority and validity fields keep permission fail-closed and do not imply a runtime fallback engine or admission.",
+      "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0291-C003"
     },
     {
       "claimId": "MPSEM-0296-C005",
@@ -144,7 +184,8 @@
       "sourceText": "It does not mandate integrating them all.",
       "claimParityBasis": "Current externalStackSelectionRule explicitly says candidate selection is not an integration mandate and says not to integrate every listed package or engine. This exact owner text directly covers the source clause; no package is thereby admitted. No task/phase acceptance, implementation, qualification, or runtime admission is asserted.",
       "disposition": "CURRENT_TARGET_VALUE_REHASHED_AFTER_CLAIM_SCOPED_SEMANTIC_REVIEW; CLAIM_PARITY_RETAINED",
-      "acceptanceEffect": "none"
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
     },
     {
       "claimId": "MPSEM-1259-C001-S13",

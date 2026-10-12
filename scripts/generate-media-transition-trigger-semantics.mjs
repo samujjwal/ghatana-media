@@ -5,6 +5,7 @@ const parse = createRequire(new URL("../../ghatana-tools/package.json", import.m
 const stringify = createRequire(new URL("../../ghatana-tools/package.json", import.meta.url))("yaml").stringify;
 const p1 = ".product-experience/pdp-1-domain-data";
 const p3 = ".product-experience/pdp-3-product-experience";
+const retryPolicyObservationRef = `${p1}/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1`;
 const transitionPath = `${p1}/transitions.yaml`;
 const transitionsText = readFileSync(transitionPath, "utf8");
 const refresh = process.argv.includes("--refresh-trailing-owner-collection");
@@ -103,6 +104,7 @@ function expressionFor(node, sourcePrefix, path, leaves) {
   }
   if (node?.all) return { all: node.all.map((child, index) => expressionFor(child, sourcePrefix, `${path}/all/${index}`, leaves)) };
   if (node?.any) return { any: node.any.map((child, index) => expressionFor(child, sourcePrefix, `${path}/any/${index}`, leaves)) };
+  if (node?.not) return { not: expressionFor(node.not, sourcePrefix, `${path}/not`, leaves) };
   throw new Error(`Unsupported guard expression at ${sourcePrefix}/${path}`);
 }
 
@@ -369,10 +371,17 @@ function causalTriggerDefinition({ transition, edge, edgeToStateRef, edgeFromSta
     const receiptRequired = [...receipt.required, ...(requiresCurrentFence ? ["attemptRef", "leaseRef", "leaseRevisionRef", "fencingToken"] : [])];
     const receiptSchema = ownerReceiptSchema({ sourceRef: receipt.ref, subjectField: "jobId", subjectVersionField: "jobRevisionRef", sourceStateField: "sourceStateRef", targetStateField: "targetStateRef", sourceStateRef: edgeFromStateRef, targetStateRef: edgeToStateRef, requestFingerprintField: "requestFingerprint", fields: receiptFields, required: receiptRequired });
     const required = ["tenantId", "jobId", "jobRevisionRef", "requestFingerprint", "sourceStateRef", "targetStateRef", "occurredAt", "leaseEvidenceDisposition", "ownerReceipt", ...(requiresCurrentFence ? ["attemptId", "attemptRecordRef", "attemptStateRef", "workerId", "leaseRef", "leaseRevisionRef", "fencingToken", "leaseExpiresAt"] : []), ...receipt.required];
+    const retryTerminalTriggerRule = edge.to === "CANCELLED"
+      ? "CANCELLED requires exact current observed state evidence for the terminal target and confirmed no-new-attempt outcome; it is a finality observation, not a cancel command."
+      : edge.to === "FAILED"
+        ? "FAILED requires exact current observed state evidence and a terminal failure observation with definitive pre-dispatch finality."
+        : "OUTCOME_UNKNOWN requires exact current observed state evidence for unresolved retry-request outcome; it records uncertainty and never authorizes replay.";
     return {
       id: `media.transition-trigger-definition.${transition.id.toLowerCase().replace(/[^a-z0-9]+/gu, "-")}.${edge.to.toLowerCase().replace(/[^a-z0-9]+/gu, "-")}.v1`,
       triggerKind: `TYPED_FENCED_JOB_ATTEMPT_${edge.to}`,
-      triggerRule: `The ${transition.id} edge to ${edge.to} requires the exact job/attempt/lease tuple, current unexpired fencing lease, exact source and target state refs, and the state-specific owner receipt fields. The target state is derived from these conditions and evidence; a supplied supported boolean cannot trigger the edge.`,
+      triggerRule: retryNotClaimed
+        ? retryTerminalTriggerRule
+        : `The ${transition.id} edge to ${edge.to} requires the exact job/attempt/lease tuple, current unexpired fencing lease, exact source and target state refs, and the state-specific owner receipt fields. The target state is derived from these conditions and evidence; a supplied supported boolean cannot trigger the edge.`,
       sourceRefs: [receipt.ref, `${p1}/operations.yaml#ownerAttemptLeaseLifecycle`, edgeToStateRef, `${p1}/domain-objects.yaml#objects/@id=media.domain.processing-job`, `${p1}/domain-objects.yaml#objects/@id=media.domain.job-attempt`, `${p1}/domain-objects.yaml#objects/@id=media.domain.job-lease`, guardRef],
       domainObjectRefs: ["media.domain.processing-job", "media.domain.job-attempt", "media.domain.job-lease"],
       sourceStateRef: edgeFromStateRef,
@@ -612,6 +621,20 @@ function factValueModel(fact) {
 // values. That loses the actual set, revision, and effect tuple needed to prove
 // them. Keep them explicitly unresolved until a fact-specific contract exists.
 const requiredCopyClasses = ["SOURCE", "DERIVED", "CACHE", "BACKUP", "PROVIDER", "EXTERNAL"];
+factValueModelByExactName.set("retryBudgetAvailable", {
+  kind: "BOUNDED_CHECK_OBSERVATION",
+  property: "checkDisposition",
+  enum: ["PASS", "FAIL", "UNKNOWN"],
+  positive: "PASS only when the exact current typed observation reports retryability RETRYABLE, outcomeClass DEFINITIVE_NO_EFFECT or DEFINITIVE_RETRYABLE_FAILURE, and retriesRemaining greater than zero",
+  observationContractRef: retryPolicyObservationRef,
+  bindingStatus: "OWNER_DEFINED_DEFINITION_ONLY_NO_ENDPOINT_OR_RUNTIME_BINDING",
+  sourceRefs: [retryPolicyObservationRef],
+  predicateMeaning: "Retry eligibility is a source-defined bounded check over a current retry-policy read and exact prior-attempt outcome; this is a definition-only model input and does not establish a runtime observation or authorize dispatch.",
+  trustedInputs: ["expectedJobVersionRef", "expectedAttemptVersionRef", "expectedPolicyVersionRef", "expectedReadVersion", "now", "maxAgeMs"],
+  valueSchema: { type: "object", additionalProperties: false, required: ["checkDisposition"], properties: { checkDisposition: { enum: ["PASS", "FAIL", "UNKNOWN"] } } },
+  negative: "a current bounded check explicitly reports FAIL",
+  unknown: "missing, stale, foreign-scope, malformed, conflicting, wrong-version evidence is UNKNOWN and denies the edge",
+});
 factValueModelByExactName.set("copyInventoryComplete", {
   kind: "EXHAUSTIVE_COPY_INVENTORY",
   requiredCopyClasses,
@@ -669,7 +692,9 @@ factValueModelByExactName.set("consentPerEffectCurrent", {
 
 function factSourceFor(transitionId, fact) {
   const refs = [];
-  if (fact === "consentPerEffectCurrent") {
+  if (fact === "retryBudgetAvailable") {
+    refs.push(retryPolicyObservationRef);
+  } else if (fact === "consentPerEffectCurrent") {
     refs.push(`${p1}/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1`);
     refs.push(`${p1}/operations.yaml#ownerConsentRevisionObservationContract`);
     refs.push(`${p1}/privacy.yaml#ownerDefinedPdp10Boundary`);
@@ -774,13 +799,16 @@ const guardFactContracts = [...factOccurrences].map(([fact, occurrences]) => {
     valueOptions: model.enum ?? [],
     valueSemantics: model.positive,
     valueSchema,
+    ...(model.observationContractRef ? { observationContractRef: model.observationContractRef } : {}),
+    ...(model.bindingStatus ? { bindingStatus: model.bindingStatus } : {}),
+    ...(fact === "retryBudgetAvailable" ? { observationContractRef: retryPolicyObservationRef } : {}),
     ...(model.requestSchemaRef ? { requestSchemaRef: model.requestSchemaRef } : {}),
     ...(model.resultSchemaRef ? { resultSchemaRef: model.resultSchemaRef } : {}),
     ...(model.kind === "UNRESOLVED_OWNER_PREDICATE" ? { semanticResolutionStatus: "OPEN_TYPED_FACT_SEMANTICS", semanticGap: model.unresolvedReason } : {}),
     resultRules: {
       positive: model.kind === "UNRESOLVED_OWNER_PREDICATE" ? "No positive verdict is currently defined; preserve UNKNOWN until a fact-specific raw evidence contract is authored." : model.kind === "EXACT_ACCEPTED_REQUEST_SNAPSHOT" ? "the exact typed job-submit request passes its canonical parameter/input validator and current owner snapshot tuple/fingerprint/schema closure matches host-selected expected values" : model.kind === "EXHAUSTIVE_COPY_INVENTORY" ? "every required copy class has exhaustive identity enumeration and no unresolved references for the exact subject version" : model.kind === "EXACT_PROJECT_HEAD_REVISION_EQUALITY" ? "request expected head revision equals the exact current owner-observed head for the same project" : model.kind === "EXHAUSTIVE_ACTIVE_HOLD_SET" ? "an exhaustive active-hold set is empty for the exact subject, version, and purpose" : model.kind === "CURRENT_PER_EFFECT_CONSENT_SET" ? "every exact expected effect has a current permitted decision for the same subject version and purpose" : model.kind === "EXACT_STATE_OBSERVATION" ? "observedStateRef equals the edge's exact target state ref" : model.kind === "TENANT_IDENTITY_TUPLE" ? "trusted tenantId equals subjectTenantId" : model.kind === "EXACT_SCOPED_AUTHORITY_DECISION" ? "a current GRANTED decision matches the exact expected subject, edge effect, authority, policy revision, and decision method" : model.kind === "EXACT_SCOPED_POLICY_REVISION_OBSERVATION" ? "the exact fresh policy observation reports the host-expected policy revision for this subject version and transition effect" : `${model.property} equals ${model.positive}`,
       negative: model.kind === "EXACT_STATE_OBSERVATION" ? "a valid different state is DENIED for this edge" : model.kind === "TENANT_IDENTITY_TUPLE" ? "a foreign tenant tuple is DENIED" : model.kind === "EXACT_SCOPED_AUTHORITY_DECISION" ? "the exact current decision tuple denies the transition effect; a foreign or stale tuple remains UNKNOWN" : model.kind === "EXACT_SCOPED_POLICY_REVISION_OBSERVATION" ? "a same-scope observation of a different current policy revision is DENIED; a foreign or contradictory revision remains UNKNOWN" : "a source-specific negative enum value is DENIED",
-      unknown: "missing, stale, foreign-scope, conflicting, or unverified owner evidence is UNKNOWN; no transition or retry is implied",
+      unknown: model.unknown ?? "missing, stale, foreign-scope, conflicting, or unverified owner evidence is UNKNOWN; no transition or retry is implied",
     },
     trustedInputs: [...new Set(["tenantId", "principalId", "expectedSubjectRef", "expectedSubjectVersionRef", "expectedAuthorityRef", "expectedReadVersion", "now", "maxAgeMs", ...(model.trustedInputs ?? [])])],
     runtimeAdmission: "NOT_ADMITTED",

@@ -1,0 +1,503 @@
+{
+  "schemaVersion": "media.pdp0.existing-operation-semantic-corrections-current-source-review.v1",
+  "artifactId": "P0-EXISTING-OPERATION-SEMANTIC-CORRECTIONS-CURRENT-SOURCE-REVIEW-001",
+  "decisionRef": ".product-experience/decision-log.md#PXD-142",
+  "decisionRefStatus": "APPROVED_BOUNDED_CURRENT_SOURCE_CORRECTION; see .product-experience/decision-log.md#PXD-142",
+  "scope": "Additive current-source PDP-0 review of three corrected typed-input meanings, including target-conditioned exact project-version semantics, and five families of conditionally emitted success outputs. It does not reopen unrelated capability rows or assert PDP-1 wire-contract closure.",
+  "sources": {
+    "capabilities": {
+      "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "currentSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+      "capabilityCount": 462
+    },
+    "qualityPolicy": {
+      "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "currentSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770"
+    },
+    "channelApplicability": {
+      "path": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "currentSha256": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea"
+    },
+    "activeChannelCatalog": {
+      "path": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+      "currentSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d"
+    },
+    "measureApplicability": {
+      "path": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+      "currentSha256": "87c2e92a36a05bd6b9f34eed7b8e9b4cab2102a0448e9200615f85859526b8cb",
+      "rowCount": 1848,
+      "unchangedDispositionProjectionSha256": "d33f110f0aed47c6239aad68352c856fc77c53d90c5a99add5eb83f7d94bd098"
+    },
+    "profileSemantics": {
+      "path": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+      "currentSha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a"
+    }
+  },
+  "typedInputCorrections": [
+    {
+      "capabilityId": "media.project.source-asset.attach",
+      "meaning": "Exact immutable source asset version and selected exact project version; membership association does not mutate source bytes.",
+      "typedInputSlots": [
+        {
+          "slotId": "input1",
+          "sourceType": "user-intent",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "exact-versioned-project",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input3",
+          "sourceType": "source-asset-with-immutable-version",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.derive",
+      "meaning": "Exact source-version reference, selected transformation-profile identity/version/configuration digest, requested output artifact/media type/byte budget, and purpose/rights decision context.",
+      "typedInputSlots": [
+        {
+          "slotId": "input1",
+          "sourceType": "exact-source-versioned-media-or-project-reference",
+          "cardinality": "EXACTLY_ONE_OF_DECLARED_ALTERNATIVES",
+          "required": true,
+          "alternatives": [
+            "source-media",
+            "project-reference"
+          ]
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "transformation-profile-identity-version-and-digest",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input3",
+          "sourceType": "requested-output-artifact-type-media-type-and-byte-budget",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input4",
+          "sourceType": "purpose-and-rights-decision-context",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        }
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.output.register",
+      "meaning": "Candidate lineage is a set of exact source versions; empty lineage explicitly means source-free output generated from the request. Rights/retention, candidate, digest, media metadata, policy decision, and authorized target workspace are required. Workspace-only registration may omit the exact project version; project-targeted registration requires it for stale-version checking.",
+      "typedInputSlots": [
+        {
+          "slotId": "input1",
+          "sourceType": "exact-source-version-lineage-set",
+          "cardinality": "ZERO_OR_MORE",
+          "required": true,
+          "emptyDisposition": "EXPLICIT_SOURCE_FREE_OUTPUT_GENERATED_FROM_REQUEST"
+        },
+        {
+          "slotId": "input2",
+          "sourceType": "rights-and-retention-context",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input3",
+          "sourceType": "output-candidate-with-lineage",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input4",
+          "sourceType": "content-digest",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input5",
+          "sourceType": "media-type-and-byte-length",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input6",
+          "sourceType": "policy-decision-reference",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input7",
+          "sourceType": "authorized-target-workspace",
+          "cardinality": "EXACTLY_ONE",
+          "required": true
+        },
+        {
+          "slotId": "input8",
+          "sourceType": "optional-exact-project-version",
+          "cardinality": "ZERO_OR_ONE",
+          "required": false
+        }
+      ],
+      "targetVersionConditionality": {
+        "generalSlotCardinality": "ZERO_OR_ONE",
+        "workspaceOnly": "Exact project version may be omitted.",
+        "projectTarget": "Exact project version is required for stale-version checking.",
+        "existingPreconditionPreserved": true
+      }
+    }
+  ],
+  "optionalSuccessOutputCorrections": [
+    {
+      "capabilityId": "media.artifact.upload",
+      "artifactTypes": [
+        "verification-job-reference-only-if-issued-by-owner-contract",
+        "artifact-version-reference-only-after-owner-confirmed-registration"
+      ],
+      "outputs": [
+        {
+          "artifactType": "verification-job-reference-only-if-issued-by-owner-contract",
+          "requiredOnSuccess": false
+        },
+        {
+          "artifactType": "artifact-version-reference-only-after-owner-confirmed-registration",
+          "requiredOnSuccess": false
+        }
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.upload.resume",
+      "artifactTypes": [
+        "verification-reference-only-if-issued-by-owner-contract"
+      ],
+      "outputs": [
+        {
+          "artifactType": "verification-reference-only-if-issued-by-owner-contract",
+          "requiredOnSuccess": false
+        }
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.import",
+      "artifactTypes": [
+        "artifact-version-reference-only-after-owner-confirmed-registration",
+        "verification-or-quarantine-state-when-issued"
+      ],
+      "outputs": [
+        {
+          "artifactType": "artifact-version-reference-only-after-owner-confirmed-registration",
+          "requiredOnSuccess": false
+        },
+        {
+          "artifactType": "verification-or-quarantine-state-when-issued",
+          "requiredOnSuccess": false
+        }
+      ]
+    },
+    {
+      "capabilityId": "media.artifact.inspect",
+      "artifactTypes": [
+        "rights-retention-and-provenance-references-when-authorized"
+      ],
+      "outputs": [
+        {
+          "artifactType": "rights-retention-and-provenance-references-when-authorized",
+          "requiredOnSuccess": false
+        }
+      ]
+    },
+    {
+      "capabilityId": "media.speech.transcription.file",
+      "artifactTypes": [
+        "transcript-draft-with-source-version-and-timebase-if-produced",
+        "language-and-recognition-evidence-when-provided"
+      ],
+      "outputs": [
+        {
+          "artifactType": "transcript-draft-with-source-version-and-timebase-if-produced",
+          "requiredOnSuccess": false
+        },
+        {
+          "artifactType": "language-and-recognition-evidence-when-provided",
+          "requiredOnSuccess": false
+        }
+      ]
+    }
+  ],
+  "qualityAndChannelDecisionBoundary": {
+    "qualityApplicabilityDecisionsChanged": false,
+    "qualityMetricMeasurementOrQualificationChanged": false,
+    "channelApplicabilityDecisionsChanged": false,
+    "sourcesWithUnchangedApplicabilityDecisions": [
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml"
+    ],
+    "sourceProjectionChanges": [
+      "The capability-leaf-review input type projections for the three corrected capabilities match current P0 input types; no channel applicability dispositions changed."
+    ],
+    "statement": "The correction changes owner-defined input meanings, current quality input/metric-subject type projections, and output requiredness only. Quality dimension/metric applicability, measurement/qualification states, and channel applicability decisions are unchanged.",
+    "qualityCrosswalkProjection": "The three corrected capability inputArtifactTypes projections and the exact five applicable media metric subject inputs for each of derive/output.register are updated to the current P0 typed inputs; status dispositions remain identical."
+  },
+  "channelLeafCurrentSourceObservation": {
+    "historicalPxd141Sha256": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+    "previouslyRecordedPxd142CurrentSha256": "316a321a6a55d4f74c8b02cab8052c06330a80b2e68cf18f3998c00b20d611d8",
+    "currentSha256": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+    "changedOwnerLeafCount": 65,
+    "changedFields": ["inputArtifactTypes", "outputArtifactTypes"],
+    "allOtherOwnerLeafFieldsUnchangedFromHistoricalPxd141Source": true,
+    "channelApplicabilityDecisionsChanged": false,
+    "acceptanceEffect": "none",
+    "statement": "A current-source observation records 65 capability-leaf input/output artifact-type projections aligned to their current PDP-0 capability definitions. All other owner-leaf fields, including channel applicability dispositions, are unchanged from the PXD-141 historical source. This updates the source observation only; it does not accept new product meaning or alter any phase, runtime, or admission state."
+  },
+  "historicalPins": [
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-121",
+      "artifactPath": "docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json",
+      "sourceSha256": "e33af569db9ea0b510af334af8dfc4ae2e2c05cd0b2fa32e57a889e94023ba7a",
+      "capabilitySha256": "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25"
+    },
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-122",
+      "artifactPath": "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json",
+      "sourceSha256": "1c187221d5c882b8559d7eb9fe5cebf2195a0e0bfb346d61c5277ed1e6081b4d",
+      "capabilitySha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22"
+    },
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-141",
+      "capabilitySha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+      "note": "The prior current corrective review is retained in historicalCorrectiveReviews for P0-01, P0-02, P0-06, and P0-07.",
+      "qualityPolicySha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+      "channelApplicabilitySha256": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89"
+    }
+  ],
+  "regressionSources": [
+    "tests/pdp0-existing-operation-semantic-corrections.test.mjs",
+    "tests/pdp0-quality-current-source-review.test.mjs",
+    "tests/pdp0-capability-semantic-current-source-review.test.mjs",
+    "tests/pdp0-capability-intent-current-source-observation.test.mjs",
+    "tests/pdp0-capability-outcome-meaning.test.mjs",
+    "tests/pdp0-development-handoff.test.mjs",
+    "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+    "tests/pdp0-bounded-resource-admission.test.mjs",
+    "tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs"
+  ],
+  "semanticEquivalence": "NOT_ASSERTED",
+  "developmentEvidence": {
+    "focusedTestStatus": "PASS",
+    "focusedTestCount": 62,
+    "focusedPassedTestCount": 62,
+    "focusedFailedTestCount": 0,
+    "focusedCommand": "node --test tests/pdp0-existing-operation-semantic-corrections.test.mjs tests/pdp0-quality-current-source-review.test.mjs tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs tests/pdp0-capability-semantic-current-source-review.test.mjs tests/pdp0-capability-intent-current-source-observation.test.mjs tests/pdp0-capability-outcome-meaning.test.mjs tests/pdp0-development-handoff.test.mjs tests/pdp-truth-domain-channel-profile-applicability.test.mjs tests/pdp0-bounded-resource-admission.test.mjs tests/pdp-migration-current-source-claim-dispositions.test.mjs tests/pdp-migration-p0-current-material-reviews.test.mjs tests/pdp-migration-preservation-identity-wire-claims.test.mjs tests/pdp-migration-semantic-reconciliation.test.mjs tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+    "phaseGateStatus": "PASS",
+    "phaseGateCriteria": "P0-01 through P0-08 all PASS; P0-08 passes 95/95",
+    "phaseGateCommand": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-0",
+    "phaseStatusRef": "docs/implementation/pdp-0-phase-dev-status.json"
+  },
+  "acceptanceEffect": "none; current-source review and regression evidence only",
+  "reviewBoundary": "No task completion, independent semantic acceptance, PDP-1 operation/wire approval, qualification, runtime admission, deployment, certification, or Lifecycle receipt is inferred.",
+  "qualityCrosswalkProjectionCorrections": [
+    {
+      "capabilityId": "media.project.source-asset.attach",
+      "inputArtifactTypes": [
+        "user-intent",
+        "exact-versioned-project",
+        "source-asset-with-immutable-version"
+      ],
+      "metricSubjectInputArtifactTypes": {}
+    },
+    {
+      "capabilityId": "media.artifact.derive",
+      "inputArtifactTypes": [
+        "exact-source-versioned-media-or-project-reference",
+        "transformation-profile-identity-version-and-digest",
+        "requested-output-artifact-type-media-type-and-byte-budget",
+        "purpose-and-rights-decision-context"
+      ],
+      "metricSubjectInputArtifactTypes": {
+        "QUALITY-METRIC-IMAGE-DEFECTS": [
+          "exact-source-versioned-media-or-project-reference"
+        ],
+        "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS": [
+          "exact-source-versioned-media-or-project-reference"
+        ],
+        "QUALITY-METRIC-AUDIO-DEFECTS": [
+          "exact-source-versioned-media-or-project-reference"
+        ],
+        "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE": [
+          "exact-source-versioned-media-or-project-reference"
+        ],
+        "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK": [
+          "exact-source-versioned-media-or-project-reference"
+        ]
+      }
+    },
+    {
+      "capabilityId": "media.artifact.output.register",
+      "inputArtifactTypes": [
+        "exact-source-version-lineage-set",
+        "rights-and-retention-context",
+        "output-candidate-with-lineage",
+        "content-digest",
+        "media-type-and-byte-length",
+        "policy-decision-reference",
+        "authorized-target-workspace",
+        "optional-exact-project-version"
+      ],
+      "metricSubjectInputArtifactTypes": {
+        "QUALITY-METRIC-IMAGE-DEFECTS": [
+          "output-candidate-with-lineage"
+        ],
+        "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS": [
+          "output-candidate-with-lineage"
+        ],
+        "QUALITY-METRIC-AUDIO-DEFECTS": [
+          "output-candidate-with-lineage"
+        ],
+        "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE": [
+          "output-candidate-with-lineage"
+        ],
+        "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK": [
+          "output-candidate-with-lineage"
+        ]
+      }
+    }
+  ],
+  "qualityDispositionPreservation": {
+    "previousQualityPolicySha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+    "currentQualityPolicySha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+    "dimensionDispositionCount": 2772,
+    "metricDispositionCount": 7392,
+    "dispositionProjectionSha256": "f1b2567cc8e4011140b90a94d4552c07b2dbdceefc92e3b0f3f1715b99d47535",
+    "dispositionProjectionChanged": false,
+    "measurementState": "NOT_EVALUATED",
+    "qualificationState": "NOT_EVALUATED",
+    "statement": "Only the three crosswalk inputArtifactTypes arrays and five applicable media metric subjectInputArtifactTypes on each of derive/output.register were updated. All 2,772 dimension and 7,392 metric applicability/measurement/qualification disposition fields remain identical to the prior PXD-141 policy source cut."
+  },
+  "ownerMeasureApplicabilityPreservation": {
+    "rowCount": 1848,
+    "unchangedDispositionProjectionSha256": "d33f110f0aed47c6239aad68352c856fc77c53d90c5a99add5eb83f7d94bd098",
+    "statement": "All 1,848 owner success-measure applicability, admission, baseline, target, and qualification dispositions remain unchanged."
+  },
+  "sourceDelta": {
+    "path": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+    "priorSha256": "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d",
+    "currentSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+    "priorCapabilitySourceSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+    "exactProjectionChanges": [
+      {
+        "capabilityId": "media.project.source-asset.attach",
+        "field": "inputArtifactTypes",
+        "prior": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "current": [
+          "user-intent",
+          "exact-versioned-project",
+          "source-asset-with-immutable-version"
+        ]
+      },
+      {
+        "capabilityId": "media.artifact.derive",
+        "field": "inputArtifactTypes",
+        "prior": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ],
+        "current": [
+          "exact-source-versioned-media-or-project-reference",
+          "transformation-profile-identity-version-and-digest",
+          "requested-output-artifact-type-media-type-and-byte-budget",
+          "purpose-and-rights-decision-context"
+        ]
+      },
+      {
+        "capabilityId": "media.artifact.derive",
+        "field": "metricApplicability.*.subjectInputArtifactTypes",
+        "metrics": [
+          "QUALITY-METRIC-AUDIO-DEFECTS",
+          "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+          "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+          "QUALITY-METRIC-IMAGE-DEFECTS",
+          "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS"
+        ],
+        "prior": [
+          "source-media-or-project-reference"
+        ],
+        "current": [
+          "exact-source-versioned-media-or-project-reference"
+        ]
+      },
+      {
+        "capabilityId": "media.artifact.output.register",
+        "field": "inputArtifactTypes",
+        "prior": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ],
+        "current": [
+          "exact-source-version-lineage-set",
+          "rights-and-retention-context",
+          "output-candidate-with-lineage",
+          "content-digest",
+          "media-type-and-byte-length",
+          "policy-decision-reference",
+          "authorized-target-workspace",
+          "optional-exact-project-version"
+        ]
+      },
+      {
+        "capabilityId": "media.artifact.output.register",
+        "field": "metricApplicability.*.subjectInputArtifactTypes",
+        "metrics": [
+          "QUALITY-METRIC-AUDIO-DEFECTS",
+          "QUALITY-METRIC-AUDIO-LOUDNESS-TRUE-PEAK",
+          "QUALITY-METRIC-AUDIO-SPECTRAL-PHASE",
+          "QUALITY-METRIC-IMAGE-DEFECTS",
+          "QUALITY-METRIC-VIDEO-TEMPORAL-DEFECTS"
+        ],
+        "prior": [
+          "source-media-or-project-reference"
+        ],
+        "current": [
+          "output-candidate-with-lineage"
+        ]
+      }
+    ],
+    "unchangedPaths": [
+      "all dimensionApplicability fields",
+      "all metricApplicability status/measurementState/qualificationState fields",
+      "all crosswalk channel/applicability source files"
+    ],
+    "qualityDispositionProjectionSha256": "f1b2567cc8e4011140b90a94d4552c07b2dbdceefc92e3b0f3f1715b99d47535",
+    "unchangedStatusCount": 10164,
+    "ownerMeasureApplicabilityRowsUnchanged": 1848
+  },
+  "inputShapePopulationProjection": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#capabilityBoundsEnvelope/inputShapeFamilyReconciliation/currentPopulation",
+    "prior": {
+      "capabilityCount": 462,
+      "slotCount": 930,
+      "distinctSharedShapeCount": 129
+    },
+    "current": {
+      "capabilityCount": 462,
+      "slotCount": 939,
+      "distinctSharedShapeCount": 142
+    },
+    "identityPopulationUnchanged": true,
+    "semanticEquivalence": "NOT_ASSERTED",
+    "acceptanceEffect": "none"
+  },
+  "validationSources": [
+    "scripts/lib/pdp0-feature-review-applicability.mjs",
+    "scripts/generate-media-phase-projections.mjs"
+  ]
+}

@@ -1,6 +1,5 @@
 schemaVersion: media.pdp-3-step-version-binding-contracts.v1
 status: MEDIA_OWNER_DEFINITION_ONLY; object/version request bindings and runtime evidence remain distinct
-objectVersionReferenceDecisionRef: .product-experience/decision-log.md#PXD-111
 sourceRefs:
   - .product-experience/pdp-3-product-experience/step-definition-oracles.yaml
   - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml
@@ -492,9 +491,14 @@ records:
               - media.domain.job-attempt
               - media.domain.resolved-plan
             versionRule: null
-          - fieldSelector: /properties/sourceSnapshot/requiredArtifactVersionRefs
-            allowedObjectRefs: []
-            versionRule: requiredArtifactVersionRefs=true
+          - fieldSelector: /properties/sourceSnapshot/properties/artifactVersionRefs/items
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: null
+          - fieldSelector: /properties/sourceSnapshot/properties/projectRevisionRef
+            allowedObjectRefs:
+              - media.domain.project-revision
+            versionRule: null
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
@@ -1840,7 +1844,7 @@ records:
       - operationRef: media.operation.caption-draft-write
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/ownerWireSchema/requestSchema
-        requestReferenceFields: []
+        requestReferenceFields:
         requestSemanticFields:
           - fieldName: sourceArtifactVersionId
             boundObjectRefs:
@@ -1898,9 +1902,14 @@ records:
               - media.domain.job-attempt
               - media.domain.resolved-plan
             versionRule: null
-          - fieldSelector: /properties/sourceSnapshot/requiredArtifactVersionRefs
-            allowedObjectRefs: []
-            versionRule: requiredArtifactVersionRefs=true
+          - fieldSelector: /properties/sourceSnapshot/properties/artifactVersionRefs/items
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: null
+          - fieldSelector: /properties/sourceSnapshot/properties/projectRevisionRef
+            allowedObjectRefs:
+              - media.domain.project-revision
+            versionRule: null
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
@@ -2566,23 +2575,32 @@ records:
     stepSemanticDefinitionId: J-09.step-04
     actionRef: media.action.submit-validated-request
     operationBindings:
-      - operationRef: media.operation.action.submit-validated-request
-        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
-        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/exactTargetRefs/items
-            allowedObjectRefs:
-              - media.domain.artifact-version
-              - media.domain.processing-job
-              - media.domain.resolved-plan
-            versionRule: null
+      - operationRef: media.operation.capability.media-generate-video-text-to-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-text-to-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-text-to-video/requestSchema
+        requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
-        affectedObjectRefs:
-          - media.domain.artifact-version
-          - media.domain.processing-job
-          - media.domain.resolved-plan
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-image-to-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-text-image-to-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-text-image-to-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-text-image-to-video/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.artifact-version
@@ -2614,14 +2632,8 @@ records:
     versionFieldBindings:
       - id: media.step-version-object-binding.j-09-04.artifact-version.v1
         objectRef: media.domain.artifact-version
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.submit-validated-request
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/requestSchema/properties/exactTargetRefs/items
-            versionRule: null
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        fields: []
+        coverageDisposition: VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN
         exactVersionTupleRequirement:
           - versionId
         transitiveVersionJoins: []
@@ -2641,7 +2653,7 @@ records:
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: null
     versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
@@ -2702,9 +2714,14 @@ records:
               - media.domain.job-attempt
               - media.domain.resolved-plan
             versionRule: null
-          - fieldSelector: /properties/sourceSnapshot/requiredArtifactVersionRefs
-            allowedObjectRefs: []
-            versionRule: requiredArtifactVersionRefs=true
+          - fieldSelector: /properties/sourceSnapshot/properties/artifactVersionRefs/items
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: null
+          - fieldSelector: /properties/sourceSnapshot/properties/projectRevisionRef
+            allowedObjectRefs:
+              - media.domain.project-revision
+            versionRule: null
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
@@ -2851,34 +2868,48 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
         requestReferenceFields:
+          - fieldSelector: /properties/exactTargetRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+              - media.domain.delivery-outcome
+            versionRule: exact target identity must resolve to the same artifact version named by artifactVersionId
           - fieldSelector: /properties/artifactVersionId
-            allowedObjectRefs: [media.domain.artifact-version]
-            versionRule: exact immutable artifact version; no latest alias
-          - fieldSelector: /properties/destinationRef
-            allowedObjectRefs: []
-            versionRule: exact authorized destination identity; not a Media object version
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: exact owner-issued immutable artifact version; no latest alias
         requestSemanticFields:
-          - /properties/currentAuthorityDecision
-          - /properties/explicitConfirmation
-          - /properties/deliveryProfileRef
-          - /properties/requestId
-        resultVersionFields: [/fields/artifactVersionId]
-        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
-        affectedObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+          - fieldName: artifactVersionId
+            boundObjectRefs:
+              - media.domain.artifact-version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema/properties/artifactVersionId
+            semanticBranch: null
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.delivery-outcome
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
-        identityTupleFields: [tenantId, artifactId, versionId]
+        identityTupleFields:
+          - tenantId
+          - artifactId
+          - versionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-        versionTupleFields: [versionId]
-        disposition: EXACT_IMMUTABLE_VERSION_REQUIRED
+        versionTupleFields:
+          - versionId
+        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.delivery-outcome
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.delivery-outcome
-        identityTupleFields: [tenantId, deliveryRequestId, outcomeId, destinationRef]
+        identityTupleFields:
+          - tenantId
+          - deliveryRequestId
+          - outcomeId
+          - destinationRef
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.delivery-outcome/identityComponents
         versionTupleFields: []
-        disposition: OWNER_ACKNOWLEDGMENT_REQUIRED; REQUEST_RECEIPT_IS_NOT_DELIVERY_OUTCOME
+        disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
     versionFieldBindings:
       - id: media.step-version-object-binding.j-09-09.artifact-version.v1
         objectRef: media.domain.artifact-version
@@ -2887,17 +2918,26 @@ records:
             operationRef: media.operation.action.deliver-exact-version
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
             fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema/properties/artifactVersionId
-            versionRule: exact immutable artifact-version identity tuple; tenantId + artifactId + versionId
-            requiredVersionBinding: EXACT_OWNER_ISSUED_ARTIFACT_VERSION_TUPLE
-        coverageDisposition: EXACT_VERSION_REQUEST_FIELD_BOUND
-        exactVersionTupleRequirement: [artifactId, versionId]
+            fieldName: artifactVersionId
+            boundObjectRefs:
+              - media.domain.artifact-version
+            semanticBranch: null
+            versionRule: bind the explicit owner-issued artifactVersionId to the complete canonical identity tuple and exactTargetRef
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        exactVersionTupleRequirement:
+          - versionId
         transitiveVersionJoins: []
         canonicalVersionIdentityRequirement:
           identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
           identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-          exactTupleFields: [tenantId, artifactId, versionId]
-          tupleComparison: ALL_FIELDS_MUST_MATCH_ONE_OWNER_ISSUED_IMMUTABLE_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields: [tenantId]
+          exactTupleFields:
+            - tenantId
+            - artifactId
+            - versionId
+          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
+          trustedContextFields:
+            - tenantId
           missingOrStaleDisposition: UNKNOWN
           foreignTenantOrMixedVersionDisposition: UNKNOWN
         sourceBoundaryRefs: []
@@ -2906,8 +2946,8 @@ records:
         applicabilityContract: null
         runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
         acceptanceEffect: none
-    localDraftRevisionContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-09.step-09.v1/localRevisionRule
-    versionDisposition: EXACT_IMMUTABLE_ARTIFACT_VERSION_REQUEST; DESTINATION_SELECTION_REMAINS_LOCAL
+    localDraftRevisionContractRef: null
+    versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
     versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
       is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
       or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
@@ -2934,7 +2974,7 @@ records:
             versionRule: exact immutable version required when the source action names a version
         requestSemanticFields: []
         resultVersionFields: []
-        resultSemanticsRef: null
+        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
         affectedObjectRefs:
           - media.domain.consent-reference
           - media.domain.artifact-version
@@ -3310,35 +3350,48 @@ records:
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
         requestReferenceFields:
+          - fieldSelector: /properties/exactTargetRef
+            allowedObjectRefs:
+              - media.domain.artifact-version
+              - media.domain.delivery-outcome
+            versionRule: exact target identity must resolve to the same artifact version named by artifactVersionId
           - fieldSelector: /properties/artifactVersionId
-            allowedObjectRefs: [media.domain.artifact-version]
-            versionRule: exact immutable artifact version; no latest alias
-          - fieldSelector: /properties/destinationRef
-            allowedObjectRefs: []
-            versionRule: exact authorized destination identity; not a Media object version
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: exact owner-issued immutable artifact version; no latest alias
         requestSemanticFields:
-          - /properties/currentAuthorityDecision
-          - /properties/explicitConfirmation
-          - /properties/deliveryProfileRef
-          - /properties/requestId
-        resultVersionFields:
-          - /fields/artifactVersionId
-        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/resultSchema
-        affectedObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
+          - fieldName: artifactVersionId
+            boundObjectRefs:
+              - media.domain.artifact-version
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema/properties/artifactVersionId
+            semanticBranch: null
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs:
+          - media.domain.artifact-version
+          - media.domain.delivery-outcome
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
-        identityTupleFields: [tenantId, artifactId, versionId]
+        identityTupleFields:
+          - tenantId
+          - artifactId
+          - versionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-        versionTupleFields: [versionId]
-        disposition: EXACT_IMMUTABLE_VERSION_REQUIRED
+        versionTupleFields:
+          - versionId
+        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.delivery-outcome
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.delivery-outcome
-        identityTupleFields: [tenantId, deliveryRequestId, outcomeId, destinationRef]
+        identityTupleFields:
+          - tenantId
+          - deliveryRequestId
+          - outcomeId
+          - destinationRef
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.delivery-outcome/identityComponents
         versionTupleFields: []
-        disposition: OWNER_ACKNOWLEDGMENT_REQUIRED; REQUEST_RECEIPT_IS_NOT_DELIVERY_OUTCOME
+        disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
     versionFieldBindings:
       - id: media.step-version-object-binding.j-22-02.artifact-version.v1
         objectRef: media.domain.artifact-version
@@ -3347,17 +3400,26 @@ records:
             operationRef: media.operation.action.deliver-exact-version
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema
             fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.deliver-exact-version/requestSchema/properties/artifactVersionId
-            versionRule: exact immutable artifact-version identity tuple; tenantId + artifactId + versionId
-            requiredVersionBinding: EXACT_OWNER_ISSUED_ARTIFACT_VERSION_TUPLE
-        coverageDisposition: EXACT_VERSION_REQUEST_FIELD_BOUND
-        exactVersionTupleRequirement: [artifactId, versionId]
+            fieldName: artifactVersionId
+            boundObjectRefs:
+              - media.domain.artifact-version
+            semanticBranch: null
+            versionRule: bind the explicit owner-issued artifactVersionId to the complete canonical identity tuple and exactTargetRef
+            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
+        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        exactVersionTupleRequirement:
+          - versionId
         transitiveVersionJoins: []
         canonicalVersionIdentityRequirement:
           identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
           identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-          exactTupleFields: [tenantId, artifactId, versionId]
-          tupleComparison: ALL_FIELDS_MUST_MATCH_ONE_OWNER_ISSUED_IMMUTABLE_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields: [tenantId]
+          exactTupleFields:
+            - tenantId
+            - artifactId
+            - versionId
+          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
+          trustedContextFields:
+            - tenantId
           missingOrStaleDisposition: UNKNOWN
           foreignTenantOrMixedVersionDisposition: UNKNOWN
         sourceBoundaryRefs: []
@@ -3366,9 +3428,11 @@ records:
         applicabilityContract: null
         runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
         acceptanceEffect: none
-    localDraftRevisionContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-22.step-02.v1/localRevisionRule
-    versionDisposition: EXACT_IMMUTABLE_ARTIFACT_VERSION_REQUEST; DESTINATION_SELECTION_REMAINS_LOCAL
-    versionBindingRule: Delivery request must name the exact tenant/artifact/version tuple. A request receipt does not prove destination delivery; Missing, stale, foreign-tenant, mixed-version, or latest-alias references remain UNKNOWN.
+    localDraftRevisionContractRef: null
+    versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
+    versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
+      is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
+      or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
     runtimeAdmission: NOT_ADMITTED
     decisionRef: .product-experience/decision-log.md#PXD-119
     acceptanceEffect: none
@@ -3905,9 +3969,14 @@ records:
               - media.domain.job-attempt
               - media.domain.resolved-plan
             versionRule: null
-          - fieldSelector: /properties/sourceSnapshot/requiredArtifactVersionRefs
-            allowedObjectRefs: []
-            versionRule: requiredArtifactVersionRefs=true
+          - fieldSelector: /properties/sourceSnapshot/properties/artifactVersionRefs/items
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: null
+          - fieldSelector: /properties/sourceSnapshot/properties/projectRevisionRef
+            allowedObjectRefs:
+              - media.domain.project-revision
+            versionRule: null
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
@@ -4002,9 +4071,14 @@ records:
               - media.domain.job-attempt
               - media.domain.resolved-plan
             versionRule: null
-          - fieldSelector: /properties/sourceSnapshot/requiredArtifactVersionRefs
-            allowedObjectRefs: []
-            versionRule: requiredArtifactVersionRefs=true
+          - fieldSelector: /properties/sourceSnapshot/properties/artifactVersionRefs/items
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: null
+          - fieldSelector: /properties/sourceSnapshot/properties/projectRevisionRef
+            allowedObjectRefs:
+              - media.domain.project-revision
+            versionRule: null
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
@@ -4129,18 +4203,18 @@ records:
         requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields:
-          - fieldName: versionId
+          - fieldName: initialRevisionId
             artifactType: versioned-project-state
             boundObjectRefs:
               - media.domain.project
               - media.domain.project-revision
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
-          - fieldName: versionId
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/initialRevisionId
+          - fieldName: initialRevisionId
             artifactType: versioned-project-state
             boundObjectRefs:
               - media.domain.project
               - media.domain.project-revision
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/initialRevisionId
         resultSemanticsRef: null
         affectedObjectRefs: []
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
@@ -4171,8 +4245,8 @@ records:
             operationRef: media.operation-slice.create-project
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/requestSchema
             resultSchemaRef: null
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
-            fieldName: versionId
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/initialRevisionId
+            fieldName: initialRevisionId
             artifactType: versioned-project-state
             boundObjectRefs:
               - media.domain.project
@@ -4184,8 +4258,8 @@ records:
             operationRef: media.operation-slice.create-project
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/requestSchema
             resultSchemaRef: null
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
-            fieldName: versionId
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.create-project/ownerWireSchema/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/initialRevisionId
+            fieldName: initialRevisionId
             artifactType: versioned-project-state
             boundObjectRefs:
               - media.domain.project
@@ -4236,18 +4310,10 @@ records:
         requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields:
-          - fieldName: versionId
+          - fieldName: headRevisionId
             artifactType: versioned-project-state
-            boundObjectRefs:
-              - media.domain.project
-              - media.domain.project-revision
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
-          - fieldName: versionId
-            artifactType: versioned-project-state
-            boundObjectRefs:
-              - media.domain.project
-              - media.domain.project-revision
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
+            boundObjectRefs: [media.domain.project, media.domain.project-revision]
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/oneOf/0/properties/headRevisionId
         resultSemanticsRef: null
         affectedObjectRefs: []
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
@@ -4277,30 +4343,14 @@ records:
           - direction: OWNER_RESULT
             operationRef: media.operation-slice.inspect-project
             requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/requestSchema
-            resultSchemaRef: null
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
-            fieldName: versionId
+            resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema/properties/outputs/items/oneOf/0/properties/payload/oneOf/0/properties/headRevisionId
+            fieldName: headRevisionId
             artifactType: versioned-project-state
-            boundObjectRefs:
-              - media.domain.project
-              - media.domain.project-revision
-            semanticDisposition: null
-            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
-            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
-          - direction: OWNER_RESULT
-            operationRef: media.operation-slice.inspect-project
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/requestSchema
-            resultSchemaRef: null
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-project/ownerWireSchema/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
-            fieldName: versionId
-            artifactType: versioned-project-state
-            boundObjectRefs:
-              - media.domain.project
-              - media.domain.project-revision
-            semanticDisposition: null
-            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
-            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+            boundObjectRefs: [media.domain.project, media.domain.project-revision]
+            versionRule: Bind the exact opaque headRevisionId and its matching immutable snapshot revisionId; never infer a later head.
+            requiredVersionBinding: OWNER_OBSERVED_EXACT_IMMUTABLE_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
+        coverageDisposition: EXACT_VERSION_RESULT_FIELD_BOUND
         exactVersionTupleRequirement:
           - revisionId
         transitiveVersionJoins: []
@@ -4320,7 +4370,7 @@ records:
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: null
     versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
@@ -4429,23 +4479,68 @@ records:
     stepSemanticDefinitionId: J-10.step-02
     actionRef: media.action.submit-validated-request
     operationBindings:
-      - operationRef: media.operation.action.submit-validated-request
-        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
-        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/exactTargetRefs/items
-            allowedObjectRefs:
-              - media.domain.artifact-version
-              - media.domain.processing-job
-              - media.domain.resolved-plan
-            versionRule: null
+      - operationRef: media.operation.capability.media-generate-video-image-to-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-image-to-video/requestSchema
+        requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
-        affectedObjectRefs:
-          - media.domain.artifact-version
-          - media.domain.processing-job
-          - media.domain.resolved-plan
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-video-to-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-video-to-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-video-to-video/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-text-image-to-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-text-image-to-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-text-image-to-video/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-keyframe-start
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-keyframe-start
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-keyframe-start/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-keyframe-end
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-keyframe-end
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-keyframe-end/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-keyframe-intermediate
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-keyframe-intermediate
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-keyframe-intermediate/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
+        disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.capability.media-generate-video-reference-video
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-reference-video
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-generate-video-reference-video/requestSchema
+        requestReferenceFields: []
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: null
+        affectedObjectRefs: []
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.artifact-version
@@ -4477,14 +4572,8 @@ records:
     versionFieldBindings:
       - id: media.step-version-object-binding.j-10-02.artifact-version.v1
         objectRef: media.domain.artifact-version
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.action.submit-validated-request
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/requestSchema/properties/exactTargetRefs/items
-            versionRule: null
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        fields: []
+        coverageDisposition: VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN
         exactVersionTupleRequirement:
           - versionId
         transitiveVersionJoins: []
@@ -4504,7 +4593,7 @@ records:
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: null
     versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
@@ -5138,9 +5227,14 @@ records:
               - media.domain.job-attempt
               - media.domain.resolved-plan
             versionRule: null
-          - fieldSelector: /properties/sourceSnapshot/requiredArtifactVersionRefs
-            allowedObjectRefs: []
-            versionRule: requiredArtifactVersionRefs=true
+          - fieldSelector: /properties/sourceSnapshot/properties/artifactVersionRefs/items
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: null
+          - fieldSelector: /properties/sourceSnapshot/properties/projectRevisionRef
+            allowedObjectRefs:
+              - media.domain.project-revision
+            versionRule: null
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
@@ -5194,37 +5288,38 @@ records:
       - operationRef: media.operation.stream-session.inspect.v1
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/sessionId
-            allowedObjectRefs: [media.domain.stream-session]
-            versionRule: exact tenant-scoped session identity; no session replacement or cross-tenant join
+        requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields: []
-        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/resultSchema
-        affectedObjectRefs: [media.domain.stream-session]
+        resultSemanticsRef: null
+        affectedObjectRefs:
+          - media.domain.stream-session
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
       - operationRef: media.operation.consent-record-inspect.v1
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/consentId
-            allowedObjectRefs: [media.domain.consent-reference]
-            versionRule: exact consent identity selected by the typed current-read contract
+        requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
-        affectedObjectRefs: [media.domain.consent-reference]
+        affectedObjectRefs:
+          - media.domain.consent-reference
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
       - objectRef: media.domain.stream-session
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
       - objectRef: media.domain.stream-frame
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
+          - sequence
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
@@ -5259,22 +5354,9 @@ records:
     versionFieldBindings:
       - id: media.step-version-object-binding.j-29-01.consent-reference.v1
         objectRef: media.domain.consent-reference
-        fields:
-          - direction: OWNER_RESULT
-            operationRef: media.operation.consent-record-inspect.v1
-            fieldName: consentRevisionRef
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/consentRevisionRef
-            observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
-            boundObjectRefs: [media.domain.consent-reference]
-            semanticDisposition: EXACT_TYPED_CONSENT_REVISION_FIELD; transport NOT_ADMITTED
-          - direction: OWNER_RESULT
-            operationRef: media.operation.consent-record-inspect.v1
-            fieldName: version
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/version
-            observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
-            boundObjectRefs: [media.domain.consent-reference]
-            semanticDisposition: EXACT_NUMERIC_REVISION_VERSION_FIELD; never substitute for consentRevisionRef
-        coverageDisposition: EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED
+        fields: []
+        coverageDisposition: CANONICAL_CONSENT_REVISION_TUPLE_REQUIRED;
+          SESSION_AND_RIGHTS_READ_SOURCES_DO_NOT_EXPOSE_A_TYPED_CONSENT_REVISION_JOIN; MISSING_OR_STALE_JOIN_IS_UNKNOWN
         exactVersionTupleRequirement:
           - consentRevisionId
         transitiveVersionJoins: []
@@ -5294,7 +5376,6 @@ records:
           - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.consent-reference
           - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1
           - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
-          - .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
         deferredVersionBinding: null
         logicalVersionJoin:
           id: media.step-version-logical-join.j-29-01.consent-reference.v1
@@ -5309,12 +5390,14 @@ records:
           candidateObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
           consentRevisionResultFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/consentRevisionRef
           numericVersionResultFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/version
-          exactRevisionBindingRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/bindingRules/3
-          joinRule: consentRevisionRef resolves exactly to consentRef plus the same immutable numeric version; bind tenantId, consentId, purpose, trusted principal, current read authority and readVersion; never substitute the numeric version for the revision identity.
-          missingOrMismatchedTuple: UNKNOWN; deny consequential continuation until the typed read and exact identity resolver join agree.
+          exactRevisionBindingRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/bindingRules/@id=media.consent-read-binding.revision.v1
+          joinRule: The consentRevisionRef must resolve to the exact opaque revision identity; never substitute the numeric version for the revision identity.
+          candidateFieldLimitation: The current inspect result exposes numeric version but does not define it as the opaque
+            consentRevisionId; integer version is not coerced or substituted.
+          missingOrMismatchedTuple: UNKNOWN; deny consequential continuation until exact consentRevisionId is returned and correlated.
           runtimeAdmission: NOT_ADMITTED
         applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_CONTRACT_AVAILABLE; LIVE_RECEIPT_NOT_ADMITTED
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: null
     versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
@@ -5334,37 +5417,89 @@ records:
       - operationRef: media.operation.stream-session.inspect.v1
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/sessionId
-            allowedObjectRefs: [media.domain.stream-session]
-            versionRule: exact tenant-scoped session identity; no session replacement or cross-tenant join
+        requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields: []
-        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect.v1/resultSchema
-        affectedObjectRefs: [media.domain.stream-session]
+        resultSemanticsRef: null
+        affectedObjectRefs:
+          - media.domain.stream-session
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
       - operationRef: media.operation.consent-record-inspect.v1
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/consentId
-            allowedObjectRefs: [media.domain.consent-reference]
-            versionRule: exact consent identity selected by the typed current-read contract
+        requestReferenceFields: []
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
-        affectedObjectRefs: [media.domain.consent-reference]
+        affectedObjectRefs:
+          - media.domain.consent-reference
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
+      - operationRef: media.operation.stream-session.inspect-execution-recovery.v1
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/requestSchema
+        requestReferenceFields:
+          - fieldSelector: /properties/sessionId
+            allowedObjectRefs:
+              - media.domain.stream-session
+            versionRule: exact requested session identity under host-attested tenant and principal context
+        requestSemanticFields: []
+        resultVersionFields: []
+        resultSemanticsRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+        affectedObjectRefs:
+          - media.domain.stream-session
+          - media.domain.consent-record
+        disposition: OWNER_DEFINED_EXACT_SINGLE_SNAPSHOT_QUERY; EXECUTION_NOT_ADMITTED
+    recoveryObservationBinding:
+      operationRef: media.operation.stream-session.inspect-execution-recovery.v1
+      operationKind: QUERY
+      contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1
+      requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/requestSchema
+      requestSessionIdFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/requestSchema/properties/sessionId
+      trustedContextRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/trustedContext
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+      snapshotIdentityFields:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/sessionId
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observedAt
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/readVersion
+      observedTupleFieldRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/canonicalStateRef
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/stateAuthorityRef
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/stateEvidenceRef
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/consentRef
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/consentRevision
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/consentCurrentness
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/purposeRef
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/purposeRevision
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/purposeCurrentness
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/leaseVersion
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/leaseCurrentness
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/fencingToken
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/lastAcknowledgedSequence
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/nextSequence
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/resolvedFrameOutcomeCoverage
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/resolvedFrameOutcomeRange/properties/firstSequence
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/resolvedFrameOutcomeRange/properties/lastSequence
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/resolvedFrameOutcomeRefs/items/properties/sessionId
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/resolvedFrameOutcomeRefs/items/properties/sequence
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/resolvedFrameOutcomeRefs/items/properties/outcomeRef
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema/properties/observation/oneOf/1/properties/reconnectBudgetRemaining
+      coherenceRule: Every snapshot and observed tuple field binds to the exact host-attested tenant, current principal, and requested session under the same observedAt/readVersion; missing, stale, partial, mismatched, or inconsistent evidence is UNKNOWN.
+      disposition: EXACT_PXD_160_SUPPORTING_OBSERVATION_QUERY; NO_DISPATCH; NOT_ADMITTED
     objectBindings:
       - objectRef: media.domain.stream-session
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
       - objectRef: media.domain.stream-frame
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
+          - sequence
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
@@ -5399,22 +5534,9 @@ records:
     versionFieldBindings:
       - id: media.step-version-object-binding.j-29-02.consent-reference.v1
         objectRef: media.domain.consent-reference
-        fields:
-          - direction: OWNER_RESULT
-            operationRef: media.operation.consent-record-inspect.v1
-            fieldName: consentRevisionRef
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/consentRevisionRef
-            observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
-            boundObjectRefs: [media.domain.consent-reference]
-            semanticDisposition: EXACT_TYPED_CONSENT_REVISION_FIELD; transport NOT_ADMITTED
-          - direction: OWNER_RESULT
-            operationRef: media.operation.consent-record-inspect.v1
-            fieldName: version
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/version
-            observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
-            boundObjectRefs: [media.domain.consent-reference]
-            semanticDisposition: EXACT_NUMERIC_REVISION_VERSION_FIELD; never substitute for consentRevisionRef
-        coverageDisposition: EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED
+        fields: []
+        coverageDisposition: CANONICAL_CONSENT_REVISION_TUPLE_REQUIRED;
+          SESSION_AND_RIGHTS_READ_SOURCES_DO_NOT_EXPOSE_A_TYPED_CONSENT_REVISION_JOIN; MISSING_OR_STALE_JOIN_IS_UNKNOWN
         exactVersionTupleRequirement:
           - consentRevisionId
         transitiveVersionJoins: []
@@ -5434,7 +5556,6 @@ records:
           - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.consent-reference
           - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.consent-record-inspect.v1
           - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.rights-decision.v1
-          - .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
         deferredVersionBinding: null
         logicalVersionJoin:
           id: media.step-version-logical-join.j-29-02.consent-reference.v1
@@ -5449,12 +5570,14 @@ records:
           candidateObservationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract
           consentRevisionResultFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/consentRevisionRef
           numericVersionResultFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/version
-          exactRevisionBindingRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/bindingRules/3
-          joinRule: consentRevisionRef resolves exactly to consentRef plus the same immutable numeric version; bind tenantId, consentId, purpose, trusted principal, current read authority and readVersion; never substitute the numeric version for the revision identity.
-          missingOrMismatchedTuple: UNKNOWN; deny consequential continuation until the typed read and exact identity resolver join agree.
+          exactRevisionBindingRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/bindingRules/@id=media.consent-read-binding.revision.v1
+          joinRule: The consentRevisionRef must resolve to the exact opaque revision identity; never substitute the numeric version for the revision identity.
+          candidateFieldLimitation: The current inspect result exposes numeric version but does not define it as the opaque
+            consentRevisionId; integer version is not coerced or substituted.
+          missingOrMismatchedTuple: UNKNOWN; deny consequential continuation until exact consentRevisionId is returned and correlated.
           runtimeAdmission: NOT_ADMITTED
         applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_CONTRACT_AVAILABLE; LIVE_RECEIPT_NOT_ADMITTED
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: null
     versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
@@ -5474,13 +5597,18 @@ records:
     objectBindings:
       - objectRef: media.domain.stream-session
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
       - objectRef: media.domain.stream-frame
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
+          - sequence
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-frame/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
@@ -5552,10 +5680,9 @@ records:
           consentRevisionResultFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/consentRevisionRef
           numericVersionResultFieldRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/resultSchema/properties/outcome/oneOf/0/properties/version
           exactRevisionBindingRuleRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerConsentRevisionObservationContract/bindingRules/@id=media.consent-read-binding.revision.v1
-          joinRule: The typed consent-revision observation must resolve consentRevisionRef to the exact consentRef and
-            the same immutable numeric version; never substitute the numeric version for the revision identity.
-          candidateFieldLimitation: The legacy inspect result's numeric version is not itself an opaque revision identity;
-            this definition requires the separate typed consent-revision read and exact resolver binding.
+          joinRule: The consentRevisionRef must resolve to the exact opaque revision identity; never substitute the numeric version for the revision identity.
+          candidateFieldLimitation: The current inspect result exposes numeric version but does not define it as the opaque
+            consentRevisionId; integer version is not coerced or substituted.
           missingOrMismatchedTuple: UNKNOWN; deny consequential continuation until exact consentRevisionId is returned and correlated.
           runtimeAdmission: NOT_ADMITTED
         applicabilityContract: null
@@ -5589,7 +5716,9 @@ records:
     objectBindings:
       - objectRef: media.domain.stream-session
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session
-        identityTupleFields: []
+        identityTupleFields:
+          - tenantId
+          - sessionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.stream-session/identityComponents
         versionTupleFields: []
         disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
@@ -6854,41 +6983,58 @@ records:
     objectBindings:
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
-        identityTupleFields: [tenantId, artifactId, versionId]
+        identityTupleFields:
+          - tenantId
+          - artifactId
+          - versionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-        versionTupleFields: [versionId]
+        versionTupleFields:
+          - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
       - id: media.step-version-object-binding.j-08-01.artifact-version.v1
         objectRef: media.domain.artifact-version
         fields:
           - direction: LOCAL_SELECTION
-            candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
+            fieldName: versionRef
+            operationRef: null
+            requestSchemaRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1/inputContract/mutation/candidateSchemaRef
             fieldSelector: .product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs/ExactArtifactVersionRef
-            boundObjectRefs: [media.domain.artifact-version]
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement: [versionId]
+            candidateSchemaRef: media.component-value-types.v1#/$defs/SourceVersionCandidate
+            versionRule: The exact Media-owned local candidate schema resolves versionRef to the full artifact version identity
+              tuple; selection is local draft state only.
+            boundObjectRefs:
+              - media.domain.artifact-version
+            requiredVersionBinding: LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH
+        coverageDisposition: VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN
+        exactVersionTupleRequirement:
+          - versionId
         transitiveVersionJoins: []
         canonicalVersionIdentityRequirement:
           identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
           identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-          exactTupleFields: [tenantId, artifactId, versionId]
+          exactTupleFields:
+            - tenantId
+            - artifactId
+            - versionId
           tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields: [tenantId]
+          trustedContextFields:
+            - tenantId
           missingOrStaleDisposition: UNKNOWN
           foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs:
-          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1/inputContract/mutation/candidateSchemaRef
+        sourceBoundaryRefs: []
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
-        runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1/localRevisionRule
-    versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED
-    versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched, or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
+    versionDisposition: LOCAL_DRAFT_REVISION_CAS; NOT_CANONICAL_PRODUCT_VERSION
+    versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
+      is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
+      or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
     runtimeAdmission: NOT_ADMITTED
-    decisionRef: .product-experience/decision-log.md#PXD-111
+    decisionRef: .product-experience/decision-log.md#PXD-119
     acceptanceEffect: none
   - id: media.step-version-binding.j-08-02.v1
     journeyRef: J-08
@@ -6972,7 +7118,7 @@ records:
       is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
       or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
     runtimeAdmission: NOT_ADMITTED
-    decisionRef: .product-experience/decision-log.md#PXD-111
+    decisionRef: .product-experience/decision-log.md#PXD-119
     acceptanceEffect: none
   - id: media.step-version-binding.j-08-03.v1
     journeyRef: J-08
@@ -7496,73 +7642,137 @@ records:
     stepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
     stepSemanticDefinitionId: J-06.step-01
     actionRef: media.action.submit-validated-request
-    invocationAdapterRef: .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
     operationBindings:
       - operationRef: media.operation.capability.media-multimodal-observe-source-grounded
         contractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
         requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/requestSchema
-        requestReferenceFields:
-          - fieldSelector: /properties/input1/properties/payload/properties/artifactId
-            allowedObjectRefs: [media.domain.artifact-version]
-            versionRule: artifactId must match the exact selected artifact-version tuple
-          - fieldSelector: /properties/input1/properties/payload/properties/versionId
-            allowedObjectRefs: [media.domain.artifact-version]
-            versionRule: exact immutable version; latest aliases are forbidden
+        requestReferenceFields: []
         requestSemanticFields: []
-        resultVersionFields: []
+        resultVersionFields:
+          - fieldName: versionId
+            artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+            boundObjectRefs:
+              - media.domain.quality-assessment
+              - media.domain.provenance-manifest
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
+          - fieldName: versionId
+            artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+            boundObjectRefs:
+              - media.domain.quality-assessment
+              - media.domain.provenance-manifest
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
         resultSemanticsRef: null
-        affectedObjectRefs: [media.domain.artifact, media.domain.artifact-version]
+        affectedObjectRefs: []
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED; TARGET_INPUT_ADAPTER_REQUIRED; RUNTIME_NOT_ADMITTED
     objectBindings:
       - objectRef: media.domain.artifact
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact
-        identityTupleFields: [tenantId, artifactId]
+        identityTupleFields:
+          - tenantId
+          - artifactId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact/identityComponents
         versionTupleFields: []
-        disposition: EXACT_STABLE_OBJECT_TUPLE; NO_VERSION_COMPONENT_IN_IDENTITY_SOURCE
+        disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
       - objectRef: media.domain.artifact-version
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
-        identityTupleFields: [tenantId, artifactId, versionId]
+        identityTupleFields:
+          - tenantId
+          - artifactId
+          - versionId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-        versionTupleFields: [versionId]
+        versionTupleFields:
+          - versionId
         disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
       - objectRef: media.domain.processing-job
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job
-        identityTupleFields: [tenantId, jobId]
+        identityTupleFields:
+          - tenantId
+          - jobId
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-job/identityComponents
         versionTupleFields: []
-        disposition: EXACT_STABLE_OBJECT_TUPLE; NO_VERSION_COMPONENT_IN_IDENTITY_SOURCE
+        disposition: IDENTITY_HAS_NO_VERSION_COMPONENT
       - objectRef: media.domain.provenance-manifest
         identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.provenance-manifest
-        identityTupleFields: [tenantId, manifestId, semanticVersion]
+        identityTupleFields:
+          - tenantId
+          - manifestId
+          - semanticVersion
         identityTupleComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.provenance-manifest/identityComponents
-        versionTupleFields: [semanticVersion]
-        disposition: EXACT_IMMUTABLE_PROVENANCE_MANIFEST_IDENTITY_REQUIRED
+        versionTupleFields:
+          - semanticVersion
+        disposition: EXACT_VERSION_IDENTITY_TUPLE_REQUIRED
     versionFieldBindings:
       - id: media.step-version-object-binding.j-06-01.artifact-version.v1
         objectRef: media.domain.artifact-version
-        fields:
-          - direction: REQUEST
-            operationRef: media.operation.capability.media-multimodal-observe-source-grounded
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/requestSchema/properties/input1/properties/payload/properties/versionId
-            fieldName: versionId
-            boundObjectRefs: [media.domain.artifact-version]
-            versionRule: exact immutable versionId paired with artifactId and host tenantId
-            requiredVersionBinding: P3_OWNER_REQUIRES_COMPLETE_CANONICAL_VERSION_IDENTITY_TUPLE_FOR_THIS_OBJECT
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
-        exactVersionTupleRequirement: [tenantId, artifactId, versionId]
+        fields: []
+        coverageDisposition: VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN
+        exactVersionTupleRequirement:
+          - versionId
         transitiveVersionJoins: []
         canonicalVersionIdentityRequirement:
           identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version
           identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version/identityComponents
-          exactTupleFields: [tenantId, artifactId, versionId]
+          exactTupleFields:
+            - tenantId
+            - artifactId
+            - versionId
           tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
-          trustedContextFields: [tenantId]
+          trustedContextFields:
+            - tenantId
           missingOrStaleDisposition: UNKNOWN
           foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs:
-          - .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+        sourceBoundaryRefs: []
+        deferredVersionBinding: null
+        logicalVersionJoin: null
+        applicabilityContract: null
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
+        acceptanceEffect: none
+      - id: media.step-version-object-binding.j-06-01.provenance-manifest.v1
+        objectRef: media.domain.provenance-manifest
+        fields:
+          - direction: OWNER_RESULT
+            operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/requestSchema
+            resultSchemaRef: null
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
+            fieldName: versionId
+            artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+            boundObjectRefs:
+              - media.domain.quality-assessment
+              - media.domain.provenance-manifest
+            semanticDisposition: null
+            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
+            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
+          - direction: OWNER_RESULT
+            operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/requestSchema
+            resultSchemaRef: null
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded/resultSchema/allOf/0/then/properties/outputs/items/oneOf/0/properties/payload/properties/versionId
+            fieldName: versionId
+            artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+            boundObjectRefs:
+              - media.domain.quality-assessment
+              - media.domain.provenance-manifest
+            semanticDisposition: null
+            versionRule: P1 result schema exposes this owner-issued version field; it is not a runtime receipt.
+            requiredVersionBinding: OWNER_ISSUED_VERSION_IDENTITY; NOT_A_RUNTIME_RECEIPT
+        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        exactVersionTupleRequirement:
+          - semanticVersion
+        transitiveVersionJoins: []
+        canonicalVersionIdentityRequirement:
+          identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.provenance-manifest
+          identityComponentsRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.provenance-manifest/identityComponents
+          exactTupleFields:
+            - tenantId
+            - manifestId
+            - semanticVersion
+          tupleComparison: ALL_IDENTITY_COMPONENTS_MUST_MATCH_THE_SAME_EXACT_OWNER_ISSUED_VERSION; NO_LATEST_ALIAS_OR_CROSS_TENANT_JOIN
+          trustedContextFields:
+            - tenantId
+          missingOrStaleDisposition: UNKNOWN
+          foreignTenantOrMixedVersionDisposition: UNKNOWN
+        sourceBoundaryRefs: []
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
@@ -8162,7 +8372,7 @@ records:
             boundObjectRefs:
               - media.domain.artifact-version
             requiredVersionBinding: LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        coverageDisposition: VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN
         exactVersionTupleRequirement:
           - versionId
         transitiveVersionJoins: []
@@ -8178,13 +8388,11 @@ records:
             - tenantId
           missingOrStaleDisposition: UNKNOWN
           foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs:
-          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-03.step-01.v1/inputContract/mutation/candidateSchemaRef
-          - .product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs/ExactArtifactVersionRef
+        sourceBoundaryRefs: []
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
-        runtimeObservationDisposition: LOCAL_HOST_CATALOG_SELECTION_ONLY; NO_REMOTE_OBSERVATION_OR_ADMISSION
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-03.step-01.v1/localRevisionRule
     versionDisposition: LOCAL_DRAFT_REVISION_CAS; NOT_CANONICAL_PRODUCT_VERSION
@@ -9051,6 +9259,7 @@ records:
       - objectRef: media.domain.transcription
         identityContractRef: null
         identityTupleFields: []
+        identityTupleComponentsRef: null
         versionTupleFields: []
         disposition: SOURCE_OBSERVATION_NOT_CANONICAL_MEDIA_IDENTITY
     versionFieldBindings:
@@ -9167,7 +9376,7 @@ records:
         runtimeObservationDisposition: DEFINITION_FIELD_ONLY; runtime NOT_ADMITTED
         acceptanceEffect: none
     localDraftRevisionContractRef: null
-    versionDisposition: EXACT_CANONICAL_VERSION_TUPLE_REQUIRED; LEGACY_TRANSCRIPTION_OBSERVATION_REMAINS_NONCANONICAL
+    versionDisposition: SOURCE_OBSERVATION_NOT_CANONICAL_MEDIA_IDENTITY
     versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
       is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
       or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
@@ -9681,7 +9890,7 @@ records:
               - media.domain.artifact
               - media.domain.artifact-version
             requiredVersionBinding: LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH
-        coverageDisposition: EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND
+        coverageDisposition: VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN
         exactVersionTupleRequirement:
           - versionId
         transitiveVersionJoins: []
@@ -9697,13 +9906,11 @@ records:
             - tenantId
           missingOrStaleDisposition: UNKNOWN
           foreignTenantOrMixedVersionDisposition: UNKNOWN
-        sourceBoundaryRefs:
-          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-02.step-01.v1/inputContract/mutation/candidateSchemaRef
-          - .product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs/ExactArtifactVersionRef
+        sourceBoundaryRefs: []
         deferredVersionBinding: null
         logicalVersionJoin: null
         applicabilityContract: null
-        runtimeObservationDisposition: LOCAL_HOST_CATALOG_SELECTION_ONLY; NO_REMOTE_OBSERVATION_OR_ADMISSION
+        runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-02.step-01.v1/localRevisionRule
     versionDisposition: LOCAL_DRAFT_REVISION_CAS; NOT_CANONICAL_PRODUCT_VERSION
@@ -9800,7 +10007,7 @@ records:
         runtimeObservationDisposition: UNKNOWN_UNTIL_EXACT_SOURCE_JOIN_IS_AVAILABLE
         acceptanceEffect: none
     localDraftRevisionContractRef: null
-    versionDisposition: NO_ARTIFACT_VERSION_EXISTS_AT_BEGIN_UPLOAD
+    versionDisposition: NOT_APPLICABLE_BEFORE_OWNER_ISSUED_ARTIFACT_VERSION
     versionBindingRule: For a canonical object whose P1 identity tuple contains version/revision fields, every tuple field
       is required from the exact immutable version applicable to this step. Missing, stale, foreign-tenant, mismatched,
       or substituted-latest identity is UNKNOWN; it cannot authorize a consequential effect.
@@ -10033,31 +10240,25 @@ records:
     ordinal: 5
     stepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
     stepSemanticDefinitionId: J-02.step-05
-    actionRef: null
+    actionRef: media.action.inspect-source
     operationBindings:
-      - operationRef: media.operation-slice.inspect-artifact
-        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
-        requestSchemaRef: null
-        requestReferenceFields: []
+      - operationRef: media.operation-slice.inspect-artifact-version
+        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
+        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/requestSchema
+        requestReferenceFields:
+          - fieldSelector: /properties/artifactId
+            allowedObjectRefs:
+              - media.domain.artifact
+            versionRule: exact artifact identity is required; no alias or cross-tenant lookup
+          - fieldSelector: /properties/artifactVersionId
+            allowedObjectRefs:
+              - media.domain.artifact-version
+            versionRule: exact immutable version is required; no latest alias or cross-tenant join
         requestSemanticFields: []
         resultVersionFields: []
         resultSemanticsRef: null
-        affectedObjectRefs: []
-        disposition: OWNER_REQUEST_SCHEMA_NOT_PRESENT
-      - operationRef: media.operation.artifact.lifecycle.observe.v1
-        contractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1
-        requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/requestSchema
-        requestReferenceFields: []
-        requestSemanticFields:
-          - fieldName: artifactVersionId
-            boundObjectRefs:
-              - media.domain.artifact-version
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/requestSchema/required/1
-            semanticBranch: null
-        resultVersionFields: []
-        resultSemanticsRef: null
         affectedObjectRefs:
-          - media.domain.media-artifact
+          - media.domain.artifact
           - media.domain.artifact-version
         disposition: OWNER_REQUEST_SCHEMA_RESOLVED
     objectBindings:
@@ -10084,9 +10285,9 @@ records:
         objectRef: media.domain.artifact-version
         fields:
           - direction: REQUEST
-            operationRef: media.operation.artifact.lifecycle.observe.v1
-            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/requestSchema
-            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.artifact.lifecycle.observe.v1/requestSchema/required/1
+            operationRef: media.operation-slice.inspect-artifact-version
+            requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/requestSchema
+            fieldSelector: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/requestSchema/properties/artifactVersionId
             fieldName: artifactVersionId
             boundObjectRefs:
               - media.domain.artifact-version

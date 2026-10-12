@@ -92,7 +92,7 @@ test("the 19 exact PDP-3 operation joins resolve to source-owned object, state, 
   }
   const noState = bindings.filter((row) => row.stateRefs.length === 0);
   assert.ok(noState.length > 0);
-  assert.ok(noState.every((row) => /NO_STATE|READ_ONLY|SESSION_LOCAL|APPEND_ONLY/u.test(row.stateBindingDisposition)),
+  assert.ok(noState.every((row) => /NO_(?:CURRENT_)?STATE|READ_ONLY|SESSION_LOCAL|APPEND_ONLY/u.test(row.stateBindingDisposition)),
     "absence of a state link is reasoned, not a silent omission");
   const artifactReads = bindings.filter((row) => row.operationRef === "media.operation-slice.inspect-artifact");
   assert.ok(artifactReads.length >= 3);

@@ -224,6 +224,10 @@ export function evaluateMediaTransitionTriggerDefinition({ edge, event, trusted,
   }));
   const evaluate = (node) => {
     if (node?.factRef) return derivedVerdicts[node.factRef] === "SATISFIED" ? true : derivedVerdicts[node.factRef] === "DENIED" ? false : null;
+    if (node?.not) {
+      const value = evaluate(node.not);
+      return value === null ? null : !value;
+    }
     const groups = ["all", "any"].filter((key) => Array.isArray(node?.[key]));
     if (groups.length !== 1 || node[groups[0]].length === 0) return null;
     const values = node[groups[0]].map(evaluate);
@@ -544,6 +548,10 @@ export function evaluateMediaGuardFactReceiptSetDefinition({ definition, input, 
   }
   const evaluate = (node) => {
     if (node?.factRef) return verdicts.get(node.factRef) === "SATISFIED" ? true : verdicts.get(node.factRef) === "DENIED" ? false : null;
+    if (node?.not) {
+      const value = evaluate(node.not);
+      return value === null ? null : !value;
+    }
     const groups = ["all", "any"].filter((key) => Array.isArray(node?.[key]));
     if (groups.length !== 1 || node[groups[0]].length === 0) return null;
     const children = node[groups[0]].map(evaluate);

@@ -8,6 +8,9 @@
 
 .media-task-flow {
   /* Media roles project exact public Shared semantic typography/geometry tokens. */
+  --media-color-state-completed: var(--gh-colors-palette-success-main);
+  --media-color-state-in-progress: var(--gh-colors-palette-info-700);
+  --media-color-state-needs-review: var(--gh-colors-palette-warning-main);
   --media-font-body: var(--gh-semantic-typography-body-font-size);
   --media-line-body: var(--gh-semantic-typography-body-line-height);
   --media-font-page-title: var(--gh-semantic-typography-page-title-font-size);
@@ -36,6 +39,30 @@
   font-size: var(--media-font-body);
   font-weight: var(--gh-semantic-typography-body-font-weight);
   line-height: var(--media-line-body);
+}
+
+/* System preference is the default mode; hosts may set data-color-scheme on this root or an ancestor. */
+@media (prefers-color-scheme: dark) {
+  .media-task-flow:not([data-color-scheme="light"]),
+  [data-color-scheme="dark"] .media-task-flow {
+    --media-color-state-completed: var(--gh-colors-palette-success-light);
+    --media-color-state-in-progress: var(--gh-colors-palette-info-light);
+    --media-color-state-needs-review: var(--gh-colors-palette-warning-light);
+  }
+}
+
+.media-task-flow[data-color-scheme="dark"],
+[data-color-scheme="dark"] .media-task-flow {
+  --media-color-state-completed: var(--gh-colors-palette-success-light);
+  --media-color-state-in-progress: var(--gh-colors-palette-info-light);
+  --media-color-state-needs-review: var(--gh-colors-palette-warning-light);
+}
+
+.media-task-flow[data-color-scheme="light"],
+[data-color-scheme="light"] .media-task-flow {
+  --media-color-state-completed: var(--gh-colors-palette-success-main);
+  --media-color-state-in-progress: var(--gh-colors-palette-info-700);
+  --media-color-state-needs-review: var(--gh-colors-palette-warning-main);
 }
 
 .media-task-flow *,
@@ -105,9 +132,9 @@
 }
 .media-progress--neutral { color: GrayText; }
 .media-progress--info,
-.media-progress--primary { color: Highlight; }
-.media-progress--success { color: LinkText; }
-.media-progress--warning { color: Mark; }
+.media-progress--primary { color: var(--media-color-state-in-progress, Highlight); }
+.media-progress--success { color: var(--media-color-state-completed, LinkText); }
+.media-progress--warning { color: var(--media-color-state-needs-review, Mark); }
 .media-progress--error { color: MarkText; }
 .media-progress::-webkit-progress-bar { border-radius: inherit; background: ButtonFace; }
 .media-progress::-webkit-progress-value { border-radius: inherit; background: currentColor; }
@@ -239,6 +266,10 @@
 }
 
 @media (forced-colors: active) {
+  .media-task-flow .media-progress--info,
+  .media-task-flow .media-progress--primary { color: Highlight; }
+  .media-task-flow .media-progress--success { color: LinkText; }
+  .media-task-flow .media-progress--warning { color: Mark; }
   .media-task-flow nav li > button[aria-current="step"] { outline-color: Highlight; }
   .media-task-flow > section[aria-labelledby="media-operation-title"],
   .media-task-flow > div > section,

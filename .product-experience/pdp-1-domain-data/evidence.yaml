@@ -22,7 +22,16 @@ eventEvidenceBindings:
       - {eventType: media.stream.closed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
       - {eventType: media.job.completed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
       - {eventType: media.job.failed, sourceObservationCandidate: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218, sourceDomainRecordCandidate: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#ProcessingJob, evidenceAvailable: source-observation-only, finalityAndDelivery: unavailable}
-  publicationAttemptEvidence: "runtime logs publication as unconfirmed on failure; no durable receipt, outbox, replay, or recovery evidence contract established"
+  eventPlaneAcceptanceEvidence:
+    definitionRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts.deliveryProtocol.eventPlaneDependency.requiredAppendReceipt
+    status: OWNER_DEFINED_DEFINITION_ONLY; runtime-receipt-evidence-unavailable
+    requiredReceiptFields: [eventId, storedEventId, streamId, offset]
+    proves: exact-matched-record-accepted-by-Event-Plane-append
+    doesNotProve: [consumer-received, consumer-processed, downstream-effect-committed, provider-finality, user-visible-completion]
+    appendHttp201Alone: insufficient-without-exact-receipt-and-trusted-host-binding
+    ambiguousOutcome: UNKNOWN-until-exact-current-authoritative-lookup-reconciles; retain-event-intent
+    executionAdmission: NOT_ADMITTED
+  publicationAttemptEvidence: "current runtime discards the append response body and logs publication unconfirmed on failure; no durable receipt, outbox, replay, or recovery evidence is implemented"
   scopeStatus: source-inventory-only; proposed evidence semantics remain pending-owner-review
 evidenceClasses:
   - id: media.evidence.source-observation

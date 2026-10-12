@@ -22,14 +22,15 @@ orderedViews:
   - media.view.job-status
   - media.view.review-activity
 preconditions:
-  known: A live session has stable session and frame identity, bounded buffers, a current lease, and
-    authoritative consent scope.
-  ownerReview: Exact lease issuance, consent authority, and frame-admission rules require the owning
-    runtime and privacy reviewers.
+  known: A live session has stable session and frame identity, bounded buffers, a
+    current lease, and authoritative consent scope.
+  ownerReview: Exact lease issuance, consent authority, and frame-admission rules
+    require the owning runtime and privacy reviewers.
 completion:
-  known: Session closure or drain is confirmed, or in-flight external effects remain explicitly
-    unknown; no new frame crosses after revocation or fencing.
-  ownerReview: Confirmation source, drain guarantees, and finality vocabulary require owner approval.
+  known: Session closure or drain is confirmed, or in-flight external effects
+    remain explicitly unknown; no new frame crosses after revocation or fencing.
+  ownerReview: Confirmation source, drain guarantees, and finality vocabulary
+    require owner approval.
 terminalSuccess: session-closed-or-drained-with-unknown-effects-explicit
 steps:
   - stepId: detect-loss-or-consent-change
@@ -55,10 +56,12 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: session-closed-or-drained-with-unknown-effects-explicit
+      status: NO_RESULT_UNTIL_OWNER_OBSERVATION
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics
+      meaning: No operation result is produced because no exact query is bound;
+        missing/unavailable owner observation remains UNKNOWN.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -69,7 +72,16 @@ steps:
         - consent-revocation-or-expiry
         - out-of-order-acknowledgement
         - uncertain-provider-frame-outcome
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+      disposition: Missing, stale, consent-changed, fenced, or unresolved observation
+        remains UNKNOWN and holds recovery. Do not create a new frame, replay
+        work, or claim close/stop; this step itself has no dispatch.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -79,7 +91,8 @@ steps:
           - fence-new-frame-submission
           - use-prior-consent-only-for-permitted-termination
           - reconcile-dispatched-frame-effects-before-opening-any-new-session
-        ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+        ownerReview: Retry, reconnect, drain, and close semantics require transport and
+          service owner review.
     postconditions: []
     requirementRefs: []
     verification:
@@ -99,7 +112,8 @@ steps:
         - current-consent-version
         - per-frame-finality
     bindingStatus:
-      status: proposal-only; owner decision and independent review pending; runtime NOT_ADMITTED
+      status: proposal-only; owner decision and independent review pending; runtime
+        NOT_ADMITTED
       surfaceRefs: pending owner definition review; no accepted binding
       objectRefs: pending owner definition review; no accepted binding
       stateRefs: pending owner definition review; no accepted binding
@@ -108,14 +122,17 @@ steps:
       authorityRef: pending owner definition review; no accepted binding
       transitionRef: pending owner definition review; no accepted binding
       decisionRef: pending owner definition review; no accepted binding
-      success: pending owner definition review; no accepted binding
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics;
+        later journey outcome remains separate
       failure: pending owner definition review; no accepted binding
       recovery: pending owner definition review; no accepted binding
       requirementRefs: pending owner definition review; no accepted binding
       verification: pending owner definition review; no accepted binding
       contextPreservation: pending owner definition review; no accepted binding
       postconditions: pending owner definition review; no accepted binding
-      degradedBehavior: pending owner definition review; no accepted binding
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0
@@ -123,39 +140,50 @@ steps:
       ordinal: 1
       viewRef: media.view.review-activity
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
-      bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
+      bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS;
+        OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
       action:
         actionRef: null
         bindingStatus: NO_DISPATCH_ACTION; LIVE_SESSION_OPERATION_IDENTITY_UNBOUND
-        selectionBasis: This step defines observation/fail-closed eligibility, not an invented route or
-          provider command.
+        selectionBasis: This step defines observation/fail-closed eligibility, not an
+          invented route or provider command.
         candidateActionRefs: []
         runtimeAdmission: NOT_ADMITTED
         semanticRole: NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE
         guards:
-          - Bind every fact to exact tenantId/sessionId and current owner-issued versions; unknown
-            or stale facts do not pass.
-          - Require current authority-issued consent and the current lease/fencing token at every
-            effect boundary.
-          - Preserve exact frame sequence and per-frame finality; unknown is never success or
-            permission to replay.
-        effect: Read and present current source-provided facts only; do not mutate session, consent, job, or
-          frame state.
-        finality: No external operation is bound; provider/session/frame finality remains owner-observed or
-          UNKNOWN.
-        failureRecovery: Re-observe the same tenantId/sessionId and reconcile the same frame sequence
-          identities; never create a replacement session as a lookup retry.
+          - Bind every fact to exact tenantId/sessionId and current owner-issued
+            versions; unknown or stale facts do not pass.
+          - Require current authority-issued consent and the current
+            lease/fencing token at every effect boundary.
+          - Preserve exact frame sequence and per-frame finality; unknown is
+            never success or permission to replay.
+        effect: Read and present current source-provided facts only; do not mutate
+          session, consent, job, or frame state.
+        finality: No external operation is bound; provider/session/frame finality
+          remains owner-observed or UNKNOWN.
+        failureRecovery: Re-observe the same tenantId/sessionId and reconcile the same
+          frame sequence identities; never create a replacement session as a
+          lookup retry.
       stepSourceFacts:
-        intent: Inspect the exact session, latest owner-reported session state, lease/fencing version,
-          consent authority version, last acknowledged frame sequence, and per-frame finality. Treat
-          source observations stream-session/stream-frame as noncanonical transport observations;
+        intent: Inspect the exact session, latest owner-reported session state,
+          lease/fencing version, consent authority version, last acknowledged
+          frame sequence, and per-frame finality. Treat source observations
+          stream-session/stream-frame as noncanonical transport observations;
           never infer an active lease or consent from a cached client view.
-        result: null
+        result: "NO_OPERATION_RESULT: this gate/observation step has no bound operation
+          query; missing owner evidence remains UNKNOWN."
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics/action/bindingStatus
+          - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics/canonicalBindingDisposition/fields/canonicalOperationRef
+          - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics/stepInteractionSemantics/positive
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: session-closed-or-drained-with-unknown-effects-explicit
+          status: NO_RESULT_UNTIL_OWNER_OBSERVATION
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics
+          meaning: No operation result is produced because no exact query is bound;
+            missing/unavailable owner observation remains UNKNOWN.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -166,7 +194,16 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0/stepDefinitionSemantics
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+          disposition: Missing, stale, consent-changed, fenced, or unresolved observation
+            remains UNKNOWN and holds recovery. Do not create a new frame,
+            replay work, or claim close/stop; this step itself has no dispatch.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -176,8 +213,8 @@ steps:
               - fence-new-frame-submission
               - use-prior-consent-only-for-permitted-termination
               - reconcile-dispatched-frame-effects-before-opening-any-new-session
-            ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner
-              review.
+            ownerReview: Retry, reconnect, drain, and close semantics require transport and
+              service owner review.
         postconditions: []
         contextPreservation:
           status: candidate-proposal
@@ -223,8 +260,10 @@ steps:
           - duplicate-key-safe YAML parse
           - focused PDP3-005 ten-contract structural/reference check
         actualEvidence: []
-      acceptanceBoundary: PXD-077 bounds the Media owner action, exact request and guard definition only. Runtime
-        execution, current authoritative evidence, independent phase review, Lifecycle receipt, and transport recovery remain open.
+      acceptanceBoundary: PXD-077 bounds the Media owner action, exact request and
+        guard definition only. Runtime execution, current authoritative
+        evidence, independent phase review, Lifecycle receipt, and transport
+        recovery remain open.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#J-29
@@ -236,24 +275,26 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         definitionCases:
           - case: all-current-owner-facts
-            expected: Return the exact observed facts and their source/freshness; absent, stale, or mismatched
-              evidence remains UNKNOWN.
+            expected: Return the exact observed facts and their source/freshness; absent,
+              stale, or mismatched evidence remains UNKNOWN.
           - case: revoked-or-expired-consent-or-fenced-lease
-            expected: On disconnect, stale view, missing owner receipt, or unknown consent/lease currentness,
-              show unknown and block recovery eligibility.
+            expected: On disconnect, stale view, missing owner receipt, or unknown
+              consent/lease currentness, show unknown and block recovery
+              eligibility.
           - case: unknown-or-conflicting-frame-finality
-            expected: Re-observe the same tenantId/sessionId and reconcile the same frame sequence identities;
-              never create a replacement session as a lookup retry.
+            expected: Re-observe the same tenantId/sessionId and reconcile the same frame
+              sequence identities; never create a replacement session as a
+              lookup retry.
       stepOutcomeSemantics:
         status: OWNER_DEFINED_DEFINITION_ONLY; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0
         actionRef: null
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0
-          intendedResult: Return the exact observed facts and their source/freshness; absent, stale, or
-            mismatched evidence remains UNKNOWN.
-          effect: Read and present current source-provided facts only; do not mutate session, consent, job, or
-            frame state.
+          intendedResult: Return the exact observed facts and their source/freshness;
+            absent, stale, or mismatched evidence remains UNKNOWN.
+          effect: Read and present current source-provided facts only; do not mutate
+            session, consent, job, or frame state.
           finality: No external action; preserve owner-issued evidence and uncertainty.
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0
@@ -263,12 +304,14 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-          failure: On disconnect, stale view, missing owner receipt, or unknown consent/lease currentness,
-            show unknown and block recovery eligibility.
+          failure: On disconnect, stale view, missing owner receipt, or unknown
+            consent/lease currentness, show unknown and block recovery
+            eligibility.
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0
-          recovery: Re-observe the same tenantId/sessionId and reconcile the same frame sequence identities;
-            never create a replacement session as a lookup retry.
+          recovery: Re-observe the same tenantId/sessionId and reconcile the same frame
+            sequence identities; never create a replacement session as a lookup
+            retry.
           automaticRetry: NEVER; exact owner operation and proof required
       transitionApplicability:
         status: OBSERVATION_ONLY_NO_TRANSITION
@@ -280,8 +323,8 @@ steps:
           - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
         operationRef: null
         sourceRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
-        guardBinding: ownerGuardDefinition is the exact source predicate; external authority/provider proof
-          remains required
+        guardBinding: ownerGuardDefinition is the exact source predicate; external
+          authority/provider proof remains required
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/0
@@ -289,7 +332,8 @@ steps:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: STREAM_SESSION_AND_FRAME_ARE_EXPLICIT_NONCANONICAL_SOURCE_OBSERVATIONS;
             JOB_LEASE_AND_CONSENT_REFERENCE_USE_CANONICAL_IDENTITIES
-          stateRefs: EXACT_OWNER_DEFINED_STREAM_ATTEMPT_AND_CONSENT_STATE_MACHINES; INDEPENDENT_REVIEW_OPEN
+          stateRefs: EXACT_OWNER_DEFINED_STREAM_ATTEMPT_AND_CONSENT_STATE_MACHINES;
+            INDEPENDENT_REVIEW_OPEN
           canonicalOperationRef: UNBOUND; P1 stream-session family remains proposal-only
           authorityRef: EXACT_AUTHORITY_SOURCE_REFS_ARRAY; SINGULAR_PRIMARY_AMBIGUOUS
           transitionRef: OBSERVATION_ONLY_NO_TRANSITION
@@ -301,11 +345,14 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
           - .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity
-        requirementCrosswalkStatus: unresolved; stream-session capability/requirement crosswalk not declared
-        noAcceptanceInference: owner definition and exact operation binding are not independent review, runtime
-          admission, provider receipt, or Lifecycle acceptance
+        requirementCrosswalkStatus: unresolved; stream-session capability/requirement
+          crosswalk not declared
+        noAcceptanceInference: owner definition and exact operation binding are not
+          independent review, runtime admission, provider receipt, or Lifecycle
+          acceptance
       versionedObjectObservation:
-        status: SOURCE_OBSERVATION_IDENTITIES_PRESERVED; CANONICAL_PRODUCT_OBJECT_EQUIVALENCE_NOT_ASSERTED
+        status: SOURCE_OBSERVATION_IDENTITIES_PRESERVED;
+          CANONICAL_PRODUCT_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs:
           - media.domain.stream-session
@@ -313,9 +360,10 @@ steps:
           - media.domain.job-lease
           - media.domain.consent-reference
           - media.domain.processing-job
-        versionIdentityRule: Bind tenantId + sessionId + frame sequence + lease/fencing token +
-          authority-issued consentId/revision; retain exact identity across reconciliation. Do not
-          treat source-observation IDs as canonical durable object authority.
+        versionIdentityRule: Bind tenantId + sessionId + frame sequence + lease/fencing
+          token + authority-issued consentId/revision; retain exact identity
+          across reconciliation. Do not treat source-observation IDs as
+          canonical durable object authority.
         sourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication.registeredObjectIdentityRefs
         observation:
           - tenantId
@@ -346,14 +394,15 @@ steps:
         actionRef: null
         candidateActionRefs: []
         operationRefs: []
-        effectClaim: Read and present current source-provided facts only; do not mutate session, consent,
-          job, or frame state.
+        effectClaim: Read and present current source-provided facts only; do not mutate
+          session, consent, job, or frame state.
       stepInteractionSemantics:
         status: SOURCE_DEFINED_MEDIA_OWNER_RECOVERY_RULE; REVIEW_AND_RUNTIME_OPEN
         kind: OBSERVE_SESSION_RECOVERY_CONTEXT
-        purpose: Inspect the exact session, latest owner-reported session state, lease/fencing version,
-          consent authority version, last acknowledged frame sequence, and per-frame finality. Treat
-          source observations stream-session/stream-frame as noncanonical transport observations;
+        purpose: Inspect the exact session, latest owner-reported session state,
+          lease/fencing version, consent authority version, last acknowledged
+          frame sequence, and per-frame finality. Treat source observations
+          stream-session/stream-frame as noncanonical transport observations;
           never infer an active lease or consent from a cached client view.
         inputs:
           - tenantId
@@ -367,14 +416,16 @@ steps:
           - exactly-bound-session-observation-or-unknown
           - consent-and-lease-currentness-or-unknown
           - per-frame-finality-map
-        effect: Read and present current source-provided facts only; do not mutate session, consent, job, or
-          frame state.
-        positive: Return the exact observed facts and their source/freshness; absent, stale, or mismatched
-          evidence remains UNKNOWN.
-        nonhappy: On disconnect, stale view, missing owner receipt, or unknown consent/lease currentness,
-          show unknown and block recovery eligibility.
-        recovery: Re-observe the same tenantId/sessionId and reconcile the same frame sequence identities;
-          never create a replacement session as a lookup retry.
+        effect: Read and present current source-provided facts only; do not mutate
+          session, consent, job, or frame state.
+        positive: Return the exact observed facts and their source/freshness; absent,
+          stale, or mismatched evidence remains UNKNOWN.
+        nonhappy: On disconnect, stale view, missing owner receipt, or unknown
+          consent/lease currentness, show unknown and block recovery
+          eligibility.
+        recovery: Re-observe the same tenantId/sessionId and reconcile the same frame
+          sequence identities; never create a replacement session as a lookup
+          retry.
         transition: OBSERVATION_ONLY_NO_STATE_TRANSITION
         canonicalSourceRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
@@ -383,8 +434,8 @@ steps:
           - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
         candidateOperationRef: media.operation.stream-session
         candidateOperationStatus: PDP1_PROPOSAL_ONLY; NO_CANONICAL_BINDING_OR_RUNTIME_ADMISSION
-        objectIdentityDisposition: stream-session and stream-frame remain explicit source observations, not
-          canonical Media product objects
+        objectIdentityDisposition: stream-session and stream-frame remain explicit
+          source observations, not canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
       stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
@@ -393,6 +444,8 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
       - .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity
+    result: "NO_OPERATION_RESULT: this gate/observation step has no bound operation
+      query; missing owner evidence remains UNKNOWN."
   - stepId: fence-new-frame-submission
     view: media.view.job-status
     screenContractRef: screen-contracts/job-status.yaml
@@ -411,15 +464,23 @@ steps:
       - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
       - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
     canonicalOperationRef: null
+    supportingObservationOperationRefs:
+      - media.operation.stream-session.inspect.v1
+      - media.operation.consent-record-inspect.v1
+      - media.operation.stream-session.inspect-execution-recovery.v1
     authorityRef: null
     decisionRef: null
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: session-closed-or-drained-with-unknown-effects-explicit
+      status: EXACT_OBSERVATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+      meaning: One exact same-session observation query result only (sessionId, typed
+        observation, observedAt, readVersion); the query does not dispatch,
+        replay, close, or restore the session.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -430,7 +491,16 @@ steps:
         - consent-revocation-or-expiry
         - out-of-order-acknowledgement
         - uncertain-provider-frame-outcome
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+      disposition: Missing, stale, consent-changed, fenced, or unresolved observation
+        remains UNKNOWN and holds recovery. Do not create a new frame, replay
+        work, or claim close/stop; this step itself has no dispatch.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -440,7 +510,8 @@ steps:
           - fence-new-frame-submission
           - use-prior-consent-only-for-permitted-termination
           - reconcile-dispatched-frame-effects-before-opening-any-new-session
-        ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+        ownerReview: Retry, reconnect, drain, and close semantics require transport and
+          service owner review.
     postconditions: []
     requirementRefs: []
     verification:
@@ -460,25 +531,28 @@ steps:
         - current-consent-version
         - per-frame-finality
     bindingStatus:
-      status: proposal-only; owner decision and independent review pending; runtime NOT_ADMITTED
-        proof and independent review remain open
+      status: proposal-only; owner decision and independent review pending; runtime
+        NOT_ADMITTED proof and independent review remain open
       surfaceRefs: pending owner definition review; no accepted binding
-      objectRefs: pending owner definition review; no accepted binding
-        equivalence boundary explicit
+      objectRefs: pending owner definition review; no accepted binding equivalence
+        boundary explicit
       stateRefs: pending owner definition review; no accepted binding
       canonicalOperationRef: pending owner definition review; no accepted binding
       handoffRef: pending owner definition review; no accepted binding
       authorityRef: pending owner definition review; no accepted binding
       transitionRef: pending owner definition review; no accepted binding
       decisionRef: pending owner definition review; no accepted binding
-      success: pending owner definition review; no accepted binding
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema;
+        later journey outcome remains separate
       failure: pending owner definition review; no accepted binding
       recovery: pending owner definition review; no accepted binding
       requirementRefs: pending owner definition review; no accepted binding
       verification: pending owner definition review; no accepted binding
       contextPreservation: pending owner definition review; no accepted binding
       postconditions: pending owner definition review; no accepted binding
-      degradedBehavior: pending owner definition review; no accepted binding
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
@@ -486,38 +560,52 @@ steps:
       ordinal: 2
       viewRef: media.view.job-status
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
-      bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
+      supportingObservationDecisionRef: .product-experience/decision-log.md#PXD-160
+      bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS;
+        EXACT_SUPPORTING_QUERY_BOUND; INDEPENDENT_REVIEW_OPEN
       action:
         actionRef: null
         bindingStatus: NO_DISPATCH_ACTION; LIVE_SESSION_OPERATION_IDENTITY_UNBOUND
-        selectionBasis: This step defines observation/fail-closed eligibility, not an invented route or
-          provider command.
+        selectionBasis: This step defines observation/fail-closed eligibility, not an
+          invented route or provider command.
         candidateActionRefs: []
         runtimeAdmission: NOT_ADMITTED
         semanticRole: NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE
         guards:
-          - Bind every fact to exact tenantId/sessionId and current owner-issued versions; unknown
-            or stale facts do not pass.
-          - Require current authority-issued consent and the current lease/fencing token at every
-            effect boundary.
-          - Preserve exact frame sequence and per-frame finality; unknown is never success or
-            permission to replay.
-        effect: Definition requires a fail-closed hold at the experience boundary. No frame, close, drain,
-          or cancel request is dispatched by this oracle.
-        finality: No external operation is bound; provider/session/frame finality remains owner-observed or
-          UNKNOWN.
-        failureRecovery: Preserve all uncertain frame outcomes; perform the exact-session observation and
-          owner reconciliation before any new session or frame operation.
+          - Bind every fact to exact tenantId/sessionId and current owner-issued
+            versions; unknown or stale facts do not pass.
+          - Require current authority-issued consent and the current
+            lease/fencing token at every effect boundary.
+          - Preserve exact frame sequence and per-frame finality; unknown is
+            never success or permission to replay.
+        effect: Definition requires a fail-closed hold at the experience boundary. No
+          frame, close, drain, or cancel request is dispatched by this oracle.
+        finality: No external operation is bound; provider/session/frame finality
+          remains owner-observed or UNKNOWN.
+        failureRecovery: Preserve all uncertain frame outcomes; perform the
+          exact-session observation and owner reconciliation before any new
+          session or frame operation.
       stepSourceFacts:
-        intent: When consent is revoked/expired/superseded, lease is expired/fenced, or the session is
-          disconnected/unknown, refuse new frame submission and retain the current session/frame
-          identities. Do not turn fencing intent into a provider-close or cancellation success.
-        result: null
+        intent: When consent is revoked/expired/superseded, lease is expired/fenced, or
+          the session is disconnected/unknown, refuse new frame submission and
+          retain the current session/frame identities. Do not turn fencing
+          intent into a provider-close or cancellation success.
+        result: "EXACT_OWNER_OBSERVATION_ONLY: query result follows
+          .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOpe\
+          rationContracts/records/@id=media.operation.stream-session.inspect-ex\
+          ecution-recovery.v1/resultSchema; absence/missing/stale observation is
+          UNKNOWN and this step dispatches no work."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: session-closed-or-drained-with-unknown-effects-explicit
+          status: EXACT_OBSERVATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+          meaning: One exact same-session observation query result only (sessionId, typed
+            observation, observedAt, readVersion); the query does not dispatch,
+            replay, close, or restore the session.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -528,7 +616,16 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+          disposition: Missing, stale, consent-changed, fenced, or unresolved observation
+            remains UNKNOWN and holds recovery. Do not create a new frame,
+            replay work, or claim close/stop; this step itself has no dispatch.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -538,8 +635,8 @@ steps:
               - fence-new-frame-submission
               - use-prior-consent-only-for-permitted-termination
               - reconcile-dispatched-frame-effects-before-opening-any-new-session
-            ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner
-              review.
+            ownerReview: Retry, reconnect, drain, and close semantics require transport and
+              service owner review.
         postconditions: []
         contextPreservation:
           status: candidate-proposal
@@ -572,8 +669,13 @@ steps:
         requirementRefs: []
         scenarioRefs: []
         canonicalOperationRefs: []
+        supportingObservationOperationRefs:
+          - media.operation.stream-session.inspect.v1
+          - media.operation.consent-record-inspect.v1
+          - media.operation.stream-session.inspect-execution-recovery.v1
+        supportingObservationOperationKinds: [ QUERY, QUERY, QUERY ]
         operationCandidateRefs:
-          - media.operation.stream-session
+          - media.operation.stream-session.inspect-execution-recovery.v1
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -588,8 +690,8 @@ steps:
           - focused PDP3-005 ten-contract structural/reference check
         actualEvidence: []
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#J-29
@@ -601,26 +703,28 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         definitionCases:
           - case: all-current-owner-facts
-            expected: Only an owner-sourced current consent and lease plus connected/degraded session facts
-              permit continuing to an explicitly defined next action; this contract binds no such
-              frame operation.
+            expected: Only an owner-sourced current consent and lease plus
+              connected/degraded session facts permit continuing to an
+              explicitly defined next action; this contract binds no such frame
+              operation.
           - case: revoked-or-expired-consent-or-fenced-lease
-            expected: Revoked/expired/superseded consent, stale/fenced lease, or unknown state yields
-              FENCE_AND_HOLD; no new frame crosses the boundary.
+            expected: Revoked/expired/superseded consent, stale/fenced lease, or unknown
+              state yields FENCE_AND_HOLD; no new frame crosses the boundary.
           - case: unknown-or-conflicting-frame-finality
-            expected: Preserve all uncertain frame outcomes; perform the exact-session observation and owner
-              reconciliation before any new session or frame operation.
+            expected: Preserve all uncertain frame outcomes; perform the exact-session
+              observation and owner reconciliation before any new session or
+              frame operation.
       stepOutcomeSemantics:
         status: OWNER_DEFINED_DEFINITION_ONLY; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
         actionRef: null
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
-          intendedResult: Only an owner-sourced current consent and lease plus connected/degraded session
-            facts permit continuing to an explicitly defined next action; this contract binds no
-            such frame operation.
-          effect: Definition requires a fail-closed hold at the experience boundary. No frame, close, drain,
-            or cancel request is dispatched by this oracle.
+          intendedResult: Only an owner-sourced current consent and lease plus
+            connected/degraded session facts permit continuing to an explicitly
+            defined next action; this contract binds no such frame operation.
+          effect: Definition requires a fail-closed hold at the experience boundary. No
+            frame, close, drain, or cancel request is dispatched by this oracle.
           finality: No external action; preserve owner-issued evidence and uncertainty.
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
@@ -630,12 +734,13 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-          failure: Revoked/expired/superseded consent, stale/fenced lease, or unknown state yields
-            FENCE_AND_HOLD; no new frame crosses the boundary.
+          failure: Revoked/expired/superseded consent, stale/fenced lease, or unknown
+            state yields FENCE_AND_HOLD; no new frame crosses the boundary.
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
-          recovery: Preserve all uncertain frame outcomes; perform the exact-session observation and owner
-            reconciliation before any new session or frame operation.
+          recovery: Preserve all uncertain frame outcomes; perform the exact-session
+            observation and owner reconciliation before any new session or frame
+            operation.
           automaticRetry: NEVER; exact owner operation and proof required
       transitionApplicability:
         status: OWNER_DEFINED_CONDITIONAL_SOURCE_EDGES; NOT_EXECUTED
@@ -649,8 +754,8 @@ steps:
           - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
         operationRef: null
         sourceRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
-        guardBinding: ownerGuardDefinition is the exact source predicate; external authority/provider proof
-          remains required
+        guardBinding: ownerGuardDefinition is the exact source predicate; external
+          authority/provider proof remains required
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
@@ -658,40 +763,62 @@ steps:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: STREAM_SESSION_AND_FRAME_ARE_EXPLICIT_NONCANONICAL_SOURCE_OBSERVATIONS;
             JOB_LEASE_AND_CONSENT_REFERENCE_USE_CANONICAL_IDENTITIES
-          stateRefs: EXACT_OWNER_DEFINED_STREAM_ATTEMPT_AND_CONSENT_STATE_MACHINES; INDEPENDENT_REVIEW_OPEN
-          canonicalOperationRef: UNBOUND; P1 stream-session family remains proposal-only
+          stateRefs: EXACT_OWNER_DEFINED_STREAM_ATTEMPT_AND_CONSENT_STATE_MACHINES;
+            INDEPENDENT_REVIEW_OPEN
+          canonicalOperationRef: NO_DOMAIN_MUTATION; PXD-160 QUERY IS SUPPORTING OBSERVATION ONLY
+          supportingObservationOperationRefs: EXACT_P1_QUERY_BINDINGS; RUNTIME_NOT_ADMITTED
           authorityRef: EXACT_AUTHORITY_SOURCE_REFS_ARRAY; SINGULAR_PRIMARY_AMBIGUOUS
-          transitionRef: EXACT_SOURCE_EDGE_CANDIDATES; OWNER GUARDS SOURCE-DEFINED; NOT EXECUTED
+          transitionRef: EXACT_SOURCE_EDGE_CANDIDATES; OWNER GUARDS SOURCE-DEFINED; NOT
+            EXECUTED
           requirementRefs: UNRESOLVED_NO_EXACT_CAPABILITY_REQUIREMENT_CROSSWALK
           scenarioRefs: DEFINITION_ORACLE_CASES_IN_STEP_ORACLE_ARTIFACT
         operationCandidateRefs:
-          - media.operation.stream-session
+          - media.operation.stream-session.inspect-execution-recovery.v1
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
           - .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity
-        requirementCrosswalkStatus: unresolved; stream-session capability/requirement crosswalk not declared
-        noAcceptanceInference: owner definition is not independent review, operation binding, runtime
-          admission, provider receipt, or Lifecycle acceptance
+        requirementCrosswalkStatus: unresolved; stream-session capability/requirement
+          crosswalk not declared
+        noAcceptanceInference: owner definition is not independent review, operation
+          binding, runtime admission, provider receipt, or Lifecycle acceptance
       versionedObjectObservation:
-        status: SOURCE_OBSERVATION_IDENTITIES_PRESERVED; CANONICAL_PRODUCT_OBJECT_EQUIVALENCE_NOT_ASSERTED
-        operationContractRef: null
+        status: SOURCE_OBSERVATION_IDENTITIES_PRESERVED;
+          CANONICAL_PRODUCT_OBJECT_EQUIVALENCE_NOT_ASSERTED
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1
         objectRefs:
           - media.domain.stream-session
           - media.domain.stream-frame
           - media.domain.job-lease
           - media.domain.consent-reference
           - media.domain.processing-job
-        versionIdentityRule: Bind tenantId + sessionId + frame sequence + lease/fencing token +
-          authority-issued consentId/revision; retain exact identity across reconciliation. Do not
-          treat source-observation IDs as canonical durable object authority.
+        versionIdentityRule: Bind tenantId + sessionId + frame sequence + lease/fencing
+          token + authority-issued consentId/revision; retain exact identity
+          across reconciliation. Do not treat source-observation IDs as
+          canonical durable object authority.
         sourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication.registeredObjectIdentityRefs
         observation:
-          - exactSessionIdentity
-          - currentConsentAuthorityDisposition
-          - currentLeaseAndFencingToken
-          - currentSessionState
-          - lastAcknowledgedFrameSequence
+          - sessionId
+          - observedAt
+          - readVersion
+          - canonicalStateRef
+          - stateAuthorityRef
+          - stateEvidenceRef
+          - consentRef
+          - consentRevision
+          - consentCurrentness
+          - purposeRef
+          - purposeRevision
+          - purposeCurrentness
+          - leaseVersion
+          - leaseCurrentness
+          - fencingToken
+          - lastAcknowledgedSequence
+          - nextSequence
+          - resolvedFrameOutcomeCoverage
+          - resolvedFrameOutcomeRange
+          - resolvedFrameOutcomeRefs
+          - reconnectBudgetRemaining
         runtimeAdmission: NOT_ADMITTED
       intentBinding:
         status: STEP_INTENT_SOURCE
@@ -713,14 +840,16 @@ steps:
         actionRef: null
         candidateActionRefs: []
         operationRefs: []
-        effectClaim: Definition requires a fail-closed hold at the experience boundary. No frame, close,
-          drain, or cancel request is dispatched by this oracle.
+        effectClaim: Definition requires a fail-closed hold at the experience boundary.
+          No frame, close, drain, or cancel request is dispatched by this
+          oracle.
       stepInteractionSemantics:
         status: SOURCE_DEFINED_MEDIA_OWNER_RECOVERY_RULE; REVIEW_AND_RUNTIME_OPEN
         kind: FENCE_UNSAFE_CONTINUATION
-        purpose: When consent is revoked/expired/superseded, lease is expired/fenced, or the session is
-          disconnected/unknown, refuse new frame submission and retain the current session/frame
-          identities. Do not turn fencing intent into a provider-close or cancellation success.
+        purpose: When consent is revoked/expired/superseded, lease is expired/fenced, or
+          the session is disconnected/unknown, refuse new frame submission and
+          retain the current session/frame identities. Do not turn fencing
+          intent into a provider-close or cancellation success.
         inputs:
           - exactSessionIdentity
           - currentConsentAuthorityDisposition
@@ -731,25 +860,27 @@ steps:
           - newFrameAdmission=DENIED_OR_UNKNOWN
           - existingFrameOutcomes=UNCHANGED_OR_UNKNOWN
           - sessionState=OWNER_OBSERVED_ONLY
-        effect: Definition requires a fail-closed hold at the experience boundary. No frame, close, drain,
-          or cancel request is dispatched by this oracle.
-        positive: Only an owner-sourced current consent and lease plus connected/degraded session facts
-          permit continuing to an explicitly defined next action; this contract binds no such frame
+        effect: Definition requires a fail-closed hold at the experience boundary. No
+          frame, close, drain, or cancel request is dispatched by this oracle.
+        positive: Only an owner-sourced current consent and lease plus
+          connected/degraded session facts permit continuing to an explicitly
+          defined next action; this contract binds no such frame operation.
+        nonhappy: Revoked/expired/superseded consent, stale/fenced lease, or unknown
+          state yields FENCE_AND_HOLD; no new frame crosses the boundary.
+        recovery: Preserve all uncertain frame outcomes; perform the exact-session
+          observation and owner reconciliation before any new session or frame
           operation.
-        nonhappy: Revoked/expired/superseded consent, stale/fenced lease, or unknown state yields
-          FENCE_AND_HOLD; no new frame crosses the boundary.
-        recovery: Preserve all uncertain frame outcomes; perform the exact-session observation and owner
-          reconciliation before any new session or frame operation.
-        transition: CONDITIONAL_STREAM_STATE_EDGE; source edge references only; no edge is asserted as executed
+        transition: CONDITIONAL_STREAM_STATE_EDGE; source edge references only; no edge
+          is asserted as executed
         canonicalSourceRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
           - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
           - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
           - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
-        candidateOperationRef: media.operation.stream-session
-        candidateOperationStatus: PDP1_PROPOSAL_ONLY; NO_CANONICAL_BINDING_OR_RUNTIME_ADMISSION
-        objectIdentityDisposition: stream-session and stream-frame remain explicit source observations, not
-          canonical Media product objects
+        candidateOperationRef: media.operation.stream-session.inspect-execution-recovery.v1
+        candidateOperationStatus: EXACT_PXD_160_SUPPORTING_QUERY; DISPATCH_NONE; RUNTIME_NOT_ADMITTED
+        objectIdentityDisposition: stream-session and stream-frame remain explicit
+          source observations, not canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
       stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
@@ -758,6 +889,11 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
       - .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity
+    result: "EXACT_OWNER_OBSERVATION_ONLY: query result follows
+      .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperati\
+      onContracts/records/@id=media.operation.stream-session.inspect-execution-\
+      recovery.v1/resultSchema; absence/missing/stale observation is UNKNOWN and
+      this step dispatches no work."
   - stepId: reconcile-dispatched-frame-effects
     view: media.view.job-status
     screenContractRef: screen-contracts/job-status.yaml
@@ -781,10 +917,12 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: session-closed-or-drained-with-unknown-effects-explicit
+      status: NO_RESULT_UNTIL_OWNER_OBSERVATION
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics
+      meaning: No operation result is produced because no exact query is bound;
+        missing/unavailable owner observation remains UNKNOWN.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -795,7 +933,16 @@ steps:
         - consent-revocation-or-expiry
         - out-of-order-acknowledgement
         - uncertain-provider-frame-outcome
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+      disposition: Missing, stale, consent-changed, fenced, or unresolved observation
+        remains UNKNOWN and holds recovery. Do not create a new frame, replay
+        work, or claim close/stop; this step itself has no dispatch.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -805,7 +952,8 @@ steps:
           - fence-new-frame-submission
           - use-prior-consent-only-for-permitted-termination
           - reconcile-dispatched-frame-effects-before-opening-any-new-session
-        ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+        ownerReview: Retry, reconnect, drain, and close semantics require transport and
+          service owner review.
     postconditions: []
     requirementRefs: []
     verification:
@@ -825,25 +973,28 @@ steps:
         - current-consent-version
         - per-frame-finality
     bindingStatus:
-      status: proposal-only; owner decision and independent review pending; runtime NOT_ADMITTED
-        proof and independent review remain open
+      status: proposal-only; owner decision and independent review pending; runtime
+        NOT_ADMITTED proof and independent review remain open
       surfaceRefs: pending owner definition review; no accepted binding
-      objectRefs: pending owner definition review; no accepted binding
-        equivalence boundary explicit
+      objectRefs: pending owner definition review; no accepted binding equivalence
+        boundary explicit
       stateRefs: pending owner definition review; no accepted binding
       canonicalOperationRef: pending owner definition review; no accepted binding
       handoffRef: pending owner definition review; no accepted binding
       authorityRef: pending owner definition review; no accepted binding
       transitionRef: pending owner definition review; no accepted binding
       decisionRef: pending owner definition review; no accepted binding
-      success: pending owner definition review; no accepted binding
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics;
+        later journey outcome remains separate
       failure: pending owner definition review; no accepted binding
       recovery: pending owner definition review; no accepted binding
       requirementRefs: pending owner definition review; no accepted binding
       verification: pending owner definition review; no accepted binding
       contextPreservation: pending owner definition review; no accepted binding
       postconditions: pending owner definition review; no accepted binding
-      degradedBehavior: pending owner definition review; no accepted binding
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2
@@ -851,38 +1002,47 @@ steps:
       ordinal: 3
       viewRef: media.view.job-status
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
-      bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
+      bindingStatus: OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS;
+        OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN
       action:
         actionRef: null
         bindingStatus: NO_DISPATCH_ACTION; LIVE_SESSION_OPERATION_IDENTITY_UNBOUND
-        selectionBasis: This step defines observation/fail-closed eligibility, not an invented route or
-          provider command.
+        selectionBasis: This step defines observation/fail-closed eligibility, not an
+          invented route or provider command.
         candidateActionRefs: []
         runtimeAdmission: NOT_ADMITTED
         semanticRole: NO_DOMAIN_DISPATCH_OBSERVATION_OR_GATE
         guards:
-          - Bind every fact to exact tenantId/sessionId and current owner-issued versions; unknown
-            or stale facts do not pass.
-          - Require current authority-issued consent and the current lease/fencing token at every
-            effect boundary.
-          - Preserve exact frame sequence and per-frame finality; unknown is never success or
-            permission to replay.
-        effect: Read/reconcile evidence only. Do not replay an uncertain frame, infer provider stop, or mark
-          stream closed.
-        finality: No external operation is bound; provider/session/frame finality remains owner-observed or
-          UNKNOWN.
-        failureRecovery: Re-read the same frame identity under the current fence; never resend merely
-          because an acknowledgment is absent.
+          - Bind every fact to exact tenantId/sessionId and current owner-issued
+            versions; unknown or stale facts do not pass.
+          - Require current authority-issued consent and the current
+            lease/fencing token at every effect boundary.
+          - Preserve exact frame sequence and per-frame finality; unknown is
+            never success or permission to replay.
+        effect: Read/reconcile evidence only. Do not replay an uncertain frame, infer
+          provider stop, or mark stream closed.
+        finality: No external operation is bound; provider/session/frame finality
+          remains owner-observed or UNKNOWN.
+        failureRecovery: Re-read the same frame identity under the current fence; never
+          resend merely because an acknowledgment is absent.
       stepSourceFacts:
-        intent: Classify each frame by the authoritative owner receipt bound to exact sessionId, sequence,
-          lease/fencing token, and request identity. A missing, conflicting, or out-of-order
-          acknowledgment stays UNKNOWN.
-        result: null
+        intent: Classify each frame by the authoritative owner receipt bound to exact
+          sessionId, sequence, lease/fencing token, and request identity. A
+          missing, conflicting, or out-of-order acknowledgment stays UNKNOWN.
+        result: "NO_OPERATION_RESULT: this gate/observation step has no bound operation
+          query; missing owner evidence remains UNKNOWN."
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics/action/bindingStatus
+          - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics/canonicalBindingDisposition/fields/canonicalOperationRef
+          - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics/stepInteractionSemantics/positive
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: session-closed-or-drained-with-unknown-effects-explicit
+          status: NO_RESULT_UNTIL_OWNER_OBSERVATION
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics
+          meaning: No operation result is produced because no exact query is bound;
+            missing/unavailable owner observation remains UNKNOWN.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -893,7 +1053,16 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2/stepDefinitionSemantics
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+          disposition: Missing, stale, consent-changed, fenced, or unresolved observation
+            remains UNKNOWN and holds recovery. Do not create a new frame,
+            replay work, or claim close/stop; this step itself has no dispatch.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -903,8 +1072,8 @@ steps:
               - fence-new-frame-submission
               - use-prior-consent-only-for-permitted-termination
               - reconcile-dispatched-frame-effects-before-opening-any-new-session
-            ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner
-              review.
+            ownerReview: Retry, reconnect, drain, and close semantics require transport and
+              service owner review.
         postconditions: []
         contextPreservation:
           status: candidate-proposal
@@ -951,8 +1120,8 @@ steps:
           - focused PDP3-005 ten-contract structural/reference check
         actualEvidence: []
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#J-29
@@ -964,24 +1133,25 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         definitionCases:
           - case: all-current-owner-facts
-            expected: A frame receives only its source-confirmed outcome; if owner evidence is missing or
-              conflicting, retain UNKNOWN.
+            expected: A frame receives only its source-confirmed outcome; if owner evidence
+              is missing or conflicting, retain UNKNOWN.
           - case: revoked-or-expired-consent-or-fenced-lease
-            expected: Client disconnect, consent change, lease loss, out-of-order ack, or provider uncertainty
-              leaves affected frames UNKNOWN and blocks new frame admission.
+            expected: Client disconnect, consent change, lease loss, out-of-order ack, or
+              provider uncertainty leaves affected frames UNKNOWN and blocks new
+              frame admission.
           - case: unknown-or-conflicting-frame-finality
-            expected: Re-read the same frame identity under the current fence; never resend merely because an
-              acknowledgment is absent.
+            expected: Re-read the same frame identity under the current fence; never resend
+              merely because an acknowledgment is absent.
       stepOutcomeSemantics:
         status: OWNER_DEFINED_DEFINITION_ONLY; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2
         actionRef: null
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2
-          intendedResult: A frame receives only its source-confirmed outcome; if owner evidence is missing or
-            conflicting, retain UNKNOWN.
-          effect: Read/reconcile evidence only. Do not replay an uncertain frame, infer provider stop, or mark
-            stream closed.
+          intendedResult: A frame receives only its source-confirmed outcome; if owner
+            evidence is missing or conflicting, retain UNKNOWN.
+          effect: Read/reconcile evidence only. Do not replay an uncertain frame, infer
+            provider stop, or mark stream closed.
           finality: No external action; preserve owner-issued evidence and uncertainty.
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2
@@ -991,12 +1161,13 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-          failure: Client disconnect, consent change, lease loss, out-of-order ack, or provider uncertainty
-            leaves affected frames UNKNOWN and blocks new frame admission.
+          failure: Client disconnect, consent change, lease loss, out-of-order ack, or
+            provider uncertainty leaves affected frames UNKNOWN and blocks new
+            frame admission.
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2
-          recovery: Re-read the same frame identity under the current fence; never resend merely because an
-            acknowledgment is absent.
+          recovery: Re-read the same frame identity under the current fence; never resend
+            merely because an acknowledgment is absent.
           automaticRetry: NEVER; exact owner operation and proof required
       transitionApplicability:
         status: OBSERVATION_ONLY_NO_TRANSITION
@@ -1008,8 +1179,8 @@ steps:
           - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
         operationRef: null
         sourceRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
-        guardBinding: ownerGuardDefinition is the exact source predicate; external authority/provider proof
-          remains required
+        guardBinding: ownerGuardDefinition is the exact source predicate; external
+          authority/provider proof remains required
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/2
@@ -1017,7 +1188,8 @@ steps:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
           objectRefs: STREAM_SESSION_AND_FRAME_ARE_EXPLICIT_NONCANONICAL_SOURCE_OBSERVATIONS;
             JOB_LEASE_AND_CONSENT_REFERENCE_USE_CANONICAL_IDENTITIES
-          stateRefs: EXACT_OWNER_DEFINED_STREAM_ATTEMPT_AND_CONSENT_STATE_MACHINES; INDEPENDENT_REVIEW_OPEN
+          stateRefs: EXACT_OWNER_DEFINED_STREAM_ATTEMPT_AND_CONSENT_STATE_MACHINES;
+            INDEPENDENT_REVIEW_OPEN
           canonicalOperationRef: UNBOUND; P1 stream-session family remains proposal-only
           authorityRef: EXACT_AUTHORITY_SOURCE_REFS_ARRAY; SINGULAR_PRIMARY_AMBIGUOUS
           transitionRef: OBSERVATION_ONLY_NO_TRANSITION
@@ -1029,11 +1201,13 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
           - .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity
-        requirementCrosswalkStatus: unresolved; stream-session capability/requirement crosswalk not declared
-        noAcceptanceInference: owner definition is not independent review, operation binding, runtime
-          admission, provider receipt, or Lifecycle acceptance
+        requirementCrosswalkStatus: unresolved; stream-session capability/requirement
+          crosswalk not declared
+        noAcceptanceInference: owner definition is not independent review, operation
+          binding, runtime admission, provider receipt, or Lifecycle acceptance
       versionedObjectObservation:
-        status: SOURCE_OBSERVATION_IDENTITIES_PRESERVED; CANONICAL_PRODUCT_OBJECT_EQUIVALENCE_NOT_ASSERTED
+        status: SOURCE_OBSERVATION_IDENTITIES_PRESERVED;
+          CANONICAL_PRODUCT_OBJECT_EQUIVALENCE_NOT_ASSERTED
         operationContractRef: null
         objectRefs:
           - media.domain.stream-session
@@ -1041,9 +1215,10 @@ steps:
           - media.domain.job-lease
           - media.domain.consent-reference
           - media.domain.processing-job
-        versionIdentityRule: Bind tenantId + sessionId + frame sequence + lease/fencing token +
-          authority-issued consentId/revision; retain exact identity across reconciliation. Do not
-          treat source-observation IDs as canonical durable object authority.
+        versionIdentityRule: Bind tenantId + sessionId + frame sequence + lease/fencing
+          token + authority-issued consentId/revision; retain exact identity
+          across reconciliation. Do not treat source-observation IDs as
+          canonical durable object authority.
         sourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication.registeredObjectIdentityRefs
         observation:
           - exactSessionIdentity
@@ -1072,14 +1247,14 @@ steps:
         actionRef: null
         candidateActionRefs: []
         operationRefs: []
-        effectClaim: Read/reconcile evidence only. Do not replay an uncertain frame, infer provider stop, or
-          mark stream closed.
+        effectClaim: Read/reconcile evidence only. Do not replay an uncertain frame,
+          infer provider stop, or mark stream closed.
       stepInteractionSemantics:
         status: SOURCE_DEFINED_MEDIA_OWNER_RECOVERY_RULE; REVIEW_AND_RUNTIME_OPEN
         kind: RECONCILE_IN_FLIGHT_FRAME_FINALITY
-        purpose: Classify each frame by the authoritative owner receipt bound to exact sessionId, sequence,
-          lease/fencing token, and request identity. A missing, conflicting, or out-of-order
-          acknowledgment stays UNKNOWN.
+        purpose: Classify each frame by the authoritative owner receipt bound to exact
+          sessionId, sequence, lease/fencing token, and request identity. A
+          missing, conflicting, or out-of-order acknowledgment stays UNKNOWN.
         inputs:
           - exactSessionIdentity
           - frameSequence
@@ -1089,16 +1264,17 @@ steps:
         outputs:
           - ACKNOWLEDGED_OR_REJECTED_OR_UNKNOWN_PER_FRAME
           - unknownEffectsRemainExplicit
-        effect: Read/reconcile evidence only. Do not replay an uncertain frame, infer provider stop, or mark
-          stream closed.
-        positive: A frame receives only its source-confirmed outcome; if owner evidence is missing or
-          conflicting, retain UNKNOWN.
-        nonhappy: Client disconnect, consent change, lease loss, out-of-order ack, or provider uncertainty
-          leaves affected frames UNKNOWN and blocks new frame admission.
-        recovery: Re-read the same frame identity under the current fence; never resend merely because an
-          acknowledgment is absent.
-        transition: OBSERVATION_ONLY_NO_STATE_TRANSITION; frame effects remain independent from stream
-          session state
+        effect: Read/reconcile evidence only. Do not replay an uncertain frame, infer
+          provider stop, or mark stream closed.
+        positive: A frame receives only its source-confirmed outcome; if owner evidence
+          is missing or conflicting, retain UNKNOWN.
+        nonhappy: Client disconnect, consent change, lease loss, out-of-order ack, or
+          provider uncertainty leaves affected frames UNKNOWN and blocks new
+          frame admission.
+        recovery: Re-read the same frame identity under the current fence; never resend
+          merely because an acknowledgment is absent.
+        transition: OBSERVATION_ONLY_NO_STATE_TRANSITION; frame effects remain
+          independent from stream session state
         canonicalSourceRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
           - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1106,8 +1282,8 @@ steps:
           - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
         candidateOperationRef: media.operation.stream-session
         candidateOperationStatus: PDP1_PROPOSAL_ONLY; NO_CANONICAL_BINDING_OR_RUNTIME_ADMISSION
-        objectIdentityDisposition: stream-session and stream-frame remain explicit source observations, not
-          canonical Media product objects
+        objectIdentityDisposition: stream-session and stream-frame remain explicit
+          source observations, not canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
       stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
@@ -1116,6 +1292,8 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
       - .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity
+    result: "NO_OPERATION_RESULT: this gate/observation step has no bound operation
+      query; missing owner evidence remains UNKNOWN."
   - stepId: present-bounded-return-state
     view: media.view.review-activity
     screenContractRef: screen-contracts/review-activity.yaml
@@ -1133,10 +1311,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: session-closed-or-drained-with-unknown-effects-explicit
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+      operationRef: media.operation.capability.media-stream-session-reconnect
+      meaning: Immediate result is the typed reconnect operation envelope; only
+        SUCCEEDED may carry its reconnect receipt, while
+        REJECTED/UNKNOWN_OUTCOME carry no outputs. Receipt does not prove
+        runtime qualification or restored state.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1147,7 +1333,16 @@ steps:
         - consent-revocation-or-expiry
         - out-of-order-acknowledgement
         - uncertain-provider-frame-outcome
-    degradedBehavior: null
+    degradedBehavior:
+      status: CONDITIONAL_SOURCE_BACKED_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+      disposition: Rejected/unknown result or missing session/consent/lease evidence
+        holds recovery; no automatic retry, frame replay, replacement session,
+        or restored-state claim.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1157,9 +1352,10 @@ steps:
           - fence-new-frame-submission
           - use-prior-consent-only-for-permitted-termination
           - reconcile-dispatched-frame-effects-before-opening-any-new-session
-        ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+        ownerReview: Retry, reconnect, drain, and close semantics require transport and
+          service owner review.
     postconditions: []
-    requirementRefs: [MEDIA-REQ-CAP-STREAM]
+    requirementRefs: [ MEDIA-REQ-CAP-STREAM ]
     verification:
       status: not-run
       requiredChecks:
@@ -1177,25 +1373,37 @@ steps:
         - current-consent-version
         - per-frame-finality
     bindingStatus:
-      status: BOUNDED_MEDIA_OWNER_DEFINITION_PXD_077; independent phase acceptance and runtime remain open
-        proof and independent review remain open
-      surfaceRefs: exact source surfaces recorded; actual channel/runtime equivalence remains unverified
-      objectRefs: media.domain.stream-session exact target; frame, lease, and consent identities remain scoped evidence
-        equivalence boundary explicit
-      stateRefs: exact owner stream-session/attempt/consent state identities; currentness requires owner observation
-      canonicalOperationRef: media.operation.capability.media-stream-session-reconnect; execution NOT_ADMITTED
-      handoffRef: no external identity handoff is part of the reconnect request; transport boundary remains unadmitted
-      authorityRef: exact trusted identity, active consent, current lease/fence, and duplicate-effect guards
-      transitionRef: conditional T03 applicability only; request does not claim transition or restored session
+      status: BOUNDED_MEDIA_OWNER_DEFINITION_PXD_077; independent phase acceptance and
+        runtime remain open proof and independent review remain open
+      surfaceRefs: exact source surfaces recorded; actual channel/runtime equivalence
+        remains unverified
+      objectRefs: media.domain.stream-session exact target; frame, lease, and consent
+        identities remain scoped evidence equivalence boundary explicit
+      stateRefs: exact owner stream-session/attempt/consent state identities;
+        currentness requires owner observation
+      canonicalOperationRef: media.operation.capability.media-stream-session-reconnect;
+        execution NOT_ADMITTED
+      handoffRef: no external identity handoff is part of the reconnect request;
+        transport boundary remains unadmitted
+      authorityRef: exact trusted identity, active consent, current lease/fence, and
+        duplicate-effect guards
+      transitionRef: conditional T03 applicability only; request does not claim
+        transition or restored session
       decisionRef: .product-experience/decision-log.md#PXD-077
-      success: exact owner receipt may report request/reconnect disposition; no frame-send or restored-session claim
-      failure: deny on revoked/stale consent, lease/fence conflict, unresolved frame effect, budget exhaustion, or sequence gap
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema;
+        later journey outcome remains separate
+      failure: deny on revoked/stale consent, lease/fence conflict, unresolved frame
+        effect, budget exhaustion, or sequence gap
       recovery: reconcile same request identity; no blind retry or replacement session
       requirementRefs: MEDIA-REQ-CAP-STREAM
       verification: definition-level guard tests only; runtime evidence not run
-      contextPreservation: exact tenant/principal/session/consent/lease/fence/request/frame sequence preserved
+      contextPreservation: exact
+        tenant/principal/session/consent/lease/fence/request/frame sequence
+        preserved
       postconditions: no session restoration or frame-send claim without exact owner receipt
-      degradedBehavior: hold reconnect on degraded session until exact recovery guards pass
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
@@ -1203,11 +1411,13 @@ steps:
       ordinal: 4
       viewRef: media.view.review-activity
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-077
-      bindingStatus: OWNER_DEFINED_RECONNECT_ACTION_AND_GUARDS_PXD_077; INDEPENDENT_ACCEPTANCE_AND_RUNTIME_OPEN
+      bindingStatus: OWNER_DEFINED_RECONNECT_ACTION_AND_GUARDS_PXD_077;
+        INDEPENDENT_ACCEPTANCE_AND_RUNTIME_OPEN
       action:
         actionRef: media.action.request-live-session-reconnect
         bindingStatus: OWNER_DEFINED_ACTION_BOUND_TO_EXACT_RECONNECT_OPERATION
-        selectionBasis: The user explicitly selects reconnect only after the exact recovery eligibility oracle passes.
+        selectionBasis: The user explicitly selects reconnect only after the exact
+          recovery eligibility oracle passes.
         candidateActionRefs:
           - media.action.request-live-session-reconnect
         runtimeAdmission: NOT_ADMITTED
@@ -1220,21 +1430,41 @@ steps:
           - media.guard.stream.reconnect.prior-effects-resolved
           - media.guard.stream.reconnect.budget-available
           - media.guard.stream.reconnect.next-sequence-contiguous
-        effect: Request only the fenced reconnect handshake for the same existing session after all exact guards pass; this does not assert restoration or frame submission.
-        finality: Only a current authoritative owner receipt bound to the exact session and request may report reconnect state; otherwise preserve UNKNOWN_OUTCOME.
-        failureRecovery: Reconcile the same request identity; no blind retry, automatic retry, or replacement session.
+        effect: Request only the fenced reconnect handshake for the same existing
+          session after all exact guards pass; this does not assert restoration
+          or frame submission.
+        finality: Only a current authoritative owner receipt bound to the exact session
+          and request may report reconnect state; otherwise preserve
+          UNKNOWN_OUTCOME.
+        failureRecovery: Reconcile the same request identity; no blind retry, automatic
+          retry, or replacement session.
         ownerActionRef: media.action.request-live-session-reconnect
       stepSourceFacts:
-        intent: Determine whether the existing session may be offered a reconnect request from an
-          owner-observed DEGRADED state, current authority-issued ACTIVE consent, current
-          lease/fencing token, resolved prior frame effects, valid recovery budget, and the next
-          sequence equal to lastAcknowledgedFrameSequence plus one.
-        result: null
+        intent: Determine whether the existing session may be offered a reconnect
+          request from an owner-observed DEGRADED state, current
+          authority-issued ACTIVE consent, current lease/fencing token, resolved
+          prior frame effects, valid recovery budget, and the next sequence
+          equal to lastAcknowledgedFrameSequence plus one.
+        result: Immediate result is the typed reconnect operation envelope; only
+          SUCCEEDED may carry its reconnect receipt, while
+          REJECTED/UNKNOWN_OUTCOME carry no outputs. Receipt does not prove
+          runtime qualification or restored state.
+          [.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: session-closed-or-drained-with-unknown-effects-explicit
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+          operationRef: media.operation.capability.media-stream-session-reconnect
+          meaning: Immediate result is the typed reconnect operation envelope; only
+            SUCCEEDED may carry its reconnect receipt, while
+            REJECTED/UNKNOWN_OUTCOME carry no outputs. Receipt does not prove
+            runtime qualification or restored state.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1245,7 +1475,16 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-        degradedBehavior: null
+        degradedBehavior:
+          status: CONDITIONAL_SOURCE_BACKED_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-29/criticalNonhappyPaths
+          disposition: Rejected/unknown result or missing session/consent/lease evidence
+            holds recovery; no automatic retry, frame replay, replacement
+            session, or restored-state claim.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1255,8 +1494,8 @@ steps:
               - fence-new-frame-submission
               - use-prior-consent-only-for-permitted-termination
               - reconcile-dispatched-frame-effects-before-opening-any-new-session
-            ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner
-              review.
+            ownerReview: Retry, reconnect, drain, and close semantics require transport and
+              service owner review.
         postconditions: []
         contextPreservation:
           status: candidate-proposal
@@ -1281,7 +1520,7 @@ steps:
         authorityRef: null
         decisionRef: .product-experience/decision-log.md#PXD-077
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-STREAM]
+        requirementRefs: [ MEDIA-REQ-CAP-STREAM ]
         scenarioRefs: []
         canonicalOperationRefs:
           - media.operation.capability.media-stream-session-reconnect
@@ -1304,8 +1543,8 @@ steps:
           - focused PDP3-005 ten-contract structural/reference check
         actualEvidence: []
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#J-29
@@ -1317,25 +1556,28 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         definitionCases:
           - case: all-current-owner-facts
-            expected: Return RECONNECT_REQUEST_ELIGIBLE only when every listed source fact is current and bound;
-              otherwise return FENCE_AND_HOLD or UNKNOWN.
+            expected: Return RECONNECT_REQUEST_ELIGIBLE only when every listed source fact
+              is current and bound; otherwise return FENCE_AND_HOLD or UNKNOWN.
           - case: revoked-or-expired-consent-or-fenced-lease
-            expected: Never reconnect after consent revocation/expiry/supersession, lease fencing, terminal
-              session state, an unknown prior frame, budget exhaustion, or a sequence gap.
+            expected: Never reconnect after consent revocation/expiry/supersession, lease
+              fencing, terminal session state, an unknown prior frame, budget
+              exhaustion, or a sequence gap.
           - case: unknown-or-conflicting-frame-finality
-            expected: If eligible, a separate exact stream-session owner operation and receipt are still
-              required; reconcile the same session and fence before retry; no automatic retry or new
-              session is authorized.
+            expected: If eligible, a separate exact stream-session owner operation and
+              receipt are still required; reconcile the same session and fence
+              before retry; no automatic retry or new session is authorized.
       stepOutcomeSemantics:
         status: OWNER_DEFINED_DEFINITION_ONLY; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
         actionRef: null
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
-          intendedResult: Return RECONNECT_REQUEST_ELIGIBLE only when every listed source fact is current and
-            bound; otherwise return FENCE_AND_HOLD or UNKNOWN.
-          effect: This step may report a definition-level eligibility result only. It does not reconnect, open
-            a session, renew a lease, submit a frame, or claim provider acceptance.
+          intendedResult: Return RECONNECT_REQUEST_ELIGIBLE only when every listed source
+            fact is current and bound; otherwise return FENCE_AND_HOLD or
+            UNKNOWN.
+          effect: This step may report a definition-level eligibility result only. It does
+            not reconnect, open a session, renew a lease, submit a frame, or
+            claim provider acceptance.
           finality: No external action; preserve owner-issued evidence and uncertainty.
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
@@ -1345,13 +1587,14 @@ steps:
             - consent-revocation-or-expiry
             - out-of-order-acknowledgement
             - uncertain-provider-frame-outcome
-          failure: Never reconnect after consent revocation/expiry/supersession, lease fencing, terminal
-            session state, an unknown prior frame, budget exhaustion, or a sequence gap.
+          failure: Never reconnect after consent revocation/expiry/supersession, lease
+            fencing, terminal session state, an unknown prior frame, budget
+            exhaustion, or a sequence gap.
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
-          recovery: If eligible, a separate exact stream-session owner operation and receipt are still
-            required; reconcile the same session and fence before retry; no automatic retry or new
-            session is authorized.
+          recovery: If eligible, a separate exact stream-session owner operation and
+            receipt are still required; reconcile the same session and fence
+            before retry; no automatic retry or new session is authorized.
           automaticRetry: NEVER; exact owner operation and proof required
       transitionApplicability:
         status: OWNER_DEFINED_CONDITIONAL_SOURCE_EDGES; NOT_EXECUTED
@@ -1364,19 +1607,23 @@ steps:
           - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
         operationRef: null
         sourceRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
-        guardBinding: ownerGuardDefinition is the exact source predicate; external authority/provider proof
-          remains required
+        guardBinding: ownerGuardDefinition is the exact source predicate; external
+          authority/provider proof remains required
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
         decisionRef: .product-experience/decision-log.md#PXD-077
         fields:
           surfaceRefs: SOURCE_STEP_SURFACE_REFS_PRESENT
-          objectRefs: EXACT_CANONICAL_STREAM_SESSION_AND_FRAME_IDENTITIES; TENANT_AND_VERSION_SCOPED
-          stateRefs: EXACT_OWNER_DEFINED_STREAM_SESSION_STATE_MACHINE; RUNTIME_OBSERVATION_NOT_ADMITTED
+          objectRefs: EXACT_CANONICAL_STREAM_SESSION_AND_FRAME_IDENTITIES;
+            TENANT_AND_VERSION_SCOPED
+          stateRefs: EXACT_OWNER_DEFINED_STREAM_SESSION_STATE_MACHINE;
+            RUNTIME_OBSERVATION_NOT_ADMITTED
           canonicalOperationRef: EXACT_OWNER_DEFINED_RECONNECT_COMMAND; EXECUTION_NOT_ADMITTED
-          authorityRef: EXACT_IDENTITY_CONSENT_LEASE_AND_DUPLICATE_EFFECT_GUARDS; OWNER_EVIDENCE_REQUIRED
-          transitionRef: CONDITIONAL_T03_DEGRADED_TO_CONNECTED_APPLICABILITY; NO_TRANSITION_CLAIMED_BY_REQUEST
+          authorityRef: EXACT_IDENTITY_CONSENT_LEASE_AND_DUPLICATE_EFFECT_GUARDS;
+            OWNER_EVIDENCE_REQUIRED
+          transitionRef: CONDITIONAL_T03_DEGRADED_TO_CONNECTED_APPLICABILITY;
+            NO_TRANSITION_CLAIMED_BY_REQUEST
           requirementRefs: MEDIA-REQ-CAP-STREAM
           scenarioRefs: DEFINITION_ORACLE_CASES_IN_STEP_ORACLE_ARTIFACT
         operationRefs:
@@ -1385,13 +1632,14 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
           - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.consentRevocation
           - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
-        requirementRefs: [MEDIA-REQ-CAP-STREAM]
+        requirementRefs: [ MEDIA-REQ-CAP-STREAM ]
         operationDefinitionRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records/media.operation.capability.media-stream-session-reconnect
         requirementCrosswalkStatus: EXACT_OWNER_CAPABILITY_AND_REQUIREMENT_BINDING; runtime NOT_ADMITTED
-        noAcceptanceInference: owner definition is not independent review, operation binding, runtime
-          admission, provider receipt, or Lifecycle acceptance
+        noAcceptanceInference: owner definition is not independent review, operation
+          binding, runtime admission, provider receipt, or Lifecycle acceptance
       versionedObjectObservation:
-        status: CANONICAL_OWNER_IDENTITIES_AND_VERSION_SCOPE_DEFINED; OBSERVATION_RUNTIME_NOT_ADMITTED
+        status: CANONICAL_OWNER_IDENTITIES_AND_VERSION_SCOPE_DEFINED;
+          OBSERVATION_RUNTIME_NOT_ADMITTED
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts.records/media.operation.capability.media-stream-session-reconnect
         objectRefs:
           - media.domain.stream-session
@@ -1399,9 +1647,10 @@ steps:
           - media.domain.job-lease
           - media.domain.consent-reference
           - media.domain.processing-job
-        versionIdentityRule: Bind tenant, principal, session, frame sequence, lease/fencing token,
-          authority-issued consent and request identity; retain exact values across reconciliation.
-          A client-supplied identifier alone does not prove owner currentness or authority.
+        versionIdentityRule: Bind tenant, principal, session, frame sequence,
+          lease/fencing token, authority-issued consent and request identity;
+          retain exact values across reconciliation. A client-supplied
+          identifier alone does not prove owner currentness or authority.
         sourceRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#canonicalIdentityAdjudication
         observation:
           - exactSessionIdentity
@@ -1425,23 +1674,26 @@ steps:
           - media.editor
           - media.operator
         sourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml#actors
-        actionActorRefs: [media.creator, media.editor, media.operator]
+        actionActorRefs: [ media.creator, media.editor, media.operator ]
       stepKindDisposition:
         kind: OWNER_DEFINED_EXPLICIT_RECONNECT_REQUEST_AFTER_ELIGIBILITY_GATE
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/3
         screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/review-activity.yaml#purpose
         actionRef: media.action.request-live-session-reconnect
-        candidateActionRefs: [media.action.request-live-session-reconnect]
-        operationRefs: [media.operation.capability.media-stream-session-reconnect]
-        effectClaim: After exact recovery predicates pass and the user explicitly selects reconnect, request
-          only the fenced handshake for this existing session; never claim restored session or sent frame.
+        candidateActionRefs: [ media.action.request-live-session-reconnect ]
+        operationRefs: [ media.operation.capability.media-stream-session-reconnect ]
+        effectClaim: After exact recovery predicates pass and the user explicitly
+          selects reconnect, request only the fenced handshake for this existing
+          session; never claim restored session or sent frame.
       stepInteractionSemantics:
-        status: SOURCE_DEFINED_MEDIA_OWNER_RECOVERY_RULE; INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
+        status: SOURCE_DEFINED_MEDIA_OWNER_RECOVERY_RULE;
+          INDEPENDENT_REVIEW_AND_RUNTIME_OPEN
         kind: OBSERVE_FENCED_RECONNECT_ELIGIBILITY
-        purpose: Determine whether this exact existing session is eligible for an explicit reconnect request
-          from owner-observed DEGRADED state, current authority-issued ACTIVE consent, current
-          lease/fencing token, resolved prior frame effects, valid recovery budget, and next frame
-          sequence exactly lastAcknowledgedFrameSequence plus one.
+        purpose: Determine whether this exact existing session is eligible for an
+          explicit reconnect request from owner-observed DEGRADED state, current
+          authority-issued ACTIVE consent, current lease/fencing token, resolved
+          prior frame effects, valid recovery budget, and next frame sequence
+          exactly lastAcknowledgedFrameSequence plus one.
         inputs:
           - exactSessionIdentity
           - ownerObservedSessionState
@@ -1455,28 +1707,34 @@ steps:
           - reconnectRequestEligibleOrHeld
           - requiredNextSequence
           - unchangedSessionAndFrameIdentities
-        effect: If every exact scope guard passes and the user explicitly selects reconnect, issue only the
-          typed media.stream.session.reconnect request for the same session. Dispatch or transport
-          acceptance is not completion; only authoritative owner receipt is evidence, and ambiguous
-          outcome remains UNKNOWN_OUTCOME.
-        positive: An eligible definition may enable a separately explicit reconnect request with
-          tenant/principal scoped requestId and exact session/consent context; the definition oracle
-          itself never dispatches or claims success.
-        nonhappy: Never issue reconnect after consent revocation/expiry/supersession, stale or fenced lease,
-          terminal session, unknown prior frame outcome, budget exhaustion, sequence gap, denied
-          authority, or unavailable admission.
-        recovery: After ambiguous response reconcile the same requestId and payload fingerprint; do not
-          blind-retry. Retry only proven non-acceptance with the identical idempotency identity; no
-          automatic retry or replacement session.
-        transition: Conditional source applicability media-stream-session/T03 DEGRADED→CONNECTED; external
-          reconnect request remains NOT_ADMITTED until owner/runtime admission and receipt.
+        effect: If every exact scope guard passes and the user explicitly selects
+          reconnect, issue only the typed media.stream.session.reconnect request
+          for the same session. Dispatch or transport acceptance is not
+          completion; only authoritative owner receipt is evidence, and
+          ambiguous outcome remains UNKNOWN_OUTCOME.
+        positive: An eligible definition may enable a separately explicit reconnect
+          request with tenant/principal scoped requestId and exact
+          session/consent context; the definition oracle itself never dispatches
+          or claims success.
+        nonhappy: Never issue reconnect after consent revocation/expiry/supersession,
+          stale or fenced lease, terminal session, unknown prior frame outcome,
+          budget exhaustion, sequence gap, denied authority, or unavailable
+          admission.
+        recovery: After ambiguous response reconcile the same requestId and payload
+          fingerprint; do not blind-retry. Retry only proven non-acceptance with
+          the identical idempotency identity; no automatic retry or replacement
+          session.
+        transition: Conditional source applicability media-stream-session/T03
+          DEGRADED→CONNECTED; external reconnect request remains NOT_ADMITTED
+          until owner/runtime admission and receipt.
         canonicalSourceRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
           - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
         candidateOperationRef: media.operation.capability.media-stream-session-reconnect
-        candidateOperationStatus: OWNER_DEFINED_DEFINITION_ONLY; INDEPENDENT_REVIEW_OPEN; EXECUTION_NOT_ADMITTED
-        objectIdentityDisposition: stream-session and stream-frame remain explicit source observations, not
-          canonical Media product objects
+        candidateOperationStatus: OWNER_DEFINED_DEFINITION_ONLY;
+          INDEPENDENT_REVIEW_OPEN; EXECUTION_NOT_ADMITTED
+        objectIdentityDisposition: stream-session and stream-frame remain explicit
+          source observations, not canonical Media product objects
         runtimeAdmission: NOT_ADMITTED
         independentAcceptance: OPEN
         operationContractBinding:
@@ -1492,7 +1750,7 @@ steps:
             - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
             - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.consentRevocation
             - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
-          requirementRefs: [MEDIA-REQ-CAP-STREAM]
+          requirementRefs: [ MEDIA-REQ-CAP-STREAM ]
           profileRef: media.capability-profile.media-stream
           scopeStatus: OWNER_DEFINED_DEFINITION_ONLY
           implementationState: UNKNOWN
@@ -1508,7 +1766,8 @@ steps:
           - media.guard.stream.reconnect.next-sequence-contiguous
         guardDefinitions:
           - id: media.guard.stream.reconnect.same-session-scope
-            predicate: request tenant, principal, and session exactly match the existing stream session
+            predicate: request tenant, principal, and session exactly match the existing
+              stream session
             sourceRefs:
               - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
               - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1526,8 +1785,8 @@ steps:
             ownerDecisionRef: .product-experience/decision-log.md#PXD-077
             runtimeAdmission: NOT_ADMITTED
           - id: media.guard.stream.reconnect.current-consent
-            predicate: authority-issued consent is ACTIVE, unexpired, unsuperseded, and bound to this
-              tenant/session/purpose
+            predicate: authority-issued consent is ACTIVE, unexpired, unsuperseded, and
+              bound to this tenant/session/purpose
             sourceRefs:
               - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
               - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1536,8 +1795,8 @@ steps:
             ownerDecisionRef: .product-experience/decision-log.md#PXD-077
             runtimeAdmission: NOT_ADMITTED
           - id: media.guard.stream.reconnect.current-fence
-            predicate: current lease and fencing token belong to the same tenant/session/owner and are not
-              expired or superseded
+            predicate: current lease and fencing token belong to the same
+              tenant/session/owner and are not expired or superseded
             sourceRefs:
               - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
               - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1546,7 +1805,8 @@ steps:
             ownerDecisionRef: .product-experience/decision-log.md#PXD-077
             runtimeAdmission: NOT_ADMITTED
           - id: media.guard.stream.reconnect.prior-effects-resolved
-            predicate: all prior frame outcomes have exact owner receipts; UNKNOWN or conflicting outcome holds
+            predicate: all prior frame outcomes have exact owner receipts; UNKNOWN or
+              conflicting outcome holds
             sourceRefs:
               - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
               - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1555,7 +1815,8 @@ steps:
             ownerDecisionRef: .product-experience/decision-log.md#PXD-077
             runtimeAdmission: NOT_ADMITTED
           - id: media.guard.stream.reconnect.budget-available
-            predicate: owner evidence establishes remaining recovery budget for this same session
+            predicate: owner evidence establishes remaining recovery budget for this same
+              session
             sourceRefs:
               - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
               - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1564,8 +1825,8 @@ steps:
             ownerDecisionRef: .product-experience/decision-log.md#PXD-077
             runtimeAdmission: NOT_ADMITTED
           - id: media.guard.stream.reconnect.next-sequence-contiguous
-            predicate: next frame sequence is a safe nonnegative integer exactly last acknowledged sequence plus
-              one
+            predicate: next frame sequence is a safe nonnegative integer exactly last
+              acknowledged sequence plus one
             sourceRefs:
               - .product-experience/pdp-1-domain-data/states.yaml#media-stream-session
               - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
@@ -1588,7 +1849,7 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
           - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.consentRevocation
           - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
-        requirementRefs: [MEDIA-REQ-CAP-STREAM]
+        requirementRefs: [ MEDIA-REQ-CAP-STREAM ]
         profileRef: media.capability-profile.media-stream
         scopeStatus: OWNER_DEFINED_DEFINITION_ONLY
         implementationState: UNKNOWN
@@ -1602,18 +1863,20 @@ steps:
           - media.guard.stream.reconnect.prior-effects-resolved
           - media.guard.stream.reconnect.budget-available
           - media.guard.stream.reconnect.next-sequence-contiguous
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-29.j-29.step-04
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes.identityScope
       - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.consentRevocation
       - .product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary.duplicateEffectPrevention
     canonicalOperationRefs:
       - media.operation.capability.media-stream-session-reconnect
-    capabilityRefs: [media.stream.session.reconnect]
+    capabilityRefs: [ media.stream.session.reconnect ]
     ownerActionRef: media.action.request-live-session-reconnect
     canonicalBindingDisposition:
       canonicalOperationRef: EXACT_OWNER_DEFINED_RECONNECT_COMMAND; EXECUTION_NOT_ADMITTED
-      authorityRef: EXACT_STREAM_IDENTITY_AND_CONSENT_SCOPE_REFS; CURRENTNESS_REQUIRES_OWNER_EVIDENCE
+      authorityRef: EXACT_STREAM_IDENTITY_AND_CONSENT_SCOPE_REFS;
+        CURRENTNESS_REQUIRES_OWNER_EVIDENCE
       requirementRefs: MEDIA-REQ-CAP-STREAM
       scenarioRefs: DEFINITION_ORACLE_CASES_IN_STEP_ORACLE_ARTIFACT
     guardRefs:
@@ -1624,6 +1887,11 @@ steps:
       - media.guard.stream.reconnect.prior-effects-resolved
       - media.guard.stream.reconnect.budget-available
       - media.guard.stream.reconnect.next-sequence-contiguous
+    result: Immediate result is the typed reconnect operation envelope; only
+      SUCCEEDED may carry its reconnect receipt, while REJECTED/UNKNOWN_OUTCOME
+      carry no outputs. Receipt does not prove runtime qualification or restored
+      state.
+      [.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-stream-session-reconnect/resultSchema]
 criticalNonhappy:
   - client-disconnect
   - lease-loss
@@ -1641,7 +1909,8 @@ recovery:
     - fence-new-frame-submission
     - use-prior-consent-only-for-permitted-termination
     - reconcile-dispatched-frame-effects-before-opening-any-new-session
-  ownerReview: Retry, reconnect, drain, and close semantics require transport and service owner review.
+  ownerReview: Retry, reconnect, drain, and close semantics require transport and
+    service owner review.
 contextAndReturn:
   preserve:
     - session-id

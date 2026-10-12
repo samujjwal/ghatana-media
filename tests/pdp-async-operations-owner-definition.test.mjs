@@ -34,6 +34,7 @@ function asyncOwnerRulesValid(source) {
     ["media.async.group-retry-item-finality.v1", ["retains each item's exact original operation and request identity", "Completed eligible items are reused and not resubmitted", "unknown outcome is read-only reconciled", "unresolved ambiguity blocks that item's resubmission", "never mark a partial group complete"]],
     ["media.async.child-output-lifecycle-boundary.v1", ["retains its exact immutable output identity and parent/child operation provenance", "only for the lifecycle and retention scope authorized by its owning Media policy", "Later parent failure does not erase or rewrite a completed child effect", "neither automatically retained forever nor implicitly deleted with its parent"]],
     ["media.async.definition-and-run-state-separation.v1", ["versioned workflow definition", "Each invocation is a separately identified run", "Run status never rewrites the definition", "parameter or policy values never stand in for run state", "workflow graph alone grants no dispatch authority"]],
+    ["media.async.bounded-poll-and-resumable-event-observation.v1", ["bounded polling controls", "optional observer contract", "opaque monotonic event IDs", "strictly after the supplied ID", "expired or missing cursor as a gap", "Missing progress measurements stay unknown"]],
   ]);
   const ruleMap = new Map((source.ownerDefinedAsyncRules ?? []).map(({ id, rule }) => [id, rule]));
   const records = new Map((source.normativeRuleRecords ?? []).map((row) => [row.ruleRef.split("@id=")[1], row]));
@@ -50,7 +51,7 @@ function asyncOwnerRulesValid(source) {
 test("asynchronous Media grammar separates request, job, effect, output, and finality", () => {
   const source = read(sourcePath);
   assert.equal(source.mediaOwnerDefinitionDecision.status, "MEDIA_OWNER_DEFINED_DEFINITION_ONLY");
-  assert.equal(source.normativeRuleRecords.length, 7);
+  assert.equal(source.normativeRuleRecords.length, 8);
   assert.equal(asyncOwnerRulesValid(source), true);
   const submit = resolveRef(source.ownerDefinedAsyncRules[0].sourceRefs[0]);
   const inspect = resolveRef(source.ownerDefinedAsyncRules[1].sourceRefs[0]);
@@ -72,6 +73,7 @@ test("async contract tests reject false completion, unbounded observation, and p
     (copy) => { copy.ownerDefinedAsyncRules.find(({ id }) => id === "media.async.child-output-lifecycle-boundary.v1").rule = "Parent failure deletes all child output and immutable identity means content is retained forever."; },
     (copy) => { copy.normativeRuleRecords.find(({ id }) => id === "media.p2.rule.async-group-retry-item-finality.v1").acceptanceEffect = "runtime acceptance"; },
     (copy) => { copy.ownerDefinedAsyncRules.find(({ id }) => id === "media.async.definition-and-run-state-separation.v1").rule = "Run status is stored in the shared definition and graph presence grants dispatch authority."; },
+    (copy) => { copy.ownerDefinedAsyncRules.find(({ id }) => id === "media.async.bounded-poll-and-resumable-event-observation.v1").rule = "Polling is unbounded and cursor loss finalizes the job."; },
   ];
   for (const mutate of mutations) {
     const copy = structuredClone(source);

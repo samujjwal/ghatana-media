@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "media.pdp38-migration-p0-pxd153-current-source-observation.v1",
+  "scope": "Additive observation of current PDP-0 capability source bytes after the bounded PXD-153 declaredByteLength correction. Historical PXD-130 locator/current-source pins remain unchanged; no claim parity, acceptance, runtime, or qualification effect.",
+  "decisionRef": ".product-experience/decision-log.md#PXD-153",
+  "sourceCorrectionReviewRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
+  "records": [
+    {
+      "claimId": "MPSEM-0172-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.multimodal.describe/outcome",
+      "historicalPxd130CurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+      "historicalPxd130CurrentTargetValueSha256": "d159f0be2106ca2ac8b901ce47b6da94f1b41caf0c3887bd3fb845d0bf4430a8",
+      "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      "currentTargetValueSha256": "d159f0be2106ca2ac8b901ce47b6da94f1b41caf0c3887bd3fb845d0bf4430a8",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0315-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#/capabilities/@id=media.speech.transcription.alternatives.provide/outcome",
+      "historicalPxd130CurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+      "historicalPxd130CurrentTargetValueSha256": "d373646664417b90ef2588de847c6f43973e6c3ddbdc3eb21605bf9b1373cc27",
+      "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+      "currentTargetValueSha256": "d373646664417b90ef2588de847c6f43973e6c3ddbdc3eb21605bf9b1373cc27",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none"
+    }
+  ]
+}

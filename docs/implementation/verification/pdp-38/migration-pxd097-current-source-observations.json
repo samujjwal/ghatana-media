@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "media.pdp38-migration-pxd097-current-source-observations.v1",
+  "scope": "Claim-scoped observations for current owner-source additions under the immutable PXD-097 review. The historical proposal, approval bytes, and target fingerprints remain unchanged. These observations preserve the original claim meanings and do not add acceptance or runtime admission.",
+  "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-experience-review-40.json",
+  "records": [
+    {
+      "claimId": "MPSEM-0091-C003",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.genericMechanicsBoundary",
+      "historicalValueSha256": "9a8d07cba462cbafd9153beef209439630cfea8d7f2dc3d2c04f24a565fc44a4",
+      "currentValueSha256": "f62fcd66d8772966e23b0fd61c9262ca616404c8ca13c0c710dab6d41ecb8a4e",
+      "claimParityBasis": "The current owner boundary retains the rule that Media consumes suitable shared mechanics through Media-owned adapters, does not copy unsuitable implementations, keeps domain state and policy in Media, and requires exact production-operation, delegation, policy, and receipt checks. The expanded scheduler boundary expressly denies scheduler implementation, GPU admission, and runtime dispatch. This preserves the claim that Media requests owner improvements through accepted contracts rather than copying implementations.",
+      "disposition": "CURRENT_OWNER_TARGET_OBSERVED; HISTORICAL_CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
+    },
+    {
+      "claimId": "MPSEM-0467-C004",
+      "sourceRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#mediaArchitectureRules.genericMechanicsBoundary",
+      "historicalValueSha256": "9a8d07cba462cbafd9153beef209439630cfea8d7f2dc3d2c04f24a565fc44a4",
+      "currentValueSha256": "f62fcd66d8772966e23b0fd61c9262ca616404c8ca13c0c710dab6d41ecb8a4e",
+      "claimParityBasis": "The current owner rule limits shared mechanics to exact suitable public contracts behind Media-owned adapters, retains Media authority over product state and policy, and states that internal mechanics or authoring tools create no production integration or runtime authority. The newly explicit scheduler non-claims preserve rather than weaken this boundary.",
+      "disposition": "CURRENT_OWNER_TARGET_OBSERVED; HISTORICAL_CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
+    },
+    {
+      "claimId": "MPSEM-0357-C003",
+      "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/consentRevocation",
+      "historicalValueSha256": "b221711285108446290a0df420d70d7c068d1b6191fa0700cdb3f6b43a56df61",
+      "currentValueSha256": "2ac3c79e3ba6ba0645851c7326d68a4326c6ed1aab626e0b4eb60ef067581fcd",
+      "claimParityBasis": "The current source retains effect-boundary revocation and UNKNOWN provider-outcome handling. Its added authority guard requires a current, exact-scope consent observation, treats grant/change/revoke requests as intent only, and denies new effects when authority is stale, missing, or unavailable. These constraints strengthen the claim that long-running work must recheck revocation and expiry; they do not claim external recall or deletion.",
+      "disposition": "CURRENT_OWNER_TARGET_EXTENDED; HISTORICAL_CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
+    },
+    {
+      "claimId": "MPSEM-0367-C001",
+      "sourceRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedPdp10Boundary/retentionAndErasure",
+      "historicalValueSha256": "44ad9d081352bf7f89c2bf6d7a4a019b1a1e5af95a922e83666da56402807e20",
+      "currentValueSha256": "d492b5323bd6a4b497bd7a7369a1c83f9e9292a93e0ebd2a2b46f3a898efd7b8",
+      "claimParityBasis": "The current source retains that downloaded or published copies can be outside Media's control and that external deletion requires deployment-specific owner evidence. Added current-hold and inventory guards make unknown or incomplete scopes block physical purge and ERASURE_CONFIRMED; they do not claim that Media can recall external copies.",
+      "disposition": "CURRENT_OWNER_TARGET_EXTENDED; HISTORICAL_CLAIM_PARITY_RETAINED",
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  ]
+}

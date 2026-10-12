@@ -106,7 +106,7 @@ function validate({ operations, parity, canonicalCli, cliSource, uiSource, model
   }
   if (!parity.includes("denominator: 147") || !parity.includes("operationBindingCounts: {mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132}")) errors.push("current UI action census must be 14 proposed exact refs, one PXD-077 owner-defined intent only, and 132 without exact refs; historical 146/PXD-029 remains separate");
   if (!parity.includes("registryPopulation: 12") || !parity.includes("operationBindingCounts: {mappedProposal: 2, unresolved: 0}")) errors.push("caption-version CLI slice must remain 2/2 mapped within the 12-record registry");
-  if (!parity.includes("semanticOperationBinding: unresolved-for-all-11-fixture-identities")) errors.push("fixture CLI namespace must remain unbound");
+  if (!parity.includes("semanticOperationBinding: all-11-fixture-identities-have-exact-action-to-operation-intent-crosswalk-through-current-PDP1-action-ref-resolution; only-two-command-registry-rows-carry-direct-operationRef-fields; fixture-parser-does-not-invoke-canonical-operations; production-cli-not-admitted")) errors.push("fixture CLI identities must retain the exact intent crosswalk while fixture execution and production CLI admission stay separate");
   if (!sdkSource.includes("export class MediaOperationClient") || /(?:saveCaptionVersion|compareCaptionVersions|caption\.save-version|caption\.compare-versions)/u.test(sdkSource)) errors.push("SDK must not claim a caption-version method without source evidence");
   return errors;
 }
@@ -141,7 +141,7 @@ test("source parity rejects mismatched command/action dispatch and stale error s
 });
 
 test("source parity rejects fixture-namespace and unsupported SDK/transport promotion", () => {
-  assert.match(validate({ ...base, parity: base.parity.replace("semanticOperationBinding: unresolved-for-all-11-fixture-identities", "semanticOperationBinding: proposed") }).join("\n"), /fixture CLI namespace must remain unbound/u);
+  assert.match(validate({ ...base, parity: base.parity.replace("all-11-fixture-identities-have-exact-action-to-operation-intent-crosswalk-through-current-PDP1-action-ref-resolution", "fixture-identities-have-unverified-operation-bindings") }).join("\n"), /exact intent crosswalk while fixture execution and production CLI admission stay separate/u);
   assert.match(validate({ ...base, operations: base.operations.replaceAll("status: no-dedicated-source-method; remains-unresolved", "status: source-method-found") }).join("\n"), /SDK identity must remain unresolved/u);
   assert.match(validate({ ...base, operations: base.operations.replace("pending-media-owner-and-runtime-conformance-review", "accepted") }).join("\n"), /must not mark external operation acceptance complete/u);
   assert.match(validate({ ...base, operations: base.operations.replace("no-idempotency-key-or-deduplication", "idempotent-with-production-deduplication") }).join("\n"), /source-supported idempotency limits must remain explicit/u);

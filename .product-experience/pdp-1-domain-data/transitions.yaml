@@ -2866,9 +2866,9 @@ ownerDefinedTransitionTriggerSemantics:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t01/edgeRules/1/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t01/edgeRules/2/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/0/when/all/3
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t01/edgeRules/0/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t01/edgeRules/1/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t01/edgeRules/2/when/all/2
@@ -2930,21 +2930,21 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=CANCELLED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=FAILED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=OUTCOME_UNKNOWN
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T01
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t01/edgeRules/0
@@ -3207,9 +3207,9 @@ ownerDefinedTransitionTriggerSemantics:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t01/edgeRules/1/when/all/3
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t01/edgeRules/2/when/all/3
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/0/when/all/2
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-attempt.t01/edgeRules/0/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-attempt.t01/edgeRules/1/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-attempt.t01/edgeRules/2/when/all/2
@@ -3275,21 +3275,21 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=CANCELLED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=FAILED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=OUTCOME_UNKNOWN
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-attempt/T01
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-attempt.t01/edgeRules/0
@@ -3639,7 +3639,7 @@ ownerDefinedTransitionTriggerSemantics:
         cannot be asserted as a boolean.
       predicateSourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t01/edgeRules/1/when/all/4
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/4
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t05/edgeRules/5/when/all/3
       sourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts/outcome.media.job.cancelled.supported
@@ -3662,7 +3662,7 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=CANCELLED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/4
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T05
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t05/edgeRules/5
@@ -3741,7 +3741,7 @@ ownerDefinedTransitionTriggerSemantics:
       predicateSourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t01/edgeRules/2/when/all/4
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t02/edgeRules/5/when/all/3
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/4
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t05/edgeRules/4/when/all/3
       sourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts/outcome.media.job.failed.supported
@@ -3772,7 +3772,7 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=FAILED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/4
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T05
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t05/edgeRules/4
@@ -4221,7 +4221,7 @@ ownerDefinedTransitionTriggerSemantics:
         cannot be asserted as a boolean.
       predicateSourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t02/edgeRules/1/when/all/3
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/4
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t05/edgeRules/6/when/all/3
       sourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts/outcome.media.job.outcome.unknown.supported
@@ -4244,7 +4244,7 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=OUTCOME_UNKNOWN
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/4
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T05
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t05/edgeRules/6
@@ -4584,15 +4584,13 @@ ownerDefinedTransitionTriggerSemantics:
       acceptanceEffect: none
     - id: media.transition-guard-fact.retrybudgetavailable.v1
       fact: retryBudgetAvailable
-      predicateMeaning: The exact guard predicate “retryBudgetAvailable” is evaluated from a current, source-owned typed
-        observation for the referenced subject/version. The guard key alone is not evidence and cannot be asserted as a
-        boolean.
+      predicateMeaning: Retry eligibility is a source-defined bounded check over a current retry-policy read and exact
+        prior-attempt outcome; this is a definition-only model input and does not establish a runtime observation or
+        authorize dispatch.
       predicateSourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/0/when/all/1
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
       sourceRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts/retryBudgetAvailable
       authorityRefs:
         - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
@@ -4606,34 +4604,14 @@ ownerDefinedTransitionTriggerSemantics:
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RUNNING
           predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/0/when/all/1
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
-        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
-          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1
-          sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
-          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
-          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=CANCELLED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
-          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
-        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
-          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2
-          sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
-          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
-          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=FAILED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
-          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
-        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03
-          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3
-          sourceGuardMeaning: retry-budget-policy-and-authority-rechecked
-          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=RETRY_PENDING
-          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=OUTCOME_UNKNOWN
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
-          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
       valueKind: BOUNDED_CHECK_OBSERVATION
       valueProperty: checkDisposition
       valueOptions:
         - PASS
         - FAIL
         - UNKNOWN
-      valueSemantics: PASS
+      valueSemantics: PASS only when the exact current typed observation reports retryability RETRYABLE, outcomeClass
+        DEFINITIVE_NO_EFFECT or DEFINITIVE_RETRYABLE_FAILURE, and retriesRemaining greater than zero
       valueSchema:
         type: object
         additionalProperties: false
@@ -4645,11 +4623,13 @@ ownerDefinedTransitionTriggerSemantics:
               - PASS
               - FAIL
               - UNKNOWN
+      observationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1
+      bindingStatus: OWNER_DEFINED_DEFINITION_ONLY_NO_ENDPOINT_OR_RUNTIME_BINDING
       resultRules:
-        positive: checkDisposition equals PASS
+        positive: checkDisposition equals PASS only when the exact current typed observation reports retryability RETRYABLE,
+          outcomeClass DEFINITIVE_NO_EFFECT or DEFINITIVE_RETRYABLE_FAILURE, and retriesRemaining greater than zero
         negative: a source-specific negative enum value is DENIED
-        unknown: missing, stale, foreign-scope, conflicting, or unverified owner evidence is UNKNOWN; no transition or retry is
-          implied
+        unknown: missing, stale, foreign-scope, malformed, conflicting, wrong-version evidence is UNKNOWN and denies the edge
       trustedInputs:
         - tenantId
         - principalId
@@ -4659,6 +4639,9 @@ ownerDefinedTransitionTriggerSemantics:
         - expectedReadVersion
         - now
         - maxAgeMs
+        - expectedJobVersionRef
+        - expectedAttemptVersionRef
+        - expectedPolicyVersionRef
       runtimeAdmission: NOT_ADMITTED
       acceptanceEffect: none
     - id: media.transition-guard-fact.reconciliationauthorityavailable.v1
@@ -7510,7 +7493,11 @@ ownerDefinedTransitionTriggerSemantics:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t05/edgeRules/0/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t06/edgeRules/0/when/all/3
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/0/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/0/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
       sourceRefs:
         - .product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-upload-and-artifact
         - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy/dataHandling/deletion
@@ -7523,6 +7510,7 @@ ownerDefinedTransitionTriggerSemantics:
         - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T05
         - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T06
         - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T07
+        - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T08
         - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T09
       occurrenceSemantics:
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T05
@@ -7546,12 +7534,40 @@ ownerDefinedTransitionTriggerSemantics:
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
           predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/0/when/all/2
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
+        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T07
+          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2
+          sourceGuardMeaning: controlled-copy-inventory-and-hold-check
+          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=ACCESS_REVOKED
+          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=EXTERNAL_ERASURE_UNCONFIRMED
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
+          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
+        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T08
+          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0
+          sourceGuardMeaning: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
+          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
+          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=ERASURE_CONFIRMED
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
+        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T08
+          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2
+          sourceGuardMeaning: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
+          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
+          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=EXTERNAL_ERASURE_UNCONFIRMED
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
+          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T09
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/0
           sourceGuardMeaning: hold-release-or-destination-boundary-reconciliation
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=BLOCKED_BY_HOLD
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
           predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/0/when/all/2
+          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
+        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T09
+          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1
+          sourceGuardMeaning: hold-release-or-destination-boundary-reconciliation
+          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=BLOCKED_BY_HOLD
+          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=EXTERNAL_ERASURE_UNCONFIRMED
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
       valueKind: EXHAUSTIVE_ACTIVE_HOLD_SET
       valueProperty: null
@@ -7901,9 +7917,10 @@ ownerDefinedTransitionTriggerSemantics:
         typed observation for the referenced subject/version. The guard key alone is not evidence and cannot be asserted
         as a boolean.
       predicateSourceRefs:
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/3
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/1/not
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/3
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/3
       sourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts/erasure.externalCopyUnconfirmed
       authorityRefs:
@@ -7918,21 +7935,28 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: controlled-copy-inventory-and-hold-check
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=ACCESS_REVOKED
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=EXTERNAL_ERASURE_UNCONFIRMED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/3
+          effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
+        - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T08
+          edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0
+          sourceGuardMeaning: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
+          exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
+          exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=ERASURE_CONFIRMED
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/1/not
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T08
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2
           sourceGuardMeaning: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=EXTERNAL_ERASURE_UNCONFIRMED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/3
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
         - transitionRef: .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-upload-and-artifact/T09
           edgeRuleRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1
           sourceGuardMeaning: hold-release-or-destination-boundary-reconciliation
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=BLOCKED_BY_HOLD
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=EXTERNAL_ERASURE_UNCONFIRMED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/3
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
       valueKind: SOURCE_SPECIFIC_EVIDENCE_DISPOSITION
       valueProperty: evidenceDisposition
@@ -8045,7 +8069,7 @@ ownerDefinedTransitionTriggerSemantics:
         source-owned typed observation for the referenced subject/version. The guard key alone is not evidence and
         cannot be asserted as a boolean.
       predicateSourceRefs:
-        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/0
       sourceRefs:
         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts/erasure.allControlledCopiesConfirmed
       authorityRefs:
@@ -8058,7 +8082,7 @@ ownerDefinedTransitionTriggerSemantics:
           sourceGuardMeaning: per-copy-deletion-evidence-or-explicit-control-boundary-is-recorded
           exactFromStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=PHYSICAL_ERASURE_PENDING
           exactToStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-upload-and-artifact/stateDefinitions/@id=ERASURE_CONFIRMED
-          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+          predicateFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/0
           effectBoundary: Definition-only guard meaning; no deployed producer or transition persistence is asserted.
       valueKind: SOURCE_SPECIFIC_EVIDENCE_DISPOSITION
       valueProperty: evidenceDisposition
@@ -23742,20 +23766,16 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/0
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/0
-            - fact: retryBudgetAvailable
+            - fact: policyCurrent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
-            - fact: policyCurrent
+            - fact: authorityCurrent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
-            - fact: authorityCurrent
-              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
-              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
-              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
             - fact: outcome.media.job.cancelled.supported
-              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/4
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
               valueKind: EXACT_TARGET_STATE_OBSERVATION
               targetStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=CANCELLED
               validStateRefs:
@@ -23774,13 +23794,11 @@ ownerDefinedTransitionTriggerSemantics:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
-              - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/4
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-job-t03.cancelled.v1
             triggerKind: TYPED_FENCED_JOB_ATTEMPT_CANCELLED
-            triggerRule: The media-job/T03 edge to CANCELLED requires the exact job/attempt/lease tuple, current unexpired fencing
-              lease, exact source and target state refs, and the state-specific owner receipt fields. The target state
-              is derived from these conditions and evidence; a supplied supported boolean cannot trigger the edge.
+            triggerRule: CANCELLED requires exact current observed state evidence for the terminal target and confirmed
+              no-new-attempt outcome; it is a finality observation, not a cancel command.
             sourceRefs:
               - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1
               - .product-experience/pdp-1-domain-data/operations.yaml#ownerAttemptLeaseLifecycle
@@ -24103,8 +24121,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 5
-                maxItems: 5
+                minItems: 4
+                maxItems: 4
                 uniqueItems: true
                 items:
                   type: object
@@ -24125,7 +24143,6 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/2
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
-                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/4
                     verdict:
                       enum:
                         - SATISFIED
@@ -24174,7 +24191,7 @@ ownerDefinedTransitionTriggerSemantics:
                     - if:
                         properties:
                           factRef:
-                            const: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/4
+                            const: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/1/when/all/3
                         required:
                           - factRef
                       then:
@@ -24223,20 +24240,16 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/0
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/0
-            - fact: retryBudgetAvailable
+            - fact: policyCurrent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
-            - fact: policyCurrent
+            - fact: authorityCurrent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
-            - fact: authorityCurrent
-              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
-              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
-              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
             - fact: outcome.media.job.failed.supported
-              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/4
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
               valueKind: EXACT_TARGET_STATE_OBSERVATION
               targetStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=FAILED
               validStateRefs:
@@ -24255,13 +24268,11 @@ ownerDefinedTransitionTriggerSemantics:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
-              - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/4
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-job-t03.failed.v1
             triggerKind: TYPED_FENCED_JOB_ATTEMPT_FAILED
-            triggerRule: The media-job/T03 edge to FAILED requires the exact job/attempt/lease tuple, current unexpired fencing
-              lease, exact source and target state refs, and the state-specific owner receipt fields. The target state
-              is derived from these conditions and evidence; a supplied supported boolean cannot trigger the edge.
+            triggerRule: FAILED requires exact current observed state evidence and a terminal failure observation with definitive
+              pre-dispatch finality.
             sourceRefs:
               - .product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1
               - .product-experience/pdp-1-domain-data/operations.yaml#ownerAttemptLeaseLifecycle
@@ -24584,8 +24595,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 5
-                maxItems: 5
+                minItems: 4
+                maxItems: 4
                 uniqueItems: true
                 items:
                   type: object
@@ -24606,7 +24617,6 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/2
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
-                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/4
                     verdict:
                       enum:
                         - SATISFIED
@@ -24655,7 +24665,7 @@ ownerDefinedTransitionTriggerSemantics:
                     - if:
                         properties:
                           factRef:
-                            const: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/4
+                            const: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/2/when/all/3
                         required:
                           - factRef
                       then:
@@ -24704,20 +24714,16 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/0
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/0
-            - fact: retryBudgetAvailable
+            - fact: policyCurrent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
-            - fact: policyCurrent
+            - fact: authorityCurrent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
-            - fact: authorityCurrent
-              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
-              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
-              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
             - fact: outcome.media.job.outcome.unknown.supported
-              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/4
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
               valueKind: EXACT_TARGET_STATE_OBSERVATION
               targetStateRef: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/@machineId=media-job/stateDefinitions/@id=OUTCOME_UNKNOWN
               validStateRefs:
@@ -24736,13 +24742,11 @@ ownerDefinedTransitionTriggerSemantics:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
-              - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/4
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-job-t03.outcome-unknown.v1
             triggerKind: TYPED_FENCED_JOB_ATTEMPT_OUTCOME_UNKNOWN
-            triggerRule: The media-job/T03 edge to OUTCOME_UNKNOWN requires the exact job/attempt/lease tuple, current unexpired
-              fencing lease, exact source and target state refs, and the state-specific owner receipt fields. The target
-              state is derived from these conditions and evidence; a supplied supported boolean cannot trigger the edge.
+            triggerRule: OUTCOME_UNKNOWN requires exact current observed state evidence for unresolved retry-request outcome; it
+              records uncertainty and never authorizes replay.
             sourceRefs:
               - .product-experience/pdp-1-domain-data/operations.yaml#ownerAttemptLeaseLifecycle
               - .product-experience/pdp-1-domain-data/operations.yaml#ownerAttemptLeaseLifecycle
@@ -25071,8 +25075,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 5
-                maxItems: 5
+                minItems: 4
+                maxItems: 4
                 uniqueItems: true
                 items:
                   type: object
@@ -25093,7 +25097,6 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/2
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
-                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/4
                     verdict:
                       enum:
                         - SATISFIED
@@ -25142,7 +25145,7 @@ ownerDefinedTransitionTriggerSemantics:
                     - if:
                         properties:
                           factRef:
-                            const: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/4
+                            const: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-job.t03/edgeRules/3/when/all/3
                         required:
                           - factRef
                       then:
@@ -50812,15 +50815,20 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/1
-            - fact: erasure.externalCopyUnconfirmed
+            - fact: hold.absent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
+            - fact: erasure.externalCopyUnconfirmed
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/3
+              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
+              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/3
           guardExpression:
             all:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/0
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
+              - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/3
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-upload-and-artifact-t07.external-erasure-unconfirmed.v1
             triggerKind: EXTERNAL_COPY_BOUNDARY_UNCONFIRMED
@@ -51144,8 +51152,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 3
-                maxItems: 3
+                minItems: 4
+                maxItems: 4
                 uniqueItems: true
                 items:
                   type: object
@@ -51165,6 +51173,7 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/0
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/2
+                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t07/edgeRules/2/when/all/3
                     verdict:
                       enum:
                         - SATISFIED
@@ -51244,15 +51253,27 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/1
-            - fact: erasure.allControlledCopiesConfirmed
+            - fact: hold.absent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+            - fact: erasure.allControlledCopiesConfirmed
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/0
+              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
+              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/0
+            - fact: erasure.externalCopyUnconfirmed
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/1/not
+              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
+              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/1/not
           guardExpression:
             all:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/0
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+              - all:
+                  - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/0
+                  - not:
+                      factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/1/not
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-upload-and-artifact-t08.erasure-confirmed.v1
             triggerKind: CONTROLLED_COPY_DELETION_CONFIRMED
@@ -51594,8 +51615,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 3
-                maxItems: 3
+                minItems: 5
+                maxItems: 5
                 uniqueItems: true
                 items:
                   type: object
@@ -51615,6 +51636,8 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/0
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/2
+                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/0
+                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/0/when/all/3/all/1/not
                     verdict:
                       enum:
                         - SATISFIED
@@ -52093,15 +52116,20 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/1
-            - fact: erasure.externalCopyUnconfirmed
+            - fact: hold.absent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
+            - fact: erasure.externalCopyUnconfirmed
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/3
+              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
+              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/3
           guardExpression:
             all:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/0
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
+              - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/3
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-upload-and-artifact-t08.external-erasure-unconfirmed.v1
             triggerKind: EXTERNAL_COPY_BOUNDARY_UNCONFIRMED
@@ -52424,8 +52452,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 3
-                maxItems: 3
+                minItems: 4
+                maxItems: 4
                 uniqueItems: true
                 items:
                   type: object
@@ -52445,6 +52473,7 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/0
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/2
+                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t08/edgeRules/2/when/all/3
                     verdict:
                       enum:
                         - SATISFIED
@@ -52956,15 +52985,20 @@ ownerDefinedTransitionTriggerSemantics:
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/1
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/1
-            - fact: erasure.externalCopyUnconfirmed
+            - fact: hold.absent
               sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
               valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
               sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
+            - fact: erasure.externalCopyUnconfirmed
+              sourceRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/3
+              valueKind: SOURCE_GUARD_FACT_REQUIRES_TYPED_EVIDENCE
+              sourceGuardFactRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/3
           guardExpression:
             all:
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/0
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/1
               - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
+              - factRef: .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/3
           causalTriggerDefinition:
             id: media.transition-trigger-definition.media-upload-and-artifact-t09.external-erasure-unconfirmed.v1
             triggerKind: HOLD_RELEASED_EXTERNAL_BOUNDARY
@@ -53288,8 +53322,8 @@ ownerDefinedTransitionTriggerSemantics:
                 format: date-time
               guardFactResults:
                 type: array
-                minItems: 3
-                maxItems: 3
+                minItems: 4
+                maxItems: 4
                 uniqueItems: true
                 items:
                   type: object
@@ -53309,6 +53343,7 @@ ownerDefinedTransitionTriggerSemantics:
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/0
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/1
                         - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/2
+                        - .product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records/@id=media.transition-guard-contract.media-upload-and-artifact.t09/edgeRules/1/when/all/3
                     verdict:
                       enum:
                         - SATISFIED

@@ -3,58 +3,242 @@ contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-
 surfaceId: media.surface.web
 templateId: media.gui.template.collection
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.collection]
+layoutIds: [ media.gui.layout.collection ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.intent-launcher, media.component.provenance-summary, media.component.rights-retention-review]
-patternIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
+componentIds:
+  [
+    media.component.intent-launcher,
+    media.component.provenance-summary,
+    media.component.rights-retention-review
+  ]
+patternIds: [ media.gui.pattern.safe-confirmation-and-unknown-outcome ]
 tokenDependencies: []
-domainObjectRefs: []
-operationRefs: []
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.artifact-version
+  - media.domain.processing-job
+operationRefs:
+  - media.operation.action.search-product-guidance
+  - media.operation.action.open-related-view
+  - media.operation.action.share-diagnostics-after-explicit-choice
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 stateRefs: []
-entry: []
-exit: []
+entry:
+  - "Before media.action.search-product-guidance, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.search-product-guidance/actionDefinitionSemantics/typedDefi\
+    nition; runtime NOT_ADMITTED."
+  - "Before media.action.open-related-view, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.open-related-view/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.prepare-redacted-diagnostics, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.prepare-redacted-diagnostics/actionDefinitionSemantics/type\
+    dDefinition; runtime NOT_ADMITTED."
+  - "Before media.action.share-diagnostics-after-explicit-choice, require exact
+    guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.share-diagnostics-after-explicit-choice/actionDefinitionSem\
+    antics/typedDefinition; runtime NOT_ADMITTED."
+exit:
+  - "media.action.search-product-guidance: Read or navigate using the exact
+    selected context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.search-product-guidance/actionDefinitionSemantics/typedDefi\
+    nition; runtime NOT_ADMITTED."
+  - "media.action.open-related-view: Read or navigate using the exact selected
+    context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.open-related-view/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.prepare-redacted-diagnostics: Change only the current local
+    draft or selection; keep committed source and versioned objects unchanged
+    until a separately specified commit.; finality=local-draft-only;
+    not-a-committed-result;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.prepare-redacted-diagnostics/actionDefinitionSemantics/type\
+    dDefinition; runtime NOT_ADMITTED."
+  - "media.action.share-diagnostics-after-explicit-choice: Request the
+    explicitly named operation for the exact target only after fresh actor,
+    capability, policy, and target checks.; finality=external-effect-or-request;
+    owner-acknowledgment-required; unknown-is-not-failure;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.share-diagnostics-after-explicit-choice/actionDefinitionSem\
+    antics/typedDefinition; runtime NOT_ADMITTED."
 actionConsequences:
   - actionId: media.action.search-product-guidance
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.search-product-guidance
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.search-product-guidance/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.search-product-guidance
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.developer-integrator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.open-related-view
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.open-related-view
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.open-related-view/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.open-related-view
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.developer-integrator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.prepare-redacted-diagnostics
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.prepare-redacted-diagnostics/actionDefinitionSemantics/typedDefinition
+    consequence: Change only the current local draft or selection; keep committed
+      source and versioned objects unchanged until a separately specified
+      commit.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-draft-only; not-a-committed-result
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.developer-integrator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.share-diagnostics-after-explicit-choice
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.share-diagnostics-after-explicit-choice
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.share-diagnostics-after-explicit-choice/actionDefinitionSemantics/typedDefinition
+    consequence: Request the explicitly named operation for the exact target only
+      after fresh actor, capability, policy, and target checks.
     status: pending-owner-binding
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.share-diagnostics-after-explicit-choice
+    finality: external-effect-or-request; owner-acknowledgment-required;
+      unknown-is-not-failure
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.developer-integrator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
 responsiveBehavior:
   ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
   screenOverrides: []
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.collection
+      responsiveRule: Keep filters and result identity in reading order; do not rely
+        on horizontal scrolling.
 fixtures:
   refs: []
-  status: missing
+  status: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
+  negativeCases:
+    - No screen fixture may be inferred from a neighboring view or from journey
+      membership alone.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
+  unlinkedScreenFixtureRefs: []
 verification:
   status: not-run
   evidenceRefs: []
@@ -71,72 +255,84 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
-  tokenDependencies: no-canonical-references-declared
-  domainObjectRefs: no-canonical-references-declared
-  operationRefs: no-canonical-references-declared
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: no-PDP1-state-references-declared
-  entry: no-canonical-entry-contract-declared
-  exit: no-canonical-exit-contract-declared
-  actionConsequences: unresolved; owner-effect-binding-pending
-  responsiveBehavior: proposal-only; unverified
-  fixtures: missing
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
   verification: not-run
+  recipeIds: Exact P2 recipe media.gui.recipe.collection; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.find-task-guidance
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.operator
-- media.developer-integrator
+  - media.creator
+  - media.editor
+  - media.operator
+  - media.developer-integrator
 intentRef: media.intent.find-task-guidance
 purpose: Product-specific assistance and safe diagnostic sharing
 contextGoalNowNext:
-  context: The current user goal and non-sensitive product context, selected guidance language, and safe diagnostic-sharing
-    choice.
-  goal: Find product guidance that helps complete the current task without exposing protected information.
-  now: Show relevant steps, supported limitations, and optional diagnostic fields before any sharing action.
-  next: Follow the guidance, open a related view, or choose exactly which safe diagnostics to share.
+  context: The current user goal and non-sensitive product context, selected
+    guidance language, and safe diagnostic-sharing choice.
+  goal: Find product guidance that helps complete the current task without
+    exposing protected information.
+  now: Show relevant steps, supported limitations, and optional diagnostic fields
+    before any sharing action.
+  next: Follow the guidance, open a related view, or choose exactly which safe
+    diagnostics to share.
 anatomy:
-- guidance-query-or-context
-- relevant-instructions
-- support-limitations
-- related-view-links
-- diagnostic-preview-and-redaction
-- sharing-choice
+  - guidance-query-or-context
+  - relevant-instructions
+  - support-limitations
+  - related-view-links
+  - diagnostic-preview-and-redaction
+  - sharing-choice
 componentRefs:
-- media.component.intent-launcher
-- media.component.provenance-summary
-- media.component.rights-retention-review
+  - media.component.intent-launcher
+  - media.component.provenance-summary
+  - media.component.rights-retention-review
 states:
-- loading
-- results-ready
-- no-guidance
-- stale-guidance
-- diagnostic-redaction-required
-- share-confirmation
+  - loading
+  - results-ready
+  - no-guidance
+  - stale-guidance
+  - diagnostic-redaction-required
+  - share-confirmation
 actions:
-- media.action.search-product-guidance
-- media.action.open-related-view
-- media.action.prepare-redacted-diagnostics
-- media.action.share-diagnostics-after-explicit-choice
-actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+  - media.action.search-product-guidance
+  - media.action.open-related-view
+  - media.action.prepare-redacted-diagnostics
+  - media.action.share-diagnostics-after-explicit-choice
+actionBindingState: proposed-intent-action-refs;
+  owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
-- search product guidance
-- open a related view
-- preview and redact diagnostics
-- share diagnostics only after explicit choice
+  - search product guidance
+  - open a related view
+  - preview and redact diagnostics
+  - share diagnostics only after explicit choice
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -162,7 +358,28 @@ localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-06
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.collection
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.collection template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.find-task-guidance

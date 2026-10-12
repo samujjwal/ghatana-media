@@ -2,6 +2,7 @@
 
 **Authority:** PDP-3 proposal over PDP-0, PDP-1, and PDP-2\
 **Acceptance:** proposal; depends on accepted PDP-2 and full experience review; no complete-experience acceptance is recorded\
+**Development completion:** `docs/implementation/pdp-3-phase-dev-status.json` records all 10 criteria passing for the 47-screen/30-journey/130-step population, with strict current projections, valid schemas/public validators, and zero field-mapping blockers. The terminal cross-phase and full development suite are repository integration checks; they do not establish product-owner or independent acceptance, runtime admission, Lifecycle receipts or closure, or release qualification.\
 **Detailed work slices:** J-01 project setup, J-02 artifact intake, J-20 job observation/recovery, and `media.lane.transcribe-and-correct-captions`
 **Lane media scope:** Audio sources only; video audio-extraction and source-time mapping are outside this slice of J-03.
 
@@ -17,10 +18,11 @@ the shared `media.view.job-status` contract; owner job-runtime bindings remain
 unbound. Retry requires a classified retryable attempt and fresh authority,
 policy, and budget checks; the local fixture CLI does not execute it.
 J-03 retains its audio-only lane contract. J-29 and J-30 are explicit extension
-contracts. These do not close the full screen denominator: complete
-action/state/scenario/channel coverage across the 28 plan-baseline journeys and
-active J-29/J-30 extensions (30 total), API wire
-bindings, journey-wide CLI behavior, and embedded-host behavior remain open.
+contracts. All 30 journeys and 130 ordered steps have typed source-linked
+definition semantics in the development projection. Explicit proposal,
+unseeded-fixture, and unadmitted-channel dispositions remain visible in the
+source records; they do not imply owner acceptance, callable API routes,
+journey-wide CLI behavior, embedded-host behavior, or runtime admission.
 All authored screen action intents now resolve to intent-based proposal action
 references. A direct, source-checked action-capability-to-PDP-0 requirement
 crosswalk exists for 21 of 47 screens and for all 18 action-bearing journey
@@ -29,11 +31,12 @@ crosswalk in the current registries. These are proposed references, not
 semantic acceptance. Detailed action effects, authority, component
 interactions, state transitions, and owner approval remain open. All 28
 plan-baseline journey files are PDP-0-grounded proposals with ordered screen
-references; J-29 and J-30 are explicit extension contracts. These are not
-complete or accepted contracts. PXD-036 selects exact intent, view, and screen
-contract references for every J-29/J-30 step, yielding 130/130 source-linked
-steps while leaving actions, operations, state, authority, transitions,
-verification, and screen admission open. PXD-028 historically approved 41 exact top-level
+references; J-29 and J-30 are explicit extension contracts. PXD-036 selects
+exact intent, view, and screen-contract references for every J-29/J-30 step.
+PXD-160 also defines an exact one-snapshot `QUERY` supporting observation for
+J-29 step 02, including the source-owned session/version tuple; it does not
+dispatch, replay, or admit a runtime route. Other unbound and conditional
+references retain their explicit source dispositions. PXD-028 historically approved 41 exact top-level
 template/layout links; PXD-037 reviewed the six remaining purposes and approved
 five new central templates plus three layouts, bringing the definition mapping
 to 47 of 47 screens. These links organize reusable Media screen composition
@@ -61,9 +64,8 @@ and Explorer bindings remain open under `GAP-MEDIA-TOOLS-SCHEMA-BINDING` and
 `GAP-11`. The generated ExperienceSpecification v1
 (`ghatana.experience-specification.v1`) candidate passes structural schema
 validation and the available public `@ghatana/experience-specification`
-validator. It still reports five
-semantic field blockers and does not constitute full PDP-3 validation or
-acceptance.
+validator. Its current projection and mapping boundaries are listed below;
+these checks do not constitute product-owner acceptance or runtime admission.
 
 ## Reading the specification
 
@@ -75,24 +77,30 @@ acceptance.
   Action Registry and PDP-0; unresolved operation/effect, domain-state, and
   behavioral-oracle links remain proposal-only. Full behavior binding, owner
   review, and acceptance remain pending.
-- `journey-contracts/` contains proposals for the 28 plan-baseline journeys
-  plus active J-29/J-30 extension contracts (30 total). The baseline proposals
-  record PDP-0 outcomes and ordered screen references. Direct capability and
-  requirement references resolve for 18 of 18 action-bearing steps across the
-  four authored action-bearing journey contracts; canonical operation/state,
-  oracle/fixture, scenario/channel, and owner-review bindings remain incomplete.
+- `journey-contracts/` contains the 28 plan-baseline journeys plus J-29/J-30
+  extension contracts (30 total). The development projection resolves all 130
+  typed step-oracle definitions and preserves exact action, operation,
+  authority, state, transition, and fixture dispositions where each applies.
+  Remaining source-unbound identities and non-executable proposals are explicit;
+  source projection does not certify provider, host, or runtime behavior.
 - Registries and bindings define action identity, component interactions,
   state projection, CLI/API parity, realistic synthetic scenarios, and recovery.
 - `scenario-fixture-registry.yaml` references PDP-3 fixture content; it does
   not duplicate fixture payloads.
-- `generated/experience-specification.candidate.json` is a schema-valid
-  candidate that passes its available public validator. It projects 31
-  component contracts, 47 views, 30 journey records with 130 of 130 source
-  steps, 20 interactions,
-  428 states, 1 exact source-bound upload transition, 147 actions, 145 effects, 145 finality candidates,
-  5 recovery records, 31 scenarios, 31 fixture descriptors, 3 search
-  definitions, and 5 inspection definitions. Its five semantic blockers are
-  `journeys`, `transitions`, `actions`, `effects`, and `finality`; the file records exact reasons and source refs.
+- `generated/experience-specification.candidate.json` is a structurally valid
+  candidate that passes the available public validator. It projects 31
+  component contracts, 47 views, 30 journey records with 130 of 130 source steps,
+  20 interactions, 428 states, 1 transition, 147 actions, 145 effects, 145
+  finality candidates, 5 recovery records, 31 scenarios and fixture descriptors,
+  3 search definitions, and 5 inspection definitions. Its current
+  `fieldMappingBlockers` is empty; all 130 steps resolve typed semantics from
+  the exact step-oracle source. Four of 30 journeys carry 31 source scenario
+  references; the other 26 are explicitly unseeded. The unknown-outcome corpus
+  records 59 source binding occurrences across 48 distinct journey/step/
+  operation bindings. Candidate dispositions retain the distinction between
+  definition projection, unadmitted shared handoffs, and runtime behavior. The
+  candidate passes schema and public validator checks, while `acceptance` is
+  `NOT_CLAIMED` and `currentness` remains under Lifecycle authority.
   PXD-052 supplies the exact public mapping for all five existing manual recovery
   records and one immutable project-reference effect/finality definition. Conditional
   upload reversal and unknown read reversibility remain explicitly unprojected; no
@@ -107,18 +115,20 @@ acceptance.
   PXD-066 through PXD-069 now define existing J03-5/6 session-local correction
   and manual tick alignment, including guarded revisions, undo and new-identity
   rebase. Manual timing does not satisfy forced alignment. PXD-070 through
-  PXD-073 define J03-2 audio request acceptance and same-key receipt recovery;
-  a receipt does not assert recognition completion or a canonical job state.
-  J03-1/3 still need individual source semantics; runtime verification remains
-  not-run.
-  Four J-29 step intents and all eight J-29/J-30 step-view links are now explicit
-  Media owner selections from the source intent and view inventories. All 130
-  steps project as partial proposals; these links do not admit screens or
-  establish action, effect, or transition behavior. Empty
-  `transitionRefs` arrays are schema placeholders, while source transitions are
-  unresolved. Action/effect/state links and the other semantic blockers remain
-  open. This candidate does not imply full PDP-3 acceptance, owner or
-  independent review, or Lifecycle currentness and closure.
+  PXD-073, with the current J03-2 decision at PXD-159, define audio request
+  acceptance and same-key receipt recovery; a receipt does not assert
+  recognition completion or a canonical job state. J03-1 still carries exact
+  source context only: there is no source-picker operation and source selection
+  validity is unresolved. J03-3 has a read-only current-job/attempt observation
+  definition, but it is not runtime-admitted or bound as an executable J03-2
+  recovery step. Runtime verification remains not-run.
+  Four J-29 step intents and all eight J-29/J-30 step-view links are explicit
+  Media owner selections from the source intent and view inventories. The J-29
+  PXD-160 query is a supporting read only; the journey remains single-snapshot,
+  with no dispatch or automatic recovery. Empty `transitionRefs` arrays remain
+  schema placeholders where the source provides no applicable transition.
+  Candidate projection does not establish full PDP-3 acceptance, independent
+  review, runtime admission, or Lifecycle currentness and closure.
 
 The reviewed plan's legacy `M-*` view IDs remain crosswalk references. New
 view, action, CLI-command, and scenario identifiers follow the canonical
@@ -128,14 +138,14 @@ ordinary workflow.
 
 ## Phase status
 
-All records are proposals that require upstream acceptance and role review.
-The registries expose the full view and journey denominator. J-01 and J-02
-have partial baseline-view and journey contracts; J-20 has a transcription
-job-state slice; the selected audio slice of J-03 has lane-specific contracts.
-The full baseline-view denominator is authored, while complete journey,
-channel, action, state, copy, fixture, and owner-review coverage remains an
-explicit completion gap. This work does not pass
-the PDP-3 acceptance gate.
+The PDP-3 development gate is `DEV_COMPLETE`; its 10 criteria, source cut, and
+strict current projection are pinned in the phase status artifact. That status
+is not product-owner acceptance or an acceptance-gate receipt. The generated
+candidate remains a definition projection, not a runtime or release artifact.
+J-01 and J-02 have baseline-view and journey contracts; J-20 has a
+transcription job-state slice; the selected audio slice of J-03 has lane-specific
+contracts. Owner acceptance, independent review, external channel admission,
+runtime proof, and Lifecycle evidence remain separate gates.
 
 ## Authority, dependencies, review, and proof
 

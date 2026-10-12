@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import test from "node:test";
 import { analyzeDesignConformance } from "../scripts/check-media-design-conformance.mjs";
+
+const repositoryRoot = resolve(new URL("..", import.meta.url).pathname);
+const { parse: parseYaml } = createRequire(resolve(repositoryRoot, "../ghatana-tools/package.json"))("yaml");
 
 const write = (root, path, content) => {
   const target = join(root, path);
@@ -79,6 +83,40 @@ test("unknown token provenance fails", () => withFixture({ css: ".sample { color
   assert.equal(result.ok, false);
 }));
 
+test("pinned public Shared CSS variables resolve without local shadow declarations", () => withFixture({ css: ".sample { color: var(--shared-body-size); }" }, (root) => {
+  const aliasPath = ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml";
+  const aliases = `status: MEDIA_OWNER_ACCEPTED_INTENT_ONLY
+aliases:
+  - id: media.token.content.primary
+    cssVariable: --text
+    sharedTokenRef: "@ghatana/tokens/semantic-roles#semanticColorRoles.light.contentPrimary"
+sharedPublicContract:
+  pinnedDevelopmentSnapshotQualification:
+    sourceRevision: c6d182af472c8954438f219c08d0202d1faa63a3
+cssVariableBindings:
+  sourcePackage: "@ghatana/tokens"
+  publicExport: "@ghatana/tokens#./tokens.css"
+  sourceRepository: samujjwal/ghatana-shared
+  sourceRevision: c6d182af472c8954438f219c08d0202d1faa63a3
+  resolutionStatus: VERIFIED_AGAINST_PINNED_PUBLIC_SOURCE_SNAPSHOT; registry-publication-and-immutable-release-pending
+  bindings:
+    - id: media.shared-css.typography.body.font-size
+      cssVariable: --shared-body-size
+      publicCssRef: "@ghatana/tokens/tokens.css#--shared-body-size"
+      semanticSource: sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic.ts#semanticTokens.typography.body.fontSize
+      valueType: CSS-length-rem
+      consumerBinding: media.token.css.typography.body.font-size
+`;
+  write(root, aliasPath, aliases);
+  const result = analyzeDesignConformance(root);
+  assert.ok(!result.findings.some((item) => item.kind === "unknown-token-provenance" && item.detail.includes("--shared-body-size")));
+
+  write(root, aliasPath, aliases.replace("@ghatana/tokens/tokens.css#--shared-body-size", "@ghatana/tokens/private.css#--shared-body-size"));
+  const malformed = analyzeDesignConformance(root);
+  assert.ok(malformed.findings.some((item) => item.kind === "unknown-token-provenance" && item.detail.includes("--shared-body-size")));
+  assert.ok(malformed.blockers.some((item) => item.includes("design-token CSS binding")));
+}));
+
 test("unregistered local component implementation fails", () => withFixture({ extraSource: "export function LocalCard() { return null; }" }, (root) => {
   const result = analyzeDesignConformance(root);
   assert.ok(result.findings.some((item) => item.kind === "unregistered-local-component" && item.detail.includes("LocalCard")));
@@ -123,6 +161,71 @@ test("repository keeps owner-gated blockers separate from source findings", () =
   assert.equal(result.summary.resolvedOwnerGates, 5);
   assert.equal(result.summary.openGovernanceGates.length, 2);
   assert.ok(!result.blockers.some((item) => item.includes("concrete-component-bindings")), result.blockers.join("\n"));
+});
+
+test("definition-only mode defers external gates but still blocks incomplete Media definitions", () => withFixture({}, (root) => {
+  const result = analyzeDesignConformance(root, { definitionOnly: true });
+  assert.equal(result.mode, "DEFINITION_ONLY");
+  assert.equal(result.acceptanceClaim, "NONE");
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.deferredAdmissionGates, [
+    { id: "shared-artifact-binding", disposition: "EXTERNAL_PENDING" },
+    { id: "conformance-and-specialist-review", disposition: "INDEPENDENT_PENDING" },
+  ]);
+  assert.ok(!result.blockers.some((item) => item.includes("shared-artifact-binding remains")));
+  assert.ok(!result.blockers.some((item) => item.includes("conformance-and-specialist-review remains")));
+  assert.ok(result.blockers.some((item) => item.includes("concrete-component-bindings remains SOURCE_INCOMPLETE")));
+}));
+
+test("current repository passes definition-only checks without claiming external acceptance", () => {
+  const result = analyzeDesignConformance(undefined, { definitionOnly: true, includeP3ScreenInstances: false });
+  assert.equal(result.mode, "DEFINITION_ONLY");
+  assert.equal(result.screenInstanceScope, "DEFERRED_PDP3_INSTANCE_VALIDATION");
+  assert.equal(result.acceptanceClaim, "NONE");
+  assert.equal(result.ok, true, result.blockers.join("\n"));
+  assert.equal(result.summary.screenContracts, 0, "PDP-2 scope must not scan downstream screen instances");
+  assert.deepEqual(result.deferredAdmissionGates, [
+    { id: "shared-artifact-binding", disposition: "EXTERNAL_PENDING" },
+    { id: "conformance-and-specialist-review", disposition: "INDEPENDENT_PENDING" },
+  ]);
+  assert.deepEqual(result.deferredP3ScreenCompositionFindings, []);
+});
+
+test("default full conformance keeps screen-instance checks enabled", () => withFixture({ screen: "templateId: null\nlayoutIds: []\n" }, (root) => {
+  const result = analyzeDesignConformance(root);
+  assert.equal(result.mode, "STRICT_CONFORMANCE");
+  assert.equal(result.screenInstanceScope, "FULL_PDP3_INSTANCE_VALIDATION");
+  assert.ok(result.findings.some(({ kind, path }) => kind === "missing-template-binding"
+    && path === ".product-experience/pdp-3-product-experience/screen-contracts/sample.yaml"));
+}));
+
+test("PDP-2 scoped conformance still blocks a broken typed component contract", () => {
+  const fixtureRoot = mkdtempSync(join(repositoryRoot, ".tmp-pdp2-component-scope-"));
+  try {
+    const experienceRoot = join(fixtureRoot, ".product-experience");
+    mkdirSync(experienceRoot, { recursive: true });
+    const p2Source = join(repositoryRoot, ".product-experience/pdp-2-design-interface-system");
+    const p2Fixture = join(experienceRoot, "pdp-2-design-interface-system");
+    cpSync(p2Source, p2Fixture, { recursive: true });
+    for (const directory of ["pdp-0-product-truth", "pdp-1-domain-data", "pdp-3-product-experience", "interface-parity"]) {
+      symlinkSync(join(repositoryRoot, ".product-experience", directory), join(experienceRoot, directory), "dir");
+    }
+
+    const contractsPath = join(p2Fixture, "component-contracts.yaml");
+    const contracts = parseYaml(readFileSync(contractsPath, "utf8"));
+    const typedContract = contracts.components.find(({ typedDefinition }) => typedDefinition);
+    assert.ok(typedContract, "fixture includes a PDP-2 typed component contract");
+    typedContract.typedDefinition.invariants = [];
+    writeFileSync(contractsPath, `${JSON.stringify(contracts, null, 2)}\n`);
+
+    const result = analyzeDesignConformance(fixtureRoot, { definitionOnly: true, includeP3ScreenInstances: false });
+    assert.equal(result.screenInstanceScope, "DEFERRED_PDP3_INSTANCE_VALIDATION");
+    assert.equal(result.summary.screenContracts, 0);
+    assert.deepEqual(result.deferredP3ScreenCompositionFindings, []);
+    assert.ok(result.blockers.some((blocker) => blocker.includes(`${typedContract.id}: at least one material family invariant is required`)));
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
 });
 
 test("style authority must reference actual canonical Media alias and component sources", () => withFixture({}, (root) => {

@@ -26,9 +26,11 @@ const pendingObservations = JSON.parse(pendingObservationBytes);
 assert.equal(pendingObservations.decisionRef, ".product-experience/decision-log.md#PXD-108");
 assert.deepEqual(pendingObservations.records.map(({ claimId }) => claimId), ["MPSEM-0030-C001", "MPSEM-0187-C002", "MPSEM-0336-C006", "MPSEM-0349-C001", "MPSEM-0351-C001"]);
 const currentTargetObservationBytes = readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"));
-assert.equal(sha(currentTargetObservationBytes), "cb9805fa3dc32fb9bcdc799968f01ab7207a7147dcc9b9da83f2611487c4c920", "bounded current-owner target observations");
+assert.equal(sha(currentTargetObservationBytes), "31b26a40b474e0c54e274c6ecce62ab7553503ec42f7a4f05b0decc7abafe114", "bounded current-owner target observations");
 const currentTargetObservations = JSON.parse(currentTargetObservationBytes);
 const migrationP0CurrentSourceObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json"), "utf8"));
+const migrationOverlayCurrentOwnerObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-overlay-current-owner-observations.json"), "utf8"));
+const migrationPxd153CurrentSourceObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-p0-pxd153-current-source-observations.json"), "utf8"));
 assert.equal(migrationP0CurrentSourceObservations.decisionRef, ".product-experience/decision-log.md#PXD-130");
 
 
@@ -251,8 +253,19 @@ function assertClaimDisposition(claim) {
     if (currentSourceObservation) {
       assert.equal(currentSourceObservation.targetRef, claim.targetRef);
       assert.match(currentSourceObservation.previousObservedTargetValueSha256, /^[a-f0-9]{64}$/u, "prior target digest is preserved as an observation");
-      assert.equal(currentSourceObservation.currentTargetValueSha256, targetDigest, "current target bytes are observed exactly");
-      assert.equal(currentSourceObservation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
+      const pxd153Observation = migrationPxd153CurrentSourceObservations.records.find((record) => record.claimId === claim.claimId);
+      if (pxd153Observation) {
+        assert.equal(pxd153Observation.targetRef, claim.targetRef);
+        assert.equal(pxd153Observation.historicalPxd130CurrentSourceFileSha256, currentSourceObservation.currentSourceFileSha256);
+        assert.equal(pxd153Observation.historicalPxd130CurrentTargetValueSha256, currentSourceObservation.currentTargetValueSha256);
+        assert.equal(pxd153Observation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
+        assert.equal(pxd153Observation.currentTargetValueSha256, targetDigest);
+        assert.equal(pxd153Observation.semanticEquivalence, "NOT_ASSERTED");
+        assert.equal(pxd153Observation.acceptanceEffect, "none");
+      } else {
+        assert.equal(currentSourceObservation.currentTargetValueSha256, targetDigest, "current target bytes are observed exactly");
+        assert.equal(currentSourceObservation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
+      }
       assert.equal(currentSourceObservation.claimDisposition, claim.semanticReviewStatus);
       if (currentSourceObservation.claimDisposition === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY")
         assert.equal(claim.semanticReviewStatus, "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
@@ -260,7 +273,24 @@ function assertClaimDisposition(claim) {
       assert.equal(currentSourceObservation.semanticPromotion, false);
       assert.equal(currentSourceObservation.acceptanceEffect, "none");
     } else {
-    assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+      const overlayObservation = migrationOverlayCurrentOwnerObservations.records.find((record) => record.claimId === claim.claimId);
+      if (overlayObservation) {
+        assert.equal(overlayObservation.targetRef, claim.targetRef);
+        assert.match(overlayObservation.historicalTargetValueSha256, /^[a-f0-9]{64}$/u, "historical overlay target pin remains recorded");
+        assert.equal(overlayObservation.currentTargetValueSha256, targetDigest, "additive current-owner bytes are exact");
+        assert.equal(overlayObservation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
+        assert.equal(overlayObservation.semanticEquivalence, "NOT_ASSERTED");
+        assert.equal(overlayObservation.acceptanceEffect, "none");
+        if (claim.semanticReviewStatus === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY") {
+          assert.equal(overlayObservation.historicalTargetValueSha256, claim.targetTextSha256, "pending route retains its historical target pin");
+        } else if (claim.coordinatorReviewStatus === "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE") {
+          assert.equal(claim.targetTextSha256, targetDigest, "approved bounded route records the exact reviewed current target");
+        } else if (claim.semanticReviewStatus === "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED") {
+          assert.equal(overlayObservation.historicalTargetValueSha256, claim.targetTextSha256, "verified route preserves the target digest from its reviewed source cut");
+        } else assert.fail(`${claim.claimId} overlay observation has no recognized review status`);
+      } else {
+        assert.equal(claim.targetTextSha256, targetDigest, `${claim.claimId} target content changed without semantic review`);
+      }
     }
   }
   assert.equal(claim.acceptanceEffect, "none");
@@ -554,6 +584,18 @@ test("model-acquisition review preserves the pinned snapshot and records the new
     assert.equal(observation.additionalRuleId, "media.policy.offline-entitlement-validity-window.v1");
     assert.equal(observation.additionalOwnerRuleRef, `${claim.targetRef}/offlineEntitlementWindow`);
     assert.equal(observation.disposition, "CURRENT_TARGET_EXTENDED_BY_UNRELATED_OWNER_RULE; CLAIM_PARITY_RETAINED");
+    const pxd084Delta = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-pxd084-current-owner-delta.json"), "utf8"));
+    assert.equal(pxd084Delta.previousBoundedTargetSha256, observation.historicalCurrentTargetValueSha256);
+    assert.equal(pxd084Delta.currentTargetSha256, observation.currentTargetValueSha256);
+    assert.equal(pxd084Delta.projectionWithoutLaterRulesSha256, pxd084Delta.previousBoundedTargetSha256);
+    assert.equal(pxd084Delta.projectionMatchesPreviousBoundedImpact, true);
+    assert.deepEqual(pxd084Delta.additions.map(({ targetRef }) => targetRef), [
+      `${claim.targetRef}/offlineEntitlementWindow`,
+      `${claim.targetRef}/fallback/compatibilityDecisionRule`,
+    ]);
+    assert.ok(pxd084Delta.additions.every(({ disposition }) => disposition === "SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW"));
+    assert.equal(pxd084Delta.acceptanceEffect, "none");
+    assert.equal(pxd084Delta.runtimeAdmission, "NOT_ADMITTED");
   }
   const policy = resolveRef(claim.targetRef);
   assert.equal(policy.automaticAcquisition.default, "DENY");
@@ -565,6 +607,11 @@ test("model-acquisition review preserves the pinned snapshot and records the new
   const graphStateObservation = currentTargetObservations.records.find(({ claimId }) => claimId === graphStateClaim.claimId);
   assert.equal(graphStateObservation.targetRef, graphStateClaim.targetRef);
   assert.equal(graphStateObservation.reportedReviewTargetValueSha256, "fc79ca5b22a531e4c812fdb5a1114a68365b153c6b4e71cc9726d95130056925");
+  const graphStateValue = resolveRef(graphStateClaim.targetRef);
+  const graphStateApproved = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json"), "utf8"))
+    .records.find(({ claimId }) => claimId === graphStateClaim.claimId);
+  for (const clause of graphStateApproved.exactMaterialClauses) assert.ok(graphStateValue.rule.includes(clause), `current graph rule preserves exact reviewed clause: ${clause}`);
+  assert.equal(sha(JSON.stringify(graphStateValue)), graphStateObservation.recomputedCurrentTargetValueSha256);
   assert.equal(graphStateObservation.recomputedCurrentTargetValueSha256, graphStateClaim.targetTextSha256);
   assert.equal(graphStateObservation.disposition, "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED");
   assert.match(graphStateObservation.claimParityBasis, /each invocation has a separately identified run/u);
@@ -611,6 +658,37 @@ test("mixed four-phase summary is decomposed into exact current owner sources", 
   assert.equal(parent.subclaims.find(({ claimId }) => claimId.endsWith("-S08")).disposition, "OUT_OF_SCOPE_RETAINED_HISTORICAL_REQUIREMENT");
   assert.equal(parent.subclaims.find(({ claimId }) => claimId.endsWith("-S18")).targetRef,
     ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/migrationExecutionBoundary/selectiveInvalidationRule");
+});
+
+test("PXD-075 action claims preserve historical pins while later action bytes remain unadjudicated", () => {
+  const review = readYaml(reviewPath);
+  const claims = review.pdp38ClaimReconciliation.records.flatMap(({ claims }) => claims ?? [])
+    .flatMap(({ subclaims, ...claim }) => subclaims ?? [claim]);
+  const actionRows = ["MPSEM-1259-C001-S06", "MPSEM-1259-C001-S10"].map((claimId) => {
+    const claim = claims.find((entry) => entry.claimId === claimId);
+    const observation = migrationOverlayCurrentOwnerObservations.records.find((entry) => entry.claimId === claimId);
+    assert.equal(claim.semanticReviewStatus, "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
+    assert.equal(claim.targetTextSha256, "e946bf97e4064a03a4f608d6bec344e190f58ee1a5d838a3441dc7e2d09ecec2");
+    assert.equal(observation.targetRef, claim.targetRef);
+    assert.equal(observation.historicalTargetValueSha256, claim.targetTextSha256);
+    assert.equal(observation.previousObservedCurrentTargetValueSha256, "c71c3f306e3d0618ab4dfc248781ae1f97067bcca6fed2491f0f30f1ac3d209b");
+    assert.equal(observation.previousObservedCurrentSourceFileSha256, "cf371281266f8b5bcbb953cb9a406147451cdcf74cbf0313558c2c181f4a7424");
+    assert.equal(observation.currentTargetValueSha256, sha(JSON.stringify(resolveRef(claim.targetRef))));
+    assert.equal(observation.currentTargetValueSha256, "58ea37eeeb3c56b7b434a4a94648f64d0b7a3170332f40d0595de7a60daefb4f");
+    assert.equal(observation.currentSourceFileSha256, sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))));
+    assert.equal(observation.currentSourceFileSha256, "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2");
+    assert.equal(observation.priorReviewRef, ".product-experience/decision-log.md#PXD-075");
+    assert.equal(observation.semanticEquivalence, "NOT_ASSERTED");
+    assert.equal(observation.acceptanceEffect, "none");
+    assert.match(observation.observation, /does not assert semantic equivalence for later registry changes/u);
+    return observation;
+  });
+  assert.equal(actionRows.length, 2);
+  const actions = resolveRef(actionRows[0].targetRef);
+  assert.ok(actions.some(({ preconditions = [] }) => preconditions.includes("exact-artifact-and-immutable-version-identity")));
+  const provenanceAction = resolveRef(".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance");
+  assert.ok(provenanceAction.capabilityRefs.includes("media.provenance.source-lineage.inspect"));
+  assert.ok(actions.some(({ actionDefinitionSemantics }) => actionDefinitionSemantics?.sourceEnvelope?.classificationBasis === "source-declares-an-exact-logical-operation-reference; transport-and-runtime-admission-remain-NOT_ADMITTED"));
 });
 
 test("erasure negative boundary maps to the actual metadata-only confirmation rule", () => {
@@ -716,7 +794,7 @@ test("PXD-108 pins remain immutable while PXD-130 separately observes current so
   assert.equal(qualitySupplement.historicalPxd108SourceFileSha256, qualityObservation.sourceFileSha256);
   assert.equal(qualityObservation.sourceFileSha256, "3e0f82742ca924248d3ea1ab83085d939ba67b445f9676935a82dd0a3871b3de", "PXD-108 historical file pin remains immutable");
   assert.equal(qualitySupplement.historicalPxd108ObservationArtifactSha256, "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec", "PXD-108 historical observation artifact pin remains immutable");
-  assert.equal(qualitySupplement.currentSourceFileSha256, "79aef21ee20ba25c57fac4e679d3ed3881e289249672ddb332635c389196429d", "PXD-130 additive current-source pin is exact");
+  assert.equal(qualitySupplement.currentSourceFileSha256, "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770", "PXD-130 additive current-source pin is exact after the PXD-142 crosswalk projection update");
   assert.equal(qualitySupplement.currentSourceFileSha256, sha(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/quality-policy.yaml"))));
   assert.equal(qualitySupplement.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(qualitySupplement.acceptanceEffect, "none");

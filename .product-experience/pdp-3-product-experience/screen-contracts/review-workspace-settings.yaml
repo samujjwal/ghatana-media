@@ -1,13 +1,14 @@
 schemaVersion: media.screen-contract.v2
 productId: media
 screenId: media.view.review-workspace-settings
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.workspace-settings
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.workspace-settings]
+layoutIds: [ media.gui.layout.workspace-settings ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.identity-context-boundary
@@ -20,60 +21,232 @@ patternIds:
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: []
+domainObjectRefs:
+  - media.domain.project
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: []
+operationRefs:
+  - media.operation.action.inspect-setting-owner
+  - media.operation.action.save-setting-preference
+  - media.operation.action.restore-prior-setting-preference
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-entry: []
-entryBindingStatus: unresolved-no-exact-canonical-reference-declared
-exit: []
-exitBindingStatus: unresolved-no-exact-canonical-reference-declared
+entry:
+  - "Before media.action.inspect-setting-owner, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-setting-owner/actionDefinitionSemantics/typedDefini\
+    tion; runtime NOT_ADMITTED."
+  - "Before media.action.change-permitted-preference, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.change-permitted-preference/actionDefinitionSemantics/typed\
+    Definition; runtime NOT_ADMITTED."
+  - "Before media.action.save-setting-preference, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.save-setting-preference/actionDefinitionSemantics/typedDefi\
+    nition; runtime NOT_ADMITTED."
+  - "Before media.action.restore-prior-setting-preference, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.restore-prior-setting-preference/actionDefinitionSemantics/\
+    typedDefinition; runtime NOT_ADMITTED."
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exit:
+  - "media.action.inspect-setting-owner: Read or navigate using the exact
+    selected context; do not mutate a source object or infer permission from its
+    presence.; finality=read-only-or-navigation; no-write-finality;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.inspect-setting-owner/actionDefinitionSemantics/typedDefini\
+    tion; runtime NOT_ADMITTED."
+  - "media.action.change-permitted-preference: Change only the current local
+    draft or selection; keep committed source and versioned objects unchanged
+    until a separately specified commit.; finality=local-draft-only;
+    not-a-committed-result;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.change-permitted-preference/actionDefinitionSemantics/typed\
+    Definition; runtime NOT_ADMITTED."
+  - "media.action.save-setting-preference: Persist the permitted preference for
+    the current actor and workspace after owner authority is confirmed; retain
+    the prior value for an authorized restore.;
+    finality=preference-persistence-requires-owner-acknowledgment;
+    prior-value-restore-remains-explicit;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.save-setting-preference/actionDefinitionSemantics/typedDefi\
+    nition; runtime NOT_ADMITTED."
+  - "media.action.restore-prior-setting-preference: Restore the exact prior
+    preference value for the same actor and workspace after current authority is
+    confirmed.; finality=preference-restoration-requires-owner-acknowledgment;
+    resulting-value-must-be-read-back;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.restore-prior-setting-preference/actionDefinitionSemantics/\
+    typedDefinition; runtime NOT_ADMITTED."
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
 actionConsequences:
   - actionId: media.action.inspect-setting-owner
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.inspect-setting-owner
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-setting-owner/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.inspect-setting-owner
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.change-permitted-preference
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.change-permitted-preference/actionDefinitionSemantics/typedDefinition
+    consequence: Change only the current local draft or selection; keep committed
+      source and versioned objects unchanged until a separately specified
+      commit.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-draft-only; not-a-committed-result
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.save-setting-preference
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.save-setting-preference
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-setting-preference/actionDefinitionSemantics/typedDefinition
+    consequence: Persist the permitted preference for the current actor and
+      workspace after owner authority is confirmed; retain the prior value for
+      an authorized restore.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.save-setting-preference
+    finality: preference-persistence-requires-owner-acknowledgment;
+      prior-value-restore-remains-explicit
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.restore-prior-setting-preference
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.restore-prior-setting-preference
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.restore-prior-setting-preference/actionDefinitionSemantics/typedDefinition
+    consequence: Restore the exact prior preference value for the same actor and
+      workspace after current authority is confirmed.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.restore-prior-setting-preference
+    finality: preference-restoration-requires-owner-acknowledgment;
+      resulting-value-must-be-read-back
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.administrator
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.workspace-settings
+      responsiveRule: Keep scope, current value, inheritance, affected workflow, and
+        save/reset outcome in one reading order.
 responsiveBehaviorBindingStatus: proposal-only-no-screen-specific-overrides
 fixtures:
-  refs:
-    []
-  status: missing-no-existing-fixtureRefs-declared
+  refs: []
+  status: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
+  negativeCases:
+    - No screen fixture may be inferred from a neighboring view or from journey
+      membership alone.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
+  unlinkedScreenFixtureRefs: []
 fixturesBindingStatus: missing-owner-reviewed-fixture-binding
 verification:
   status: not-run
@@ -92,69 +265,80 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
-  tokenDependencies: unresolved; no-canonical-reference-declared
-  domainObjectRefs: unresolved; no-canonical-reference-declared
-  operationRefs: unresolved; no-canonical-reference-declared
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved; local-UI-state-labels-not-promoted
-  entry: unresolved; no-canonical-reference-declared
-  exit: unresolved; no-canonical-reference-declared
-  actionConsequences: pending; owner-operation-and-effect-binding-required
-  responsiveBehavior: proposal-unverified; central-rule-reference-only
-  fixtures: missing; no-existing-fixtureRefs-declared
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
   verification: not-run; no-evidence-refs
+  recipeIds: Exact P2 recipe media.gui.recipe.workspace-settings; runtime NOT_ADMITTED
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.administrator
+  - media.creator
+  - media.editor
+  - media.administrator
 intentRef: media.intent.review-workspace-settings
 purpose: User/workspace policies, accessibility and integration scope
 contextGoalNowNext:
-  context: A user or workspace setting category, current value, policy owner, inheritance, and effect on active
-    work.
-  goal: Change a permitted preference or workspace policy with clear scope and effective date.
-  now: Show inherited versus local values, authority, affected workflows, accessibility impact, and unsaved changes.
-  next: Edit a setting within authority, save explicitly, or return to the previous value.
+  context: A user or workspace setting category, current value, policy owner,
+    inheritance, and effect on active work.
+  goal: Change a permitted preference or workspace policy with clear scope and
+    effective date.
+  now: Show inherited versus local values, authority, affected workflows,
+    accessibility impact, and unsaved changes.
+  next: Edit a setting within authority, save explicitly, or return to the
+    previous value.
 anatomy:
-- settings-scope
-- category-navigation
-- current-and-inherited-values
-- policy-owner
-- affected-workflows
-- save-and-reset-actions
+  - settings-scope
+  - category-navigation
+  - current-and-inherited-values
+  - policy-owner
+  - affected-workflows
+  - save-and-reset-actions
 componentRefs:
-- media.component.identity-context-boundary
-- media.component.project-context-summary
-- media.component.creation-plan-summary
+  - media.component.identity-context-boundary
+  - media.component.project-context-summary
+  - media.component.creation-plan-summary
 states:
-- loading
-- read-only
-- editable
-- policy-locked
-- dirty
-- saving
-- saved
-- conflict
+  - loading
+  - read-only
+  - editable
+  - policy-locked
+  - dirty
+  - saving
+  - saved
+  - conflict
 actions:
-- media.action.inspect-setting-owner
-- media.action.change-permitted-preference
-- media.action.save-setting-preference
-- media.action.restore-prior-setting-preference
-actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+  - media.action.inspect-setting-owner
+  - media.action.change-permitted-preference
+  - media.action.save-setting-preference
+  - media.action.restore-prior-setting-preference
+actionBindingState: proposed-intent-action-refs;
+  owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
-- inspect a setting and its owner
-- change a permitted preference
-- save or restore the prior value
+  - inspect a setting and its owner
+  - change a permitted preference
+  - save or restore the prior value
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -180,6 +364,24 @@ localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs: []
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.workspace-settings
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.workspace-settings template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.review-workspace-settings

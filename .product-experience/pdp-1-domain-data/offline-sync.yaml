@@ -3,7 +3,7 @@ artifactId: media.pdp-1.offline-sync
 productId: media
 semanticOwner: media
 authority: .product-experience/pdp-0-product-truth/state-models.yaml
-scopeStatus: source-observations-and-proposal-boundaries; protocol-unbound; pending-owner-review
+scopeStatus: owner-defined-product-semantics; local-capability-admission-and-device-security-review-open
 sourceRefs:
 - .product-experience/pdp-0-product-truth/state-models.yaml
 - .product-experience/pdp-0-product-truth/nonfunctional-requirements.yaml
@@ -13,8 +13,8 @@ sourceRefs:
 - libs/audio-video-client/src/operations.ts
 - contracts/openapi/media.yaml
 semantics:
-  status: proposed-not-accepted
-  proposals:
+  status: owner-defined-product-semantics; runtime-and-platform-admission-not-established
+  rules:
   - local-draft-is-not-server-accepted-state
   - reconnect-does-not-imply-upload-or-command-acceptance
   - uncertain-submission-requires-authoritative-reconciliation-before-retry
@@ -61,7 +61,11 @@ unboundProtocol:
   reconciliation:
     requestIdentityScopeAndRetention: not-established
     serverLookupBeforeResubmission: not-established
-    conflictAndConcurrentEditPolicy: pending-owner-definition
+    conflictAndConcurrentEditPolicy: >-
+      OWNER_DEFINED: compare the exact retained source and expected canonical revision on reconnect;
+      any mismatch is CONFLICT. Preserve local draft and current remote revision separately;
+      do not auto-merge or apply last-write-wins. A consequential change requires explicit
+      review and a new request against the current revision.
     orderingCausalityAndAtomicity: not-established
     providerOutcomeReconciliation: not-established
   authorization:
@@ -77,15 +81,14 @@ sourceObservation:
   durableLocalQueue: not-established-by-inspected-client-and-runtime-contracts
   safeReplay: not-established
   runtimeJobRecovery: restart-path-marks-recoverable-job-outcome-unknown; does-not-prove-provider-reconciliation
-unresolved:
-- owner-approved-disconnected-capability-and-platform-matrix
-- durable-queue-and-local-data-protection-contract
-- upload-session-resume-and-part-reconciliation-contract
-- replay-idempotency-and-uncertain-submission-reconciliation-contract
-- conflict-ordering-causality-and-cross-device-merge-policy
-- consent-revocation-retention-and-erasure-effects-on-pending-local-work
-- canonical-artifact-version-and-transcript-caption-lineage-contract
-- deterministic-owner-approved-offline-and-reconnect-scenarios
+unboundRuntimeAndQualification:
+- disconnected-capability-and-platform-admission
+- durable-local-queue-encryption-key-management-and-eviction-mechanics; no-durable-queue-is-defined
+- upload-session-resume-and-part-reconciliation-implementation
+- server-side-idempotency-retention-and-uncertain-submission-observer
+- consent-revocation-propagation-to-pending-or-in-flight-runtime-work
+- deployed-artifact-version-and-transcript-caption-lineage-observation
+- device-security-and-reconnect-scenario-qualification
 ownerDefinedOfflineSemantics:
   decisionId: MEDIA-OWNER-2026-10-08-PDP1-10-OFFLINE-01
   authority: user-delegated-Media-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
@@ -108,12 +111,19 @@ ownerDefinedOfflineSemantics:
   - any operation whose current authority, rights, retention, locality or idempotency cannot be checked
   queuePolicy: No consequential command is queued for automatic replay. A locally captured user intent is an inert draft until explicit reconnect-time review and submission.
   reconnectProtocol:
-  - authenticate tenant, principal, delegation and workspace through trusted host context
+  - authenticate tenant, principal, delegation and workspace through a current trusted host observation; user-supplied identity, role, delegation or consent booleans never authorize lookup or effect
   - re-resolve exact artifact/project/job/session identifiers within the same tenant and current access scope
-  - recheck current consent, rights, policy, locality, retention and profile before each effect
-  - compare every expected canonical source/project revision; stale values produce CONFLICT
+  - recheck current consent, rights, policy, locality, retention, legal hold and profile from their authoritative owners before each effect; missing, stale or mismatched observations deny the new effect
+  - bind consent and rights decisions to the exact immutable source/subject version and current authority version; a latest alias, digest, job version or user assertion cannot substitute
+  - compare every expected canonical source/project revision and typed parent-version edge; stale values produce CONFLICT, as does changed ancestry
   - show the local draft and remote version separately; never auto-merge or last-write-wins
-  - submit only a new explicit request with a fresh idempotency identity after user confirmation when a consequential effect is requested
+  - submit only a new explicit request with a fresh idempotency identity after user confirmation when a consequential effect is requested; confirmation records intent and is not itself authority
+  idempotencyGuard:
+    scope: exact trusted tenant and principal, canonical operation and version, requestId, and server-computed canonical payload digest
+    sameIdentitySameDigest: Return the same durable receipt or perform no second effect.
+    sameIdentityDifferentDigest: Reject as IDEMPOTENCY_CONFLICT without mutation or effect.
+    ambiguousOutcome: Reconcile the same request identity and digest with the authoritative operation/effect owner before retry; absent a current trusted owner observation, preserve UNKNOWN_OUTCOME and prohibit blind replay.
+    unprotectedExternalEffect: Never automatically replay a consequential provider effect lacking authoritative replay protection.
   ambiguousSubmission: Lookup/reconcile the same requestId and canonical payload digest with the authoritative operation owner before any retry; if no authoritative observer exists, retain UNKNOWN_OUTCOME and require human resolution.
   offlineDataProtection: No local persistence, encryption-at-rest, key management, eviction, cache retention or background execution is claimed by this product definition; a deployment must qualify those controls before enabling cached/offline work.
   nonClaims:

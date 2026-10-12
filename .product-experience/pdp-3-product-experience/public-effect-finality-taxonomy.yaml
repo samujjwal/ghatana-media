@@ -9,7 +9,7 @@ toolsSchemaBoundary:
   version: 0.1.0-SNAPSHOT
   sourceCommit: 6ed280283872df7889369b71abb3c9e62cb17f8d
   currentSourceCompatibilityReview:
-    sourceCommit: cb4feaeb23afdd00c048fb9014c4b38c9b8fc506
+    sourceCommit: 00618e036ea706d3165e9d8ca53ae14f37fa6f52
     decisionRef: .product-experience/decision-log.md#PXD-107
     existingEffectFinalitySchemaUnchanged: true
     scope: Parsed schema comparison preserves every prior field; only optional journey semantics and scenarioRefs were added. Source compatibility only; installed publication and phase acceptance remain pending.
@@ -460,7 +460,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.attach-source-asset/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 6fb3d8f3fb0df5984a888f67530c377e39749ba85b3841db7a7826056338a991
+    sourceEnvelopeSha256: 2a6c589c15c11db19564eb3cdd225257fd4788f5732bc657ac34331d13c706b2
     sourceEnvelopeOperationRefs:
       - media.operation-slice.attach-source-asset
     sourceEnvelopeCanonicalBindings:
@@ -912,7 +912,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: ae3a3f2e58fcb10332d9e0f0ace32e6e2fd477508accee7c0acdbaf682682c75
+    sourceEnvelopeSha256: d2431272a303e47dfa6d452db222e5715b8af25a6621857816e88c4b54c748b5
     sourceEnvelopeOperationRefs:
       - media.operation-slice.inspect-artifact-version
     sourceEnvelopeCanonicalBindings:
@@ -1209,7 +1209,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 165e9a366d8d9dd85967d6aecef6a050446778d5525daf8257aa65532d4dfd2a
+    sourceEnvelopeSha256: b739a4863f6d1d4a8a7719cfbd71ac9c3ce4f88aae2d15170201af78499a0ed8
     sourceEnvelopeOperationRefs:
       - media.operation-slice.cancel-job
     sourceEnvelopeCanonicalBindings:
@@ -1363,7 +1363,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.retry-job/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: ecbfd772460938752a495883bcc6ede9a677d51e53c167ac05a1e89fa86c8757
+    sourceEnvelopeSha256: f72649cf6e5a1d2dcd20d1e36b992f8ddbdbd13871d6a58bf399223354f65ed2
     sourceEnvelopeOperationRefs:
       - media.operation-slice.retry-job
     sourceEnvelopeCanonicalBindings:
@@ -1973,7 +1973,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.apply-authorized-rights-restriction/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 3be945bc1f85e7523381684ecdc143745ff2f8f205720345d5cfd1e6f4a5827e
+    sourceEnvelopeSha256: ca7ad87b6de9a95d01f640ce85185ddbc73682aec451abf1b4f2652c0f3315d7
     sourceEnvelopeOperationRefs:
       - media.operation.action.apply-authorized-rights-restriction
     sourceEnvelopeCanonicalBindings:
@@ -2536,7 +2536,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.continue-within-recorded-scope/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: d11e751707f3bf2c4b8ef183cdf8bde48c7980ec8e918ac1f799b8febf9514de
+    sourceEnvelopeSha256: 2074cd831d74941c6c6c0f92d19cccedeee8e163cf93b89a82450811801daf26
     sourceEnvelopeOperationRefs:
       - media.operation.action.continue-within-recorded-scope
     sourceEnvelopeCanonicalBindings:
@@ -2619,7 +2619,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.deliver-exact-version/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: f09cc98dd4fcfecc99f70f8555af772626aaf0f246c4dead7c42de79dfc2321c
+    sourceEnvelopeSha256: d738ae7ec45fac80462fffeb9659acfb3cd7a7e9114c55b2c03eddd3b4f930ab
     sourceEnvelopeOperationRefs:
       - media.operation.action.deliver-exact-version
     sourceEnvelopeCanonicalBindings:
@@ -3166,7 +3166,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.export-authorized-provenance/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 8e89ad3b2e1589e8fad7e1a2c668b9efa7fed2fdbb7e7ed30b35e9b8684ca410
+    sourceEnvelopeSha256: 702197be4c452b0a24b541d0f010e17c3dd432b84d8cceb7243a0a601fa986d0
     sourceEnvelopeOperationRefs:
       - media.operation.action.export-authorized-provenance
     sourceEnvelopeCanonicalBindings:
@@ -5318,7 +5318,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-authorized-attestation/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 32b944e4dbed7382ae6e5f53bd6b0616e9e8aefb61f8d944d86333e8e28d96df
+    sourceEnvelopeSha256: 0f52fe3fbac07521164b45019bc80f8e4f58925e2af2195c35d0e1562b17cf6e
     sourceEnvelopeOperationRefs:
       - media.operation.action.record-authorized-attestation
     sourceEnvelopeCanonicalBindings:
@@ -5395,7 +5395,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-candidate-for-review/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 1bf70db029e0737c5b223005c72430c8279675623a29ba0f11eb31da3abdef9d
+    sourceEnvelopeSha256: 6f844c35b1a33ccb90db06dab298e8c039aff0977d4229196921a253366fd19e
     sourceEnvelopeOperationRefs:
       - media.operation.action.record-candidate-for-review
     sourceEnvelopeCanonicalBindings:
@@ -5474,7 +5474,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-review-comment/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: d9ac8b1ac80f1a05c873fc59a49be37e8845eddcb4f3cda21a68e369805088d7
+    sourceEnvelopeSha256: 3342fb03017395eb0c517c3e5f2eebbdacf702a12dd421c121e650ca9c8a6f3a
     sourceEnvelopeOperationRefs:
       - media.operation.action.record-review-comment
     sourceEnvelopeCanonicalBindings:
@@ -5553,7 +5553,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-review-follow-up/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: d499295ca72a420b0e1ab59e2fded5364fa061932ef24ef4ac50b6f8592a1ad1
+    sourceEnvelopeSha256: 1320846c325329f312cb3e1637d476892e8fc0a020de288216ce87245ae34748
     sourceEnvelopeOperationRefs:
       - media.operation.action.record-review-follow-up
     sourceEnvelopeCanonicalBindings:
@@ -5632,7 +5632,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.record-version-review-decision/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: cda3f877f61d717ec5cd2e64d899b5694e1880c306024b9d77c621f4df24ebdb
+    sourceEnvelopeSha256: 0b97d2eb0727ae9257330d00b2e791bca01da14f0e1173341e8d8a1f781a9780
     sourceEnvelopeOperationRefs:
       - media.operation.action.record-version-review-decision
     sourceEnvelopeCanonicalBindings:
@@ -5931,7 +5931,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-admitted-speech-operation/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 15ca1f82082cb73ae1a037777f0f57eca8e53cc992919310e9367d8d827df405
+    sourceEnvelopeSha256: 2fdf8ca35608b91bea46a2d1a8905b0570ce878aa18538dd12ea3b6f104f1600
     sourceEnvelopeOperationRefs:
       - media.operation.action.request-admitted-speech-operation
     sourceEnvelopeCanonicalBindings:
@@ -6020,7 +6020,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-authorized-review/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: c8c72ea64d438116ab6819d7d0325050dca53e924ab3477805190f1dd0845135
+    sourceEnvelopeSha256: 55827c5a3fa63aef192d92ed1510e24a6ab2024364a2cd7267025cd4e38ff432
     sourceEnvelopeOperationRefs:
       - media.operation.action.request-authorized-review
     sourceEnvelopeCanonicalBindings:
@@ -6099,7 +6099,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-plan-validation/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: f97634e137c7caa9d74399ec3fe3a7dc2bb7d1d2cd8018f2aa7fcc9469e203d5
+    sourceEnvelopeSha256: 96db70d3d465b34867016ddb86caa40465c9f9d8fb181eb6bdd2aded39de1e86
     sourceEnvelopeOperationRefs:
       - media.operation.action.request-plan-validation
     sourceEnvelopeCanonicalBindings:
@@ -6178,7 +6178,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-rights-review/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: ff3b686b0d066286a22854b3931a37f5f02ce0f55a80f1be54fd53d2b0913b7a
+    sourceEnvelopeSha256: c60a9d2fd76269002a095c00b88345b6a2dba949040d1ae734cbf24e16a3433a
     sourceEnvelopeOperationRefs:
       - media.operation.action.request-rights-review
     sourceEnvelopeCanonicalBindings:
@@ -6255,7 +6255,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.restore-prior-setting-preference/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: edf76feb346f9e90625c04c4c8030ce96c14ebc7804ac66444c2f2fcc969d360
+    sourceEnvelopeSha256: 37e7e8055f06a94ffdfcf8b66961744ed0886f5fec4ae104598da2fab0390da4
     sourceEnvelopeOperationRefs:
       - media.operation.action.restore-prior-setting-preference
     sourceEnvelopeCanonicalBindings:
@@ -7088,7 +7088,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.revoke-authorized-consent/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 2c7c56253721a8e5b53c83be22ecd3bb60e50686d848c8c5fab194d97610e751
+    sourceEnvelopeSha256: 7bfc348553c51b4529809d87612dd61028bd1f64b956e39d81c3ea388e485bbc
     sourceEnvelopeOperationRefs:
       - media.operation.action.revoke-authorized-consent
     sourceEnvelopeCanonicalBindings:
@@ -7165,7 +7165,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-dubbing-version/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 74186ad51a6b9208479f560d50ba95a4b5d51bfe56cc5264dafec1c49ab70390
+    sourceEnvelopeSha256: fa189bbaa937ead060c9ebd01c47846ce9607b8908fda640bdb14f5d7a3da284
     sourceEnvelopeOperationRefs:
       - media.operation.action.save-dubbing-version
     sourceEnvelopeCanonicalBindings:
@@ -7246,7 +7246,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-new-revision/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: eb1e9aa3a43d8676b51c1a427154967753578589b41afa466ba165968a4586ad
+    sourceEnvelopeSha256: 6f4f31493cc6a261d258dff4523fce782771a9ccfcfdf5183333eee3fe275f46
     sourceEnvelopeOperationRefs:
       - media.operation.action.save-new-revision
     sourceEnvelopeCanonicalBindings:
@@ -7329,7 +7329,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-setting-preference/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 8404c84797d42cd1d03834410a555b760f7efaf8c1ec76101aa4099eee86b0de
+    sourceEnvelopeSha256: 7018552a257308e672a583358f928d6f8926943844e87b82bff8b05eaa95eb04
     sourceEnvelopeOperationRefs:
       - media.operation.action.save-setting-preference
     sourceEnvelopeCanonicalBindings:
@@ -7404,7 +7404,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-storyboard-revision/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: afeb0b6e2297b9adbcfb74103f5cce74a0b03bd7970918f3e784bdb3e42f4cde
+    sourceEnvelopeSha256: a49dc662b9ccf41498135a8bee629427f2391d68cad49e846c45d3a963f1e0d3
     sourceEnvelopeOperationRefs:
       - media.operation.action.save-storyboard-revision
     sourceEnvelopeCanonicalBindings:
@@ -7491,7 +7491,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-versioned-edit/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: b153c0c52500009b3a063e537a37af7ec480974bb0b0eaca3f6de7fefa2edfe3
+    sourceEnvelopeSha256: 5a85f66da4e58be3b04d7c121da7dbcd6465c76a1c2715d9bf2b84e2c0d687ca
     sourceEnvelopeOperationRefs:
       - media.operation.action.save-versioned-edit
     sourceEnvelopeCanonicalBindings:
@@ -8275,7 +8275,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.share-diagnostics-after-explicit-choice/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: db4795030fdda97e780869e0b5b9fd92bd0fe01dc12c89040d77f873e26dacff
+    sourceEnvelopeSha256: bf4e274babe97ec8bf8f6d45494d87a47c761f8ac043d8c7682d730821140922
     sourceEnvelopeOperationRefs:
       - media.operation.action.share-diagnostics-after-explicit-choice
     sourceEnvelopeCanonicalBindings:
@@ -8398,7 +8398,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.stop-authorized-voice-use/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: febaa76e9f122b4ec9f795420464fd9cf1f9027928a368825a3d7ceeabd569ba
+    sourceEnvelopeSha256: 70ebcaae6f2ed643b573af15d0a86c36d3ba8f23c9a484233a2bdd635f970873
     sourceEnvelopeOperationRefs:
       - media.operation.action.stop-authorized-voice-use
     sourceEnvelopeCanonicalBindings:
@@ -8485,7 +8485,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-admitted-plan/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 4babc6fe3193ea30f2bca8d4469e28e83c7f4e631c49e8cbe476523d9da3afa7
+    sourceEnvelopeSha256: be287dde171eb799fe7b79d5af38635daa0bb4ca26c0d78b85542c911db775ea
     sourceEnvelopeOperationRefs:
       - media.operation.action.submit-admitted-plan
     sourceEnvelopeCanonicalBindings:
@@ -8568,7 +8568,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-render/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 67fd9ea8635094ff6847159b8091b088933f7e00036b50cf15e796ec7c075a78
+    sourceEnvelopeSha256: fd8a41a0d8863e050f3fb17d24c30bf5440e12dded622a858613593d8c6f19c5
     sourceEnvelopeOperationRefs:
       - media.operation.action.submit-render
     sourceEnvelopeCanonicalBindings:
@@ -8651,7 +8651,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-simulation/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: 1b35c6fc7b56a915a2d71433a3d558d3679ade9810fe5ae3e1a9be952c7e9559
+    sourceEnvelopeSha256: 98d499fa986b0d7a3fa0a448e1c0bc457a509a223a75de35096393e7d41470fe
     sourceEnvelopeOperationRefs:
       - media.operation.action.submit-simulation
     sourceEnvelopeCanonicalBindings:
@@ -8740,7 +8740,7 @@ records:
     mappingReviewStatus: BOUNDED_MEDIA_OWNER_MAPPING_REVIEWED
     mappingDecisionRef: .product-experience/decision-log.md#PXD-078
     sourceEnvelopeRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-validated-request/actionDefinitionSemantics/sourceEnvelope
-    sourceEnvelopeSha256: e284285b4eb5adc25df178e6d48e50acf90c48b8c33935724d53fca715bd1b6f
+    sourceEnvelopeSha256: 8e4fade13a94ff06937afeca2a1319cb1e810ea6fbafbfa69e6b95127ebacb13
     sourceEnvelopeOperationRefs:
       - media.operation.action.submit-validated-request
     sourceEnvelopeCanonicalBindings:

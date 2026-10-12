@@ -73,7 +73,7 @@ function recordLabel(value: unknown): string | undefined {
   return undefined;
 }
 
-function ValueView({ value }: { readonly value: unknown }): React.ReactElement {
+export function ValueView({ value }: { readonly value: unknown }): React.ReactElement {
   if (value === null || value === undefined) return <span>Not supplied</span>;
   if (typeof value === "string" || typeof value === "number") return <span>{String(value)}</span>;
   if (typeof value === "boolean") return <span>{value ? "Yes" : "No"}</span>;
@@ -101,7 +101,7 @@ function resultMessage(result: MediaActionDispatchResult): string {
   }
 }
 
-function FamilySurface<Props extends FamilyContractFields>({ definition, ...props }: { readonly definition: FamilyDefinition } & Props & MediaComponentUiExtras): React.ReactElement {
+export function MediaFamily<Props extends FamilyContractFields>({ definition, ...props }: { readonly definition: FamilyDefinition } & Props & MediaComponentUiExtras): React.ReactElement {
   const { state, variant, actionIntents, keyboardBehavior, actions = [], className, ...rawValues } = props;
   const values: Readonly<Record<string, unknown>> = Object.fromEntries(Object.entries(rawValues));
   const keys = Object.keys(values).filter((key) => values[key] !== undefined);
@@ -234,7 +234,7 @@ function FamilySurface<Props extends FamilyContractFields>({ definition, ...prop
 }
 
 function defineFamily<Props extends FamilyContractFields>(definition: FamilyDefinition): React.FC<Props & MediaComponentUiExtras> {
-  const Family: React.FC<Props & MediaComponentUiExtras> = (props) => <FamilySurface {...props} definition={definition} />;
+  const Family: React.FC<Props & MediaComponentUiExtras> = (props) => <MediaFamily {...props} definition={definition} />;
   Family.displayName = definition.id.split(".").at(-1)?.replace(/-([a-z])/gu, (_, c: string) => c.toUpperCase()) ?? definition.id;
   return Family;
 }

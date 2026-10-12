@@ -259,6 +259,7 @@ export function MediaContractScreen({ screenId, instances, actions, data, action
     return <MediaTaskScreen data={data} actionPort={guardedActionPort} navigationPort={navigationPort} context={context}>
       <section className="media-screen-body" aria-labelledby="media-contract-screen-error">
         <h3 id="media-contract-screen-error">{screenTitle}</h3>
+        <p className="media-contract-preview-disposition">Definition-only preview candidate. Product route not admitted.</p>
         <p role="alert">The screen component projection does not match its source contract. No component actions are available.</p>
         {projectionErrors.length > 0 && <ul aria-label="Invalid component projection">{projectionErrors.map((error) => <li key={error}>{error}</li>)}</ul>}
       </section>
@@ -268,6 +269,7 @@ export function MediaContractScreen({ screenId, instances, actions, data, action
   return <MediaTaskScreen data={data} actions={flowActions} actionPort={guardedActionPort} navigationPort={navigationPort} context={context}>
     <section className="media-screen-body" aria-labelledby={`${screenId}-title`} data-screen-id={screenId}>
       <header><h3 id={`${screenId}-title`}>{screenTitle}</h3></header>
+      <p className="media-contract-preview-disposition">Definition-only preview candidate. Product route not admitted.</p>
       {invalidActions.length > 0 && <p role="status">Some projected actions are not defined for this screen and were withheld.</p>}
       {instances.map((instance, index) => renderFamilyInstance(instance, projectedActions, guardedActionPort, `${instance.componentId}-${index}`))}
     </section>

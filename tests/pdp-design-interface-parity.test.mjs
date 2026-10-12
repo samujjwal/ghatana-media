@@ -797,7 +797,7 @@ test("Media interface grammar resolves every source and preserves the complete f
     assert.ok(source.includes("operation-parity.yaml#typed"), "non-domain disposition source must resolve to the typed source inventory");
   }
   assert.deepEqual(Object.keys(grammar.invariants).sort(), [
-    "authority", "cancellation", "errors", "eventObservation", "identity", "mutation", "progress", "retry", "unknownOutcome",
+    "admission", "authority", "cancellation", "errors", "eventObservation", "identity", "mutation", "progress", "retry", "tenantAndVersion", "typedContract", "unknownOutcome",
   ]);
   assert.ok(grammar.invariants.unknownOutcome.forbidden.includes("blind-resubmit"));
   assert.ok(grammar.invariants.cancellation.forbidden.includes("request-implies-cancelled"));
@@ -844,6 +844,49 @@ test("remaining machine-channel identities are finite, source-backed, and explic
     ids.map((identity) => [identity, `media.operation.${family}`])));
   assert.equal(typedSdkContracts.length, sdkSurface.denominator);
   assert.deepEqual(typedSdkContracts.map(({ identity }) => identity).sort(), [...typedSdkIds].sort());
+  assert.deepEqual(sdkSurface.unresolved, [],
+    "both methods have source-backed request/result mismatches and remain unadmitted without a canonical mapping");
+  const sdkLegacy = Object.values(sdkSurface.sourceBackedUnadmittedLegacyDispositions).flat();
+  const sdkNonOperations = Object.values(sdkSurface.sourceBackedNonOperationDispositions).flat();
+  assertPartition(sdkMethods.filter((id) => !sdkParserArtifacts.includes(id)), {
+    proposed: Object.values(sdkSurface.proposedSemanticCandidates).flat(),
+    boundedOperation: sdkSurface.boundedCanonicalOperations,
+    boundedRead: sdkSurface.boundedCanonicalReads,
+    legacyNotEquivalent: sdkLegacy,
+    sourceBackedNonOperation: sdkNonOperations,
+    unresolvedEquivalence: sdkSurface.unresolved,
+  }, "SDK semantic and admission roles");
+  const formerlyUnresolvedSdkIdentities = [
+    "media.sdk.trainVoiceModel", "media.sdk.convertVoice", "media.sdk.processAIVoice", "media.sdk.processVision",
+    "media.sdk.processMultimodal", "media.sdk.legacy.AudioVideoClient.transcribe",
+    "media.sdk.legacy.AudioVideoClient.synthesize", "media.sdk.getOperationResult",
+  ];
+  for (const identity of formerlyUnresolvedSdkIdentities) {
+    const role = parity.typedMethodDispositions.find((item) => item.identity === identity);
+    const sourceRecord = sdkSurface.currentSourceMethodDefinitions.records.find((item) => item.methodId === identity);
+    assert.ok(role && sourceRecord, `${identity} needs a finite SDK role and exact source record`);
+    assert.equal(role.openApiBindingDisposition, "NOT_ADMITTED");
+    assert.equal(sourceRecord.admission, "NOT_ADMITTED");
+    assert.notEqual(role.semanticBinding, "unresolved");
+  }
+  for (const identity of sdkSurface.unresolved) {
+    const role = parity.typedMethodDispositions.find((item) => item.identity === identity);
+    const contract = typedSdkContracts.find((item) => item.identity === identity);
+    assert.equal(role.semanticBinding, "equivalence-unknown; operation-owner-input-semantics-and-exact-leaf-crosswalk-pending");
+    assert.equal(contract.bindingStatus, "UNRESOLVED");
+    assert.equal(contract.candidateOperationRef, null, "family identity alone cannot fill the exact operation crosswalk");
+    assert.equal(role.openApiBindingDisposition, "NOT_ADMITTED");
+  }
+  const exactSynthesisMismatch = parity.typedSdkMethodContracts.find(({ identity }) => identity === "media.sdk.synthesize");
+  const exactMultimodalMismatch = parity.typedSdkMethodContracts.find(({ identity }) => identity === "media.sdk.analyzeMultimodal");
+  assert.equal(exactSynthesisMismatch.bindingStatus, "NOT_ADMITTED");
+  assert.match(exactSynthesisMismatch.semanticBinding, /SynthesisRequestSchema|SynthesisResult|rights-authority/u);
+  assert.match(exactSynthesisMismatch.bindingEvidence, /SynthesisRequestSchema-and-SynthesisResultSchema.*rights-output-version-or-finality/u);
+  assert.equal(exactSynthesisMismatch.canonicalOperationRef, null, "the synthesis family proposal is not an accepted exact mapping");
+  assert.equal(exactMultimodalMismatch.bindingStatus, "NOT_ADMITTED");
+  assert.match(exactMultimodalMismatch.semanticBinding, /MultimodalAnalysisRequestSchema|generic-MediaArtifact/u);
+  assert.match(exactMultimodalMismatch.bindingEvidence, /MultimodalAnalysisRequestSchema-and-MediaArtifactSchema.*versioned-source-alignment-purpose-or-cross-modal-observation-semantics/u);
+  assert.equal(exactMultimodalMismatch.canonicalOperationRef, null, "the multimodal family proposal is not an accepted exact mapping");
   for (const contract of typedSdkContracts) {
     const sourceMethod = sourceRegistry.methods.find(({ id }) => id === contract.identity);
     const role = parity.typedMethodDispositions.find(({ identity }) => identity === contract.identity);
@@ -897,6 +940,8 @@ test("remaining machine-channel identities are finite, source-backed, and explic
   const cliProposals = Object.values(cliSurface.proposedSemanticCandidates).flat();
   assertPartition(cliIds, { mappedProposal: cliProposals, unresolved: cliSurface.unresolved }, "fixture CLI");
   assert.equal(cliIds.length, cliSurface.denominator);
+  assert.equal(cliSurface.dispositionCounts.mappedProposal, 11);
+  assert.deepEqual(cliSurface.unresolved, [], "every fixture command has a source-backed action-intent candidate; production admission stays separate");
   assert.equal(cliRegistry.sourcePopulation.productionCommandCount, 0, "fixture commands cannot be counted as production CLI support");
   const typedCli = parity.typedFixtureCliContracts;
   const parserSource = readFileSync(resolve(root, "libs/media-experience-simulation/src/cli.ts"), "utf8");
@@ -918,6 +963,26 @@ test("remaining machine-channel identities are finite, source-backed, and explic
     if (contract.canonicalOperationRef) assert.match(contract.bindingBasis, /action intent only/u);
     else assert.equal(contract.bindingStatus, "FIXTURE_ACTION_INTENT_ONLY");
   }
+  const cliOperationIntents = Object.fromEntries(Object.entries(parity.typedInterfaceIdentityDispositions.cliFixture.operationIntentByAction));
+  assert.deepEqual(cliOperationIntents, {
+    "media.fixture-cli.upload-inspect": "media.operation.artifact-ingest",
+    "media.fixture-cli.upload-resume": "media.operation.artifact-ingest",
+    "media.fixture-cli.transcribe": "media.operation.transcription-submission",
+    "media.fixture-cli.transcript-review": "media.operation.transcript-version-read",
+    "media.fixture-cli.job-status": "media.operation.job-lifecycle",
+    "media.fixture-cli.job-cancel": "media.operation.job-lifecycle",
+    "media.fixture-cli.job-check-outcome": "media.operation.job-lifecycle",
+    "media.fixture-cli.caption-correct-text": "media.operation.caption-draft-write",
+    "media.fixture-cli.caption-align-timing": "media.operation.caption-draft-write",
+    "media.fixture-cli.caption-save-version": "media.operation.caption-version-write",
+    "media.fixture-cli.caption-compare-versions": "media.operation.caption-version-read",
+  });
+  assert.deepEqual(parity.typedInterfaceIdentityDispositions.cliFixture.exactOperationIntentOnly, {
+    "media.fixture-cli.caption-save-version": "media.operation.caption-version-write",
+    "media.fixture-cli.caption-compare-versions": "media.operation.caption-version-read",
+  }, "only those two command proposal records have direct operationRef fields");
+  assert.deepEqual(parity.typedInterfaceIdentityDispositions.cliFixture.unresolvedIdentities, []);
+  assert.match(parity.typedInterfaceIdentityDispositions.cliFixture.semanticOperationBinding, /production-cli-not-admitted/u);
 
   const agentSurface = parity.surfaces.find((item) => item.surface === "Agent Tool handlers");
   const agentRegistry = readYaml(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml");
@@ -995,6 +1060,18 @@ test("all UI action effect contracts are source-exact and stay separate from ope
     assert.equal(entry.actionDefinitionSemantics.typedDefinition.runtimeAdmission, "NOT_ADMITTED");
   }
   assert.deepEqual([...seen].sort(), [...sourceById.keys()].sort());
+
+  const inspectSource = inventory.find(({ identity }) => identity === "media.action.inspect-source");
+  assert.ok(inspectSource, "inspect-source action has an explicit parity projection");
+  assert.deepEqual(inspectSource.actionDefinitionSemantics.typedDefinition.applicabilityGuards, [
+    "exact-artifact-and-immutable-version-identity",
+    "current-read-authority",
+  ]);
+  assert.deepEqual(inspectSource.actionDefinitionSemantics.sourceEnvelope.preconditions, [
+    "exact-artifact-and-immutable-version-identity",
+    "current-read-authority",
+  ]);
+  assert.equal(inspectSource.actionDefinitionSemantics.typedDefinition.runtimeAdmission, "NOT_ADMITTED");
 
   const mutation = structuredClone(inventory);
   mutation.find(({ identity }) => identity === "media.action.begin-artifact-upload").actionDefinitionSemantics.finalityScope =

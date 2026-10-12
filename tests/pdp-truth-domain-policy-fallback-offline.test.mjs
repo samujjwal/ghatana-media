@@ -11,6 +11,7 @@ const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const sourcePath = ".product-experience/pdp-0-product-truth/policy-authority-model.yaml";
 const source = parse(readFileSync(resolve(root, sourcePath), "utf8"));
+const offlineSync = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/offline-sync.yaml"), "utf8"));
 const fallback = source.modelAcquisitionAndFallback.fallback.compatibilityDecisionRule;
 const offline = source.modelAcquisitionAndFallback.offlineEntitlementWindow;
 const archive = source.productPolicy.inputAndExecutionThreats.archiveExtractionDestinationRule;
@@ -133,6 +134,20 @@ test("fallback and offline policies require exact current compatibility and enti
   assert.equal(evaluateOfflineEntitlementDefinition(entitlement, expected, "operation:edit.v2", "2026-02-30T12:00:00.000Z").disposition, "UNKNOWN");
   assert.equal(evaluateOfflineEntitlementDefinition(entitlement, expected, "operation:edit.v2", "2026-10-09T24:00:00.000Z").disposition, "UNKNOWN");
   assert.equal(evaluateOfflineEntitlementDefinition(entitlement, expected, "operation:edit.v2", "2026-10-09T12:00:00.000000001Z").disposition, "UNKNOWN");
+});
+
+test("offline drafts conflict on stale revisions and never merge or replay consequential effects", () => {
+  const contract = offlineSync.ownerDefinedOfflineSemantics;
+  assert.match(offlineSync.semantics.status, /^owner-defined-product-semantics/u);
+  assert.match(offlineSync.unboundProtocol.reconciliation.conflictAndConcurrentEditPolicy, /OWNER_DEFINED/u);
+  assert.match(offlineSync.unboundProtocol.reconciliation.conflictAndConcurrentEditPolicy, /mismatch is CONFLICT/u);
+  assert.match(contract.reconnectProtocol.join("\n"), /stale values produce CONFLICT/u);
+  assert.match(contract.reconnectProtocol.join("\n"), /never auto-merge or last-write-wins/u);
+  assert.match(contract.ambiguousSubmission, /before any retry/u);
+  assert.match(contract.ambiguousSubmission, /retain UNKNOWN_OUTCOME/u);
+  assert.equal(contract.queuePolicy, "No consequential command is queued for automatic replay. A locally captured user intent is an inert draft until explicit reconnect-time review and submission.");
+  assert.ok(offlineSync.unboundRuntimeAndQualification.includes("disconnected-capability-and-platform-admission"));
+  assert.equal(Object.hasOwn(offlineSync, "unresolved"), false, "resolved product semantics must not remain listed as unresolved meaning IDs");
 });
 
 test("hash-chain evidence requires an independent anchor and never proves against its controller", () => {

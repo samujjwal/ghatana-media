@@ -266,8 +266,8 @@ capabilityBoundsEnvelope:
     sourceRef: capabilities[].ownerDefinition.typedInputSlots
     currentPopulation:
       leafCount: 462
-      slotCount: 930
-      distinctSharedShapeCount: 129
+      slotCount: 939
+      distinctSharedShapeCount: 142
     sharedShapeIdentityFields: [sourceType, cardinality, required, alternatives, condition]
     rule: These are a computed reuse relation over the existing leaf-owned slots, not a second input catalog. Reuse requires exact equality of all populated identity fields; slotId remains local to its leaf. Missing or changed shape fields are explicit exceptions and do not inherit family values.
   parameterRule: The closed ownerDefinition.parameterSchema, including its required fields, property constraints, and emptyDisposition, is the exact product parameter shape. A property listed in required is mandatory; other declared properties are optional. Defaults exist only when explicitly present in that exact schema; no implicit, family, or operation default is inferred. No operation wire schema, family default, inferred field, or unsupported parameter value is added by this envelope.

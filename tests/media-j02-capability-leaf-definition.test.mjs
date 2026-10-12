@@ -14,7 +14,10 @@ const operations = read('.product-experience/pdp-1-domain-data/operations.yaml')
 const goals = read('.product-experience/pdp-0-product-truth/goals-jtbd.yaml');
 const channels = read('.product-experience/pdp-0-product-truth/applications-channels.yaml');
 const profiles = read('.product-experience/pdp-0-product-truth/profile-semantics.yaml');
-const sourceSlices = new Map(operations.individualOperationContracts.records.map((record) => [record.id, record]));
+const sourceSlices = new Map([
+  ...operations.individualOperationContracts.records,
+  ...operations.ownerDefinedOperationContracts.records,
+].map((record) => [record.id, record]));
 const channelIds = new Set(channels.channels.map(({ id }) => id));
 const intentIds = new Set(goals.intents.map(({ id }) => id));
 const outcomeIds = new Set(goals.outcomes.map(({ id }) => id));
@@ -25,7 +28,7 @@ const selected = new Map(review.leaves.filter(({ id }) => [
 
 function step(stepId) { return journey.steps.find((item) => item.stepId === stepId); }
 
-test('J-02 source-mapped definition slice binds only upload, same-upload resume, and exact artifact metadata inspection', () => {
+test('J-02 source-mapped definition slice binds upload, same-upload resume, and exact artifact-version inspection', () => {
   const expected = {
     'media.artifact.upload': {
       stepId: 'J02-2',
@@ -40,7 +43,7 @@ test('J-02 source-mapped definition slice binds only upload, same-upload resume,
     'media.artifact.inspect': {
       stepId: 'J02-5',
       operationRefs: ['media.operation-slice.inspect-artifact'],
-      stepOperationRefs: ['media.operation-slice.inspect-artifact'],
+      stepOperationRefs: ['media.operation-slice.inspect-artifact-version'],
     },
   };
   assert.equal(review.denominatorReconciliation.capabilityLeaves, 462);
@@ -65,9 +68,13 @@ test('J-02 source-mapped definition slice binds only upload, same-upload resume,
     assert.deepEqual(slice.channelRefs, journey.channels);
     assert.deepEqual(slice.operationSliceRefs, binding.operationRefs);
     assert.deepEqual(sourceStep.requiredOperationRefs, binding.stepOperationRefs);
-    assert.ok(slice.operationSliceRefs.every((id) => sourceSlices.has(id)), `${capabilityId} maps only to canonical individual operation slices`);
-    assert.deepEqual(slice.sourceContractRefs, binding.operationRefs.map((id) =>
-      `.product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/${operations.individualOperationContracts.records.findIndex((record) => record.id === id)}`));
+    assert.ok(slice.operationSliceRefs.every((id) => sourceSlices.has(id)), `${capabilityId} maps only to canonical operation slices`);
+    assert.deepEqual(slice.sourceContractRefs, binding.operationRefs.map((id) => {
+      const index = operations.individualOperationContracts.records.findIndex((record) => record.id === id);
+      return index >= 0
+        ? `.product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/${index}`
+        : `.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=${id}`;
+    }));
     assert.ok(slice.intentRefs.every((id) => intentIds.has(id)));
     assert.ok(slice.outcomeRefs.every((id) => outcomeIds.has(id)));
     assert.ok(slice.actorRefs.every((id) => journey.actors.includes(id)));
@@ -108,5 +115,9 @@ test('remote import and verification-job observation do not inherit the accepted
   assert.ok(wireRead.requestFields.includes('artifactId'));
   assert.ok(!wireRead.requestFields.includes('versionId'), 'the observed read contract does not bind a versionId request field');
   assert.match(wireRead.finality, /metadata and object reference only/u, 'the observed wire read cannot prove the product-side version identity requirement');
+  const exactVersionRead = sourceSlices.get('media.operation-slice.inspect-artifact-version');
+  assert.ok(exactVersionRead.requestSchema.required.includes('artifactVersionId'), 'J-02 exact-version inspection requires the immutable version identity');
+  assert.match(exactVersionRead.resultSchema.semantics, /time-scoped observations for the exact immutable version/u);
+  assert.match(exactVersionRead.resultSchema.semantics, /does not establish current source availability, rights, consent/u);
   assert.ok(!inspectSlice.operationSliceRefs.includes('media.operation-slice.inspect-job'));
 });

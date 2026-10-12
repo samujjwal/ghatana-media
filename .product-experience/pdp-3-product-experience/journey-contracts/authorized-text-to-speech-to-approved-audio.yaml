@@ -4,10 +4,11 @@ journeyId: J-04
 pdp0JourneyRef: J-04
 pdp0Authority: .product-experience/pdp-0-product-truth/journey-catalog.yaml
 title: Authorized text-to-speech to approved audio
-status: pdp0-grounded-proposal; pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
-scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen registry; exact
-  action/state transitions, per-channel behavior, scenarios, wire bindings, and runtime commitments
-  remain unresolved.
+status: pdp0-grounded-proposal;
+  pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
+scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
+  registry; exact action/state transitions, per-channel behavior, scenarios,
+  wire bindings, and runtime commitments remain unresolved.
 outcomes:
   - media.goal.finished-asset
 actors:
@@ -17,8 +18,8 @@ channels:
   - media.channel.web
   - media.channel.grpc-api
   - media.channel.sdk
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state, transport, and
-  accessibility equivalence remain unbound.
+channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
+  transport, and accessibility equivalence remain unbound.
 preconditions:
   - Text, voice rights/consent, language and output intent are admitted.
 steps:
@@ -51,34 +52,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-        approval status where required.
+      summary: A reviewable audio artifact records selected voice/version,
+        format/rate, provenance, and approval status where required.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or
-          sample-format incompatibility.
+        - Unsupported voice/language, pronunciation mismatch, consent denial,
+          provider outage, or sample-format incompatibility.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-        explicit choice for material changes.
+      summary: Keep text and plan, offer only an admitted permitted voice or
+        non-speech route, and require explicit choice for material changes.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Preserve source text revision, voice/language choice, timing, and preview position.
+        - Preserve source text revision, voice/language choice, timing, and
+          preview position.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -93,16 +97,22 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0
       journeyRef: J-04
       actionRef: null
       bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
-      selectionBasis: Exact action identities are drawn from this step view screen contract; each is an
-        independent user-selected interaction, with no default or implied dispatch.
+      selectionBasis: Exact action identities are drawn from this step view screen
+        contract; each is an independent user-selected interaction, with no
+        default or implied dispatch.
+      domainOperationDisposition: NO_OPERATION_SELECTED
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      noMutationReason: This umbrella view has no selected action or default; it only
+        presents explicit choices, and no operation or domain-state transition
+        occurs until the user selects one of the listed actions.
       candidateActionRefs:
         - media.action.choose-source
         - media.action.request-transcription
@@ -121,32 +131,32 @@ steps:
           - actionRef: media.action.choose-source
             semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
             operationRefs: []
-            capabilityRefs: [media.artifact.inspect]
-            requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+            capabilityRefs: [ media.artifact.inspect ]
+            requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
             selection: EXPLICIT_USER_SELECTION_REQUIRED
             runtimeAdmission: NOT_ADMITTED
           - actionRef: media.action.request-transcription
             semanticRole: DOMAIN_OPERATION
             operationRefs:
               - media.operation.transcription-submission
-            capabilityRefs: [media.job.submit, media.speech.transcription.file]
-            requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+            capabilityRefs: [ media.job.submit, media.speech.transcription.file ]
+            requirementRefs: [ MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION ]
             selection: EXPLICIT_USER_SELECTION_REQUIRED
             runtimeAdmission: NOT_ADMITTED
           - actionRef: media.action.view-job-status
             semanticRole: DOMAIN_OPERATION
             operationRefs:
               - media.operation.action.view-job-status
-            capabilityRefs: [media.job.view-status]
-            requirementRefs: [MEDIA-REQ-CAP-JOB]
+            capabilityRefs: [ media.job.view-status ]
+            requirementRefs: [ MEDIA-REQ-CAP-JOB ]
             selection: EXPLICIT_USER_SELECTION_REQUIRED
             runtimeAdmission: NOT_ADMITTED
           - actionRef: media.action.review-transcript
             semanticRole: DOMAIN_OPERATION
             operationRefs:
               - media.operation.transcript-version-read
-            capabilityRefs: [media.artifact.inspect]
-            requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+            capabilityRefs: [ media.artifact.inspect ]
+            requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
             selection: EXPLICIT_USER_SELECTION_REQUIRED
             runtimeAdmission: NOT_ADMITTED
           - actionRef: media.action.choose-intent
@@ -178,38 +188,44 @@ steps:
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: Transcription/TTS/pronunciation/language/voice choices
-        result: null
+        result: "No result or dispatch occurs until the user explicitly chooses one exact listed action; the chosen action’s own operation or local-effect contract defines the subsequent result. No default action is inferred."
+        resultSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0/candidateActionRefs
+        resultDisposition: CONDITIONAL_NO_RESULT_UNTIL_EXPLICIT_ACTION_CHOICE
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          summary: A reviewable audio artifact records selected voice/version,
+            format/rate, provenance, and approval status where required.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or sample-format incompatibility."
+          behavior: "Keep text and plan, offer only an admitted permitted voice or non-speech route, and require explicit choice for material changes."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Preserve source text revision, voice/language choice, timing, and preview position.
+            - Preserve source text revision, voice/language choice, timing, and
+              preview position.
         contextPreservation: null
       action:
         actionRef: null
         bindingStatus: EXPLICIT_ACTION_SET_NO_DEFAULT
-        selectionBasis: Screen lists exact available user interactions; each interaction requires explicit
-          user selection and the set has no default.
+        selectionBasis: Screen lists exact available user interactions; each interaction
+          requires explicit user selection and the set has no default.
         candidateActionRefs:
           - media.action.choose-source
           - media.action.request-transcription
@@ -285,8 +301,17 @@ steps:
             effect: none
             runtimeAdmission: NOT_ADMITTED
         executable: true
-        executionBoundary: Pure choice-set definition oracle; no action dispatch, provider invocation, or synthetic
-          media payload is produced.
+        executionBoundary: Pure choice-set definition oracle; no action dispatch,
+          provider invocation, or synthetic media payload is produced.
+      transitionApplicability:
+        disposition: NO_DOMAIN_TRANSITION_WITH_REASON
+        transitionRef: null
+        stateRefs: []
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/0
+        reason: This umbrella view has no selected action or default; it only presents
+          explicit choices, and no operation or domain-state transition occurs
+          until the user selects one of the listed actions.
+        runtimeAdmission: NOT_ADMITTED
     scenarioRefs: []
     canonicalBindings:
       actionChoiceRefs:
@@ -304,7 +329,8 @@ steps:
     screenContractRef: screen-contracts/use-authorized-voice.yaml
     viewIntent: Training/conversion permissions and model references
     actionRef: media.action.inspect-voice-authorization
-    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs: []
@@ -324,34 +350,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-        approval status where required.
+      summary: A reviewable audio artifact records selected voice/version,
+        format/rate, provenance, and approval status where required.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or
-          sample-format incompatibility.
+        - Unsupported voice/language, pronunciation mismatch, consent denial,
+          provider outage, or sample-format incompatibility.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-        explicit choice for material changes.
+      summary: Keep text and plan, offer only an admitted permitted voice or
+        non-speech route, and require explicit choice for material changes.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Preserve source text revision, voice/language choice, timing, and preview position.
+        - Preserve source text revision, voice/language choice, timing, and
+          preview position.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -366,8 +395,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/1
@@ -386,11 +415,12 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-          permission from its presence.
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
         reversibilityDisposition: REVERSIBLE
         finality: read-only-or-navigation; no-write-finality
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
@@ -399,36 +429,42 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: NOT_APPLICABLE_WITH_REASON
-        noMutationReason: Read or navigate using the exact selected context; do not mutate a source object
-          or infer permission from its presence.
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Training/conversion permissions and model references
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-voice-authorization; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          summary: A reviewable audio artifact records selected voice/version,
+            format/rate, provenance, and approval status where required.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or sample-format incompatibility."
+          behavior: "Keep text and plan, offer only an admitted permitted voice or non-speech route, and require explicit choice for material changes."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Preserve source text revision, voice/language choice, timing, and preview position.
+            - Preserve source text revision, voice/language choice, timing, and
+              preview position.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/1
       canonicalBindings:
@@ -454,10 +490,11 @@ steps:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -465,21 +502,20 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-voice-authorization; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
@@ -495,8 +531,9 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.scoped-query.v1
-        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
-          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
@@ -505,12 +542,11 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-voice-authorization
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-              approval status where required.
-          effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-            permission from its presence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-voice-authorization/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-voice-authorization; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-voice-authorization
@@ -518,15 +554,18 @@ steps:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-voice-authorization
-          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.action.inspect-voice-authorization
@@ -540,7 +579,8 @@ steps:
           stateRefs: STATE_BINDING_UNRESOLVED
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-voice-authorization
@@ -548,8 +588,8 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-voice-authorization
@@ -557,8 +597,8 @@ steps:
           - media.domain.project
           - media.domain.artifact-version
           - media.domain.processing-job
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-voice-authorization
         observation: null
         runtimeAdmission: NOT_ADMITTED
@@ -587,7 +627,8 @@ steps:
           - media.operation.action.inspect-voice-authorization
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
         capabilityRefs: []
         requirementRefs: []
         sourceRefs:
@@ -596,16 +637,17 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-04.j-04.step-02
     capabilityRefs: []
   - view: media.view.compare-results
     legacyViewRef: M-COMPARE
     screenContractRef: screen-contracts/compare-results.yaml
     viewIntent: Before/after, candidate ranking and applicable measurements
     actionRef: media.action.compare-candidate-on-metric
-    actionBindingState: "Media owner-selected from exact screen action intent: screen compare-results
-      intent: compare exact candidates on an explicit metric with evidence; independent review and
-      runtime admission open"
+    actionBindingState: "Media owner-selected from exact screen action intent:
+      screen compare-results intent: compare exact candidates on an explicit
+      metric with evidence; independent review and runtime admission open"
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs: []
@@ -624,34 +666,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-        approval status where required.
+      summary: A reviewable audio artifact records selected voice/version,
+        format/rate, provenance, and approval status where required.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or
-          sample-format incompatibility.
+        - Unsupported voice/language, pronunciation mismatch, consent denial,
+          provider outage, or sample-format incompatibility.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-        explicit choice for material changes.
+      summary: Keep text and plan, offer only an admitted permitted voice or
+        non-speech route, and require explicit choice for material changes.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Preserve source text revision, voice/language choice, timing, and preview position.
+        - Preserve source text revision, voice/language choice, timing, and
+          preview position.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -666,8 +711,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/2
@@ -686,11 +731,12 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-          permission from its presence.
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
         reversibilityDisposition: REVERSIBLE
         finality: read-only-or-navigation; no-write-finality
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
@@ -699,36 +745,42 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: NOT_APPLICABLE_WITH_REASON
-        noMutationReason: Read or navigate using the exact selected context; do not mutate a source object
-          or infer permission from its presence.
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          summary: A reviewable audio artifact records selected voice/version,
+            format/rate, provenance, and approval status where required.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or sample-format incompatibility."
+          behavior: "Keep text and plan, offer only an admitted permitted voice or non-speech route, and require explicit choice for material changes."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Preserve source text revision, voice/language choice, timing, and preview position.
+            - Preserve source text revision, voice/language choice, timing, and
+              preview position.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/2
       canonicalBindings:
@@ -753,10 +805,11 @@ steps:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -764,21 +817,20 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
@@ -793,8 +845,9 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.scoped-query.v1
-        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
-          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
@@ -803,12 +856,11 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-              approval status where required.
-          effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-            permission from its presence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
@@ -816,15 +868,18 @@ steps:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
-          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.action.compare-candidate-on-metric
@@ -838,7 +893,8 @@ steps:
           stateRefs: STATE_BINDING_UNRESOLVED
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
@@ -846,16 +902,16 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
         objectRefs:
           - media.domain.quality-assessment
           - media.domain.artifact-version
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.compare-candidate-on-metric
         observation: null
         runtimeAdmission: NOT_ADMITTED
@@ -884,7 +940,8 @@ steps:
         effectClaim: see-stepOutcomeSemantics
       stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
         capabilityRefs: []
         requirementRefs: []
         sourceRefs:
@@ -900,7 +957,8 @@ steps:
     screenContractRef: screen-contracts/inspect-output.yaml
     viewIntent: Playback/download/review/provenance and delivery action
     actionRef: media.action.inspect-output-preview-and-version
-    actionBindingState: journey-specific-action-binding-pending; candidate-refs-come-from-screen-contract-only
+    actionBindingState: journey-specific-action-binding-pending;
+      candidate-refs-come-from-screen-contract-only
     stateRefs: []
     stateBindingState: pending-owner-bound-state-reference-and-transition
     candidateActionRefs:
@@ -921,34 +979,37 @@ steps:
     success:
       status: candidate-proposal
       sourceRef: journey.terminalSuccess
-      summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-        approval status where required.
+      summary: A reviewable audio artifact records selected voice/version,
+        format/rate, provenance, and approval status where required.
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
       summary:
-        - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or
-          sample-format incompatibility.
+        - Unsupported voice/language, pronunciation mismatch, consent denial,
+          provider outage, or sample-format incompatibility.
     degradedBehavior:
       status: not-specified
       sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this step.
+      reason: No distinct degraded-behavior contract is explicitly declared for this
+        step.
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
-      summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-        explicit choice for material changes.
+      summary: Keep text and plan, offer only an admitted permitted voice or
+        non-speech route, and require explicit choice for material changes.
     postconditions:
       status: candidate-proposal
       sourceRef: journey.contextPreserved
       summary:
-        - Preserve source text revision, voice/language choice, timing, and preview position.
+        - Preserve source text revision, voice/language choice, timing, and
+          preview position.
     requirementRefs: []
     verification:
       requiredChecks: []
       evidenceRefs: []
       status: not-run
-      reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+      reason: Required checks are proposal requirements only; no step-level execution
+        evidence is present.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -963,8 +1024,8 @@ steps:
         - handoffRef
         - requirementRefs
       reason: Journey-level channels are candidate surface refs only; step-level
-        object/state/operation/authority/decision/transition/handoff/requirement bindings are not
-        declared.
+        object/state/operation/authority/decision/transition/handoff/requirement
+        bindings are not declared.
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/3
@@ -983,11 +1044,12 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-          permission from its presence.
+        effect: Read or navigate using the exact selected context; do not mutate a
+          source object or infer permission from its presence.
         reversibilityDisposition: REVERSIBLE
         finality: read-only-or-navigation; no-write-finality
-        failureRecovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
@@ -996,36 +1058,42 @@ steps:
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: NOT_APPLICABLE_WITH_REASON
-        noMutationReason: Read or navigate using the exact selected context; do not mutate a source object
-          or infer permission from its presence.
+        noMutationReason: Read or navigate using the exact selected context; do not
+          mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Playback/download/review/provenance and delivery action
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          summary: A reviewable audio artifact records selected voice/version,
+            format/rate, provenance, and approval status where required.
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or sample-format incompatibility."
+          behavior: "Keep text and plan, offer only an admitted permitted voice or non-speech route, and require explicit choice for material changes."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         postconditions:
           status: candidate-proposal
           sourceRef: journey.contextPreserved
           summary:
-            - Preserve source text revision, voice/language choice, timing, and preview position.
+            - Preserve source text revision, voice/language choice, timing, and
+              preview position.
         contextPreservation: null
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml#/steps/3
       canonicalBindings:
@@ -1050,10 +1118,11 @@ steps:
         requiredChecks: []
         evidenceRefs: []
         status: not-run
-        reason: Required checks are proposal requirements only; no step-level execution evidence is present.
+        reason: Required checks are proposal requirements only; no step-level execution
+          evidence is present.
       acceptanceBoundary: Source definition only. Proposal branches, unbound
-        object/state/authority/transition/requirement identities, external review and lifecycle
-        evidence remain separate.
+        object/state/authority/transition/requirement identities, external
+        review and lifecycle evidence remain separate.
       fixtureOracle:
         status: NO_STEP_SCENARIO_BOUND
         sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
@@ -1061,21 +1130,20 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-            approval status where required.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
           summary:
-            - Unsupported voice/language, pronunciation mismatch, consent denial, provider outage,
-              or sample-format incompatibility.
+            - Unsupported voice/language, pronunciation mismatch, consent
+              denial, provider outage, or sample-format incompatibility.
         recoveryBranch:
           status: candidate-proposal
           sourceRef: journey.recovery
-          summary: Keep text and plan, offer only an admitted permitted voice or non-speech route, and require
-            explicit choice for material changes.
+          summary: Keep text and plan, offer only an admitted permitted voice or
+            non-speech route, and require explicit choice for material changes.
         executable: false
         ownerOracleAcceptance: pending-independent-review
       operationContractBinding:
@@ -1090,8 +1158,9 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.scoped-query.v1
-        scopeStatus: Media-owner-definition-recorded; exact operation/request/result meaning selected;
-          independent-PDP1-and-PDP3-review-open; transport/runtime-NOT_ADMITTED
+        scopeStatus: Media-owner-definition-recorded; exact operation/request/result
+          meaning selected; independent-PDP1-and-PDP3-review-open;
+          transport/runtime-NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
@@ -1100,12 +1169,11 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A reviewable audio artifact records selected voice/version, format/rate, provenance, and
-              approval status where required.
-          effect: Read or navigate using the exact selected context; do not mutate a source object or infer
-            permission from its presence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+          effect: Read or navigate using the exact selected context; do not mutate a
+            source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
         nonhappy:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
@@ -1113,15 +1181,18 @@ steps:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
             - preserve-the-requested-context-and-exact-version-across-recovery
-          failure: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          failure: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
-          recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
+          recovery: preserve-the-exact-target-and-current-draft;
+            explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
+          SOURCE-BOUNDED
         transitionRef: null
         stateRefs: []
         operationRef: media.operation.action.inspect-output-preview-and-version
@@ -1135,7 +1206,8 @@ steps:
           stateRefs: STATE_BINDING_UNRESOLVED
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS SOURCE-BOUNDED
+          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
+            REMAINS SOURCE-BOUNDED
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
@@ -1143,16 +1215,16 @@ steps:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         requirementCrosswalkStatus: pending-PDP1-capability-operation-index
-        noAcceptanceInference: source bindings do not establish independent review, runtime admission, or
-          lifecycle receipt
+        noAcceptanceInference: source bindings do not establish independent review,
+          runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
         operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
         objectRefs:
           - media.domain.render-outcome
           - media.domain.artifact-version
-        versionIdentityRule: Exact immutable version identity is required whenever the source action names a
-          version; do not substitute a newer version.
+        versionIdentityRule: Exact immutable version identity is required whenever the
+          source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.inspect-output-preview-and-version
         observation: null
         runtimeAdmission: NOT_ADMITTED
@@ -1182,7 +1254,8 @@ steps:
           - media.operation.action.inspect-output-preview-and-version
         effectClaim: see-stepOutcomeSemantics
       actionCapabilityBinding:
-        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK; PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+        status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
+          PROPOSAL_AND_REVIEW_STATUS_PRESERVED
         capabilityRefs: []
         requirementRefs: []
         sourceRefs:
@@ -1193,21 +1266,23 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: []
-stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy view maps to one
-  registered intent-based screen. Null actionRef and empty stateRefs are deliberate open bindings,
-  not no-op actions or completed transitions.
-terminalSuccess: A reviewable audio artifact records selected voice/version, format/rate,
-  provenance, and approval status where required.
+stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
+  view maps to one registered intent-based screen. Null actionRef and empty
+  stateRefs are deliberate open bindings, not no-op actions or completed
+  transitions.
+terminalSuccess: A reviewable audio artifact records selected voice/version,
+  format/rate, provenance, and approval status where required.
 criticalNonhappyPaths:
   - id: phase0-critical-exception
-    condition: Unsupported voice/language, pronunciation mismatch, consent denial, provider outage, or
-      sample-format incompatibility.
-    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state, copy, and action
-      bindings remain pending.
-recovery: Keep text and plan, offer only an admitted permitted voice or non-speech route, and
-  require explicit choice for material changes.
+    condition: Unsupported voice/language, pronunciation mismatch, consent denial,
+      provider outage, or sample-format incompatibility.
+    responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
+      copy, and action bindings remain pending.
+recovery: Keep text and plan, offer only an admitted permitted voice or
+  non-speech route, and require explicit choice for material changes.
 contextPreserved:
-  - Preserve source text revision, voice/language choice, timing, and preview position.
+  - Preserve source text revision, voice/language choice, timing, and preview
+    position.
 channelEquivalents:
   - web
   - grpc-api
@@ -1215,20 +1290,22 @@ channelEquivalents:
 accessibilityIntentRef: media.a11y.baseline
 requiredScenarioBehaviors:
   status: scenario-fixtures-and-owner-approved-expected-results-pending
-  successIntent: A reviewable audio artifact records selected voice/version, format/rate, provenance,
-    and approval status where required.
-  criticalNonhappyIntent: Unsupported voice/language, pronunciation mismatch, consent denial, provider
-    outage, or sample-format incompatibility.
+  successIntent: A reviewable audio artifact records selected voice/version,
+    format/rate, provenance, and approval status where required.
+  criticalNonhappyIntent: Unsupported voice/language, pronunciation mismatch,
+    consent denial, provider outage, or sample-format incompatibility.
 scenarioRefs: []
 unresolvedProductDecisions:
-  - Bind each view transition to an owner-approved action, state, and finality contract; no action
-    identifier or state transition is inferred by this proposal.
-  - Define equivalent behavior, authority, transport, recovery, and accessibility for each proposed
-    channel.
-  - Author deterministic fixtures with owner-approved expected results for success, critical
-    exceptions, recovery, and preserved context.
-  - Complete capability bounds, wire/API/CLI contracts where applicable, and required named-owner
-    and independent review before PDP-3 acceptance.
+  - Bind each view transition to an owner-approved action, state, and finality
+    contract; no action identifier or state transition is inferred by this
+    proposal.
+  - Define equivalent behavior, authority, transport, recovery, and
+    accessibility for each proposed channel.
+  - Author deterministic fixtures with owner-approved expected results for
+    success, critical exceptions, recovery, and preserved context.
+  - Complete capability bounds, wire/API/CLI contracts where applicable, and
+    required named-owner and independent review before PDP-3 acceptance.
 conditionalHandoffRefs:
   - ai-inference-execution
-handoffCondition: Only when the admitted TTS operation is routed through the AI Inference public boundary.
+handoffCondition: Only when the admitted TTS operation is routed through the AI
+  Inference public boundary.

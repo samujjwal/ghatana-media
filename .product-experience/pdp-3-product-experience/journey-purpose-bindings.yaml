@@ -2441,7 +2441,7 @@ records:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
   requirementRefs: []
-  effect: Request delivery of the exact immutable artifact version to the selected authorized destination; the request receipt is not destination delivery.
+  effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
   finality: request-accepted-or-unknown; destination acknowledgment required for delivery
   recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence; never-claim-success-from-local-state
   sourceRefs:
@@ -4166,6 +4166,7 @@ records:
   supportingOperationRefs:
   - media.operation.stream-session.inspect.v1
   - media.operation.consent-record-inspect.v1
+  - media.operation.stream-session.inspect-execution-recovery.v1
   operationKinds: []
   capabilityRefs: []
   capabilityOptions: []
@@ -4191,7 +4192,9 @@ records:
     UNKNOWN and requires same-identity owner observation
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
-  mappingBasis: none; this step records local selection, supplied observation, or fail-closed eligibility only
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1
+  - .product-experience/decision-log.md#PXD-160
+  mappingBasis: exact supporting same-session recovery QUERY; it observes one coherent snapshot and never dispatches a domain mutation
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs: []
@@ -7110,19 +7113,18 @@ records:
   stepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
   ordinal: 5
   viewRef: media.view.inspect-media
-  stepIntent: inspect one exact artifact version, its integrity evidence, metadata, and separately governed lifecycle
+  stepIntent: inspect the exact artifact-version metadata and its time-scoped recorded integrity/lifecycle disposition
   purposeClass: PDP1_OPERATION_BOUND_STEP
   capabilityPurposeClass: null
   bindingKind: EXACT_SINGLE_OPERATION
-  actionRef: media.action.inspect-artifact
+  actionRef: media.action.inspect-source
   semanticRole: DOMAIN_OPERATION
-  actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact
+  actionSourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source
   actionExactOperationRefs:
-  - media.operation-slice.inspect-artifact
+  - media.operation-slice.inspect-artifact-version
   operationRefs:
-  - media.operation-slice.inspect-artifact
-  supportingOperationRefs:
-  - media.operation.artifact.lifecycle.observe.v1
+  - media.operation-slice.inspect-artifact-version
+  supportingOperationRefs: []
   operationKinds:
   - QUERY
   capabilityRefs: []
@@ -7134,37 +7136,23 @@ records:
   domainObjectRefs:
   - media.domain.artifact
   - media.domain.artifact-version
-  stateRefs:
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/EXPIRED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ERASURE_REQUESTED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/PHYSICAL_ERASURE_PENDING
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/BLOCKED_BY_HOLD
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ERASURE_CONFIRMED
-  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/EXTERNAL_ERASURE_UNCONFIRMED
+  stateRefs: []
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse
   requirementRefs:
   - .product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT
-  effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+  effect: read-exact-artifact-version-metadata-and-time-scoped-recorded-integrity-lifecycle-disposition-without-claiming-current-availability-or-authority
   finality: read-only; inspection-does-not-promote-quarantine-or-attach-to-a-project
   recovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
-  - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
-  - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-artifact
-  mappingBasis: Read only an exact artifact and immutable version under trusted principal and current read policy;
-    lifecycle state comes only from the separate lifecycle observer.
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
+  mappingBasis: One source-defined query reads exact-version metadata and its time-scoped recorded integrity/lifecycle disposition; it does not establish current availability, rights, consent, retention authority, or processing/delivery permission.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
-  - media.operation-slice.inspect-artifact
+  - media.operation-slice.inspect-artifact-version
 - id: media.pdp3.step-purpose-binding.j23-step-01.v1
   journeyRef: J-23
   journeySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-23

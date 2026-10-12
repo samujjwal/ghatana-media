@@ -253,8 +253,37 @@ export function projectPdp3JourneyStepSemantics({ sourceRef, oracleStep, ownerBi
     const fieldBoundCoverage = [
       "EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND",
       "EXACT_VERSION_REQUEST_FIELD_BOUND",
+      // PDP-1's project observation uses this narrower source-authored enum.
+      // It still resolves an exact owner-result version field and tuple.
+      "EXACT_VERSION_RESULT_FIELD_BOUND",
       "EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED",
     ].includes(versionFieldBinding.coverageDisposition);
+    const explicitUnknownCoverage = versionFieldBinding.coverageDisposition
+      === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN"
+      && Array.isArray(versionFieldBinding.exactVersionTupleRequirement)
+      && versionFieldBinding.exactVersionTupleRequirement.length > 0
+      && versionFieldBinding.canonicalVersionIdentityRequirement.missingOrStaleDisposition === "UNKNOWN"
+      && versionFieldBinding.canonicalVersionIdentityRequirement.foreignTenantOrMixedVersionDisposition === "UNKNOWN";
+    const localSelectionCoverage = explicitUnknownCoverage
+      && Array.isArray(versionFieldBinding.fields)
+      && versionBinding.localDraftRevisionContractRef !== null
+      && Boolean(resolveDefinitionRef(versionBinding.localDraftRevisionContractRef))
+      && versionBinding.localDraftRevisionContractRef.endsWith("/localRevisionRule")
+      && versionFieldBinding.fields.length > 0
+      && versionFieldBinding.fields.every((field) => field.direction === "LOCAL_SELECTION"
+        && field.requiredVersionBinding === "LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH"
+        && field.boundObjectRefs?.includes(versionFieldBinding.objectRef)
+        && field.requestSchemaRef?.startsWith(".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=")
+        && Boolean(resolveDefinitionRef(field.requestSchemaRef))
+        && field.fieldSelector === ".product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs/ExactArtifactVersionRef"
+        && Boolean(resolveDefinitionRef(field.fieldSelector))
+        && ["media.component-value-types.v1#/$defs/ArtifactVersionCandidate", "media.component-value-types.v1#/$defs/SourceVersionCandidate"].includes(field.candidateSchemaRef)
+        && typeof field.versionRule === "string"
+        && field.versionRule.includes("full artifact version identity tuple")
+        && versionFieldBinding.objectRef === "media.domain.artifact-version"
+        && JSON.stringify(versionFieldBinding.exactVersionTupleRequirement) === JSON.stringify(["versionId"])
+        && JSON.stringify(versionFieldBinding.canonicalVersionIdentityRequirement.exactTupleFields) === JSON.stringify(["tenantId", "artifactId", "versionId"]))
+      && ["LOCAL_DRAFT_REVISION_CAS; NOT_CANONICAL_PRODUCT_VERSION", "EXACT_CANONICAL_VERSION_TUPLE_REQUIRED"].includes(versionBinding.versionDisposition);
     const transitiveCoverage = versionFieldBinding.coverageDisposition === "ARTIFACT_VERSION_IS_TRANSITIVE_THROUGH_EXACT_CAPTION_VERSION_IDENTITY; COMPARISON_RESULT_HAS_NO_DIRECT_TYPED_SOURCE_VERSION_FIELD; DO_NOT_INFER_SOURCE_VERSION"
       && versionFieldBinding.fields.length === 0 && Array.isArray(versionFieldBinding.transitiveVersionJoins)
       && versionFieldBinding.transitiveVersionJoins.length > 0
@@ -286,8 +315,10 @@ export function projectPdp3JourneyStepSemantics({ sourceRef, oracleStep, ownerBi
       && typeof versionFieldBinding.logicalVersionJoin.missingOrMismatchedTuple === "string"
       && versionFieldBinding.logicalVersionJoin.missingOrMismatchedTuple.includes("UNKNOWN")
       && versionFieldBinding.logicalVersionJoin.runtimeAdmission === "NOT_ADMITTED";
-    if ((!fieldBoundCoverage && !transitiveCoverage && !deferredApplicability && !logicalTupleCoverage)
-      || (fieldBoundCoverage && versionFieldBinding.fields.length === 0)) return reject("VERSION_FIELD_COVERAGE_UNSUPPORTED");
+    if ((!fieldBoundCoverage && !transitiveCoverage && !deferredApplicability && !logicalTupleCoverage
+      && !explicitUnknownCoverage && !localSelectionCoverage)
+      || (fieldBoundCoverage && versionFieldBinding.fields.length === 0)
+      || (explicitUnknownCoverage && versionFieldBinding.fields.length > 0 && !localSelectionCoverage)) return reject("VERSION_FIELD_COVERAGE_UNSUPPORTED");
     if (versionFieldBinding.fields.some((field) => typeof field.fieldSelector === "string" && !resolveDefinitionRef(field.fieldSelector))) return reject("VERSION_FIELD_SELECTOR_UNRESOLVED");
     versionBindingIds.add(versionFieldBinding.id);
     const exactRef = `${expectedVersionBindingRef}/versionFieldBindings/@id=${versionFieldBinding.id}`;

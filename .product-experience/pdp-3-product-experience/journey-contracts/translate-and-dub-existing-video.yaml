@@ -48,11 +48,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-        delivered only with required approval.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.review-translated-segment
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -63,7 +70,17 @@ steps:
             denial, or lip/speech timing mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -94,10 +111,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; journey-level recovery not allocated to this
         step
       postconditions: pending-explicit-step-postconditions
@@ -110,6 +130,16 @@ steps:
       journeyRef: J-16
       ordinal: 1
       viewRef: media.view.review-dubbing
+      conflictRecoverySemantics:
+        status: SOURCE_BACKED_STEP_APPLICABILITY; RUNTIME_NOT_ADMITTED
+        conflictSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappy
+        recoverySourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/recovery
+        applicableConflict: The translated meaning or duration can conflict with the
+          source audio/video timing or reviewed intent.
+        response: Preserve original tracks; surface the exact meaning or duration
+          discrepancy for review, and require explicit correction/review before
+          delivery. Do not infer approval or resolve conflicting meaning
+          automatically.
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       action:
@@ -140,13 +170,26 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Translation, voice, timing, meaning review and sync
-        result: null
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-            delivered only with required approval.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.review-translated-segment
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -157,7 +200,17 @@ steps:
                 denial, or lip/speech timing mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -349,8 +402,14 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-16.j-16.step-01
     capabilityRefs: []
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
   - view: media.view.work-with-speech
     legacyViewRef: M-SPEECH
     screenContractRef: screen-contracts/work-with-speech.yaml
@@ -376,11 +435,12 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-        delivered only with required approval.
+      status: NO_RESULT_UNTIL_EXPLICIT_USER_SELECTION
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs
+      meaning: No operation result exists until the user explicitly selects one
+        candidate; no default action or result is inferred.
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -391,7 +451,15 @@ steps:
             denial, or lip/speech timing mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: NOT_APPLICABLE_UNTIL_EXPLICIT_USER_SELECTION
+      sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs
+      disposition: No operation is dispatched and no operation result/degraded outcome
+        exists until the user explicitly selects one declared candidate; no
+        default is inferred.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -422,10 +490,14 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      success: NO_RESULT_UNTIL_EXPLICIT_USER_SELECTION defined by
+        .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs;
+        no default action/result is inferred; later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: NOT_APPLICABLE_UNTIL_EXPLICIT_USER_SELECTION defined by
+        .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs;
+        no operation is dispatched and no degraded outcome exists
       recovery: candidate-proposal-only; journey-level recovery not allocated to this
         step
       postconditions: pending-explicit-step-postconditions
@@ -441,6 +513,11 @@ steps:
       selectionBasis: Exact action identities are drawn from this step view screen
         contract; each is an independent user-selected interaction, with no
         default or implied dispatch.
+      domainOperationDisposition: NO_OPERATION_SELECTED
+      transitionDisposition: NOT_APPLICABLE_WITH_REASON
+      noMutationReason: This umbrella view has no selected action or default; it only
+        presents explicit choices, and no operation or domain-state transition
+        occurs until the user selects one of the listed actions.
       candidateActionRefs:
         - media.action.choose-source
         - media.action.request-transcription
@@ -516,13 +593,17 @@ steps:
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-119
       stepSourceFacts:
         intent: Transcription/TTS/pronunciation/language/voice choices
-        result: null
+        result: "NO_OPERATION_RESULT_UNTIL_EXPLICIT_USER_SELECTION: this step presents a
+          declared action choice set with no selected default."
+        resultSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-            delivered only with required approval.
+          status: NO_RESULT_UNTIL_EXPLICIT_USER_SELECTION
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs
+          meaning: No operation result exists until the user explicitly selects one
+            candidate; no default action or result is inferred.
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -533,7 +614,15 @@ steps:
                 denial, or lip/speech timing mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: NOT_APPLICABLE_UNTIL_EXPLICIT_USER_SELECTION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1/candidateActionRefs
+          disposition: No operation is dispatched and no operation result/degraded outcome
+            exists until the user explicitly selects one declared candidate; no
+            default is inferred.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -591,6 +680,15 @@ steps:
         executable: false
         reason: No exact source scenario is allocated to this step; no seeded execution
           is inferred.
+      transitionApplicability:
+        disposition: NO_DOMAIN_TRANSITION_WITH_REASON
+        transitionRef: null
+        stateRefs: []
+        sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/steps/1
+        reason: This umbrella view has no selected action or default; it only presents
+          explicit choices, and no operation or domain-state transition occurs
+          until the user selects one of the listed actions.
+        runtimeAdmission: NOT_ADMITTED
     scenarioRefs: []
     canonicalBindings:
       actionChoiceRefs:
@@ -603,6 +701,8 @@ steps:
         - media.action.review-recognized-or-synthesized-content
       actionChoiceDisposition: EXACT_SCREEN_ACTION_SET; NO_DEFAULT; USER_SELECTION_REQUIRED
       actionChoiceSourceRef: screen-contracts/work-with-speech.yaml
+    result: "NO_OPERATION_RESULT_UNTIL_EXPLICIT_USER_SELECTION: this step presents a
+      declared action choice set with no selected default."
   - view: media.view.edit-captions
     legacyViewRef: M-CAPTIONS
     screenContractRef: screen-contracts/edit-captions.yaml
@@ -627,11 +727,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-        delivered only with required approval.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+      operationRef: media.operation.caption-draft-write
+      meaning: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
+        or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft
+        snapshot and source/parent identifiers, with no persistence or
+        canonical-version claim.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -642,7 +749,16 @@ steps:
             denial, or lip/speech timing mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+      disposition: UNKNOWN_OUTCOME holds; preserve request identity and reconcile the
+        same request before any retry. Do not infer success, completion,
+        persistence, or delivery; no blind replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -673,10 +789,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
       recovery: candidate-proposal-only; journey-level recovery not allocated to this
         step
       postconditions: pending-explicit-step-postconditions
@@ -714,13 +833,27 @@ steps:
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
       stepSourceFacts:
         intent: Edit caption wording, timing, and language for accessibility and review.
-        result: null
+        result: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
+          or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft
+          snapshot and source/parent identifiers, with no persistence or
+          canonical-version claim.
+          [.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics]
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-            delivered only with required approval.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          operationRef: media.operation.caption-draft-write
+          meaning: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
+            or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local
+            draft snapshot and source/parent identifiers, with no persistence or
+            canonical-version claim.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -731,7 +864,16 @@ steps:
                 denial, or lip/speech timing mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+          disposition: UNKNOWN_OUTCOME holds; preserve request identity and reconcile the
+            same request before any retry. Do not infer success, completion,
+            persistence, or delivery; no blind replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -894,6 +1036,11 @@ steps:
         acceptance: crosswalk source only; no independent review/runtime admission
     scenarioRefs: []
     capabilityRefs: [ media.artifact.derive ]
+    result: Immediate result is the operation envelope outcome SUCCEEDED, REJECTED,
+      or UNKNOWN_OUTCOME; SUCCEEDED returns the complete session-local draft
+      snapshot and source/parent identifiers, with no persistence or
+      canonical-version claim.
+      [.product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics]
   - view: media.view.create-audio
     legacyViewRef: M-AUDIO
     screenContractRef: screen-contracts/create-audio.yaml
@@ -913,11 +1060,14 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-        delivered only with required approval.
+      status: STEP_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1
+      meaning: This step may establish only source-contract local patch eligibility;
+        it does not apply or persist a patch.
+      evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+        or applied patch is claimed
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -928,7 +1078,16 @@ steps:
             denial, or lip/speech timing mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+      disposition: If the active local session/catalog is stale, missing, or unknown,
+        HOLD without applying a patch or replay; denial preserves the local
+        revision. The evaluator result is eligibility only, not an applied edit.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -959,10 +1118,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1
       recovery: candidate-proposal-only; journey-level recovery not allocated to this
         step
       postconditions: pending-explicit-step-postconditions
@@ -1005,13 +1167,22 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Sources/stems/cleanup/mix/mastering
-        result: null
+        result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+          LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+          (.product-experience/pdp-3-product-experience/local-step-effect-contr\
+          acts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1)"
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1/inputContract/effectBoundary
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-            delivered only with required approval.
+          status: STEP_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1
+          meaning: This step may establish only source-contract local patch eligibility;
+            it does not apply or persist a patch.
+          evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+            or applied patch is claimed
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1022,7 +1193,17 @@ steps:
                 denial, or lip/speech timing mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+          disposition: If the active local session/catalog is stale, missing, or unknown,
+            HOLD without applying a patch or replay; denial preserves the local
+            revision. The evaluator result is eligibility only, not an applied
+            edit.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1054,8 +1235,8 @@ steps:
         localObjectRef: media.local-object.editor-session-draft
         localDraftSlotRef: media.local-draft.slot.audio-operation
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
         canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
@@ -1162,8 +1343,8 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         localObjectRef: media.local-object.editor-session-draft
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
@@ -1198,6 +1379,10 @@ steps:
       localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-16.step-04.v1
     scenarioRefs: []
     capabilityRefs: []
+    result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+      LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+      (.product-experience/pdp-3-product-experience/local-step-effect-contracts\
+      .yaml#records/@id=media.local-step-effect.j-16.step-04.v1)"
   - view: media.view.compare-results
     legacyViewRef: M-COMPARE
     screenContractRef: screen-contracts/compare-results.yaml
@@ -1220,11 +1405,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-        delivered only with required approval.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.compare-candidate-on-metric
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1235,7 +1427,17 @@ steps:
             denial, or lip/speech timing mismatch.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1266,10 +1468,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-explicit-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-allocation
-      success: candidate-proposal-only; journey-level outcome not allocated to this step
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
       recovery: candidate-proposal-only; journey-level recovery not allocated to this
         step
       postconditions: pending-explicit-step-postconditions
@@ -1312,13 +1517,26 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: null
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Mastered version is synchronized, reviewed for meaning and timing, and
-            delivered only with required approval.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.compare-candidate-on-metric
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1329,7 +1547,17 @@ steps:
                 denial, or lip/speech timing mismatch.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-16/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1521,6 +1749,11 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
     capabilityRefs: []
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

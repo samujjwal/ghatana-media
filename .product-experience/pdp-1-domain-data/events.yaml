@@ -32,7 +32,7 @@ observedEnvelope:
       body:
       - { name: eventId, value: event.eventId() }
       - { name: eventType, value: event.eventType() }
-      - { name: eventVersion, value: literal-1.0 }
+      - { name: eventVersion, value: literal-1.0.0 }
       - { name: timestamp, value: event.occurredAt().toString() }
       - { name: correlationId, value: event.correlationId() }
       - { name: causationId, value: event.causationId(), condition: nonblank }
@@ -48,7 +48,19 @@ observedEnvelope:
       - { name: attributes, value: event.attributes() }
       sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publish
       interpretation: source-level mapping only; no schema authority, consumer behavior, or delivery guarantee implied
-    eventVersion: { value: "1.0", status: "publisher-implementation-observed; compatibility-schema-and-evolution-policy: unresolved" }
+    eventVersion:
+      value: "1.0.0"
+      status: exact-publisher-value-equals-each-owner-event-schema-const
+      mapping:
+        type: identity
+        ownerField: ownerEventContracts.records[].eventVersion
+        wireField: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/components/schemas/AppendEventRequest/properties/eventVersion
+        ownerAndWireValue: "1.0.0"
+        basis: Event Plane request accepts an explicit string; the runtime forwards it unchanged to the stored event record. Its default "1.0" is not used by this publisher because the field is explicit.
+        sourceRefs:
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L100
+        - ../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java#L451-L479
+      scope: version-value-alignment-only; does-not-establish-append-acceptance-or-consumer-delivery
     idempotencyHeader: { name: Idempotency-Key, value: eventId, status: "request-header-observed; durable-deduplication-guarantee: unresolved" }
     acceptedHttpStatuses: [201]
     platformContractCrosswalk:
@@ -265,10 +277,24 @@ ownerEventContracts:
         serviceContractSha256: 26f286bb837783f2fbb3c423bab622e0e8783eb6db3e6083bbe7f30ee8558c45
         ownerRepositoryHead: b1c892a9fc6a5e11fff82adc4bf3fcf190ba76e4
         latestRelevantContractChange: d7b2b27b050723585267ce48a2e5f63838cb6381
+      eventVersionProjection:
+        status: OWNER_DEFINED_EXACT_IDENTITY_PROJECTION
+        ownerSchemaField: per-event-schema.eventVersion
+        ownerValue: "1.0.0"
+        eventPlaneField: AppendEventRequest.eventVersion
+        wireValue: "1.0.0"
+        mapping: identity
+        admissionEffect: none; whole Event Plane dependency remains NOT_ADMITTED pending retry and lookup contract reconciliation
       requiredAppendReceipt:
         status: 201
         fields: [eventId, storedEventId, streamId, offset]
-        acceptanceRule: All four receipt values must bind to the submitted event ID, expected tenant-scoped stream, stored event identity, and nonnegative stream position. A 201 or a matching eventId by itself is not sufficient evidence of an exact append.
+        acceptanceRule: >-
+          `eventId` is the submitted caller event ID; `storedEventId` must equal the Event Plane's stable UUID mapping of that caller ID;
+          `streamId` must equal the expected tenant-scoped stream; `offset` must be a nonnegative stream position. A 201 or a matching caller eventId by itself is not sufficient evidence of an exact append.
+        identityMapping:
+          sourceRef: ../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java#stableUuid
+          rule: UUID caller IDs are preserved; other caller IDs map to UUID.nameUUIDFromBytes(UTF-8 callerEventId)
+          storedIdentityFormat: RFC-4122-version-3-UUID
         publisherAuthoritySelector: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/@id=<exact-event-contract-id>/producer
         hostBoundEvidence: Append authority and request fingerprint are host-computed from the exact immutable outbox request; caller fields cannot assert either value.
       exactLookup:
@@ -277,11 +303,12 @@ ownerEventContracts:
         scope: [trustedTenant, streamId, eventId]
         requiredAuthority: Authenticated Shared Event Plane reader with `event-plane:event:read`, bound to the exact trusted tenant; lookup authority is distinct from the Media publisher authority.
         authorityRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get/x-ghatana-security
-        matchingRecordRule: returned event identity, stream, tenant, eventType, eventVersion, aggregate tuple, and canonical payload fingerprint must match the immutable outbox entry
+        matchingRecordRule: returned EventRecord.callerEventId equals the submitted caller event ID and EventRecord.eventId equals its stable UUID mapping; returned stream, tenant, eventType, eventVersion, aggregate tuple, and canonical payload fingerprint must also match the immutable outbox entry
         notFoundRule: NOT_FOUND is not proof that an uncertain append did not commit unless the Event Plane contract supplies a current, complete lookup receipt for the exact tenant/stream/event identity
         requiredHostVerifiedReadReceipt:
           definitionStatus: MEDIA_CONSUMER_REQUIREMENT_ONLY; current Shared response contract does not yet establish these fields or semantics
           fields: [tenantId, streamId, eventId, queryId, requestFingerprint, readAuthorityRef, readVersion, observedAt, observedAtCurrentness]
+          eventIdMeaning: callerEventId supplied in the exact lookup path; host also verifies returned EventRecord.callerEventId equals it and EventRecord.eventId equals its stable UUID mapping
           requestFingerprint: Host-computed SHA-256 of the exact trusted tenant, stream, event ID, query ID, and read authority tuple; caller-supplied digests are rejected.
           currentness: Must be explicitly established by an authoritative complete read at the same trusted read authority and current read version; an untrusted boolean or status label is insufficient.
           freshness: observedAt must be a valid UTC instant, not future-dated, and within the Media-selected maximum observation age; otherwise lookup remains UNKNOWN.
@@ -423,7 +450,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -554,7 +581,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -680,7 +707,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -807,7 +834,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -934,7 +961,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -1058,7 +1085,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -1185,7 +1212,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -1318,7 +1345,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery
@@ -1448,7 +1475,7 @@ ownerEventContracts:
       eventIdRule: stable producer-assigned opaque id is persisted atomically with the outbox row; retries reuse it
     durability:
       requiredPattern: transactional-outbox-or-equivalent-atomic-commit
-      delivery: at-least-once; consumer must deduplicate
+      delivery: conditional at-least-once design target only after the published Event Plane contract permits safe reconciliation; consumer deduplicates duplicate observations; no current delivery guarantee
       dispatch: first append only after the Media commit; after an ambiguous response reconcile by exact tenant-stream-event lookup and retain UNKNOWN when evidence is incomplete; do not issue another append until the published Event Plane contract explicitly permits safe replay
       retention: outbox entry remains until durable platform acceptance; payload retention after acceptance follows owner retention policy and active legal holds
       acceptanceReceipt: platform durable-append receipt required; publisher HTTP response alone is not consumer delivery

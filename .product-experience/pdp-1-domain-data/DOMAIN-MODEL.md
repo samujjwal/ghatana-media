@@ -2,7 +2,7 @@
 
 **Product:** Media (`media`)
 **Artifact:** `media.pdp-1.domain-data.v1`
-**Status:** proposed canonical registries; bounded PXD-026 state policies and the six PXD-035 PDP-0 rule mappings have explicit limits; full PDP-1 semantic acceptance and independent P0-010 remain open
+**Status:** owner-defined logical dispositions are recorded alongside source proposals and observations; full PDP-1 semantic acceptance and independent P0-010 remain open
 
 This directory organizes domain and data semantics recorded in PDP-0 into
 machine-readable registries. PDP-0 remains the source for product truth and
@@ -93,10 +93,12 @@ Important omissions and conflicts to resolve before semantic acceptance:
   checkpoint, scene/animation/simulation, timeline, quality assessment,
   render/delivery outcome, and provenance concepts are PDP-0 proposals with
   no matching record established by the named implementation schemas.
-- `ArtifactVersion` remains a proposed domain distinction, not an observed
-  separate runtime record. Runtime artifact digest/version keys, content
-  deduplication identity, project revision identity, transcript ancestry, and
-  derived-artifact lineage are not reconciled across consumers.
+- `ArtifactVersion` has a current Media owner-defined logical identity and
+  lineage rule in `canonical-reconciliation.yaml#currentDefinitionAdjudication`
+  and `versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion`; the
+  inspected runtime still does not establish a separate persisted version
+  record. Content deduplication, project revision identity, transcript
+  ancestry, and cross-consumer derived-artifact bindings remain unresolved.
 - Runtime/OpenAPI use Java instants, ISO strings, or numeric storage epochs;
   TypeScript has ISO timestamp and `durationMs` fields; protobuf includes
   `timestamp_ms`, `duration_ms`, and STT `start_ms`/`end_ms`; legacy
@@ -116,17 +118,18 @@ Important omissions and conflicts to resolve before semantic acceptance:
 
 ### Unresolved owner-bound decisions
 
-Media domain owner: approve object boundaries, canonical identities/version
-keys, lifecycle meanings, project/artifact/transcript lineage, and proposed
-relationship/cardinality semantics. API/SDK/protobuf consumer owners: approve
-cross-generation compatibility mappings and version/deprecation treatment.
-Platform storage owner: confirm persistence guarantees and physical deletion
-semantics; identity owner: confirm principal/tenant identity authority. Scene
-model and unit-registry owners: determine coordinate systems, physical units,
-and conversion contracts. Independent P0-010 reviewer: separately assess
-semantic acceptance. Until those decisions are recorded, IDs and lifecycle
-rules in these registries are proposals, observed shapes remain observations,
-and conflicts/unknowns must not be silently normalized.
+Current owner-defined meanings include the scoped artifact-version identity
+and lineage rule in `canonical-reconciliation.yaml#currentDefinitionAdjudication`
+and offline revision-conflict behavior in
+`offline-sync.yaml#ownerDefinedOfflineSemantics`. These definitions do not
+establish persistence, runtime enforcement, offline capability admission, or
+independent phase acceptance. Remaining decisions include unresolved object
+boundaries and relationship/cardinality semantics, project revision identity,
+cross-generation compatibility and version/deprecation treatment, storage and
+physical deletion guarantees, authenticated identity binding, and scene/unit
+conversion contracts. The independent P0-010 reviewer must separately assess
+semantic acceptance. Observed shapes remain observations, and unknowns must
+not be silently normalized.
 
 Media owns media-specific product meaning. Platform services own their generic
 identity, workflow mechanics, privileged effects, inference, audit, event
@@ -135,11 +138,12 @@ from proposals and unresolved mappings. They remain subject to Media owner
 review and independent P0-010 acceptance.
 
 An unaccepted PDP-0 lifecycle proposal separates authored specifications,
-resolved plans, mutable run/attempt progression, and proposed artifact
-versions. Proposed project revisions reference proposed artifact versions;
-the inspected runtime does not establish canonical artifact-version identity,
-immutable source bytes, durable attempt history, or complete ancestry. Access, rights,
-consent, retention, locality, and erasure are separate policy dispositions.
+resolved plans, mutable run/attempt progression, and artifact versions. The
+Media owner-defined ArtifactVersion identity and ancestry are recorded in the
+current PDP-1 adjudication; the inspected runtime does not establish their
+durable materialization, immutable source bytes, durable attempt history, or
+complete ancestry. Access, rights, consent, retention, locality, and erasure
+are separate policy dispositions.
 Scene, animation, simulation/model, editorial timeline, and wall-clock state
 use separate owners and clocks.
 
@@ -167,15 +171,18 @@ use separate owners and clocks.
 
 ### PDP1-01 through PDP1-05 reconciliation
 
-`canonical-reconciliation.yaml` adjudicates the identity and lifecycle
-dimensions for projects, artifact versions, uploads, jobs and attempts, stream
+`canonical-reconciliation.yaml` records source observations and proposed
+identity/lifecycle dimensions for projects, uploads, jobs and attempts, stream
 sessions, transcripts and captions, outputs, consent and rights, quality,
-provenance, and delivery. It records implementation keys separately from
-proposed domain identity. Tenant-qualified database keys, digest uniqueness,
-aggregate version counters, and identifier lists are not promoted into global
-identity, immutable artifact version, append-only history, or ancestry rules.
-The unresolved owner decisions at the end of that file are acceptance gates,
-not omissions to fill from whichever projection happens to be newest.
+provenance, and delivery. Its `currentDefinitionAdjudication` separately
+defines scoped Media logical meanings, including ArtifactVersion identity and
+exact-version ancestry, while leaving persistence, external authority,
+consumer compatibility, and independent acceptance distinct. Tenant-qualified
+database keys, digest uniqueness, aggregate version counters, and identifier
+lists alone are not promoted into global identity or append-only history. Read
+open decisions together with the current adjudications: residual implementation
+and external-owner questions remain gates, but do not reopen a logical meaning
+already defined there.
 
 `state-adjudication.yaml` preserves exact job/attempt/delivery identity and the
 `RETRY_PENDING`/`RETRYING`, `CANCEL_REQUESTED`/`CANCELLING`, and
@@ -243,11 +250,16 @@ or API schema was changed by this extraction.
 
 ## Acceptance
 
-PDP1-001 reconciliation and the canonical registries remain proposals. The
-bounded PXD-026 policies do not accept per-record identities, all state or
-operation bindings, exact wire parity, consumer compatibility, unit/coordinate
-decisions, event names, or offline conflict behavior. The prerequisite is
-independent P0-010 acceptance; PDP-1 review then requires `media-domain-lead`,
+PDP1-001 source reconciliation and the full canonical registries are not
+independently accepted. Current owner-defined logical dispositions, including
+artifact-version identity/lineage and offline revision-conflict behavior, are
+recorded in `canonical-reconciliation.yaml#currentDefinitionAdjudication` and
+`offline-sync.yaml#ownerDefinedOfflineSemantics`; their runtime enforcement,
+external bindings, and independent phase acceptance remain open. PXD-026's
+bounded policies do not establish all state or operation bindings, exact wire
+parity, consumer compatibility, unit/coordinate decisions, event names, or
+runtime offline behavior. The prerequisite is independent P0-010 acceptance;
+PDP-1 review then requires `media-domain-lead`,
 `distributed-systems-lead`, `privacy-and-rights-owner`, relevant domain and
 platform contract owners, and an independent product-definition reviewer.
 The active record is `ACCEPT-INPUT-PDP-1` in

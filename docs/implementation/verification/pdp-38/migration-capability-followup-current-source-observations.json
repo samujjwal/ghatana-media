@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "media.pdp38-capability-followup-current-source-observations.v1",
+  "scope": "Additive current-source observations for the exact targets in migration-capability-followup-review.json after a qualification-policy insertion. Historical source and review pins stay unchanged; source movement is recorded without parity or acceptance promotion.",
+  "appliesOnlyTo": "docs/implementation/verification/pdp-38/migration-capability-followup-review.json",
+  "doesNotUpdate": "The active claim locators, statuses, or counters in .product-experience/pdp-0-product-truth/migration-semantics-review.yaml; its MPSEM-0035-C003 and MPSEM-0043-C002 rows remain pending claim parity.",
+  "records": [
+    {
+      "claimId": "MPSEM-0035-C003",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules/4",
+      "historicalTargetValueSha256": "5cfa9070f2d70b893f979fd386bc60e4cb600cd50fb5fa97b1428b69f11be86c",
+      "currentTargetValueSha256": "f1c54f3fa7ad4852466f820828328ba3b8f92d48684482524a31c46b1c7db446",
+      "currentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+      "priorReviewRef": "docs/implementation/verification/pdp-38/migration-capability-followup-review.json#/records/@claimId=MPSEM-0035-C003",
+      "priorReviewStatus": "SEMANTIC_PARITY_VERIFIED_FOR_PRIOR_TARGET_SNAPSHOT",
+      "currentReviewStatus": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+      "observation": "The prior index-4 target was the exact-leaf/profile qualification rule. A new resource-bound fail-closed rule now occupies index 4, so the historical target digest no longer identifies the reviewed meaning. The former qualification rule appears at index 5; this observation does not retarget the claim or approve that locator. A current owner/coordinator must review the moved clause and its current material before any parity status is relied on.",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "semanticPromotion": false,
+      "acceptanceEffect": "none"
+    },
+    {
+      "claimId": "MPSEM-0043-C002",
+      "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules",
+      "historicalTargetValueSha256": "c71df52fa9ef472a9ba1353fc97ae5b4762f3d772c3f140ebc7e3feef563b791",
+      "currentTargetValueSha256": "e6ac071ed2fc0a1ee8e3906fd831516bd71fb9aadbb14ff58f7139bcff26eb48",
+      "currentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+      "priorReviewRef": "docs/implementation/verification/pdp-38/migration-capability-followup-review.json#/records/@claimId=MPSEM-0043-C002",
+      "priorReviewStatus": "SEMANTIC_PARITY_VERIFIED_FOR_PRIOR_TARGET_SNAPSHOT",
+      "currentReviewStatus": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+      "observation": "The current rule array adds a resource-bound fail-closed rule at index 4 and shifts the previously reviewed qualification-scope and following rules by one position. The prior nine-rule array digest is preserved. The claim's broad launch-availability boundary is not re-adjudicated against the changed current array by this observation.",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "semanticPromotion": false,
+      "acceptanceEffect": "none"
+    }
+  ]
+}

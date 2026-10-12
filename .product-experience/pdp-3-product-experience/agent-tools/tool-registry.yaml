@@ -79,7 +79,7 @@ tools:
         - {name: pitch, type: Number, presence: optional, default: 0.0, minimum: -20.0, maximum: 20.0}
         - {name: audioEncoding, type: String, presence: optional, default: MP3, enum: MP3|WAV|OGG_OPUS|LINEAR16}
         - {name: storeAsArtifact, type: boolean, presence: optional, default: false, validation: strict boolean}
-      rejection: Rejects missing, blank or over-100000-character text, invalid option types/ranges, and unknown top-level fields before delegation.
+      rejection: Rejects missing, blank or over-10000-character text, invalid option types/ranges, and unknown top-level fields before delegation.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
@@ -114,7 +114,7 @@ tools:
       sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
       fields:
         - {name: mediaSource, type: object, presence: required, validation: artifact reference or bounded Base64 imageBytes; optional allowlisted mimeType}
-        - {name: analysisTypes, type: List<String>, presence: required, minItems: 1, maxItems: 8, enum: OBJECT_DETECTION|SCENE_CLASSIFICATION|OCR|FACE_DETECTION|LABEL_DETECTION|CUSTOM_MODEL}
+        - {name: analysisTypes, type: List<String>, presence: optional, default: [OBJECT_DETECTION], minItems: 1, maxItems: 8, enum: OBJECT_DETECTION|SCENE_CLASSIFICATION|OCR|FACE_DETECTION|LABEL_DETECTION|CUSTOM_MODEL}
         - {name: maxResults, type: integer, presence: optional, default: 10, minimum: 1, maximum: 100}
         - {name: confidenceThreshold, type: Number, presence: optional, default: 0.5, minimum: 0, maximum: 1}
         - {name: customModelId, type: String, presence: conditionally-required, maxLength: 512, condition: CUSTOM_MODEL analysis}
@@ -158,7 +158,7 @@ tools:
         - {name: enableTranscription, type: boolean, presence: optional, default: true, validation: strict boolean}
         - {name: enableVisionAnalysis, type: boolean, presence: optional, default: true, validation: strict boolean}
         - {name: languageCode, type: String, presence: optional, default: en-US, validation: valid BCP-47 tag}
-      rejection: Missing or blank mediaArtifactId throws IllegalArgumentException("Required input field 'mediaArtifactId' is missing or blank"); wrong String casts may throw and be caught; unknown fields are not rejected.
+      rejection: Rejects missing or blank mediaArtifactId, invalid mode/rate/language/boolean values, unknown top-level fields, and requests with both modality flags false before delegation.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}

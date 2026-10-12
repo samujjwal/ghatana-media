@@ -20,10 +20,12 @@ const operationTypes = readText("libs/audio-video-types/src/contracts.ts");
 
 function validateCurrentMethodDefinitions(records, registry = methodRegistry, owner = operations) {
   const errors = [];
-  const unresolvedIds = new Set(sdk.unresolved);
-  if (records.length !== unresolvedIds.size) errors.push("current unresolved SDK population differs from the explicit identity set");
+  const currentMethodIds = new Set((sdk.currentSourceMethodDefinitions?.records ?? []).map(({ methodId }) => methodId));
+  if (currentMethodIds.size !== 10) errors.push("current source method definition population must contain exactly ten unique identities");
+  if (records.length !== currentMethodIds.size) errors.push("current source method definitions differ from the exact identity set");
   const ids = records.map(({ methodId }) => methodId);
-  if (new Set(ids).size !== ids.length || ids.some((id) => !unresolvedIds.has(id))) errors.push("SDK method records must exactly and uniquely cover the unresolved IDs");
+  if (new Set(ids).size !== ids.length || ids.some((id) => !currentMethodIds.has(id))
+    || [...currentMethodIds].some((id) => !new Set(ids).has(id))) errors.push("SDK method records must exactly and uniquely cover current source method definitions");
   const registryIds = new Set(registry.methods.map(({ id }) => id));
   const ownerOps = new Set([
     ...(owner.operations ?? []),
@@ -42,10 +44,10 @@ function validateCurrentMethodDefinitions(records, registry = methodRegistry, ow
   return errors;
 }
 
-test("all eight unresolved SDK methods have exact source, type, route, and non-equivalence dispositions", () => {
+test("all ten current SDK method definitions have exact source, type, route, and non-admission dispositions", () => {
   assert.deepEqual(validateCurrentMethodDefinitions(semantics.records), []);
   const byId = new Map(semantics.records.map((record) => [record.methodId, record]));
-  assert.equal(byId.size, 8);
+  assert.equal(byId.size, 10);
   assert.match(semantics.records.find(({ methodId }) => methodId === "media.sdk.trainVoiceModel").exactGap, /immutable sourceVersionRefs.*trainingProfileRef.*purposeRef.*rightsEvidenceRefs/u);
   assert.match(semantics.records.find(({ methodId }) => methodId === "media.sdk.convertVoice").exactGap, /sourceModelVersionRef.*targetProfileRef.*purposeRef/u);
   assert.match(semantics.records.find(({ methodId }) => methodId === "media.sdk.processMultimodal").exactGap, /generic unknown result payload/u);
@@ -85,7 +87,7 @@ test("all eight unresolved SDK methods have exact source, type, route, and non-e
 test("SDK disposition population rejects omissions, swapped owner contracts, and name-based promotion", () => {
   const omitted = structuredClone(semantics.records);
   omitted.pop();
-  assert.ok(validateCurrentMethodDefinitions(omitted).some((error) => error.includes("explicit identity set")));
+  assert.ok(validateCurrentMethodDefinitions(omitted).some((error) => error.includes("exact identity set")));
 
   const wrongOperation = structuredClone(semantics.records);
   wrongOperation.find(({ methodId }) => methodId === "media.sdk.trainVoiceModel").canonicalOwnerOperationRef =

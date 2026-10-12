@@ -46,7 +46,7 @@ test("P3-08 examples trace every named family to stable journey contracts", () =
 
   assert.match(doc, /cited PDP-3 journey is source-authored but not accepted/u);
   assert.match(doc, /deterministic fixture data only/u);
-  assert.match(doc, /does not meet P3-08 Done/u);
+  assert.match(doc, /P3-08 definition-grade coverage is documented for all 12 families/u);
 
   for (const [family, requiredIds] of families) {
     const heading = `## ${family}`;
@@ -58,6 +58,17 @@ test("P3-08 examples trace every named family to stable journey contracts", () =
     assert.match(section, /\*\*Expected effect:\*\*/u, `${family} needs expected effects`);
     assert.match(section, /\*\*Failure\/recovery:\*\*/u, `${family} needs failure/recovery semantics`);
     assert.match(section, /\*\*Binding gap:\*\*/u, `${family} needs an explicit gap`);
+    assert.match(section, /\*\*P3-08 start\/identity\/authority\/channel:\*\*/u,
+      `${family} needs a source-backed start, identity, authority, and channel trace`);
+    assert.match(section, /\*\*P3-08 action\/result\/evidence:\*\*/u,
+      `${family} needs action, result/version/finality, uncertainty, and provenance dispositions`);
+    assert.match(section, /\*\*Source-bound action\/operation IDs:\*\*/u,
+      `${family} needs exact bound action/operation IDs or an explicit unbound disposition`);
+    assert.match(section, /(?:not supplied|not instantiated|not selected|not bound|does not provide|no literal|no concrete)/iu,
+      `${family} must provide exact identity/version values or state that they are not supplied/bound`);
+    assert.match(section, /(?:result|version|finality)/iu, `${family} needs a result/version/finality disposition`);
+    assert.match(section, /(?:uncertaint(?:y|ies)|uncertain|UNKNOWN|unknown)/u, `${family} needs an uncertainty disposition`);
+    assert.match(section, /provenance/iu, `${family} needs a provenance disposition`);
 
     for (const id of requiredIds) {
       const journey = journeys.get(id);
@@ -68,6 +79,30 @@ test("P3-08 examples trace every named family to stable journey contracts", () =
       const contract = parse(readFileSync(contractPath, "utf8"));
       assert.equal(contract.journeyId, id, `${id} contract identity mismatch`);
       assert.ok(doc.includes(`../${experience}/${journey.contract}`), `${family} must link its source contract ${journey.contract}`);
+
+      const declaredChannels = contract.channels ?? contract.channelRefs ?? [];
+      for (const channel of declaredChannels) {
+        assert.ok(section.includes(channel), `${family} omits source-declared candidate channel ${channel} from ${id}`);
+      }
+      if (declaredChannels.length === 0) {
+        assert.match(section, /(?:no channel binding|channel[^.\n]{0,80}(?:not bound|none bound|unbound|not declared))/iu,
+          `${family} must state that ${id} has no source-declared channel binding`);
+      }
+      let documentedSourceOperation = false;
+      for (const step of contract.steps ?? []) {
+        if (!step.canonicalOperationRef) continue;
+        if (!section.includes(step.canonicalOperationRef)) continue;
+        documentedSourceOperation = true;
+        const action = step.action ?? step.actionRef ?? step.stepDefinitionSemantics?.action?.actionRef;
+        if (action) {
+          assert.ok(section.includes(action), `${family} omits ${id} bound action ${action}`);
+        } else {
+          assert.match(section, /no bound action|no bound query|no direct operation ID/iu,
+            `${family} must preserve ${id}'s operation without inventing an action`);
+        }
+      }
+      assert.ok(documentedSourceOperation,
+        `${family} must name at least one exact source-bound operation ID from ${id}`);
     }
   }
 });
@@ -173,9 +208,17 @@ test("P3-08 journey view and screen identities resolve through the current regis
 test("P3-08 documented action and operation identities are source-backed", () => {
   const doc = readFileSync(resolve(root, "docs/EXAMPLES.md"), "utf8");
   const actions = readYaml(`${experience}/action-registry.yaml`);
-  const actionIds = new Set(actions.actions.map((action) => action.id));
+  const actionIds = new Set([
+    ...actions.actions,
+    ...(actions.ownerDefinedActions ?? []),
+  ].map((action) => action.id));
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
-  const operationsById = new Map([...operations.operations, ...operations.individualOperationContracts.records].map((operation) => [operation.id, operation]));
+  const operationsById = new Map([
+    ...operations.operations,
+    ...operations.individualOperationContracts.records,
+    ...(operations.ownerDefinedOperationContracts?.records ?? []),
+    ...(operations.capabilityOperationContracts?.records ?? []),
+  ].map((operation) => [operation.id, operation]));
 
   const operationIds = new Set(operationsById.keys());
   assertDocumentedActionOperationIdsResolve(doc, actionIds, operationIds);
@@ -186,11 +229,14 @@ test("P3-08 documented action and operation identities are source-backed", () =>
 
   const journey02 = readYaml(`${experience}/journey-contracts/upload-import-and-verify-artifact.yaml`);
   const terminalStep = journey02.steps.at(-1);
-  assert.equal(terminalStep.action, "media.action.inspect-artifact");
-  assert.equal(terminalStep.canonicalOperationRef, "media.operation-slice.inspect-artifact");
-  assert.ok(operations.sourceDenominators.uiProductActions.exactOwnerReviewedSliceBindings[terminalStep.action] === terminalStep.canonicalOperationRef,
-    "J-02 terminal action must match the PDP-1 action/operation crosswalk");
-  assert.match(doc, /terminal step is `media\.action\.inspect-artifact`[\s\S]*?`media\.operation-slice\.inspect-artifact`/u);
+  assert.equal(terminalStep.action, "media.action.inspect-source");
+  assert.equal(terminalStep.canonicalOperationRef, "media.operation-slice.inspect-artifact-version");
+  const terminalBinding = operations.ownerDefinedJourneyOperationBindings.records.find((record) => record.journeyStepId === "J02-5");
+  assert.ok(terminalBinding, "J-02 terminal step has an exact PDP-1 journey operation binding");
+  assert.equal(terminalBinding.actionRef, terminalStep.action);
+  assert.equal(terminalBinding.operationRef, terminalStep.canonicalOperationRef,
+    "J-02 terminal action must match the PDP-1 action/operation handoff");
+  assert.match(doc, /terminal step is `media\.action\.inspect-source`[\s\S]*?`media\.operation-slice\.inspect-artifact-version`/u);
   assert.doesNotMatch(doc, /terminal action is `media\.action\.attach-source-asset`/u,
     "an earlier J-02 action must not be misreported as its terminal action");
 
@@ -204,6 +250,19 @@ test("P3-08 documented action and operation identities are source-backed", () =>
     /canonicalOperationRef drifted/u,
     "negative control: the exact source-backed proposal must not be dropped");
   assert.match(doc, /save and\s+compare have bounded source\s+definitions under PXD-060; runtime admission remains `NOT_ADMITTED`/iu);
+
+  const liveSession = readYaml(`${experience}/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml`);
+  const reconnectStep = liveSession.steps.find((step) =>
+    step.stepDefinitionSemantics?.action?.actionRef === "media.action.request-live-session-reconnect");
+  assert.ok(reconnectStep, "J-29 source must retain the nested owner-defined reconnect action");
+  assert.equal(reconnectStep.canonicalOperationRef,
+    "media.operation.capability.media-stream-session-reconnect",
+    "J-29 reconnect step must bind to the exact operation");
+  assert.equal(reconnectStep.stepDefinitionSemantics.action.runtimeAdmission, "NOT_ADMITTED",
+    "J-29 reconnect remains a definition binding, not runtime admission");
+  assert.match(doc,
+    /`media\.action\.request-live-session-reconnect` to that exact\s+operation[\s\S]*?runtime admission\s+`NOT_ADMITTED`/u,
+    "the example must document J-29's nested exact action/operation binding and runtime boundary");
 });
 
 test("P3-08 definition, implementation, qualification, license, availability, and acceptance stay distinct", () => {
@@ -217,7 +276,44 @@ test("P3-08 definition, implementation, qualification, license, availability, an
   const gapsStart = doc.indexOf("## P3-08 coverage and remaining gaps");
   const checksStart = doc.indexOf("## Local source checks", gapsStart);
   const coverage = doc.slice(gapsStart, checksStart);
-  assert.match(coverage, /does not meet P3-08 Done/u);
-  assert.match(coverage, /none of the examples above is an accepted\s+end-to-end capability/u);
+  assert.match(coverage, /definition-grade coverage is documented for all 12 families/u);
+  assert.match(coverage, /none of these examples is an accepted\s+end-to-end capability/u);
   assert.equal(families.length, 12, "the plan enumerates twelve P3-08 families");
 });
+
+test("P3-08 gives every family a source-evidence and fixture disposition", () => {
+  const doc = readFileSync(resolve(root, "docs/EXAMPLES.md"), "utf8");
+  const registry = readYaml(`${experience}/journey-registry.yaml`);
+  const fixtures = readYaml(`${experience}/scenario-fixture-registry.yaml`);
+  const journeys = new Map(registry.journeys.map((journey) => [journey.id, journey]));
+  const seededJourneyIds = new Set(fixtureJourneyIds(fixtures));
+
+  assert.match(doc, /\*\*Seeded, conditional\.\*\*/u);
+  assert.match(doc, /\*\*Unimplemented fixture; definition-only proposal\.\*\*/u);
+  assert.match(doc, /31 source-backed seeds across four journeys/u);
+  assert.match(doc, /The other 26 journey contracts remain unseeded/u);
+
+  for (const [family, journeyIds] of families) {
+    const start = doc.indexOf(`| ${family} |`, doc.indexOf("### Source evidence by family"));
+    assert.notEqual(start, -1, `${family} needs a source-evidence row`);
+    const end = doc.indexOf("\n", start);
+    const row = doc.slice(start, end);
+    assert.match(row, /\*\*(?:Seeded, conditional|Unimplemented (?:journey )?fixture)/u,
+      `${family} needs an explicit fixture disposition`);
+    for (const id of journeyIds) {
+      const journey = journeys.get(id);
+      assert.ok(journey, `${family} references unknown journey ${id}`);
+      assert.ok(row.includes(`../${experience}/${journey.contract}`),
+        `${family} source row must link ${journey.contract}`);
+    }
+    if (journeyIds.some((id) => seededJourneyIds.has(id))) {
+      assert.ok(row.includes("media.scenario."), `${family} omits its exact source fixture IDs`);
+    } else {
+      assert.match(row, /no scenario refs/u, `${family} must state that its journeys have no scenario refs`);
+    }
+  }
+});
+
+function fixtureJourneyIds(registry) {
+  return registry.journeyCoverage.journeysWithExactSimulationSeeds ?? [];
+}

@@ -130,3 +130,21 @@ test("artifact state observation is a supporting read, never artifact availabili
   assert.equal(result.finality, "NOT_ESTABLISHED_BY_DEFINITION_ORACLE");
   assert.equal(result.dispatch, "NONE");
 });
+
+test("J-02 exact-version inspection binds the source-backed time-scoped disposition query", () => {
+  const join = joins.find((record) => record.journeyStepId === "J02-5");
+  assert.ok(join);
+  assert.equal(join.actionRef, "media.action.inspect-source");
+  assert.equal(join.operationRef, "media.operation-slice.inspect-artifact-version");
+  assert.equal(join.operationDefinitionRef,
+    `${operationsPath}#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version`);
+  assert.equal(join.operationKind, "QUERY");
+  assert.deepEqual(join.authorityRefs, [
+    ".product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation",
+    ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse",
+  ]);
+  assert.match(join.ownerResultSemantics, /time-scoped recorded integrity\/lifecycle disposition at observedAt/u);
+  assert.match(join.ownerResultSemantics, /does not establish current availability/u);
+  assert.match(join.scopeStatus, /runtime-admission NOT_ADMITTED/u);
+  assert.equal(join.supportingObservationOperationRefs, undefined);
+});

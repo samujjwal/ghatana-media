@@ -14,15 +14,25 @@ const hash = (value) => createHash("sha256").update(value).digest("hex");
 const reviewedGoalCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-goals-owner-source-impact.json"), "utf8"));
 const reviewedOperationCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/owner-query-current-cut-review.json"), "utf8"));
 const reviewedIdentityCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/identity-current-cut-review.json"), "utf8"));
+const pdp1OperationCut = JSON.parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations-current-source-review.json"), "utf8"));
+const pdp1IdentityCut = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-1/lane-a-current-source-review.json"), "utf8"));
 const directCriteriaReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json"), "utf8"));
-const currentP006Cut = directCriteriaReview.records.find(({ taskId }) => taskId === "P0-06")?.currentCorrectiveReview;
-assert.equal(currentP006Cut?.decisionRef, ".product-experience/decision-log.md#PXD-105");
+const currentP006Record = directCriteriaReview.records.find(({ taskId }) => taskId === "P0-06");
+const currentP006Cut = currentP006Record?.currentCorrectiveReview;
+const historicalP142Cut = currentP006Record?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === ".product-experience/decision-log.md#PXD-142");
+const historicalP141Cut = directCriteriaReview.records.find(({ taskId }) => taskId === "P0-06")?.historicalCorrectiveReviews?.find(({ decisionRef }) => decisionRef === ".product-experience/decision-log.md#PXD-141");
+assert.equal(currentP006Cut?.decisionRef, ".product-experience/decision-log.md#PXD-153");
+assert.equal(currentP006Cut?.status, "APPROVED_CURRENT_SOURCE_REVIEW");
+assert.equal(historicalP142Cut?.decisionRef, ".product-experience/decision-log.md#PXD-142");
+assert.equal(historicalP141Cut?.decisionRef, ".product-experience/decision-log.md#PXD-141");
 
 function reviewedCurrentHash(path, currentOwnerSource) {
   const reviewedHash = path.endsWith("/domain-objects.yaml")
-      ? reviewedIdentityCut.sourceFingerprints[path]
-      : path.endsWith("/goals-jtbd.yaml") || path.endsWith("/operations.yaml")
-        ? currentP006Cut.sourceFingerprints[path]
+      ? pdp1IdentityCut.sourceFingerprints[path]
+      : path.endsWith("/operations.yaml")
+        ? pdp1OperationCut.currentSourceSha256
+      : path.endsWith("/goals-jtbd.yaml")
+        ? historicalP141Cut.sourceFingerprints[path]
         : currentOwnerSource.currentSha256;
   return reviewedHash;
 }
@@ -67,7 +77,7 @@ test("capability review source pin changes are reconciled to the reviewed goal s
   assert.equal(reviewedGoalCut.sourcePath, goalPath);
   assert.equal(reviewedGoalCut.currentFileSha256, "28b87b3026a8c8ef4c4a16de213bc112432fc37b086d5d02e912214a4d225cea",
     "the PXD-090 source-impact observation remains the immutable historical cut");
-  assert.equal(currentP006Cut.sourceFingerprints[goalPath], hash(goalsText), "PXD-105 binds the separately reviewed current goal cut");
+  assert.equal(historicalP141Cut.sourceFingerprints[goalPath], hash(goalsText), "PXD-141 remains bound to the separately reviewed historical goal cut");
   assertCurrentCutIsReviewed(goalPath, currentOwnerSource, goalsText);
   assert.equal(currentOwnerSource.currentSha256, "055d8ee224a82899b54531d2b71139bb01f0784e9c439e308ec4a84a9cb2a4ef",
     "the earlier source overlay remains an immutable historical observation, not a silently refreshed pin");
@@ -131,7 +141,10 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.equal(reviewedOperationHash, "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54");
   assert.equal(reviewedOperationCut.sourceFingerprints[path], "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
     "PXD-094 remains an immutable historical operation cut");
-  assert.equal(currentP006Cut.sourceFingerprints[path], hash(sourceText), "PXD-105 binds the separately reviewed current operation cut");
+  assert.equal(currentP006Cut.sourceFingerprints[path], undefined,
+    "P0-06 does not own the current P1 operation cut");
+  assert.equal(pdp1OperationCut.sourcePath, path);
+  assert.equal(pdp1OperationCut.currentSourceSha256, hash(sourceText), "the PDP-1 operation review owns the current operation cut");
   assert.equal(currentOwnerSource.currentSha256, "f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d",
     "the prior owner-definition overlay is preserved as history");
   assertCurrentCutIsReviewed(path, currentOwnerSource, sourceText);
@@ -254,7 +267,7 @@ test("operation source changes reconcile affected leaf links without promoting c
   assert.deepEqual(operations.sourceDenominators.sdkMethods.exactObservedRegistryIds, [
     "media.sdk.getStatus", "media.sdk.cancel", "media.sdk.retry", "media.sdk.getResult", "media.sdk.wait",
     "media.sdk.createUploadSession", "media.sdk.uploadPart", "media.sdk.completeUploadSession", "media.sdk.getArtifact",
-    "media.sdk.listProviderCapabilities", "media.sdk.transcribe", "media.sdk.synthesize", "media.sdk.trainVoiceModel",
+    "media.sdk.getUploadSession", "media.sdk.listProviderCapabilities", "media.sdk.transcribe", "media.sdk.synthesize", "media.sdk.trainVoiceModel",
     "media.sdk.convertVoice", "media.sdk.analyzeMultimodal", "media.sdk.getOperation", "media.sdk.cancelOperation",
     "media.sdk.retryOperation", "media.sdk.getOperationResult", "media.sdk.for", "media.sdk.processAIVoice",
     "media.sdk.processVision", "media.sdk.processMultimodal", "media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus",
@@ -262,15 +275,22 @@ test("operation source changes reconcile affected leaf links without promoting c
     "media.sdk.legacy.AudioVideoClient.transcribe", "media.sdk.legacy.AudioVideoClient.synthesize",
     "media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame",
   ]);
-  assert.equal(operations.sourceDenominators.sdkMethods.registryRecords, 32);
-  assert.equal(operations.sourceDenominators.sdkMethods.parserDerivedPublicMethodIdentities, 29);
+  assert.equal(operations.sourceDenominators.sdkMethods.registryRecords, 33);
+  assert.equal(operations.sourceDenominators.sdkMethods.parserDerivedPublicMethodIdentities, 30);
   assert.deepEqual(operations.sourceDenominators.sdkMethods.parserArtifactTokensExcludedFromMethodIdentityInventory,
     ["media.sdk.for", "media.sdk.if", "media.sdk.clearTimeout"]);
   assert.equal(operations.sourceDenominators.sdkMethods.legacySourceMethods.sourceBackedNonOperationDispositions.length, 4);
   for (const id of ["media.sdk.getServiceStatus", "media.sdk.getAllServicesStatus", "media.sdk.addEventListener", "media.sdk.removeEventListener"]) {
     assert.equal(operations.sourceDenominators.sdkMethods.unresolvedOperationIds.includes(id), false, `${id} has an exact non-operation disposition`);
   }
-  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus, /13 family associations remain proposals, four identities have source-backed transport\/client-only dispositions, one DI adapter is NOT_ADMITTED to Media OpenAPI, two retries reject before dispatch, and nine identities remain unresolved/u);
+  assert.deepEqual(operations.sourceDenominators.sdkMethods.unresolvedOperationIds, []);
+  assert.equal(operations.sourceDenominators.sdkMethods.sourceBackedLegacyNotEquivalentOperationIds.length, 16);
+  assert.match(operations.sourceDenominators.sdkMethods.sourceBackedLegacyNonEquivalenceRationale["media.sdk.synthesize"],
+    /SynthesisRequestSchema.*rights guards.*output-version.*finality/u);
+  assert.match(operations.sourceDenominators.sdkMethods.sourceBackedLegacyNonEquivalenceRationale["media.sdk.analyzeMultimodal"],
+    /MultimodalAnalysisRequestSchema.*mutable artifactId.*versioned sources.*temporal scope/u);
+  assert.match(operations.sourceDenominators.sdkMethods.bindingStatus,
+    /30 public source\/class\/method identities retained; three raw registry tokens are parser artifacts; no family association is treated as an exact binding; 16 legacy identities have source-backed non-equivalence or no-operation roles; synthesis and multimodal request\/result leaves have source-backed mismatches against their owner proposals; transport\/client\/ ?provider roles and retry pre-dispatch rejection remain separate; no cross-interface binding or runtime admission is accepted/u);
   const transcriptionSubmission = operations.operations.find(({ id }) => id === "media.operation.transcription-submission");
   assert.deepEqual(transcriptionSubmission.evidenceAudit.observedRefs, ["STTService.Transcribe"]);
   assert.equal(subsequent.reviewedCapabilityEvidence.currentActionBindingsUnchanged, true);
@@ -354,8 +374,10 @@ test("domain catalog identity changes reconcile to zero capability leaf referenc
   assert.ok(impact, "the changed domain-object source pin has a semantic impact record");
   const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path: sourcePath }) => sourcePath === path);
   assert.ok(currentOwnerSource, "current domain identity semantics use the additive owner-definition overlay");
-  assert.equal(reviewedIdentityCut.sourceFingerprints[path], "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af");
-  assert.equal(hash(sourceText), reviewedIdentityCut.sourceFingerprints[path], "PXD-093 identity review binds the exact current object cut");
+  assert.equal(reviewedIdentityCut.sourceFingerprints[path], "1c14a52c09c108e918e12b78774046243748332bc682d82b60c59c3f2efcf6af",
+    "PXD-093 remains the immutable historical identity source cut");
+  assert.ok(pdp1IdentityCut.historicalPins.identity.includes("#PXD-093"));
+  assert.equal(hash(sourceText), pdp1IdentityCut.sourceFingerprints[path], "the PDP-1 identity review owns the exact current object cut");
   const definitionDelta = review.definitionOnlySourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
   assert.equal(definitionDelta.previousSha256, impact.currentSha256);
   const projectDelta = review.projectDefinitionSourceReconciliations.find(({ path: sourcePath }) => sourcePath === path);
@@ -450,6 +472,26 @@ test('selected action definition source change retains historical pins without p
   const currentOwnerSource = review.ownerDefinitionSourceReconciliation.records.find(({ path }) => path === delta.path);
   assert.ok(currentOwnerSource, "current action semantics are compared through the additive source overlay");
   assert.equal(currentOwnerSource.currentSha256, hash(readFileSync(resolve(root, delta.path))));
+  const laterDeltas = currentOwnerSource.laterSourceDeltas ?? [];
+  const priorOverlayDelta = laterDeltas.find(({ currentSha256 }) => currentSha256 === "cf371281266f8b5bcbb953cb9a406147451cdcf74cbf0313558c2c181f4a7424");
+  assert.ok(priorOverlayDelta, "the prior cf371… source review remains in the additive history");
+  assert.equal(priorOverlayDelta.previousSha256, "598537254f897778b9a9fad54b6a700853c3218809b44360ef6751aa73196ffc",
+    "the prior overlay digest remains the start of its historical source delta");
+  assert.match(priorOverlayDelta.semanticImpact, /29 existing action classifications/u);
+  const currentDelta = laterDeltas.at(-1);
+  assert.ok(currentDelta, "the current action registry has a separately reviewed source delta");
+  assert.equal(currentDelta.previousSha256, priorOverlayDelta.currentSha256,
+    "the current-source delta extends the preserved prior overlay");
+  assert.equal(currentDelta.currentSha256, currentOwnerSource.currentSha256);
+  assert.ok(currentDelta.sourceRefs.includes(`${delta.path}#actions/actionDefinitionSemantics`));
+  assert.ok(currentDelta.sourceRefs.includes(`${delta.path}#actions/@id=media.action.inspect-source/preconditions`));
+  assert.ok(currentDelta.sourceRefs.includes(`${delta.path}#actions/@id=media.action.inspect-provenance/capabilityRefs`));
+  assert.ok(currentDelta.sourceRefs.includes(`${delta.path}#actions/@id=media.action.search-product-guidance/journeyRefs`));
+  assert.ok(currentDelta.sourceRefs.includes(`${delta.path}#actions/@id=media.action.submit-simulation/journeyRefs`));
+  assert.match(currentDelta.semanticImpact, /29 existing action classifications/u);
+  assert.match(currentDelta.semanticImpact, /immutable version/u);
+  assert.match(currentDelta.capabilityImpact, /462-leaf denominator.*383 coverage dispositions.*zero/u);
+  assert.match(currentDelta.acceptanceEffect, /runtime admission/u);
   assert.equal(sourcePin.sha256, submissionDelta.currentSha256);
   assert.equal(delta.ownerDecisionRef, '.product-experience/decision-log.md#PXD-052');
   assert.equal(delta.coverageEffect, 'no-full-leaf-admission-or-denominator-reduction');

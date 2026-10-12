@@ -12,6 +12,9 @@ const path = ".product-experience/pdp-2-design-interface-system/component-contra
 const p2ApprovalPath = "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json";
 const p2Approval = JSON.parse(readFileSync(resolve(root, p2ApprovalPath), "utf8"));
 const p2ApprovedById = new Map(p2Approval.records.map((record) => [record.claimId, record]));
+const currentOwnerObservations = JSON.parse(readFileSync(resolve(root,
+  "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"), "utf8"));
+const currentOwnerObservationById = new Map(currentOwnerObservations.records.map((record) => [record.claimId, record]));
 const ruleId = "media.component.source-change-and-evidence-boundary.v1";
 const clauses = [
   "A source relocation preserves existing behavior, identities, authority checks, and side effects",
@@ -43,8 +46,23 @@ function assertClaimReviewStatus(claim) {
     assert.equal(claim.semanticReviewStatus, "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
     assert.equal(claim.coordinatorReviewStatus, "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE");
     assert.equal(claim.semanticReviewRef, `${p2ApprovalPath}#/records/@claimId=${claim.claimId}`);
-    assert.equal(claim.targetRef, approved.currentTargetRef);
-    assert.equal(claim.targetTextSha256, approved.currentTargetValueSha256);
+    const currentObservation = currentOwnerObservationById.get(claim.claimId);
+    if (currentObservation?.reportedReviewTargetValueSha256
+      && currentObservation?.recomputedCurrentTargetValueSha256) {
+      assert.equal(currentObservation.targetRef, approved.currentTargetRef);
+      assert.equal(currentObservation.reportedReviewTargetValueSha256, approved.currentTargetValueSha256,
+        `${claim.claimId} historical review pin remains immutable`);
+      assert.equal(claim.targetRef, currentObservation.targetRef);
+      assert.equal(claim.targetTextSha256, currentObservation.recomputedCurrentTargetValueSha256,
+        `${claim.claimId} current target uses its separate PXD-120 observation`);
+      assert.equal(currentObservation.historicalReviewRef,
+        `${p2ApprovalPath}#/records/@claimId=${claim.claimId}`);
+      assert.equal(currentObservation.acceptanceEffect, "none");
+      assert.equal(currentObservation.disposition, "EXACT_CURRENT_TARGET_VALUE_REHASHED; CLAIM_PARITY_REVIEWED");
+    } else {
+      assert.equal(claim.targetRef, approved.currentTargetRef);
+      assert.equal(claim.targetTextSha256, approved.currentTargetValueSha256);
+    }
     assert.equal(approved.acceptanceEffect, "none");
     assert.notEqual(claim.independentAcceptance, "ACCEPTED");
     assert.notEqual(claim.runtimeAdmission, "ADMITTED");

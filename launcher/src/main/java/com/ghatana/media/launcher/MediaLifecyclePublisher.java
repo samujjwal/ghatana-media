@@ -97,7 +97,7 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("eventId", event.eventId());
             body.put("eventType", event.eventType());
-            body.put("eventVersion", "1.0");
+            body.put("eventVersion", "1.0.0");
             body.put("timestamp", event.occurredAt().toString());
             body.put("correlationId", event.correlationId());
             if (!event.causationId().isBlank()) body.put("causationId", event.causationId());

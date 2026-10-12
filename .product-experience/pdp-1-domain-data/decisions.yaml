@@ -13,11 +13,11 @@ decisions:
     pending: none-for-this-bounded-source-observation; persistence-and-product-meaning-remain-unverified
     scopeStatus: observation-only; not-product-acceptance
   - id: media.pdp1.decision.artifact-version-and-lineage
-    state: proposed
-    decision: require-explicit-source-immutability-derived-artifact-identity-and-transcript-caption-ancestry
-    sourceRefs: [.product-experience/pdp-1-domain-data/versioning.yaml, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java]
-    pending: Media-domain-owner-definition-of-version-key-lineage-and-cross-product-reference
-    scopeStatus: proposed; pending-owner-review
+    state: OWNER_DEFINED_LOGICAL_MEANING; independent-acceptance-pending
+    decision: ArtifactVersion-is-tenantId-plus-artifactId-plus-opaque-versionId; registered-content-is-immutable; corrections-transformations-and-regenerations-create-distinct-versions-with-exact-version-ancestry; digest-is-integrity-evidence-not-version-identity
+    sourceRefs: [.product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#currentDefinitionAdjudication/records/@id=canonical-artifact-version-and-lineage, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version, .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion]
+    pending: Durable-byte-immutability-version-persistence-deduplication-retention-and-erasure-completeness-cycle-enforcement-cross-product-consumer-compatibility-and-independent-P0-010/PDP-1-acceptance
+    scopeStatus: owner-defined-logical-meaning; storage-retention-enforcement-consumer-binding-and-independent-acceptance-deferred; no-runtime-admission
   - id: media.pdp1.decision.attempt-history-and-finality
     state: unresolved
     decision: job-version-and-lease-fencing-are-observed; durable-attempt-history-append-only-finality-and-reconciliation-are-not-established
@@ -32,10 +32,10 @@ decisions:
     scopeStatus: unresolved; pending-owner-and-external-evidence
   - id: media.pdp1.decision.disconnected-operation-and-reconciliation
     state: unresolved
-    decision: preserve-local-and-server-observations-without-inferring-conflict-winner-replay-authority-or-reconciliation-guarantee
-    sourceRefs: [.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java]
-    pending: offline-sync-and-runtime-owners-define-conflict-authority-durable-recovery-and-reconciliation
-    scopeStatus: unresolved; pending-owner-review
+    decision: preserve-local-and-server-observations; stale-revision-and-changed-parent-conflict-semantics-are-owner-defined; durable-recovery-provider-outcome-reconciliation-and-runtime-offline-admission-are-not-established
+    sourceRefs: [.product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics, .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml, launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java]
+    pending: offline-sync-and-runtime-owners-define-durable-recovery-provider-outcome-reconciliation-and-any-runtime-admission
+    scopeStatus: logical-conflict-disposition-owner-defined; runtime-recovery-and-reconciliation-unresolved
   - id: media.pdp1.decision.specification-plan-run-artifact
     state: proposed
     decision: separate-immutable-specification-immutable-resolved-plan-mutable-run-and-immutable-artifact-identity
@@ -67,11 +67,11 @@ decisions:
     pending: event-plane-and-Media-owner-contract
     scopeStatus: unresolved; pending-owner-review
   - id: media.pdp1.decision.offline-conflicts
-    state: unresolved
-    decision: preserve-local-draft-and-server-version; do-not-infer-conflict-winner-or-replay-authority
-    sourceRefs: [.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml]
-    pending: offline-sync-owner-contract
-    scopeStatus: unresolved; pending-owner-review
+    state: OWNER_DEFINED_LOGICAL_MEANING; independent-acceptance-pending
+    decision: compare-exact-retained-source-and-expected-canonical-revision-plus-typed-parent-version-edge; mismatch-or-changed-ancestry-is-CONFLICT; preserve-local-draft-and-remote-version-separately; no-auto-merge-or-last-write-wins
+    sourceRefs: [.product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics, .product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#currentDefinitionAdjudication/records/@id=canonical-artifact-version-and-lineage]
+    pending: Runtime-conflict-detection-durable-recovery-provider-reconciliation-offline-capability-admission-device-security-review-and-independent-P0-010/PDP-1-acceptance
+    scopeStatus: owner-defined-logical-conflict-semantics; runtime-admission-reconciliation-device-security-and-independent-acceptance-deferred
   - id: media.pdp1.decision.wire-crosswalk
     state: unresolved
     decision: preserve-observed-identities-and-represent-unmapped-semantics-as-unknown

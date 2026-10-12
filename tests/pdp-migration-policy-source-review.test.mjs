@@ -10,7 +10,9 @@ const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))(
 const parseYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const digest = (value) => createHash("sha256").update(value).digest("hex");
 const reviewPath = "docs/implementation/verification/pdp-38/migration-policy-source-review.json";
+const currentObservationsPath = "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json";
 const review = JSON.parse(readFileSync(resolve(root, reviewPath), "utf8"));
+const currentObservations = JSON.parse(readFileSync(resolve(root, currentObservationsPath), "utf8"));
 const migration = parseYaml(".product-experience/pdp-0-product-truth/migration-semantics-review.yaml");
 const claims = migration.pdp38ClaimReconciliation.records.flatMap((record) => record.claims ?? [])
   .flatMap((claim) => claim.subclaims ?? [claim]);
@@ -52,9 +54,31 @@ test("PXD-085 verifies exactly 46 migration owner routes against source, current
     const target = resolveRef(record.targetRef);
     assert.equal(claim.exactSourceText && digest(claim.exactSourceText), record.sourceTextSha256, `${record.claimId} source text pin`);
     assert.equal(claim.targetRef, record.targetRef, `${record.claimId} exact target binding`);
-    assert.equal(claim.targetTextSha256, record.targetValueSha256, `${record.claimId} claim target pin`);
-    assert.equal(digest(materialText(target)), record.targetValueSha256, `${record.claimId} current target value pin`);
-    assert.deepEqual(target, record.expectedOwnerValue, `${record.claimId} reviewed owner value`);
+    const currentDigest = digest(materialText(target));
+    if (currentDigest === record.targetValueSha256) {
+      assert.equal(claim.targetTextSha256, record.targetValueSha256, `${record.claimId} claim target pin`);
+      assert.deepEqual(target, record.expectedOwnerValue, `${record.claimId} reviewed owner value`);
+    } else {
+      assert.ok(["MPSEM-0455-C002", "MPSEM-0459-C002"].includes(record.claimId), "only separately observed current owner additions change PXD-085 targets");
+      const observation = currentObservations.records.find((entry) => entry.claimId === record.claimId);
+      assert.ok(observation, "the current owner addition has a separate claim-scoped observation");
+      assert.equal(observation.historicalTargetTextSha256, record.targetValueSha256);
+      assert.equal(observation.currentTargetValueSha256, currentDigest);
+      assert.equal(observation.acceptanceEffect, "none");
+      if (record.claimId === "MPSEM-0455-C002") {
+        assert.equal(observation.historicalReviewRef, `${reviewPath}#/records/@claimId=${record.claimId}`);
+        const historicalProjection = structuredClone(target);
+        delete historicalProjection.gpuSchedulerBoundary;
+        assert.deepEqual(historicalProjection, record.expectedOwnerValue, "the exact PXD-085 owner meaning remains unchanged after removing the separately observed scheduler rule");
+        assert.ok(target.gpuSchedulerBoundary, "the current scheduler rule remains explicit and separately scoped");
+      } else {
+        assert.equal(observation.sourceText, claim.exactSourceText);
+        assert.match(target.scope, /Do not integrate every listed package or engine/u);
+        assert.equal(target.multiplicity, "One qualified implementation is selected for an exact capability/profile. An alternative requires a separate versioned profile and qualification; do not keep parallel adapters or silently fall back.");
+        assert.match(target.scopeStatus, /no integration, candidate qualification, or runtime admission implied/u);
+      }
+      assert.equal(claim.targetTextSha256, currentDigest, "the current ledger pin follows the separately observed target value");
+    }
     assert.equal(record.disposition, "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE", `${record.claimId} review disposition`);
     assert.equal(claim.semanticReviewStatus, "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED", `${record.claimId} semantic parity status`);
     assert.equal(claim.semanticReviewRef, `${expectedReview}${record.claimId}`, `${record.claimId} precise PXD-085 record ref`);

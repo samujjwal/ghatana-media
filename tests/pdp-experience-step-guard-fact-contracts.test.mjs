@@ -31,14 +31,14 @@ const sources = {
 const guards = new Map(guardDoc.guardContracts.records.map((row) => [row.guardRef, row]));
 const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9]+/gu, "-").replace(/^-|-$/gu, "");
 
-test("all 94 guarded domain, identity and ordered-workflow steps have exact guard contract rows", () => {
+test("all 96 guarded domain, identity and ordered-workflow steps have exact guard contract rows", () => {
   const guarded = oracle.journeys.flatMap((journey) => journey.steps
     .filter((step) => ["DOMAIN_OPERATION", "EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION", "ORDERED_DOMAIN_WORKFLOW"].includes(step.semanticRole))
     .map((step) => ({ journey, step })));
-  assert.equal(guarded.length, 94);
-  assert.equal(guardDoc.stepBindings.count, 94);
-  assert.equal(guardDoc.counts.guardInstances, 254);
-  assert.equal(guardDoc.counts.uniqueGuardContracts, 57);
+  assert.equal(guarded.length, 96);
+  assert.equal(guardDoc.stepBindings.count, 96);
+  assert.equal(guardDoc.counts.guardInstances, 260);
+  assert.equal(guardDoc.counts.uniqueGuardContracts, 58);
   const bindings = new Map(guardDoc.stepBindings.records.map((row) => [row.stepRef, row]));
   let guardInstances = 0;
   for (const { journey, step } of guarded) {
@@ -57,7 +57,7 @@ test("all 94 guarded domain, identity and ordered-workflow steps have exact guar
       assert.equal(contract.runtimeAdmission, "NOT_ADMITTED");
     }
   }
-  assert.equal(guardInstances, 254);
+  assert.equal(guardInstances, 260);
 });
 
 test("guard source references resolve to exact action, operation and observation definitions", () => {
@@ -90,10 +90,10 @@ test("guard source references resolve to exact action, operation and observation
   }
 });
 
-test("all 57 unique guards have typed predicate definitions with source-only boundaries", () => {
+test("all 58 unique guards have typed predicate definitions with source-only boundaries", () => {
   const definitions = new Map(guardDoc.predicateDefinitions.map((row) => [row.guardRef, row]));
-  assert.equal(definitions.size, 57);
-  assert.equal(guardDoc.predicateDefinitions.length, 57);
+  assert.equal(definitions.size, 58);
+  assert.equal(guardDoc.predicateDefinitions.length, 58);
   for (const contract of guards.values()) {
     const predicate = definitions.get(contract.guardRef);
     assert.ok(predicate, `${contract.guardRef} has a typed derivation rule`);
@@ -109,14 +109,14 @@ test("all 57 unique guards have typed predicate definitions with source-only bou
     assert.equal(predicate.runtimeAdmission, "NOT_ADMITTED");
     assert.equal(predicate.acceptanceEffect, "none");
   }
-  assert.equal(guardDoc.counts.definitionFixturePredicateEvaluators, 57);
-  assert.equal(guardDoc.counts.definitionPredicateInstances, 254);
+  assert.equal(guardDoc.counts.definitionFixturePredicateEvaluators, 58);
+  assert.equal(guardDoc.counts.definitionPredicateInstances, 260);
   assert.equal(guardDoc.counts.fullTrustedFactEvaluators, 0);
 });
 
 test("P3 guard fact coverage distinguishes implemented query facts from the unresolved population", () => {
   assert.equal(guardDoc.counts.fullTrustedFactEvaluators, 0);
-  assert.equal(guardDoc.counts.definitionFixturePredicateEvaluators, 57);
+  assert.equal(guardDoc.counts.definitionFixturePredicateEvaluators, 58);
   assert.equal(guardDoc.counts.sourceGuardRulesWithPendingFactEvaluator, 0);
   assert.equal(guardDoc.runtimeAdmission, "NOT_ADMITTED");
   assert.equal(guardDoc.acceptanceEffect, "none");

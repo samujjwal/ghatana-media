@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "media.pdp38-migration-p0-current-material-source-observation.v1",
+  "scope": "Additive current-source observations supplementing the immutable PXD-139 material review pins. They refresh exact source file and selected target bytes only; disposition and acceptance remain unchanged.",
+  "decisionRef": ".product-experience/decision-log.md#PXD-139",
+  "historicalReviewFileSha256": "d8f5ee1b73012984a29568ac2f18295e37652737c031d22efd3096c1ad4bca76",
+  "records": [
+    {
+      "claimId": "MPSEM-0078-C003",
+      "historicalCoordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/requirements.yaml#ownerDefinedLeafTrustReconstructionPolicy/rule",
+          "requiredSourcePhrase": "Each capability declares an explicit trust/reconstruction disposition against its P0 semantic inputs and outputs.",
+          "historicalCurrentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+          "historicalCurrentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
+          "currentSourceFileSha256": "87d0eefaf735d84bb475bfcafedfd6230cc61a4a67fa105b6d12f71fe451dec6",
+          "currentTargetValueSha256": "528d2743c10dc3678364a3c4ff7ea6f096c002316bd511b155b11e777c65a6c5",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
+          "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
+          "historicalCurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+          "historicalCurrentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
+          "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none",
+          "sourceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-153",
+          "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"
+        }
+      ]
+    },
+    {
+      "claimId": "MPSEM-0181-C001",
+      "historicalCoordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#streamProfileRule/rule",
+          "requiredSourcePhrase": "A real-time or recorded stream profile binds codec, transport, recording behavior, reconnect and resumption semantics, and latency bounds together for the exact profile version. State supported directions, media tracks, ",
+          "historicalCurrentSourceFileSha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
+          "historicalCurrentTargetValueSha256": "b6d553de9d05bb2c7f454a99dc7867d788417ddf83ed1484d6921fba1bc17f64",
+          "currentSourceFileSha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
+          "currentTargetValueSha256": "b6d553de9d05bb2c7f454a99dc7867d788417ddf83ed1484d6921fba1bc17f64",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
+          "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
+          "historicalCurrentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+          "historicalCurrentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
+          "currentSourceFileSha256": "4b4b4f1ab5d4908c93af5c6b4c2be47008b04f75ac45160a1be5e167edbec42d",
+          "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none",
+          "sourceCorrectionDecisionRef": ".product-experience/decision-log.md#PXD-153",
+          "sourceCorrectionEvidenceRef": "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"
+        }
+      ]
+    },
+    {
+      "claimId": "MPSEM-0278-C001",
+      "historicalCoordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/qualification-policy.yaml#/decisionRules/6",
+          "requiredSourcePhrase": "Keep structural validity, perceptual quality, intent fidelity, scientific/domain constraints, rights/safety, and delivery compatibility as separate observations with method/version, applicability, uncertainty, and abstention.",
+          "historicalCurrentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          "historicalCurrentTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
+          "currentSourceFileSha256": "ec39afca8df04e5087482a1f393a32af4775f990571a5568d3ab7caed3385e5e",
+          "currentTargetValueSha256": "1761028bd34799e45da3421f4cdd42f89e85ca51c4daddaaa3fbc6532cf20421",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        }
+      ]
+    },
+    {
+      "claimId": "MPSEM-0367-C002",
+      "historicalCoordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/state-models.yaml#/models/2/states/@id=ACCESS_REVOKED/meaning",
+          "requiredSourcePhrase": "new reads, reuse, and dispatch are blocked while erasure work proceeds",
+          "historicalCurrentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "historicalCurrentTargetValueSha256": "552ea9ffe6b0194b61d7a7b9c5e1c38ce5d857415dd23d02458f4dc6614a0345",
+          "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "currentTargetValueSha256": "552ea9ffe6b0194b61d7a7b9c5e1c38ce5d857415dd23d02458f4dc6614a0345",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/state-models.yaml#/models/2/states/@id=EXTERNAL_ERASURE_UNCONFIRMED/meaning",
+          "requiredSourcePhrase": "Media cannot confirm deletion of a remote or recipient-held copy",
+          "historicalCurrentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "historicalCurrentTargetValueSha256": "a51d274a2917651298a77ca83a02d1ab013b9a582f506ff9b8d943ea710eb88e",
+          "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "currentTargetValueSha256": "a51d274a2917651298a77ca83a02d1ab013b9a582f506ff9b8d943ea710eb88e",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/state-models.yaml#/models/2/safeNextActions/EXTERNAL_ERASURE_UNCONFIRMED/1",
+          "requiredSourcePhrase": "do-not-claim-remote-recall",
+          "historicalCurrentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "historicalCurrentTargetValueSha256": "62977ca5d790e33f78d5b5753297d41b632eab1d6c2ca0a23928e93fb25b53bd",
+          "currentSourceFileSha256": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+          "currentTargetValueSha256": "62977ca5d790e33f78d5b5753297d41b632eab1d6c2ca0a23928e93fb25b53bd",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        }
+      ]
+    },
+    {
+      "claimId": "MPSEM-0475-C003",
+      "historicalCoordinatorDecisionRef": ".product-experience/decision-log.md#PXD-139",
+      "materials": [
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/evidence",
+          "requiredSourcePhrase": "propose safe bounded batch rendering through CLI; exact commands and installed behavior remain to be authored.",
+          "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "historicalCurrentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "7df1f201b2d1066f644f3966b78258589911b8c55c130c80e8dff42e4cfbcbc2",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/rule",
+          "requiredSourcePhrase": "A CLI command binds one exact canonical operation/action and one invocation mode.",
+          "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "historicalCurrentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "578eec1a25745b4d4eace7e340238c6020074802c6e661504e95e93f2eb806b9",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/invocationModes",
+          "requiredSourcePhrase": "BATCH_EXECUTION",
+          "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "historicalCurrentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "908b3439fcddd83bb0c2aaf73fbbb09221dfe2b6e1f45c806669a830f281d5a7",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/scopeStatus",
+          "requiredSourcePhrase": "no executable or channel behavior is admitted",
+          "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "historicalCurrentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "0b70c048e73f4a70e28285ec5dcf788bd05c5dde008ffd5d5057779e54fb2b76",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        },
+        {
+          "targetRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/commandSurfaceSeparationRule/executionAdmission",
+          "requiredSourcePhrase": "NOT_ADMITTED",
+          "historicalCurrentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "historicalCurrentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
+          "currentSourceFileSha256": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
+          "currentTargetValueSha256": "0549d46d0e3897e429f607a99d5a5a375d8a3851c50da6ae838e539fcba7e102",
+          "semanticEquivalence": "NOT_ASSERTED",
+          "acceptanceEffect": "none"
+        }
+      ]
+    }
+  ]
+}

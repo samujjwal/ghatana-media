@@ -61,11 +61,11 @@ test("residual report validates exact projection dispositions and pinned sources
     limitation: "These checks detect top-level omissions and unreported empty collections; they do not infer nested record completeness, mapping semantics, owner decisions, or acceptance.",
   });
   assert.deepEqual(report.projections.map(({ phase }) => phase), ["PDP-0", "PDP-2", "PDP-3"]);
-  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 5]);
+  assert.deepEqual(report.projections.map(({ unresolvedFieldCount }) => unresolvedFieldCount), [0, 0, 0]);
   assert.deepEqual(report.projections.map(({ unresolvedFields }) => unresolvedFields.map(({ field }) => field)), [
     [],
     [],
-    ["actions", "effects", "finality", "journeys", "transitions"],
+    [],
   ]);
   assert.deepEqual(report.projections[0].intentionalOmissions.map(({ field, status }) => ({ field, status })), [
     { field: "createdAt", status: "OPTIONAL_AUTHORED_METADATA_OMITTED_INTENTIONALLY" },
@@ -78,6 +78,9 @@ test("residual report validates exact projection dispositions and pinned sources
     assert.ok(projection.emptyCollections.every(({ declaredBlocker }) => declaredBlocker));
     assert.ok(projection.unresolvedFields.every((field) => field.id && field.status && field.reasons.length));
   }
+  const experience = report.projections.find(({ phase }) => phase === "PDP-3");
+  assert.ok(experience.ownerReviewPendingFields.includes("journeys"),
+    "complete source mappings remain distinct from pending owner review");
   assert.equal(report.capabilityCoverage.leafCount, 462, "capability denominator must not shrink without an explicit source-scope revision");
   assert.equal(report.capabilityCoverage.unresolvedCount, 0,
     "current P0 completeness is based on the active owner capability adjudications");
@@ -124,7 +127,7 @@ test("residual report validates exact projection dispositions and pinned sources
   const historicalUi = report.operationParity.surfaces.find(({ name }) => name === "UI action registry").historicalSnapshot;
   assert.equal(historicalUi.denominator, 146);
   assert.equal(historicalUi.operationBindingCounts.unresolved, 132);
-  assert.equal(report.operationParity.unresolvedIdentityCount, 154);
+  assert.equal(report.operationParity.unresolvedIdentityCount, 144);
   assert.equal(report.operationParity.unresolvedIdentityCount, report.operationParity.surfaces.reduce((sum, surface) => sum + surface.unresolvedIdentities.length, 0));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.observedIdentities.length === surface.denominator));
   assert.ok(report.operationParity.surfaces.every((surface) => surface.unresolvedIdentities.length === (surface.counts.unresolved ?? 0)));
@@ -306,13 +309,24 @@ test("projection field audit catches missing schema fields and unreported empty 
 
   const emptyReasonBlocker = structuredClone(candidate);
   emptyReasonBlocker.candidateModel.journeys = [];
-  emptyReasonBlocker.fieldMappingBlockers.find(({ field }) => field === "journeys").reasons = [];
+  const journeyDisposition = candidate.candidateMappingReview.fieldDispositions.journeys;
+  emptyReasonBlocker.fieldMappingBlockers.push({
+    field: "journeys",
+    status: journeyDisposition.status,
+    sourceDisposition: journeyDisposition.source,
+    reasons: [],
+  });
   assert.ok(validateProjectionFieldCoverage(root, source, emptyReasonBlocker)
     .some((diagnostic) => /empty candidate collection has no blocker or explicit empty-source disposition: journeys/u.test(diagnostic)));
 
   const mismatchedBlockerSource = structuredClone(candidate);
   mismatchedBlockerSource.candidateModel.journeys = [];
-  mismatchedBlockerSource.fieldMappingBlockers.find(({ field }) => field === "journeys").sourceDisposition = "stale source mapping";
+  mismatchedBlockerSource.fieldMappingBlockers.push({
+    field: "journeys",
+    status: journeyDisposition.status,
+    sourceDisposition: "stale source mapping",
+    reasons: ["Synthetic mismatch for validator coverage."],
+  });
   const sourceDiagnostics = validateProjectionFieldCoverage(root, source, mismatchedBlockerSource);
   assert.ok(sourceDiagnostics.some((diagnostic) => /blocker source does not match its field disposition: journeys/u.test(diagnostic)));
   assert.ok(sourceDiagnostics.some((diagnostic) => /empty candidate collection has no blocker or explicit empty-source disposition: journeys/u.test(diagnostic)));

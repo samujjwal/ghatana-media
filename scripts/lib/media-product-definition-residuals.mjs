@@ -722,9 +722,11 @@ function operationParityReport(root, diagnostics) {
     } else if (name === "SDK registry") {
       const nonOperationGroups = authoredSurface.sourceBackedNonOperationDispositions ?? {};
       const nonOperationDispositions = Object.values(nonOperationGroups).flat();
+      const unadmittedLegacyGroups = authoredSurface.sourceBackedUnadmittedLegacyDispositions ?? {};
+      const unadmittedLegacyDispositions = Object.values(unadmittedLegacyGroups).flat();
       const boundedCanonicalReads = declaredInlineArray(block, "boundedCanonicalReads", 4);
       const boundedCanonicalOperations = declaredInlineArray(block, "boundedCanonicalOperations", 4);
-      observedIdentities = [...new Set([...proposedIdentities, ...boundedCanonicalReads, ...boundedCanonicalOperations, ...unresolvedIdentities, ...nonOperationDispositions])].sort();
+      observedIdentities = [...new Set([...proposedIdentities, ...boundedCanonicalReads, ...boundedCanonicalOperations, ...unresolvedIdentities, ...nonOperationDispositions, ...unadmittedLegacyDispositions])].sort();
       const sdkRegistry = readText(root, ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml");
       const sourceIdentities = [...sdkRegistry.matchAll(/^  - id: (media\.sdk\.[^\n]+)\n    method: [^\n]+\n    visibility: public\n    source: [^\n]+/gmu)].map((match) => match[1].trim());
       const parserArtifacts = declaredInlineArray(block, "parserArtifactTokensExcludedFromMethodDenominator", 4);
@@ -734,6 +736,7 @@ function operationParityReport(root, diagnostics) {
         boundedCanonicalOperations,
         unresolved: unresolvedIdentities,
         ...nonOperationGroups,
+        ...unadmittedLegacyGroups,
       };
       diagnostics.push(...validateSdkIdentityPartition({ sourceIdentities, parserArtifactIdentities: parserArtifacts, categories })
         .map((diagnostic) => `${path} ${name}: ${diagnostic}`));

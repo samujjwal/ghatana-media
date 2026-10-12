@@ -9,15 +9,21 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const observationPath = "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json";
+const correctionReviewPath = "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json";
 const sourcePath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
+const leafReviewPath = ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml";
 const read = (path) => readFileSync(resolve(root, path));
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 
 test("P0 capability semantic review pins current source checks without claiming historical equivalence or acceptance", () => {
   const observation = JSON.parse(read(observationPath).toString("utf8"));
+  const correctionReview = JSON.parse(read(correctionReviewPath).toString("utf8"));
+  const uploadCorrectionReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json").toString("utf8"));
   const bytes = read(sourcePath);
   const catalog = parse(bytes.toString("utf8"));
   const leaves = catalog.capabilities;
+  const leafReview = parse(read(leafReviewPath).toString("utf8"));
+  const adjudications = leafReview.ownerCapabilityLeafAdjudication.records;
   const byId = new Map(leaves.map((leaf) => [leaf.id, leaf]));
   const ids = leaves.map(({ id }) => id).sort();
   const dispositionRows = leaves.map(({ id, ownerDefinition }) => [id, ownerDefinition?.ownerDisposition]);
@@ -26,13 +32,27 @@ test("P0 capability semantic review pins current source checks without claiming 
   const effectIntentScopeCounts = Object.fromEntries([...new Set(leaves.map(({ ownerDefinition }) => ownerDefinition?.effect?.effectIntentScope))]
     .sort().map((value) => [value, leaves.filter(({ ownerDefinition }) => ownerDefinition?.effect?.effectIntentScope === value).length]));
 
-  assert.equal(sha(bytes), observation.source.currentSha256);
+  assert.equal(observation.source.currentSha256, correctionReview.historicalPins.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122")).capabilitySha256,
+    "the PXD-122 capability source fingerprint remains an immutable historical pin");
+  assert.equal(sha(bytes), uploadCorrectionReview.source.currentSha256,
+    "the additive PXD-153 review pins the current capability source while PXD-142 remains historical");
   assert.equal(observation.source.path, sourcePath);
   assert.equal(observation.source.historicalComparison.availability, "UNAVAILABLE_PRIOR_BYTES_NOT_RETAINED");
   assert.equal(observation.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(observation.source.historicalComparison.priorSha256, "8e036751e35623a972668757082e1cc6f6c519d23d7f829a73cae1d117568b25");
   assert.equal(leaves.length, 462);
   assert.equal(new Set(ids).size, 462);
+  const adjudicationIds = adjudications.map(({ capabilityRef }) => capabilityRef).sort();
+  assert.equal(adjudications.length, 462);
+  assert.equal(new Set(adjudicationIds).size, 462, "each P0 capability has exactly one leaf adjudication");
+  assert.deepEqual(adjudicationIds, ids, "leaf adjudications contain exactly the stable P0 capability IDs");
+  const adjudicationById = new Map(adjudications.map((row) => [row.capabilityRef, row]));
+  for (const leaf of leaves) {
+    const adjudication = adjudicationById.get(leaf.id);
+    assert.ok(adjudication, `${leaf.id} has a leaf adjudication`);
+    assert.deepEqual(adjudication.inputArtifactTypes, leaf.inputArtifactTypes, `${leaf.id} adjudication inputs mirror P0`);
+    assert.deepEqual(adjudication.outputArtifactTypes, leaf.outputArtifactTypes, `${leaf.id} adjudication outputs mirror P0`);
+  }
   assert.equal(sha(`${ids.join("\n")}\n`), observation.source.recordPopulation.sortedIdentitySetSha256);
   assert.equal(sha(JSON.stringify(dispositionRows)), observation.source.recordPopulation.ownerDispositionSnapshotSha256);
   assert.deepEqual(dispositionCounts, observation.source.recordPopulation.ownerDispositionCounts);

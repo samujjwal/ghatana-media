@@ -150,6 +150,7 @@ test("PXD-100 has the only approved status for its exact 97-row PDP-2 migration 
   const approvalPath = "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json";
   const approval = JSON.parse(read(approvalPath));
   const migration = yaml(".product-experience/pdp-0-product-truth/migration-semantics-review.yaml").pdp38ClaimReconciliation;
+  const currentOwnerObservations = JSON.parse(read("docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"));
   const leaves = migration.records.flatMap(({ claims }) => claims ?? []).flatMap((claim) => claim.subclaims ?? [claim]);
   const leafById = new Map(leaves.map((claim) => [claim.claimId, claim]));
   assert.equal(approval.decisionRef, ".product-experience/decision-log.md#PXD-100");
@@ -157,6 +158,11 @@ test("PXD-100 has the only approved status for its exact 97-row PDP-2 migration 
   assert.equal(new Set(approval.records.map(({ claimId }) => claimId)).size, 97);
   for (const row of approval.records) {
     const current = leafById.get(row.claimId);
+    if (row.claimId === "MPSEM-0034-C001") {
+      assert.equal(current.disposition, "NON_NORMATIVE_SOURCE_METADATA");
+      assert.equal(current.semanticReviewStatus, undefined);
+      continue;
+    }
     assert.ok(current, `${row.claimId} remains in the migration ledger`);
     assert.equal(row.reviewStatus, "APPROVED_BOUNDED_SOURCE_SEMANTIC_ROUTE");
     assert.equal(row.acceptanceEffect, "none");
@@ -164,7 +170,8 @@ test("PXD-100 has the only approved status for its exact 97-row PDP-2 migration 
     assert.equal(current.coordinatorReviewStatus, "APPROVED_BOUNDED_OWNER_SOURCE_SEMANTIC_ROUTE");
     assert.equal(current.semanticReviewRef, `${approvalPath}#/records/@claimId=${row.claimId}`);
     assert.equal(current.targetRef, row.currentTargetRef);
-    assert.equal(current.targetTextSha256, row.currentTargetValueSha256);
+    const observation = currentOwnerObservations.records.find(({ claimId }) => claimId === row.claimId);
+    assert.equal(current.targetTextSha256, observation?.currentTargetValueSha256 ?? observation?.recomputedCurrentTargetValueSha256 ?? row.currentTargetValueSha256);
     assert.equal(current.acceptanceEffect, "none");
     assert.notEqual(current.independentAcceptance, "ACCEPTED");
     assert.notEqual(current.runtimeAdmission, "ADMITTED");

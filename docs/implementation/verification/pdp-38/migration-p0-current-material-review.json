@@ -22,7 +22,7 @@
       "ownerProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "136cdd7921aa124c3d16435317e1463f1309ec17ad87c092fa2b35534e8ae2c4",
-        "currentSourceFileSha256": "ef5366a49ba51052f5a6ef06eaf82c89f092937a0d6967d831461a3c0f4dfe89",
+        "currentSourceFileSha256": "da2ddd3670c1001b8d156eade920c4cb79ac18e8ca2fac2902b80f939b2ab4e0",
         "priorTargetValueSha256": "7ee18931341940b63615d9d1527abef207d4a7fbe6a580899021921db1bf36f6",
         "currentTargetValueSha256": "7ee18931341940b63615d9d1527abef207d4a7fbe6a580899021921db1bf36f6",
         "currentTargetValuePreview": "leaf.domain.canonicalDomainObjectRefs",
@@ -42,7 +42,7 @@
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
-          "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+          "currentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "currentTargetPreview": "Every scoped capability below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation, license, qualification, or runtime availability is inferred from code/package presence."
         }
@@ -78,14 +78,14 @@
         {
           "targetRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml#streamProfileRule/rule",
           "requiredSourcePhrase": "A real-time or recorded stream profile binds codec, transport, recording behavior, reconnect and resumption semantics, and latency bounds together for the exact profile version. State supported directions, media tracks, ",
-          "currentSourceFileSha256": "c6306efc587b783241bcf5e9bbe7659e167a58966452772173f261d416f95a1e",
+          "currentSourceFileSha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
           "currentTargetValueSha256": "b6d553de9d05bb2c7f454a99dc7867d788417ddf83ed1484d6921fba1bc17f64",
           "currentTargetPreview": "A real-time or recorded stream profile binds codec, transport, recording behavior, reconnect and resumption semantics, and latency bounds together for the exact profile version. State supported directions, media tracks, timing units, buffering and loss behavior, cancellation/finality, and compatibility evidence. An unbound or unqualified dimension is unsupported; support on one profile cannot be inferred for another."
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#coverageRule",
           "requiredSourcePhrase": "Every scoped capability below is a finite semantic leaf.",
-          "currentSourceFileSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+          "currentSourceFileSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
           "currentTargetValueSha256": "b5756336bf7681a60d3d18027e546f48d81d0548c6da7c9ea7413503ea2fb1e1",
           "currentTargetPreview": "Every scoped capability below is a finite semantic leaf. Shared semantics use explicit alias records; no implementation, license, qualification, or runtime availability is inferred from code/package presence."
         }

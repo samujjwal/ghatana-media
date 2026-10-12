@@ -113,7 +113,20 @@ export function evaluatePdp3StepDefinition(binding, input, { operationKinds = {}
   if (expectedOperationRefs.some((ref) => typeof ref !== "string" || !REF.test(ref)) ||
       new Set(expectedOperationRefs).size !== expectedOperationRefs.length) return unknown("ACTION_OPERATION_IDENTITY_INVALID");
   const actualOperationRef = binding.canonicalBindings?.canonicalOperationRef ?? binding.operationContractBinding?.operationRef ?? null;
-  if (expectedOperationRefs.length === 1 && actualOperationRef !== expectedOperationRefs[0]) return unknown("STEP_ACTION_OPERATION_MISMATCH");
+  const invocationChain = binding.invocationBindingChain;
+  const hasExactInvocationChain = expectedOperationRefs.length === 1
+    && invocationChain?.userActionOperationRef === expectedOperationRefs[0]
+    && nonEmpty(invocationChain.adapterRef)
+    && invocationChain.invocationOperationRef === actualOperationRef
+    && nonEmpty(invocationChain.invocationWireSchemaRef)
+    && nonEmpty(invocationChain.selectedCapabilityRef)
+    && nonEmpty(invocationChain.selectedCapabilityOperationRef)
+    && invocationChain.selectedCapabilityOperationRef === binding.operationContractBinding?.operationRef
+    && invocationChain.selectedCapabilityOperationRef === binding.canonicalBindings?.operationRefs?.[0]
+    && invocationChain.runtimeAdmission === "NOT_ADMITTED";
+  if (expectedOperationRefs.length === 1 && actualOperationRef !== expectedOperationRefs[0] && !hasExactInvocationChain) {
+    return unknown("STEP_ACTION_OPERATION_MISMATCH");
+  }
   if (expectedOperationRefs.length > 1 && binding.operationContractBinding?.operationRefs &&
       JSON.stringify(binding.operationContractBinding.operationRefs) !== JSON.stringify(expectedOperationRefs)) return unknown("ORDERED_WORKFLOW_OPERATION_MISMATCH");
 

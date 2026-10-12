@@ -72,6 +72,54 @@ values:
     meaning: independent-outcome-for-named-policy-axis-and-exact-scope
     values: not-enumerated-here
     scopeStatus: PDP-0-policy-owned; pending-owner-review
+
+valueDefinitionAdjudication:
+  authority: user-delegated-Media-domain-definition; no external standard or independent expert acceptance asserted
+  sourceRefs:
+    - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
+    - .product-experience/pdp-1-domain-data/interoperability.yaml#canonicalDefinitionConversionBinding
+    - .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
+    - .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions
+  records:
+    - valueRef: media.value.opaque-id
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; SOURCE_FORMAT_UNSELECTED
+      rule: Stable opaque reference with no embedded authority; type/scope/version comes from the referring contract. Unknown or untrusted tenant scope cannot join canonical records.
+    - valueRef: media.value.artifact-digest
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; ALGORITHM_POLICY_DEFERRED
+      rule: Digest is integrity evidence bound to named algorithm and canonical bytes, not artifact/version identity; declared-but-unverified digest is untrusted.
+    - valueRef: media.value.byte-count
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; WIRE_RANGE_PARITY_DEFERRED
+      rule: Nonnegative integer count of bytes; fractional, negative, overflowed, or unit-ambiguous input is invalid. Wire-specific integer limits remain adapter-bound.
+    - valueRef: media.value.wall-clock-instant
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; PRECISION_CONVERSION_DEFERRED
+      rule: Absolute lifecycle/deadline instant on wall clock, distinct from media, simulation, story, sample, and frame coordinates. Conversion requires explicit source precision and must report lost precision.
+    - valueRef: media.value.duration
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; UNSPECIFIED_LEGACY_UNIT_UNKNOWN
+      rule: Nonnegative interval bound to an identified clock and unit. Explicit `durationMs` is milliseconds; an unqualified duration does not inherit that unit and cannot be silently converted.
+    - valueRef: media.value.source-pts
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; LEGACY_SOURCE_MAPPING_UNKNOWN
+      rule: Exact position on a named source stream timebase with explicit clock/stream identity. Missing PTS, timebase, or alignment is UNKNOWN and not synthesized from wall-clock or duration.
+    - valueRef: media.value.sample-position
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; STREAM_METADATA_AND_QUALIFICATION_DEFERRED
+      rule: Integer sample boundary/index tied to an exact stream, sample rate, and sample count; boundary range is [0,sampleCount], addressable samples [0,sampleCount). Priming/padding adjustment requires separate explicit mapping.
+    - valueRef: media.value.frame-rate
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; LEGACY_SCALAR_EXACTNESS_UNKNOWN
+      rule: Exact cadence is rational frames per second (or reciprocal rational frame timebase); variable-rate video requires per-frame source timestamps. Scalar fps is not promoted to rational or constant cadence without a source contract.
+    - valueRef: media.value.pixel-coordinate
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; LEGACY_COORDINATE_MAPPING_UNKNOWN
+      rule: Image coordinate binds exact image version, dimensions, origin, axes, and pixel-center or pixel-boundary convention. Crop/rotation/world-frame changes require explicit image mapping; incompatible conventions reject conversion.
+    - valueRef: media.value.physical-quantity
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; DOMAIN_UNIT_REGISTRY_EXTERNAL_OR_UNSELECTED
+      rule: Quantity carries exact magnitude, dimension, and explicit unit. Only listed SI length/time conversions are defined; missing units, dimension mismatch, unlisted units, or unsupported scientific calibration remain unresolved and cannot default.
+    - valueRef: media.value.uncertainty
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; METRIC_AND_DOMAIN_AUTHORITY_REQUIRED
+      rule: Uncertainty is scoped to named estimate/metric/method/version and units; confidence is not correctness, absence is not pass, and unknown is not zero.
+    - valueRef: media.value.classification
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; VOCABULARY_CROSSWALK_DEFERRED
+      rule: Sensitivity classification propagates the strongest source floor to derivatives. Unknown or unmapped vocabulary preserves source value and blocks a lower classification claim.
+    - valueRef: media.value.policy-disposition
+      classification: PDP0_POLICY_AUTHORITY; VALUE_SHAPE_RESOLVED
+      rule: A disposition is a separate result for a named policy axis and exact subject/purpose/region/version scope. This catalog does not enumerate outcomes or substitute one axis for another.
 observedTemporalSpatialFields:
   status: source-field-reconciliation; no-cross-interface-unit-or-coordinate-adapter-accepted
   crossAuditRefs:
@@ -179,6 +227,7 @@ canonicalConversionDefinitions:
     timeBaseBits: 64
     sampleRateBits: 32
     sampleCountBits: 64
+    frameCountBits: 64
     imageDimensionBits: 32
     rounding: [exact, floor, ceil, nearest-ties-even]
     pixelConvention: 'pixel-boundary; top-left; right-down'
@@ -194,18 +243,25 @@ canonicalConversionDefinitions:
     scalar-SI-length-time: declared m/cm/mm/km or s/ms/us/ns dimension; other units require an explicit owner extension
   records:
     - id: media.value.rational-media-time
-      representation: clockKind(media|simulation|story), clockId, streamId, signed-64-bit integer ticks, positive signed-64-bit numerator/denominator seconds-per-tick
+      representation: clockKind(media|simulation|story), clockId, streamId, explicit originRef, signed-64-bit integer ticks, positive signed-64-bit numerator/denominator seconds-per-tick
       convention: Reduced rational arithmetic with exact BigInt intermediates; destination ticks checked against signed-64-bit range before exposure.
-      conversionPreconditions: Source and target clock kind, clock ID and stream ID match; cross-clock or cross-stream mapping requires an explicit alignment contract.
+      origin: originRef identifies the exact zero/basis of the clock coordinate; it is not wall-clock time. Source and target origin refs must match; changing origin requires an explicit versioned alignment mapping.
+      conversionPreconditions: Source and target clock kind, clock ID, stream ID and originRef match; cross-clock, cross-stream or cross-origin mapping requires an explicit alignment contract.
       rounding: Caller selects exact, floor, ceil or nearest-ties-even; missing method denied even for exact values.
       loss: Exact signed discardedTicks and discardedSeconds; lossless only if discardedTicks is zero. Negative timestamps use mathematical floor/ceil.
       failClosed: Reject unknown units/clocks, Number scalar inputs, zero/negative time bases, cross-clock inference, unspecified rounding and destination overflow.
       qualifications: Unit arithmetic is definition-level; clock accuracy, drift, alignment, decoder/provider timing and scientific fidelity remain NOT_EVALUATED.
     - id: media.value.sample-boundary-index
-      representation: Nonnegative integer boundary in [0,sampleCount], explicit sampleRate in [1,2^32-1], sampleCount at most 2^63-1.
+      representation: Nonnegative integer boundary in [0,sampleCount], explicit stream, originRef, exact sampleRate in [1,2^32-1], sampleCount at most 2^63-1.
       convention: Intervals are half-open. sampleCount is the end boundary, not an addressable sample; sample indices are [0,sampleCount).
       conversion: Convert the same identified clock/stream using timeBase 1/sampleRate and explicit rounding; no hidden encoder priming or padding correction.
       loss: Preserve the rational-time loss record; reject negative/out-of-range boundary or implicit numeric sample rate.
+    - id: media.value.frame-boundary-index
+      representation: Nonnegative zero-based frame boundary in [0,frameCount], bound to exact stream version, originRef and positive rational frames-per-second.
+      constantRate: Exact frame boundary i maps to time i * denominator/numerator seconds; scalar Number fps is not admitted.
+      variableRate: A frame position requires its exact per-frame presentation timestamp from an identified retained source map; constant-rate arithmetic is rejected for VFR.
+      convention: Frame intervals are half-open; frameCount is the end boundary, and frameCount/rate is not replaced with the last frame's presentation timestamp.
+      qualification: Arithmetic definition only; container timestamp accuracy, cadence and decoder mapping remain NOT_EVALUATED.
     - id: media.value.image-pixel-boundary
       representation: Exact rational x/y boundaries, imageVersionId, positive integer width/height at most 2^32-1, origin top-left, axes right-down.
       convention: x in [0,width], y in [0,height]; normalized x/width and y/height in [0,1]. Half-open rectangle end boundaries may equal width/height.
@@ -227,6 +283,84 @@ canonicalConversionDefinitions:
     independentReview: P1-09-qualified-domain-expert-pending
     runtimeAdapterAdmission: NOT_EVALUATED
     scientificQualification: NOT_EVALUATED
+
+spatialTransformDeclarationContract:
+  schemaVersion: media.definition.spatial-transform-declaration.v1
+  status: MEDIA_OWNER_DEFINED_DECLARATION_VALIDATION_ONLY; spatial-conversion-algorithm-unselected
+  authority: user-delegated Media semantic definition; no engine convention, axis default, calibration or world alignment inferred
+  requiredFrameFields:
+    - frameRef
+    - frameVersionRef
+    - handedness
+    - axisDirections.x
+    - axisDirections.y
+    - axisDirections.z
+    - positionUnitRef
+    - orientationUnitRef
+  handednessValues: [RIGHT_HANDED, LEFT_HANDED]
+  handednessRule: Declared handedness must match the determinant parity of the ordered signed x/y/z basis; contradictory declarations are rejected.
+  axisDirections: [+X, -X, +Y, -Y, +Z, -Z]
+  requiredTransformFields:
+    - transformPlanRef
+    - sourceFrameRef
+    - targetFrameRef
+    - orderedOperations
+    - mappingRef
+    - lossDisposition
+  frameDescriptor:
+    schema: closed-object
+    required: [frameRef, frameVersionRef, handedness, axisDirections, positionUnitRef, orientationUnitRef]
+    axisDirections:
+      requiredAxes: [x, y, z]
+      directionValues: [+X, -X, +Y, -Y, +Z, -Z]
+      uniqueness: each axis names a distinct signed basis direction
+  transformDeclaration:
+    schema: closed-object
+    required: [transformPlanRef, sourceFrame, targetFrame, orderedOperations, mappingRef, lossDisposition]
+    orderedOperations: nonempty ordered source-defined transform steps; order is significant
+    lossDispositionRef: .product-experience/pdp-0-product-truth/time-units-fidelity.yaml#conversionDisposition/lossClasses
+    result: DECLARED_NOT_APPLIED
+  validationRules:
+    - Source and target frames must each resolve to an exact registered frame version; unknown, stale or mismatched descriptors are rejected.
+    - Handedness, all three signed axis directions, position unit and orientation unit are explicit at both endpoints; no defaults or unit inference are permitted.
+    - Transform order is a nonempty ordered list bound to an exact registered plan version and mapping reference; reordering or omitted steps is a different plan.
+    - A declaration can be validated or rejected only; this contract defines no matrix, quaternion, axis-conversion, calibration or 3D transform algorithm.
+    - A transform declaration does not establish camera calibration, physical-world alignment, scientific accuracy or runtime adapter qualification.
+    - Loss disposition uses the P0 conversion vocabulary; unknown or unreported loss is not treated as EXACT.
+  registryInputs:
+    frameDefinitions: caller-supplied exact immutable frame-version records
+    transformPlanDefinitions: caller-supplied exact immutable ordered mapping records
+    unknownRegistryBehavior: reject-before-conversion
+  runtimeAdmission: NOT_ADMITTED
+  scientificQualification: NOT_EVALUATED
+
+providerSignalContract:
+  schemaVersion: media.definition.provider-signal.v1
+  status: MEDIA_OWNER_DEFINED_SCOPED_SIGNAL_MEANING; calibration-and-cross-provider-equivalence-unresolved
+  authority: user-delegated Media semantic definition; no provider confidence calibration inferred
+  signalKinds: [CONFIDENCE, SIMILARITY]
+  requiredFields: [signalKind, providerRef, metricRef, metricVersionRef, methodRef, methodVersionRef, unitRef, value]
+  schema:
+    type: object
+    closed: true
+    required: [signalKind, providerRef, metricRef, metricVersionRef, methodRef, methodVersionRef, unitRef, value]
+    signalKindEnum: [CONFIDENCE, SIMILARITY]
+    value: finite-source-reported-scalar; no shared numeric range or normalization is inferred
+  valueType: finite source-reported scalar; source-specific declared bounds remain authoritative
+  scopeIdentity: [providerRef, metricRef, metricVersionRef, methodRef, methodVersionRef, unitRef]
+  comparability:
+    rule: Signals are in the same declared measurement scope only when every scopeIdentity field matches exactly.
+    crossProvider: NOT_COMPARABLE
+    crossMetric: NOT_COMPARABLE
+    crossMethodOrVersion: NOT_COMPARABLE
+    crossUnit: NOT_COMPARABLE
+    interpretation: Matching scope permits only same-scope comparison; it does not establish calibration, correctness, probability, ranking equivalence or scientific validity.
+    missingScopeField: NOT_COMPARABLE
+  wireBoundary:
+    rule: Existing confidence, alignment_score, confidence_threshold and confidence_scores fields remain source-specific observations until a versioned adapter supplies every required scope field.
+    admission: NOT_ADMITTED
+  runtimeAdmission: NOT_ADMITTED
+  scientificQualification: NOT_EVALUATED
 
 ownerDescriptorDefinitions:
   schemaVersion: media.pdp1.descriptor-definitions.v1

@@ -4,7 +4,7 @@ status: Definition of exact guard facts and derivation boundaries;
 sourceAuthority: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml
 decisionRef: .product-experience/decision-log.md#PXD-119
 guardContracts:
-  count: 57
+  count: 58
   records:
     - id: media.pdp3.guard-fact.resolve-the-current-workspace-and-exact-target-before-access-or-change.v1
       guardRef: resolve-the-current-workspace-and-exact-target-before-access-or-change
@@ -588,7 +588,6 @@ guardContracts:
       stepRefs:
         - .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1
         - .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/3
-        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
         - .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
       sourceActionRef: media.action.inspect-artifact
       sourceOperationRefs:
@@ -617,6 +616,42 @@ guardContracts:
       fullPredicateEvaluatorStatus: DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
       sourceActionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition/applicabilityGuards
       sourceActionGuardExpected: exact-artifact-or-upload-identity
+    - id: media.pdp3.guard-fact.exact-artifact-and-immutable-version-identity.v1
+      guardRef: exact-artifact-and-immutable-version-identity
+      factFamily: EXACT_SCOPED_READ_OR_SOURCE
+      semanticRule: Require the exact artifactId and immutable artifactVersionId
+        tuple for the requested observation. A latest-version alias, neighboring
+        version, or artifact-only identity cannot satisfy this guard.
+        exact-artifact-and-immutable-version-identity
+      stepRefs:
+        - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+      sourceActionRef: media.action.inspect-source
+      sourceOperationRefs:
+        - media.operation-slice.inspect-artifact-version
+      sourceOperationContractRefs:
+        - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
+      sourceGuardMatchedByCanonicalOperation: false
+      sourceGuardRef: null
+      requiredObservationContractRef: null
+      requiredObservationValidationRef: null
+      typedSourceEvidenceStatus: NO_SINGLE_EXACT_TYPED_FACT_QUERY_BOUND
+      sourceRequestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/requestSchema
+      sourceEffect: read-source-metadata-for-one-exact-artifact-version
+      sourceRecovery: bounded-reobservation-of-the-same-exact-artifact-version-under-current-read-authority
+      truthRules:
+        "true": only after the exact referenced typed fact validates and every required
+          identity, scope, version, purpose, currentness and predicate check
+          matches
+        "false": only when a valid current fact contradicts a required exact value or
+          closed policy condition
+        unknown: missing, stale, malformed, foreign-scope, unsupported or
+          non-authoritative fact
+      runtimeAdmission: NOT_ADMITTED
+      acceptanceEffect: none
+      sourceActionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source
+      fullPredicateEvaluatorStatus: DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
+      sourceActionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+      sourceActionGuardExpected: exact-artifact-and-immutable-version-identity
     - id: media.pdp3.guard-fact.current-read-authority.v1
       guardRef: current-read-authority
       factFamily: AUTHORITY_OR_ADMISSION
@@ -631,6 +666,43 @@ guardContracts:
         - .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/3
         - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
         - .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+      perStepSourceBindings:
+        - stepRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/steps/1
+          actionRef: media.action.inspect-artifact
+          actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact
+          actionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+          operationRef: media.operation-slice.inspect-artifact
+          operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+        - stepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/2
+          actionRef: media.action.inspect-provenance
+          actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance
+          actionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+          operationRef: media.operation-slice.inspect-provenance
+          operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-provenance
+        - stepRef: .product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml#/steps/2
+          actionRef: media.action.inspect-provenance
+          actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance
+          actionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+          operationRef: media.operation-slice.inspect-provenance
+          operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-provenance
+        - stepRef: .product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml#/steps/3
+          actionRef: media.action.inspect-artifact
+          actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact
+          actionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+          operationRef: media.operation-slice.inspect-artifact
+          operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
+        - stepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
+          actionRef: media.action.inspect-source
+          actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source
+          actionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+          operationRef: media.operation-slice.inspect-artifact-version
+          operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
+        - stepRef: .product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml#/steps/1
+          actionRef: media.action.inspect-artifact
+          actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact
+          actionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+          operationRef: media.operation-slice.inspect-artifact
+          operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact
       sourceActionRef: media.action.inspect-artifact
       sourceOperationRefs:
         - media.operation-slice.inspect-artifact
@@ -2368,7 +2440,7 @@ guardContracts:
       sourceActionGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resume-artifact-upload/actionDefinitionSemantics/typedDefinition/applicabilityGuards
       sourceActionGuardExpected: observed-state-permits-continuation
 stepBindings:
-  count: 94
+  count: 96
   records:
     - id: media.pdp3.step-guard-binding.j-05-j-05-step-01.v1
       stepRef: .product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml#/steps/0
@@ -3100,18 +3172,6 @@ stepBindings:
       sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-15/steps/@id=J-15.step-04
       coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
-    - id: media.pdp3.step-guard-binding.j-08-j-08-step-01.v1
-      stepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/0
-      actionRef: media.action.submit-validated-request
-      operationRefs:
-        - media.operation.action.submit-validated-request
-      guardFactContractRefs:
-        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.resolve-the-current-workspace-and-exact-target-before-access-or-change.v1
-        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects.v1
-        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.preserve-the-requested-context-and-exact-version-across-recovery.v1
-      sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-08/steps/@id=J-08.step-01
-      coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
-      runtimeAdmission: NOT_ADMITTED
     - id: media.pdp3.step-guard-binding.j-08-j-08-step-03.v1
       stepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/2
       actionRef: media.action.compare-candidate-on-metric
@@ -3172,9 +3232,9 @@ stepBindings:
       runtimeAdmission: NOT_ADMITTED
     - id: media.pdp3.step-guard-binding.j-06-j-06-step-01.v1
       stepRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
-      actionRef: media.action.search-product-guidance
+      actionRef: media.action.submit-validated-request
       operationRefs:
-        - media.operation.action.search-product-guidance
+        - media.operation.capability.media-multimodal-observe-source-grounded
       guardFactContractRefs:
         - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.resolve-the-current-workspace-and-exact-target-before-access-or-change.v1
         - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects.v1
@@ -3431,11 +3491,11 @@ stepBindings:
       runtimeAdmission: NOT_ADMITTED
     - id: media.pdp3.step-guard-binding.j-02-j-02-step-05.v1
       stepRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
-      actionRef: media.action.inspect-artifact
+      actionRef: media.action.inspect-source
       operationRefs:
-        - media.operation-slice.inspect-artifact
+        - media.operation-slice.inspect-artifact-version
       guardFactContractRefs:
-        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.exact-artifact-or-upload-identity.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.exact-artifact-and-immutable-version-identity.v1
         - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.current-read-authority.v1
       sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-02/steps/@id=J-02.step-05
       coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
@@ -3469,6 +3529,42 @@ stepBindings:
       guardFactContractRefs:
         - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.stable-job-reference.v1
       sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-23/steps/@id=J-23.step-04
+      coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
+      runtimeAdmission: NOT_ADMITTED
+    - id: media.pdp3.step-guard-binding.j-09-j-09-step-09.v1
+      stepRef: .product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml#/steps/8
+      actionRef: media.action.deliver-exact-version
+      operationRefs:
+        - media.operation.action.deliver-exact-version
+      guardFactContractRefs:
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.resolve-the-current-workspace-and-exact-target-before-access-or-change.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.preserve-the-requested-context-and-exact-version-across-recovery.v1
+      sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-09/steps/@id=J-09.step-09
+      coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
+      runtimeAdmission: NOT_ADMITTED
+    - id: media.pdp3.step-guard-binding.j-22-j-22-step-02.v1
+      stepRef: .product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml#/steps/1
+      actionRef: media.action.deliver-exact-version
+      operationRefs:
+        - media.operation.action.deliver-exact-version
+      guardFactContractRefs:
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.resolve-the-current-workspace-and-exact-target-before-access-or-change.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.preserve-the-requested-context-and-exact-version-across-recovery.v1
+      sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-22/steps/@id=J-22.step-02
+      coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
+      runtimeAdmission: NOT_ADMITTED
+    - id: media.pdp3.step-guard-binding.j-08-j-08-step-02.v1
+      stepRef: .product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml#/steps/1
+      actionRef: media.action.submit-validated-request
+      operationRefs:
+        - media.operation.action.submit-validated-request
+      guardFactContractRefs:
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.resolve-the-current-workspace-and-exact-target-before-access-or-change.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects.v1
+        - .product-experience/pdp-3-product-experience/step-guard-fact-contracts.yaml#guardContracts/records/@id=media.pdp3.guard-fact.preserve-the-requested-context-and-exact-version-across-recovery.v1
+      sourceBindingRef: .product-experience/pdp-3-product-experience/step-definition-oracles.yaml#journeys/@id=J-08/steps/@id=J-08.step-02
       coverageStatus: TYPED_DEFINITION_PREDICATE_AVAILABLE; RUNTIME_ADAPTER_NOT_ADMITTED
       runtimeAdmission: NOT_ADMITTED
 predicateDefinitions:
@@ -5507,6 +5603,178 @@ predicateDefinitions:
       - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.review-processing-parameters
       - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-processing-parameters/actionDefinitionSemantics/typedDefinition/applicabilityGuards
     readAuthorityRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-processing-parameters/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+  - id: media.pdp3.guard-predicate.exact-artifact-and-immutable-version-identity.v1
+    guardRef: exact-artifact-and-immutable-version-identity
+    predicateKind: EXACT_SCOPED_TARGET
+    requiredObservationProperties:
+      - artifactId
+      - artifactVersionId
+      - tenantScopeRef
+      - principalRef
+      - currentness
+      - observedAt
+    truthDerivation:
+      trueWhen: the current scoped observation binds the requested artifactId and
+        immutable artifactVersionId exactly; no latest-version alias is accepted
+      falseWhen: a valid current observation identifies a different artifact or
+        immutable version
+      unknownWhen: missing, stale, malformed, mismatched, unsupported or
+        non-authoritative fact
+    sourceActionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source
+    sourceOperationContractRefs:
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
+    sourceGuardRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+    runtimeAdmission: NOT_ADMITTED
+    acceptanceEffect: none
+    factSchema:
+      type: object
+      properties:
+        artifactId:
+          type: string
+          minLength: 1
+        artifactVersionId:
+          type: string
+          minLength: 1
+        tenantScopeRef:
+          type: string
+          minLength: 1
+        principalRef:
+          type: string
+          minLength: 1
+        currentness:
+          type: string
+          enum: [CURRENT, STALE, UNKNOWN]
+        observedAt:
+          type: string
+          format: date-time
+      required:
+        - artifactId
+        - artifactVersionId
+        - tenantScopeRef
+        - principalRef
+        - currentness
+        - observedAt
+      additionalProperties: false
+    receiptSchema:
+      type: object
+      properties:
+        stepRef:
+          type: string
+        guardRef:
+          const: exact-artifact-and-immutable-version-identity
+        queryId:
+          type: string
+          minLength: 1
+        requestFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        currentness:
+          type: string
+          enum: [CURRENT, STALE, UNKNOWN]
+        observedAt:
+          type: string
+          format: date-time
+        value:
+          type: object
+          properties:
+            artifactId:
+              type: string
+              minLength: 1
+            artifactVersionId:
+              type: string
+              minLength: 1
+            tenantScopeRef:
+              type: string
+              minLength: 1
+            principalRef:
+              type: string
+              minLength: 1
+            currentness:
+              type: string
+              enum: [CURRENT, STALE, UNKNOWN]
+            observedAt:
+              type: string
+              format: date-time
+          required:
+            - artifactId
+            - artifactVersionId
+            - tenantScopeRef
+            - principalRef
+            - currentness
+            - observedAt
+          additionalProperties: false
+        tenantScopeRef:
+          type: string
+          minLength: 1
+        principalRef:
+          type: string
+          minLength: 1
+        workspaceRef:
+          type: string
+          minLength: 1
+        actionRef:
+          type: string
+          minLength: 1
+        operationRefs:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        targetRefs:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        targetVersionRefs:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        purposeRef:
+          type: string
+          minLength: 1
+        sourceRef:
+          type: string
+          minLength: 1
+        readAuthorityRef:
+          type: string
+          minLength: 1
+        readVersion:
+          type: string
+          minLength: 1
+        requestId:
+          type: string
+          minLength: 1
+        actionRequestFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+        - stepRef
+        - guardRef
+        - queryId
+        - requestFingerprint
+        - currentness
+        - observedAt
+        - value
+        - tenantScopeRef
+        - principalRef
+        - workspaceRef
+        - actionRef
+        - operationRefs
+        - targetRefs
+        - targetVersionRefs
+        - purposeRef
+        - sourceRef
+        - readAuthorityRef
+        - readVersion
+        - requestId
+        - actionRequestFingerprint
+      additionalProperties: false
+    allowedSourceRefs:
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source
+      - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact-version
+      - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition/applicabilityGuards
+    readAuthorityRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/actionDefinitionSemantics/typedDefinition/applicabilityGuards
   - id: media.pdp3.guard-predicate.exact-artifact-or-upload-identity.v1
     guardRef: exact-artifact-or-upload-identity
     predicateKind: EXACT_SCOPED_TARGET
@@ -15819,13 +16087,13 @@ predicateDefinitions:
       - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resume-artifact-upload/actionDefinitionSemantics/typedDefinition/applicabilityGuards
     readAuthorityRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.resume-artifact-upload/actionDefinitionSemantics/typedDefinition/applicabilityGuards
 counts:
-  guardedSteps: 94
-  guardInstances: 254
-  uniqueGuardContracts: 57
+  guardedSteps: 96
+  guardInstances: 260
+  uniqueGuardContracts: 58
   exactTypedQueryBindings: 3
   fullTrustedFactEvaluators: 0
   sourceGuardRulesWithPendingFactEvaluator: 0
-  definitionFixturePredicateEvaluators: 57
-  definitionPredicateInstances: 254
+  definitionFixturePredicateEvaluators: 58
+  definitionPredicateInstances: 260
 runtimeAdmission: NOT_ADMITTED
 acceptanceEffect: none

@@ -170,6 +170,26 @@ function evaluateScopePredicate(guardRef, value, expected) {
   return fail("TRUE", "EXACT_TARGET_RESOLVED_IN_TRUSTED_SCOPE");
 }
 
+function evaluateExactArtifactVersionPredicate(guardRef, value, expected, receipt) {
+  if (guardRef !== "exact-artifact-and-immutable-version-identity") return null;
+  if (!exact(value, ["artifactId", "artifactVersionId", "tenantScopeRef", "principalRef", "currentness", "observedAt"]) ||
+      ![value.artifactId, value.artifactVersionId, value.tenantScopeRef, value.principalRef].every(nonempty) ||
+      !["CURRENT", "STALE", "UNKNOWN"].includes(value.currentness) || !iso(value.observedAt)) {
+    return fail("UNKNOWN", "EXACT_ARTIFACT_VERSION_FACT_SHAPE_INVALID");
+  }
+  if (value.currentness !== "CURRENT" || value.observedAt !== receipt.observedAt) {
+    return fail("UNKNOWN", "EXACT_ARTIFACT_VERSION_FACT_NOT_CURRENT");
+  }
+  if (value.tenantScopeRef !== expected.tenantScopeRef || value.principalRef !== expected.principalRef ||
+      expected.targetRefs.length !== 1 || expected.targetVersionRefs.length !== 1) {
+    return fail("UNKNOWN", "EXACT_ARTIFACT_VERSION_SCOPE_OR_TUPLE_INVALID");
+  }
+  if (value.artifactId !== expected.targetRefs[0] || value.artifactVersionId !== expected.targetVersionRefs[0]) {
+    return fail("FALSE", "CURRENT_SCOPED_QUERY_IDENTIFIES_DIFFERENT_ARTIFACT_OR_VERSION");
+  }
+  return fail("TRUE", "EXACT_ARTIFACT_AND_IMMUTABLE_VERSION_MATCH");
+}
+
 function evaluateAuthorityPredicate(guardRef, value, expected) {
   if (!authorityGuardRefs.has(guardRef)) return null;
   if (!exact(value, ["actorRef", "operationRefs", "targetRefs", "purposeRef", "capabilityRef", "delegationRef", "policyVersionRef", "authorityRef", "authorityVersionRef", "decision", "validFrom", "validUntil", "admissionStatus"]) ||
@@ -512,6 +532,7 @@ export function evaluatePdp3TypedGuardFact({ guardRef, stepRef, expected, receip
   if (!validators?.fact(receipt.value)) return fail("UNKNOWN", `DECLARED_GUARD_FACT_SCHEMA_INVALID:${schemaAjv.errorsText(validators?.fact.errors)}`);
   if (!validators.receipt(receipt)) return fail("UNKNOWN", `DECLARED_GUARD_RECEIPT_SCHEMA_INVALID:${schemaAjv.errorsText(validators.receipt.errors)}`);
   const result = evaluateRetryBudgetPredicate(guardRef, receipt.value, expected) ??
+    evaluateExactArtifactVersionPredicate(guardRef, receipt.value, expected, receipt) ??
     evaluateScopePredicate(guardRef, receipt.value, expected) ??
     evaluateAuthorityPredicate(guardRef, receipt.value, expected) ??
     evaluateContinuityPredicate(guardRef, receipt.value, expected) ??

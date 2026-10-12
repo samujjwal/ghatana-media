@@ -128,9 +128,13 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Sources/stems/cleanup/mix/mastering
-        result: null
+        result: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.audio-operation replaced; committed media objects are unchanged and no remote dispatch occurs."
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1/effect
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1/finality
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: A derived output and before/after comparison disclose processing and
             reconstruction limits.
@@ -141,10 +145,12 @@ steps:
             - A generative restoration is mistaken for recovered detail, or
               quality metric is inapplicable/no improvement.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "A generative restoration is mistaken for recovered detail, or quality metric is inapplicable/no improvement."
+          behavior: "Retain source and prior revision; abstain, accept original, or choose a bounded admitted operation."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -194,10 +200,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A derived output and before/after comparison disclose processing and
-            reconstruction limits.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1
+          summary: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.audio-operation replaced; committed media objects are unchanged and no remote dispatch occurs."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -218,10 +223,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-admitted-audio-operation
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A derived output and before/after comparison disclose processing and
-              reconstruction limits.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-01.v1
+            summary: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.audio-operation replaced; committed media objects are unchanged and no remote dispatch occurs."
           effect: Change only the current local draft or selection; keep committed source
             and versioned objects unchanged until a separately specified commit.
           finality: local-draft-only; not-a-committed-result
@@ -415,9 +419,13 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Preserve/enhance/creative choice, measured defects, safe plan
-        result: null
+        result: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.media-improvement-intent replaced; committed media objects are unchanged and no remote dispatch occurs."
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1/effect
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1/finality
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: A derived output and before/after comparison disclose processing and
             reconstruction limits.
@@ -428,10 +436,12 @@ steps:
             - A generative restoration is mistaken for recovered detail, or
               quality metric is inapplicable/no improvement.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "A generative restoration is mistaken for recovered detail, or quality metric is inapplicable/no improvement."
+          behavior: "Retain source and prior revision; abstain, accept original, or choose a bounded admitted operation."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -481,10 +491,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A derived output and before/after comparison disclose processing and
-            reconstruction limits.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1
+          summary: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.media-improvement-intent replaced; committed media objects are unchanged and no remote dispatch occurs."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -505,10 +514,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-media-improvement-intent
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A derived output and before/after comparison disclose processing and
-              reconstruction limits.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-07.step-02.v1
+            summary: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.media-improvement-intent replaced; committed media objects are unchanged and no remote dispatch occurs."
           effect: Change only the current local draft or selection; keep committed source
             and versioned objects unchanged until a separately specified commit.
           finality: local-draft-only; not-a-committed-result
@@ -705,9 +713,11 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: A derived output and before/after comparison disclose processing and
             reconstruction limits.
@@ -718,10 +728,12 @@ steps:
             - A generative restoration is mistaken for recovered detail, or
               quality metric is inapplicable/no improvement.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "A generative restoration is mistaken for recovered detail, or quality metric is inapplicable/no improvement."
+          behavior: "Retain source and prior revision; abstain, accept original, or choose a bounded admitted operation."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -767,10 +779,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A derived output and before/after comparison disclose processing and
-            reconstruction limits.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -807,10 +818,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A derived output and before/after comparison disclose processing and
-              reconstruction limits.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -902,7 +912,8 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-07.j-07.step-03
     capabilityRefs: []
   - view: media.view.inspect-output
     legacyViewRef: M-OUTPUT
@@ -1012,9 +1023,11 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Playback/download/review/provenance and delivery action
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           sourceRef: journey.terminalSuccess
           summary: A derived output and before/after comparison disclose processing and
             reconstruction limits.
@@ -1025,10 +1038,12 @@ steps:
             - A generative restoration is mistaken for recovered detail, or
               quality metric is inapplicable/no improvement.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_CONDITIONAL_DEGRADED_DISPOSITION
+          sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml#/criticalNonhappyPaths/@id=phase0-critical-exception
+          condition: "A generative restoration is mistaken for recovered detail, or quality metric is inapplicable/no improvement."
+          behavior: "Retain source and prior revision; abstain, accept original, or choose a bounded admitted operation."
+          runtimeAdmission: NOT_ADMITTED
+          ownerEvidence: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -1074,10 +1089,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: A derived output and before/after comparison disclose processing and
-            reconstruction limits.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -1114,10 +1128,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
           intendedResult:
-            status: candidate-proposal
-            sourceRef: journey.terminalSuccess
-            summary: A derived output and before/after comparison disclose processing and
-              reconstruction limits.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality

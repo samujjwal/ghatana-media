@@ -219,6 +219,34 @@ test("job submission typed inputs bind exact target slot count, order, and close
     "project creation is an exact direct owner command, not an asynchronous processor job");
 });
 
+test("job-submit accepts the canonical preservation policy through target mapping before submission validation", () => {
+  const request = requestFor("media.enhance.image.super-resolution", "media.operation.capability.media-enhance-image-super-resolution");
+  const policy = request.typedInputs[1];
+  assert.equal(policy.artifactType, "preservation-and-enhancement-policy");
+  policy.payload = {
+    preservationDisposition: "PRESERVE_SOURCE_IMMUTABLE",
+    enhancementDisposition: "AUTHORIZED_ENHANCEMENT",
+    purposeRef: "media.purpose.fixture",
+    rightsEvidenceRefs: ["media.evidence.fixture"],
+    consentRef: "media.consent.fixture.v1",
+    enhancementDecisionRef: "media.enhancement-decision.fixture.v1",
+  };
+
+  const mapped = validateJobSubmitTypedInputContract(operations, request);
+  assert.equal(mapped.valid, true, JSON.stringify(mapped.errors ?? mapped));
+  assert.deepEqual(mapped.slotRefs.map((ref) => ref.split("/").at(-1)), ["input1", "input2"]);
+  const submitted = validateJobSubmitParameterContract(operations, request);
+  assert.equal(submitted.valid, true, JSON.stringify(submitted.errors ?? submitted));
+  assert.match(submitted.targetRequestSchemaRef, /media-enhance-image-super-resolution/u);
+
+  const missingDecision = structuredClone(request);
+  delete missingDecision.typedInputs[1].payload.enhancementDecisionRef;
+  assert.equal(validateJobSubmitTypedInputContract(operations, missingDecision).valid, false,
+    "the selected target schema rejects authorized enhancement without its exact decision reference");
+  assert.equal(validateJobSubmitParameterContract(operations, missingDecision).valid, false,
+    "submission validation rejects before acceptance when the mapped target input is incomplete");
+});
+
 test("artifact import and derive reconstruct exact direct target requests before acceptance", () => {
   for (const [capabilityRef, operationRef] of [
     ["media.artifact.import", "media.operation.artifact.import.v1"],
@@ -324,7 +352,7 @@ test("all finite capability bindings explicitly distinguish submit commands, que
   const applicability = owner.targetApplicabilityRule;
   const explicitlyExcluded = new Map(Object.entries(applicability.dispositions).flatMap(([disposition, rule]) =>
     rule.appliesToCapabilityRefs.map((capabilityRef) => [capabilityRef, disposition])));
-  assert.equal(explicitlyExcluded.size, 62, "direct owner commands, stream/session controls, job controls, and query semantics are exhaustively excluded");
+  assert.equal(explicitlyExcluded.size, 63, "direct owner commands, specialized request semantics, stream/session controls, job controls, and query semantics are exhaustively excluded");
   const dispositions = new Map([
     ["COMMAND", "COMMAND_MAY_BE_SUBMITTED"],
     ["QUERY", "NOT_SUBMITTABLE_QUERY"],
@@ -372,7 +400,7 @@ test("all finite capability bindings explicitly distinguish submit commands, que
   }
   assert.ok(exactInputEnvelopeCoverage > 0, "at least one selected target has a complete generic inputN envelope");
   assert.ok(directFieldAdaptersRequired > 0, "direct canonical fields are not silently accepted as generic typed inputs");
-  for (const capabilityRef of ["media.stream.session.open", "media.stream.session.connect", "media.stream.frame.submit", "media.job.cancel", "media.job.retry", "media.quality.compare"]) {
+  for (const capabilityRef of ["media.stream.session.open", "media.stream.session.connect", "media.stream.frame.submit", "media.job.cancel", "media.job.retry", "media.quality.compare", "media.speech.transcription.file"]) {
     const contract = records.find((row) => row.capabilityRef === capabilityRef);
     assert.ok(contract);
     assert.notEqual(resolveJobSubmitParameterSchema(operations, capabilityRef, contract.operationRefs[0], contract.operationVersion).valid, true,
@@ -386,4 +414,7 @@ test("all finite capability bindings explicitly distinguish submit commands, que
       `${capabilityRef} requires its direct owner operation instead of a generic processor job`);
     assert.equal(explicitlyExcluded.get(capabilityRef), "NOT_SUBMITTABLE_DIRECT_OWNER_COMMAND");
   }
+  const transcription = records.find(({ capabilityRef }) => capabilityRef === "media.speech.transcription.file");
+  assert.equal(transcription.asyncSubmissionDisposition, "NOT_SUBMITTABLE_SPECIALIZED_REQUEST_SEMANTICS");
+  assert.equal(explicitlyExcluded.get("media.speech.transcription.file"), "NOT_SUBMITTABLE_SPECIALIZED_REQUEST_SEMANTICS");
 });

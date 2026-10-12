@@ -67,6 +67,8 @@ ownerDefinedPdp10AuthorityScopes:
     principalRef: host-attested principal identity; never caller body
     delegationRef: host-attested, current delegation; caller role labels are not grants
     workspaceRef: host-authorized workspace context; caller selector cannot widen scope
+    requiredObservation: Current trusted identity owner observation bound to the request, identity epoch and exact tenant, principal, delegation and workspace tuple.
+    callerClaimsNeverAuthority: [tenantId, principalId, role, delegation, workspaceAuthority, consentBoolean, ownerLabel]
     unknownOrMismatched: DENY before lookup or effect; do not fall back to global scope
   jobStatusRead:
     id: media.authority.job-status-dimension-read.v1

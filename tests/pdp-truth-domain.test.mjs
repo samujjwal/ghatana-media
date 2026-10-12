@@ -27,8 +27,8 @@ function validateIdentityPopulation(registry) {
     && new Set(identityIds).size === identityIds.length
     && identityIds.every((id) => objectIds.has(id))
     && identities.every((entry) => ["MEDIA_PRODUCT_IDENTITY_DEFINED", "SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE"].includes(entry.disposition))
-    && identities.filter(({ disposition }) => disposition === "MEDIA_PRODUCT_IDENTITY_DEFINED").length === 33
-    && identities.filter(({ disposition }) => disposition === "SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE").length === 5
+    && identities.filter(({ disposition }) => disposition === "MEDIA_PRODUCT_IDENTITY_DEFINED").length === 37
+    && identities.filter(({ disposition }) => disposition === "SOURCE_OBSERVATION_WITH_EXPLICIT_NON_EQUIVALENCE").length === 1
     && identities.filter(({ disposition }) => disposition === "MEDIA_PRODUCT_IDENTITY_DEFINED").every(({ ownerSelectedIdentity }) => typeof ownerSelectedIdentity === "string" && ownerSelectedIdentity.length > 0)
     && registry.canonicalIdentityAdjudication.excludedHistoricalRecords.some(({ objectId, disposition }) => objectId === "media.domain.transcription" && disposition === "LEGACY_STORAGE_AND_PROVIDER_OBSERVATION_NOT_CANONICAL_TRANSCRIPT_VERSION");
 }
@@ -68,6 +68,8 @@ function validateActionInventory(inventory, sourceActions, knownOperationIds) {
 
 test("PDP-1 adjudicates exactly 38 product identities and retains legacy transcription as noncanonical evidence", () => {
   const registry = readYaml(paths.objectRegistry);
+  const ownerRelationships = readYaml(".product-experience/pdp-1-domain-data/relationships.yaml").relationships;
+  const ownerRelationshipById = new Map(ownerRelationships.map(({ id, sameTenant }) => [id, { sameTenant }]));
   assert.equal(validateIdentityPopulation(registry), true);
   const relationRecords = registry.canonicalRelationshipAdjudication.records;
   assert.equal(relationRecords.length, 38);
@@ -78,7 +80,15 @@ test("PDP-1 adjudicates exactly 38 product identities and retains legacy transcr
     for (const edge of record.relationships) {
       if (edge.targetObjectRef) {
         assert.ok(objectRefs.has(edge.targetObjectRef), `${record.objectRef} has an unknown relationship target`);
-        assert.equal(edge.tenantInvariant, "source-and-target-tenant-ids-must-match");
+        if (edge.tenantInvariant !== undefined) {
+          assert.equal(edge.tenantInvariant, "source-and-target-tenant-ids-must-match");
+        } else {
+          assert.equal(edge.sameTenant, true, `${record.objectRef}/${edge.name} declares same-tenant scope`);
+          const ownerRelationshipId = edge.sourceRelationshipRef?.split("#relationships/")[1];
+          assert.ok(ownerRelationshipId, `${record.objectRef}/${edge.name} references its exact PDP-1 relationship`);
+          assert.equal(ownerRelationshipById.get(ownerRelationshipId)?.sameTenant, true,
+            `${record.objectRef}/${edge.name} is backed by an owner relationship with sameTenant: true`);
+        }
       }
     }
   }
@@ -172,6 +182,13 @@ test("all 146 action identities have a source-backed operation or non-operation 
   assert.equal(validateActionInventory(broken, sourceActions, known), false, "an omitted source action must fail total population validation");
 
   const byAction = new Map(inventory.map((entry) => [entry.actionId, entry]));
+  const inspectSourceAction = sourceActions.find(({ id }) => id === "media.action.inspect-source");
+  assert.ok(inspectSourceAction, "inspect-source must remain in the authoritative PDP-3 action registry");
+  assert.deepEqual(
+    byAction.get("media.action.inspect-source").sourceEvidence.preconditions,
+    inspectSourceAction.preconditions,
+    "PDP-1 inspect-source guard preconditions must match the authoritative PDP-3 action registry",
+  );
   for (const [actionId, operationId] of [
     ["media.action.attach-source-asset", "media.operation-slice.attach-source-asset"],
     ["media.action.request-cancellation", "media.operation-slice.cancel-job"],
@@ -221,7 +238,7 @@ test("all 146 action identities have a source-backed operation or non-operation 
   assert.ok(inspect.negativeCases.includes("substitute latest version for exact requested version"));
   assert.match(inspect.scopeStatus, /transport-and-runtime-NOT_ADMITTED/u);
   const provenance = operations.ownerDefinedOperationContracts.records.find(({ id }) => id === "media.operation-slice.inspect-provenance");
-  assert.deepEqual(provenance.requestSchema.required, ["subjectArtifactVersionId"]);
+  assert.deepEqual(provenance.requestSchema.required, ["subject"]);
   assert.match(provenance.resultSchema.absence, /not proof that no lineage exists elsewhere/u);
   assert.ok(provenance.negativeCases.includes("infer-rights-from-source-lineage"));
   assert.match(provenance.scopeStatus, /transport-and-runtime-NOT_ADMITTED/u);
@@ -270,43 +287,123 @@ function validateCapabilityLeafDefinitions(capabilities, review, operations) {
   const sourceIds = new Set(sourceLeaves.map(({ id }) => id));
   const ownerIds = ownerLeaves.map(({ capabilityRef }) => capabilityRef);
   const adjudicationIds = ownerLeaves.map(({ id }) => id);
+  const preservesProductIntentBoundary = (meaning) => /(?:product intent|product meaning) only, not a PDP-1 wire schema, implementation, qualification, or execution admission\./u.test(meaning ?? "");
+  const outputBranches = (wire) => {
+    const items = wire?.resultSchema?.properties?.outputs?.items;
+    return items ? (items.oneOf ?? items.anyOf ?? [items]) : [];
+  };
+  const payloadBranches = (output) => {
+    const payload = output?.properties?.payload;
+    return payload ? (payload.oneOf ?? payload.anyOf ?? [payload]) : [];
+  };
+  const hasRequired = (schema, property) => schema?.required?.includes(property) === true;
+  const outputVariantsMatchWire = (source, wire) => {
+    const outputs = source.ownerDefinition?.successOutputs ?? [];
+    const wireOutputs = outputBranches(wire);
+    const successRequiresOutput = wire.resultSchema?.allOf?.some((rule) =>
+      rule.if?.properties?.outcome?.const === "SUCCEEDED"
+      && (rule.then?.properties?.outputs?.minItems ?? 0) >= 1);
+    if (!outputs.length || !successRequiresOutput
+      || outputs.some(({ requiredOnSuccess }) => requiredOnSuccess !== true)) return false;
+    const declaredTypes = outputs.map(({ artifactType }) => artifactType);
+    const sourceTypes = source.outputArtifactTypes ?? [];
+    const wireTypes = wireOutputs.map(({ properties }) => properties?.artifactType?.const);
+    if (new Set(declaredTypes).size !== declaredTypes.length
+      || JSON.stringify(declaredTypes) !== JSON.stringify(sourceTypes)
+      || JSON.stringify(wireTypes) !== JSON.stringify(sourceTypes)) return false;
+
+    const passKindByCapability = {
+      "media.simulation.output.rgb": "rgb-image",
+      "media.simulation.output.depth": "depth-field",
+      "media.simulation.output.normals": "normal-field",
+      "media.simulation.output.segmentation": "segmentation-field",
+      "media.simulation.output.optical-flow": "optical-flow-field",
+      "media.simulation.output.motion-vectors": "motion-vector-field",
+      "media.simulation.output.object-ids": "object-id-field",
+      "media.simulation.output.contacts": "contact-event-set",
+      "media.simulation.output.physical-events": "physical-event-set",
+      "media.simulation.output.measurements": "measurement-series",
+      "media.simulation.output.timestamped-state": "timestamped-state-series",
+    };
+    const editResultKindToWireKind = {
+      EDITED_ARTIFACT: "versioned-edited-artifact",
+      PROJECT_CHANGE: "project-revision",
+    };
+    return outputs.every((output) => {
+      const matchingOutputs = wireOutputs.filter(({ properties }) =>
+        properties?.artifactType?.const === output.artifactType);
+      if (matchingOutputs.length !== 1) return false;
+      const resultVariants = output.resultVariants ?? [];
+      const wireVariants = payloadBranches(matchingOutputs[0]);
+      if (!resultVariants.length || resultVariants.length !== wireVariants.length) return false;
+      return resultVariants.every((variant) => {
+        if (variant.resultKind === "SIMULATION_PASS_OUTPUT") {
+          const wirePayload = wireVariants[0];
+          const expectedPassKind = passKindByCapability[source.id];
+          return resultVariants.length === 1 && variant.originRelation === "SOURCE_DERIVED"
+            && variant.epistemicDisposition === "ESTIMATED_OR_INFERRED_OBSERVATION"
+            && expectedPassKind !== undefined
+            && wirePayload.properties?.passKind?.const === expectedPassKind
+            && wirePayload.properties?.productionStatus?.enum?.includes("ESTIMATED")
+            && hasRequired(wirePayload, "simulationStateInputRef")
+            && hasRequired(wirePayload, "passContractRef");
+        }
+        const wireKind = editResultKindToWireKind[variant.resultKind];
+        if (!wireKind) return false;
+        const branch = wireVariants.find(({ properties }) => properties?.kind?.const === wireKind);
+        if (!branch || !hasRequired(branch, "editKind") || !branch.properties?.editKind?.const) return false;
+        if (variant.resultKind === "EDITED_ARTIFACT") {
+          return variant.originRelation === "SOURCE_DERIVED"
+            && ["ESTIMATED_OR_RECONSTRUCTED", "SOURCE_DERIVED_TRANSFORMATION"].includes(variant.epistemicDisposition)
+            && hasRequired(branch, "sourceArtifactVersionRef")
+            && hasRequired(branch, "changeRecordRef")
+            && hasRequired(branch, "provenanceRef");
+        }
+        return variant.disposition === "NO_RECONSTRUCTION_OR_INFERENCE"
+          && ["projectId", "baseRevisionRef", "newRevisionRef", "changeRecordRef", "provenanceRef"]
+            .every((property) => hasRequired(branch, property));
+      });
+    });
+  };
   if (sourceLeaves.length !== 462 || ownerLeaves.length !== 462
     || new Set(ownerIds).size !== 462 || ownerIds.some((id) => !sourceIds.has(id))
     || new Set(adjudicationIds).size !== 462
     || ownerLeaves.some(({ id, recordKind, normativeMeaning }) => !id?.startsWith("media.capability-adjudication.")
       || recordKind !== "INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION"
-      || !normativeMeaning?.includes("definition obligation"))) return false;
+      || !preservesProductIntentBoundary(normativeMeaning))) return false;
   if (contracts.length !== 462 || new Set(contracts.map(({ id }) => id)).size !== 462) return false;
+  const contractsByCapability = new Map(contracts.map((contract) => [contract.capabilityRef, contract]));
+  if (contractsByCapability.size !== 462 || ownerLeaves.some(({ capabilityRef }) => !contractsByCapability.has(capabilityRef))) return false;
   if (ownerLeaves.some((record) => {
     const source = sourceLeaves.find(({ id }) => id === record.capabilityRef);
     const leaf = review.leaves.find(({ id }) => id === record.capabilityRef);
-    const contractId = record.operationContractRef?.split("#capabilityOperationContracts/records/@id=")[1];
-    const contract = contracts.find(({ id }) => id === contractId);
+    const contract = contractsByCapability.get(record.capabilityRef);
     const bound = bounds.get(record.boundsRef);
     if (!source || !leaf?.ownerDefinitionBinding || !contract || !bound) return true;
-    if (record.operationRefs.join("\0") !== contract.operationRefs.join("\0")) return true;
-    if (!profiles.has(record.profileRef) || record.profileRef !== contract.familyProfileRef) return true;
-    if (record.exactTypedInputs.join("\0") !== source.inputArtifactTypes.join("\0")) return true;
-    if (record.exactTypedOutputs.join("\0") !== source.outputArtifactTypes.join("\0")) return true;
-    const currentWireRef = source.ownerLeafWireContractRef ?? leaf.ownerLeafWireContractRef;
+    if (!profiles.has(record.profileRef) || record.profileRef !== contract.familyProfileRef
+      || record.profileRef !== source.ownerDefinition?.familyProfileRef
+      || record.profileRef !== bound.profileRef || bound.capabilityRef !== record.capabilityRef
+      || record.boundsRef !== contract.boundsRef || record.boundsRef !== source.ownerDefinition?.boundsRef) return true;
+    if (JSON.stringify(record.inputArtifactTypes) !== JSON.stringify(source.inputArtifactTypes)) return true;
+    if (record.outputArtifactTypes.join("\0") !== source.outputArtifactTypes.join("\0")) return true;
+    const currentWireRef = source.ownerLeafWireContractRef;
     if (currentWireRef || record.ownerLeafWireContractRef) {
       const wire = ownerWireById.get(currentWireRef);
-      const outputType = wire?.resultSchema?.properties?.outputs?.items?.properties?.artifactType?.const;
+      const ownerOperation = contractsByCapability.get(source.id);
       if (!wire || wire.capabilityRef !== source.id || record.ownerLeafWireContractRef !== wire.id
         || source.ownerDefinition.ownerLeafWireContractRef !== wire.id
-        || !outputType || source.outputArtifactTypes.length !== 1 || source.outputArtifactTypes[0] !== outputType
-        || source.ownerDefinition.successOutputs?.length !== 1
-        || source.ownerDefinition.successOutputs[0].artifactType !== outputType
-        || source.ownerDefinition.successOutputs[0].payloadSchemaRef !== `.product-experience/pdp-1-domain-data/operations.yaml#ownerLeafWireContracts/records/@id=${wire.id}/resultSchema/properties/outputs/items`) return true;
+        || ownerOperation?.ownerLeafWireContractRef !== wire.id
+        || wire.successOutputSchemaRef !== `${wire.id}#/resultSchema/properties/outputs/items`
+        || !outputVariantsMatchWire(source, wire)) return true;
     }
     if (record.requirementRefs.join("\0") !== (source.requirementIds ?? []).join("\0")) return true;
     if (record.implementationState !== "UNKNOWN" || record.qualificationState !== "NOT_EVALUATED"
       || record.runtimeAvailability !== "UNKNOWN") return true;
     const leafContract = source.ownerDefinition;
-    if (!leafContract || leafContract.operationRefs.join("\0") !== record.operationRefs.join("\0")
+    if (!leafContract || leafContract.familyProfileRef !== record.profileRef
       || leafContract.boundsRef !== record.boundsRef
       || bound.maximumRequestBytes !== 65536
-      || bound.maximumInputSlots !== source.inputArtifactTypes.length
+      || bound.maximumInputSlots < (source.ownerDefinition.typedInputSlots?.length ?? source.inputArtifactTypes.length)
       || bound.overflow !== "reject-before-effect-BOUNDS_EXCEEDED") return true;
     if (contract.recordKind === "CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION") {
       if (!contract.inputSlots || !contract.parameterSchema || !contract.successOutputs?.length
@@ -330,9 +427,9 @@ test("PDP-1 consumes P0 capability intents with exact typed operations, bounds, 
   assert.equal(validateCapabilityLeafDefinitions(capabilities, review, operations), true);
   const owner = review.ownerCapabilityLeafAdjudication;
   assert.deepEqual(owner.dispositions, {
-    MACHINE_OPERATION_WITH_EXPLICIT_CHANNEL_APPLICABILITY: 383,
-    JOURNEY_STEP_WITH_EXACT_OPERATION: 77,
-    PLATFORM_DEPENDENCY_WITH_EXACT_MEDIA_CONTRACT: 2,
+    MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY: 383,
+    JOURNEY_STEP_CAPABILITY: 77,
+    PLATFORM_DEPENDENCY_CAPABILITY: 2,
   });
   assert.equal(operations.capabilityOperationContracts.profileCount, 38);
   assert.equal(operations.capabilityOperationContracts.boundsCount, 462);
@@ -362,9 +459,10 @@ test("PDP-1 consumes P0 capability intents with exact typed operations, bounds, 
   const missingOwnerId = structuredClone(review);
   delete missingOwnerId.ownerCapabilityLeafAdjudication.records[0].id;
   assert.equal(validateCapabilityLeafDefinitions(capabilities, missingOwnerId, operations), false, "each independently normative leaf disposition has a stable identity");
-  const badRef = structuredClone(review);
-  badRef.ownerCapabilityLeafAdjudication.records[0].operationRefs[0] = "media.operation.not-defined";
-  assert.equal(validateCapabilityLeafDefinitions(capabilities, badRef, operations), false, "stale operation refs fail closed");
+  const badRef = structuredClone(operations);
+  badRef.capabilityOperationContracts.records.find(({ capabilityRef }) => capabilityRef === "media.project.create")
+    .canonicalSourceContractRefs[0] = "UNRESOLVED_CONTRACT_REF:media.operation.not-defined";
+  assert.equal(validateCapabilityLeafDefinitions(capabilities, review, badRef), false, "stale operation refs fail closed");
   const falseQualification = structuredClone(review);
   falseQualification.ownerCapabilityLeafAdjudication.records[0].qualificationState = "QUALIFIED";
   assert.equal(validateCapabilityLeafDefinitions(capabilities, falseQualification, operations), false, "definition closure cannot promote qualification");
@@ -377,6 +475,12 @@ test("PDP-1 consumes P0 capability intents with exact typed operations, bounds, 
   const wrongWireOutput = structuredClone(capabilities);
   wrongWireOutput.capabilities.find(({ id }) => id === "media.simulation.output.rgb").outputArtifactTypes[0] = "simulation-pass-result-depth";
   assert.equal(validateCapabilityLeafDefinitions(wrongWireOutput, review, operations), false, "a leaf cannot bind another pass's effective output type");
+  const wrongOverlayVariant = structuredClone(operations);
+  const rgbWire = wrongOverlayVariant.ownerLeafWireContracts.records.find(({ id }) => id === "media.owner-wire-contract.simulation-rgb.v1");
+  const rgbOutput = rgbWire.resultSchema.properties.outputs.items.oneOf?.[0] ?? rgbWire.resultSchema.properties.outputs.items;
+  rgbOutput.properties.payload.properties.passKind.const = "depth-field";
+  assert.equal(validateCapabilityLeafDefinitions(capabilities, review, wrongOverlayVariant), false,
+    "a P0 RGB result variant cannot bind an overlay schema for a different simulation pass");
 });
 
 
@@ -513,11 +617,23 @@ test("PDP-1 operation, profile, and domain projections preserve P0 metric applic
   assert.equal(new Set(applicabilityRecords.map(({ id }) => id)).size, 1848);
   assert.equal(new Set(applicabilityRecords.map(({ capabilityRef }) => capabilityRef)).size, 462);
   assert.equal(new Set(records.map(({ capabilityRef }) => capabilityRef)).size, 462);
-  assert.ok(records.every(({ capabilityRef, measureApplicability, operationContractRef, profileRef, boundsRef }) =>
-    capabilities.capabilities.some(({ id }) => id === capabilityRef)
-    && operationContractRef.startsWith(".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=")
-    && profileRef && boundsRef
-    && measureIds.every((id) => measureApplicability[id]?.disposition && measureApplicability[id]?.reason && measureApplicability[id]?.sourceRefs?.length)));
+  const capabilityIntents = new Map(capabilities.capabilities.map(({ id }) => [id, true]));
+  const operationByCapability = new Map(operations.capabilityOperationContracts.records.map((record) => [record.capabilityRef, record]));
+  const boundsById = new Map(operations.capabilityOperationContracts.bounds.map((bound) => [bound.id, bound]));
+  assert.equal(capabilityIntents.size, 462);
+  assert.equal(operationByCapability.size, 462);
+  assert.ok(records.every(({ capabilityRef, measureApplicability, profileRef, boundsRef }) => {
+    const operation = operationByCapability.get(capabilityRef);
+    const bound = boundsById.get(boundsRef);
+    return capabilityIntents.has(capabilityRef)
+    && operation?.capabilityRef === capabilityRef
+    && operation.familyProfileRef === profileRef
+    && operation.boundsRef === boundsRef
+    && bound?.capabilityRef === capabilityRef
+    && bound.profileRef === profileRef
+    && measureIds.every((id) => measureApplicability[id]?.disposition
+      && measureApplicability[id]?.reason && measureApplicability[id]?.sourceRefs?.length);
+  }));
   assert.equal(operations.capabilityOperationContracts.bounds.length, 462);
   assert.equal(outputTypes.length, 69);
   assert.equal(new Set(outputTypes.map(({ artifactType }) => artifactType)).size, 69);
@@ -526,17 +642,17 @@ test("PDP-1 operation, profile, and domain projections preserve P0 metric applic
     (disposition === "EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING" && domainObjectRefs.length > 0)
     || (disposition === "EXPLICIT_NO_CANONICAL_DOMAIN_OBJECT_FOR_TRANSIENT_VALUE" && domainObjectRefs.length === 0)));
   assert.ok(outputTypes.every(({ domainObjectRefs }) => domainObjectRefs.every((id) => domainIds.has(id))));
-  assert.ok(review.ownerCapabilityLeafAdjudication.records.every(({ exactTypedOutputs, outputArtifactTypeBindings, outputDomainObjectRefs }) =>
-    exactTypedOutputs.length === outputArtifactTypeBindings.length
-    && outputArtifactTypeBindings.every(({ artifactType }) => exactTypedOutputs.includes(artifactType))
-    && outputDomainObjectRefs.every((id) => domainIds.has(id))));
+  const sourceCapabilityOutputs = new Map(capabilities.capabilities.map(({ id, outputArtifactTypes }) => [id, outputArtifactTypes]));
+  assert.ok(review.ownerCapabilityLeafAdjudication.records.every(({ capabilityRef, outputArtifactTypes }) =>
+    sourceCapabilityOutputs.has(capabilityRef)
+    && outputArtifactTypes.join("\0") === sourceCapabilityOutputs.get(capabilityRef).join("\0")));
 });
 
 test("PDP-1 action schemas use closed typed payloads, scalar validators, and the exact flat request envelope", () => {
   const operations = readYaml(paths.operations);
   const contracts = operations.capabilityOperationContracts;
-  assert.equal(contracts.scalarTypeRecords.length, 29);
-  assert.equal(new Set(contracts.scalarTypeRecords.map(({ id }) => id)).size, 29);
+  assert.equal(contracts.scalarTypeRecords.length, 32);
+  assert.equal(new Set(contracts.scalarTypeRecords.map(({ id }) => id)).size, 32);
   assert.equal(contracts.scalarTypes["opaque-id"].validator.type, "string");
   assert.ok(contracts.scalarTypes["opaque-id"].validator.pattern);
   assert.equal(contracts.inputPayloadSchemas.filter(({ payloadKind }) => payloadKind === "TYPED_VALUE").length, 0);
@@ -594,7 +710,8 @@ test("P1-10 owner boundaries fail closed while leaving enforcement and qualifica
   assert.match(privacy.retentionAndErasure.confirmRule, /all declared primary, replica, backup, cache, export and provider scopes/u);
   assert.match(privacy.duplicateEffectPrevention.ambiguousOutcome, /no blind replay/u);
   assert.ok(offline.prohibitedDisconnectedEffects.includes("job submission, retry or cancellation command"));
-  assert.ok(offline.reconnectProtocol.includes("compare every expected canonical source/project revision; stale values produce CONFLICT"));
+  assert.equal(offline.reconnectProtocol.find((step) => step.startsWith("compare every ")),
+    "compare every expected canonical source/project revision and typed parent-version edge; stale values produce CONFLICT, as does changed ancestry");
   assert.match(versioning.projectRevision.stale, /no mutation, automatic merge or overwrite/u);
   assert.match(privacy.scopeStatus, /enforcement.*pending/u);
 });

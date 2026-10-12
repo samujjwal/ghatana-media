@@ -1,0 +1,621 @@
+{
+  "schemaVersion": "media.pdp1-operation-current-source-review.v1",
+  "reviewKind": "P1_OWNER_SOURCE_RECONCILIATION",
+  "sourcePath": ".product-experience/pdp-1-domain-data/operations.yaml",
+  "currentSourceSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+  "historicalCuts": [
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-094",
+      "sourceSha256": "16cb028dcb28ec7d91b8698412a2f1a41c05f5779d7164f42cd13facd7389e54",
+      "meaning": "Immutable historical operation source cut; this record does not amend or replace it."
+    },
+    {
+      "decisionRef": ".product-experience/decision-log.md#PXD-046",
+      "sourceSha256": "f279538b72a1bdd73a6cf88556eebdaf91c9799a033f460233b796bf8df8f89d",
+      "meaning": "Prior owner-definition overlay hash retained as history; this record does not reuse its review as current acceptance."
+    }
+  ],
+  "relatedOwnerSourceReconciliation": {
+    "sourcePath": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
+    "priorSourceSha256": "190538ff25b8a86bde587f28c60ccae399a30cb72f42d820ca4d9520bb0ccc5b",
+    "currentSourceSha256": "f6155c1bf0a1851b0fa45f631ce09eb459d2b8d5d8df6cd03a3dd6d634be19cf",
+    "recordCount": 79,
+    "changedRecordIds": [
+      "media.owner-action-wire.apply-admitted-edit.v1",
+      "media.owner-action-wire.apply-authorized-rights-restriction.v1",
+      "media.owner-action-wire.check-job-outcome.v1",
+      "media.owner-action-wire.compare-candidate-on-metric.v1",
+      "media.owner-action-wire.compare-media-versions.v1",
+      "media.owner-action-wire.continue-within-recorded-scope.v1",
+      "media.owner-action-wire.deliver-exact-version.v1",
+      "media.owner-action-wire.export-authorized-provenance.v1",
+      "media.owner-action-wire.inspect-consent-and-permitted-use.v1",
+      "media.owner-action-wire.inspect-driver-or-constraint.v1",
+      "media.owner-action-wire.inspect-effective-processing-constraints.v1",
+      "media.owner-action-wire.inspect-generated-candidates.v1",
+      "media.owner-action-wire.inspect-governing-evidence.v1",
+      "media.owner-action-wire.inspect-input-output-color-interpretation.v1",
+      "media.owner-action-wire.inspect-job-retry-policy.v1",
+      "media.owner-action-wire.inspect-operation-contract.v1",
+      "media.owner-action-wire.inspect-operation-readiness.v1",
+      "media.owner-action-wire.inspect-output-preview-and-version.v1",
+      "media.owner-action-wire.inspect-quality-evidence.v1",
+      "media.owner-action-wire.inspect-scene-binding.v1",
+      "media.owner-action-wire.inspect-setting-owner.v1",
+      "media.owner-action-wire.inspect-simulation-domain-and-fidelity.v1",
+      "media.owner-action-wire.inspect-simulation-result.v1",
+      "media.owner-action-wire.inspect-source-grounded-observation.v1",
+      "media.owner-action-wire.inspect-source-measurements.v1",
+      "media.owner-action-wire.inspect-version-and-review-scope.v1",
+      "media.owner-action-wire.inspect-voice-authorization.v1",
+      "media.owner-action-wire.open-admitted-delivery-action.v1",
+      "media.owner-action-wire.open-approval-view.v1",
+      "media.owner-action-wire.open-authorized-recovery-instruction.v1",
+      "media.owner-action-wire.open-qualification-evidence.v1",
+      "media.owner-action-wire.open-related-view.v1",
+      "media.owner-action-wire.preview-current-revision.v1",
+      "media.owner-action-wire.preview-motion.v1",
+      "media.owner-action-wire.reconcile-delivery-acknowledgment.v1",
+      "media.owner-action-wire.record-authorized-attestation.v1",
+      "media.owner-action-wire.record-candidate-for-review.v1",
+      "media.owner-action-wire.record-review-comment.v1",
+      "media.owner-action-wire.record-review-follow-up.v1",
+      "media.owner-action-wire.record-version-review-decision.v1",
+      "media.owner-action-wire.refresh-operation-readiness.v1",
+      "media.owner-action-wire.request-admitted-speech-operation.v1",
+      "media.owner-action-wire.request-authorized-review.v1",
+      "media.owner-action-wire.request-plan-validation.v1",
+      "media.owner-action-wire.request-rights-review.v1",
+      "media.owner-action-wire.restore-prior-setting-preference.v1",
+      "media.owner-action-wire.return-to-requested-destination-after-identity-confirmation.v1",
+      "media.owner-action-wire.review-bounded-repair-proposal.v1",
+      "media.owner-action-wire.review-estimates-and-rights-effects.v1",
+      "media.owner-action-wire.review-output-evidence.v1",
+      "media.owner-action-wire.review-processing-parameters.v1",
+      "media.owner-action-wire.review-recognized-or-synthesized-content.v1",
+      "media.owner-action-wire.review-repair-bounds.v1",
+      "media.owner-action-wire.review-rights-approval-and-format-effects.v1",
+      "media.owner-action-wire.review-scene-timing-and-transitions.v1",
+      "media.owner-action-wire.review-translated-segment.v1",
+      "media.owner-action-wire.review-uncertain-tracking.v1",
+      "media.owner-action-wire.revoke-authorized-consent.v1",
+      "media.owner-action-wire.save-dubbing-version.v1",
+      "media.owner-action-wire.save-new-revision.v1",
+      "media.owner-action-wire.save-setting-preference.v1",
+      "media.owner-action-wire.save-storyboard-revision.v1",
+      "media.owner-action-wire.save-versioned-edit.v1",
+      "media.owner-action-wire.search-authorized-artifacts.v1",
+      "media.owner-action-wire.search-by-user-outcome.v1",
+      "media.owner-action-wire.search-named-profiles.v1",
+      "media.owner-action-wire.search-product-guidance.v1",
+      "media.owner-action-wire.share-diagnostics-after-explicit-choice.v1",
+      "media.owner-action-wire.stop-authorized-voice-use.v1",
+      "media.owner-action-wire.submit-admitted-plan.v1",
+      "media.owner-action-wire.submit-render.v1",
+      "media.owner-action-wire.submit-simulation.v1",
+      "media.owner-action-wire.submit-validated-request.v1",
+      "media.owner-action-wire.validate-composition.v1",
+      "media.owner-action-wire.validate-exact-snapshot.v1",
+      "media.owner-action-wire.validate-processing-profile.v1",
+      "media.owner-action-wire.validate-scene-references.v1",
+      "media.owner-action-wire.validate-simulation-plan.v1",
+      "media.owner-action-wire.view-job-status.v1"
+    ],
+    "changeMeaning": "The current 79-record source cut repairs every resultSchema envelope by removing the root additionalProperties:false that invalidated its oneOf data and relying on each individually closed branch; all 158 branches accept valid results and reject undeclared fields. Twelve owner request contracts also changed: eleven remove unsupported uniqueness and opaque-string constraints while preserving declared cardinalities, item shapes, and alternatives; the owner-only retry-policy QUERY binds exact read-observation scope and unknown-path recovery. The view-job-status OBSERVED result distinguishes CURRENT from STALE while unavailable evidence remains UNKNOWN. These source definitions do not imply runtime admission.",
+    "preservedRole": {
+      "actionRef": null,
+      "sourceActionRef": null,
+      "actionApplicability": "OWNER_OPERATION_WITH_NO_SOURCE_ACTION_IDENTITY",
+      "operationKind": "QUERY"
+    }
+  },
+  "interfacePopulationReconciliation": {
+    "basis": "Current owner sourceDenominators are checked against exact source registries and preserve distinct raw, public, fixture, operation-intent, direct-reference, and production-admission populations.",
+    "sourcePins": [
+      {
+        "path": ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+        "sha256": "6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4"
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml",
+        "sha256": "25ec48a642e012265f7b77dec4ae68c94025335caa4ccb6aaa01acfecb3973c4"
+      },
+      {
+        "path": ".product-experience/interface-parity/operation-parity.yaml",
+        "sha256": "8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6"
+      }
+    ],
+    "fixtureCli": {
+      "registryRecords": 11,
+      "directCommandOperationRefRecords": 2,
+      "operationIntentCrosswalkRecords": 11,
+      "productionRuntimeAdmission": "NOT_ADMITTED",
+      "executionScope": "deterministic-synthetic-fixtures-only; production-runtime-cli-not-connected",
+      "actionRefIntentCrosswalk": {
+        "media.fixture-cli.upload-inspect": "media.operation.artifact-ingest",
+        "media.fixture-cli.upload-resume": "media.operation.artifact-ingest",
+        "media.fixture-cli.transcribe": "media.operation.transcription-submission",
+        "media.fixture-cli.transcript-review": "media.operation.transcript-version-read",
+        "media.fixture-cli.job-status": "media.operation.job-lifecycle",
+        "media.fixture-cli.job-cancel": "media.operation.job-lifecycle",
+        "media.fixture-cli.job-check-outcome": "media.operation.job-lifecycle",
+        "media.fixture-cli.caption-correct-text": "media.operation.caption-draft-write",
+        "media.fixture-cli.caption-align-timing": "media.operation.caption-draft-write",
+        "media.fixture-cli.caption-save-version": "media.operation.caption-version-write",
+        "media.fixture-cli.caption-compare-versions": "media.operation.caption-version-read"
+      },
+      "meaning": "All eleven fixture parser identities have source-backed action-to-operation intent refs; only the two caption-version proposal records carry direct operationRef fields, and the fixture parser does not thereby gain production runtime admission."
+    },
+    "sdkMethods": {
+      "rawRegistryRecords": 33,
+      "publicMethodIdentities": 30,
+      "boundedCanonicalOperations": [
+        "media.sdk.createUploadSession",
+        "media.sdk.uploadPart",
+        "media.sdk.completeUploadSession"
+      ],
+      "boundedCanonicalReads": [
+        "media.sdk.getArtifact",
+        "media.sdk.getUploadSession"
+      ],
+      "getUploadSessionMeaning": "The exact observed public identity is retained in the owner denominator and maps to the upload-session observation/read slice; it is distinct from upload creation and carries no state-mutation, rights, or finality inference.",
+      "sourceBackedNonOperationDispositions": {
+        "TRANSPORT_ONLY": [
+          "media.sdk.getServiceStatus",
+          "media.sdk.getAllServicesStatus"
+        ],
+        "CLIENT_ONLY": [
+          "media.sdk.wait",
+          "media.sdk.addEventListener",
+          "media.sdk.removeEventListener"
+        ],
+        "PROVIDER_ADAPTER": [
+          "media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame"
+        ],
+        "LEGACY_PROVIDER_CATALOG_READ": [
+          "media.sdk.listProviderCapabilities"
+        ],
+        "NOT_ADMITTED": [
+          "media.sdk.retry",
+          "media.sdk.retryOperation"
+        ]
+      },
+      "sourceBackedLegacyNotEquivalentOperationIds": [
+        "media.sdk.getStatus",
+        "media.sdk.cancel",
+        "media.sdk.getResult",
+        "media.sdk.transcribe",
+        "media.sdk.getOperation",
+        "media.sdk.cancelOperation",
+        "media.sdk.trainVoiceModel",
+        "media.sdk.convertVoice",
+        "media.sdk.getOperationResult",
+        "media.sdk.processAIVoice",
+        "media.sdk.processVision",
+        "media.sdk.processMultimodal",
+        "media.sdk.legacy.AudioVideoClient.transcribe",
+        "media.sdk.legacy.AudioVideoClient.synthesize",
+        "media.sdk.synthesize",
+        "media.sdk.analyzeMultimodal"
+      ],
+      "sourceBackedLegacyNonEquivalenceRationale": {
+        "media.sdk.synthesize": "SynthesisRequestSchema and SynthesisResultSchema expose optional consentReference and artifactId but do not bind the owner proposal's unresolved tenant/principal/purpose/voice-consent authority, rights guards, output-version, or finality semantics.",
+        "media.sdk.analyzeMultimodal": "MultimodalAnalysisRequestSchema accepts mutable artifactId or inline text and returns generic MediaArtifact; it does not bind the owner proposal's versioned sources, modality/time alignment, purpose/model context, or temporal/uncertainty observation semantics."
+      },
+      "equivalenceUnknownIds": [],
+      "equivalenceUnknownMeaning": "There are no remaining SDK exact-operation equivalence unknowns in this bounded census. The two former unknowns have explicit source-backed request/result mismatches, no accepted operation mapping, and NOT_ADMITTED status.",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  },
+  "currentSemanticReconciliation": {
+    "basis": "The eleven selectors below are the source-exact operation records identified by the existing operation-source reconciliation chain. Their current semantics are checked directly against operations.yaml; this is not a fingerprint-only refresh.",
+    "records": [
+      {
+        "id": "media.operation-slice.inspect-upload",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.inspect-upload]",
+        "meaning": "Tenant-scoped read observation of upload session state; the result does not claim artifact finality or permit a follow-on command without current authorization."
+      },
+      {
+        "id": "media.operation-slice.inspect-artifact",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.inspect-artifact]",
+        "meaning": "Tenant-scoped read observation of an artifact identity; absence or unknown state is not treated as successful retrieval or permission for downstream use."
+      },
+      {
+        "id": "media.operation-slice.inspect-job",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.inspect-job]",
+        "meaning": "Current-tenant job observation; request acknowledgement, job status, provider effect and final output remain distinct."
+      },
+      {
+        "id": "media.operation-slice.submit-job",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.submit-job]",
+        "meaning": "A validated and policy-admitted request may create a job request; the source does not assert complete rights/consent guards, provider dispatch, or completed effect."
+      },
+      {
+        "id": "media.operation-slice.begin-upload",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.begin-upload].ownerSemantics.replay",
+        "meaning": "Replay binding is scoped by tenant, principal and idempotency key to the canonical full request; mismatched payload is rejected without mutation, with retention while the effect remains reconcilable."
+      },
+      {
+        "id": "media.operation-slice.append-upload-chunk",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.append-upload-chunk].ownerSemantics",
+        "meaning": "New chunks use contiguous next-index sequencing; a lost acknowledgement leaves outcome unknown and prohibits automatic replay; a prior index is acknowledged only from a matching persisted receipt."
+      },
+      {
+        "id": "media.operation-slice.complete-upload",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.complete-upload].ownerSemantics.completionReplay",
+        "meaning": "Completion is scoped to the existing upload identity, returns the original artifact identity after reconciliation, and does not invent request-body idempotency or a second artifact on retry."
+      },
+      {
+        "id": "media.operation-slice.inspect-provenance",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation-slice.inspect-provenance]",
+        "decisionRef": ".product-experience/decision-log.md#PXD-152",
+        "meaning": "Accepted definition-only caller-scoped execution-reference lineage query: exact opaque reference resolves only to one canonical ProcessingJob or JobAttempt identity; MediaRun is excluded. Runtime and transport remain NOT_ADMITTED."
+      },
+      {
+        "id": "media.operation.action.inspect-job-retry-policy",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation.action.inspect-job-retry-policy]",
+        "decisionRef": ".product-experience/decision-log.md#PXD-155",
+        "observationContractRef": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.retry-policy-current-read.v1",
+        "meaning": "Definition-only QUERY binds an authenticated host-scoped current read to one exact job and prior attempt. Retry eligibility requires RETRYABLE, a definitive no-effect or retryable-failure outcome, and remaining explicit attempt budget; missing, stale, foreign-scope, malformed, or unknown reads do not authorize retry. Endpoint, runtime observation, and retry execution remain NOT_ADMITTED."
+      },
+      {
+        "id": "media.operation.job.submit.v1",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation.job.submit.v1].ownerWireSchema.requestSchema.definitions.typedInputs.preservation-and-enhancement-policy",
+        "decisionRef": ".product-experience/decision-log.md#PXD-157",
+        "meaning": "The job.submit wrapper exactly preserves the canonical closed preservation-and-enhancement-policy typed input, including unique rights evidence and conditional consent plus enhancement-decision references. No new policy, runtime, or admission is defined."
+      },
+      {
+        "id": "media.operation.stream-session.inspect-execution-recovery.v1",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation.stream-session.inspect-execution-recovery.v1]",
+        "decisionRef": ".product-experience/decision-log.md#PXD-160",
+        "meaning": "Accepted definition-only exact-session recovery QUERY: host-attested tenant/principal and one coherent read snapshot bind current DEGRADED state, consent/purpose revisions, lease/fence, sequence and the complete source-selected prior-effect interval. CURRENT is revision-only, reconnect permission remains a separate guard, and incomplete or mismatched evidence is UNKNOWN. No execution-reference identity, dispatch, replay, endpoint, or runtime admission is added."
+      }
+    ]
+  },
+  "currentRequestRequirednessReconciliation": {
+    "basis": "The three corrections align each canonical request schema's required input fields with the exact declared inputSlots of that same capability operation. Required slots must be required in the closed request schema; undeclared slot names must not appear in its required list.",
+    "records": [
+      {
+        "capabilityRef": "media.project.update",
+        "operationId": "media.operation.capability.media-project-update",
+        "operationRef": "media.operation.capability.media-project-update",
+        "selector": "capabilityOperationContracts.records[@id=media.operation.capability.media-project-update].requestSchema.required",
+        "declaredRequiredInputSlots": [
+          "input1",
+          "input2"
+        ],
+        "correction": "Added input2 to requestSchema.required because the operation's authoritative inputSlots declare input2 (versioned-project) required; the closed request schema now enforces both declared required slots."
+      },
+      {
+        "capabilityRef": "media.provenance.execution-lineage.inspect",
+        "operationId": "media.operation.capability.media-provenance-execution-lineage-inspect",
+        "operationRef": "media.operation.capability.media-provenance-execution-lineage-inspect",
+        "selector": "capabilityOperationContracts.records[@id=media.operation.capability.media-provenance-execution-lineage-inspect].requestSchema.required",
+        "declaredRequiredInputSlots": [
+          "input1"
+        ],
+        "correction": "Removed input2 from requestSchema.required because the operation declares only required input1 (artifact-or-execution-reference); the nonexistent input2 property contradicted the closed request object's properties and its inputSlots."
+      },
+      {
+        "capabilityRef": "media.provenance.origin.disclose",
+        "operationId": "media.operation.capability.media-provenance-origin-disclose",
+        "operationRef": "media.operation.capability.media-provenance-origin-disclose",
+        "selector": "capabilityOperationContracts.records[@id=media.operation.capability.media-provenance-origin-disclose].requestSchema.required",
+        "declaredRequiredInputSlots": [
+          "input1"
+        ],
+        "correction": "Removed input3 from requestSchema.required because the operation declares only required input1 (artifact-or-execution-reference); the nonexistent input3 property contradicted the closed request object's properties and its inputSlots."
+      }
+    ]
+  },
+  "scope": {
+    "phase": "PDP-1",
+    "definitionStatus": "SOURCE_RECONCILED_FOR_DEVELOPMENT",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "implementationClaim": "NONE",
+    "phaseAcceptanceClaim": "NONE",
+    "p0ApprovalClaim": "NONE",
+    "note": "This source review binds a current P1 definition cut and bounded semantic deltas. Trusted storage, provider execution, independent qualification, runtime reachability and phase acceptance remain open."
+  },
+  "capabilityOperationMappingReconciliation": {
+    "recordCount": 462,
+    "basis": "The current capabilityOperationContracts population is a source mapping census; exact target schemas and action applicability remain bound to their canonical operation records.",
+    "directRequestAdapters": [
+      {
+        "capabilityRef": "media.artifact.import",
+        "operationRef": "media.operation.artifact.import.v1",
+        "directFields": [
+          "source",
+          "target",
+          "governance"
+        ]
+      },
+      {
+        "capabilityRef": "media.artifact.derive",
+        "operationRef": "media.operation.artifact.derive.v1",
+        "directFields": [
+          "sources",
+          "transformation",
+          "output",
+          "governance"
+        ]
+      }
+    ],
+    "acceptedOutputProjections": [
+      {
+        "capabilityRef": "media.job.submit",
+        "sourceOutcome": "REQUEST_ACKNOWLEDGED",
+        "sourcePointer": "/jobId",
+        "targetArtifactType": "accepted-media-job-reference-and-admission-observation",
+        "targetPointer": "/jobId",
+        "operator": "OWNER_ISSUED_RECEIPT_IDENTITY"
+      },
+      {
+        "capabilityRef": "media.artifact.derive",
+        "sourceBranchKind": "lifecycle-observation",
+        "sourcePointer": "/jobId",
+        "targetArtifactType": "governed-artifact-reference-or-lifecycle-observation",
+        "targetBranchKind": "lifecycle-observation",
+        "targetPointer": "/reference",
+        "operator": "EXACT_OPAQUE_REFERENCE_VALUE"
+      }
+    ],
+    "executionReferenceDisposition": {
+      "capabilityRef": "media.provenance.source-lineage.inspect",
+      "decisionRef": ".product-experience/decision-log.md#PXD-152",
+      "status": "ROUTE_OWNER_LOGICAL_CONTRACT_ACCEPTED",
+      "allowedIdentityKinds": [
+        "ProcessingJob",
+        "JobAttempt"
+      ],
+      "excludedIdentityKind": "MediaRun",
+      "runtimeAdmission": "NOT_ADMITTED"
+    },
+    "sourceActionCapabilityCrosswalk": {
+      "actionRef": "media.action.inspect-provenance",
+      "capabilityRef": "media.provenance.source-lineage.inspect",
+      "operationRef": "media.operation-slice.inspect-provenance",
+      "operationBindingId": "media.capability-binding.media-provenance-source-lineage-inspect",
+      "operationKind": "QUERY",
+      "decisionRef": ".product-experience/decision-log.md#PXD-152",
+      "actionRegistrySha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
+      "actionSelector": ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance",
+      "bindingSelector": ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.capability-binding.media-provenance-source-lineage-inspect",
+      "meaning": "The action capability reference resolves to the matching source-lineage capability and its one exact read-only QUERY. PXD-152 constrains the execution-reference branch to tenant-and-caller-scoped ProcessingJob or JobAttempt resolution; MediaRun remains excluded, unresolved outcomes remain non-disclosing UNKNOWN, and runtime admission remains NOT_ADMITTED.",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  },
+  "currentSourceCutDeltaReview": {
+    "status": "RECONCILED_CURRENT_SOURCE_CUT",
+    "reviewedOn": "2026-10-11",
+    "priorSourceSha256": "c3acdd3c3b360abe3287e9449b299f663c868a1fca65951a1ae2459b5e603137",
+    "currentSourceSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+    "authority": "Internal PDP-1 semantic development review under the user-delegated Media source-definition authority; not external acceptance, independent certification, runtime admission, or release approval.",
+    "method": "Re-reviewed the complete current owner-definition tree against exact source identities, the full-denominator review, current semantic selectors, current schema and interface populations, and focused negative/source-mapping tests. The preceding reviewed bytes at the prior pin are not present in Git, so this is a full current-source re-review and does not claim a reconstructed byte-exact incremental diff. No identity denominator was reduced to obtain green results.",
+    "sourceChangeGroups": [
+      {
+        "population": "sourceDenominators.cliSimulationCommands and sdkMethods",
+        "change": "All 11 fixture CLI action intents now map through exact owner operation intent; only the two caption-version rows carry direct operationRef fields. SDK source inventory is 33 registry records and 30 public method identities with exact bounded, transport-only, client-only, provider-adapter, legacy-non-equivalence, and NOT_ADMITTED dispositions.",
+        "evidence": [
+          "tests/media-operation-parity-source-denominators.test.mjs",
+          "tests/media-sdk-legacy-interface-dispositions.test.mjs",
+          "tests/pdp1-interface-current-source-review.test.mjs"
+        ]
+      },
+      {
+        "population": "operations[@id=media.operation.transcription-submission]",
+        "change": "Language-hint semantics, purpose/rights reference handling, trusted-context resolution, and request-fingerprint v2 are source-defined; explicit and auto-requested language modes remain distinct.",
+        "evidence": [
+          "tests/pdp1-transcription-exact-contract.test.mjs",
+          "tests/pdp1-transcription-optional-profile-mapping.test.mjs",
+          "tests/media-transcription-submission-interface-grammar.test.mjs"
+        ]
+      },
+      {
+        "population": "individualOperationContracts.records",
+        "change": "Five existing records changed: begin-upload, append-upload-chunk, inspect-upload, create-project, inspect-project. Replay, sequencing, exact observations, and no-effect/read boundaries stay explicit.",
+        "evidence": [
+          "tests/media-upload-operation-contracts.test.mjs",
+          "tests/media-j01-project-operation-definitions.test.mjs",
+          "tests/pdp-truth-domain.test.mjs"
+        ]
+      },
+      {
+        "population": "ownerDefinedOperationContracts.records",
+        "change": "Thirteen existing operation records were reconciled and one exact-session recovery QUERY was added. The changed set includes artifact-version inspection, source attachment, rights/provenance actions, render/simulation submission, job submission, artifact import/derive/output registration, and provenance inspection; PXD-152, PXD-157, and PXD-160 retain the exact logical definitions and NOT_ADMITTED runtime boundary.",
+        "evidence": [
+          "tests/pdp1-j29-execution-recovery-read-contract.test.mjs",
+          "tests/pdp1-provenance-execution-reference.test.mjs",
+          "tests/pdp1-provenance-typed-input-mapping.test.mjs",
+          "tests/pdp1-job-submit-typed-input-mapping.test.mjs",
+          "tests/pdp1-output-producer-contract-mappings.test.mjs",
+          "tests/pdp1-owner-action-wire-contracts.test.mjs"
+        ]
+      },
+      {
+        "population": "ownerDefinedJourneyOperationBindings.records[@id=media.pdp1.journey-operation-binding.upload-import-and-verify-artifact.J02-5]",
+        "change": "J02-5 binds exact immutable artifact-version identity and the accepted caller-scoped observation semantics; it does not assert current rights, availability, or runtime access.",
+        "evidence": [
+          "tests/media-j02-capability-leaf-definition.test.mjs",
+          "tests/pdp-experience-journey-operation-bindings.test.mjs",
+          "tests/pdp-truth-domain-journey-operation-bindings.test.mjs"
+        ]
+      },
+      {
+        "population": "ownerTypedObservationContracts.records[@id=media.observation-contract.retry-policy-current-read.v1]",
+        "change": "Retry eligibility remains edge-specific, based on current typed observation, definitive eligible outcome, and remaining explicit budget; UNKNOWN does not authorize replay.",
+        "evidence": [
+          "tests/pdp1-transition-guard-definition-evaluator.test.mjs",
+          "tests/pdp-truth-domain-race-semantics.test.mjs"
+        ]
+      },
+      {
+        "population": "ownerLeafWireContracts.records",
+        "change": "Eleven simulation output schemas bind exact per-pass RGB, depth, normals, segmentation, optical flow, motion vectors, object IDs, contacts, physical events, measurements, and timestamped state.",
+        "evidence": [
+          "tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs",
+          "tests/pdp-truth-domain-schema-validation.test.mjs"
+        ]
+      },
+      {
+        "population": "capabilityOperationContracts",
+        "change": "462 binding/bounds identities remain in the denominator; 203 mapping rows and 9 families were reconciled; input schemas are 128, output schemas are 98, and three scalar definitions were added. Output schema count was corrected from 96 to 98 to equal the 98-record array, with an equality regression assertion.",
+        "evidence": [
+          "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+          "tests/media-typed-contract-bindings.test.mjs",
+          "tests/media-operation-bounds.test.mjs",
+          "tests/pdp-truth-domain-schema-validation.test.mjs",
+          "tests/pdp1-output-producer-contract-mappings.test.mjs"
+        ]
+      },
+      {
+        "population": "ownerDefinedJourneyOperationBindings.records[@id=media.pdp1.journey-operation-binding.upload-import-and-verify-artifact.J02-5]",
+        "actionRef": "media.action.inspect-source",
+        "operationRef": "media.operation-slice.inspect-artifact-version",
+        "change": "The J02-5 inspect-source binding now selects the exact-version QUERY. Its two explicit guards require (1) trusted tenant and principal context and (2) visibility of the exact artifact and immutable version to that trusted principal. The exact version is caller-bound; current/latest aliases are rejected. Resulting integrity/lifecycle information is time-scoped and does not establish current availability, current rights or consent, retention authority, or permission to process or deliver.",
+        "guards": [
+          "trusted tenant and principal context is present",
+          "artifact and exact version are visible to the trusted principal; the caller binds the exact version and current/latest aliases are not accepted"
+        ],
+        "sourceProvenance": [
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.upload-import-and-verify-artifact.J02-5",
+          ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version",
+          ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.inspect",
+          ".product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.artifact-version"
+        ],
+        "evidence": [
+          "tests/media-j02-capability-leaf-definition.test.mjs",
+          "tests/pdp-experience-journey-operation-bindings.test.mjs",
+          "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+          "tests/pdp1-operation-current-source-review.test.mjs"
+        ],
+        "runtimeAdmission": "NOT_ADMITTED",
+        "currentSourceSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04"
+      }
+    ],
+    "focusedVerification": {
+      "command": "node --test tests/media-upload-operation-contracts.test.mjs tests/media-j01-project-operation-definitions.test.mjs tests/pdp-truth-domain-owner-leaf-wire-contracts.test.mjs tests/pdp-truth-domain-schema-validation.test.mjs",
+      "status": "PASS",
+      "passed": 19,
+      "total": 19
+    },
+    "outstandingMeaningIds": [],
+    "runtimeAdmission": "NOT_ADMITTED",
+    "previouslyReviewedSourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
+    "previousReviewedSourceBytesAvailableInGit": false,
+    "sourceChangeGroupsScope": "The sourceChangeGroups are inherited semantic-population summaries from the preceding reviewed cut and were revalidated against the current source. They are not asserted to enumerate an exact change set from the unavailable 2ea3da8a cut to the current 11d51ef cut."
+  },
+  "previousCurrentSourceReview": {
+    "status": "RECONCILED_CURRENT_SOURCE_CUT",
+    "sourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
+    "reviewedOn": "2026-10-11",
+    "priorSourceBytesAvailableInGit": false,
+    "meaning": "Retained as the preceding reviewed cut. It is not the current source review."
+  },
+  "currentSourceReinspection": {
+    "status": "REINSPECTED_CURRENT_SOURCE_CUT",
+    "reviewedOn": "2026-10-11",
+    "currentSourceSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+    "previousReviewedSourceSha256": "2ea3da8af4d332be51c7322060641de5f59a13e3b00833e03105f5d13049d55c",
+    "previousSourceBytesAvailableInGit": false,
+    "method": "Reviewed the complete current operations source tree directly against exact current identities, declared denominators, semantic selectors, mapped schemas, decision boundaries, and focused development tests. The prior reviewed bytes are not in the checked-out Git object history, so this record does not claim a reconstructed byte-exact incremental diff.",
+    "currentPopulations": {
+      "canonicalOperations": 448,
+      "capabilityBindingRecords": 14,
+      "capabilityOperationRecords": 462,
+      "inputPayloadSchemas": 128,
+      "outputPayloadSchemas": 98,
+      "ownerActionWireRecords": 79,
+      "ownerLeafWireSchemas": 11,
+      "fixtureCliCommands": 11,
+      "sdkRegistryRecords": 33,
+      "sdkPublicMethodIdentities": 30
+    },
+    "reviewedOperationSelectors": [
+      {
+        "id": "media.operation-slice.inspect-upload",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.inspect-upload]"
+      },
+      {
+        "id": "media.operation-slice.inspect-artifact",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.inspect-artifact]"
+      },
+      {
+        "id": "media.operation-slice.inspect-job",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.inspect-job]"
+      },
+      {
+        "id": "media.operation-slice.submit-job",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.submit-job]"
+      },
+      {
+        "id": "media.operation-slice.begin-upload",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.begin-upload].ownerSemantics.replay"
+      },
+      {
+        "id": "media.operation-slice.append-upload-chunk",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.append-upload-chunk].ownerSemantics"
+      },
+      {
+        "id": "media.operation-slice.complete-upload",
+        "selector": "individualOperationContracts.records[@id=media.operation-slice.complete-upload].ownerSemantics.completionReplay"
+      },
+      {
+        "id": "media.operation-slice.inspect-provenance",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation-slice.inspect-provenance]"
+      },
+      {
+        "id": "media.operation.action.inspect-job-retry-policy",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation.action.inspect-job-retry-policy]"
+      },
+      {
+        "id": "media.operation.job.submit.v1",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation.job.submit.v1].ownerWireSchema.requestSchema.definitions.typedInputs.preservation-and-enhancement-policy"
+      },
+      {
+        "id": "media.operation.stream-session.inspect-execution-recovery.v1",
+        "selector": "ownerDefinedOperationContracts.records[@id=media.operation.stream-session.inspect-execution-recovery.v1]"
+      }
+    ],
+    "findings": [
+      {
+        "population": "Individual operation and transcription contracts",
+        "meaning": "Current upload replay, append sequencing, project create/inspect, job observation/submission, and transcription request semantics remain consistent with their exact current records and applicable negative cases.",
+        "evidence": [
+          "tests/media-upload-operation-contracts.test.mjs",
+          "tests/media-j01-project-operation-definitions.test.mjs",
+          "tests/pdp1-transcription-exact-contract.test.mjs",
+          "tests/pdp1-transcription-optional-profile-mapping.test.mjs",
+          "tests/media-transcription-submission-interface-grammar.test.mjs"
+        ]
+      },
+      {
+        "population": "Capability operation schemas and mappings",
+        "meaning": "The 462 records reconcile to 448 canonical operation schema records and 14 capability bindings; reusable payload catalogs contain exactly 128 input and 98 output schemas with no one-sided request/result schemas.",
+        "evidence": [
+          "tests/pdp1-capability-intent-operation-mapping.test.mjs",
+          "tests/pdp1-requiredness-regression.test.mjs",
+          "tests/pdp-truth-domain-schema-validation.test.mjs",
+          "tests/pdp1-output-producer-contract-mappings.test.mjs"
+        ]
+      },
+      {
+        "population": "Owner definitions, typed observations, and downstream bindings",
+        "meaning": "PXD-152 caller-scoped provenance, PXD-155 edge-specific retry observation, PXD-157 canonical submit typed input, PXD-160 exact-session recovery, and J02-5 exact-version observation preserve their definition-only boundaries. PXD-161 remains a separate owner-action-wire result change.",
+        "evidence": [
+          "tests/pdp1-provenance-execution-reference.test.mjs",
+          "tests/pdp1-provenance-typed-input-mapping.test.mjs",
+          "tests/pdp1-transition-guard-definition-evaluator.test.mjs",
+          "tests/pdp1-j29-execution-recovery-read-contract.test.mjs",
+          "tests/pdp1-owner-action-wire-contracts.test.mjs",
+          "tests/pdp1-operation-current-source-review.test.mjs"
+        ]
+      }
+    ],
+    "outstandingMeaningIds": [],
+    "runtimeAdmission": "NOT_ADMITTED",
+    "transportAdmission": "NOT_ADMITTED",
+    "sourceChangeGroupsInterpretation": "The legacy group descriptions summarize reviewed semantic populations. They do not claim to identify every incremental 2ea3da8a-to-11d51ef edit."
+  }
+}

@@ -1,7 +1,7 @@
 schemaVersion: media.responsive-adaptive.v1
 productId: media
 authority: Media responsive composition and task capability at each viewport
-status: authored-proposal; P0-010-and-human-viewport-review-pending
+status: MEDIA_OWNER_DEFINITION_ACCEPTED; human-viewport-review-pending
 mediaOwnerDefinitionDecision:
   status: MEDIA_OWNER_ACCEPTED_DEFINITION_ONLY
   authority: User-delegated Media product/design owner under the PDP-0–PDP-3 completion mandate

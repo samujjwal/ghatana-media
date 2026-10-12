@@ -128,6 +128,8 @@ const definitions = [
       "docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json",
       "docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json",
       "docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json",
+      "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
+      "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json",
       "docs/implementation/verification/pdp-38/p0-quality-current-source-review.json",
       ".product-experience/explorer/tools-binding.yaml",
     ],
@@ -185,6 +187,10 @@ const definitions = [
       const capabilitiesSourceText = textSource("capabilities.yaml");
       const capabilitySemanticReviewText = textSource("p0-capability-semantic-current-source-review.json");
       const capabilitySemanticReview = JSON.parse(capabilitySemanticReviewText);
+      const p0CurrentSourceCorrectionText = textSource("p0-existing-operation-semantic-corrections-current-source-review.json");
+      const p0CurrentSourceCorrection = JSON.parse(p0CurrentSourceCorrectionText);
+      const p0UploadByteLengthCorrectionText = textSource("p0-upload-byte-length-minimum-current-source-review.json");
+      const p0UploadByteLengthCorrection = JSON.parse(p0UploadByteLengthCorrectionText);
       const animationRelationshipObservationText = textSource("feature-review-animation-property-owner-current-source-observation.json");
       const animationRelationshipObservation = JSON.parse(animationRelationshipObservationText);
       const textToImageObservationText = textSource("feature-review-current-source-observation.json");
@@ -209,6 +215,10 @@ const definitions = [
         capabilityIntentOwnerBindingObservationText,
         capabilitySemanticReview,
         capabilitySemanticReviewText,
+        p0CurrentSourceCorrection,
+        p0CurrentSourceCorrectionText,
+        p0UploadByteLengthCorrection,
+        p0UploadByteLengthCorrectionText,
         capabilitiesSourceText,
         qualityPolicySourceText,
         qualityMetricObservations,
@@ -785,6 +795,7 @@ const definitions = [
       ".product-experience/pdp-3-product-experience/step-definition-oracles.yaml",
       ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
       ".product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml",
+      ".product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml",
       ".product-experience/pdp-3-product-experience/action-registry.yaml",
       ".product-experience/pdp-3-product-experience/public-effect-finality-taxonomy.yaml",
       ".product-experience/pdp-1-domain-data/operations.yaml",
@@ -903,14 +914,21 @@ const definitions = [
         verificationEvidencePresent: journeyStepBindings.verification?.evidenceRefsPresent ?? 0,
         verificationAccepted: journeyStepBindings.verification?.accepted ?? 0,
       };
-      const p3JourneysWithScenarioRefs = p3JourneyCoverage.scenarioReferences?.journeysWithRefs ?? 0;
-      const p3JourneysWithoutScenarioRefs = p3JourneyCoverage.scenarioReferences?.journeysWithoutRefs ?? 0;
+      // coverageObservation is a preserved historical inventory. The current
+      // registry observation carries the source-backed scenario coverage.
+      const p3ScenarioCoverage = journeys.currentStepBindingObservation?.scenarioReferences ?? {};
+      const p3JourneysWithScenarioRefs = p3ScenarioCoverage.journeysWithRefs ?? 0;
+      const p3JourneysWithoutScenarioRefs = p3ScenarioCoverage.journeysWithoutRefs ?? 0;
       const screenContractByViewId = new Map(sources
         .filter((source) => source.sourceRef.startsWith(".product-experience/pdp-3-product-experience/screen-contracts/") && source.content?.screenId)
         .map((source) => [source.content.screenId, source.content]));
       const journeyContracts = sources
         .filter((source) => source.sourceRef.startsWith(".product-experience/pdp-3-product-experience/journey-contracts/") && source.content?.journeyId)
         .map((source) => source.content);
+      const journeyScenarioReferenceCount = new Set(journeyContracts.flatMap((contract) => [
+        ...(contract.scenarioRefs ?? []),
+        ...(contract.steps ?? []).flatMap((step) => step.scenarioRefs ?? []),
+      ])).size;
       const journeyContractById = new Map(journeyContracts.map((contract) => [contract.journeyId, contract]));
       const scenarioBindingsByJourney = new Map();
       for (const binding of journeyScenarioBindings.records ?? []) {
@@ -956,6 +974,66 @@ const definitions = [
       const primaryOutcomeDecisionByJourney = new Map((journeyOutcomeDecisions.records ?? []).map((record) => [record.journeyRef, record]));
       const p0InitiatorByJourneyId = new Map(p0InitiatorResolutions.map((resolution) => [resolution.id, resolution]));
       const journeyProjectionAudit = { projected: [], omitted: [], sourceNullTransitions: [], stepSemanticsProjected: 0, stepSemanticsUnresolved: 0, stepBindingDispositionCounts: {}, stepSemanticsFailureCounts: {}, stepSemanticsFailures: [] };
+      const classifyStepTransition = (step, candidateTransition, ownerBinding) => {
+        if (candidateTransition) return "EXACT_BOUND_TRANSITION_CANDIDATE";
+        const ownerStateDisposition = String(ownerBinding?.stateBindingDisposition ?? "").toUpperCase();
+        if (ownerStateDisposition.includes("SESSION_LOCAL_REVISION_ONLY; NO CANONICAL DOMAIN-STATE TRANSITION")
+          && Array.isArray(ownerBinding.stateRefs) && ownerBinding.stateRefs.length === 0) {
+          return "SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION";
+        }
+        if (/INITIAL_STATE_ON_COMMITTED_SUCCESS|INITIAL_AGGREGATE_ADMISSION/u.test(ownerStateDisposition)) return "SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION";
+        if (/APPEND_ONLY_VERSION|IMMUTABLE_RECORD/u.test(ownerStateDisposition)) return "SOURCE_BACKED_NO_TRANSITION";
+        if (ownerBinding?.operationKind === "QUERY") return "SOURCE_BACKED_NO_TRANSITION";
+        if (ownerBinding?.operationKind === "COMMAND" && /LOGICAL REQUEST.*RECEIPT|ACCEPTANCE IS NOT A JOB STATE|NO JOB.STATE OR ATTEMPT TRANSITION/iu.test(ownerBinding.ownerResultSemantics ?? "")) {
+          return "CONDITIONAL_OR_REQUEST_OBSERVATION";
+        }
+        if (/LOCAL_SELECTION_ONLY_NO_CANONICAL_TRANSITION/iu.test(JSON.stringify(step.stepDefinitionSemantics?.transitionApplicability ?? step.transitionApplicability ?? ""))) {
+          return "SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION";
+        }
+        const topLevelTransitionReason = step.transitionDisposition?.reason ?? step.stepDefinitionSemantics?.transitionDisposition?.reason;
+        if (step.transitionDisposition?.status === "NOT_APPLICABLE_WITH_REASON" && typeof topLevelTransitionReason === "string"
+          && /NO .*TRANSITION|READ[- ]ONLY|EXTERNAL .*HANDOFF|NO MEDIA MUTATION/iu.test(topLevelTransitionReason)) {
+          return "SOURCE_BACKED_NO_TRANSITION";
+        }
+        const authored = [step.transitionDisposition, step.stepDefinitionSemantics?.transitionDisposition,
+          step.stepDefinitionSemantics?.action?.transitionDisposition, step.transitionApplicability,
+          step.stepDefinitionSemantics?.transitionApplicability]
+          .filter((value) => value !== undefined && value !== null);
+        const evidenceParts = authored.map((value) => typeof value === "string" ? value : JSON.stringify(value)).map((value) => value.toUpperCase());
+        const evidence = evidenceParts.join(" ");
+        const requestAction = [step.action, step.actionRef, step.stepDefinitionSemantics?.action?.actionRef,
+          step.canonicalOperationRef, step.stepDefinitionSemantics?.action?.operationRef,
+          step.stepDefinitionSemantics?.canonicalBindings?.canonicalOperationRef].filter(Boolean).join(" ").toUpperCase();
+        if (/REQUEST-CANCELLATION|RETRY-JOB|REQUEST-LIVE-SESSION-RECONNECT|SESSION-RECONNECT/u.test(requestAction)) return "CONDITIONAL_OR_REQUEST_OBSERVATION";
+        if (/REQUEST[_ -]?ONLY|CONDITIONAL|REQUEST ACCEPTANCE|RECONNECT REQUEST|ASYNC_COMMAND_WITHOUT_LOCAL_DOMAIN_TRANSITION/iu.test(evidence)) return "CONDITIONAL_OR_REQUEST_OBSERVATION";
+        const actionScopeParts = [step.stepDefinitionSemantics?.action?.effectKind,
+          step.stepDefinitionSemantics?.action?.effect, step.stepDefinitionSemantics?.action?.finality]
+          .filter((value) => value !== undefined && value !== null)
+          .map((value) => String(value).toUpperCase());
+        const reasonParts = [step.transitionDisposition?.reason, step.stepDefinitionSemantics?.transitionDisposition?.reason]
+          .filter((value) => typeof value === "string").map((value) => value.toUpperCase());
+        const explicitNoTransition = [...evidenceParts, ...actionScopeParts, ...reasonParts].some((part) => /NOT[_ -]?APPLICABLE|NO (?:[A-Z0-9_-]+ )?(?:[A-Z0-9_-]+ )?(?:DOMAIN )?TRANSITION|NO[_ -]MUTATING[_ -]TRANSITION|OBSERVATION[_ -]ONLY|READ[_ -]ONLY|QUERY|LOCAL[_ -](?:DRAFT|REVISION)|LOCAL_SESSION_OR_DRAFT_EFFECT|LOCAL_DRAFT_UPDATE|SESSION.LOCAL.DRAFT|LOCAL_SELECTION_ONLY_NO_CANONICAL_TRANSITION|NO MUTATION/iu.test(part)
+          && !/UNRESOLVED|PENDING/u.test(part));
+        const hasUnresolvedApplicability = /TRANSITION_APPLICABILITY_UNRESOLVED|UNRESOLVED_APPLICABLE/iu.test(evidence);
+        const hasUnboundCanonicalEdge = /CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND/iu.test(evidence);
+        const operationRefs = [step.canonicalOperationRef, ...(step.requiredOperationRefs ?? []),
+          ...(step.resumeWorkflow?.orderedOperationRefs ?? []), ...(step.stepDefinitionSemantics?.action?.operationRefs ?? []),
+          step.stepDefinitionSemantics?.canonicalBindings?.canonicalOperationRef,
+          step.stepDefinitionSemantics?.transitionApplicability?.operationRef, step.transitionApplicability?.operationRef]
+          .flatMap((value) => typeof value === "string" ? value.split(/[;,]/u).map((ref) => ref.trim()) : []);
+        const hasCommandOperation = operationRefs.some((ref) => operationKindsByRef.get(ref) === "COMMAND");
+        const hasQueryOperation = operationRefs.some((ref) => operationKindsByRef.get(ref) === "QUERY");
+        if (/INITIAL_AGGREGATE_ADMISSION/iu.test(evidence)) return "SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION";
+        if (/APPLICABLE_WITH_BOUNDS|APPLICABLE TRANSITION/iu.test(evidence)) return "APPLICABLE_BOUNDED_CANDIDATE";
+        if (hasUnresolvedApplicability && explicitNoTransition) return "MIXED_OR_OTHER_SOURCE_DISPOSITION";
+        if (hasUnboundCanonicalEdge) return "UNRESOLVED_APPLICABLE_COMMAND";
+        if (hasUnresolvedApplicability && hasCommandOperation) return "UNRESOLVED_APPLICABLE_COMMAND";
+        if (hasUnresolvedApplicability) return "MIXED_OR_OTHER_SOURCE_DISPOSITION";
+        if (explicitNoTransition || (hasQueryOperation && /TRANSITION_APPLICABILITY_UNRESOLVED/iu.test(evidence))) return "SOURCE_BACKED_NO_TRANSITION";
+        if (hasCommandOperation && (step.transitionRef == null || /UNRESOLVED|PENDING/iu.test(evidence))) return "UNRESOLVED_APPLICABLE_COMMAND";
+        if (authored.length > 0) return "MIXED_OR_OTHER_SOURCE_DISPOSITION";
+        return step.transitionRef == null ? "MIXED_OR_OTHER_SOURCE_DISPOSITION" : "UNRESOLVED_TRANSITION_REFERENCE";
+      };
       const projectedJourneys = (journeys.journeys ?? []).flatMap((journey) => {
         const actorResolution = p0InitiatorByJourneyId.get(journey.pdp0JourneyRef);
         const sourceJourneyEntry = p0JourneyById.get(journey.pdp0JourneyRef);
@@ -998,8 +1076,10 @@ const definitions = [
             : typeof step.viewIntent === "string" ? step.viewIntent
               : typeof step.label === "string" ? step.label : undefined;
           const intent = explicitIntent ?? (view && typeof view.purpose === "string" ? view.purpose : undefined);
+          const stepSourceRef = `.product-experience/pdp-3-product-experience/${journey.contract}#/steps/${index}`;
+          const ownerBinding = ownerBindingBySourceRef.get(stepSourceRef);
           if (typeof intent !== "string" || intent.trim().length === 0) {
-            journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: null, sourceTransitionRef: step.transitionRef ?? null, projectedTransitionRefs: null, disposition: step.transitionRef == null ? "UNRESOLVED_SOURCE_NULL; STEP_OMITTED_FOR_MISSING_INTENT" : "SOURCE_TRANSITION_NOT_MAPPED; STEP_OMITTED_FOR_MISSING_INTENT" });
+            journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: null, sourceTransitionRef: step.transitionRef ?? null, sourceTransitionDisposition: step.transitionDisposition ?? null, nestedStepTransitionDisposition: step.stepDefinitionSemantics?.transitionDisposition ?? null, nestedActionTransitionDisposition: step.stepDefinitionSemantics?.action?.transitionDisposition ?? null, stepDefinitionTransitionApplicability: step.stepDefinitionSemantics?.transitionApplicability ?? null, transitionApplicability: step.transitionApplicability ?? null, p1OwnerBindingId: ownerBinding?.id ?? null, p1JourneyStepRef: ownerBinding?.journeyStepRef ?? null, p1OperationRef: ownerBinding?.operationRef ?? null, p1OperationKind: ownerBinding?.operationKind ?? null, p1OperationDefinitionRef: ownerBinding?.operationDefinitionRef ?? null, p1StateRefs: ownerBinding?.stateRefs ?? null, p1StateBindingDisposition: ownerBinding?.stateBindingDisposition ?? null, p1OwnerResultSemantics: ownerBinding?.ownerResultSemantics ?? null, p1FailClosedCases: ownerBinding?.failClosedCases ?? null, projectedTransitionRefs: null, disposition: classifyStepTransition(step, undefined, ownerBinding) });
             journeyProjectionAudit.omitted.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectionStepIdCandidate: stepId, reason: "no exact authored intent, label, or directly linked view purpose; result text is not an intent", sourceRef: `${journey.contract}#/steps/${index}` });
             continue;
           }
@@ -1011,12 +1091,11 @@ const definitions = [
               && step.requiredOperationRefs?.join("\u0000") === binding.workflowOperationRefs.join("\u0000");
           });
           const transitionRefs = candidateTransition ? [candidateTransition.id] : [];
+          const transitionDisposition = classifyStepTransition(step, candidateTransition, ownerBinding);
           if (explicitIntent) projectedExplicitIntentCount += 1;
           else projectedViewPurposeIntentCount += 1;
-          journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: stepId, sourceTransitionRef: step.transitionRef ?? null, sourceTransitionDisposition: step.transitionDisposition ?? null, projectedTransitionRefs: transitionRefs, disposition: candidateTransition ? "EXACT_PDP1_ACCEPTED_EDGE_BOUNDED_CANDIDATE; EXPLICIT_P3_BINDING_SUPPLIES_EDGE_WHERE_LEGACY_STEP_TRANSITION_REF_IS_NULL" : step.transitionRef == null ? "UNRESOLVED_SOURCE_NULL; EMPTY_ARRAY_IS_SCHEMA_PLACEHOLDER_ONLY" : "SOURCE_TRANSITION_NOT_MAPPED" });
-          const stepSourceRef = `.product-experience/pdp-3-product-experience/${journey.contract}#/steps/${index}`;
+          journeyProjectionAudit.sourceNullTransitions.push({ journeyId: journey.id, stepOrdinal: index + 1, sourceStepId: step.stepId ?? null, projectedStepId: stepId, sourceTransitionRef: step.transitionRef ?? null, sourceTransitionDisposition: step.transitionDisposition ?? null, nestedStepTransitionDisposition: step.stepDefinitionSemantics?.transitionDisposition ?? null, nestedActionTransitionDisposition: step.stepDefinitionSemantics?.action?.transitionDisposition ?? null, stepDefinitionTransitionApplicability: step.stepDefinitionSemantics?.transitionApplicability ?? null, transitionApplicability: step.transitionApplicability ?? null, p1OwnerBindingId: ownerBinding?.id ?? null, p1JourneyStepRef: ownerBinding?.journeyStepRef ?? null, p1OperationRef: ownerBinding?.operationRef ?? null, p1OperationKind: ownerBinding?.operationKind ?? null, p1OperationDefinitionRef: ownerBinding?.operationDefinitionRef ?? null, p1StateRefs: ownerBinding?.stateRefs ?? null, p1StateBindingDisposition: ownerBinding?.stateBindingDisposition ?? null, p1OwnerResultSemantics: ownerBinding?.ownerResultSemantics ?? null, p1FailClosedCases: ownerBinding?.failClosedCases ?? null, projectedTransitionRefs: transitionRefs, disposition: transitionDisposition });
           const oracleStep = oracleStepBySourceRef.get(stepSourceRef);
-          const ownerBinding = ownerBindingBySourceRef.get(stepSourceRef);
           const purposeBinding = purposeBindingBySourceRef.get(stepSourceRef);
           const versionBinding = versionBindingBySourceRef.get(stepSourceRef);
           const domainObjectSource = sources.find((source) => source.sourceRef === ".product-experience/pdp-1-domain-data/domain-objects.yaml")?.content ?? {};
@@ -1272,8 +1351,8 @@ const definitions = [
             journeys: { status: `PARTIAL_SOURCE_PROJECTION_${projectedJourneys.length}_OF_${(journeys.journeys ?? []).length}_JOURNEYS_${projectedJourneys.reduce((count, journey) => count + journey.steps.length, 0)}_OF_${p3Steps}_STEPS; OWNER_REVIEW_PENDING`, source: "journey-registry.yaml#journeys; journey-contracts/*.yaml#steps; pdp-0-product-truth/journey-actor-resolutions.yaml#journeys; journey-catalog.yaml#journeys; goals-jtbd.yaml#outcomes; screen-registry.yaml#screens,laneViews" },
             interactions: { status: "DIRECT_INTERACTION_AND_ACTION_PRECONDITION_MAPPING", source: "interaction-registry.yaml#interactions; action-registry.yaml#actions[].preconditions" },
             states: { status: `PDP0_DOMAIN_STATE_PROPOSALS_PLUS_${localViewStates.length}_TYPED_LOCAL_VIEW_OBSERVATION_STATES; CANONICAL_PDP1_STATE_ACCEPTANCE_SEPARATE`, source: "state-models.yaml#models[].states; view-observation-predicates.yaml#predicates joined to view-observation-input-contracts.yaml#factSchemas" },
-            transitions: { status: `PARTIAL_EXACT_SOURCE_EDGE_CANDIDATES_${projectedTransitions.length}; REMAINING_EDGE_BINDINGS_OPEN`, source: "transitions.yaml#transitionRecords joined to state-transition-bindings.yaml#ownerTransitionProjectionCandidates.records" },
-            actions: { status: `DIRECT_UI_PROPOSAL_MAPPING; ${candidateActions.filter((action) => action.producesEffectRefs.length).length}_BOUNDED_PUBLIC_TAXONOMY_CANDIDATES; TWO_SHARED_HANDOFFS_UNMAPPED`, source: "action-registry.yaml#actions and #ownerDefinedActions; public-effect-finality-taxonomy.yaml#records" },
+            transitions: { status: `EXACT_SOURCE_EDGE_CANDIDATES_${projectedTransitions.length}; UNRESOLVED_APPLICABLE_COMMANDS_${journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "UNRESOLVED_APPLICABLE_COMMAND").length}`, source: "transitions.yaml#transitionRecords joined to state-transition-bindings.yaml#ownerTransitionProjectionCandidates.records and effective journey-step transition dispositions" },
+            actions: { status: `DIRECT_UI_PROPOSAL_MAPPING; ${candidateActions.filter((action) => action.producesEffectRefs.length).length}_BOUNDED_PUBLIC_TAXONOMY_CANDIDATES; TWO_SHARED_HANDOFFS_EXPLICITLY_UNADMITTED_EXTERNAL_OWNER_ROLES`, source: "action-registry.yaml#actions and #ownerDefinedActions; public-effect-finality-taxonomy.yaml#records" },
             effects: { status: `${definedSemantics.effects.length}_BOUNDED_ENUM_CANDIDATES_PLUS_HISTORICAL_PUBLIC_RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING`, source: "public-effect-finality-taxonomy.yaml#records[].publicEffectCandidate" },
             finality: { status: `${finalityMappings.length}_BOUNDED_ENUM_CANDIDATES_PLUS_HISTORICAL_PUBLIC_RECORDS; RUNTIME_AND_PHASE_ACCEPTANCE_PENDING`, source: "public-effect-finality-taxonomy.yaml#records[].publicFinalityCandidate" },
             recovery: { status: recoveryMappingComplete ? "OWNER_ACCEPTED_DEFINITION_RECORDS; RUNTIME_AND_INDEPENDENT_ACCEPTANCE_NOT_ADMITTED" : "SOURCE_PROPOSALS_AND_CROSS-REFERENCES_RECORDED; PUBLIC_BOOLEAN_BINDINGS_UNRESOLVED", source: "recovery-finality-contracts.yaml#contracts[].definitionSemantics.publicRecovery; experience-source-bindings.yaml#recoveryCrossReferences" },
@@ -1330,19 +1409,31 @@ const definitions = [
             },
             transitionProjection: {
               sourceNullCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.sourceTransitionRef == null).length,
-              sourceNoMutationReasonCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.sourceTransitionRef == null && step.sourceTransitionDisposition?.status === "NOT_APPLICABLE_WITH_REASON").length,
+              sourceNoMutationReasonCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "SOURCE_BACKED_NO_TRANSITION").length,
+              sourceInitialAdmissionCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "SOURCE_BACKED_INITIAL_ADMISSION_NO_EXISTING_TRANSITION").length,
+              sourceLocalNoCanonicalTransitionCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "SOURCE_BACKED_LOCAL_NO_CANONICAL_TRANSITION").length,
+              conditionalOrRequestObservationCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "CONDITIONAL_OR_REQUEST_OBSERVATION" || step.disposition === "SOURCE_BACKED_CONDITIONAL_OR_NONTRANSITION").length,
+              unresolvedApplicableCommandCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "UNRESOLVED_APPLICABLE_COMMAND").length,
+              mixedOrOtherDispositionCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "MIXED_OR_OTHER_SOURCE_DISPOSITION").length,
+              unresolvedSourceDispositionCount: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "MIXED_OR_OTHER_SOURCE_DISPOSITION" || step.disposition === "UNRESOLVED_APPLICABLE_COMMAND" || step.disposition === "UNRESOLVED_TRANSITION_REFERENCE").length,
+              unresolvedSourceDispositionRows: journeyProjectionAudit.sourceNullTransitions.filter((step) => step.disposition === "MIXED_OR_OTHER_SOURCE_DISPOSITION" || step.disposition === "UNRESOLVED_APPLICABLE_COMMAND" || step.disposition === "UNRESOLVED_TRANSITION_REFERENCE").map(({ journeyId, stepOrdinal, sourceStepId, sourceTransitionRef, disposition }) => ({ journeyId, stepOrdinal, sourceStepId, sourceTransitionRef, disposition })),
               rows: journeyProjectionAudit.sourceNullTransitions,
-              disposition: "Source transitionRef null requires separate source applicability review; explicit no-mutation reasons are retained without inferring public transition mapping. Public transitionRefs: [] is only a required schema placeholder and is not evidence that no transitions exist.",
+              disposition: "Effective source transition dispositions include top-level step.transitionDisposition, stepDefinitionSemantics.transitionDisposition, nested stepDefinitionSemantics.action.transitionDisposition, step.transitionApplicability, and stepDefinitionSemantics.transitionApplicability. Explicit no-transition/query/local/observation definitions and request-only/conditional definitions are classified from source evidence when legacy transitionRef is null. Mixed source evidence, unresolved applicability, and unbound applicable command edges remain visible as transition blockers; request acceptance does not project CANCELLED, RUNNING, or restored state. Public transitionRefs: [] remains the schema-required candidate placeholder.",
             },
             projectedSourceRows: journeyProjectionAudit.projected,
             omittedJourneys: journeyProjectionAudit.omitted.filter((entry) => !entry.stepOrdinal),
             stepBindingCounts: journeyStepGapCounts,
             stepViewBindingSourceAudit: journeyStepBindings.screenContractRef ?? {},
-            journeyScenarioReferenceCounts: { withRefs: p3JourneysWithScenarioRefs, withoutRefs: p3JourneysWithoutScenarioRefs },
+            journeyScenarioReferenceCounts: {
+              withRefs: p3JourneysWithScenarioRefs,
+              withoutRefs: p3JourneysWithoutScenarioRefs,
+              referenceCount: journeyScenarioReferenceCount,
+              source: "currentStepBindingObservation.scenarioReferences plus exact journey-contract scenarioRefs and steps[].scenarioRefs",
+            },
             remainingGap: journeyProjectionBlocker,
           },
           ownerDecisionStatus: "PENDING; directly projected records and schema validation do not establish semantic acceptance or phase closure.",
-          definitionSemantics: { projectedEffects: definedSemantics.effects.length, projectedExplicitFinality: definedSemantics.finality.length, conditionalOrUnknownActions: definedSemantics.conditionalActions, unmappedPublicActions: definedSemantics.unmappedPublicActions, projectedRecoveries: definedSemantics.recoveries.length, recoverySourceCount: (recovery.contracts ?? []).length, recoveryMappingComplete, mappingDecisionRef: ".product-experience/decision-log.md#PXD-078", admission: "NOT_ADMITTED; DEFINITION_ONLY" },
+          definitionSemantics: { projectedEffects: definedSemantics.effects.length, projectedExplicitFinality: definedSemantics.finality.length, conditionalOrUnknownActions: definedSemantics.conditionalActions, unmappedPublicActions: definedSemantics.unmappedPublicActions, unmappedApplicableActions: definedSemantics.unmappedApplicableActions, explicitUnadmittedExternalOwnerActions: definedSemantics.explicitUnadmittedExternalOwnerActions, projectedRecoveries: definedSemantics.recoveries.length, recoverySourceCount: (recovery.contracts ?? []).length, recoveryMappingComplete, mappingDecisionRef: ".product-experience/decision-log.md#PXD-078", admission: "NOT_ADMITTED; DEFINITION_ONLY" },
           componentSourceDispositions,
           recoverySourceProposals,
           recoverySourceCrossReferences: experienceBindings.recoveryCrossReferences ?? [],
@@ -1392,7 +1483,28 @@ const definitions = [
         return (binding.versionFieldBindings ?? []).map((field) => {
           const ref = `${recordRef}/versionFieldBindings/@id=${field.id}`;
           const resolved = resolvePdp3BindingSourceRef(ref, sourceDocuments);
+          const localSelectionCoverage = resolved?.coverageDisposition === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN"
+            && Array.isArray(resolved.fields) && resolved.fields.length > 0
+            && binding.localDraftRevisionContractRef?.endsWith("/localRevisionRule")
+            && Boolean(resolvePdp3BindingSourceRef(binding.localDraftRevisionContractRef, sourceDocuments))
+            && resolved.fields.every((versionField) => versionField.direction === "LOCAL_SELECTION"
+              && versionField.requiredVersionBinding === "LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH"
+              && versionField.boundObjectRefs?.includes(resolved.objectRef)
+              && Boolean(resolvePdp3BindingSourceRef(versionField.requestSchemaRef, sourceDocuments))
+              && versionField.fieldSelector === ".product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs/ExactArtifactVersionRef"
+              && Boolean(resolvePdp3BindingSourceRef(versionField.fieldSelector, sourceDocuments))
+              && ["media.component-value-types.v1#/$defs/ArtifactVersionCandidate", "media.component-value-types.v1#/$defs/SourceVersionCandidate"].includes(versionField.candidateSchemaRef)
+              && versionField.versionRule?.includes("full artifact version identity tuple"))
+            && resolved.objectRef === "media.domain.artifact-version"
+            && JSON.stringify(resolved.exactVersionTupleRequirement) === JSON.stringify(["versionId"])
+            && JSON.stringify(resolved.canonicalVersionIdentityRequirement?.exactTupleFields) === JSON.stringify(["tenantId", "artifactId", "versionId"]);
+          const explicitUnknownVersion = resolved?.coverageDisposition === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN"
+            && Array.isArray(resolved.fields) && resolved.fields.length === 0
+            && Array.isArray(resolved.exactVersionTupleRequirement) && resolved.exactVersionTupleRequirement.length > 0
+            && resolved.canonicalVersionIdentityRequirement?.missingOrStaleDisposition === "UNKNOWN"
+            && resolved.canonicalVersionIdentityRequirement?.foreignTenantOrMixedVersionDisposition === "UNKNOWN";
           const supported = ["EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND", "EXACT_VERSION_REQUEST_FIELD_BOUND",
+            "EXACT_VERSION_RESULT_FIELD_BOUND",
             "EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED"].includes(resolved?.coverageDisposition)
             || (resolved?.coverageDisposition === "ARTIFACT_VERSION_IS_TRANSITIVE_THROUGH_EXACT_CAPTION_VERSION_IDENTITY; COMPARISON_RESULT_HAS_NO_DIRECT_TYPED_SOURCE_VERSION_FIELD; DO_NOT_INFER_SOURCE_VERSION"
               && Array.isArray(resolved.transitiveVersionJoins) && resolved.transitiveVersionJoins.length > 0)
@@ -1403,7 +1515,8 @@ const definitions = [
             || (Array.isArray(resolved?.logicalVersionJoin?.canonicalTuple)
               && resolved.logicalVersionJoin.canonicalTuple.includes("tenantId")
               && resolved.logicalVersionJoin.runtimeAdmission === "NOT_ADMITTED"
-              && Boolean(resolvePdp3BindingSourceRef(resolved.logicalVersionJoin.candidateObservationContractRef, sourceDocuments)));
+              && Boolean(resolvePdp3BindingSourceRef(resolved.logicalVersionJoin.candidateObservationContractRef, sourceDocuments)))
+            || localSelectionCoverage || explicitUnknownVersion;
           return [ref, supported ? owner : null];
         }).filter(([, owner]) => owner !== null);
       }));
@@ -1486,6 +1599,7 @@ const definitions = [
           if (kind === "object-version") {
             const versionField = resolvePdp3BindingSourceRef(ref, sourceDocuments);
             const directlyBound = ["EXACT_VERSION_REQUEST_OR_RESULT_FIELD_BOUND", "EXACT_VERSION_REQUEST_FIELD_BOUND",
+              "EXACT_VERSION_RESULT_FIELD_BOUND",
               "EXACT_TYPED_CONSENT_REVISION_OBSERVATION; LOGICAL_DEFINITION_ONLY; TRANSPORT_NOT_ADMITTED"].includes(versionField?.coverageDisposition);
             const transitiveCaptionJoin = versionField?.coverageDisposition === "ARTIFACT_VERSION_IS_TRANSITIVE_THROUGH_EXACT_CAPTION_VERSION_IDENTITY; COMPARISON_RESULT_HAS_NO_DIRECT_TYPED_SOURCE_VERSION_FIELD; DO_NOT_INFER_SOURCE_VERSION"
               && Array.isArray(versionField.transitiveVersionJoins) && versionField.transitiveVersionJoins.length > 0;
@@ -1498,8 +1612,28 @@ const definitions = [
               && logicalVersionJoin.canonicalTuple.includes("tenantId")
               && logicalVersionJoin.runtimeAdmission === "NOT_ADMITTED"
               && Boolean(resolvePdp3BindingSourceRef(logicalVersionJoin.candidateObservationContractRef, sourceDocuments));
+            const explicitUnknownVersion = versionField?.coverageDisposition === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN"
+              && Array.isArray(versionField.fields) && versionField.fields.length === 0
+              && Array.isArray(versionField.exactVersionTupleRequirement) && versionField.exactVersionTupleRequirement.length > 0
+              && versionField.canonicalVersionIdentityRequirement?.missingOrStaleDisposition === "UNKNOWN"
+              && versionField.canonicalVersionIdentityRequirement?.foreignTenantOrMixedVersionDisposition === "UNKNOWN";
+            const localSelectionVersion = versionField?.coverageDisposition === "VERSIONED_OBJECT_HAS_NO_SOURCE_BOUND_REQUEST_OR_RESULT_VERSION_FIELD; KEEP_VERSION_OBSERVATION_UNKNOWN"
+              && Array.isArray(versionField.fields) && versionField.fields.length > 0
+              && versionField.fields.every((field) => field.direction === "LOCAL_SELECTION"
+                && field.requiredVersionBinding === "LOCAL_EXACT_ARTIFACT_VERSION_IDENTITY_SELECTION; NO_DOMAIN_DISPATCH"
+                && field.boundObjectRefs?.includes(versionField.objectRef)
+                && Boolean(resolvePdp3BindingSourceRef(field.requestSchemaRef, sourceDocuments))
+                && field.fieldSelector === ".product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs/ExactArtifactVersionRef"
+                && Boolean(resolvePdp3BindingSourceRef(field.fieldSelector, sourceDocuments)))
+              && versionField.objectRef === "media.domain.artifact-version"
+              && JSON.stringify(versionField.exactVersionTupleRequirement) === JSON.stringify(["versionId"])
+              && JSON.stringify(versionField.canonicalVersionIdentityRequirement?.exactTupleFields) === JSON.stringify(["tenantId", "artifactId", "versionId"])
+              && Boolean(versionBindingDocument.records.find((record) => ref.startsWith(`.product-experience/pdp-3-product-experience/step-version-binding-contracts.yaml#records/@id=${record.id}/`)
+                && record.localDraftRevisionContractRef?.endsWith("/localRevisionRule")
+                && resolvePdp3BindingSourceRef(record.localDraftRevisionContractRef, sourceDocuments)));
             return isPdp3ReferenceInStepScope({ ref, owner: context?.owner, ownersByReference: versionBindingByRef })
-              && (directlyBound || transitiveCaptionJoin || deferredVersionApplicability || logicalTupleDefinition);
+              && (directlyBound || transitiveCaptionJoin || deferredVersionApplicability || logicalTupleDefinition
+                || explicitUnknownVersion || localSelectionVersion);
           }
           if (kind === "requirement") return requirementIds.has(ref) || resolvePdp3BindingSourceRef(ref, sourceDocuments) !== undefined;
           if (kind === "state" || kind === "authority") return resolvePdp3BindingSourceRef(ref, sourceDocuments) !== undefined
@@ -1546,10 +1680,10 @@ const definitions = [
       journeys: [],
       interactions: [],
       states: [],
-      transitions: ["One exact PDP-1 upload-finalization edge candidate is projected under its bounded owner source. Other PDP-1 transition rows lack a complete operation/action/guard edge binding; local/query steps remain non-transitions and must not be padded with invented states or guards."],
-      actions: ["Two Shared identity handoffs remain unmapped pending exact Shared role binding. Reconnect's action definition is bounded under PXD-077; candidate mapping does not prove dispatch or success."],
-      effects: ["Two Shared identity handoffs remain unmapped pending exact Shared public contract evidence; reconnect candidate mapping is bounded by PXD-077. Runtime admission and independent PDP-3 acceptance remain separate."],
-      finality: ["Two Shared identity handoffs remain unmapped pending exact Shared public contract evidence; reconnect candidate mapping is bounded by PXD-077. Runtime admission and independent PDP-3 acceptance remain separate."],
+      transitions: [],
+      actions: ["Applicability-specific action mappings are derived from exact action roles; explicitly unadmitted external-owner roles remain unadmitted and are not projected as Media effects."],
+      effects: ["Applicable action effect mappings must be exact; explicitly unadmitted external-owner roles remain unadmitted and are not projected as Media effects."],
+      finality: ["Applicable action finality mappings must be exact; explicitly unadmitted external-owner roles remain unadmitted and are not projected as Media finality."],
       recovery: ["Five recovery narratives and exact action/scenario cross-references are retained in source review metadata; the source does not provide the public automaticRecovery/userActionRequired booleans or all canonical state/finality references."],
       scenarios: [],
       fixtures: [],
@@ -1757,13 +1891,27 @@ for (const definition of definitions.filter((entry) => !onlyDefinition || entry.
     const scenarioFixtureRegistry = sources.find((source) => source.sourceRef === ".product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml")?.content;
     const registeredScenarioCount = scenarioFixtureRegistry?.fixtures?.length ?? 0;
     const projectedScenarioCount = candidateModel.scenarios?.length ?? 0;
-    fieldMappingBlockersForProjection.journeys = [candidateModel._mappingReview.journeyBindingAudit.remainingGap];
+    const journeyAudit = candidateModel._mappingReview.journeyBindingAudit;
+    if (journeyAudit.projectedStepCount !== journeyAudit.p3OrderedStepCount || journeyAudit.typedStepSemanticsUnresolved > 0) {
+      fieldMappingBlockersForProjection.journeys = [journeyAudit.remainingGap];
+    } else delete fieldMappingBlockersForProjection.journeys;
+    const unresolvedApplicableCommandCount = journeyAudit.transitionProjection.unresolvedApplicableCommandCount;
+    const unresolvedSourceDispositionCount = journeyAudit.transitionProjection.unresolvedSourceDispositionCount;
+    if (unresolvedApplicableCommandCount > 0 || unresolvedSourceDispositionCount > 0) {
+      fieldMappingBlockersForProjection.transitions = [`${unresolvedApplicableCommandCount} applicable journey command step(s) lack an exact PDP-1 transition binding; ${unresolvedSourceDispositionCount} source step(s) still lack a resolved transition applicability disposition.`];
+    } else delete fieldMappingBlockersForProjection.transitions;
     const definitionReview = candidateModel._mappingReview.definitionSemantics;
     if (definitionReview.recoveryMappingComplete) delete fieldMappingBlockersForProjection.recovery;
     else fieldMappingBlockersForProjection.recovery = [`${definitionReview.recoverySourceCount - definitionReview.projectedRecoveries} existing recovery records lack reviewed typed definition mappings; no booleans inferred from prose.`];
-    fieldMappingBlockersForProjection.actions = [`${candidateModel.actions.filter((action) => action.producesEffectRefs.length).length} of ${candidateModel.actions.length} action candidates have bounded effect mappings; the two Shared identity handoffs remain unmapped pending external-owner evidence; reconnect uses its exact PXD-077 mapping.`];
-    fieldMappingBlockersForProjection.effects = [`${definitionReview.projectedEffects} reviewed enum effect candidates are projected without boolean coercion; ${definitionReview.unmappedPublicActions.length} actions remain unmapped, and runtime/phase acceptance remain separate.`];
-    fieldMappingBlockersForProjection.finality = [`${definitionReview.projectedExplicitFinality} reviewed enum finality candidates are projected without boolean coercion; ${definitionReview.unmappedPublicActions.length} actions remain unmapped, and runtime/phase acceptance remain separate.`];
+    if (definitionReview.unmappedApplicableActions.length > 0) {
+      fieldMappingBlockersForProjection.actions = [`${definitionReview.unmappedApplicableActions.length} applicable actions lack an exact effect/finality disposition: ${definitionReview.unmappedApplicableActions.join(", ")}.`];
+      fieldMappingBlockersForProjection.effects = [`${definitionReview.unmappedApplicableActions.length} applicable actions lack an exact effect mapping; explicitly unadmitted external-owner roles are listed separately.`];
+      fieldMappingBlockersForProjection.finality = [`${definitionReview.unmappedApplicableActions.length} applicable actions lack an exact finality mapping; explicitly unadmitted external-owner roles are listed separately.`];
+    } else {
+      delete fieldMappingBlockersForProjection.actions;
+      delete fieldMappingBlockersForProjection.effects;
+      delete fieldMappingBlockersForProjection.finality;
+    }
     if (projectedScenarioCount !== registeredScenarioCount) {
       fieldMappingBlockersForProjection.scenarios = [
         `Only ${projectedScenarioCount} of ${registeredScenarioCount} registry records have exact canonical or typed local-context start bindings plus source-fixture seeds.`,

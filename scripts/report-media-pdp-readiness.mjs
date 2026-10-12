@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { buildMediaProductDefinitionResidualReport } from './lib/media-product-definition-residuals.mjs';
 import { enumerateExpectedMediaObligations } from './lib/media-obligation-denominator-audit.mjs';
+import { analyzeDesignConformance } from './check-media-design-conformance.mjs';
 
 export const taskIds = [8, 11, 9, 10].flatMap((n, phase) => Array.from({length:n}, (_,i) => `P${phase}-${String(i+1).padStart(2,'0')}`));
 export function validateTaskPopulation(tasks) {
@@ -23,39 +24,93 @@ export function verificationCutChanged(before, after) {
 function hasCompleteCurrentP0CriterionScopes(definitionCriterionReviews) {
   return p0ReviewedScopeCriteria.every(id=>{
     const review=definitionCriterionReviews[id];
-    const correction=review?.currentCorrectiveReview;
+    const currentReview=review?.currentCorrectiveReview ?? review?.currentSourceReview;
     return review?.status==='APPROVED_DIRECT_DEFINITION_CRITERION'
       && review.sourceCutCurrent===true
-      && correction?.status==='APPROVED_CURRENT_CORRECTION'
-      && correction.phaseScope==='PDP-0'
-      && typeof correction.decisionRef==='string'&&correction.decisionRef.trim();
+      && ['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(currentReview?.status)
+      && currentReview.phaseScope==='PDP-0'
+      && typeof currentReview.decisionRef==='string'&&currentReview.decisionRef.trim();
   });
 }
 const suites = {
-  'P0-01': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-capability-source-backed-outcomes.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/pdp-capability-family-definition.test.mjs'],
+  'P0-01': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-capability-source-backed-outcomes.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/pdp-capability-family-definition.test.mjs'],
   'P0-02': ['tests/pdp-truth-domain.test.mjs', 'tests/media-operation-bounds.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-output-producer-applicability.test.mjs', 'tests/pdp-truth-domain-nfr-measurement-methods.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs'],
   'P0-03': ['tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp-migration-semantic-reconciliation.test.mjs', 'tests/pdp-migration-capability-material-claims.test.mjs', 'tests/pdp-migration-preservation-identity-wire-claims.test.mjs', 'tests/pdp-migration-pxd120-current-target-observations.test.mjs', 'tests/pdp-migration-constitution-claims.test.mjs', 'tests/pdp-leaf-trust-reconstruction-dispositions.test.mjs', 'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs', 'tests/pdp-migration-mpsem-0077-c002-persona-parity.test.mjs', 'tests/pdp-migration-p0-current-material-reviews.test.mjs', 'tests/pdp0-result-variant-trust-bindings.test.mjs'],
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs'],
   'P0-05': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp0-constitution-normative-completeness.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs'],
   'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs'],
   'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs'],
-  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/media-pdp-readiness.test.mjs'],
+  'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
-  'P2-01': ['tests/pdp-2-tools-experience-language-contract.test.mjs', 'tests/pdp-2-experience-language-projection.test.mjs'],
-  'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs'],
+  'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs', 'tests/pdp1-lane-a-current-source-review.test.mjs'],
   'P1-02': ['tests/media-state-machine-extraction.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp-truth-domain-race-semantics.test.mjs', 'tests/pdp-truth-domain-transition-coverage.test.mjs'],
-  'P1-03': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-job-submit-parameter-contract.test.mjs'],
+  'P1-03': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp-job-submit-parameter-contract.test.mjs', 'tests/pdp1-capability-intent-operation-mapping.test.mjs',
+    'tests/pdp1-artifact-upload-result-schema.test.mjs', 'tests/pdp1-artifact-wire-byte-ceilings.test.mjs',
+    'tests/pdp1-job-submit-typed-input-mapping.test.mjs', 'tests/pdp1-output-producer-contract-mappings.test.mjs',
+    'tests/pdp1-provenance-execution-reference.test.mjs', 'tests/pdp1-provenance-typed-input-mapping.test.mjs',
+    'tests/pdp1-requiredness-regression.test.mjs', 'tests/pdp1-transcription-exact-contract.test.mjs',
+    'tests/pdp1-transcription-optional-profile-mapping.test.mjs'],
   'P1-07': ['tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-agent-tool-contracts.test.mjs'],
   'P1-09': ['tests/media-temporal-spatial-definition-model.test.mjs', 'tests/media-descriptor-definition-oracles.test.mjs'],
-  'P2-05': ['tests/pdp-design-composition.test.mjs'],
-  'P2-04': ['tests/media-ui-reuse-inventory.test.mjs', 'tests/pdp-design-reuse-disposition.test.mjs'],
-  'P2-07': ['tests/pdp-design-interface-parity.test.mjs'],
-  'P3-01': ['tests/pdp-experience-definition-mapping.test.mjs'],
-  'P3-02': ['tests/pdp-3-screen-journey-crosslinks.test.mjs'],
-  'P3-03': ['tests/pdp-experience-step-semantics.test.mjs'],
-  'P3-04': ['tests/pdp-experience-action-inventory.test.mjs'],
+  'P1-04': ['tests/media-operation-parity-source-denominators.test.mjs', 'tests/pdp1-interface-current-source-review.test.mjs', 'tests/media-sdk-legacy-interface-dispositions.test.mjs', 'tests/media-contract-parity.test.mjs', 'tests/media-contract-parity-definition-only-cli.test.mjs'],
+  'P1-05': ['tests/media-typed-contract-bindings.test.mjs'],
+  'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
+  'P1-08': ['tests/pdp-events-owner-definition.test.mjs', 'tests/pdp-truth-domain-event-delivery.test.mjs', 'tests/media-event-source-parity.test.mjs', 'tests/media-event-interface-owner-bindings.test.mjs'],
+  'P1-10': ['tests/pdp-truth-domain-erasure-contract.test.mjs', 'tests/pdp-truth-domain-policy-fallback-offline.test.mjs', 'tests/media-privacy-consistency-source.test.mjs'],
+  'P1-11': ['tests/media-pdp-p1-dev-status.test.mjs', 'tests/pdp1-phase-handoff-contract.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp1-j29-execution-recovery-read-contract.test.mjs', 'tests/pdp-truth-domain-erasure-contract.test.mjs', 'tests/pdp1-domain-identity-reference-contracts.test.mjs', 'tests/pdp1-operation-current-source-review.test.mjs', 'tests/pdp1-interface-current-source-review.test.mjs', 'tests/pdp1-transition-guard-definition-evaluator.test.mjs', 'tests/pdp1-owner-action-wire-contracts.test.mjs', 'tests/media-event-interface-owner-bindings.test.mjs', 'tests/pdp0-pxd117-phase-noise-measurement-regression.test.mjs', 'tests/pdp-tts-request-origin-binding.test.mjs'],
+  'P2-01': ['tests/pdp-2-tools-experience-language-contract.test.mjs', 'tests/pdp-2-experience-language-projection.test.mjs'],
+  'P2-02': ['tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-presentation-contracts.test.mjs'],
+  'P2-03': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-exact-content-overlay-policy.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs'],
+  'P2-04': ['tests/media-ui-reuse-inventory.test.mjs', 'tests/pdp-design-reuse-disposition.test.mjs', 'tests/pdp-design-interface-component-contracts.test.mjs'],
+  'P2-05': ['tests/pdp-design-composition-catalogs.test.mjs', 'tests/pdp-2-recipe-layout-chains.test.mjs', 'tests/media-presentation-architecture.test.mjs'],
+  'P2-06': ['tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp-design-responsive-rendered-references.test.mjs'],
+  'P2-07': ['tests/pdp-design-interface-parity.test.mjs', 'tests/pdp2-machine-interface-handoff.test.mjs', 'tests/media-agent-tool-contracts.test.mjs', 'tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-transcription-submission-interface-grammar.test.mjs'],
+  'P2-08': ['tests/pdp-design-accessibility-text-spacing-target-size.test.mjs', 'tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
+  'P2-09': ['tests/media-design-conformance.test.mjs', 'tests/pdp-design-current-public-consumer-bindings.test.mjs', 'tests/pdp-design-composition-catalogs.test.mjs', 'tests/media-ui-reuse-inventory.test.mjs', 'tests/media-presentation-architecture.test.mjs', 'tests/pdp2-phase-handoff-contract.test.mjs', 'tests/media-pdp-p2-dev-status.test.mjs'],
+  'P3-01': ['tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-generic-journey-step-projection.test.mjs', 'tests/pdp-experience-transition-projection.test.mjs', 'tests/pdp-experience-component-projection.test.mjs', 'tests/pdp-experience-component-source-dispositions.test.mjs', 'tests/media-j01-definition-semantics.test.mjs', 'tests/media-j02-definition-semantics.test.mjs', 'tests/media-transcript-review-definition.test.mjs', 'tests/media-caption-version-experience-definitions.test.mjs'],
+  'P3-02': ['tests/pdp-3-screen-journey-crosslinks.test.mjs', 'tests/pdp-3-screen-source-bindings.test.mjs', 'tests/pdp-experience-view-state-binding.test.mjs', 'tests/pdp-experience-view-observation-state-projection.test.mjs', 'tests/pdp-experience-view-observation-predicates.test.mjs', 'tests/pdp-experience-default-navigation.test.mjs', 'tests/pdp-job-status-screen-definition.test.mjs'],
+  'P3-03': ['tests/pdp-experience-step-semantics.test.mjs', 'tests/pdp-experience-step-definition-oracle.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-operation-bindings.test.mjs', 'tests/pdp-experience-step-guard-fact-contracts.test.mjs', 'tests/pdp-experience-typed-guard-fact-evaluator.test.mjs', 'tests/pdp-experience-rights-guard-fact-evaluator.test.mjs', 'tests/media-transcription-submission-experience-definition.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs', 'tests/pdp-experience-immediate-result-sources.test.mjs'],
+  'P3-04': ['tests/pdp-experience-action-inventory.test.mjs', 'tests/pdp-experience-action-reconciliation-contract.test.mjs', 'tests/pdp-experience-local-step-effect-definition.test.mjs', 'tests/pdp-experience-transition-edge-bindings.test.mjs', 'tests/pdp-experience-transition-trigger-semantics.test.mjs', 'tests/pdp-experience-identity-handoff.test.mjs'],
+  'P3-05': ['tests/pdp-3-scenario-fixture-coverage.test.mjs', 'tests/pdp-3-definition-branch-coverage.test.mjs', 'tests/pdp-3-scenario-start-state-integrity.test.mjs', 'tests/pdp-experience-journey-scenario-bindings.test.mjs', 'tests/pdp-experience-scenario-local-context-bindings.test.mjs', 'tests/pdp-experience-254-guard-step-fixture-corpus.test.mjs', 'libs/media-experience-simulation/tests/pdp-experience-scenario-inventory.test.mjs', 'libs/media-experience-simulation/tests/pdp-experience-step-oracles.test.mjs'],
+  'P3-06': ['tests/media-presentation-architecture.test.mjs', 'tests/pdp-experience-component-projection.test.mjs', 'tests/pdp-experience-component-source-dispositions.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
+  'P3-07': ['tests/pdp-api-error-semantics.test.mjs', 'tests/media-agent-tool-contracts.test.mjs', 'tests/media-agent-tool-definition-contracts.test.mjs', 'tests/media-agent-tool-untrusted-media.test.mjs', 'tests/media-event-interface-owner-bindings.test.mjs', 'tests/media-event-source-parity.test.mjs', 'tests/media-search-inspection-contracts.test.mjs', 'tests/media-sdk-legacy-interface-dispositions.test.mjs', 'tests/pdp-events-owner-definition.test.mjs', 'tests/pdp-truth-domain-event-delivery.test.mjs', 'tests/media-contract-parity.test.mjs', 'tests/media-contract-parity-definition-only-cli.test.mjs', 'tests/media-fixture-cli-current-definition-bindings.test.mjs', 'tests/pdp-3-07-machine-contract-fixtures.test.mjs'],
+  'P3-08': ['tests/pdp-3-examples.test.mjs'],
+  'P3-09': ['tests/pdp-design-responsive-comprehension.test.mjs', 'tests/pdp-design-responsive-rendered-references.test.mjs', 'tests/pdp-design-accessibility-text-spacing-target-size.test.mjs', 'tests/pdp2-media-renderer-dom.test.mjs'],
+  'P3-10': ['tests/pdp-3-overview-denominator.test.mjs', 'tests/pdp-experience-definition-mapping.test.mjs', 'tests/pdp-experience-action-reconciliation-contract.test.mjs', 'tests/pdp-experience-transition-edge-bindings.test.mjs', 'tests/pdp-experience-view-state-binding.test.mjs', 'tests/pdp-experience-journey-purpose-bindings.test.mjs', 'tests/pdp-experience-step-version-binding-contracts.test.mjs', 'tests/pdp-experience-journey-scenario-bindings.test.mjs', 'tests/media-pdp-p3-dev-status.test.mjs', 'tests/pdp3-j03-decision-crosswalk.test.mjs'],
 };
+export const p103VerificationSuites = {
+  'bounded-owner-contracts': {files:['tests/pdp-truth-domain.test.mjs', 'tests/pdp-job-submit-parameter-contract.test.mjs'], testNamePattern:null},
+  'capability-intent-mapping': {files:[
+    'tests/pdp1-capability-intent-operation-mapping.test.mjs',
+    'tests/pdp1-artifact-upload-result-schema.test.mjs',
+    'tests/pdp1-artifact-wire-byte-ceilings.test.mjs',
+    'tests/pdp1-job-submit-typed-input-mapping.test.mjs',
+    'tests/pdp1-output-producer-contract-mappings.test.mjs',
+    'tests/pdp1-provenance-execution-reference.test.mjs',
+    'tests/pdp1-provenance-reference-key-bounds.test.mjs',
+    'tests/pdp1-provenance-typed-input-mapping.test.mjs',
+    'tests/pdp1-requiredness-regression.test.mjs',
+    'tests/pdp1-transcription-exact-contract.test.mjs',
+    'tests/pdp1-transcription-optional-profile-mapping.test.mjs',
+  ], testNamePattern:null},
+  'owner-action-wire-contracts': {files:['tests/pdp1-owner-action-wire-contracts.test.mjs'], testNamePattern:null},
+};
+suites['P1-03'] = [...new Set([
+  ...suites['P1-03'],
+  ...Object.values(p103VerificationSuites).flatMap(group => group.files),
+])];
 const p0Criteria = ['P0-01','P0-02','P0-03','P0-04','P0-05','P0-06','P0-07','P0-08'];
+export const p2Criteria = Array.from({length: 9}, (_, i) => `P2-${String(i + 1).padStart(2, '0')}`);
+export const p2SuiteFiles = Object.fromEntries(p2Criteria.map(id => [id, [...(suites[id] ?? [])]]));
+export const p3Criteria = Array.from({length: 10}, (_, i) => `P3-${String(i + 1).padStart(2, '0')}`);
+export const p3SuiteFiles = Object.fromEntries(p3Criteria.map(id => [id, [...(suites[id] ?? [])]]));
+export function isExplicitVerificationTestPath(file) {
+  if (typeof file !== 'string' || !file.endsWith('.test.mjs') || file.includes('\\')) return false;
+  const parts = file.split('/');
+  if (parts.some(part => !part || part === '.' || part === '..')) return false;
+  return parts[0] === 'tests' && parts.length >= 2
+    || parts[0] === 'libs' && parts.length >= 4 && parts.slice(1, -1).includes('tests');
+}
 const p0ReviewedScopeCriteria = ['P0-01','P0-02','P0-05','P0-06','P0-07'];
 // P0-08 is the internal integrated review: rerun every bounded PDP-0 source
 // criterion on the final cut, plus the dev-status reporter's own invariants.
@@ -116,7 +171,7 @@ suites['P0-08'] = [...new Set([
 // Direct task criteria must not inherit failures from unrelated phase work.
 // Those broader diagnostics remain in the full integration verification.
 const directTestNames = {
-  'P0-01': 'P0 assigns every capability leaf explicit channel applicability|all 462 leaves have exact profile-channel applicability or a source-backed exclusion|15 review dimensions resolve every requirement type and all 462 exact leaf joins|PDP-0 hands off all 462 stable capability intents|PDP-0 handoff rejects missing, duplicate, or weakened capability meaning|P0 owner intent binding observation|P0 capability outcomes state exact result meaning|P0 outcome validation rejects generic|source-backed capability result contracts|PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity|current P0 owner review and trust records preserve measurement semantics and fail closed|current P0 quality joins use the measurement record as the phase metric subject|project creation requires a title|phase analysis declares a measurement record|scientific demo separates visual plausibility|export creates a delivery package|P0 capability semantic review|source-free animation authoring|PXD-128 result variants cover every audited leaf|capability families are exact leaf groupings without inherited operations or readiness',
+  'P0-01': 'P0 assigns every capability leaf explicit channel applicability|all 462 leaves have exact profile-channel applicability or a source-backed exclusion|15 review dimensions resolve every requirement type and all 462 exact leaf joins|PDP-0 hands off all 462 stable capability intents|PDP-0 handoff rejects missing, duplicate, or weakened capability meaning|P0 owner intent binding observation|P0 capability outcomes state exact result meaning|P0 outcome validation rejects generic|source-backed capability result contracts|PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity|current P0 owner review and trust records preserve measurement semantics and fail closed|current P0 quality joins use the measurement record as the phase metric subject|project creation requires a title|phase analysis declares a measurement record|scientific demo separates visual plausibility|export creates a delivery package|P0 capability semantic review|source-free animation authoring|PXD-128 result variants cover every audited leaf|source-asset attachment names the exact source and project versions|artifact derivation types source version, profile version, output type, purpose, and rights|output registration types candidate lineage, digest, media metadata, policy, and optional project revision|conditional upload, import, inspection, and transcription outputs are not guaranteed on every success|capability families are exact leaf groupings without inherited operations or readiness',
   'P0-02': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 bounded invocation admission|trustworthy-output applicability follows output-producer role|every declared NFR has one complete owner measurement method|performance method binds all six proposed budgets|missing method material and attempted qualification promotion fail validation|SLO and human/specialist methods remain gated|actual PDP-0 owner applicability source closes all pairs|same-count substitution, duplicates and stale binding projections',
   'P0-04': 'P0-04|PDP-0 preserves exact collaborator|PDP-0 requirement trace targets',
   'P0-05': 'P0 model acquisition and reuse policy|P0 channel and dependency update semantics|P0 input inspection, simulation, trust, and mission rules have no PDP-1 contract prerequisites|historical migration source stays provenance|P0 policy assigns one semantic authority|identity, consent, rights, version and revocation checks fail closed|policy definitions do not claim runtime',
@@ -135,6 +190,7 @@ directTestNames['P0-08'] = [
   'P0 capability semantic review pins current source checks without claiming historical equivalence or acceptance',
   'approved PDP-0 media decisions include only current direct and scoped corrective approvals',
   'current PDP-0 corrective source fingerprints exclude generated verification logs',
+  'PXD-153 is a separate narrow current review and PXD-142 remains historical',
   'PDP-0 development status can close only with the exact full source inventory and no outstanding meaning',
   'persisting phase status writes a separate file and preserves the historical 38-task report',
 ].join('|');
@@ -154,8 +210,8 @@ const implementationScopes = {
 export function resolveCriterionReviewSourceCut(record, fileDigest) {
   const matches = pins => Boolean(pins && Object.keys(pins).length && Object.entries(pins).every(([file, hash]) => fileDigest(file) === hash));
   const historicalSourceCutCurrent = matches(record.sourceFingerprints);
-  const correction = record.currentCorrectiveReview;
-  const corrected = correction?.status === 'APPROVED_CURRENT_CORRECTION';
+  const correction = record.currentCorrectiveReview ?? record.currentSourceReview;
+  const corrected = ['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(correction?.status);
   return {...record, historicalSourceCutCurrent,
     sourceCutCurrent: corrected ? matches(correction.sourceFingerprints) : historicalSourceCutCurrent};
 }
@@ -166,8 +222,8 @@ export function selectApprovedMediaDecisions(definitionCriterionReviews = {}, mi
   for (const review of Object.values(definitionCriterionReviews)) {
     if (review?.status !== 'APPROVED_DIRECT_DEFINITION_CRITERION' || review.sourceCutCurrent !== true) continue;
     if (typeof review.decisionRef === 'string' && review.decisionRef.trim()) decisions.push(review.decisionRef);
-    const correction = review.currentCorrectiveReview;
-    if (correction?.status === 'APPROVED_CURRENT_CORRECTION' && correction.phaseScope === 'PDP-0'
+    const correction = review.currentCorrectiveReview ?? review.currentSourceReview;
+    if (['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(correction?.status) && correction.phaseScope === 'PDP-0'
         && typeof correction.decisionRef === 'string' && correction.decisionRef.trim()) decisions.push(correction.decisionRef);
   }
   const expectedMigrationClaims = ['MPSEM-0078-C003','MPSEM-0181-C001','MPSEM-0278-C001','MPSEM-0367-C002','MPSEM-0475-C003'];
@@ -216,7 +272,8 @@ export function assessCurrentTaskDependencies(tasks) {
 export function buildReadiness({audit, residual, verification = {}, mainSha, fingerprints, definitionCensus = null, sourceWorkingTree = null, definitionCriterionReviews = {}}) {
   const tasks = assessCurrentTaskDependencies(audit.tasks.filter(t => taskIds.includes(t.id)).map(t => {
     const ownerReview=definitionCriterionReviews[t.id];
-    const correctionOpen=Boolean(ownerReview?.currentCorrectiveReview && ownerReview.currentCorrectiveReview.status!=='APPROVED_CURRENT_CORRECTION');
+    const currentReview=ownerReview?.currentCorrectiveReview ?? ownerReview?.currentSourceReview;
+    const correctionOpen=Boolean(currentReview && !['APPROVED_CURRENT_CORRECTION','APPROVED_CURRENT_SOURCE_REVIEW'].includes(currentReview.status));
     const reviewedDefinition=ownerReview?.status==='APPROVED_DIRECT_DEFINITION_CRITERION' && ownerReview?.sourceCutCurrent===true && !correctionOpen;
     const knownMet = t.id === 'P0-04' || t.ledgerStatus === 'complete' || reviewedDefinition;
     const check = verification[t.id];
@@ -349,6 +406,847 @@ export function writePdp0DevStatus(status, repositoryRoot = root) {
   fs.writeFileSync(outputPath,JSON.stringify(status,null,2)+'\n');
   return outputPath;
 }
+export const p1Criteria = Array.from({length: 11}, (_, i) => `P1-${String(i + 1).padStart(2, '0')}`);
+export const p1SourceRoots = [
+  '.product-experience/decision-log.md',
+  '.product-experience/pdp-0-product-truth/time-units-fidelity.yaml',
+  '.product-experience/pdp-0-product-truth/capabilities.yaml',
+  '.product-experience/pdp-1-domain-data',
+  '.product-experience/pdp-2-design-interface-system/agent-tools',
+  '.product-experience/pdp-3-product-experience/action-registry.yaml',
+  '.product-experience/pdp-3-product-experience/cli', '.product-experience/pdp-3-product-experience/sdk',
+  '.product-experience/interface-parity', 'contracts/openapi/media.yaml', 'libs/audio-video-types/src', 'libs/audio-video-client/src',
+  'libs/media-experience-simulation/src/cli.ts', 'scripts/check-media-contract-parity.mjs',
+  'libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java',
+  'libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java',
+  'libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java',
+  'libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java',
+  'modules/speech/stt-service/src/main/proto/stt_service.proto',
+  'modules/speech/tts-service/src/main/proto/tts_service.proto',
+  'modules/vision/vision-service/src/main/proto/vision_service.proto',
+  'modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto',
+  'launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java',
+];
+export const p2SourceRoots = [
+  '.product-experience/pdp-2-design-interface-system',
+  '.product-experience/pdp-1-domain-data/handoff-contracts.yaml',
+  '.product-experience/interface-parity',
+  '.product-experience/pdp-3-product-experience/action-registry.yaml',
+  'docs/implementation/pdp-1-phase-dev-status.json',
+  'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json',
+  'libs/audio-video-ui/src',
+  'modules/intelligence/ai-voice/libs/ai-voice-ui-react/src',
+  'apps/media-experience-explorer/src',
+  'apps/media-experience-explorer/specification-artifacts.json',
+];
+export const p2DirectScripts = [
+  'scripts/report-media-pdp-readiness.mjs',
+  'scripts/generate-media-phase-projections.mjs',
+  'scripts/check-media-design-conformance.mjs',
+  'scripts/check-media-presentation-architecture.mjs',
+  'scripts/lib/pdp-design-composition-validator.mjs',
+  'scripts/lib/media-product-definition-residuals.mjs',
+];
+// The rolling implementation plan is intentionally excluded from phase
+// fingerprints; it records the results of these gates rather than defining
+// product semantics and must not self-invalidate a completed phase.
+export const p3SourceRoots = [
+  '.product-experience/pdp-3-product-experience',
+  '.product-experience/pdp-0-product-truth/handoff-contracts.yaml',
+  '.product-experience/pdp-1-domain-data/handoff-contracts.yaml',
+  '.product-experience/pdp-2-design-interface-system/handoff-contracts.yaml',
+  '.product-experience/source-manifest.yaml',
+  '.product-experience/artifact-identities.yaml',
+  'docs/implementation/pdp-0-phase-dev-status.json',
+  'docs/implementation/pdp-1-phase-dev-status.json',
+  'docs/implementation/pdp-2-phase-dev-status.json',
+  'docs/EXAMPLES.md',
+  'libs/audio-video-ui/src',
+  'libs/media-experience-simulation/src',
+  'apps/media-experience-explorer/src',
+  'apps/media-experience-explorer/specification-artifacts.json',
+];
+export const p3DirectScripts = [
+  'scripts/report-media-pdp-readiness.mjs',
+  'scripts/generate-media-phase-projections.mjs',
+  'scripts/generate-media-product-manifest.mjs',
+  'scripts/lib/pdp3-step-capability-purpose.mjs',
+  'scripts/lib/pdp3-step-definition-oracle.mjs',
+  'scripts/lib/pdp3-journey-operation-binding.mjs',
+  'scripts/check-media-presentation-architecture.mjs',
+];
+const p1DeferredEvidenceFiles = ['tests/pdp-experience-capability-invocation-adapters.test.mjs'];
+function identityRecords(source, keys) {
+  return keys.flatMap(key => Array.isArray(source?.[key]) ? source[key] : [])
+    .filter(row => row && typeof (row.id ?? row.machineId ?? row.transitionId) === 'string')
+    .map(row => row.id ?? row.machineId ?? row.transitionId);
+}
+/** A bounded current source denominator, not a semantic-acceptance claim. */
+export function buildPdp1SourceCensus(repositoryRoot = root) {
+  const read = file => parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-1-domain-data', file), 'utf8'));
+  const domain = read('domain-objects.yaml');
+  const values = read('value-objects.yaml');
+  const relationships = read('relationships.yaml');
+  const states = read('states.yaml');
+  const transitions = read('transitions.yaml');
+  const guards = read('transition-guard-contracts.yaml');
+  const actionWire = read('owner-action-wire-contracts.yaml');
+  const operations = read('operations.yaml');
+  const events = read('events.yaml');
+  const handoffDocument = read('handoff-contracts.yaml');
+  const handoff = handoffDocument.handoffs?.pdp1ToPdp2CanonicalDomain;
+  const openapi = parseYaml(fs.readFileSync(path.join(repositoryRoot, 'contracts/openapi/media.yaml'), 'utf8'));
+  const sdkRegistry = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-3-product-experience/sdk/operation-registry.yaml'), 'utf8'));
+  const parity = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/interface-parity/operation-parity.yaml'), 'utf8'));
+  const actionRegistry = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-3-product-experience/action-registry.yaml'), 'utf8'));
+  const cliRegistry = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-3-product-experience/cli/command-registry.yaml'), 'utf8'));
+  const agentRegistry = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml'), 'utf8'));
+  const agentConventions = parseYaml(fs.readFileSync(path.join(repositoryRoot, '.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml'), 'utf8'));
+  const grpcSourcePaths = [
+    'modules/speech/stt-service/src/main/proto/stt_service.proto',
+    'modules/speech/tts-service/src/main/proto/tts_service.proto',
+    'modules/vision/vision-service/src/main/proto/vision_service.proto',
+    'modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto',
+  ];
+  const grpcOperations = grpcSourcePaths.flatMap(sourcePath => {
+    const content = fs.readFileSync(path.join(repositoryRoot, sourcePath), 'utf8');
+    const services = [...content.matchAll(/^service\s+(\w+)\s*\{/gmu)];
+    return services.flatMap((service, index) => {
+      const start = service.index + service[0].length;
+      const end = services[index + 1]?.index ?? content.length;
+      return [...content.slice(start, end).matchAll(/^\s*rpc\s+(\w+)\s*\(/gmu)].map(([, method]) => `${service[1]}.${method}`);
+    });
+  });
+  const groups = {
+    registeredObjectIdentities: identityRecords(domain.ownerTypedIdentityContracts, ['records']),
+    values: identityRecords(values, ['values']),
+    relationships: identityRecords(relationships, ['relationships']),
+    stateMachines: identityRecords(states, ['stateMachines']),
+    transitions: identityRecords(transitions, ['transitionRecords', 'ownerDefinedTransitionRecords']),
+    guardContracts: identityRecords(guards, ['records']),
+    guardFacts: Object.keys(guards.facts ?? {}),
+    commonGuardFacts: Object.keys(guards.commonFacts ?? {}),
+    guardFactGroups: identityRecords(guards, ['exclusiveFactGroups']),
+    actionWireContracts: identityRecords(actionWire, ['records']),
+    uiActions: identityRecords(actionRegistry, ['actions', 'ownerDefinedActions']),
+    operations: identityRecords(operations.ownerDefinedOperationContracts, ['records']),
+    capabilityOperations: identityRecords(operations.capabilityOperationContracts, ['records']),
+    capabilityBounds: identityRecords(operations.capabilityOperationContracts, ['bounds']),
+    capabilityInputPayloadSchemas: identityRecords(operations.capabilityOperationContracts, ['inputPayloadSchemas']),
+    capabilityOutputPayloadSchemas: identityRecords(operations.capabilityOperationContracts, ['outputPayloadSchemas']),
+    httpOperations: Object.entries(openapi.paths ?? {}).flatMap(([route, pathItem]) => Object.keys(pathItem)
+      .filter(method => ['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace'].includes(method.toLowerCase()))
+      .map(method => `${method.toUpperCase()} ${route}`)),
+    grpcOperations,
+    sdkMethodRecords: identityRecords(sdkRegistry, ['methods']),
+    cliCommands: identityRecords(cliRegistry, ['commands']),
+    agentToolHandlers: identityRecords(agentRegistry, ['tools', 'handlers']),
+    agentToolContracts: (agentConventions.observedHandlerInventory?.tools ?? []).map(row => row.canonicalToolId).filter(Boolean),
+    events: identityRecords(events.ownerEventContracts, ['records']),
+    notifications: identityRecords(events.ownerEventContracts, ['notificationRecords']),
+  };
+  const qualified = Object.fromEntries(Object.entries(groups).map(([key, ids]) => [key, ids.map(id => `${key}:${id}`)]));
+  const allIds = Object.values(qualified).flat();
+  const counts = Object.fromEntries(Object.entries(qualified).map(([key, ids]) => [key, ids.length]));
+  const sdkPublicMethods = (sdkRegistry.methods ?? []).filter(row => row.visibility === 'public' && row.declaringClass !== 'none; parser-artifact');
+  const sdkParserTokens = (sdkRegistry.methods ?? []).filter(row => row.declaringClass === 'none; parser-artifact');
+  const grpcDispositionCounts = parity.surfaces?.find(row => row.surface === 'gRPC')?.dispositionCounts ?? {};
+  const issues = [];
+  for (const [key, ids] of Object.entries(qualified)) {
+    if (ids.length === 0 || new Set(ids).size !== ids.length) issues.push(`${key}:missing-or-duplicate-identities`);
+  }
+  if (!counts.httpOperations) issues.push('http-operation-identity-inventory-empty');
+  if (counts.registeredObjectIdentities === 0 || counts.values === 0 || counts.relationships === 0 || counts.actionWireContracts === 0) {
+    issues.push('required-canonical-registry-empty');
+  }
+  const sourceRecordCount = {objectDefinitions: domain.objects?.length ?? 0,
+      registeredObjectIdentities: domain.canonicalIdentityAdjudication?.registeredObjectIdentityCount ?? counts.registeredObjectIdentities,
+      canonicalProductObjectIdentities: domain.canonicalIdentityAdjudication?.canonicalProductObjectCount ?? null,
+      capabilityOperationRecordCount: operations.capabilityOperationContracts?.recordCount ?? null,
+      canonicalOperationSchemaCount: operations.capabilityOperationContracts?.canonicalOperationCount ?? null,
+      existingOperationBindingCount: operations.capabilityOperationContracts?.bindingCount ?? null,
+      ownerDefinedOperationRecordCount: operations.ownerDefinedOperationContracts?.records?.length ?? null,
+      sdkRegistryRows: sdkRegistry.sourcePopulation?.methodEntryCount ?? (sdkRegistry.methods ?? []).length,
+      sdkLogicalPublicMethods: sdkPublicMethods.length,
+      sdkParserTokens: sdkParserTokens.length,
+      grpcDispositionCounts,
+      ...counts};
+  const operationOnlyQueries = (actionWire.records ?? []).filter(row => row.actionRef == null && row.operationKind === 'QUERY');
+  const actionLinkedWireContracts = (actionWire.records ?? []).filter(row => row.actionRef != null);
+  const expectedHandoff = {
+    domainObjects: sourceRecordCount.objectDefinitions,
+    registeredObjectIdentities: sourceRecordCount.registeredObjectIdentities,
+    canonicalMediaIdentities: sourceRecordCount.canonicalProductObjectIdentities,
+    sourceObservationWithoutCanonicalIdentity: sourceRecordCount.registeredObjectIdentities - sourceRecordCount.canonicalProductObjectIdentities,
+    valueObjects: sourceRecordCount.values,
+    relationships: sourceRecordCount.relationships,
+    stateMachines: sourceRecordCount.stateMachines,
+    transitions: sourceRecordCount.transitions,
+    guardContracts: sourceRecordCount.guardContracts,
+    typedGuardFacts: sourceRecordCount.guardFacts,
+    commonGuardFacts: sourceRecordCount.commonGuardFacts,
+    guardExclusivityGroups: sourceRecordCount.guardFactGroups,
+    ownerActionWireContracts: sourceRecordCount.actionWireContracts,
+    actionLinkedCount: actionLinkedWireContracts.length,
+    operationOnlyQueryCount: operationOnlyQueries.length,
+    uiActions: sourceRecordCount.uiActions,
+    uiActionRegistryActions: (actionRegistry.actions ?? []).length,
+    uiActionOwnerDefinedActions: (actionRegistry.ownerDefinedActions ?? []).length,
+    capabilityOperationRecordCount: sourceRecordCount.capabilityOperationRecordCount,
+    canonicalOperations: sourceRecordCount.canonicalOperationSchemaCount,
+    existingOperationBindingCount: sourceRecordCount.existingOperationBindingCount,
+    ownerDefinedOperations: sourceRecordCount.ownerDefinedOperationRecordCount,
+    http: sourceRecordCount.httpOperations,
+    grpc: sourceRecordCount.grpcOperations,
+    sdk: sourceRecordCount.sdkLogicalPublicMethods,
+    sdkRawRegistryRows: sourceRecordCount.sdkRegistryRows,
+    sdkParserTokensExcluded: sourceRecordCount.sdkParserTokens,
+    cli: sourceRecordCount.cliCommands,
+    agentTools: sourceRecordCount.agentToolHandlers,
+    events: sourceRecordCount.events,
+    clientNotifications: sourceRecordCount.notifications,
+  };
+  const populations = handoff?.sourcePopulations ?? {};
+  const scalarPopulationChecks = [
+    ['domainObjects', populations.domainObjects?.count],
+    ['registeredObjectIdentities', populations.registeredObjectIdentities?.count],
+    ['canonicalMediaIdentities', populations.registeredObjectIdentities?.canonicalMediaIdentities],
+    ['sourceObservationWithoutCanonicalIdentity', populations.registeredObjectIdentities?.sourceObservationWithoutCanonicalIdentity],
+    ['valueObjects', populations.valueObjects?.count], ['relationships', populations.relationships?.count],
+    ['stateMachines', populations.stateMachines?.count], ['transitions', populations.transitions?.count],
+    ['guardContracts', populations.guardContracts?.count], ['typedGuardFacts', populations.typedGuardFacts?.count],
+    ['commonGuardFacts', populations.commonGuardFacts?.count],
+    ['guardExclusivityGroups', populations.guardExclusivityGroups?.count],
+    ['ownerActionWireContracts', populations.ownerActionWireContracts?.count],
+    ['actionLinkedCount', populations.ownerActionWireContracts?.actionLinkedCount],
+    ['operationOnlyQueryCount', populations.ownerActionWireContracts?.operationOnlyQueryCount],
+    ['uiActions', populations.uiActions?.count],
+    ['uiActionRegistryActions', populations.uiActions?.registryActions],
+    ['uiActionOwnerDefinedActions', populations.uiActions?.ownerDefinedActions],
+    ['capabilityOperationRecordCount', populations.canonicalOperations?.capabilityOperationRecordCount],
+    ['canonicalOperations', populations.canonicalOperations?.count],
+    ['existingOperationBindingCount', populations.canonicalOperations?.existingOperationBindingCount],
+    ['ownerDefinedOperations', populations.ownerDefinedOperations?.count],
+    ['http', populations.interfaceIdentities?.http?.count], ['grpc', populations.interfaceIdentities?.grpc?.count],
+    ['sdk', populations.interfaceIdentities?.sdk?.count], ['sdkRawRegistryRows', populations.interfaceIdentities?.sdk?.rawRegistryRows],
+    ['sdkParserTokensExcluded', populations.interfaceIdentities?.sdk?.parserTokensExcluded],
+    ['cli', populations.interfaceIdentities?.cli?.count], ['agentTools', populations.interfaceIdentities?.agentTools?.count],
+    ['events', populations.interfaceIdentities?.events?.count],
+    ['clientNotifications', populations.interfaceIdentities?.clientNotifications?.count],
+  ];
+  if (handoffDocument.schemaVersion !== 'media.pdp-1.phase-handoffs.v1'
+      || handoff?.id !== 'media.pdp1-pdp2.canonical-domain-handoff.v1'
+      || handoff?.sourcePhase !== 'PDP-1' || handoff?.consumerPhase !== 'PDP-2'
+      || handoff?.status !== 'DEFINITION_HANDOFF_CONTRACT') {
+    issues.push('pdp1-pdp2-handoff-identity-or-scope-invalid');
+  }
+  for (const [name, actual] of scalarPopulationChecks) {
+    if (!Number.isInteger(actual) || actual !== expectedHandoff[name]) issues.push(`handoff-population-mismatch:${name}`);
+  }
+  const requiredMeaningFields = ['identitiesAndLineage', 'operationsAndWireContracts', 'statesAndGuards', 'rightsAndPrivacy', 'timeSpaceAndProvenance', 'interfaceDisposition'];
+  if (requiredMeaningFields.some(key => typeof handoff?.requiredMeaning?.[key] !== 'string' || !handoff.requiredMeaning[key].trim())
+      || !Array.isArray(handoff?.consumerObligations) || handoff.consumerObligations.length < 5
+      || !Array.isArray(handoff?.negativeCases) || handoff.negativeCases.length < 5
+      || !Array.isArray(handoff?.deferredEvidence) || handoff.deferredEvidence.length === 0
+      || !Array.isArray(handoff?.deferredDownstreamFindings) || handoff.deferredDownstreamFindings.length === 0
+      || handoff.deferredDownstreamFindings.some(finding => typeof finding?.id !== 'string' || !finding.id.trim()
+        || finding.ownerPhase !== 'PDP-3' || typeof finding.disposition !== 'string' || !finding.disposition.trim()
+        || !Array.isArray(finding.candidates) || finding.candidates.length === 0)
+      || !/development-gate-status-is-recorded-separately/u.test(handoff?.scopeStatus ?? '')) {
+    issues.push('pdp1-pdp2-handoff-meaning-or-boundary-incomplete');
+  }
+  const expectedSources = {
+    domainObjects: '.product-experience/pdp-1-domain-data/domain-objects.yaml#/objects',
+    registeredObjectIdentities: '.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records',
+    valueObjects: '.product-experience/pdp-1-domain-data/value-objects.yaml#values',
+    relationships: '.product-experience/pdp-1-domain-data/relationships.yaml#relationships',
+    stateMachines: '.product-experience/pdp-1-domain-data/states.yaml#stateMachines',
+    transitions: '.product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords + #ownerDefinedTransitionRecords',
+    guardContracts: '.product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#records',
+    typedGuardFacts: '.product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#facts',
+    commonGuardFacts: '.product-experience/pdp-1-domain-data/transition-guard-contracts.yaml#commonFacts',
+    ownerActionWireContracts: '.product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records',
+    uiActions: '.product-experience/pdp-3-product-experience/action-registry.yaml#actions + #ownerDefinedActions',
+    canonicalOperations: '.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts',
+    ownerDefinedOperations: '.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records',
+    http: 'contracts/openapi/media.yaml#/paths',
+    sdk: '.product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#methods',
+    cli: '.product-experience/pdp-3-product-experience/cli/command-registry.yaml#commands',
+    agentTools: '.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml#tools',
+    events: '.product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records',
+    clientNotifications: '.product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords',
+  };
+  for (const [population, reference] of Object.entries(expectedSources)) {
+    const row = population === 'http' || population === 'grpc' || population === 'sdk' || population === 'cli' || population === 'agentTools' || population === 'events' || population === 'clientNotifications'
+      ? populations.interfaceIdentities?.[population === 'http' ? 'http' : population === 'grpc' ? 'grpc' : population === 'sdk' ? 'sdk' : population === 'cli' ? 'cli' : population === 'agentTools' ? 'agentTools' : population === 'events' ? 'events' : 'clientNotifications']
+      : populations[population];
+    if (row?.source !== reference) issues.push(`handoff-source-reference-mismatch:${population}`);
+  }
+  if (!groups.operations.includes('media.operation.stream-session.inspect-execution-recovery.v1')) {
+    issues.push('handoff-owner-defined-operation-population-missing-j29-execution-recovery-query');
+  }
+  const uiActionIdentityIds = [...(actionRegistry.actions ?? []), ...(actionRegistry.ownerDefinedActions ?? [])]
+    .map(row => row?.id).filter(Boolean);
+  const uiActionOwnerDefined = (actionRegistry.ownerDefinedActions ?? [])
+    .find(row => row?.id === populations.uiActions?.ownerDefinedActionId);
+  if (uiActionIdentityIds.length !== 147 || new Set(uiActionIdentityIds).size !== 147
+      || (actionRegistry.actions ?? []).length !== 146 || (actionRegistry.ownerDefinedActions ?? []).length !== 1
+      || populations.uiActions?.count !== 147 || populations.uiActions?.registryActions !== 146
+      || populations.uiActions?.ownerDefinedActions !== 1
+      || populations.uiActions?.ownerDefinedActionId !== 'media.action.request-live-session-reconnect'
+      || populations.uiActions?.ownerDefinedOperationRef !== 'media.operation.capability.media-stream-session-reconnect'
+      || uiActionOwnerDefined?.operationRef !== populations.uiActions.ownerDefinedOperationRef
+      || !(operations.capabilityOperationContracts?.records ?? []).some(row => row?.id === uiActionOwnerDefined?.operationRef)) {
+    issues.push('handoff-ui-action-population-or-owner-binding-invalid');
+  }
+  if (operationOnlyQueries.length !== 1
+      || populations.ownerActionWireContracts?.operationOnlyQueryId !== operationOnlyQueries[0]?.id
+      || operationOnlyQueries[0]?.id !== 'media.owner-action-wire.inspect-job-retry-policy.v1') {
+    issues.push('handoff-operation-only-query-identity-mismatch');
+  }
+  const grpcSources = grpcSourcePaths.map(sourcePath => `${sourcePath}#service.rpc`);
+  if (!Array.isArray(populations.interfaceIdentities?.grpc?.sources)
+      || JSON.stringify(populations.interfaceIdentities.grpc.sources) !== JSON.stringify(grpcSources)) {
+    issues.push('handoff-source-reference-mismatch:grpc');
+  }
+  return { boundary: 'Finite identity denominator from current PDP-1 owner registries. Counts establish inventory only; semantic resolution requires a current full-denominator review.',
+    sourceRecordCount, reviewDenominators: counts, identityIds: [...new Set(allIds)].sort(),
+    exportedHandoffIds: issues.some(issue => issue.startsWith('pdp1-pdp2-handoff-') || issue.startsWith('handoff-')) ? [] : [handoff.id],
+    deferredDownstreamFindings: structuredClone(handoff.deferredDownstreamFindings ?? []),
+    integrityIssues: issues };
+}
+export function buildPdp1DevStatus({mainSha, sourceShaSet = {}, verification = {}, sourceCensus, semanticReview = null, exportedHandoffIds = [], sourceCutStable = false}) {
+  const census = sourceCensus ?? {sourceRecordCount: {}, identityIds: [], integrityIssues: ['source-census-not-built']};
+  const testsActuallyRun = Object.fromEntries(p1Criteria.map(id => {
+    const check = verification[id];
+    return [id, check?.command ? {command: check.command, status: check.status, testCount: check.testCount,
+      passedTestCount: check.passedTestCount, skippedTestCount: check.skippedTestCount ?? 0,
+      outputSha256: check.outputSha256, testSourceFingerprints: check.testSourceFingerprints ?? {}, sourceCut: check.sourceCut ?? null} : {status: 'NOT_RUN'}];
+  }));
+  const p103RequiredSuites = ['bounded-owner-contracts', 'capability-intent-mapping', 'owner-action-wire-contracts'];
+  const p103Suites = verification['P1-03']?.suites ?? {};
+  const p103SuitesPass = p103RequiredSuites.every(name => {
+    const suite = p103Suites[name];
+    const expectedSources = p103VerificationSuites[name].files;
+    const fingerprints = suite?.testSourceFingerprints ?? {};
+    return suite?.status === 'PASS' && suite.testCount > 0 && suite.passedTestCount === suite.testCount
+      && suite.skippedTestCount === 0 && typeof suite.outputSha256 === 'string' && /^[a-f0-9]{64}$/.test(suite.outputSha256)
+      && JSON.stringify(Object.keys(fingerprints).sort()) === JSON.stringify([...expectedSources].sort())
+      && Object.values(fingerprints).every(hash => typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash));
+  });
+  const testIssues = p1Criteria.filter(id => verification[id]?.status !== 'PASS' || !(verification[id]?.testCount > 0)
+    || verification[id]?.passedTestCount !== verification[id]?.testCount || (verification[id]?.skippedTestCount ?? 0) !== 0
+    || (id === 'P1-03' && (!p103SuitesPass || Object.keys(p103Suites).length !== p103RequiredSuites.length)))
+    .map(id => `${id}:focused-development-tests-not-green`);
+  const sourceIds = census.identityIds ?? [];
+  const reviewPins = semanticReview?.sourceFingerprints ?? {};
+  const currentReview = semanticReview?.status === 'APPROVED_PDP1_DEVELOPMENT_SEMANTIC_REVIEW'
+    && semanticReview.phase === 'PDP-1' && semanticReview.sourceCutStable === true
+    && Object.keys(reviewPins).length > 0
+    && Object.entries(reviewPins).every(([file, hash]) => sourceShaSet[file] === hash)
+    && Array.isArray(semanticReview.reviewedIdentityIds)
+    && semanticReview.reviewedIdentityIds.length === sourceIds.length
+    && new Set(semanticReview.reviewedIdentityIds).size === sourceIds.length
+    && sourceIds.every(id => semanticReview.reviewedIdentityIds.includes(id))
+    && Array.isArray(semanticReview.outstandingMeaningIds) && semanticReview.outstandingMeaningIds.length === 0;
+  const sourceHandoffIds = census.exportedHandoffIds;
+  const handoffValid = Array.isArray(exportedHandoffIds) && exportedHandoffIds.length > 0
+    && exportedHandoffIds.every(id => typeof id === 'string' && id.trim())
+    && new Set(exportedHandoffIds).size === exportedHandoffIds.length
+    && Array.isArray(sourceHandoffIds) && sourceHandoffIds.length > 0
+    && sourceHandoffIds.every(id => typeof id === 'string' && id.trim())
+    && new Set(sourceHandoffIds).size === sourceHandoffIds.length
+    && JSON.stringify([...exportedHandoffIds].sort()) === JSON.stringify([...sourceHandoffIds].sort());
+  const outstandingMeaningIds = [...new Set([
+    ...(census.integrityIssues ?? []).map(id => `P1-11:${id}`), ...testIssues,
+    ...(!sourceCutStable ? ['P1-11:source-cut-changed-during-verification'] : []),
+    ...(!currentReview ? ['P1-11:current-full-denominator-semantic-review-not-recorded'] : []),
+    ...(!handoffValid ? ['P1-11:frozen-pdp1-to-pdp2-handoff-not-recorded'] : []),
+    ...(currentReview ? semanticReview.outstandingMeaningIds : []),
+  ])].sort();
+  const denominator = census.reviewDenominators ?? census.sourceRecordCount ?? {};
+  const resolved = currentReview ? denominator : Object.fromEntries(Object.keys(denominator).map(key => [key, 0]));
+  const criteria = Object.fromEntries(p1Criteria.map(id => [id, {
+    testStatus: verification[id]?.status ?? 'NOT_RUN',
+    testCount: verification[id]?.testCount ?? 0,
+    passedTestCount: verification[id]?.passedTestCount ?? 0,
+    sourceSemanticReview: currentReview ? 'COVERED_BY_CURRENT_FULL_DENOMINATOR_REVIEW' : 'NOT_ESTABLISHED',
+  }]));
+  return {schemaVersion: 'media.phase-dev-status.v1', phase: 'PDP-1', mainSha, sourceShaSet,
+    sourceRecordCount: census.sourceRecordCount, sourceIdentityIds: [...sourceIds].sort(), semanticallyResolvedCount: resolved, outstandingMeaningIds,
+    testsActuallyRun, directDevelopmentCriteria: criteria,
+    exportedHandoffIds: [...new Set(exportedHandoffIds)].sort(), approvedMediaDecisions: [],
+    deferredDownstreamFindings: structuredClone(census.deferredDownstreamFindings ?? []),
+    status: outstandingMeaningIds.length === 0 ? 'DEV_COMPLETE' : 'IN_PROGRESS',
+  };
+}
+export function writePdp1DevStatus(status, repositoryRoot = root) {
+  const outputPath = path.join(repositoryRoot, 'docs/implementation/pdp-1-phase-dev-status.json');
+  fs.mkdirSync(path.dirname(outputPath), {recursive: true});
+  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
+  return outputPath;
+}
+export function buildPdp2SourceCensus(repositoryRoot = root) {
+  const read = file => parseYaml(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
+  const base = '.product-experience/pdp-2-design-interface-system/';
+  const components = read(`${base}component-contracts.yaml`);
+  const valueTypes = read(`${base}component-value-types.yaml`);
+  const tokens = read(`${base}media-token-aliases.yaml`);
+  const templates = read(`${base}gui/templates/catalog.yaml`);
+  const layouts = read(`${base}gui/layout.yaml`);
+  const recipes = read(`${base}gui/recipes/catalog.yaml`);
+  const composition = read(`${base}gui/composition-validation-grammar.yaml`);
+  const patterns = read(`${base}gui/patterns/catalog.yaml`);
+  const interfaceGrammar = read(`${base}interface-grammar.yaml`);
+  const p1Handoff = read('.product-experience/pdp-1-domain-data/handoff-contracts.yaml').handoffs?.pdp1ToPdp2CanonicalDomain;
+  const p1Status = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'docs/implementation/pdp-1-phase-dev-status.json'), 'utf8'));
+  const handoffPath = `${base}handoff-contracts.yaml`;
+  const phaseHandoffDoc = fs.existsSync(path.join(repositoryRoot, handoffPath)) ? read(handoffPath) : null;
+  const phaseHandoff = phaseHandoffDoc?.handoffs?.pdp2ToPdp3DesignInterface;
+  const sharedCssBindings = tokens.cssVariableBindings?.bindings ?? [];
+  const populations = {
+    componentFamilies: components.components?.length ?? 0,
+    typedComponentFamilies: components.components?.filter(record => record.typedDefinition)?.length ?? 0,
+    componentValueTypes: valueTypes.normativeTypeRecords?.length ?? 0,
+    semanticTokenAliases: tokens.aliases?.length ?? 0,
+    sharedPublicCssVariables: sharedCssBindings.filter(record => typeof record.publicCssRef === 'string').length,
+    mediaCssProjections: sharedCssBindings.filter(record => typeof record.sharedCssVariableRef === 'string').length,
+    templates: templates.templates?.length ?? 0,
+    layouts: layouts.layouts?.length ?? 0,
+    recipes: recipes.recipes?.length ?? 0,
+    compositionRules: composition.normativeRuleRecords?.length ?? 0,
+    interactionPatterns: patterns.patterns?.length ?? 0,
+    machineInterfaceInvariants: Object.keys(interfaceGrammar.invariants ?? {}).length,
+  };
+  const expected = {
+    componentFamilies: 31, typedComponentFamilies: 28, componentValueTypes: 122,
+    semanticTokenAliases: 9, sharedPublicCssVariables: 24, mediaCssProjections: 20,
+    templates: 13, layouts: 11, recipes: 13, compositionRules: 42,
+    interactionPatterns: 19, machineInterfaceInvariants: 12,
+  };
+  const integrityIssues = Object.entries(expected)
+    .filter(([population, count]) => populations[population] !== count)
+    .map(([population, count]) => `pdp2-population-mismatch:${population}:${populations[population]}!=${count}`);
+  const expectedInputHandoff = 'media.pdp1-pdp2.canonical-domain-handoff.v1';
+  if (p1Handoff?.id !== expectedInputHandoff || p1Handoff?.status !== 'DEFINITION_HANDOFF_CONTRACT'
+      || p1Status.phase !== 'PDP-1' || p1Status.status !== 'DEV_COMPLETE'
+      || !(p1Status.exportedHandoffIds ?? []).includes(expectedInputHandoff)) {
+    integrityIssues.push('pdp2-frozen-pdp1-handoff-not-consumed');
+  }
+  const expectedOutputHandoff = 'media.pdp2-pdp3.design-interface-handoff.v1';
+  const expectedSources = [
+    '.product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain',
+    `${base}DESIGN-LANGUAGE.md`,
+    `${base}generated/experience-language.candidate.json`,
+    `${base}component-contracts.yaml`,
+    `${base}component-value-types.yaml`,
+    `${base}media-token-aliases.yaml`,
+    `${base}gui/templates/catalog.yaml`,
+    `${base}gui/layout.yaml`,
+    `${base}gui/recipes/catalog.yaml`,
+    `${base}gui/composition-validation-grammar.yaml`,
+    `${base}gui/semantic-component-bindings.yaml`,
+    `${base}interface-grammar.yaml`,
+    `${base}api/async-operations.yaml`,
+    `${base}api/auth.yaml`,
+    `${base}api/cancellation.yaml`,
+    `${base}api/compatibility.yaml`,
+    `${base}api/concurrency.yaml`,
+    `${base}api/conventions.yaml`,
+    `${base}api/correlation.yaml`,
+    `${base}api/errors.yaml`,
+    `${base}api/filtering-sorting.yaml`,
+    `${base}api/http-canonical-adapters.yaml`,
+    `${base}api/idempotency.yaml`,
+    `${base}api/identifiers.yaml`,
+    `${base}api/pagination.yaml`,
+    `${base}api/read-consumer-adapters.yaml`,
+    `${base}api/retry-timeout-unknown-outcome.yaml`,
+    `${base}api/versioning.yaml`,
+    `${base}cli-language.yaml`,
+    `${base}cli/conventions.yaml`,
+    `${base}sdk/conventions.yaml`,
+    `${base}events/conventions.yaml`,
+    `${base}agent-tools/conventions.yaml`,
+    `${base}accessibility.yaml`,
+    `${base}responsive-adaptive.yaml`,
+    `${base}motion.yaml`,
+    `${base}localization-content.yaml`,
+  ];
+  if (phaseHandoff?.id !== expectedOutputHandoff || phaseHandoff?.sourcePhase !== 'PDP-2'
+      || phaseHandoff?.consumerPhase !== 'PDP-3' || phaseHandoff?.status !== 'DEFINITION_HANDOFF_CONTRACT'
+      || !Array.isArray(phaseHandoff?.sourceRefs)
+      || expectedSources.some(source => !phaseHandoff.sourceRefs.includes(source))
+      || !Array.isArray(phaseHandoff?.consumerObligations) || phaseHandoff.consumerObligations.length < 6
+      || !Array.isArray(phaseHandoff?.negativeCases) || phaseHandoff.negativeCases.length < 6
+      || !Array.isArray(phaseHandoff?.deferredEvidence) || phaseHandoff.deferredEvidence.length < 3
+      || !/development-gate-status-is-recorded-separately/u.test(phaseHandoff?.scopeStatus ?? '')) {
+    integrityIssues.push('pdp2-pdp3-design-interface-handoff-incomplete');
+  }
+  const sourceRefs = phaseHandoff?.sourceRefs ?? [];
+  for (const source of sourceRefs) {
+    const file = source.split('#', 1)[0];
+    if (!file || !fs.existsSync(path.join(repositoryRoot, file))) integrityIssues.push(`pdp2-handoff-source-missing:${source}`);
+  }
+  return {
+    boundary: 'Finite PDP-2 design/interface source population and exact frozen PDP-1 input. Counts establish source inventory only; development completeness is established by the phase-specific suites and definition-only conformance check.',
+    populations,
+    componentFamilyIds: (components.components ?? []).map(record => record.id).filter(Boolean).sort(),
+    importedHandoffIds: [expectedInputHandoff],
+    exportedHandoffIds: integrityIssues.length === 0 ? [expectedOutputHandoff] : [],
+    integrityIssues: [...new Set(integrityIssues)].sort(),
+  };
+}
+
+export function buildPdp2DevStatus({mainSha, sourceShaSet = {}, verification = {}, sourceCensus, sourceCutStable = false, designConformance}) {
+  const census = sourceCensus ?? {populations: {}, componentFamilyIds: [], importedHandoffIds: [], exportedHandoffIds: [], integrityIssues: ['source-census-not-built']};
+  const testsActuallyRun = Object.fromEntries(p2Criteria.map(id => {
+    const check = verification[id];
+    return [id, check?.command ? {command: check.command, status: check.status, testCount: check.testCount,
+      passedTestCount: check.passedTestCount, skippedTestCount: check.skippedTestCount ?? 0,
+      outputSha256: check.outputSha256, testSourceFingerprints: check.testSourceFingerprints ?? {}, sourceCut: check.sourceCut ?? null} : {status: 'NOT_RUN'}];
+  }));
+  const testIssues = p2Criteria.filter(id => {
+    const check = verification[id];
+    const expectedFiles = [...(suites[id] ?? [])].sort();
+    const fingerprints = check?.testSourceFingerprints ?? {};
+    return check?.status !== 'PASS' || !(check?.testCount > 0)
+      || check?.passedTestCount !== check?.testCount || (check?.skippedTestCount ?? 0) !== 0
+      || typeof check?.outputSha256 !== 'string' || !/^[a-f0-9]{64}$/u.test(check.outputSha256)
+      || JSON.stringify(Object.keys(fingerprints).sort()) !== JSON.stringify(expectedFiles)
+      || Object.values(fingerprints).some(hash => typeof hash !== 'string' || !/^[a-f0-9]{64}$/u.test(hash));
+  }).map(id => `${id}:focused-development-tests-not-green-or-source-pinned`);
+  const conformanceValid = designConformance?.ok === true && designConformance.mode === 'DEFINITION_ONLY'
+    && designConformance.screenInstanceScope === 'DEFERRED_PDP3_INSTANCE_VALIDATION'
+    && designConformance.acceptanceClaim === 'NONE' && designConformance.summary?.unexplained === 0
+    && JSON.stringify(designConformance.deferredAdmissionGates) === JSON.stringify([
+      {id:'shared-artifact-binding', disposition:'EXTERNAL_PENDING'},
+      {id:'conformance-and-specialist-review', disposition:'INDEPENDENT_PENDING'},
+    ]);
+  const outstandingMeaningIds = [...new Set([
+    ...(census.integrityIssues ?? []).map(issue => `P2-09:${issue}`), ...testIssues,
+    ...(!sourceCutStable ? ['P2-09:source-cut-changed-during-verification'] : []),
+    ...(!conformanceValid ? ['P2-09:definition-only-design-conformance-not-green'] : []),
+  ])].sort();
+  const directDevelopmentCriteria = Object.fromEntries(p2Criteria.map(id => [id, {
+    testStatus: verification[id]?.status ?? 'NOT_RUN',
+    testCount: verification[id]?.testCount ?? 0,
+    passedTestCount: verification[id]?.passedTestCount ?? 0,
+  }]));
+  return {
+    schemaVersion: 'media.phase-dev-status.v1', phase: 'PDP-2', mainSha, sourceShaSet,
+    sourcePopulations: census.populations, sourceFamilyIds: census.componentFamilyIds,
+    importedHandoffIds: census.importedHandoffIds, exportedHandoffIds: census.exportedHandoffIds,
+    outstandingMeaningIds, testsActuallyRun, directDevelopmentCriteria,
+    definitionOnlyConformance: designConformance ? {
+      status: conformanceValid ? 'PASS' : 'FAIL', mode: designConformance.mode,
+      screenInstanceScope: designConformance.screenInstanceScope ?? 'NOT_RECORDED',
+      acceptanceClaim: designConformance.acceptanceClaim,
+      unexplainedFindingCount: designConformance.summary?.unexplained ?? null,
+      deferredAdmissionGates: designConformance.deferredAdmissionGates ?? [],
+      deferredP3ScreenCompositionFindings: designConformance.deferredP3ScreenCompositionFindings ?? [],
+      scannedCanonicalScreenContracts: designConformance.summary?.screenContracts ?? 0,
+    } : {status: 'NOT_RUN'},
+    deferredAcceptance: ['Shared package release and owner acceptance', 'Independent design/accessibility certification', 'Runtime or production-host admission'],
+    status: outstandingMeaningIds.length === 0 ? 'DEV_COMPLETE' : 'IN_PROGRESS',
+  };
+}
+export function writePdp2DevStatus(status, repositoryRoot = root) {
+  const outputPath = path.join(repositoryRoot, 'docs/implementation/pdp-2-phase-dev-status.json');
+  fs.mkdirSync(path.dirname(outputPath), {recursive:true});
+  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
+  return outputPath;
+}
+
+/** Current finite PDP-3 denominator and its three frozen phase inputs. */
+export function buildPdp3SourceCensus(repositoryRoot = root) {
+  const read = file => parseYaml(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
+  const p3 = '.product-experience/pdp-3-product-experience/';
+  const screenRegistry = read(`${p3}screen-registry.yaml`);
+  const journeyRegistry = read(`${p3}journey-registry.yaml`);
+  const stepOracles = read(`${p3}step-definition-oracles.yaml`);
+  const purposeBindings = read(`${p3}journey-purpose-bindings.yaml`);
+  const scenarioRegistry = read(`${p3}scenario-fixture-registry.yaml`);
+  const actionRegistry = read(`${p3}action-registry.yaml`);
+  const p0Status = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'docs/implementation/pdp-0-phase-dev-status.json'), 'utf8'));
+  const p1Status = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'docs/implementation/pdp-1-phase-dev-status.json'), 'utf8'));
+  const p2Status = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'docs/implementation/pdp-2-phase-dev-status.json'), 'utf8'));
+  const p0Handoff = read('.product-experience/pdp-0-product-truth/handoff-contracts.yaml').pdpPhaseHandoffContracts?.pdp0ToPdp1CapabilityIntent;
+  const p1Handoff = read('.product-experience/pdp-1-domain-data/handoff-contracts.yaml').handoffs?.pdp1ToPdp2CanonicalDomain;
+  const p2Handoff = read('.product-experience/pdp-2-design-interface-system/handoff-contracts.yaml').handoffs?.pdp2ToPdp3DesignInterface;
+  // The canonical screen denominator includes plan-baseline screens and
+  // selected lane-specific views. Keep their source populations distinct in
+  // the registry, but census and validate their combined canonical identity.
+  const screens = [...(screenRegistry.screens ?? []), ...(screenRegistry.laneViews ?? [])];
+  const journeys = journeyRegistry.journeys ?? [];
+  const oracleJourneys = stepOracles.journeys ?? [];
+  const screenIds = screens.map(row => row?.id).filter(Boolean);
+  const journeyIds = journeys.map(row => row?.id).filter(Boolean);
+  const oracleJourneyIds = oracleJourneys.map(row => row?.journeyId).filter(Boolean);
+  const steps = oracleJourneys.flatMap(row => row.steps ?? []);
+  const integrityIssues = [];
+  const importedHandoffIds = [p0Handoff?.id, p1Handoff?.id, p2Handoff?.id].filter(Boolean);
+  const expected = {
+    p0: 'media.pdp0-pdp1.capability-intent-handoff.v1',
+    p1: 'media.pdp1-pdp2.canonical-domain-handoff.v1',
+    p2: 'media.pdp2-pdp3.design-interface-handoff.v1',
+  };
+  if (p0Status.phase !== 'PDP-0' || p0Status.status !== 'DEV_COMPLETE'
+      || !(p0Status.exportedHandoffIds ?? []).includes(expected.p0)
+      || p0Handoff?.id !== expected.p0 || p0Handoff?.status !== 'DEFINITION_HANDOFF_CONTRACT') {
+    integrityIssues.push('frozen-pdp0-capability-intent-handoff-not-consumed');
+  }
+  if (p1Status.phase !== 'PDP-1' || p1Status.status !== 'DEV_COMPLETE'
+      || !(p1Status.exportedHandoffIds ?? []).includes(expected.p1)
+      || p1Handoff?.id !== expected.p1 || p1Handoff?.status !== 'DEFINITION_HANDOFF_CONTRACT') {
+    integrityIssues.push('frozen-pdp1-domain-handoff-not-consumed');
+  }
+  if (p2Status.phase !== 'PDP-2' || p2Status.status !== 'DEV_COMPLETE'
+      || !(p2Status.exportedHandoffIds ?? []).includes(expected.p2)
+      || p2Handoff?.id !== expected.p2 || p2Handoff?.status !== 'DEFINITION_HANDOFF_CONTRACT'
+      || p2Handoff?.sourcePhase !== 'PDP-2' || p2Handoff?.consumerPhase !== 'PDP-3') {
+    integrityIssues.push('frozen-pdp2-design-interface-handoff-not-consumed');
+  }
+  if ((screenRegistry.screens ?? []).length !== 41 || (screenRegistry.laneViews ?? []).length !== 6
+      || screens.length !== 47 || new Set(screenIds).size !== 47) integrityIssues.push('pdp3-screen-denominator-not-47-unique');
+  if (journeys.length !== 30 || new Set(journeyIds).size !== 30
+      || journeyRegistry.requiredMasterPlanJourneyCount !== 28 || journeyRegistry.additionalPdp0JourneyCount !== 2) {
+    integrityIssues.push('pdp3-journey-denominator-not-30-unique');
+  }
+  if (stepOracles.journeyCount !== 30 || stepOracles.stepCount !== 130 || steps.length !== 130
+      || new Set(oracleJourneyIds).size !== 30 || JSON.stringify([...journeyIds].sort()) !== JSON.stringify([...oracleJourneyIds].sort())
+      || purposeBindings.recordCount !== 130 || purposeBindings.records?.length !== 130
+      || new Set((purposeBindings.records ?? []).map(row => row.stepRef)).size !== 130) {
+    integrityIssues.push('pdp3-step-or-purpose-denominator-not-130-exact');
+  }
+  for (const screen of screens) {
+    const refs = screen.contractRefs ?? [];
+    if (refs.length !== 1) {
+      integrityIssues.push(`screen-contract-reference-cardinality:${screen.id ?? 'unknown'}`);
+      continue;
+    }
+    const file = path.join(repositoryRoot, p3, refs[0]);
+    if (!fs.existsSync(file)) integrityIssues.push(`screen-contract-source-missing:${screen.id}`);
+    else {
+      try {
+        const contract = parseYaml(fs.readFileSync(file, 'utf8'));
+        if (contract.screenId !== screen.id) integrityIssues.push(`screen-contract-identity-mismatch:${screen.id}`);
+      } catch {
+        integrityIssues.push(`screen-contract-source-invalid:${screen.id}`);
+      }
+    }
+  }
+  for (const journey of journeys) {
+    if (typeof journey.contract !== 'string' || !journey.contract.endsWith('.yaml')
+        || !fs.existsSync(path.join(repositoryRoot, p3, journey.contract))) {
+      integrityIssues.push(`journey-contract-source-missing:${journey.id ?? 'unknown'}`);
+    }
+  }
+  const scenarios = scenarioRegistry.scenarioCoverage ?? {};
+  const journeyCoverage = scenarioRegistry.journeyCoverage ?? {};
+  const seededJourneyIds = journeyCoverage.journeysWithExactSimulationSeeds ?? [];
+  const explicitlyUnseededJourneyIds = journeyCoverage.journeysWithoutExactSimulationSeeds ?? [];
+  const scenarioJourneyPartition = [...seededJourneyIds, ...explicitlyUnseededJourneyIds];
+  if (scenarios.total !== 31 || scenarios.seededSyntheticDefinition !== 31
+      || journeyCoverage.journeyContractCount !== 30
+      || journeyCoverage.scenarioRecordCount !== 31
+      || journeyCoverage.scenariosWithExactSeedAndStateOrContextBinding !== 31
+      || journeyCoverage.scenarioReferencesBoundToJourneyContracts !== 31
+      || journeyCoverage.journeysWithOneOrMoreExactScenarioSeeds !== seededJourneyIds.length
+      || journeyCoverage.journeyContractsWithoutExactScenarioSeeds !== explicitlyUnseededJourneyIds.length
+      || new Set(scenarioJourneyPartition).size !== 30
+      || JSON.stringify([...scenarioJourneyPartition].sort()) !== JSON.stringify([...journeyIds].sort())
+      || (scenarios.unimplementedFixturePayload ?? []).length !== 0) {
+    integrityIssues.push('pdp3-scenario-seed-or-journey-coverage-not-current');
+  }
+  const unseededAudit = scenarioRegistry.unseededJourneyFixtureAudit ?? {};
+  const unseededRows = unseededAudit.records ?? [];
+  const unseededRowJourneyIds = new Set(unseededRows.map(row => row.journeyRef).filter(Boolean));
+  const branchAudit = unseededAudit.branchApplicabilityAudit ?? {};
+  const unknownOutcomeOracle = branchAudit.boundedOperationUnknownOutcomeFixtures ?? {};
+  const unknownOutcomeRecords = unknownOutcomeOracle.records ?? [];
+  const unknownOperationRefs = new Set(unknownOutcomeRecords.map(row => row.operationRef).filter(Boolean));
+  const unknownBindings = new Set(unknownOutcomeRecords.map(row => `${row.journeyRef}\u0000${row.stepRef}\u0000${row.operationRef}`));
+  const recoveryOracle = branchAudit.boundedRecoveryNoQueryFixtures ?? {};
+  const recoveryRecords = recoveryOracle.records ?? [];
+  const recoverySourceRefs = new Set(recoveryRecords.map(row => row.recoverySourceRef).filter(Boolean));
+  const recoveryQueryOracle = branchAudit.boundedRecoveryObservationQueries ?? {};
+  const recoveryQueryRecords = recoveryQueryOracle.records ?? [];
+  const recoveryQuerySourceRefs = new Set(recoveryQueryRecords.map(row => row.stepRef).filter(Boolean));
+  const j29RecoveryQuery = recoveryQueryRecords.find(row => row.journeyRef === 'J-29'
+    && row.stepRef?.endsWith('/steps/1'));
+  const expectedJ29RecoveryTupleFields = [
+    'canonicalStateRef', 'stateAuthorityRef', 'stateEvidenceRef', 'consentRef', 'consentRevision',
+    'consentCurrentness', 'purposeRef', 'purposeRevision', 'purposeCurrentness', 'leaseVersion',
+    'leaseCurrentness', 'fencingToken', 'lastAcknowledgedSequence', 'nextSequence',
+    'resolvedFrameOutcomeCoverage', 'resolvedFrameOutcomeRange', 'resolvedFrameOutcomeRefs',
+    'reconnectBudgetRemaining',
+  ];
+  const unknownOutcomeCoverageValid = unknownOutcomeOracle.uniqueOperationCount === 44
+    && unknownOperationRefs.size === 44 && unknownOutcomeOracle.sourceBindingOccurrenceCount === 59
+    && unknownOutcomeOracle.boundStepOperationCount === 48 && unknownOutcomeRecords.length === 48
+    && unknownBindings.size === 48
+    && unknownOutcomeRecords.every(row => row.expectedOutcome === 'UNKNOWN_OUTCOME'
+      && row.sameIdentityDisposition === 'REUSE_EXACT_SYNTHETIC_REQUEST_ONLY; no replacement request identity'
+      && row.dispatch === 'NEVER' && row.replay === 'NEVER'
+      && row.ownerAcceptedOutcomeOracle === false && row.runtimeAdmission === 'NOT_ADMITTED');
+  const recoveryCoverageValid = unseededRows.length === 26
+    && unseededRowJourneyIds.size === 26
+    && JSON.stringify([...unseededRowJourneyIds].sort()) === JSON.stringify([...explicitlyUnseededJourneyIds].sort())
+    && recoveryOracle.recoveryStepCount === 105 && recoveryRecords.length === 105
+    && recoverySourceRefs.size === 105
+    && recoveryQueryOracle.recordCount === 1 && recoveryQueryRecords.length === 1
+    && recoveryQuerySourceRefs.size === 1
+    && branchAudit.typedRecoveryObservationBoundary?.unimplementedRecoveryRuleSourceStepCount === 105
+    && branchAudit.typedRecoveryObservationBoundary?.boundRecoveryObservationQueryCount === 1
+    && branchAudit.typedRecoveryObservationBoundary?.boundRecoveryObservationStepRef === j29RecoveryQuery?.stepRef
+    && recoveryRecords.every(row => typeof row.recoveryOracleStepRef === 'string'
+      && row.oracleKind === 'SAFE_NO_QUERY_UNKNOWN_WHILE_TYPED_RECOVERY_IS_UNIMPLEMENTED'
+      && row.conditionEvaluated === false && row.expectedObservation === 'UNKNOWN'
+      && row.expectedDecision === 'HOLD_WITHOUT_EFFECT_OR_REPLAY'
+      && row.dispatch === 'NEVER' && row.replay === 'NEVER'
+      && row.ownerAcceptedOutcomeOracle === false && row.runtimeAdmission === 'NOT_ADMITTED')
+    && recoveryRecords.every(row => !(row.journeyRef === 'J-29' && row.stepRef?.endsWith('/steps/1')))
+    && j29RecoveryQuery?.operationRef === 'media.operation.stream-session.inspect-execution-recovery.v1'
+    && j29RecoveryQuery.operationKind === 'QUERY'
+    && j29RecoveryQuery.contractRef?.endsWith('/records/@id=media.operation.stream-session.inspect-execution-recovery.v1')
+    && j29RecoveryQuery.requestSchemaRef?.endsWith('/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/requestSchema')
+    && j29RecoveryQuery.resultSchemaRef?.endsWith('/records/@id=media.operation.stream-session.inspect-execution-recovery.v1/resultSchema')
+    && JSON.stringify(j29RecoveryQuery.snapshotIdentityFields) === JSON.stringify(['sessionId', 'observedAt', 'readVersion'])
+    && JSON.stringify(j29RecoveryQuery.requiredObservationFields) === JSON.stringify(expectedJ29RecoveryTupleFields)
+    && j29RecoveryQuery.conditionEvaluated === false && j29RecoveryQuery.dispatch === 'NEVER'
+    && j29RecoveryQuery.replay === 'NEVER' && j29RecoveryQuery.ownerAcceptedOutcomeOracle === false
+    && j29RecoveryQuery.runtimeAdmission === 'NOT_ADMITTED';
+  if (!unknownOutcomeCoverageValid) integrityIssues.push('pdp3-unknown-outcome-definition-oracle-coverage-not-complete');
+  if (!recoveryCoverageValid) integrityIssues.push('pdp3-recovery-definition-oracle-coverage-not-complete');
+  const developmentOracleCoverage = {
+    unseededJourneyContracts: unseededRows.length,
+    operationUnknownOutcome: {
+      uniqueOperationCount: unknownOperationRefs.size,
+      sourceBindingOccurrenceCount: unknownOutcomeOracle.sourceBindingOccurrenceCount ?? 0,
+      boundStepOperationCount: unknownBindings.size,
+      status: unknownOutcomeCoverageValid ? 'PASS' : 'FAIL',
+    },
+    recoveryWithoutSameIdentityReadJoin: {
+      sourceRecoveryStepCount: recoverySourceRefs.size + recoveryQuerySourceRefs.size,
+      oracleCount: recoveryRecords.length,
+      unimplementedTypedRecoverySteps: recoveryRecords.length,
+      exactSupportingQueryCount: recoveryQueryRecords.length,
+      status: recoveryCoverageValid ? 'BOUNDED_UNKNOWN_WITH_EXACT_QUERY_EXCEPTION' : 'FAIL',
+    },
+  };
+  const populations = {
+    screens: screens.length,
+    baselineScreens: (screenRegistry.screens ?? []).length,
+    laneSpecificViews: (screenRegistry.laneViews ?? []).length,
+    journeys: journeys.length,
+    orderedSteps: steps.length,
+    purposeBindings: purposeBindings.records?.length ?? 0,
+    uiActions: (actionRegistry.actions ?? []).length + (actionRegistry.ownerDefinedActions ?? []).length,
+    scenarios: scenarios.total ?? 0,
+    syntheticScenarioDefinitions: scenarios.seededSyntheticDefinition ?? 0,
+    journeysWithSeededScenarios: seededJourneyIds.length,
+    journeysExplicitlyWithoutSeededScenarios: explicitlyUnseededJourneyIds.length,
+    operationUnknownOutcomeOracleBindings: unknownBindings.size,
+    operationUnknownOutcomeSourceBindingOccurrences: unknownOutcomeOracle.sourceBindingOccurrenceCount ?? 0,
+    boundedRecoveryNoQueryOracles: recoveryRecords.length,
+  };
+  return {
+    boundary: 'Finite PDP-3 source denominator consuming the frozen PDP-0/PDP-1/PDP-2 handoffs. Source counts establish population integrity only; semantic development completeness is established by the phase-specific tests and strict current projection.',
+    populations,
+    developmentOracleCoverage,
+    screenIds: [...screenIds].sort(),
+    journeyIds: [...journeyIds].sort(),
+    importedHandoffIds,
+    exportedHandoffIds: [],
+    integrityIssues: [...new Set(integrityIssues)].sort(),
+  };
+}
+
+export function buildPdp3DevStatus({mainSha, sourceShaSet = {}, verification = {}, sourceCensus, sourceCutStable = false, projectionCheck}) {
+  const census = sourceCensus ?? {populations: {}, screenIds: [], journeyIds: [], importedHandoffIds: [], exportedHandoffIds: [], integrityIssues: ['source-census-not-built']};
+  const testsActuallyRun = Object.fromEntries(p3Criteria.map(id => {
+    const check = verification[id];
+    return [id, check?.command ? {command: check.command, status: check.status, testCount: check.testCount,
+      passedTestCount: check.passedTestCount, skippedTestCount: check.skippedTestCount ?? 0,
+      outputSha256: check.outputSha256, testSourceFingerprints: check.testSourceFingerprints ?? {}, sourceCut: check.sourceCut ?? null} : {status: 'NOT_RUN'}];
+  }));
+  const testIssues = p3Criteria.filter(id => {
+    const check = verification[id];
+    const expectedFiles = [...(suites[id] ?? [])].sort();
+    const fingerprints = check?.testSourceFingerprints ?? {};
+    return check?.status !== 'PASS' || !(check?.testCount > 0)
+      || check?.passedTestCount !== check?.testCount || (check?.skippedTestCount ?? 0) !== 0
+      || typeof check?.outputSha256 !== 'string' || !/^[a-f0-9]{64}$/u.test(check.outputSha256)
+      || JSON.stringify(Object.keys(fingerprints).sort()) !== JSON.stringify(expectedFiles)
+      || Object.values(fingerprints).some(hash => typeof hash !== 'string' || !/^[a-f0-9]{64}$/u.test(hash));
+  }).map(id => `${id}:focused-development-tests-not-green-or-source-pinned`);
+  const fieldMappingBlockerAuditPresent = Array.isArray(projectionCheck?.fieldMappingBlockers);
+  const fieldMappingBlockerIssues = !fieldMappingBlockerAuditPresent
+    ? ['P3-01:semantic-field-mapping-blocker-audit-missing']
+    : projectionCheck.fieldMappingBlockers.map(blocker =>
+      `P3-01:unresolved-semantic-field:${blocker.field ?? 'unknown'}`);
+  const oracleCoverage = census.developmentOracleCoverage ?? {};
+  const oracleCoverageIssues = [];
+  if (oracleCoverage.operationUnknownOutcome?.status !== 'PASS'
+      || oracleCoverage.operationUnknownOutcome.uniqueOperationCount !== 44
+      || oracleCoverage.operationUnknownOutcome.sourceBindingOccurrenceCount !== 59
+      || oracleCoverage.operationUnknownOutcome.boundStepOperationCount !== 48) {
+    oracleCoverageIssues.push('P3-05:bounded-operation-unknown-outcome-oracles-incomplete');
+  }
+  if (oracleCoverage.recoveryWithoutSameIdentityReadJoin?.status !== 'BOUNDED_UNKNOWN_WITH_EXACT_QUERY_EXCEPTION'
+      || oracleCoverage.recoveryWithoutSameIdentityReadJoin.sourceRecoveryStepCount !== 106
+      || oracleCoverage.recoveryWithoutSameIdentityReadJoin.oracleCount !== 105
+      || oracleCoverage.recoveryWithoutSameIdentityReadJoin.unimplementedTypedRecoverySteps !== 105
+      || oracleCoverage.recoveryWithoutSameIdentityReadJoin.exactSupportingQueryCount !== 1) {
+    oracleCoverageIssues.push('P3-05:bounded-recovery-no-query-oracles-incomplete');
+  }
+  const projectionValid = projectionCheck?.status === 'PASS' && projectionCheck.current === true
+    && projectionCheck.schemaValid === true && projectionCheck.publicValidatorPassed === true
+    && fieldMappingBlockerAuditPresent && projectionCheck.fieldMappingBlockers.length === 0;
+  const outstandingMeaningIds = [...new Set([
+    ...(census.integrityIssues ?? []).map(issue => `P3-10:${issue}`), ...testIssues,
+    ...fieldMappingBlockerIssues, ...oracleCoverageIssues,
+    ...(!sourceCutStable ? ['P3-10:source-cut-changed-during-verification'] : []),
+    ...(!projectionValid ? ['P3-01:strict-current-public-projection-not-green'] : []),
+  ])].sort();
+  const directDevelopmentCriteria = Object.fromEntries(p3Criteria.map(id => [id, {
+    testStatus: verification[id]?.status ?? 'NOT_RUN',
+    testCount: verification[id]?.testCount ?? 0,
+    passedTestCount: verification[id]?.passedTestCount ?? 0,
+  }]));
+  return {
+    schemaVersion: 'media.phase-dev-status.v1', phase: 'PDP-3', mainSha, sourceShaSet,
+    sourcePopulations: census.populations, screenIds: census.screenIds, journeyIds: census.journeyIds,
+    importedHandoffIds: census.importedHandoffIds, exportedHandoffIds: census.exportedHandoffIds,
+    developmentOracleCoverage: census.developmentOracleCoverage ?? null,
+    outstandingMeaningIds, testsActuallyRun, directDevelopmentCriteria,
+    strictCurrentProjection: projectionCheck ? {
+      status: projectionValid ? 'PASS' : 'FAIL',
+      current: projectionCheck.current ?? false,
+      schemaValid: projectionCheck.schemaValid ?? false,
+      publicValidatorPassed: projectionCheck.publicValidatorPassed ?? false,
+      semanticFieldMappingAudited: fieldMappingBlockerAuditPresent,
+      semanticFieldBlockerCount: projectionCheck.fieldMappingBlockers?.length ?? null,
+      outputSha256: projectionCheck.outputSha256 ?? null,
+    } : {status: 'NOT_RUN'},
+    deferredAcceptance: ['Lifecycle receipts and convergence', 'Independent PDP certification', 'External Shared service acceptance', 'Runtime, production-host, and release admission'],
+    status: outstandingMeaningIds.length === 0 ? 'DEV_COMPLETE' : 'IN_PROGRESS',
+  };
+}
+
+export function writePdp3DevStatus(status, repositoryRoot = root) {
+  const outputPath = path.join(repositoryRoot, 'docs/implementation/pdp-3-phase-dev-status.json');
+  fs.mkdirSync(path.dirname(outputPath), {recursive:true});
+  fs.writeFileSync(outputPath, JSON.stringify(status, null, 2) + '\n');
+  return outputPath;
+}
+export function buildP103TestArgs(groupName, repositoryRoot = root) {
+  const group = p103VerificationSuites[groupName];
+  if (!group) throw new Error(`Unknown P1-03 verification group: ${groupName}`);
+  return ['--test', ...(group.testNamePattern ? [`--test-name-pattern=${group.testNamePattern}`] : []),
+    ...group.files.map(file => path.resolve(repositoryRoot,file))];
+}
 export function buildCurrentDefinitionCensus(repositoryRoot) {
  const read=(file)=>parseYaml(fs.readFileSync(path.join(repositoryRoot,'.product-experience',file),'utf8'));
  const domain=read('pdp-1-domain-data/domain-objects.yaml');
@@ -410,19 +1308,24 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const args = process.argv.slice(2);
   const phaseStatusArg=args.find(a=>a.startsWith('--phase-dev-status='));
   const phaseStatus=phaseStatusArg?.slice('--phase-dev-status='.length);
-  if(args.some(a=>!['--verify','--write'].includes(a) && !a.startsWith('--verify-tasks=') && !a.startsWith('--phase-dev-status='))) throw new Error('Usage: report-media-pdp-readiness.mjs [--verify] [--verify-tasks=P0-01,P0-02,...] [--phase-dev-status=PDP-0] [--write]');
-  if(phaseStatus && (phaseStatus !== 'PDP-0' || !args.includes('--verify'))) throw new Error('--phase-dev-status currently supports PDP-0 and requires --verify');
+  if(args.some(a=>!['--verify','--write'].includes(a) && !a.startsWith('--verify-tasks=') && !a.startsWith('--phase-dev-status='))) throw new Error('Usage: report-media-pdp-readiness.mjs [--verify] [--verify-tasks=P0-01,P0-02,...] [--phase-dev-status=PDP-0|PDP-1|PDP-2|PDP-3] [--write]');
+  if(phaseStatus && (!['PDP-0','PDP-1','PDP-2','PDP-3'].includes(phaseStatus) || !args.includes('--verify'))) throw new Error('--phase-dev-status supports PDP-0 through PDP-3 and requires --verify');
   const selectedTasksArg=args.find(a=>a.startsWith('--verify-tasks='));
-  const selectedTasks=selectedTasksArg ? selectedTasksArg.slice('--verify-tasks='.length).split(',') : phaseStatus ? p0Criteria : Object.keys(suites);
+  const phaseCriteria=phaseStatus==='PDP-1'?p1Criteria:phaseStatus==='PDP-2'?p2Criteria:phaseStatus==='PDP-3'?p3Criteria:p0Criteria;
+  const selectedTasks=selectedTasksArg ? selectedTasksArg.slice('--verify-tasks='.length).split(',') : phaseStatus ? phaseCriteria : Object.keys(suites);
   if(selectedTasks.some(id=>!Object.hasOwn(suites,id)) || new Set(selectedTasks).size!==selectedTasks.length) throw new Error('Verification tasks must name distinct configured PDP suites');
   if(selectedTasksArg && !args.includes('--verify')) throw new Error('--verify-tasks requires --verify');
   const auditPath='docs/implementation/media-task-completion-blocker-report-2026-10-08.json';
   const audit=JSON.parse(fs.readFileSync(path.join(root,auditPath),'utf8'));
-  const p0PinnedSources = ['.product-experience/pdp-0-product-truth', '.product-experience/authority-map.yaml', '.product-experience/gaps.yaml', '.product-experience/decision-log.md', '.product-experience/source-manifest.yaml', '.product-experience/artifact-identities.yaml', 'docs/migration/current-master-plan-claim-dispositions.json', 'docs/migration/master-plan-source-change-claims.yaml', 'docs/PRODUCT-DEFINITION-COVERAGE.md', 'docs/implementation/PDP-0-3-SEQUENTIAL-DEVELOPMENT-COMPLETION-PLAN.md', 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json', 'docs/implementation/verification/pdp-38/migration-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json', 'docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json', 'docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json', 'docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json', 'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json', 'apps/media-experience-explorer/specification-artifacts.json'];
+  // The implementation plan is an execution ledger, not normative phase input;
+  // pinning it would make a phase-status update stale when the ledger is corrected.
+  const p0PinnedSources = ['.product-experience/pdp-0-product-truth', '.product-experience/authority-map.yaml', '.product-experience/gaps.yaml', '.product-experience/decision-log.md', '.product-experience/source-manifest.yaml', '.product-experience/artifact-identities.yaml', 'docs/migration/current-master-plan-claim-dispositions.json', 'docs/migration/master-plan-source-change-claims.yaml', 'docs/PRODUCT-DEFINITION-COVERAGE.md', 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json', 'docs/implementation/verification/pdp-38/migration-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json', 'docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json', 'docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-leaf-trust-current-type-drift-inventory.json', 'docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json', 'docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json', 'docs/implementation/verification/pdp-38/p0-capability-intent-owner-binding-current-source-observation.json', 'docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json', 'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json', 'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-audio-naturalness-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-cli-channel-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-policy-authority-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-quality-current-source-observation.json', 'docs/implementation/verification/pdp-38/feature-review-qualification-policy-current-source-observation.json', 'apps/media-experience-explorer/specification-artifacts.json'];
   const p0DirectScripts = ['scripts/report-media-pdp-readiness.mjs', 'scripts/lib/media-product-definition-residuals.mjs', 'scripts/lib/pdp0-feature-review-applicability.mjs', 'scripts/lib/product-definition-domain-rule-mapping.mjs', 'scripts/generate-media-phase-projections.mjs', 'scripts/generate-media-product-manifest.mjs', 'scripts/check-product-definition-authority.mjs'];
-  const sourceCut = (testFiles) => Object.fromEntries([...new Set([...execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...(phaseStatus ? p0PinnedSources : ['.product-experience']), ...(phaseStatus ? p0DirectScripts : ['scripts', 'config/closure', 'libs/media-experience-simulation'])], {cwd:root,encoding:'utf8'})
+  const sourceRoots=phaseStatus==='PDP-1'?p1SourceRoots:phaseStatus==='PDP-2'?p2SourceRoots:phaseStatus==='PDP-3'?p3SourceRoots:p0PinnedSources;
+  const phaseScripts=phaseStatus==='PDP-1'?['scripts/report-media-pdp-readiness.mjs']:phaseStatus==='PDP-2'?p2DirectScripts:phaseStatus==='PDP-3'?p3DirectScripts:p0DirectScripts;
+  const sourceCut = (testFiles) => Object.fromEntries([...new Set([...execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...(phaseStatus ? sourceRoots : ['.product-experience']), ...(phaseStatus ? phaseScripts : ['scripts', 'config/closure', 'libs/media-experience-simulation'])], {cwd:root,encoding:'utf8'})
     .trim().split('\n'), ...testFiles])].filter(file => file && fs.existsSync(path.join(root,file)) && fs.statSync(path.join(root,file)).isFile()).map(file => [file,digest(file)]));
-  const phaseSourceFiles=phaseStatus ? [...new Set([...p0Criteria.flatMap(id=>suites[id]),...p0PinnedSources,...p0DirectScripts])] : [];
+  const phaseSourceFiles=phaseStatus ? [...new Set([...phaseCriteria.flatMap(id=>suites[id]),...(phaseStatus==='PDP-1'?p1DeferredEvidenceFiles:[]),...sourceRoots,...phaseScripts])] : [];
   const phaseSourceCutBefore=phaseStatus ? sourceCut(phaseSourceFiles) : null;
   const criterionReviewPath='docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
   const definitionCriterionReviews={};
@@ -438,11 +1341,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if(args.includes('--verify')) for(const [id, files] of Object.entries(suites).filter(([id])=>selectedTasks.includes(id))) {
     // Never let an empty or directory-like suite turn `node --test` into its
     // recursive repository-wide discovery mode. Every configured verification
-    // input must be one explicit test file under this repository's tests dir.
+    // input must be one explicit test file under tests/ or a package tests/ dir.
     if(!Array.isArray(files) || files.length===0 || files.some(file=>
-      typeof file!=='string' || !file.startsWith('tests/') || !file.endsWith('.test.mjs')
+      !isExplicitVerificationTestPath(file)
       || !fs.existsSync(path.join(root,file)) || !fs.statSync(path.join(root,file)).isFile())) {
-      throw new Error(`${id} verification requires an explicit non-empty list of existing tests/*.test.mjs files`);
+      throw new Error(`${id} verification requires explicit existing *.test.mjs files under tests/ or libs/**/tests/`);
     }
     const missing=files.filter(f=>!fs.existsSync(path.join(root,f)));
     if(missing.length) {verification[id]={status:'NOT_RUN',reason:`Missing test sources: ${missing.join(', ')}`};continue;}
@@ -454,23 +1357,37 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     // A bounded assertion can print a large diagnostic when it fails. Keep
     // enough room for the complete TAP footer; spawnSync's 1 MiB default
     // otherwise truncates it and makes a real run look like zero tests.
-    const result=spawnSync(process.execPath,testArgs,{cwd:root,encoding:'utf8',env:testEnv,maxBuffer:64*1024*1024});
+    const p103Groups = id === 'P1-03' ? p103VerificationSuites : null;
+    const runGroup = (groupName, group) => {
+      const groupFiles = group.files;
+      const args = buildP103TestArgs(groupName);
+      const result = spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',env:testEnv,maxBuffer:64*1024*1024});
+      const output = (result.stdout??'')+(result.stderr??'');
+      const testCount = Number((result.stdout??'').match(/# tests\s+(\d+)/)?.[1] ?? 0);
+      const passedTestCount = Number((result.stdout??'').match(/# pass\s+(\d+)/)?.[1] ?? 0);
+      const skippedTestCount = Number((result.stdout??'').match(/# skipped\s+(\d+)/)?.[1] ?? 0);
+      const status = result.status===0 && !result.error && testCount>0 && passedTestCount===testCount && skippedTestCount===0 ? 'PASS' : 'FAIL';
+      return {status,command:`node ${args.join(' ')}`,exitCode:result.status,testCount,passedTestCount,skippedTestCount,
+        outputSha256:crypto.createHash('sha256').update(output).digest('hex'),testSourceFingerprints:Object.fromEntries(groupFiles.map(file=>[file,digest(file)])),output};
+    };
+    const groupResults = p103Groups ? Object.fromEntries(Object.entries(p103Groups).map(([name, group]) => [name,runGroup(name,group)])) : null;
+    const result=p103Groups ? null : spawnSync(process.execPath,testArgs,{cwd:root,encoding:'utf8',env:testEnv,maxBuffer:64*1024*1024});
     const changedSources = verificationCutChanged(before, sourceCut(files));
-    const output=(result.stdout??'')+(result.stderr??'');
-    const testCount=Number((result.stdout??'').match(/# tests\s+(\d+)/)?.[1] ?? 0);
-    const passedTestCount=Number((result.stdout??'').match(/# pass\s+(\d+)/)?.[1] ?? 0);
-    const skippedTestCount=Number((result.stdout??'').match(/# skipped\s+(\d+)/)?.[1] ?? 0);
+    const output=p103Groups ? Object.values(groupResults).map(group=>group.output).join('\n') : (result.stdout??'')+(result.stderr??'');
+    const testCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.testCount,0) : Number((result.stdout??'').match(/# tests\s+(\d+)/)?.[1] ?? 0);
+    const passedTestCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.passedTestCount,0) : Number((result.stdout??'').match(/# pass\s+(\d+)/)?.[1] ?? 0);
+    const skippedTestCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.skippedTestCount,0) : Number((result.stdout??'').match(/# skipped\s+(\d+)/)?.[1] ?? 0);
     const expectedSkippedTestCount=id==='P0-03'?10:0;
-    const status=result.status===0 && !result.error && testCount>0 && passedTestCount>0
+    const status=(p103Groups ? Object.values(groupResults).every(group=>group.status==='PASS') : result.status===0 && !result.error) && testCount>0 && passedTestCount>0
       && skippedTestCount===expectedSkippedTestCount
       && passedTestCount+skippedTestCount===testCount?'PASS':'FAIL';
-    verification[id]={status,command:`${testEnv.PDP_MIGRATION_CANDIDATE_PHASE?`PDP_MIGRATION_CANDIDATE_PHASE=${testEnv.PDP_MIGRATION_CANDIDATE_PHASE} `:''}${testEnv.PDP_DEV_PHASE?`PDP_DEV_PHASE=${testEnv.PDP_DEV_PHASE} `:''}node ${testArgs.map(arg=>arg.includes(' ')?JSON.stringify(arg):arg).join(' ')}`,exitCode:result.status,
-      ...(result.error ? {executionError:result.error.message} : {}),
+    verification[id]={status,command:p103Groups ? Object.values(groupResults).map(group=>group.command).join(' && ') : `${testEnv.PDP_MIGRATION_CANDIDATE_PHASE?`PDP_MIGRATION_CANDIDATE_PHASE=${testEnv.PDP_MIGRATION_CANDIDATE_PHASE} `:''}${testEnv.PDP_DEV_PHASE?`PDP_DEV_PHASE=${testEnv.PDP_DEV_PHASE} `:''}node ${testArgs.map(arg=>arg.includes(' ')?JSON.stringify(arg):arg).join(' ')}`,exitCode:p103Groups ? (status==='PASS'?0:1) : result.status,
+      ...(p103Groups ? {suites:Object.fromEntries(Object.entries(groupResults).map(([name,group])=>[name,{...group,output:undefined}]))} : result.error ? {executionError:result.error.message} : {}),
       testScope:directTestNames[id] ? 'Exact bounded task-specific source criteria; broader phase diagnostics are separate' : 'Bounded implementation assertions; no whole-task completion inferred',
       testCount,passedTestCount,skippedTestCount,
       outputSha256:crypto.createHash('sha256').update(output).digest('hex'),testSourceFingerprints:Object.fromEntries(files.map(f=>[f,digest(f)]))};
     verification[id].sourceCut = {fingerprints:before, changedDuringVerification:changedSources};
-    if (result.status===0 && changedSources.length) verification[id].status='PASS_ON_CHANGED_SOURCE_CUT_REVALIDATION_REQUIRED';
+    if (verification[id].status==='PASS' && changedSources.length) verification[id].status='PASS_ON_CHANGED_SOURCE_CUT_REVALIDATION_REQUIRED';
     fs.mkdirSync(path.join(root,'docs/implementation/verification/pdp-38'),{recursive:true});
     fs.writeFileSync(path.join(root,`docs/implementation/verification/pdp-38/${id}.log`),output);
   }
@@ -492,6 +1409,70 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     }});
   }
   if(phaseStatus) {
+    if (phaseStatus === 'PDP-3') {
+      const phaseSourceCutAfter = sourceCut(phaseSourceFiles);
+      const phaseSourceChanged = verificationCutChanged(phaseSourceCutBefore, phaseSourceCutAfter);
+      const sourceCensus = buildPdp3SourceCensus(root);
+      const projection = spawnSync(process.execPath, ['scripts/generate-media-phase-projections.mjs', '--check', '--strict'],
+        {cwd:root, encoding:'utf8', maxBuffer:64*1024*1024});
+      const projectionOutput = (projection.stdout ?? '') + (projection.stderr ?? '');
+      const candidatePath = path.join(root, '.product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json');
+      const candidate = fs.existsSync(candidatePath) ? JSON.parse(fs.readFileSync(candidatePath, 'utf8')) : {};
+      const projectionCheck = {
+        status: projection.status === 0 && !projection.error ? 'PASS' : 'FAIL',
+        current: projection.status === 0 && !projection.error,
+        schemaValid: candidate.validation?.schemaValid === true,
+        publicValidatorPassed: candidate.validation?.publicValidatorPassed === true,
+        fieldMappingBlockers: candidate.fieldMappingBlockers,
+        outputSha256: crypto.createHash('sha256').update(projectionOutput).digest('hex'),
+      };
+      const status = buildPdp3DevStatus({
+        mainSha: execFileSync('git', ['rev-parse', 'HEAD'], {cwd:root, encoding:'utf8'}).trim(),
+        sourceShaSet: phaseSourceCutBefore, verification, sourceCensus,
+        sourceCutStable: phaseSourceChanged.length === 0, projectionCheck,
+      });
+      if (phaseSourceChanged.length) status.outstandingMeaningIds.push(...phaseSourceChanged.map(file => `P3-10:changed-source:${file}`));
+      status.status = status.outstandingMeaningIds.length === 0 ? 'DEV_COMPLETE' : 'IN_PROGRESS';
+      process.stdout.write(JSON.stringify(status, null, 2) + '\n');
+      if (args.includes('--write')) writePdp3DevStatus(status, root);
+      if (status.status !== 'DEV_COMPLETE' || Object.values(verification).some(result => result.status !== 'PASS')) process.exitCode = 1;
+    } else if (phaseStatus === 'PDP-2') {
+      const phaseSourceCutAfter = sourceCut(phaseSourceFiles);
+      const phaseSourceChanged = verificationCutChanged(phaseSourceCutBefore, phaseSourceCutAfter);
+      const sourceCensus = buildPdp2SourceCensus(root);
+      const designConformance = analyzeDesignConformance(root, {definitionOnly:true, includeP3ScreenInstances:false});
+      const status = buildPdp2DevStatus({
+        mainSha: execFileSync('git', ['rev-parse', 'HEAD'], {cwd:root, encoding:'utf8'}).trim(),
+        sourceShaSet: phaseSourceCutBefore, verification, sourceCensus,
+        sourceCutStable: phaseSourceChanged.length === 0, designConformance,
+      });
+      if (phaseSourceChanged.length) status.outstandingMeaningIds.push(...phaseSourceChanged.map(file => `P2-09:changed-source:${file}`));
+      status.status = status.outstandingMeaningIds.length === 0 ? 'DEV_COMPLETE' : 'IN_PROGRESS';
+      process.stdout.write(JSON.stringify(status, null, 2) + '\n');
+      if (args.includes('--write')) writePdp2DevStatus(status, root);
+      if (status.status !== 'DEV_COMPLETE' || Object.values(verification).some(result => result.status !== 'PASS')) process.exitCode = 1;
+    } else if (phaseStatus === 'PDP-1') {
+      const phaseSourceCutAfter = sourceCut(phaseSourceFiles);
+      const phaseSourceChanged = verificationCutChanged(phaseSourceCutBefore, phaseSourceCutAfter);
+      const census = buildPdp1SourceCensus(root);
+      const reviewPath = 'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json';
+      const semanticReview = fs.existsSync(path.join(root, reviewPath))
+        ? JSON.parse(fs.readFileSync(path.join(root, reviewPath), 'utf8')) : null;
+      const status = buildPdp1DevStatus({
+        mainSha: execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim(),
+        sourceShaSet: phaseSourceCutBefore, verification, sourceCensus: census, semanticReview,
+        exportedHandoffIds: census.exportedHandoffIds ?? [],
+        sourceCutStable: phaseSourceChanged.length === 0,
+      });
+      if (JSON.stringify([...(semanticReview?.exportedHandoffIds ?? [])].sort()) !== JSON.stringify([...(census.exportedHandoffIds ?? [])].sort())) {
+        status.outstandingMeaningIds.push('P1-11:semantic-review-handoff-does-not-match-current-source-contract');
+      }
+      if (phaseSourceChanged.length) status.outstandingMeaningIds.push(...phaseSourceChanged.map(file => `P1-11:changed-source:${file}`));
+      status.status = status.outstandingMeaningIds.length === 0 ? 'DEV_COMPLETE' : 'IN_PROGRESS';
+      process.stdout.write(JSON.stringify(status, null, 2) + '\n');
+      if (args.includes('--write')) writePdp1DevStatus(status, root);
+      if (status.status !== 'DEV_COMPLETE' || Object.values(verification).some(result => result.status !== 'PASS')) process.exitCode = 1;
+    } else {
     const currentP0CriterionScopesComplete=hasCompleteCurrentP0CriterionScopes(definitionCriterionReviews);
     const migrationDisposition=JSON.parse(fs.readFileSync(path.join(root,'docs/migration/current-master-plan-claim-dispositions.json'),'utf8'));
     const migrationClaimSource=parseYaml(fs.readFileSync(path.join(root,'docs/migration/master-plan-source-change-claims.yaml'),'utf8'));
@@ -666,6 +1647,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     process.stdout.write(JSON.stringify(status,null,2)+'\n');
     if(args.includes('--write')) writePdp0DevStatus(status,root);
     if(status.status!=='DEV_COMPLETE'||Object.values(verification).some(result=>result.status!=='PASS')) process.exitCode=1;
+    }
   } else {
   const json=JSON.stringify(report,null,2)+'\n';
   if(args.includes('--write')) {

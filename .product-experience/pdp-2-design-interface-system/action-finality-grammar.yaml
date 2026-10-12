@@ -1,7 +1,7 @@
 schemaVersion: media.action-finality-grammar.v1
 productId: media
 authority: Media interaction and wording for PDP-0 action/finality semantics
-status: authored-proposal; P0-010-and-distributed-systems-review-pending
+status: MEDIA_OWNER_DEFINITION_RECORDED; distributed-systems-and-independent-PDP2-review-pending
 rules:
   - Name an action by its effect, not by its implementation or transport.
   - Confirm only consequential effects that cannot be safely undone; explain scope and affected version.
@@ -398,11 +398,13 @@ boundedTranscriptionSubmissionSlice:
     requestModes: [SUBMIT_OR_REPLAY, RECONCILE]
     commonRequiredFields: [requestMode]
     commonAllowedFields: [requestMode]
-    submitFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
-    submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+    submitFields: [requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs]
+    submitAllowedFields: [requestMode, requestId, sourceArtifactId, sourceArtifactVersionId, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, languageHint]
     reconcileFields: [requestId, requestFingerprint]
     reconcileAllowedFields: [requestMode, requestId, requestFingerprint]
     branchFieldRule: exactly-the-allowedFields-for-selected-requestMode; reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
+    submitReplayRule: SUBMIT_OR_REPLAY-requires-the-entire-submitRequiredFields-set; it-never-replays-a-subset-or-reconstructs-omitted-values
+    immutableSource: sourceArtifactId-and-sourceArtifactVersionId-resolve-to-one-exact-immutable-audio-artifact-version-and-authoritative-content-digest; no-latest-alias-or-mutable-source-selector
     trustedContextFields: [tenantId, principalId, delegationRef]
     idempotencyScope: [tenantId, principalId, operationId, requestId]
     confirmation: disclose-processing-location-and-material-cost-when-known; present-the-exact-source-version-language-intent-profile-and-policy-selections-before-dispatch
@@ -414,29 +416,45 @@ boundedTranscriptionSubmissionSlice:
       EXPLICIT: {requiredFields: [mode, languageTag], allowedFields: [mode, languageTag], rule: exact-user-declared-language-tag; validate-profile-support-before-dispatch, encoding: [EXPLICIT, exact-languageTag]}
       AUTO_REQUESTED: {requiredFields: [mode], allowedFields: [mode], rule: explicit-user-request-for-profile-language-detection; detection-support-must-be-qualified-and-is-not-inferred, encoding: [AUTO_REQUESTED]}
       rule: explicit-validated-intent-only; no-default-inference-case-folding-or-trimming; profile-language-support-must-be-currently-qualified
+    languageHint: {optional: true, format: BCP-47, EXPLICIT: if-present-must-exactly-equal-languageIntent.languageTag, AUTO_REQUESTED: forbidden, effect: redundant-confirmation-only; does-not-change-language-intent-or-fingerprint}
     scalarNullability:
       optionalDelegationRef: absent-is-canonical-null; if-present-must-be-a-nonempty-trusted-delegation-reference
-      consentRef: nonempty-current-resolved-reference-when-policy-requires-consent; explicit-null-only-when-current-authoritative-policy-says-consent-is-not-required
-      requiredNonemptyStrings: [requestId, sourceArtifactId, sourceArtifactVersionId, profileId, profileVersion, purpose, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      consentRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context; canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required
+      retentionPolicyRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context; canonical-null-only-when-current-authoritative-policy-resolves-no-retention-policy
+      policyDecisionRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context; canonical-null-only-when-no-separate-policy-decision-reference-exists
+      requiredNonemptyStrings: [requestId, sourceArtifactId, sourceArtifactVersionId, profileId, profileVersion, purposeRef]
       nonnullDigestFields: [profileConfigurationDigest, authoritativeSourceContentDigest]
-      rightsEvidenceRef: required-nonnull-locator-resolved-to-current-authoritative-rights-decision; caller-assertion-is-not-evidence
+      rightsEvidenceRefs: nonempty-exact-reference-array-resolved-to-current-authoritative-rights-decisions; preserve-array-order-and-membership; caller-assertion-is-not-evidence
+      consentRetentionAndPolicyReferences: caller-provided-values-are-exact-locators-only; current-authoritative-owner-resolution-controls-effective-values-and-explicit-null; caller-cannot-assert-consent-retention-or-policy-authority
+      processingLocation: never-caller-asserted; resolve-only-from-current-trusted-policy-and-qualified-profile-context
       reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
       noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field; no-defaulting-or-ignored-payload-fields
-    profileIdentity: exact-profileId-profileVersion-and-lowercase-64-hex-profileConfigurationDigest; all-three-must-be-currently-qualified-for-source-purpose-location-and-language
-    policyFields: [purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+    profileIdentity: exact-profileId-profileVersion-and-profileConfigurationDigest-are-required; qualification-and-permitted-parameter-values-must-be-current-authoritative-profile-evidence
+    profilePreconstructionBoundary: absent-incomplete-stale-or-unqualified-optional-P0-profile-language-slot-returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction; never-default-or-reinterpret-absence-as-AUTO_REQUESTED
+    authorityReferences: purposeRef-and-rightsEvidenceRefs-are-exact-input-references-only; consentRef-retentionPolicyRef-and-policyDecisionRef-are-optional-exact-locators; all-references-require-current-authoritative-owner-resolution-and-are-not-self-grants
+    purposeAndLocation: purposeRef-is-an-exact-typed-purpose-reference; processingLocation-is-resolved-only-from-current-trusted-policy-and-qualified-profile-context
+    policyFields: [purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef]
+    optionalReferenceWireFields: [consentRef, retentionPolicyRef, policyDecisionRef]
+    callerNullRule: optional-wire-reference-fields-must-be-absent-or-nonempty-strings; caller-supplied-null-is-rejected; canonical-null-is-host-produced-only-under-each-field-specific-current-policy-rule
+    requestResolution:
+      optionalAuthorityReferences: [consentRef, retentionPolicyRef, policyDecisionRef]
+      absentReferenceDisposition: resolve-from-current-authoritative-owner-context-or-canonical-null-only-when-policy-says-not-applicable
+      processingLocationDisposition: resolve-from-current-trusted-policy-and-qualified-profile-context; never-accept-a-caller-asserted-location
+      fingerprintUses: exact-owner-resolved-values-including-explicit-null-and-resolvedProcessingLocation
+    fingerprintValueSource: caller-supplied-reference-locators-are-only-input-to-current-owner-resolution; fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names; never-substitute-caller-locator-strings-for-resolved-values
     requestFingerprint:
-      version: media.transcription-submission-fingerprint.v1
+      version: media.transcription-submission-fingerprint.v2
       algorithm: SHA-256
       encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
-      fields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, purpose, consentRef, rightsEvidenceRef, retentionPolicyRef, processingLocation]
+      fields: [tenantId, principalId, delegationRef, operationId, requestId, sourceArtifactId, sourceArtifactVersionId, authoritativeSourceContentDigest, languageIntent, profileId, profileVersion, profileConfigurationDigest, timestamps, speakerDiarization, purposeRef, rightsEvidenceRefs, consentRef, retentionPolicyRef, policyDecisionRef, resolvedProcessingLocation]
       languageIntentEncoding:
         EXPLICIT: [EXPLICIT, exact-languageTag]
         AUTO_REQUESTED: [AUTO_REQUESTED]
         rule: fixed-ordered-tuples-never-an-unordered-object
-      scalarEncoding: fixed-string-or-explicit-null-types-only; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
+      scalarEncoding: fixed-string-or-explicit-null-types-only; rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references; timestamps-is-one-of-none-segment-word-phoneme; speakerDiarization-is-a-JSON-boolean-without-coercion; profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256; invalid-types-or-digests-reject-before-hashing
       digestField: requestFingerprint; lowercase-64-hex-SHA256-of-the-canonical-compact-array-bytes
       normalization: validate-types-and-enums-first; preserve-exact-validated-string-values-and-optional-presence; no-trimming-case-folding-default-insertion-or-map-order-dependence
-    snapshot: host-canonically-validates-and-retains-the-complete-immutable-submit-payload-and-computed-fingerprint-before-first-dispatch; caller-retains-same-snapshot-for-lost-response-reconciliation
+    snapshot: before-first-dispatch-the-host-canonically-validates-and-retains-the-complete-immutable-submit-field-snapshot-including-current-owner-resolutions-for-optional-consent-retention-policy-and-processing-location-and-computed-fingerprint-for-this-key; the-caller-retains-the-same-snapshot-for-reconciliation-after-lost-response; never-depend-on-a-server-returned-fingerprint-the-caller-may-not-have-received
     submitAuthority: recheck-current-identity-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-at-each-effect-boundary
     replayAuthority: same-key-same-fingerprint-replay-still-requires-fresh-current-identity-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-policy
     reconciliationAuthority: RECONCILE-is-a-read-only-branch-and-requires-current-same-scope-receipt-read-authority-plus-the-retained-original-submit-snapshot; processing-authority-revocation-does-not-remove-read-authority-or-authorize-processing-or-replay
@@ -454,7 +472,7 @@ boundedTranscriptionSubmissionSlice:
     cancellation: stopping-waiting-does-not-cancel-or-reverse-the-submission-receipt; cancellation-is-a-separate-existing-job-lifecycle-action-and-requires-its-own-confirmed-observation
     workerRetries: worker-attempts-belong-to-the-separate-existing-job-lifecycle-and-are-not-submission-replays
     problemCodes:
-      definitivePreDispatch: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT]
+      definitivePreDispatch: [INVALID_REQUEST, SOURCE_NOT_FOUND_OR_NOT_VISIBLE, SOURCE_UNAVAILABLE, RIGHTS_NOT_VERIFIED, CONSENT_NOT_CURRENT, PURPOSE_NOT_PERMITTED, RETENTION_NOT_PERMITTED, PROCESSING_LOCATION_NOT_PERMITTED, PROFILE_NOT_QUALIFIED, UNSUPPORTED_PROFILE, LANGUAGE_NOT_SUPPORTED, AUTHORIZATION_DENIED, IDEMPOTENCY_CONFLICT]
       nonterminalOrAmbiguous: [UNAVAILABLE, UNKNOWN_OUTCOME]
     observedChannels:
       web: local-action-source-observed-only; production-host-and-runtime-unqualified

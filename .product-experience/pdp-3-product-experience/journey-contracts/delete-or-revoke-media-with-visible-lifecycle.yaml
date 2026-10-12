@@ -55,10 +55,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      sourceRef: journey.terminalSuccess
-      summary: Product lifecycle reflects completion/partial/blocked status without
-        claiming remote copies were recalled.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.inspect-consent-and-permitted-use
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
@@ -66,10 +74,16 @@ steps:
         - Retention hold, backup/cache/external copy, provider deletion
           uncertainty, or partial erasure.
     degradedBehavior:
-      status: not-specified
-      sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this
-        step.
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
@@ -141,12 +155,26 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Consent/license/likeness/processing restrictions and remediation
-        result: null
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Product lifecycle reflects completion/partial/blocked status without
-            claiming remote copies were recalled.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.inspect-consent-and-permitted-use
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -154,10 +182,16 @@ steps:
             - Retention hold, backup/cache/external copy, provider deletion
               uncertainty, or partial erasure.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -348,8 +382,14 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-26.j-26.step-01
     capabilityRefs: []
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
   - view: media.view.inspect-media
     legacyViewRef: M-ASSET
     screenContractRef: screen-contracts/inspect-media.yaml
@@ -373,10 +413,17 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      sourceRef: journey.terminalSuccess
-      summary: Product lifecycle reflects completion/partial/blocked status without
-        claiming remote copies were recalled.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+      operationRef: media.operation-slice.inspect-artifact
+      meaning: "Immediate result is caller-scoped artifact metadata observation:
+        HTTP-200 metadata or scoped absent/inaccessible; unavailable read is
+        UNKNOWN and proves neither global absence nor no prior effect."
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
@@ -384,10 +431,16 @@ steps:
         - Retention hold, backup/cache/external copy, provider deletion
           uncertainty, or partial erasure.
     degradedBehavior:
-      status: not-specified
-      sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this
-        step.
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
@@ -399,7 +452,7 @@ steps:
       summary:
         - Keep affected versions/derivatives, authority refs, lifecycle state,
           and consumer/provider follow-up refs.
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       requiredChecks: []
       evidenceRefs: []
@@ -453,12 +506,31 @@ steps:
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
       stepSourceFacts:
         intent: Playback/technical metadata, versions, rights and actions
-        result: null
+        result: "Immediate result is caller-scoped artifact metadata observation:
+          HTTP-200 metadata or scoped absent/inaccessible; unavailable read is
+          UNKNOWN and proves neither global absence nor no prior effect.
+          [.product-experience/pdp-1-domain-data/operations.yaml#individualOper\
+          ationContracts/records/@id=media.operation-slice.inspect-artifact/rea\
+          dSemantics]"
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/outcomes/success
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/sourceBounds
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics/rightsImplication
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics/noResultMeaning
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics/unknownOutcome
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Product lifecycle reflects completion/partial/blocked status without
-            claiming remote copies were recalled.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+          operationRef: media.operation-slice.inspect-artifact
+          meaning: "Immediate result is caller-scoped artifact metadata observation:
+            HTTP-200 metadata or scoped absent/inaccessible; unavailable read is
+            UNKNOWN and proves neither global absence nor no prior effect."
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -466,10 +538,16 @@ steps:
             - Retention hold, backup/cache/external copy, provider deletion
               uncertainty, or partial erasure.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.inspect-artifact/readSemantics
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -493,9 +571,9 @@ steps:
         canonicalOperationRef: media.operation-slice.inspect-artifact
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         scenarioRefs: []
-        capabilityRefs: [media.artifact.inspect]
+        capabilityRefs: [ media.artifact.inspect ]
       verification:
         requiredChecks: []
         evidenceRefs: []
@@ -636,8 +714,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.artifact.inspect]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+        capabilityRefs: [ media.artifact.inspect ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/browse-media.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/compose-media.yaml
@@ -647,7 +725,13 @@ steps:
           - .product-experience/pdp-3-product-experience/screen-contracts/review-outputs.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
     scenarioRefs: []
-    capabilityRefs: [media.artifact.inspect]
+    capabilityRefs: [ media.artifact.inspect ]
+    result: "Immediate result is caller-scoped artifact metadata observation:
+      HTTP-200 metadata or scoped absent/inaccessible; unavailable read is
+      UNKNOWN and proves neither global absence nor no prior effect.
+      [.product-experience/pdp-1-domain-data/operations.yaml#individualOperatio\
+      nContracts/records/@id=media.operation-slice.inspect-artifact/readSemanti\
+      cs]"
   - view: media.view.review-activity
     legacyViewRef: M-ACTIVITY
     screenContractRef: screen-contracts/review-activity.yaml
@@ -674,10 +758,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      sourceRef: journey.terminalSuccess
-      summary: Product lifecycle reflects completion/partial/blocked status without
-        claiming remote copies were recalled.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      operationRef: media.operation.action.view-job-status
+      meaning: Immediate result is the exact-target scoped owner observation with
+        requestId, exactTargetRef, ownerReceipt and observedAt.
+        Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+        and this read implies no command effect or replay.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       sourceRef: journey.criticalNonhappyPaths
@@ -685,10 +777,16 @@ steps:
         - Retention hold, backup/cache/external copy, provider deletion
           uncertainty, or partial erasure.
     degradedBehavior:
-      status: not-specified
-      sourceRef: null
-      reason: No distinct degraded-behavior contract is explicitly declared for this
-        step.
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/criticalNonhappyPaths
+      disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+        UNKNOWN; preserve exact target and label stale/unknown, infer neither
+        global absence nor downstream effect, and reobserve the same selector
+        only. No command replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       sourceRef: journey.recovery
@@ -700,7 +798,7 @@ steps:
       summary:
         - Keep affected versions/derivatives, authority refs, lifecycle state,
           and consumer/provider follow-up refs.
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
+    requirementRefs: [ MEDIA-REQ-CAP-JOB ]
     verification:
       requiredChecks: []
       evidenceRefs: []
@@ -754,12 +852,26 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: Jobs/notifications requiring attention; not infrastructure dashboard
-        result: null
+        result: Immediate result is the exact-target scoped owner observation with
+          requestId, exactTargetRef, ownerReceipt and observedAt.
+          Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only
+          and this read implies no command effect or replay.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          sourceRef: journey.terminalSuccess
-          summary: Product lifecycle reflects completion/partial/blocked status without
-            claiming remote copies were recalled.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          operationRef: media.operation.action.view-job-status
+          meaning: Immediate result is the exact-target scoped owner observation with
+            requestId, exactTargetRef, ownerReceipt and observedAt.
+            Missing/stale/unavailable evidence is UNKNOWN; absence is scoped
+            only and this read implies no command effect or replay.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           sourceRef: journey.criticalNonhappyPaths
@@ -767,10 +879,16 @@ steps:
             - Retention hold, backup/cache/external copy, provider deletion
               uncertainty, or partial erasure.
         degradedBehavior:
-          status: not-specified
-          sourceRef: null
-          reason: No distinct degraded-behavior contract is explicitly declared for this
-            step.
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-26/criticalNonhappyPaths
+          disposition: Unavailable, missing, stale, or target-mismatched owner evidence is
+            UNKNOWN; preserve exact target and label stale/unknown, infer
+            neither global absence nor downstream effect, and reobserve the same
+            selector only. No command replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           sourceRef: journey.recovery
@@ -797,12 +915,12 @@ steps:
         canonicalOperationRef: media.operation.action.view-job-status
         authorityRef: null
         transitionRef: null
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         scenarioRefs: []
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        capabilityRefs: [media.job.view-status]
+        capabilityRefs: [ media.job.view-status ]
       verification:
         requiredChecks: []
         evidenceRefs: []
@@ -944,8 +1062,8 @@ steps:
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
           PROPOSAL_AND_REVIEW_STATUS_PRESERVED
-        capabilityRefs: [media.job.view-status]
-        requirementRefs: [MEDIA-REQ-CAP-JOB]
+        capabilityRefs: [ media.job.view-status ]
+        requirementRefs: [ MEDIA-REQ-CAP-JOB ]
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/check-job-outcome.yaml
           - .product-experience/pdp-3-product-experience/screen-contracts/create-video.yaml
@@ -959,7 +1077,12 @@ steps:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
     scenarioRefs: []
-    capabilityRefs: [media.job.view-status]
+    capabilityRefs: [ media.job.view-status ]
+    result: Immediate result is the exact-target scoped owner observation with
+      requestId, exactTargetRef, ownerReceipt and observedAt.
+      Missing/stale/unavailable evidence is UNKNOWN; absence is scoped only and
+      this read implies no command effect or replay.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationProfiles/profiles/@id=media.operation-profile.scoped-query.v1/resultEnvelope]
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

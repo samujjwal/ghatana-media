@@ -266,7 +266,7 @@ records:
       order: exact-target-request-schema-input-slot-order
       cardinality: exact-required-target-slots; no omission, duplication, reordering, or extra values
       schemaSource: exact-selected-capability-operation-requestSchema
-      valueSource: explicit-user-input-or-exact-current-owner-observation; no inferred defaults
+      valueSource: construct preservation-and-enhancement-policy according to .product-experience/pdp-1-domain-data/operations.yaml#inputPayloadSchemas/@id=media.typed-input.preservation-and-enhancement-policy/schema; require artifactType and payload, with preservationDisposition, enhancementDisposition, purposeRef, and rightsEvidenceRefs; when enhancementDisposition is AUTHORIZED_ENHANCEMENT also require current consentRef and enhancementDecisionRef; no inferred defaults
       rejectUnknownFields: true
     parameters:
       schemaSource: exact-selected-capability-operation-requestSchema.properties.parameters

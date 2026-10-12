@@ -15645,5 +15645,126 @@
     "meaning": "PXD-122 adds the P0 job-submit idempotency expiry safety contract. This source-cut refresh leaves capability identity and historical/current type-mismatch populations unchanged; it selects no product-wide duration, asserts no semantic equivalence, and has no acceptance effect.",
     "semanticEquivalence": "NOT_ASSERTED",
     "acceptanceEffect": "none"
+  },
+  "latestCurrentSourceCutRefresh": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-142",
+    "sourceReviewRef": "docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json",
+    "sourceSha256": "8b0b4b80ab2c701c3c7950f133bbbb4368b2516f7f4609bfc73fa7d22f9af973",
+    "priorSourceSha256": "d4b8b1747831dd3843ac5945530087c4fc2af01410d09c803bb1b84d52960c22",
+    "currentSourceSha256": "d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf",
+    "qualityPolicySourceSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+    "affectedCapabilityIds": [
+      "media.artifact.derive",
+      "media.artifact.output.register",
+      "media.project.source-asset.attach"
+    ],
+    "affectedCurrentInputTypeProjections": 3,
+    "typedInputCorrections": [
+      {
+        "capabilityId": "media.project.source-asset.attach",
+        "historicalInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ],
+        "historicalInputArtifactTypesSha256": "da6bc00707bdd82448aed58462cca5140e89d6c0803daef49676446c7bc1b653",
+        "historicalTrustRecordSha256": "26abb7be820b218f097afae97237c5464ac9472df9ef811cfe0f90452c8e2ec2",
+        "currentInputArtifactTypes": [
+          "user-intent",
+          "exact-versioned-project",
+          "source-asset-with-immutable-version"
+        ],
+        "currentInputArtifactTypesSha256": "8055ad35dfd856f13fa034cd377312558bfa2fbfd279d9a30809413576138733",
+        "currentTypedInputSlotsSha256": "2edd5a40cd6457012ca5254b3ece6c63df75b08ffcac4725f585d81ae6b113ff",
+        "currentTrustRecordSha256": "27850540a170435818b0e92b7d96990b72e57406f512a754ba594e7a70aa775c",
+        "currentAdjudicationInputArtifactTypes": [
+          "user-intent",
+          "exact-versioned-project",
+          "source-asset-with-immutable-version"
+        ],
+        "semanticEquivalence": "NOT_ASSERTED",
+        "acceptanceEffect": "none",
+        "historicalAdjudicationRecordSha256": "5b97e3a81edf82671fb2c689abac4e1cba07ceea81a192ca9c5cea1d857cb31e",
+        "currentAdjudicationRecordSha256": "49f2a31d7ddee9f5a1dd2b14eebcab8d425077c891cec994576ab1d9636932e1",
+        "historicalCapabilityInputArtifactTypes": [
+          "user-intent",
+          "versioned-project"
+        ]
+      },
+      {
+        "capabilityId": "media.artifact.derive",
+        "historicalInputArtifactTypes": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ],
+        "historicalInputArtifactTypesSha256": "c1e2c6eb08f3788fd332df6aff8d0d906f0b942697209dd1f63e2cd8e396a377",
+        "historicalTrustRecordSha256": "f2a4bbde50f9ad61d8dce7fc93f46ec4657201ee852001be9f99cdd31d33112a",
+        "currentInputArtifactTypes": [
+          "exact-source-versioned-media-or-project-reference",
+          "transformation-profile-identity-version-and-digest",
+          "requested-output-artifact-type-media-type-and-byte-budget",
+          "purpose-and-rights-decision-context"
+        ],
+        "currentInputArtifactTypesSha256": "e6750c90f8c98a30c067de97d5e91e2cb3d572ce0008e1924fed8160706613f1",
+        "currentTypedInputSlotsSha256": "bc50817dce92660334b595f30f2dc9735d045499a843ce9d30fbff80b521d81c",
+        "currentTrustRecordSha256": "9a85f4dd21e2391171f967420b428ac1a6cf9294026b162e7d86787286ba4923",
+        "currentAdjudicationInputArtifactTypes": [
+          "exact-source-versioned-media-or-project-reference",
+          "transformation-profile-identity-version-and-digest",
+          "requested-output-artifact-type-media-type-and-byte-budget",
+          "purpose-and-rights-decision-context"
+        ],
+        "semanticEquivalence": "NOT_ASSERTED",
+        "acceptanceEffect": "none",
+        "historicalAdjudicationRecordSha256": "cfbc0e8ebfdcdd099198bba09cffa8fc7b698e7bfc87de752e8554f518b0b19d",
+        "currentAdjudicationRecordSha256": "a90b77fdbaa072fb452a6badab715e5ecda7e569329aca060657a24bbc01b2ee",
+        "historicalCapabilityInputArtifactTypes": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ]
+      },
+      {
+        "capabilityId": "media.artifact.output.register",
+        "historicalInputArtifactTypes": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ],
+        "historicalInputArtifactTypesSha256": "c1e2c6eb08f3788fd332df6aff8d0d906f0b942697209dd1f63e2cd8e396a377",
+        "historicalTrustRecordSha256": "f00a4dd49907d240918d5a9d17b702ba8dfd8cbb01be3c46ec2a204635044b80",
+        "currentInputArtifactTypes": [
+          "exact-source-version-lineage-set",
+          "rights-and-retention-context",
+          "output-candidate-with-lineage",
+          "content-digest",
+          "media-type-and-byte-length",
+          "policy-decision-reference",
+          "authorized-target-workspace",
+          "optional-exact-project-version"
+        ],
+        "currentInputArtifactTypesSha256": "c0b01fbde0efb5b30a0933fb528dfcda59011a494623ef156dd36cca5724c0ff",
+        "currentTypedInputSlotsSha256": "a1582535e99c94425d4f002d022aa1de00061acba26cc48f7a13299925f7f3d3",
+        "currentTrustRecordSha256": "d4d7527bd95405b51bd1b0171419e468e9520bd726b9ad66dad8f99bea02991e",
+        "currentAdjudicationInputArtifactTypes": [
+          "exact-source-version-lineage-set",
+          "rights-and-retention-context",
+          "output-candidate-with-lineage",
+          "content-digest",
+          "media-type-and-byte-length",
+          "policy-decision-reference",
+          "authorized-target-workspace",
+          "optional-exact-project-version"
+        ],
+        "semanticEquivalence": "NOT_ASSERTED",
+        "acceptanceEffect": "none",
+        "historicalAdjudicationRecordSha256": "19b72b7ed523b349ec5b1508a56186db0b660b167719f223f249a5117989083c",
+        "currentAdjudicationRecordSha256": "0075e5041f2c9c26d5dbf0cb8909616b704d9356f2eb74ee856bfc8649fe27fe",
+        "historicalCapabilityInputArtifactTypes": [
+          "source-media-or-project-reference",
+          "rights-and-retention-context"
+        ]
+      }
+    ],
+    "semanticEquivalence": "NOT_ASSERTED",
+    "acceptanceEffect": "none",
+    "meaning": "Additive PXD-142 current source overlay. PXD-122 remains the historical capability source cut; only current input projections for the three named capabilities are reconciled here. Historical trust source rows, output branches, mismatch counts, fingerprints, and dispositions are preserved."
   }
 }

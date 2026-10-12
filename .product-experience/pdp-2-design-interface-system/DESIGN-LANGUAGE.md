@@ -1,7 +1,7 @@
 # Media Design Language
 
 **Authority:** PDP-2 proposal over PDP-0 Product Truth\
-**Acceptance:** proposal; depends on accepted PDP-1 (with P0-010 as its prerequisite); Shared admission and independent visual/accessibility acceptance remain pending\
+**Acceptance:** PDP-1 canonical domain handoff consumed; Shared admission and independent visual/accessibility acceptance remain pending\
 **Experience contracts prepared here:** all 17 master-plan component families are indexed by 28 family-level proposals; detailed interaction implementation remains selected-lane only
 
 This phase defines how Media meaning appears and behaves. It does not add capabilities, change authority, or redefine job, consent, artifact, time, or finality states. The Media-specific records in this directory are the only editable authorities for their stated design decisions. Shared retains the generic token, component primitive, theme, accessibility, and localization contracts.

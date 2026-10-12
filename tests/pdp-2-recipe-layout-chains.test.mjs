@@ -114,12 +114,12 @@ test("PDP-2 recipe review keeps recipe identity distinct from template, pattern,
   assert.deepEqual(observation.templateId, {
     recordedExactCatalogIdCandidates: 47,
     unresolvedOrNull: 0,
-    acceptance: "47 exact top-level composition-link approvals; no screen admission",
+    acceptance: "47 owner-approved composition links; no screen admission",
   });
   assert.deepEqual(observation.layoutIds, {
     recordedExactCatalogIdCandidates: 47,
     empty: 0,
-    acceptance: "47 exact top-level composition-link approvals; no screen admission",
+    acceptance: "47 owner-approved composition links; no screen admission",
   });
   let screenLayoutLinkCount = 0;
   const layoutsByTemplate = new Map();

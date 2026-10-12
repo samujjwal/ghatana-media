@@ -46,11 +46,14 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Consumer receives an identified package and conversion report with
-        unsupported/lossy features disclosed.
+      status: STEP_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
+      meaning: This step may establish only source-contract local patch eligibility;
+        it does not apply or persist a patch.
+      evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+        or applied patch is claimed
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -61,7 +64,16 @@ steps:
             gap, or destination cannot accept the package.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+      disposition: If the active local session/catalog is stale, missing, or unknown,
+        HOLD without applying a patch or replay; denial preserves the local
+        revision. The evaluator result is eligibility only, not an applied edit.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -94,10 +106,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -139,13 +154,22 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Scene entities/material/camera/light and model bindings
-        result: null
+        result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+          LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+          (.product-experience/pdp-3-product-experience/local-step-effect-contr\
+          acts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1)"
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1/inputContract/effectBoundary
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Consumer receives an identified package and conversion report with
-            unsupported/lossy features disclosed.
+          status: STEP_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
+          meaning: This step may establish only source-contract local patch eligibility;
+            it does not apply or persist a patch.
+          evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+            or applied patch is claimed
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -156,7 +180,17 @@ steps:
                 gap, or destination cannot accept the package.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+          disposition: If the active local session/catalog is stale, missing, or unknown,
+            HOLD without applying a patch or replay; denial preserves the local
+            revision. The evaluator result is eligibility only, not an applied
+            edit.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -189,8 +223,8 @@ steps:
         localObjectRef: media.local-object.editor-session-draft
         localDraftSlotRef: media.local-draft.slot.scene-entities
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
         canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
@@ -297,8 +331,8 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         localObjectRef: media.local-object.editor-session-draft
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
@@ -333,6 +367,10 @@ steps:
       localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-01.v1
     scenarioRefs: []
     capabilityRefs: []
+    result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+      LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+      (.product-experience/pdp-3-product-experience/local-step-effect-contracts\
+      .yaml#records/@id=media.local-step-effect.j-28.step-01.v1)"
   - view: media.view.animate-media
     legacyViewRef: M-ANIMATION
     screenContractRef: screen-contracts/animate-media.yaml
@@ -353,11 +391,14 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Consumer receives an identified package and conversion report with
-        unsupported/lossy features disclosed.
+      status: STEP_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
+      meaning: This step may establish only source-contract local patch eligibility;
+        it does not apply or persist a patch.
+      evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+        or applied patch is claimed
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -368,7 +409,16 @@ steps:
             gap, or destination cannot accept the package.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+      disposition: If the active local session/catalog is stale, missing, or unknown,
+        HOLD without applying a patch or replay; denial preserves the local
+        revision. The evaluator result is eligibility only, not an applied edit.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -401,10 +451,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -446,13 +499,22 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Timeline/keyframes/curves/rig/path/control actions
-        result: null
+        result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+          LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+          (.product-experience/pdp-3-product-experience/local-step-effect-contr\
+          acts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1)"
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1/inputContract/effectBoundary
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Consumer receives an identified package and conversion report with
-            unsupported/lossy features disclosed.
+          status: STEP_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
+          meaning: This step may establish only source-contract local patch eligibility;
+            it does not apply or persist a patch.
+          evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+            or applied patch is claimed
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -463,7 +525,17 @@ steps:
                 gap, or destination cannot accept the package.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+          disposition: If the active local session/catalog is stale, missing, or unknown,
+            HOLD without applying a patch or replay; denial preserves the local
+            revision. The evaluator result is eligibility only, not an applied
+            edit.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -496,8 +568,8 @@ steps:
         localObjectRef: media.local-object.editor-session-draft
         localDraftSlotRef: media.local-draft.slot.timeline-keyframes
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
         canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
@@ -604,8 +676,8 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         localObjectRef: media.local-object.editor-session-draft
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
@@ -640,6 +712,10 @@ steps:
       localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-02.v1
     scenarioRefs: []
     capabilityRefs: []
+    result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+      LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+      (.product-experience/pdp-3-product-experience/local-step-effect-contracts\
+      .yaml#records/@id=media.local-step-effect.j-28.step-02.v1)"
   - view: media.view.prepare-render
     legacyViewRef: M-RENDER
     screenContractRef: screen-contracts/prepare-render.yaml
@@ -665,11 +741,18 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Consumer receives an identified package and conversion report with
-        unsupported/lossy features disclosed.
+      status: EXACT_OPERATION_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+      operationRef: media.operation.action.submit-render
+      meaning: Immediate result is durable job admission only (requestId,
+        logicalJobId, sourceSnapshotDigest, renderProfileRef,
+        durableAdmissionReceipt); render completion and delivery are separate
+        later observations.
+      evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+        NOT_ADMITTED and no owner evidence/result is asserted
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -680,7 +763,16 @@ steps:
             gap, or destination cannot accept the package.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+      disposition: UNKNOWN_OUTCOME holds; preserve request identity and reconcile the
+        same request before any retry. Do not infer success, completion,
+        persistence, or delivery; no blind replay.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -713,10 +805,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -756,13 +851,25 @@ steps:
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
       stepSourceFacts:
         intent: Snapshot/profile, validation, cost and submission
-        result: null
+        result: Immediate result is durable job admission only (requestId, logicalJobId,
+          sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt);
+          render completion and delivery are separate later observations.
+          [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema]
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Consumer receives an identified package and conversion report with
-            unsupported/lossy features disclosed.
+          status: EXACT_OPERATION_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          operationRef: media.operation.action.submit-render
+          meaning: Immediate result is durable job admission only (requestId,
+            logicalJobId, sourceSnapshotDigest, renderProfileRef,
+            durableAdmissionReceipt); render completion and delivery are
+            separate later observations.
+          evidenceBoundary: definition-grade operation contract only; runtimeAdmission
+            NOT_ADMITTED and no owner evidence/result is asserted
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -773,7 +880,16 @@ steps:
                 gap, or destination cannot accept the package.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+          disposition: UNKNOWN_OUTCOME holds; preserve request identity and reconcile the
+            same request before any retry. Do not infer success, completion,
+            persistence, or delivery; no blind replay.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -899,7 +1015,12 @@ steps:
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: CANONICAL_STATES_BOUND; EXACT_LEGAL_TRANSITION_REF_UNBOUND
+        status: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION;
+          OWNER_STATE_OBSERVATION_REQUIRED
+        reason: The PDP-1 command contract describes a processing request and exact
+          job/attempt state scope, but its receipt does not assert QUEUED,
+          RUNNING, or a later result; owner state observation is required, and
+          no initial aggregate edge is declared.
         transitionRef: null
         stateRefs:
           - .product-experience/pdp-1-domain-data/states.yaml#media-job
@@ -971,8 +1092,13 @@ steps:
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-28.j-28.step-03
     capabilityRefs: []
+    result: Immediate result is durable job admission only (requestId, logicalJobId,
+      sourceSnapshotDigest, renderProfileRef, durableAdmissionReceipt); render
+      completion and delivery are separate later observations.
+      [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-render/resultSchema]
   - view: media.view.deliver-output
     legacyViewRef: M-DELIVERY
     screenContractRef: screen-contracts/deliver-output.yaml
@@ -993,11 +1119,14 @@ steps:
     transitionRef: null
     handoffRef: null
     success:
-      status: candidate-proposal
-      scope: journey-level-not-allocated-to-this-step
-      sourceRef: journey.terminalSuccess
-      proposal: Consumer receives an identified package and conversion report with
-        unsupported/lossy features disclosed.
+      status: STEP_RESULT_DEFINED
+      scope: immediate-step-result
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
+      meaning: This step may establish only source-contract local patch eligibility;
+        it does not apply or persist a patch.
+      evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+        or applied patch is claimed
+      laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
     failure:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1008,7 +1137,16 @@ steps:
             gap, or destination cannot accept the package.
           responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
             copy, and action bindings remain pending.
-    degradedBehavior: null
+    degradedBehavior:
+      status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+      sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
+      conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+      disposition: If the active local session/catalog is stale, missing, or unknown,
+        HOLD without applying a patch or replay; denial preserves the local
+        revision. The evaluator result is eligibility only, not an applied edit.
+      runtimeAdmission: NOT_ADMITTED
+      dispatch: NEVER
+      ownerAcceptedOutcomeOracle: false
     recovery:
       status: candidate-proposal
       scope: journey-level-not-allocated-to-this-step
@@ -1041,10 +1179,13 @@ steps:
       decisionRef: pending-explicit-owner-decision-binding
       transitionRef: pending-legal-transition-binding
       handoffRef: pending-explicit-step-handoff-binding
-      success: candidate-proposal-only; not accepted step behavior
+      success: step-scoped immediate result defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1;
+        later journey outcome remains separate
       failure: candidate-proposal-only; journey-level exceptions not allocated to this
         step
-      degradedBehavior: pending-explicit-step-degraded-behavior
+      degradedBehavior: source-backed immediate-step degraded disposition defined by
+        .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
       recovery: candidate-proposal-only; not accepted step recovery
       postconditions: pending-explicit-step-postconditions
       requirementRefs: pending-explicit-requirement-crosswalk
@@ -1086,13 +1227,22 @@ steps:
           specified commit.
       stepSourceFacts:
         intent: Destination/format/rights/approval and publication finality
-        result: null
+        result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+          LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+          (.product-experience/pdp-3-product-experience/local-step-effect-contr\
+          acts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1)"
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1/inputContract/effectBoundary
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Consumer receives an identified package and conversion report with
-            unsupported/lossy features disclosed.
+          status: STEP_RESULT_DEFINED
+          scope: immediate-step-result
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
+          meaning: This step may establish only source-contract local patch eligibility;
+            it does not apply or persist a patch.
+          evidenceBoundary: definition-grade only; no runtime execution, owner evidence,
+            or applied patch is claimed
+          laterJourneyOutcomeRef: .product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml#/terminalSuccess
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1103,7 +1253,17 @@ steps:
                 gap, or destination cannot accept the package.
               responseIntent: Follow the PDP-0 recovery intent; exact per-condition state,
                 copy, and action bindings remain pending.
-        degradedBehavior: null
+        degradedBehavior:
+          status: SOURCE_BACKED_UNKNOWN_OR_PARTIAL_HOLD
+          sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
+          conditionSourceRef: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-28/criticalNonhappyPaths
+          disposition: If the active local session/catalog is stale, missing, or unknown,
+            HOLD without applying a patch or replay; denial preserves the local
+            revision. The evaluator result is eligibility only, not an applied
+            edit.
+          runtimeAdmission: NOT_ADMITTED
+          dispatch: NEVER
+          ownerAcceptedOutcomeOracle: false
         recovery:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -1136,8 +1296,8 @@ steps:
         localObjectRef: media.local-object.editor-session-draft
         localDraftSlotRef: media.local-draft.slot.named-destination
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         localAuthorityDisposition: HOST_SESSION_ACTOR_MATCH_ONLY; NOT_CANONICAL_DOMAIN_AUTHORITY
         canonicalIdentityDisposition: NO_PDP1_CANONICAL_PRODUCT_OBJECT_OR_TRANSITION
       verification:
@@ -1244,8 +1404,8 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         localObjectRef: media.local-object.editor-session-draft
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
@@ -1280,6 +1440,10 @@ steps:
       localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-28.step-04.v1
     scenarioRefs: []
     capabilityRefs: []
+    result: "LOCAL_PATCH_ELIGIBILITY_ONLY: evaluator may report
+      LOCAL_PATCH_ELIGIBLE_NOT_APPLIED; no patch is applied by this step.
+      (.product-experience/pdp-3-product-experience/local-step-effect-contracts\
+      .yaml#records/@id=media.local-step-effect.j-28.step-04.v1)"
 stepBindingRule: The ordered view path is sourced from PDP-0 and each legacy
   view maps to one registered intent-based screen. Null actionRef and empty
   stateRefs are deliberate open bindings, not no-op actions or completed

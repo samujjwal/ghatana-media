@@ -4,6 +4,9 @@ authority: Media owns product meaning and cross-channel grammar; each transport/
 status: MEDIA_OWNER_ACCEPTED_DEFINITION_GRAMMAR; exact per-identity operation bindings and external interface-owner acceptance remain separate
 sourceRefs:
   - .product-experience/pdp-1-domain-data/operations.yaml
+  - .product-experience/pdp-1-domain-data/handoff-contracts.yaml
+  - .product-experience/pdp-1-domain-data/action-contracts.yaml
+  - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml
   - .product-experience/pdp-1-domain-data/states.yaml
   - .product-experience/pdp-1-domain-data/transitions.yaml
   - .product-experience/interface-parity/operation-parity.yaml
@@ -27,11 +30,9 @@ invariants:
     rule: A mutation result distinguishes request-received, request-accepted, effect-observed, and authoritative terminal finality when the operation supports those states.
     forbidden: [accepted-implies-completed,progress-implies-success,transport-success-implies-domain-finality,observer-detached-implies-cancelled]
   unknownOutcome:
-    rule: Preserve the original request and affected-object identities; reconcile or inspect that same operation before considering a new mutation.
-    forbidden: [blind-resubmit,automatic-retry,unknown-as-failure,unknown-as-success]
-  cancellation:
-    rule: Cancellation is a request whose completion is reported only by authoritative operation evidence; local stop-waiting affects observation only.
-    forbidden: [request-implies-cancelled,detach-implies-cancelled,cancel-response-implies-terminal-cancelled]
+    rule: Preserve UNKNOWN_OUTCOME as unresolved, neither success nor failure nor retry permission. Reconcile by read-only inspection of the same exact tenant/operation/version/request identity; a new mutation or business retry requires the owning operation's explicit eligibility and fresh authority checks.
+    source: .product-experience/pdp-1-domain-data/action-contracts.yaml#outcomes/@id=UNKNOWN_OUTCOME
+    forbidden: [blind-resubmit,automatic-retry,unknown-as-failure,unknown-as-success,unknown-outcome-mapped-to-success,unknown-outcome-mapped-to-failure,unknown-outcome-blind-retry,new-request-id-used-to-avoid-reconciliation]
   retry:
     rule: Retry requires an exact prior attempt, explicit retryable classification, current authority/policy/budget checks, and an operation-defined idempotency policy; unknown outcome must be reconciled first.
     forbidden: [retry-by-status-label,retry-unknown,replay-without-idempotency-contract,synthetic-retry-eligibility]
@@ -40,6 +41,22 @@ invariants:
     forbidden: [elapsed-time-as-progress,queue-position-as-percent,state-label-as-percent]
   errors:
     rule: Keep machine reason and error identity stable within the owning contract; use typed error values and never collapse domain, policy, authorization, transport, retryability, or unknown-finality distinctions into a generic thrown string. Localize only human-readable explanation and never expose secrets, protected media, or internal stack details.
+  typedContract:
+    rule: Bind a channel adapter only to the exact canonical operation identity and version and its owner request, result, error, authority, and finality definitions. Preserve the source's closed typed shapes where defined; transport status, method names, SDK exceptions, CLI exit codes, tool wrapper schemas, and event payload names cannot substitute for those meanings. A missing cross-channel binding stays unresolved and is not repaired by a similar name.
+    source: .product-experience/pdp-1-domain-data/operations.yaml
+    forbidden: [name-implies-operation-equivalence,transport-status-implies-domain-result,untyped-generic-error-replaces-owner-error,missing-binding-promoted-to-parity]
+  tenantAndVersion:
+    rule: Carry the exact trusted tenant and every exact object/version tuple required by the owner operation. Tenant, principal, request, operation, object, immutable version, upload, job, attempt, event, and delivery-receipt identities remain distinct; never infer one from another or accept caller-supplied identity as trusted host context.
+    source: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#canonicalIdentityTypes
+    forbidden: [tenant-inferred-from-project,version-inferred-from-object,caller-body-selects-trusted-tenant,attempt-inferred-from-job]
+  cancellation:
+    rule: Keep a cancellation request, its persisted/acknowledged request status, confirmed cancellation, and an already-final effect distinct. Local abort, timeout, or stopping observation is not a cancellation request or confirmation; use authoritative operation evidence for terminal cancellation.
+    source: .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job
+    forbidden: [request-implies-cancelled,detach-implies-cancelled,cancel-response-implies-terminal-cancelled,cancel-requested-implies-cancelled,acknowledgement-implies-worker-stopped,abort-signal-implies-server-cancel,completed-effect-rewritten-as-cancelled]
+  admission:
+    rule: Definition, schema validation, source inventory, fixture behavior, route presence, SDK method presence, tool registration, or event declaration does not admit a runtime. Preserve each source's explicit NOT_ADMITTED, unresolved, fixture-only, and non-operation dispositions; do not add endpoints or runtime support.
+    source: .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain/deferredEvidence
+    forbidden: [definition-promoted-to-runtime-admission,fixture-promoted-to-production,route-invented-to-fill-binding,not-admitted-promoted-to-callable]
   eventObservation:
     rule: An event notification is an observation with producer, object/version, ordering and delivery semantics; its name alone is not an operation binding or proof of delivery.
 channels:
@@ -50,26 +67,29 @@ channels:
     source: contracts/openapi/media.yaml
     rule: Bind one route only by exact operationId, request/response schema, authorization scope, version and error contract; HTTP status is transport outcome and cannot substitute for operation finality.
     dispositionSource: .product-experience/interface-parity/operation-parity.yaml#typedHttpNonOperationDispositions
+    admission: Existing OpenAPI operations retain their exact observed transport dispositions. Proposed canonical adapters remain definition-only; no new route, response, or cross-channel operation equivalence is implied.
   gRPC:
     source:
       - modules/speech/stt-service/src/main/proto/stt_service.proto
       - modules/speech/tts-service/src/main/proto/tts_service.proto
       - modules/vision/vision-service/src/main/proto/vision_service.proto
       - modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
-    rule: Bind exact RPC request/response and service identity; provider model/profile administration and health RPCs do not become Media user operations by naming similarity.
+    rule: Preserve exact service/RPC identity, streaming shape, request and response field inventory, and explicit PDP-1 operation/non-operation disposition. Treat proto field shape as transport evidence only; canonical error/result, tenant/version, cancellation, and unknown-outcome equivalence stays unresolved unless an exact owner adapter establishes it. Provider model/profile administration and health RPCs do not become Media user operations by naming similarity.
     dispositionSource: .product-experience/interface-parity/operation-parity.yaml#typedGrpcNonOperationDispositions
+    semanticParity: exact-proto-fields-inventoried; canonical-request-result-error-authority-finality-parity-unresolved
+    runtimeAdmission: NOT_ADMITTED
   SDK:
     source: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml
-    rule: An SDK wrapper preserves the canonical request, exact object/version identities, typed outcome and error; local wait/listener helpers are client behavior and retry methods without an admitted contract fail closed.
+    rule: An SDK wrapper preserves the canonical request, exact tenant and object/version identities, and typed outcome/error only where its exact owner binding exists. Local wait/listener helpers are client behavior; collection pagination is endpoint-specific; legacy or candidate retry methods without an admitted contract remain explicitly unadmitted.
   CLI:
     source: .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
-    rule: TTY progress and non-TTY machine records remain separate; exit status reports invocation/observation result, while domain state and finality remain explicit fields. Fixture commands remain simulator-only.
+    rule: TTY progress and non-TTY machine records remain separate; exit status reports invocation/observation result, while domain state and finality remain explicit fields. JSON/JSONL conventions and logical command contracts do not connect the current fixture simulator to production dispatch; commands without exact admitted bindings remain NOT_ADMITTED.
   events:
     source: .product-experience/pdp-2-design-interface-system/events/conventions.yaml
-    rule: A declared event is not a durable delivery guarantee; retain event identity, aggregate/version scope, ordering limits, replay and retention only where source contracts establish them.
+    rule: A declared event is not a durable delivery guarantee or command acknowledgement; retain event, aggregate/version, request, and delivery-receipt identities separately. The nine observed runtime lifecycle publisher types and fifteen client-local notifications remain distinct source populations; claim ordering, replay, retention, or delivery only where an accepted source contract establishes it.
   agentTools:
     source: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
-    rule: Tool input is untrusted; exact operation schema, caller authority and consent are checked at dispatch; analysis input references do not imply upload/artifact mutation or grant access.
+    rule: Tool input is untrusted; the host supplies authenticated caller/tenant context and validates the exact operation schema, authority, rights, consent, and current policy before any admitted dispatch. Analysis input references do not imply upload/artifact mutation or grant access. Current tool contracts and adapter schemas do not establish runtime dispatch admission.
   headless:
     source: .product-experience/pdp-3-product-experience/api-experience-mapping.yaml
     rule: A capability without a GUI receives a typed inspectable machine experience and deterministic fixture where applicable; do not create a synthetic screen to satisfy a view inventory.
@@ -82,3 +102,22 @@ acceptance:
 verification:
   method: tests/pdp-design-interface-parity.test.mjs validates complete source inventory partitions and source identity; channel contract tests must evaluate semantic predicates and fail on stale or duplicated identities.
   status: focused-source-disposition-tests-passing; full-channel-conformance-and-specialist-review-not-accepted
+machineInterfaceHandoff:
+  source: .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain
+  status: source-meaning-preservation-only; no cross-channel-binding-or-runtime-admission
+  requiredPerApplicableBinding: [exact-operation-identity-and-version, exact-tenant-and-object-version-scope, owner-typed-request-result-and-error-refs, authority-and-effect-boundary, cancellation-and-finality, unknown-outcome-reconciliation-and-retry-eligibility, explicit-channel-admission-disposition]
+  applicabilityRules:
+    paginationAndSearch: Endpoint- or operation-specific only; current source declarations do not establish universal pagination, cursor semantics, or search coverage.
+    events: Observation-only unless an exact accepted contract defines stronger semantics; event delivery is not a command result.
+    toolAndCli: Source definitions, fixtures, and local adapters remain NOT_ADMITTED for production dispatch unless an exact runtime admission source exists.
+  negativeCases:
+    - omitted-tenant-or-exact-version-scope
+    - caller-asserted-tenant-or-principal-treated-as-authenticated-context
+    - operation-name-matched-without-request-result-error-and-authority-equivalence
+    - cancellation-request-or-local-abort-presented-as-confirmed-cancellation
+    - timeout-or-unknown-outcome-presented-as-failure-success-or-safe-retry
+    - new-request-identity-used-instead-of-reconciling-unknown-original-request
+    - global-pagination-or-search-guarantee-invented-without-endpoint-contract
+    - event-name-or-publication-attempt-presented-as-command-acknowledgement-or-delivery
+    - fixture-cli-or-registered-agent-tool-presented-as-production-runtime
+    - missing-route-or-method-filled-by-inventing-endpoint-or-runtime-support

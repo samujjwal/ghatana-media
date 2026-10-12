@@ -92,7 +92,21 @@ test("the 199-row cohort preserves historical claim identity and phase-scoped li
     assert.equal(observation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW", `${row.claimId} live source delta remains explicitly pending`);
     assert.equal(observation.priorSourceFileSha256, row.ownerSourceSha256, `${row.claimId} historical file pin is preserved`);
     assert.equal(observation.priorTargetValueSha256, row.currentTargetValueSha256, `${row.claimId} historical value pin is preserved`);
-    assert.equal(observation.currentTargetValueSha256, currentValueSha256, `${row.claimId} current observation binds the exact live target value`);
+    const valueDrift = observation.currentValueDriftObservation;
+    if (valueDrift) {
+      assert.equal(observation.currentTargetValueSha256, row.currentTargetValueSha256,
+        `${row.claimId} recorded target-value pin is preserved during live drift`);
+      assert.equal(valueDrift.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+      assert.equal(valueDrift.acceptanceEffect, "none");
+      assert.equal(valueDrift.recordedTargetValueSha256, row.currentTargetValueSha256);
+      assert.equal(valueDrift.observedTargetValueSha256, currentValueSha256,
+        `${row.claimId} explicit drift observation binds the exact live target value`);
+      assert.equal(valueDrift.ref, observationTargetRef);
+      assert.match(valueDrift.reason, /does not imply acceptance/u);
+    } else {
+      assert.equal(observation.currentTargetValueSha256, currentValueSha256,
+        `${row.claimId} current observation binds the exact live target value`);
+    }
     if (observation.currentTargetRef) {
       assert.equal(observation.currentTargetRef, row.ownerSemanticReview?.proposedTargetRef,
         `${row.claimId} current observation selector matches its owner-reviewed current target`);
@@ -181,7 +195,7 @@ test("only exact heading/table-label spans are classified as non-normative sourc
 });
 
 const candidatePhase = process.env.PDP_MIGRATION_CANDIDATE_PHASE ?? "ALL";
-const expectedMaterialReviewCounts = { ALL: 179, "PDP-0": 134, "PDP-1": 44 };
+const expectedMaterialReviewCounts = { ALL: 178, "PDP-0": 134, "PDP-1": 43 };
 if (!Object.hasOwn(expectedMaterialReviewCounts, candidatePhase)) {
   throw new Error(`PDP_MIGRATION_CANDIDATE_PHASE must be one of ALL, PDP-0, PDP-1; got ${candidatePhase}`);
 }
@@ -192,6 +206,81 @@ test(`claim-specific material clauses for ${candidatePhase} resolve exactly and 
   assert.equal(reviewed.length, expectedMaterialReviewCounts[candidatePhase]);
   for (const row of reviewed) {
     const review = row.ownerSemanticReview;
+    if (candidatePhase === "PDP-0") {
+      // PDP-0 may preserve later-phase contract refs as handoff evidence,
+      // but freezing PDP-0 must not resolve or fingerprint those later-phase files.
+      const isLaterPhaseRef = (ref) => /^\.product-experience\/pdp-[1-9][0-9]*-/u.test(ref);
+      const deferredRefs = review.exactContractRefs.filter(isLaterPhaseRef);
+      const deferredBindings = (review.materialBindings ?? []).filter(({ ref }) => isLaterPhaseRef(ref));
+      const phaseRefs = review.exactContractRefs.filter((ref) => !isLaterPhaseRef(ref));
+      const phaseBindings = (review.materialBindings ?? []).filter(({ ref }) => !isLaterPhaseRef(ref));
+
+      if (deferredRefs.length > 0 || deferredBindings.length > 0) {
+        assert.equal(review.proposedTargetRef, review.exactContractRefs[0], `${row.claimId} preserves its original primary target`);
+        assert.equal(new Set(review.exactContractRefs).size, review.exactContractRefs.length,
+          `${row.claimId} original exact source set remains unique`);
+        assert.ok(deferredRefs.every((sourceRef) => deferredBindings.some(({ ref }) =>
+          ref === sourceRef || ref.startsWith(`${sourceRef}/`))),
+        `${row.claimId} every deferred exact ref has a containing deferred binding`);
+        assert.equal(review.acceptanceEffect, "none", `${row.claimId} downstream refs remain non-accepting`);
+        assert.equal(review.runtimeStatus, "NOT_EVALUATED", `${row.claimId} downstream refs do not promote runtime status`);
+        assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED", `${row.claimId} downstream refs do not promote parity`);
+        assert.equal(row.currentProposalObservation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW",
+          `${row.claimId} downstream refs remain pending`);
+        for (const binding of deferredBindings) {
+          assert.equal(binding.currentProposalObservation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW",
+            `${row.claimId} deferred ${binding.ref} remains pending`);
+          assert.equal(binding.currentProposalObservation?.acceptanceEffect ?? "none", "none",
+            `${row.claimId} deferred ${binding.ref} has no acceptance effect`);
+          assert.equal(binding.currentProposalObservation?.runtimeStatus ?? "NOT_EVALUATED", "NOT_EVALUATED",
+            `${row.claimId} deferred ${binding.ref} has no runtime promotion`);
+          assert.equal(typeof binding.currentProposalObservation?.currentSourceFileSha256, "string",
+            `${row.claimId} deferred ${binding.ref} retains its observation pin`);
+        }
+
+        const valuesByRef = new Map();
+        for (const ref of phaseRefs) {
+          const { value } = resolveSelector(ref);
+          valuesByRef.set(ref, typeof value === "string" ? value : JSON.stringify(value));
+        }
+        for (const binding of phaseBindings) {
+          const { value, source } = resolveSelector(binding.ref);
+          const serialized = typeof value === "string" ? value : JSON.stringify(value);
+          valuesByRef.set(binding.ref, serialized);
+          assert.equal(binding.currentProposalObservation?.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+          assert.equal(binding.currentProposalObservation?.currentSourceValueSha256, sha(serialized),
+            `${row.claimId} exact in-phase bound source value`);
+          assert.equal(binding.currentProposalObservation?.currentSourceFileSha256, sha(source),
+            `${row.claimId} exact in-phase bound source file`);
+          assert.ok(serialized.includes(binding.requiredSourcePhrase),
+            `${row.claimId} in-phase binding retains its required phrase`);
+        }
+
+        // Where this row has in-phase refs, validate their source containment,
+        // coverage, and phrase requirements. Later-phase refs remain untouched.
+        if (phaseRefs.length > 0) {
+          const scopedValues = phaseRefs.map((ref) => valuesByRef.get(ref)).filter(Boolean);
+          const scopedJoined = scopedValues.join("\n");
+          const scopedReview = {
+            ...review,
+            proposedTargetRef: phaseRefs[0],
+            exactContractRefs: phaseRefs,
+            materialBindings: phaseBindings,
+            materialPredicates: review.materialPredicates.filter((predicate) => scopedJoined.includes(predicate)),
+          };
+          const scopedRow = { ...row, ownerSemanticReview: scopedReview };
+          assert.equal(validateMaterialReview(scopedRow, valuesByRef), true,
+            `${row.claimId} in-phase evidence validates without downstream refs`);
+          for (const binding of phaseBindings) {
+            const weakened = new Map(valuesByRef);
+            weakened.set(binding.ref, valuesByRef.get(binding.ref).split(binding.requiredSourcePhrase).join(""));
+            assert.equal(validateMaterialReview(scopedRow, weakened), false,
+              `${row.claimId} weakening an in-phase clause is rejected`);
+          }
+        }
+        continue;
+      }
+    }
     assert.equal(review.proposedTargetRef, review.exactContractRefs[0], ` primary target is the first exact owner clause`);
     assert.equal(new Set(review.exactContractRefs).size, review.exactContractRefs.length, `${row.claimId} exact source set is unique`);
     assert.equal(review.acceptanceEffect, "none");
@@ -248,6 +337,28 @@ test("unresolved selectors and source-value drift remain explicit material block
     "c4cd6d81b109a39bde30b00b9864c613b68faa5f028023bb06cf548bf51069d2",
     "unresolved historical current-value observation is retained");
   assert.match(unresolved.ownerSemanticReview.materialReviewBlocker.reason, /no exact owner clause/u);
+
+  const targetDrift = row("MPSEM-0235-C001");
+  if (candidatePhase === "ALL" || targetDrift.ownerPhase === candidatePhase) {
+    assert.equal(targetDrift.ownerSemanticReview.disposition, "BLOCKED_CURRENT_SOURCE_VALUE_DRIFT");
+    assert.equal(targetDrift.ownerSemanticReview.historicalDisposition, "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL");
+    assert.equal(targetDrift.ownerSemanticReview.materialReviewBlocker.acceptanceEffect, "none");
+    assert.equal(targetDrift.ownerSemanticReview.materialReviewBlocker.runtimeStatus, "NOT_EVALUATED");
+    const observation = targetDrift.currentProposalObservation;
+    const liveDrift = observation.currentValueDriftObservation;
+    assert.equal(observation.currentTargetValueSha256, targetDrift.currentTargetValueSha256,
+      "the recorded target-value pin is preserved");
+    assert.equal(liveDrift.recordedTargetValueSha256, targetDrift.currentTargetValueSha256);
+    assert.equal(liveDrift.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+    assert.equal(liveDrift.acceptanceEffect, "none");
+    const { source, value } = resolveSelector(liveDrift.ref);
+    const serialized = typeof value === "string" ? value : JSON.stringify(value);
+    assert.equal(liveDrift.observedTargetValueSha256, sha(serialized),
+      "the explicit current drift pin binds the exact live target value");
+    assert.notEqual(liveDrift.observedTargetValueSha256, liveDrift.recordedTargetValueSha256);
+    assert.equal(observation.currentSourceFileSha256, sha(source),
+      "the current source file observation is refreshed while both value pins remain visible");
+  }
 
   for (const claimId of ["MPSEM-0298-C003"]) {
     const record = row(claimId);

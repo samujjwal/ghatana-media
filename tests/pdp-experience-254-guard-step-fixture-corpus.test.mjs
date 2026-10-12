@@ -47,6 +47,7 @@ function makeContext(guardRef, step, mode = "positive") {
   if (guardRef === "exact-source-and-typed-parent-readable" && targetRefs.length < 2) targetRefs.push("media.domain.project.fixture-parent");
   if (guardRef === "two-caption-versions-readable") targetRefs.splice(0, targetRefs.length, "media.domain.caption-version", "media.domain.caption-version");
   if (guardRef === "caption-draft-valid") targetRefs.splice(0, targetRefs.length, "media.domain.caption-version", "media.domain.artifact-version");
+  if (guardRef === "exact-artifact-and-immutable-version-identity") targetRefs.splice(0, targetRefs.length, "media.domain.artifact");
   const targetVersionRefs = guardRef === "two-caption-versions-readable"
     ? ["media.domain.caption-version@definition-fixture-v1", "media.domain.caption-version@definition-fixture-v2"]
     : targetRefs.map((ref, index) => `${ref}@definition-fixture-v${index + 1}`);
@@ -158,6 +159,14 @@ function observationValue(guardRef, expected, mode) {
 function valueFor(guardRef, expected, mode) {
   const guard = guards.guardContracts.records.find((row) => row.guardRef === guardRef);
   const predicateKind = predicateByGuard.get(guardRef)?.predicateKind;
+  if (guardRef === "exact-artifact-and-immutable-version-identity") return {
+    artifactId: expected.targetRefs[0],
+    artifactVersionId: mode === "denial" ? "media.domain.artifact-version.conflicting-fixture-v2" : expected.targetVersionRefs[0],
+    tenantScopeRef: mode === "unknown" ? "media.fixture.tenant.foreign" : expected.tenantScopeRef,
+    principalRef: expected.principalRef,
+    currentness: mode === "unknown" ? "UNKNOWN" : "CURRENT",
+    observedAt: "2026-10-09T11:59:30.000Z",
+  };
   if (guardRef === "retry-budget-remains-under-current-policy") return {
     tenantScopeRef: mode === "foreign" ? "media.fixture.tenant.foreign" : expected.tenantScopeRef,
     principalRef: expected.principalRef, jobRef: expected.targetRefs[0], jobVersionRef: expected.jobVersionRef,
@@ -297,6 +306,7 @@ function rightsEvidence(expected, mode, decisionKind) {
 function foreignValueFor(guardRef, expected) {
   const value = structuredClone(valueFor(guardRef, expected, "positive"));
   if (value?.stream) value.stream.tenantScopeRef = "media.fixture.tenant.foreign";
+  else if (value?.artifactId) value.tenantScopeRef = "media.fixture.tenant.foreign";
   else if (value?.resolution) value.tenantScopeRef = "media.fixture.tenant.foreign";
   else if (value?.actorRef) value.actorRef = "media.fixture.principal.foreign";
   else if (value?.priorObjectVersionRefs) value.priorObjectVersionRefs = ["media.domain.artifact-version@foreign-tenant-v1"];
@@ -341,7 +351,7 @@ test("254 step-guard instances have typed positive, denial, unknown and valid-fo
       outcomes[actual] += 1;
     }
   }
-  assert.equal(guardsWithCorpus.size, 57);
+  assert.equal(guardsWithCorpus.size, 58);
   assert.equal(mismatches.length, 0, JSON.stringify(mismatches.reduce((counts, entry) => {
     const key = entry.slice(0, entry.indexOf(" at .product-experience"));
     counts[key] = (counts[key] ?? 0) + 1;

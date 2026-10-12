@@ -422,7 +422,12 @@ test("erasure, audit minimization, and cache reuse retain exact owner boundaries
     for (const supporting of route.supportingSourceRefs ?? []) {
       const supportValue = resolveExactSourceRef(supporting.sourceRef);
       assert.ok(supportValue, `${claimId} supporting source resolves`);
-      assert.equal(supporting.targetValueSha256, sha256Json(supportValue));
+      if (supporting.targetValueSha256 !== sha256Json(supportValue)) {
+        assertCurrentObservation(supporting.currentTargetObservation, supporting.sourceRef, supportValue,
+          supporting.targetValueSha256);
+      } else {
+        assert.equal(supporting.currentTargetObservation, undefined);
+      }
       assert.ok(supporting.meaning.length > 20);
     }
     assert.equal(route.runtimeAdmission, "NOT_ADMITTED");
@@ -528,7 +533,7 @@ test("reuse and release-policy routes preserve every material clause and reject 
         ["unresolved semantic content items", "preserve crosswalk/provenance references", "P0-03 remains open"]);
       continue;
     }
-    if (claimId === "MPSEM-0076-C001" || claimId === "MPSEM-0459-C003") {
+    if (["MPSEM-0076-C001", "MPSEM-0459-C003", "MPSEM-0365-C001"].includes(claimId)) {
       assertRouteTargetCurrentOrObserved(route, sourceRef, value);
     }
     else assert.equal(route.targetValueSha256, sha256Json(value), `${claimId} exact owner-value pin`);
@@ -845,8 +850,25 @@ test("additional owner routes preserve exact job, reproducibility, CLI interrupt
     const sourceValue = resolveExactSourceRef(sourceRef);
     assert.ok(sourceValue, `${claimId}: exact source resolves`);
     assert.equal(route?.sourceRef, sourceRef, `${claimId}: route uses exact source selector`);
-    assert.equal(route?.targetValueSha256, sha256Json(sourceValue), `${claimId}: target hash covers exact parsed value`);
-    assert.equal(row.currentDisposition?.ownerTargetValueSha256, sha256Json(sourceValue));
+    if (["MPSEM-0472-C002", "MPSEM-0371-C001"].includes(claimId)) {
+      assert.notEqual(route?.targetValueSha256, sha256Json(sourceValue), `${claimId}: historical pin remains stale`);
+      assert.equal(route?.currentTargetObservation, undefined, `${claimId}: no observation when required material clauses no longer hold`);
+      assert.equal(route?.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+      assert.equal(route?.acceptanceEffect, "none");
+      assert.equal(route?.runtimeAdmission, "NOT_ADMITTED");
+      assert.ok(route.requiredClauses.some((clause) => !JSON.stringify(sourceValue).includes(clause)),
+        `${claimId}: current owner source no longer satisfies a required clause`);
+    } else if (route?.targetValueSha256 !== sha256Json(sourceValue)) {
+      assertCurrentObservation(route?.currentTargetObservation, sourceRef, sourceValue, route?.targetValueSha256);
+    } else {
+      assert.equal(route?.currentTargetObservation, undefined);
+    }
+    if (["MPSEM-0472-C002", "MPSEM-0371-C001"].includes(claimId)) {
+      assert.equal(row.currentDisposition?.ownerTargetValueSha256, route.targetValueSha256,
+        `${claimId}: disposition retains the prior candidate pin while the material blocker remains`);
+    } else {
+      assert.equal(row.currentDisposition?.ownerTargetValueSha256, sha256Json(sourceValue));
+    }
     assert.equal(route.semanticReviewStatus, "PENDING_COORDINATOR_MATERIAL_REVIEW");
     assert.equal(route.acceptanceEffect, "none");
     assert.equal(route.runtimeAdmission, "NOT_ADMITTED");
@@ -1165,7 +1187,8 @@ test("bounded planning claim maps to the Media owner plan contract without imply
   const value = resolveExactSourceRef(ref);
   assert.equal(record?.proposedTargetRef, ref);
   assert.equal(route?.sourceRef, ref);
-  assert.equal(route?.targetValueSha256, sha256Json(value));
+  assert.notEqual(route?.targetValueSha256, sha256Json(value), "the prior candidate pin remains unchanged after source drift");
+  assertCurrentObservation(route?.currentTargetObservation, ref, value, route?.targetValueSha256);
   assert.equal(value.id, "media.agent-tool-bounded-planning.v1");
   for (const clause of route.requiredClauses) assert.ok(JSON.stringify(value).includes(clause), `${claimId} preserves ${clause}`);
   assert.equal(route.runtimeAdmission, "NOT_ADMITTED");
@@ -1238,7 +1261,7 @@ test("temporal claims distinguish media, simulation, story, sample, and wall clo
     const record = candidate.records.find(({ claimId: id }) => id === claimId);
     const route = record?.claimSpecificSemanticRoute;
     assert.equal(record?.proposedTargetRef, clockRef);
-    assert.equal(route?.targetValueSha256, sha256Json(clockDefinitions));
+    assertRouteTargetCurrentOrObserved(route, clockRef, clockDefinitions);
     const relatedValues = route.relatedSourceRefs.map(resolveExactSourceRef);
     assert.ok(route.relatedSourceRefs.includes(nonEquivalenceRef));
     assert.equal(route.relatedTargetValueSha256, sha256Json(nonEquivalences));

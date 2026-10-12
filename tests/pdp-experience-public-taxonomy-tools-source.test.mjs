@@ -41,7 +41,7 @@ test('Media enum candidates validate against the exact current Tools source sche
   assert.equal(current.decisionRef, '.product-experience/decision-log.md#PXD-107');
   assert.equal(current.existingEffectFinalitySchemaUnchanged, true);
   assert.equal(sourceCommit, current.sourceCommit);
-  assert.equal(sourceCommit, 'cb4feaeb23afdd00c048fb9014c4b38c9b8fc506');
+  assert.equal(sourceCommit, '00618e036ea706d3165e9d8ca53ae14f37fa6f52');
   const historicalSchema = JSON.parse(execFileSync('git', ['-C', toolsRoot.pathname, 'show',
     '6ed280283872df7889369b71abb3c9e62cb17f8d:libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json'], { encoding: 'utf8' }));
   assert.deepEqual(schema.definitions.effect, historicalSchema.definitions.effect,

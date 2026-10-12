@@ -225,8 +225,8 @@ test("historical migration source stays provenance and cannot become current pha
     "HISTORICAL_POPULATION_ONLY; NON_GATING_FOR_CURRENT_PDP0_03_DEVELOPMENT_EXIT");
   assert.equal(migration.pdp38ClaimReconciliation.currentDeltaDispositionRef,
     "docs/migration/current-master-plan-claim-dispositions.json");
-  assert.equal(migration.pdp38ClaimReconciliation.candidateTargetPendingSemanticParityCount, 361,
-    "the historical locator-only count remains preserved without gating current P0-03");
+  assert.equal(migration.pdp38ClaimReconciliation.candidateTargetPendingSemanticParityCount, 360,
+    "the current locator-only remainder is recomputed from the 860 routed claims and 500 parity-verified claims, without gating current P0-03");
   assert.match(migration.sourceChangeLedger.reconciliationStatus, /historical inventory; non-gating for current P0-03/u);
   assert.equal(migrationDelta.claimCount, 129);
   assert.deepEqual(migrationDelta.p0MeaningOnlyInOldPlan, []);

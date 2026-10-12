@@ -492,15 +492,15 @@ function validateExactTypedSemantics(schema, value, library, path, errors, visit
       const endTicks = parseBoundedDecimal(end.ticks, INT64_MIN, INT64_MAX);
       const sn = parseBoundedDecimal(start.secondsPerTick?.numerator), sd = parseBoundedDecimal(start.secondsPerTick?.denominator);
       const en = parseBoundedDecimal(end.secondsPerTick?.numerator), ed = parseBoundedDecimal(end.secondsPerTick?.denominator);
-      if (start.clockKind !== end.clockKind || start.clockId !== end.clockId || start.streamId !== end.streamId) {
-        errors.push(`${path || "/"}: interval endpoints must use the same exact clock, stream, and domain`);
+      if (start.clockKind !== end.clockKind || start.clockId !== end.clockId || start.streamId !== end.streamId || start.originRef !== end.originRef) {
+        errors.push(`${path || "/"}: interval endpoints must use the same exact clock, stream, origin, and domain`);
       } else if ([startTicks, endTicks, sn, sd, en, ed].some((part) => part === null)) {
         errors.push(`${path || "/"}: interval requires bounded exact rational endpoint values`);
       } else {
         try {
           const alignedEnd = convertMediaTime(
             { ...end, ticks: endTicks, timeBase: { numerator: en, denominator: ed } },
-            { clockKind: start.clockKind, clockId: start.clockId, streamId: start.streamId, timeBase: { numerator: sn, denominator: sd }, rounding: "exact" },
+            { clockKind: start.clockKind, clockId: start.clockId, streamId: start.streamId, originRef: start.originRef, timeBase: { numerator: sn, denominator: sd }, rounding: "exact" },
           ).timestamp.ticks;
           if (alignedEnd <= startTicks) errors.push(`${path || "/"}: half-open interval end must be strictly greater than start`);
         } catch {

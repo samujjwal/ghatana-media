@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "media.pdp38-pxd084-current-owner-delta.v1",
+  "decisionRef": ".product-experience/decision-log.md#PXD-084",
+  "claimId": "MPSEM-0388-C003",
+  "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-review.json",
+  "sourceTargetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback",
+  "previousBoundedImpactRef": "docs/implementation/verification/pdp-38/migration-reviewed-source-impact.json#/records/@claimId=MPSEM-0388-C003",
+  "previousBoundedTargetSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+  "currentTargetSha256": "e1ba9597b1b4a9867552cd7064efc1d068219ef7b6fe2e3ea27695883765920e",
+  "projectionWithoutLaterRulesSha256": "6ee7206bc1a51d53d526ac4cf5a7d13c4219c9f9cd915d74ffd4d23c287baef6",
+  "projectionMatchesPreviousBoundedImpact": true,
+  "additions": [
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/offlineEntitlementWindow",
+      "valueSha256": "69031c819ccc1104a9993f77f72ff726e9e8ad7b9ec3f95fa896f9b68b4be70f",
+      "meaning": "An exact current offline entitlement tuple and trusted time/authority/version evidence are required; missing or stale evidence denies protected work.",
+      "disposition": "SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW"
+    },
+    {
+      "targetRef": ".product-experience/pdp-0-product-truth/policy-authority-model.yaml#/modelAcquisitionAndFallback/fallback/compatibilityDecisionRule",
+      "valueSha256": "3353bdeec23a440287b9be4a2b41261c4a423537ac4beba3e616c32e265c703a",
+      "meaning": "Fallback requires the exact authorized alternate implementation/profile and typed compatibility facts, repeats policy checks before the alternate effect boundary, and denies unknown compatibility without silent substitution.",
+      "disposition": "SEPARATE_CURRENT_OWNER_RULE; NOT_PART_OF_HISTORICAL_PXD084_REVIEW"
+    }
+  ],
+  "reviewBasis": "The later owner additions are exact, fail-closed definitions. The offline rule requires a valid entitlement/time window before protected work; the fallback compatibility rule requires an exact named alternate and typed compatibility facts plus fresh policy checks before crossing its effect boundary. Both preserve deny/unknown behavior and do not authorize acquisition, fallback execution, qualification, or runtime admission.",
+  "acceptanceEffect": "none",
+  "runtimeAdmission": "NOT_ADMITTED"
+}

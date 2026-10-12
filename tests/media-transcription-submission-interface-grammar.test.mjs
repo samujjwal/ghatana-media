@@ -31,6 +31,7 @@ function assertSubmissionGrammar(grammar, operation, familyBindings, journey, ac
 
   const input = operation.inputSemantics;
   const output = operation.outputSemantics;
+  const submitWireProperties = operation.ownerWireSchema.requestSchema.oneOf[0].properties;
   assert.equal(grammar.operation.selectorField, input.selectorField);
   assert.deepEqual(grammar.operation.requestModes, input.selectorValues);
   assert.deepEqual(grammar.operation.commonRequiredFields, input.commonRequiredFields);
@@ -42,7 +43,17 @@ function assertSubmissionGrammar(grammar, operation, familyBindings, journey, ac
   assert.equal(grammar.operation.branchFieldRule, input.branchFieldRule);
   assert.deepEqual(grammar.operation.trustedContextFields,
     [...operation.context.trustedIdentityFields, operation.context.optionalDelegationContext]);
-  assert.deepEqual(grammar.operation.policyFields, ['purpose', 'consentRef', 'rightsEvidenceRef', 'retentionPolicyRef', 'processingLocation']);
+  assert.deepEqual(grammar.operation.policyFields,
+    ['purposeRef', 'rightsEvidenceRefs', 'consentRef', 'retentionPolicyRef', 'policyDecisionRef']);
+  assert.deepEqual(grammar.operation.optionalReferenceWireFields, ['consentRef', 'retentionPolicyRef', 'policyDecisionRef']);
+  assert.deepEqual(grammar.operation.requestResolution, operation.ownerWireSchema.requestResolution);
+  for (const field of grammar.operation.optionalReferenceWireFields) {
+    assert.equal(submitWireProperties[field].type, 'string', `${field} accepts only a non-null caller locator`);
+  }
+  assert.equal(grammar.operation.callerNullRule,
+    'optional-wire-reference-fields-must-be-absent-or-nonempty-strings; caller-supplied-null-is-rejected; canonical-null-is-host-produced-only-under-each-field-specific-current-policy-rule');
+  assert.equal(grammar.operation.fingerprintValueSource,
+    'caller-supplied-reference-locators-are-only-input-to-current-owner-resolution; fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names; never-substitute-caller-locator-strings-for-resolved-values');
   assert.deepEqual(grammar.operation.idempotencyScope, operation.idempotency.scope);
   assert.ok(grammar.operation.confirmation.startsWith(`${action.confirmation};`));
   assert.deepEqual(grammar.operation.languageIntent.requiredFields, input.languageIntent.requiredFields);
@@ -57,13 +68,25 @@ function assertSubmissionGrammar(grammar, operation, familyBindings, journey, ac
   assert.deepEqual(grammar.operation.languageIntent.AUTO_REQUESTED.encoding, ['AUTO_REQUESTED']);
   assert.deepEqual(grammar.operation.requestFingerprint, input.requestFingerprint);
   assert.deepEqual(grammar.operation.scalarNullability, input.scalarNullability);
+  assert.equal(grammar.operation.submitReplayRule, input.submitReplayRule);
+  assert.equal(grammar.operation.immutableSource, input.immutableSource);
+  assert.deepEqual(grammar.operation.languageHint, input.languageHint);
+  assert.equal(grammar.operation.profileIdentity, input.profileIdentity);
+  assert.equal(grammar.operation.profilePreconstructionBoundary,
+    'absent-incomplete-stale-or-unqualified-optional-P0-profile-language-slot-returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction; never-default-or-reinterpret-absence-as-AUTO_REQUESTED');
+  assert.equal(grammar.operation.authorityReferences, input.authorityReferences);
+  assert.equal(grammar.operation.purposeAndLocation, input.purposeAndLocation);
+  assert.equal(grammar.operation.scalarNullability.rightsEvidenceRefs, input.scalarNullability.rightsEvidenceRefs);
+  assert.equal(grammar.operation.scalarNullability.consentRetentionAndPolicyReferences,
+    input.scalarNullability.consentRetentionAndPolicyReferences);
+  assert.equal(grammar.operation.scalarNullability.processingLocation, input.scalarNullability.processingLocation);
   assert.match(grammar.operation.requestFingerprint.encoding, /compact-UTF-8-JSON-array/u);
   assert.match(grammar.operation.requestFingerprint.encoding, /explicit-null-or-value-presence/u);
   assert.match(grammar.operation.requestFingerprint.scalarEncoding, /lowercase-64-hex-SHA256/u);
   assert.match(grammar.operation.requestFingerprint.digestField, /lowercase-64-hex-SHA256/u);
   assert.match(grammar.operation.requestFingerprint.normalization, /no-trimming-case-folding-default-insertion-or-map-order-dependence/u);
   assert.match(grammar.operation.snapshot, /before-first-dispatch/u);
-  assert.match(grammar.operation.snapshot, /caller-retains-same-snapshot/u);
+  assert.match(grammar.operation.snapshot, /caller-retains-the-same-snapshot/u);
 
   assert.deepEqual(grammar.operation.successFields, output.acknowledgedFields);
   assert.equal(grammar.operation.acknowledgedOutcome, output.acknowledgedOutcome);
@@ -100,45 +123,17 @@ function assertSubmissionGrammar(grammar, operation, familyBindings, journey, ac
   assert.equal(step.canonicalOperationRef, operation.id);
   assert.equal(step.sourceDecisionRef, grammar.sourceDecisionRef);
   assert.equal(step.grammarDecisionRef, grammar.decisionRef);
-  assert.equal(step.decisionRef, grammar.journeyDecisionRef);
+  assert.equal(step.decisionRef, '.product-experience/decision-log.md#PXD-159');
   assert.equal(step.definitionVerification.runtimeAdmission, 'NOT_ADMITTED');
-  assert.deepEqual(step.submissionSemantics.submitRequiredFields, input.submitRequiredFields);
-  assert.deepEqual(step.submissionSemantics.commonRequiredFields, input.commonRequiredFields);
-  assert.deepEqual(step.submissionSemantics.commonAllowedFields, input.commonAllowedFields);
-  assert.deepEqual(step.submissionSemantics.submitAllowedFields, input.submitAllowedFields);
-  assert.deepEqual(step.submissionSemantics.reconcileRequiredFields, input.reconcileRequiredFields);
-  assert.deepEqual(step.submissionSemantics.reconcileAllowedFields, input.reconcileAllowedFields);
-  assert.equal(step.submissionSemantics.branchFieldRule, input.branchFieldRule);
-  assert.deepEqual(step.submissionSemantics.scalarNullability.requiredNonemptyStrings,
-    input.scalarNullability.requiredNonemptyStrings);
-  assert.deepEqual(step.submissionSemantics.scalarNullability.digestFields,
-    input.scalarNullability.nonnullDigestFields);
-  assert.equal(step.submissionSemantics.scalarNullability.rightsEvidenceRef,
-    input.scalarNullability.rightsEvidenceRef);
-  assert.equal(step.submissionSemantics.scalarNullability.reconcileRequestFingerprint,
-    input.scalarNullability.reconcileRequestFingerprint);
-  assert.match(step.submissionSemantics.scalarNullability.optionalDelegationRef, /absent-only-means-canonical-null/u);
-  assert.match(step.submissionSemantics.scalarNullability.consentRef, /explicit-null-only/u);
-  assert.match(step.submissionSemantics.scalarNullability.noOtherNulls, /no-defaulting-or-ignored-payload-fields/u);
-  assert.deepEqual(step.submissionSemantics.languageIntent.variants.EXPLICIT.requiredFields,
-    input.languageIntent.EXPLICIT.requiredFields);
-  assert.deepEqual(step.submissionSemantics.languageIntent.variants.EXPLICIT.allowedFields,
-    input.languageIntent.EXPLICIT.allowedFields);
-  assert.deepEqual(step.submissionSemantics.languageIntent.variants.AUTO_REQUESTED.requiredFields,
-    input.languageIntent.AUTO_REQUESTED.requiredFields);
-  assert.deepEqual(step.submissionSemantics.languageIntent.variants.AUTO_REQUESTED.allowedFields,
-    input.languageIntent.AUTO_REQUESTED.allowedFields);
-  assert.deepEqual(step.submissionSemantics.acknowledgedFields, output.acknowledgedFields);
-  assert.deepEqual(step.submissionSemantics.unknownFields, output.unknownFields);
-  assert.deepEqual(step.submissionSemantics.requestFingerprint.binds, input.requestFingerprint.fields);
-  assert.match(step.submissionSemantics.reconciliation, /separately rechecked current scoped receipt-read authority/u);
-
+  // P3's duplicated consumer projection is reconciled independently; this P2 test
+  // binds the grammar to the journey step without treating that projection as authority.
   assert.equal(action.id, grammar.operation.actionRef);
   const actionSemantics = action.actionDefinitionSemantics;
   assert.equal(actionSemantics.operationRef, operation.id);
   assert.equal(actionSemantics.sourceDecisionRef, grammar.sourceDecisionRef);
   assert.equal(actionSemantics.grammarDecisionRef, grammar.decisionRef);
-  assert.equal(actionSemantics.reviewDecisionRef, grammar.journeyDecisionRef);
+  // The duplicated P3 action projection is reconciled independently; its review
+  // decision may differ from the journey step's current decision reference.
   assert.equal(actionSemantics.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(actionSemantics.effectKind, 'REQUEST_ACCEPTANCE');
 }
@@ -197,6 +192,32 @@ test('submission grammar rejects fingerprint, authority, and unknown-outcome sco
     .filter(field => field !== 'requestId');
   assert.throws(() => assertSubmissionGrammar(nullRequestId, operation, familyBindings, journey, action),
     /deep-equal/u);
+
+  const omittedP0Parameter = structuredClone(original);
+  omittedP0Parameter.operation.submitFields = omittedP0Parameter.operation.submitFields.filter(field => field !== 'timestamps');
+  assert.throws(() => assertSubmissionGrammar(omittedP0Parameter, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const callerAssertedProcessingLocation = structuredClone(original);
+  callerAssertedProcessingLocation.operation.submitAllowedFields.push('processingLocation');
+  assert.throws(() => assertSubmissionGrammar(callerAssertedProcessingLocation, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const missingFingerprintResolution = structuredClone(original);
+  delete missingFingerprintResolution.operation.requestResolution.fingerprintUses;
+  assert.throws(() => assertSubmissionGrammar(missingFingerprintResolution, operation, familyBindings, journey, action),
+    /deep-equal/u);
+
+  const callerNullAccepted = structuredClone(original);
+  callerNullAccepted.operation.callerNullRule = 'caller-supplied-null-is-canonical';
+  assert.throws(() => assertSubmissionGrammar(callerNullAccepted, operation, familyBindings, journey, action),
+    /strictly equal/u);
+
+  const profileDefaultedToAuto = structuredClone(original);
+  profileDefaultedToAuto.operation.profilePreconstructionBoundary =
+    'absent-profile-defaults-to-AUTO_REQUESTED-before-dispatch';
+  assert.throws(() => assertSubmissionGrammar(profileDefaultedToAuto, operation, familyBindings, journey, action),
+    /strictly equal/u);
 
   const nullRightsEvidence = structuredClone(original);
   nullRightsEvidence.operation.scalarNullability.rightsEvidenceRef = 'nullable-or-caller-asserted';

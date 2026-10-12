@@ -160,19 +160,25 @@ export function MediaTaskFlow({
           {projection.steps.map((step, index) => {
             const selected = step.id === projection.currentStepId;
             const interactive = Boolean(onStepSelect) && step.selectable !== false;
+            const stepNumberId = `media-step-${step.id}-number`;
+            const stepStateId = `media-step-${step.id}-state`;
+            const stepTitleId = `media-step-${step.id}-title`;
+            const stepDescriptionId = `media-step-${step.id}-description`;
+            const stepReasonId = step.blockedReason ? `media-step-${step.id}-reason` : undefined;
             return <li key={step.id}>
               <button type="button" onClick={() => interactive && onStepSelect?.(step.id)} disabled={!interactive}
                 aria-current={selected ? "step" : undefined}
-                aria-describedby={step.blockedReason ? `media-step-${step.id}-reason` : undefined}
+                aria-labelledby={`${stepNumberId} ${stepStateId} ${stepTitleId}`}
+                aria-describedby={[stepDescriptionId, stepReasonId].filter(Boolean).join(" ")}
                 >
                 <span >
-                  <span >{index + 1}</span>
-                  <span className="media-step-state">{step.state}</span>
+                  <span id={stepNumberId}>{index + 1}</span>
+                  <span id={stepStateId} className="media-step-state">{step.state}</span>
                 </span>
-                <span >{step.title}</span>
-                <span >{step.description}</span>
+                <span id={stepTitleId}>{step.title}</span>
+                <span id={stepDescriptionId}>{step.description}</span>
               </button>
-              {step.blockedReason && <p id={`media-step-${step.id}-reason`} >{step.blockedReason}</p>}
+              {step.blockedReason && <p id={stepReasonId} >{step.blockedReason}</p>}
             </li>;
           })}
         </ol>

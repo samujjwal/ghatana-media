@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 const root = process.cwd();
@@ -109,21 +110,106 @@ test("token aliases resolve light and dark roles while current theme and ui-styl
   assert.match(mediaStyles, /@media \(prefers-reduced-motion: reduce\)/u);
   assert.doesNotMatch(mediaStyles, /forced-color-adjust\s*:\s*none/u);
   const tokenCss = readFileSync(resolve(shared, "tokens/dist/tokens.css"), "utf8");
-  const expectedVariables = [
-    "--gh-semantic-typography-body-font-size", "--gh-semantic-typography-body-line-height",
-    "--gh-semantic-typography-page-title-font-size", "--gh-semantic-typography-section-title-font-size",
-    "--gh-semantic-typography-supporting-font-size", "--gh-semantic-typography-metadata-font-size",
-    "--gh-semantic-geometry-gutter-compact", "--gh-semantic-geometry-gutter-standard",
-    "--gh-semantic-geometry-gutter-comfortable", "--gh-semantic-geometry-section-rhythm-compact",
-    "--gh-semantic-geometry-section-rhythm-standard", "--gh-semantic-geometry-section-rhythm-comfortable",
-    "--gh-breakpoints-touch-targets-minimum",
-  ];
+  const expectedVariables = aliases.cssVariableBindings.bindings
+    .filter(({ id }) => /^media\.shared-css\.(?:typography|geometry)\./u.test(id))
+    .map(({ cssVariable }) => cssVariable);
+  assert.equal(expectedVariables.length, 18, "all declared public typography/geometry variables are covered");
   for (const variable of expectedVariables) {
     assert.match(tokenCss, new RegExp(`${variable}:\\s*[^;]+;`, "u"), `${variable} resolves in the built public tokens CSS`);
+    assert.match(mediaStyles, new RegExp(`${variable}`, "u"), `${variable} is consumed by the Media stylesheet`);
   }
-  for (const variable of expectedVariables.slice(0, 6)) assert.match(mediaStyles, new RegExp(`var\\(${variable}\\)`, "u"));
-  for (const variable of expectedVariables.slice(6)) assert.match(mediaStyles, new RegExp(`var\\(${variable}\\)`, "u"));
   assert.match(mediaStyles, /--media-space-standard:\s*calc\(var\(--gh-semantic-geometry-gutter-standard\) \* 1px\)/u);
   assert.match(mediaStyles, /min-height:\s*var\(--media-interactive-target\)/u);
   assert.deepEqual(style.normativeRuleRecords.map(({ id }) => id), ["media.p2.rule.host-theme-and-semantic-fallback.v1"]);
+});
+
+test("foundation consumer keeps typed geometry, RTL, forced colors, reduced motion, and strict CSP compatible", () => {
+  const mediaStyles = read("libs/audio-video-ui/src/styles.css");
+  const screen = read("libs/audio-video-ui/src/screens/MediaTaskScreen.tsx");
+  const explorerPolicy = read("apps/media-experience-explorer/vite.config.mjs");
+  const primitives = parse(read(".product-experience/pdp-2-design-interface-system/gui/primitives.yaml"));
+  const statusPrimitive = primitives.bindings.find(({ id }) => id === "media.gui.primitive.status");
+  const motion = parse(read(".product-experience/pdp-2-design-interface-system/motion.yaml"));
+  const tokenSource = readFileSync(resolve(shared, "tokens/src/semantic.ts"), "utf8");
+
+  // Shared token geometry is numeric CSS-pixel data and is converted once at the Media CSS boundary.
+  assert.match(tokenSource, /gutter: Object\.freeze\(\{ compact: spacing\[2\], standard: spacing\[4\], comfortable: spacing\[6\] \}\)/u);
+  assert.match(tokenSource, /interactiveTarget: touchTargets\.minimum/u);
+  assert.match(tokenSource, /fontSize: fontSize\.base/u);
+  assert.match(mediaStyles, /--media-space-standard:\s*calc\(var\(--gh-semantic-geometry-gutter-standard\) \* 1px\)/u);
+  assert.doesNotMatch(mediaStyles, /--media-space-standard:\s*var\(--gh-semantic-geometry-gutter-standard\)px/u,
+    "numeric Shared pixel values must not be unit-appended twice");
+
+  // Direction is an explicit host input and structural CSS uses logical properties.
+  assert.match(screen, /dir=\{context\.direction\}/u);
+  assert.match(mediaStyles, /margin-inline/u);
+  assert.match(mediaStyles, /padding-inline-start/u);
+  assert.doesNotMatch(mediaStyles, /(?:margin|padding)-(?:left|right)\s*:/u);
+
+  // Forced/system colors remain available; reduced motion removes animation without removing meaning.
+  assert.match(mediaStyles, /@media\s*\(forced-colors:\s*active\)/u);
+  assert.doesNotMatch(mediaStyles, /forced-color-adjust\s*:\s*none/u);
+  assert.match(mediaStyles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/u);
+  assert.ok(motion.rules.some((rule) => /Reduced-motion mode removes nonessential transitions/u.test(rule)));
+  assert.ok(motion.rules.some((rule) => /Progress is represented by state and text/u.test(rule)));
+
+  // The only generic Progress exclusion is explicit: native progress is used because style attributes are blocked.
+  assert.match(explorerPolicy, /style-src-attr 'none'/u);
+  assert.match(statusPrimitive.progressExclusion, /native HTML progress/u);
+  assert.match(statusPrimitive.progressExclusion, /unknown or absent measurements/u);
+});
+
+test("Media light/dark progress colors consume exact public Shared roles and retain system fallbacks", () => {
+  const mediaStyles = read("libs/audio-video-ui/src/styles.css");
+  const tokenCss = readFileSync(resolve(shared, "tokens/dist/tokens.css"), "utf8");
+  const result = spawnSync(process.execPath, [
+    "--input-type=module", "-e",
+    "import { semanticColorRoles } from '@ghatana/tokens/semantic-roles'; process.stdout.write(JSON.stringify(semanticColorRoles));",
+  ], { cwd: resolve(root, "libs/audio-video-ui"), encoding: "utf8" });
+  assert.equal(result.status, 0, `load public @ghatana/tokens semantic roles: ${result.stderr}`);
+  const roles = JSON.parse(result.stdout);
+  const projections = aliases.aliases.filter(({ currentCssConsumer }) => currentCssConsumer);
+  assert.deepEqual(projections.map(({ id }) => id), [
+    "media.token.state.completed", "media.token.state.in-progress", "media.token.state.needs-review",
+  ]);
+  const colorBindings = aliases.cssVariableBindings.bindings.filter(({ id }) => id.startsWith("media.shared-css.color."));
+  const colorProjections = aliases.cssVariableBindings.bindings.filter(({ id }) => id.startsWith("media.token.css.color."));
+  assert.equal(colorBindings.length, 6);
+  assert.equal(colorProjections.length, 3);
+  const publicCssValue = (variable) => tokenCss.match(new RegExp(`${variable}:\\s*([^;]+);`, "u"))?.[1]?.trim();
+  for (const alias of projections) {
+    const lightRole = alias.sharedTokenRef.split("#semanticColorRoles.")[1];
+    const darkRole = alias.darkModeEquivalent.split("#semanticColorRoles.")[1];
+    const [lightMode, lightName] = lightRole.split(".");
+    const [darkMode, darkName] = darkRole.split(".");
+    const { lightCssVariable, darkCssVariable, usedBy } = alias.currentCssConsumer;
+    const mediaVariable = alias.id === "media.token.state.completed"
+      ? "--media-color-state-completed"
+      : alias.id === "media.token.state.in-progress"
+        ? "--media-color-state-in-progress"
+        : "--media-color-state-needs-review";
+    assert.equal(publicCssValue(lightCssVariable), roles[lightMode][lightName], `${alias.id} light CSS projection matches its public role`);
+    assert.equal(publicCssValue(darkCssVariable), roles[darkMode][darkName], `${alias.id} dark CSS projection matches its public role`);
+    const lightBinding = colorBindings.find(({ cssVariable }) => cssVariable === lightCssVariable);
+    const darkBinding = colorBindings.find(({ cssVariable }) => cssVariable === darkCssVariable);
+    assert.equal(lightBinding?.publicCssRef, `@ghatana/tokens/tokens.css#${lightCssVariable}`);
+    assert.equal(darkBinding?.publicCssRef, `@ghatana/tokens/tokens.css#${darkCssVariable}`);
+    assert.equal(lightBinding?.semanticSource, `sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.${lightRole}`);
+    assert.equal(darkBinding?.semanticSource, `sibling-repository:ghatana-shared/platform/typescript/tokens/src/semantic-roles.ts#semanticColorRoles.${darkRole}`);
+    assert.equal(lightBinding?.valueType, "CSS-color");
+    assert.equal(darkBinding?.valueType, "CSS-color");
+    const projection = colorProjections.find(({ id }) => id === `media.token.css.color.${alias.id.slice("media.token.".length)}`);
+    assert.equal(projection?.sharedCssVariableRef, lightCssVariable);
+    assert.equal(projection?.cssVariable, mediaVariable);
+    assert.match(tokenCss, new RegExp(`${lightCssVariable}:\\s*[^;]+;`, "u"));
+    assert.match(tokenCss, new RegExp(`${darkCssVariable}:\\s*[^;]+;`, "u"));
+    assert.match(mediaStyles, new RegExp(`${mediaVariable}:\\s*var\\(${lightCssVariable}\\)`, "u"), `${usedBy} uses the light public role`);
+    assert.match(mediaStyles, new RegExp(`${mediaVariable}:\\s*var\\(${darkCssVariable}\\)`, "u"), `${usedBy} uses the dark public role`);
+  }
+  assert.match(mediaStyles, /\.media-progress--success\s*\{\s*color:\s*var\(--media-color-state-completed, LinkText\)/u);
+  assert.match(mediaStyles, /\.media-progress--info,[\s\S]*?color:\s*var\(--media-color-state-in-progress, Highlight\)/u);
+  assert.match(mediaStyles, /\.media-progress--warning\s*\{\s*color:\s*var\(--media-color-state-needs-review, Mark\)/u);
+  assert.match(mediaStyles, /@media \(forced-colors: active\)[\s\S]*?\.media-progress--success\s*\{\s*color: LinkText/u);
+  assert.match(mediaStyles, /@media \(forced-colors: active\)[\s\S]*?\.media-progress--warning\s*\{\s*color: Mark/u);
+  assert.doesNotMatch(mediaStyles, /#[0-9a-f]{3,8}\b/iu, "Media does not copy Shared hex values into its stylesheet");
 });

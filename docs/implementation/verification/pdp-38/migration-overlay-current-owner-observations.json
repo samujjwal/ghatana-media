@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "media.pdp38-migration-overlay-current-owner-observations.v1",
+  "scope": "Additive exact current-owner byte observations supplementing historical migration overlay target pins; no claim-parity or acceptance promotion.",
+  "records": [
+    {
+      "claimId": "MPSEM-0235-C001",
+      "targetRef": ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#/openDecisions/@id=consent-and-rights-authority/question",
+      "historicalTargetValueSha256": "a9c9c301109c2a267241495e9f0b1326ec3e803271a353d6f5002bd5ca8c65c9",
+      "currentTargetValueSha256": "c61782587c1c3390c7354190b5037b7755cf8b985560ce1ad9dfa842ca55f316",
+      "currentSourceFileSha256": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Claim-scoped current-source byte observation only. The owner question retains the current typed-reference distinction and explicitly leaves authority-issued keys, policy semantics, currentness, and effects with consent/policy authorities. This observation does not establish full claim parity for ProvenanceManifest or promote the pending locator disposition."
+    },
+    {
+      "claimId": "MPSEM-0303-C002",
+      "targetRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
+      "historicalTargetValueSha256": "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd",
+      "currentTargetValueSha256": "d5f6f00dfde6fb8eaef4ea064b65016216fc5db44791b627adcf5dceb1c483e0",
+      "currentSourceFileSha256": "11d51ef9cdc69e2dde09b3a72241a19a321be40372b19850e4d29c3ec2fb3e04",
+      "priorReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0303-C002",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Additive current-owner byte observation after source updates. The historical overlay target pin remains unchanged; this record does not re-adjudicate claim parity or acceptance."
+    },
+    {
+      "claimId": "MPSEM-1259-C001-S06",
+      "targetRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#/actions",
+      "historicalTargetValueSha256": "e946bf97e4064a03a4f608d6bec344e190f58ee1a5d838a3441dc7e2d09ecec2",
+      "previousObservedCurrentTargetValueSha256": "c71c3f306e3d0618ab4dfc248781ae1f97067bcca6fed2491f0f30f1ac3d209b",
+      "currentTargetValueSha256": "58ea37eeeb3c56b7b434a4a94648f64d0b7a3170332f40d0595de7a60daefb4f",
+      "previousObservedCurrentSourceFileSha256": "cf371281266f8b5bcbb953cb9a406147451cdcf74cbf0313558c2c181f4a7424",
+      "currentSourceFileSha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
+      "priorReviewRef": ".product-experience/decision-log.md#PXD-075",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Later current-source byte observation after the historical target pin. Relative to the prior observed current cut, the actions array now includes exact-artifact/version guards, source-lineage capability/crosswalk references, and revised logical-operation classification wording that retains transport/runtime non-admission. PXD-075 remains scoped to its reviewed source cut; this additive byte observation does not assert semantic equivalence for later registry changes, alter the claim disposition, or claim phase acceptance."
+    },
+    {
+      "claimId": "MPSEM-1259-C001-S10",
+      "targetRef": ".product-experience/pdp-3-product-experience/action-registry.yaml#/actions",
+      "historicalTargetValueSha256": "e946bf97e4064a03a4f608d6bec344e190f58ee1a5d838a3441dc7e2d09ecec2",
+      "previousObservedCurrentTargetValueSha256": "c71c3f306e3d0618ab4dfc248781ae1f97067bcca6fed2491f0f30f1ac3d209b",
+      "currentTargetValueSha256": "58ea37eeeb3c56b7b434a4a94648f64d0b7a3170332f40d0595de7a60daefb4f",
+      "previousObservedCurrentSourceFileSha256": "cf371281266f8b5bcbb953cb9a406147451cdcf74cbf0313558c2c181f4a7424",
+      "currentSourceFileSha256": "da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
+      "priorReviewRef": ".product-experience/decision-log.md#PXD-075",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "acceptanceEffect": "none",
+      "observation": "Later current-source byte observation after the historical target pin. Relative to the prior observed current cut, the actions array now includes exact-artifact/version guards, source-lineage capability/crosswalk references, and revised logical-operation classification wording that retains transport/runtime non-admission. PXD-075 remains scoped to its reviewed source cut; this additive byte observation does not assert semantic equivalence for later registry changes, alter the claim disposition, or claim phase acceptance."
+    }
+  ]
+}

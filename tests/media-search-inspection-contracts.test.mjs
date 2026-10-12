@@ -194,3 +194,27 @@ test("the source-observation artifact cross-references canonical identities with
     for (const ref of row.sourceRefs) assert.ok(existsSync(resolve(root, sourcePath(ref))), `${ref} exists`);
   }
 });
+
+test("P3-G search and inspection machine contracts bound request, result, error, authority, finality, and recovery", () => {
+  for (const search of contract.searchContracts) {
+    const machine = search.machineContract;
+    assert.ok(machine, `${search.id} has no machine contract`);
+    for (const field of ["request", "result", "errors", "authority", "finality", "unknownAndRetry", "transportBinding"]) {
+      assert.equal(typeof machine[field], "string", `${search.id} omits ${field}`);
+      assert.ok(machine[field].length > 0);
+    }
+    assert.equal(search.runtimeBinding, "NOT_ADMITTED");
+  }
+  for (const inspection of contract.inspectionContracts) {
+    const machine = inspection.machineContract;
+    assert.ok(machine, `${inspection.id} has no machine contract`);
+    for (const field of ["request", "result", "errors", "authority", "finality", "retry"]) {
+      assert.equal(typeof machine[field], "string", `${inspection.id} omits ${field}`);
+      assert.ok(machine[field].length > 0);
+    }
+  }
+  assert.match(contract.searchContracts.find(({ id }) => id === "media.search.authorized-jobs").machineContract.unknownAndRetry,
+    /do-not-submit-or-retry-from-search/u);
+  assert.match(contract.searchContracts.find(({ id }) => id === "media.search.authorized-artifacts").machineContract.authority,
+    /rights-consent-retention-quarantine/u);
+});

@@ -8,11 +8,71 @@ const { parse } = toolsRequire('yaml');
 const base = '.product-experience/pdp-3-product-experience';
 const actions = parse(await readFile(`${base}/action-registry.yaml`, 'utf8')).actions;
 const ownerActions = parse(await readFile(`${base}/action-registry.yaml`, 'utf8')).ownerDefinedActions ?? [];
+const recoveryQuery = parse(await readFile('.product-experience/pdp-1-domain-data/operations.yaml', 'utf8'))
+  .ownerDefinedOperationContracts.records.find(({ id }) => id === 'media.operation.stream-session.inspect-execution-recovery.v1');
 const ownerActionById = new Map(ownerActions.map((action) => [action.id, action]));
 const actionById = new Map(actions.map((action) => [action.id, action]));
 const journeyFiles = (await readdir(`${base}/journey-contracts`)).filter((path) => path.endsWith('.yaml')).sort();
 const stepOracles = parse(await readFile(`${base}/step-definition-oracles.yaml`, 'utf8'));
 const journeyRegistry = parse(await readFile(`${base}/journey-registry.yaml`, 'utf8'));
+
+function assertNoMutationDisposition(binding) {
+  assert.equal(binding.transitionDisposition, 'NOT_APPLICABLE_WITH_REASON');
+  assert.equal(typeof binding.noMutationReason, 'string');
+  assert.ok(binding.noMutationReason.trim().length >= 24);
+}
+
+function assertConflictRecoverySemantics(semantics, journeyId) {
+  assert.equal(semantics.status, 'SOURCE_BACKED_STEP_APPLICABILITY; RUNTIME_NOT_ADMITTED');
+  assert.equal(semantics.conflictSourceRef,
+    `.product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=${journeyId}/criticalNonhappy`);
+  assert.equal(semantics.recoverySourceRef,
+    `.product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=${journeyId}/recovery`);
+  assert.ok(semantics.applicableConflict.trim().length >= 30);
+  assert.ok(semantics.response.trim().length >= 50);
+}
+
+test('typed no-mutation dispositions reject missing or invalid reasons', () => {
+  assertNoMutationDisposition({
+    transitionDisposition: 'NOT_APPLICABLE_WITH_REASON',
+    noMutationReason: 'No option is selected, so no operation is dispatched.',
+  });
+  assert.throws(() => assertNoMutationDisposition({
+    transitionDisposition: 'NOT_APPLICABLE_WITH_REASON',
+  }), assert.AssertionError);
+  assert.throws(() => assertNoMutationDisposition({
+    transitionDisposition: 'UNRESOLVED',
+    noMutationReason: 'No operation is dispatched.',
+  }), assert.AssertionError);
+  assert.throws(() => assertNoMutationDisposition({
+    transitionDisposition: 'NOT_APPLICABLE_WITH_REASON',
+    noMutationReason: 'n/a',
+  }), assert.AssertionError);
+});
+
+test('applicable conflict paths bind exact P0 exception and recovery sources', async () => {
+  const byJourney = new Map();
+  for (const filename of journeyFiles) {
+    const journey = parse(await readFile(`${base}/journey-contracts/${filename}`, 'utf8'));
+    byJourney.set(journey.journeyId, journey);
+  }
+  assertConflictRecoverySemantics(
+    byJourney.get('J-11').steps[1].stepDefinitionSemantics.conflictRecoverySemantics,
+    'J-11',
+  );
+  assertConflictRecoverySemantics(
+    byJourney.get('J-16').steps[0].stepDefinitionSemantics.conflictRecoverySemantics,
+    'J-16',
+  );
+  assert.throws(() => assertConflictRecoverySemantics({}, 'J-11'), assert.AssertionError);
+  assert.throws(() => assertConflictRecoverySemantics({
+    status: 'SOURCE_BACKED_STEP_APPLICABILITY; RUNTIME_NOT_ADMITTED',
+    conflictSourceRef: '.product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-11/criticalNonhappy',
+    recoverySourceRef: '.product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-11/recovery',
+    applicableConflict: '',
+    response: 'A sufficiently long response exists but the conflict applicability is missing.',
+  }, 'J-11'), assert.AssertionError);
+});
 
 test('all 130 PDP-3 journey steps preserve their exact source facts and action disposition', async () => {
   const steps = [];
@@ -38,8 +98,17 @@ test('all 130 PDP-3 journey steps preserve their exact source facts and action d
     assert.equal(binding.journeyRef, journey.journeyId);
     assert.equal(binding.ordinal, index + 1);
     assert.equal(binding.viewRef, step.view ?? step.viewRef);
-    assert.deepEqual(binding.stepSourceFacts.result, step.result ?? null);
-    assert.deepEqual(binding.stepSourceFacts.success, step.success ?? null);
+    if (Object.hasOwn(step, 'result')) {
+      assert.deepEqual(binding.stepSourceFacts.result, step.result,
+        `${journey.journeyId}/${index + 1} preserves an explicitly declared source result`);
+    }
+    if (binding.stepSourceFacts.success?.sourceRef === 'journey.terminalSuccess') {
+      assert.equal(step.success?.sourceRef, 'journey.terminalSuccess');
+      assert.deepEqual(binding.stepSourceFacts.success.summary, step.success.summary);
+      assert.equal(binding.stepSourceFacts.success.status, 'JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY');
+    } else {
+      assert.deepEqual(binding.stepSourceFacts.success, step.success ?? null);
+    }
     assert.deepEqual(binding.stepSourceFacts.failure, step.failure ?? null);
     assert.deepEqual(binding.stepSourceFacts.recovery, step.recovery ?? null);
     for (const key of ['surfaceRefs', 'objectRefs', 'stateRefs', 'canonicalOperationRef', 'authorityRef', 'transitionRef', 'requirementRefs', 'scenarioRefs']) {
@@ -67,6 +136,8 @@ test('all 130 PDP-3 journey steps preserve their exact source facts and action d
       if (binding.action.choiceSet || binding.choiceSet) {
         const choiceSet = binding.action.choiceSet ?? binding.choiceSet;
         choiceSets += 1;
+        assertNoMutationDisposition(binding);
+        assert.equal(binding.domainOperationDisposition, 'NO_OPERATION_SELECTED');
         assert.equal(choiceSet.status, 'SOURCE_BOUND_ACTION_SET; USER_SELECTION_REQUIRED');
         assert.equal(choiceSet.selectedActionRef, null);
         assert.equal(choiceSet.defaultActionRef, null);
@@ -84,13 +155,42 @@ test('all 130 PDP-3 journey steps preserve their exact source facts and action d
       }
       unresolved += 1;
       if (binding.stepInteractionSemantics?.status === 'SOURCE_DEFINED_MEDIA_OWNER_RECOVERY_RULE; REVIEW_AND_RUNTIME_OPEN') {
-        assert.equal(binding.bindingStatus, 'OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN');
+        if (binding.supportingObservationDecisionRef === '.product-experience/decision-log.md#PXD-160') {
+          assert.equal(binding.bindingStatus,
+            'OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; EXACT_SUPPORTING_QUERY_BOUND; INDEPENDENT_REVIEW_OPEN');
+          assert.equal(binding.action.actionRef, null);
+          assert.equal(binding.action.bindingStatus, 'NO_DISPATCH_ACTION; LIVE_SESSION_OPERATION_IDENTITY_UNBOUND');
+          assert.equal(binding.action.runtimeAdmission, 'NOT_ADMITTED');
+          assert.equal(binding.canonicalBindings.canonicalOperationRef, null);
+          assert.deepEqual(binding.canonicalBindings.canonicalOperationRefs, []);
+          assert.deepEqual(binding.canonicalBindings.supportingObservationOperationRefs, [
+            'media.operation.stream-session.inspect.v1',
+            'media.operation.consent-record-inspect.v1',
+            'media.operation.stream-session.inspect-execution-recovery.v1',
+          ]);
+          assert.deepEqual(binding.canonicalBindings.supportingObservationOperationKinds, ['QUERY', 'QUERY', 'QUERY']);
+          assert.deepEqual(binding.canonicalBindings.operationCandidateRefs,
+            ['media.operation.stream-session.inspect-execution-recovery.v1']);
+          assert.equal(recoveryQuery.operationKind, 'QUERY');
+          assert.deepEqual(Object.keys(recoveryQuery.requestSchema.properties), ['sessionId']);
+          assert.deepEqual(recoveryQuery.resultSchema.required, ['sessionId', 'observation', 'observedAt', 'readVersion']);
+          assert.match(recoveryQuery.readSemantics, /response's single readVersion and\s+observedAt/u);
+          assert.match(recoveryQuery.readSemantics, /never dispatches or replays work/u);
+          const oracleStep = stepOracles.journeys.find(({ journeyId }) => journeyId === journey.journeyId)
+            .steps.find(({ sourceRef }) => sourceRef === binding.sourceRef);
+          assert.match(oracleStep.sessionRecoveryDefinition.candidateOperationStatus,
+            /EXACT_PXD_160_SUPPORTING_QUERY; SINGLE_SNAPSHOT; DISPATCH_NONE; RUNTIME_NOT_ADMITTED/u);
+        } else {
+          assert.equal(binding.bindingStatus,
+            'OWNER_DEFINED_LIVE_SESSION_RECOVERY_SEMANTICS; OPERATION_BINDING_AND_INDEPENDENT_REVIEW_OPEN');
+        }
         assert.equal(binding.action.bindingStatus, 'NO_DISPATCH_ACTION; LIVE_SESSION_OPERATION_IDENTITY_UNBOUND');
         assert.equal(binding.action.runtimeAdmission, 'NOT_ADMITTED');
         assert.ok(binding.stepInteractionSemantics.inputs.length > 0);
         continue;
       }
       if (binding.bindingStatus === 'PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH') {
+        assertNoMutationDisposition(binding);
         assert.equal(binding.action.bindingStatus, 'PASSIVE_CANONICAL_QUERY_NO_ACTION_DISPATCH');
         assert.equal(binding.operationContractBinding.operationRef, 'media.operation-slice.list-projects');
         assert.equal(binding.operationContractBinding.operationKind, 'QUERY');

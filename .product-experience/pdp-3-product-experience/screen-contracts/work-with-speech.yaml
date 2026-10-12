@@ -1,13 +1,14 @@
 schemaVersion: media.screen-contract.v2
 productId: media
 screenId: media.view.work-with-speech
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.workbench
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.media-workbench]
+layoutIds: [ media.gui.layout.media-workbench ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.source-picker
@@ -18,88 +19,350 @@ componentIds:
 componentBindingStatus: proposal-copy-of-existing-componentRefs; Shared-binding-and-acceptance-pending
 patternIds:
   - media.gui.pattern.transcript-and-playback
-patternOverlayIds: [media.gui.pattern.safe-confirmation-and-unknown-outcome]
+patternOverlayIds: [ media.gui.pattern.safe-confirmation-and-unknown-outcome ]
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: []
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.artifact-version
+  - media.domain.processing-job
+  - media.domain.transcript-version
+  - media.domain.caption-version
+  - media.domain.job-attempt
+  - media.domain.resolved-plan
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: []
-requirementRefs: [MEDIA-REQ-CAP-ARTIFACT, MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
+operationRefs:
+  - media.operation.transcription-submission
+  - media.operation.action.view-job-status
+  - media.operation.transcript-version-read
+  - media.operation.action.request-admitted-speech-operation
+  - media.operation.action.review-recognized-or-synthesized-content
+requirementRefs:
+  [
+    MEDIA-REQ-CAP-ARTIFACT,
+    MEDIA-REQ-CAP-JOB,
+    MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+  ]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
 stateRefs: []
-stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-entry: []
-entryBindingStatus: unresolved-no-exact-canonical-reference-declared
-exit: []
-exitBindingStatus: unresolved-no-exact-canonical-reference-declared
+stateRefsBindingStatus: "Exact canonical observation refs are recorded in
+  .product-experience/pdp-3-product-experience/view-state-binding-dispositions.\
+  yaml#views/@viewRef=media.view.work-with-speech/canonicalStateBindings; view
+  observation authorizes no transition; runtime NOT_ADMITTED"
+entry:
+  - "Before media.action.choose-source, require exact guards
+    [source-version-visible, current-read-authority]; absent, stale, or unknown
+    evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.choose-source/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.request-transcription, require exact guards
+    [source-available, explicit-language-intent, current-rights-and-consent,
+    admitted-capability-and-policy]; absent, stale, or unknown evidence leaves
+    the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.request-transcription/actionDefinitionSemantics/typedDefini\
+    tion; runtime NOT_ADMITTED."
+  - "Before media.action.view-job-status, require exact guards
+    [stable-job-reference]; absent, stale, or unknown evidence leaves the action
+    unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.review-transcript, require exact guards
+    [exact-canonical-transcript-version-readable,
+    current-scoped-read-authority]; absent, stale, or unknown evidence leaves
+    the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.review-transcript/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.choose-intent, require exact guards
+    [current-project-context-when-required,
+    intent-is-in-the-admitted-product-catalog]; absent, stale, or unknown
+    evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.choose-intent/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "Before media.action.request-admitted-speech-operation, require exact guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.request-admitted-speech-operation/actionDefinitionSemantics\
+    /typedDefinition; runtime NOT_ADMITTED."
+  - "Before media.action.review-recognized-or-synthesized-content, require exact
+    guards
+    [resolve-the-current-workspace-and-exact-target-before-access-or-change,
+    confirm-current-actor-authority-and-owner-approved-capability-before-govern\
+    ed-effects,
+    preserve-the-requested-context-and-exact-version-across-recovery]; absent,
+    stale, or unknown evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.review-recognized-or-synthesized-content/actionDefinitionSe\
+    mantics/typedDefinition; runtime NOT_ADMITTED."
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exit:
+  - "media.action.choose-source:
+    bind-one-exact-source-version-to-the-current-workflow;
+    finality=local-selection-only; recovery=preserve-project-and-filter-context.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.choose-source/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.request-transcription:
+    submit-one-logical-transcription-request-for-the-exact-source-version;
+    finality=stable-submission-receipt-and-logical-job-identity-only;
+    no-job-state-or-recognition-finality;
+    recovery=show-classified-state-and-safe-next-action;
+    never-submit-duplicate-on-unknown. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.request-transcription/actionDefinitionSemantics/typedDefini\
+    tion; runtime NOT_ADMITTED."
+  - "media.action.view-job-status: read-current-job-and-attempt-evidence;
+    finality=read-only; recovery=keep-last-known-state-labelled-stale. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.review-transcript:
+    inspect-one-exact-source-linked-transcript-version-and-its-supplied-uncerta\
+    inty; finality=read-only; this-action-records-no-separate-review-decision;
+    recovery=preserve-unverified-recognition-label-and-explicitly-unavailable-f\
+    ields. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.review-transcript/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.choose-intent:
+    select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work;
+    finality=local-selection-only;
+    recovery=preserve-the-project-and-current-selection;
+    explain-when-an-intent-is-unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.choose-intent/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+  - "media.action.request-admitted-speech-operation: Request the explicitly
+    named operation for the exact target only after fresh actor, capability,
+    policy, and target checks.; finality=external-effect-or-request;
+    owner-acknowledgment-required; unknown-is-not-failure;
+    recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.request-admitted-speech-operation/actionDefinitionSemantics\
+    /typedDefinition; runtime NOT_ADMITTED."
+  - "media.action.review-recognized-or-synthesized-content: Read or navigate
+    using the exact selected context; do not mutate a source object or infer
+    permission from its presence.; finality=read-only-or-navigation;
+    no-write-finality; recovery=preserve-the-exact-target-and-current-draft;
+    explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
+    Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.review-recognized-or-synthesized-content/actionDefinitionSe\
+    mantics/typedDefinition; runtime NOT_ADMITTED."
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
 actionConsequences:
   - actionId: media.action.choose-source
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.choose-source/actionDefinitionSemantics/typedDefinition
+    consequence: bind-one-exact-source-version-to-the-current-workflow
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-selection-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - source-version-visible
+      - current-read-authority
+    failureRecovery: preserve-project-and-filter-context
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.request-transcription
-    capabilityRefs: [media.job.submit, media.speech.transcription.file]
-    requirementRefs: [MEDIA-REQ-CAP-JOB, MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.submit
+      - media.speech.transcription.file
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+      - MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.transcription-submission
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-transcription/actionDefinitionSemantics/typedDefinition
+    consequence: submit-one-logical-transcription-request-for-the-exact-source-version
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.transcription-submission
+    finality: stable-submission-receipt-and-logical-job-identity-only;
+      no-job-state-or-recognition-finality
+    reversibilityDisposition: UNKNOWN
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - source-available
+      - explicit-language-intent
+      - current-rights-and-consent
+      - admitted-capability-and-policy
+    failureRecovery: show-classified-state-and-safe-next-action;
+      never-submit-duplicate-on-unknown
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.view-job-status
-    capabilityRefs: [media.job.view-status]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.job.view-status
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.view-job-status
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
+    consequence: read-current-job-and-attempt-evidence
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.view-job-status
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - stable-job-reference
+    failureRecovery: keep-last-known-state-labelled-stale
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.review-transcript
-    capabilityRefs: [media.artifact.inspect]
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    capabilityRefs:
+      - media.artifact.inspect
+    requirementRefs:
+      - MEDIA-REQ-CAP-ARTIFACT
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.transcript-version-read
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-transcript/actionDefinitionSemantics/typedDefinition
+    consequence: inspect-one-exact-source-linked-transcript-version-and-its-supplied-uncertainty
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.transcript-version-read
+    finality: read-only; this-action-records-no-separate-review-decision
+    reversibilityDisposition: UNKNOWN
+    confirmationDisposition: UNRESOLVED
+    guardRefs:
+      - exact-canonical-transcript-version-readable
+      - current-scoped-read-authority
+    failureRecovery: preserve-unverified-recognition-label-and-explicitly-unavailable-fields
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.reviewer
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.choose-intent
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.choose-intent/actionDefinitionSemantics/typedDefinition
+    consequence: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-selection-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - current-project-context-when-required
+      - intent-is-in-the-admitted-product-catalog
+    failureRecovery: preserve-the-project-and-current-selection;
+      explain-when-an-intent-is-unavailable
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.request-admitted-speech-operation
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.request-admitted-speech-operation
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-admitted-speech-operation/actionDefinitionSemantics/typedDefinition
+    consequence: Request the explicitly named operation for the exact target only
+      after fresh actor, capability, policy, and target checks.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.request-admitted-speech-operation
+    finality: external-effect-or-request; owner-acknowledgment-required;
+      unknown-is-not-failure
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.review-recognized-or-synthesized-content
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.review-recognized-or-synthesized-content
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-recognized-or-synthesized-content/actionDefinitionSemantics/typedDefinition
+    consequence: Read or navigate using the exact selected context; do not mutate a
+      source object or infer permission from its presence.
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.review-recognized-or-synthesized-content
+    finality: read-only-or-navigation; no-write-finality
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
+    failureRecovery: preserve-the-exact-target-and-current-draft;
+      explain-denial-or-incomplete-evidence;
+      never-claim-success-from-local-state
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.media-workbench
+      responsiveRule: Reflow media and transcript regions into one keyboard reading
+        order while retaining their time relationship.
 responsiveBehaviorBindingStatus: proposal-only-no-screen-specific-overrides
 fixtures:
-  refs:
-    []
-  status: missing-no-existing-fixtureRefs-declared
+  refs: []
+  status: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
+  negativeCases:
+    - No screen fixture may be inferred from a neighboring view or from journey
+      membership alone.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
+  unlinkedScreenFixtureRefs: []
 fixturesBindingStatus: missing-owner-reviewed-fixture-binding
 verification:
   status: not-run
@@ -118,76 +381,87 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
-  tokenDependencies: unresolved; no-canonical-reference-declared
-  domainObjectRefs: unresolved; no-canonical-reference-declared
-  operationRefs: unresolved; no-canonical-reference-declared
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: unresolved; local-UI-state-labels-not-promoted
-  entry: unresolved; no-canonical-reference-declared
-  exit: unresolved; no-canonical-reference-declared
-  actionConsequences: pending; owner-operation-and-effect-binding-required
-  responsiveBehavior: proposal-unverified; central-rule-reference-only
-  fixtures: missing; no-existing-fixtureRefs-declared
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest
+    definition-only previews without synthetic scenario fixtures; negative: do
+    not claim rendered or runtime fixture coverage."
   verification: not-run; no-evidence-refs
+  recipeIds: Exact P2 recipe media.gui.recipe.workbench; runtime NOT_ADMITTED
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
+  - media.creator
+  - media.editor
 intentRef: media.intent.understand
 purpose: Transcription/TTS/pronunciation/language/voice choices
 contextGoalNowNext:
-  context: The exact source version, language intent, rights/consent scope, transcript or synthesis job, and resulting
-    speech artifact.
-  goal: Understand, produce, or transform speech only within the admitted language and consent boundaries.
-  now: Show whether the task is recognition, synthesis, translation, or speech transformation; disclose source identity,
-    language support, consent state, and uncertainty.
-  next: Choose a source or admitted speech action, review a result, or stop when authority or support is unresolved.
+  context: The exact source version, language intent, rights/consent scope,
+    transcript or synthesis job, and resulting speech artifact.
+  goal: Understand, produce, or transform speech only within the admitted language
+    and consent boundaries.
+  now: Show whether the task is recognition, synthesis, translation, or speech
+    transformation; disclose source identity, language support, consent state,
+    and uncertainty.
+  next: Choose a source or admitted speech action, review a result, or stop when
+    authority or support is unresolved.
 anatomy:
-- speech-task-choice
-- source-version
-- language-and-locale-disposition
-- consent-and-permitted-use
-- job-state
-- recognized-or-synthesized-content
-- provenance-and-limitations
+  - speech-task-choice
+  - source-version
+  - language-and-locale-disposition
+  - consent-and-permitted-use
+  - job-state
+  - recognized-or-synthesized-content
+  - provenance-and-limitations
 componentRefs:
-- media.component.source-picker
-- media.component.source-player
-- media.component.transcript-review
-- media.component.job-status-card
-- media.component.rights-retention-review
+  - media.component.source-picker
+  - media.component.source-player
+  - media.component.transcript-review
+  - media.component.job-status-card
+  - media.component.rights-retention-review
 states:
-- source-required
-- language-unsupported
-- consent-required
-- ready
-- running
-- partial
-- outcome-unknown
-- review-required
+  - source-required
+  - language-unsupported
+  - consent-required
+  - ready
+  - running
+  - partial
+  - outcome-unknown
+  - review-required
 actions:
-- media.action.choose-source
-- media.action.request-transcription
-- media.action.view-job-status
-- media.action.review-transcript
-- media.action.choose-intent
-- media.action.request-admitted-speech-operation
-- media.action.review-recognized-or-synthesized-content
-actionBindingState: proposed-intent-action-refs; owner-capability-effect-finality-and-interaction-review-pending
+  - media.action.choose-source
+  - media.action.request-transcription
+  - media.action.view-job-status
+  - media.action.review-transcript
+  - media.action.choose-intent
+  - media.action.request-admitted-speech-operation
+  - media.action.review-recognized-or-synthesized-content
+actionBindingState: proposed-intent-action-refs;
+  owner-capability-effect-finality-and-interaction-review-pending
 actionIntents:
-- choose a source and language intent
-- request an admitted speech operation
-- view the resulting job status
-- review recognized or synthesized content
+  - choose a source and language intent
+  - request an admitted speech operation
+  - view the resulting job status
+  - review recognized or synthesized content
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -213,9 +487,27 @@ localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-03
   - J-04
   - J-16
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.workbench
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.workbench template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.work-with-speech

@@ -47,11 +47,14 @@ test('PDP overview blocker summaries match generated candidate projections', () 
   assert.equal(p2.acceptance, 'NOT_CLAIMED');
 
   const p3 = projections.pdp3;
-  assert.deepEqual(p3.fieldMappingBlockers.map(({ field }) => field), ['journeys', 'transitions', 'actions', 'effects', 'finality']);
+  assert.deepEqual(p3.fieldMappingBlockers.map(({ field }) => field), []);
+  assert.equal(p3.candidateMappingReview.journeyBindingAudit.typedStepSemanticsProjected, 130);
+  assert.equal(p3.candidateMappingReview.journeyBindingAudit.typedStepSemanticsUnresolved, 0);
   assert.deepEqual(Object.fromEntries(['componentContracts', 'views', 'journeys', 'transitions', 'actions', 'effects', 'finality', 'recovery', 'scenarios', 'fixtures'].map((key) => [key, p3.candidateModel[key].length])), {
     componentContracts: 31, views: 47, journeys: 30, transitions: 1, actions: 147, effects: 145, finality: 145, recovery: 5, scenarios: 31, fixtures: 31,
   });
-  assert.match(contents.pdp3, /five\s+semantic field blockers/);
+  assert.match(contents.pdp3, /`fieldMappingBlockers` is empty/u);
+  assert.match(contents.pdp3, /all 130 steps resolve typed semantics from\s+the exact step-oracle source/u);
   assert.match(contents.pdp3, /projects 31\s+component contracts, 47 views,\s+30 journey records with 130 of 130 source\s+steps/);
   assert.equal(p3.acceptance, 'NOT_CLAIMED');
 });
@@ -59,10 +62,10 @@ test('PDP overview blocker summaries match generated candidate projections', () 
 test('PDP overview docs keep phase prerequisites and independent/external gates explicit', () => {
   assert.match(contents.pdp0, /P0-010 independent review remain open/);
   assert.match(contents.pdp1, /independent P0-010 acceptance/);
-  assert.match(contents.pdp2, /accepted PDP-1/);
+  assert.match(contents.pdp2, /PDP-1 canonical domain handoff consumed/);
   assert.match(contents.pdp2, /Shared public package binding.*remain pending/s);
   assert.match(contents.pdp3, /depends on accepted PDP-2/);
-  assert.match(contents.pdp3, /independent experience review.*remain separate pending gates/s);
+  assert.match(contents.pdp3, /independent review, external channel admission,\s+runtime proof, and Lifecycle evidence remain separate gates/s);
 });
 
 test('PDP-3 overview preserves historical PXD-028 and current PXD-037 composition-link decisions', () => {

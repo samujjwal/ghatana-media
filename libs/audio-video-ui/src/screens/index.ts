@@ -8,7 +8,7 @@ export { JobRecoveryScreen } from "./JobRecoveryScreen";
 export type { JobRecoveryProjection, JobRecoveryScreenProps } from "./JobRecoveryScreen";
 export { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 export type { TranscriptCaptionProjection, TranscriptCaptionScreenProps, TranscriptCaptionView } from "./TranscriptCaptionScreen";
-export { MediaProductRenderer } from "./MediaProductRenderer";
+export { MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS, MediaProductRenderer } from "./MediaProductRenderer";
 export type { MediaProductRendererProps } from "./MediaProductRenderer";
 export { MediaContractScreen, MEDIA_SCREEN_COMPONENTS } from "./MediaContractScreen";
 export type { MediaContractScreenId, MediaContractComponentId, MediaContractComponentInstance, MediaContractScreenProps } from "./MediaContractScreen";

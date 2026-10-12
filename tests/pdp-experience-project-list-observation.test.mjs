@@ -47,7 +47,7 @@ test("J-01 project list observation resolves the exact owner query and page-scop
   const operation = operationSource.individualOperationContracts.records.find(({ id }) => id === definition.operationRef);
   assert.equal(resolveRef(definition.operationSourceRef), operation);
   assert.equal(resolveRef(definition.operationWireSchemaRef), operation.ownerWireSchema);
-  assert.equal(step.observationDefinitionRef, ".product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml#records/media.project-list-observation.v1");
+  assert.equal(step.observationDefinitionRef, ".product-experience/pdp-3-product-experience/project-list-observation-contracts.yaml#records/@id=media.project-list-observation.v1");
   assert.equal(step.operationContractBinding.operationRef, definition.operationRef);
   const scenarioById = new Map(scenarioSource.fixtures.map((fixture) => [fixture.id, fixture]));
   assert.deepEqual(definition.scenarioRefs, [

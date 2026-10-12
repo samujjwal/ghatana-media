@@ -16,6 +16,7 @@ const downstreamIds = ["MPSEM-0296-C005", "MPSEM-0315-C003", "MPSEM-0331-C001", 
 const ids = candidatePhase === "PDP-0" ? p0Ids : [...p0Ids.slice(0, 2), ...downstreamIds.slice(0, 4), ...p0Ids.slice(2), downstreamIds[4]];
 const review = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml"), "utf8"));
 const observations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"), "utf8"));
+const pxd090Refinement = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-coordinator-112-target-refinement.json"), "utf8"));
 const observationById = new Map(observations.records.map((record) => [record.claimId, record]));
 const yamlCache = new Map();
 function resolveRef(ref) {
@@ -63,6 +64,12 @@ test("PXD-120 records exact current owner observations for the active phase coho
   assert.match(reuse, /Before selecting a new streaming stack, inspect the exact existing Ghatana-owned streaming modules and their public contracts/u);
   assert.match(reuse, /Reuse an existing module when it satisfies the requirements of the exact admitted Media capability\/profile/u);
   assert.match(reuse, /record the concrete profile requirement it cannot meet and the evidence for that reuse gap/u);
+  assert.equal(pxd090Refinement.claimId, "MPSEM-0181-C002");
+  assert.equal(pxd090Refinement.historicalApproval.targetValueSha256, observationById.get("MPSEM-0181-C002").historicalTargetTextSha256);
+  assert.equal(pxd090Refinement.currentOwnerTarget.targetValueSha256, observationById.get("MPSEM-0181-C002").currentTargetValueSha256);
+  assert.deepEqual(pxd090Refinement.currentOwnerTarget.additiveFields.map(({ path }) => path), ["reuseBeforeSelection", "additionalImplementationRule"]);
+  assert.equal(pxd090Refinement.acceptanceEffect, "none; this source observation does not change PXD-090 approval scope, migration acceptance, qualification, or runtime admission");
+  assert.equal(pxd090Refinement.runtimeAdmission, "NOT_ADMITTED");
   assert.match(observations.records.filter((record) => (candidatePhase === "PDP-0" ? p0Ids : [...p0Ids, ...downstreamIds]).includes(record.claimId)).map((record) => record.claimParityBasis).join(" "), /No task\/phase acceptance, implementation, qualification, or runtime admission is asserted/u);
 });
 

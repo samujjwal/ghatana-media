@@ -50,14 +50,21 @@ test('J03-4 transcript read hands only exact identity into guarded host-local dr
   assert.deepEqual(selected.verification.actualEvidence, []);
 });
 
-test('editor screen accepts only the same guarded prepared value and preserves pending screen admission', () => {
+test('editor screen binds exact source and parent context while preserving pending screen admission', () => {
   assert.equal(screen.entryBindingStatus, 'definition-source-bound; runtime-admission-pending');
   assert.equal(screen.fieldBindingStatus.entry, 'candidate-pending-acceptance');
-  assert.ok(screen.entry.some((line) => /exact-media\.operation\.transcript-version-read-result-from-J03-4/u.test(line)));
-  assert.ok(screen.entry.some((line) => /bind typed parent identity to the exact transcriptVersionId/u.test(line)));
-  assert.ok(screen.entry.some((line) => /DRAFT_INITIALIZATION_BLOCKED/u.test(line)));
-  assert.ok(screen.entry.some((line) => /same current read\/edit policy and trusted session checks/u.test(line)));
-  assert.ok(screen.entry.some((line) => /never infer IDs, segments, language, speaker, clock, or timing/u.test(line)));
+  const entry = screen.entry.join(' ');
+  assert.match(entry, /draft derived from one exact source version/u);
+  for (const guard of [
+    'exact-source-and-typed-parent-readable',
+    'current-scoped-source-read-and-derived-edit-authority',
+    'expected-session-draft-revision',
+    'exact-source-version-readable',
+  ]) {
+    assert.match(entry, new RegExp(guard, 'u'));
+  }
+  assert.ok(screen.actionConsequences.every(({ runtimeAdmission, bindingStatus }) =>
+    runtimeAdmission === 'NOT_ADMITTED' && bindingStatus.includes('screen-admission-pending')));
 });
 
 test('draft result preserves PDP-1 segment timing union and MIXED aggregate without promotion', () => {

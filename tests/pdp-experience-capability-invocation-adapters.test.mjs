@@ -21,7 +21,19 @@ const p0 = parse(p0Text);
 const capabilities = parse(capabilityText).capabilities;
 const operations = parse(operationText);
 const capabilitiesById = new Map(capabilities.map((record) => [record.id, record]));
-const operationsById = new Map(operations.capabilityOperationContracts.records.map((record) => [record.id, record]));
+const operationRecords = [
+  ...(operations.operations ?? []),
+  ...(operations.individualOperationContracts?.records ?? []),
+  ...(operations.ownerDefinedOperationContracts?.records ?? []),
+  ...(operations.capabilityOperationContracts?.records ?? []),
+];
+const operationsById = new Map(operationRecords.flatMap((record) => [
+  [record.id, record],
+  ...(record.operationRefs ?? []).map((ref) => [ref, record]),
+]));
+const capabilityOperationsByRef = new Map(operations.capabilityOperationContracts.records
+  .filter((record) => record.capabilityRef)
+  .map((record) => [record.capabilityRef, record]));
 const jobSubmit = operations.ownerDefinedOperationContracts.records.find((record) => record.id === "media.operation.job.submit.v1");
 
 function schemaExample(schema, root = schema, depth = 0) {
@@ -35,17 +47,17 @@ function schemaExample(schema, root = schema, depth = 0) {
   if (schema.enum?.length) return schema.enum[0];
   if (schema.oneOf) return schemaExample(schema.oneOf[0], root, depth + 1);
   if (schema.anyOf) return schemaExample(schema.anyOf[0], root, depth + 1);
-  if (schema.allOf) {
-    const parts = schema.allOf.map((part) => schemaExample(part, root, depth + 1));
-    const objects = parts.filter((part) => part && typeof part === "object" && !Array.isArray(part));
-    if (objects.length) return Object.assign({}, ...objects);
-    return parts[0];
-  }
   if (schema.type === "object" || schema.properties) {
     const value = {};
     for (const key of schema.required ?? []) value[key] = schemaExample(schema.properties?.[key] ?? {}, root, depth + 1);
     for (const part of schema.allOf ?? []) Object.assign(value, schemaExample(part, root, depth + 1));
     return value;
+  }
+  if (schema.allOf) {
+    const parts = schema.allOf.map((part) => schemaExample(part, root, depth + 1));
+    const objects = parts.filter((part) => part && typeof part === "object" && !Array.isArray(part));
+    if (objects.length) return Object.assign({}, ...objects);
+    return parts[0];
   }
   if (schema.type === "array") return Array.from({ length: schema.minItems ?? 0 }, () => schemaExample(schema.items ?? {}, root, depth + 1));
   if (schema.type === "integer" || schema.type === "number") return schema.minimum ?? 0;
@@ -125,15 +137,15 @@ test("adapter rejects a valid but wrong-purpose target and a query substituted a
   const sourceJourney = p0.journeys.find((item) => item.id === adapter.journeyRef);
 
   const wrongPurpose = structuredClone(step);
-  const generated = capabilitiesById.get("media.generate.image.text-to-image");
+  const generated = capabilityOperationsByRef.get("media.generate.image.text-to-image");
   wrongPurpose.capabilityOptions[0] = {
-    capabilityRef: generated.id,
-    operationRefs: generated.ownerDefinition.operationRefs,
-    operationKind: generated.ownerDefinition.operationKind,
+    capabilityRef: generated.capabilityRef,
+    operationRefs: generated.operationRefs,
+    operationKind: generated.operationKind,
     requirementRefs: ["MEDIA-REQ-CAP-GENERATE-IMAGE"],
   };
   const changedAdapter = structuredClone(adapter);
-  changedAdapter.allowedCapabilityRefs[0] = generated.id;
+  changedAdapter.allowedCapabilityRefs[0] = generated.capabilityRef;
   assert.equal(validatePdp3JobSubmitAdapter(changedAdapter, {
     step: wrongPurpose,
     p0Journey: sourceJourney,
@@ -143,13 +155,14 @@ test("adapter rejects a valid but wrong-purpose target and a query substituted a
   }).valid, false);
 
   const query = capabilities.find((item) => item.id === "media.quality.inspect");
-  const queryOperation = operationsById.get(query.ownerDefinition.operationRefs[0]);
+  const queryBinding = capabilityOperationsByRef.get(query.id);
+  const queryOperation = operationsById.get(queryBinding.operationRefs[0]);
   assert.equal(queryOperation.operationKind, "QUERY");
   const querySubstitution = structuredClone(step);
   querySubstitution.capabilityOptions[0] = {
     capabilityRef: query.id,
-    operationRefs: query.ownerDefinition.operationRefs,
-    operationKind: query.ownerDefinition.operationKind,
+    operationRefs: queryBinding.operationRefs,
+    operationKind: queryBinding.operationKind,
     requirementRefs: ["MEDIA-REQ-CAP-QUALITY"],
   };
   const queryAdapter = structuredClone(adapter);
@@ -180,10 +193,11 @@ test("J06 grounded multimodal adapter submits only its selected exact COMMAND le
 
   const wrongPurposeStep = structuredClone(step);
   const query = capabilitiesById.get("media.quality.inspect");
+  const queryBinding = capabilityOperationsByRef.get(query.id);
   wrongPurposeStep.capabilityOptions = [{
     capabilityRef: query.id,
-    operationRefs: query.ownerDefinition.operationRefs,
-    operationKind: query.ownerDefinition.operationKind,
+    operationRefs: queryBinding.operationRefs,
+    operationKind: queryBinding.operationKind,
     requirementRefs: ["MEDIA-REQ-CAP-QUALITY"],
   }];
   const wrongPurposeAdapter = structuredClone(adapter);

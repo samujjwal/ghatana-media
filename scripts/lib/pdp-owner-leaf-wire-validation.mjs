@@ -111,6 +111,16 @@ const pathValue = (root, path) => {
 function satisfies(rule, root) {
   const left = pathValue(root, rule.leftRef);
   const right = pathValue(root, rule.rightRef);
+  if (rule.operator === "PRESENT_THEN_CONST") {
+    if (typeof rule.expectedConst !== "string" || !rule.leftRef?.startsWith("$.request.")
+      || !rule.rightRef?.startsWith("$.result.")) return false;
+    if (left === undefined || left === null) return true;
+    return right === rule.expectedConst;
+  }
+  if (rule.operator === "ARRAY_LENGTH_LE_REQUEST_VALUE") {
+    if (typeof left !== "number" || !Number.isInteger(left) || !Array.isArray(right)) return false;
+    return right.length <= left;
+  }
   if (left === undefined || right === undefined || left === null || right === null) return false;
   if (rule.expectedConst !== undefined && (left !== rule.expectedConst || right !== rule.expectedConst)) return false;
   if (rule.operator === "EXACT_EQUAL") return left === right;
@@ -249,6 +259,16 @@ export function validateOwnerLeafWireResult(contract, request, result) {
   if (result.outcome === "SUCCEEDED") {
     for (const rule of contract.crossFieldRules ?? []) {
       if (rule.whenOutcome !== "SUCCEEDED" || rule.scope !== "SUCCESS_OUTPUT_ONLY") return { valid: false, reason: "CROSS_FIELD_RULE_SCOPE_INVALID", ruleId: rule.id };
+      if (rule.operator === "PRESENT_THEN_CONST"
+        && (typeof rule.expectedConst !== "string" || !rule.leftRef?.startsWith("$.request.")
+          || !rule.rightRef?.startsWith("$.result."))) {
+        return { valid: false, reason: "CROSS_FIELD_RULE_SHAPE_INVALID", ruleId: rule.id };
+      }
+      if (rule.operator === "ARRAY_LENGTH_LE_REQUEST_VALUE"
+        && (!/^\$\.request\.parameters\.[A-Za-z0-9_]+$/u.test(rule.leftRef ?? "")
+          || rule.rightRef !== "$.result.outputs[0].payload.records")) {
+        return { valid: false, reason: "CROSS_FIELD_RULE_SHAPE_INVALID", ruleId: rule.id };
+      }
       if (!satisfies(rule, context)) return { valid: false, reason: "CROSS_FIELD_BINDING_REJECTED", ruleId: rule.id };
     }
   }

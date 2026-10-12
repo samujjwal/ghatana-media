@@ -142,6 +142,57 @@ unresolved:
   - consumer-inventory-and-compatibility-proof
   - verified-cross-product-artifact-reference-and-version-semantics
   - tool-protocol-and-SDK-release-support-status
+  - spatial-frame-transform-registry-and-3d-algorithm
+  - provider-signal-calibration-and-cross-provider-equivalence
+
+unresolvedItemAdjudication:
+  authority: user-delegated-Media-interoperability-definition; no external consumer approval asserted
+  items:
+    - id: canonical-versioned-domain-wire-schema
+      classification: IMPLEMENTATION_DEFERRED
+      disposition: The logical canonical identities, version references, typed descriptors, and conversion definitions are source-defined in PDP-1. A shared wire schema is an implementation artifact and is not required to infer or admit current legacy shapes.
+      remainingEvidence: Versioned schema implementation, adapters, contract tests, and producer/consumer deployment mapping.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts, .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions, .product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#currentDefinitionAdjudication]
+    - id: artifact-version-key-and-byte-identity-contract
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; IMPLEMENTATION_DEFERRED
+      disposition: Canonical identity is tenantId + artifactId + opaque versionId; canonical bytes are immutable after registration; digest is verified integrity evidence, not identity.
+      remainingEvidence: Runtime/storage version record, byte immutability enforcement, and migration compatibility.
+      sourceRefs: [.product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version, .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion]
+    - id: complete-transcript-caption-and-derived-artifact-ancestry
+      classification: MEDIA_LOGICAL_MEANING_RESOLVED; IMPLEMENTATION_AND_EXTERNAL_BINDINGS_DEFERRED
+      disposition: Transcript/caption and derived artifacts require exact typed version ancestry; missing or ambiguous ancestry is not replaced by digest, legacy UUID, artifact-only, or latest references.
+      remainingEvidence: Runtime producer persistence, complete source/output publication, and consumer-specific reference agreements.
+      sourceRefs: [.product-experience/pdp-1-domain-data/versioning.yaml#definitionAdjudication/ruleDispositions, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.derived-artifact]
+    - id: exact-runtime-contract-path-and-operation-map-for-each-protobuf-family
+      classification: IMPLEMENTATION_DEFERRED
+      disposition: Service protobuf messages are family-specific wire projections. No canonical cross-family equivalence is inferred from matching names or timestamp fields.
+      remainingEvidence: Exact operation-to-runtime handler/consumer path inventory and field-level adapter fixtures.
+      sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#projections/@id=media.interop.protobuf]
+    - id: consumer-inventory-and-compatibility-proof
+      classification: EXTERNAL_OWNER_EVIDENCE_REQUIRED
+      disposition: Repository package manifests and source exports define Media's local preservation boundary only; they do not prove publication, downstream use, compatibility, or acceptance.
+      remainingEvidence: Named consumer owners, immutable published package/schema identities, compatibility fixtures, and approved migration windows.
+      sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary, .product-experience/pdp-1-domain-data/interoperability.yaml#crossProductReferences/externalConsumerAuthority]
+    - id: verified-cross-product-artifact-reference-and-version-semantics
+      classification: EXTERNAL_OWNER_EVIDENCE_REQUIRED
+      disposition: Media requires exact tenant-scoped artifact-version references and explicit authority boundaries; it does not select or claim TutorPutor, Tools, Shared, or downstream client adoption.
+      remainingEvidence: Each named consumer's owner contract, version semantics, scope/authorization binding, and round-trip compatibility fixture.
+      sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#crossProductReferences, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version]
+    - id: tool-protocol-and-SDK-release-support-status
+      classification: EXTERNAL_OWNER_AND_RELEASE_EVIDENCE_REQUIRED
+      disposition: No tool protocol, SDK release, publication state, or external support guarantee is inferred by this Media domain definition.
+      remainingEvidence: Tooling/SDK owners' public support policy, release artifact identity, and consumer test evidence.
+      sourceRefs: [.product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary]
+    - id: spatial-frame-transform-registry-and-3d-algorithm
+      classification: MEDIA_DECLARATION_SEMANTICS_DEFINED; IMPLEMENTATION_AND_SCIENTIFIC_QUALIFICATION_DEFERRED
+      disposition: The typed spatial transform declaration requires explicit registered source/target frame versions, handedness, signed axes, units, operation order, mapping ref and loss; the validator does not compute a transform or establish engine/world calibration.
+      remainingEvidence: Immutable frame/transform registries, source-engine convention survey, explicit 2D/3D mapping algorithms and qualified dimensional round-trip fixtures.
+      sourceRefs: [.product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml#unverifiedConversions]
+    - id: provider-signal-calibration-and-cross-provider-equivalence
+      classification: MEDIA_SCOPED_SIGNAL_SEMANTICS_DEFINED; PROVIDER_AND_SCIENTIFIC_EVIDENCE_REQUIRED
+      disposition: Confidence and similarity values are comparable only within an exact provider/metric/metric-version/method/method-version/unit scope; this does not imply calibration, probability, correctness or cross-provider equivalence.
+      remainingEvidence: Versioned adapters binding each exact source field to the complete scope tuple plus provider-specific calibration and metric validation evidence.
+      sourceRefs: [.product-experience/pdp-1-domain-data/value-objects.yaml#providerSignalContract, .product-experience/pdp-1-domain-data/value-objects.yaml#observedTemporalSpatialFields]
 
 canonicalDefinitionConversionBinding:
   sourceRef: .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions
@@ -150,8 +201,9 @@ canonicalDefinitionConversionBinding:
   scope: Explicitly typed definition profiles only; this binding does not reinterpret existing unspecified WordTimestamp units, Number fps or service-specific scalar coordinates.
   interchangeRules:
     - Decimal/wire transport must preserve exact integer/rational components; JSON Number cannot represent arbitrary signed-64-bit ticks losslessly.
-    - Unspecified source clock, endpoint convention, unit, origin or image version is NOT_ADMITTED to these converters. A name such as start/end/fps is insufficient.
+    - Unspecified source clock, endpoint convention, unit, clock origin or image version is NOT_ADMITTED to these converters. A name such as start/end/fps is insufficient.
     - Rational cadence 30000/1001 frames per second is represented by timeBase 1001/30000 seconds per frame, never an approximate 29.97 scalar alias.
+    - Constant-rate frame boundaries use an explicit rational cadence and origin; VFR frame positions require the retained per-frame source presentation-time map and are never reconstructed from scalar fps.
     - Loss and source/target time bases accompany every inexact converted timestamp; a downstream renderer must not hide uncertainty or claim scientific alignment.
     - Audio boundary arithmetic does not subtract encoder priming/padding without separately identified qualified stream metadata and explicit offset mapping.
     - Image coordinate conversion preserves exact image version; crop, rotation, display aspect and world-frame conversions require an additional declared transform and loss report.
@@ -163,3 +215,43 @@ canonicalDefinitionConversionBinding:
     - .product-experience/decision-log.md#PXD-079
     - .product-experience/decision-log.md#PXD-080
   canonicalDescriptorRef: .product-experience/pdp-1-domain-data/value-objects.yaml#ownerDescriptorDefinitions
+  spatialTransformContractRef: .product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract
+  providerSignalContractRef: .product-experience/pdp-1-domain-data/value-objects.yaml#providerSignalContract
+  spatialAndSignalBoundary:
+    transformation: declaration validation only; unknown frame refs, stale versions, mismatched axis/unit descriptors and unregistered order/mapping are rejected; no transform arithmetic or default convention is defined
+    providerSignals: confidence/similarity values are same-scope only when provider, metric, metric version, method, method version and unit all match; no calibration or cross-provider comparison is accepted
+    qualification: NOT_EVALUATED
+
+observedSpatialAndProviderSignalFields:
+  status: exact-source-fields-preserved; no-versioned-adapter-or-calibration-binding-accepted
+  sourceRecords:
+    - id: media.observed-provider-signal.typescript-contracts
+      source: libs/audio-video-types/src/contracts.ts
+      fields: [ConfidenceSchema, TranscriptionResult.confidence, "TranscriptionResult.words[].confidence", "TranscriptionResult.alternatives[].confidence", VoiceTrainingRequest.qualityThreshold]
+      observedMeaning: ConfidenceSchema-bounds-scalar-to-0-through-1; field labels and numeric bounds do not define metric, method, provider calibration, version or units
+      canonicalBinding: NOT_ADMITTED
+    - id: media.observed-provider-signal.legacy-typescript
+      source: libs/audio-video-types/src/index.ts
+      fields: [WordTimestamp.confidence, AIVoiceResult.confidence, DetectionResult.confidence, MultimodalResult.confidence]
+      observedMeaning: numeric legacy fields have source-specific schemas; no common provider, metric, method, version or unit binding
+      canonicalBinding: NOT_ADMITTED
+    - id: media.observed-provider-signal.protobuf-stt
+      source: modules/speech/stt-service/src/main/proto/stt_service.proto
+      fields: [Transcription.confidence, WordTiming.confidence, TranscriptionOptions.confidence_threshold]
+      observedMeaning: source-specific-double-fields; no shared metric/method/version/unit tuple or calibration contract
+      canonicalBinding: NOT_ADMITTED
+    - id: media.observed-provider-signal.protobuf-vision
+      source: modules/vision/vision-service/src/main/proto/vision_service.proto
+      fields: [Detection.confidence, ClassLabel.confidence, FaceDetection.confidence, DetectRequest.confidence_threshold, ClassifyRequest.confidence_threshold]
+      observedMeaning: source-specific detection/classification/analysis values; threshold and result confidence have distinct roles and no shared calibration/version contract
+      canonicalBinding: NOT_ADMITTED
+    - id: media.observed-provider-signal.protobuf-multimodal
+      source: modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto
+      fields: [AudioAnalysis.confidence, VisualAnalysis.confidence, Detection.confidence, DescriptionResponse.confidence, CrossModalResponse.alignment_score, CrossModalEvent.confidence, InsightsResponse.confidence_scores]
+      observedMeaning: source-specific signals; alignment_score comment bounds 0..1 but does not make it equivalent to confidence or another metric
+      canonicalBinding: NOT_ADMITTED
+  nonEquivalences:
+    - identically named confidence fields do not establish shared metric, method, provider, version, units, calibration or correctness
+    - confidence_threshold is an input policy threshold and is not an output confidence measurement
+    - alignment_score, confidence, similarity and confidence_scores remain distinct metric identities unless a versioned adapter binds the complete signal scope
+    - spatial field names or axis labels do not establish a shared source/target frame, transform order, unit, mapping or calibration

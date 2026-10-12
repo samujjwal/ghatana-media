@@ -28,7 +28,7 @@ describe("Shared control reuse in Media screens", () => {
         description: "Move through the projected workflow.",
         steps: [
           { id: "review", title: "Review", description: "Inspect the result.", state: "current" as const },
-          { id: "deliver", title: "Deliver", description: "Not yet selectable.", state: "available" as const, selectable: false },
+          { id: "deliver", title: "Deliver", description: "Delivery follows review.", state: "available" as const, selectable: false, blockedReason: "Complete review first." },
         ],
         currentStepId: "review",
       },
@@ -36,8 +36,13 @@ describe("Shared control reuse in Media screens", () => {
       children: React.createElement("p", null, "Workflow details"),
     };
     const html = renderToStaticMarkup(React.createElement(MediaTaskFlow, props));
-    expect(html).toContain('<button type="button" aria-current="step"');
-    expect(html).toContain('<button type="button" disabled=""');
+    expect(html).toMatch(/<button[^>]*aria-current="step"/u);
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*aria-labelledby="media-step-deliver-number media-step-deliver-state media-step-deliver-title"[^>]*aria-describedby="media-step-deliver-description media-step-deliver-reason"/u);
+    expect(html).toContain('<span id="media-step-deliver-number">2</span>');
+    expect(html).toContain('<span id="media-step-deliver-state" class="media-step-state">available</span>');
+    expect(html).toContain('<span id="media-step-deliver-title">Deliver</span>');
+    expect(html).toContain('<span id="media-step-deliver-description">Delivery follows review.</span>');
+    expect(html).toContain('<p id="media-step-deliver-reason">Complete review first.</p>');
     expect(html).not.toContain('data-ds="button"');
 
     const flowTree = MediaTaskFlow(props);

@@ -1,6 +1,6 @@
 schemaVersion: media.product-simulation-semantics.v1
 productId: media
-status: deterministic-simulation-proposal; no-runtime-evidence
+status: all-31-synthetic-fixture-definitions-seeded; no-runtime-evidence; owner-oracle-acceptance-open
 implementationBinding: libs/media-experience-simulation/src/index.ts
 rules:
   - Use deterministic IDs, fixture clock, and explicit simulated events; no random timing or live provider calls.
@@ -10,7 +10,24 @@ rules:
   - An unknown external outcome stays unknown until a fixture outcome-check event supplies evidence.
   - Simulated success is labelled as simulation and is never runtime qualification evidence.
 channelProjection:
-  web: same-product-state-and-action-results
-  cli: stable-text-or-json-projection-of-same-state
-  grpc-api: proposed-schema-example-of-same-state-and-reason-codes; wire-binding-pending
-  sdk: same-logical-operations-as-grpc-api; published-client-and-consumer-parity-pending
+  web: shared-media-renderer-projects-the-same-synthetic-state; implemented-families-and-definition-only-contract-previews-are-explicitly-distinguished
+  cli: stable-text-or-json-projection-of-the-same-fixture-state; parser-errors-are-INVALID_ARGUMENT; no-production-command
+  grpc-api: proposed-operation-and-message-source-refs-only; no-request-is-dispatched; exact-action-wire-parity-remains-unresolved
+  sdk: references-existing-client-identities-and-bounded-method-contracts-only; published-client-and-consumer-parity-not-admitted
+  http-api: exact-observed-route-identities-only-where-source-recorded; no-new-endpoint; logical-operation-crosswalk-remains-per-mapping
+  agent-tool: handler-observations-only; no-configured-delegate-or-execution-admission-implied
+  events: observed-notification-populations-only; no-canonical-delivery-finality-or-replay-guarantee
+fixtureCoverage:
+  sourceRegistry: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#scenarioCoverage
+  typedBindings: .product-experience/pdp-3-product-experience/experience-source-bindings.yaml#scenarioFixtureBindings/records
+  totalScenarioCount: 31
+  seededDefinitionCount: 31
+  conditionalPreDispatchCount: 1
+  unimplementedFixturePayloadCount: 0
+  ownerAcceptedOutcomeOracleCount: 0
+  definitionOnly: true
+denialUnknownRetry:
+  denial: Current fixture authority, consent, identity, or preconditions are checked before every consequential local effect; DENIED and UNKNOWN block. Denials preserve source state and return stable reason codes.
+  unknown: A timeout, lost acknowledgement, unavailable observation, or absent evidence does not prove no effect. Preserve the same logical job/upload/request identity and keep finality UNKNOWN until explicit synthetic evidence changes it.
+  retry: There is no retry reducer or dispatch action in this simulator. The job-retry-eligible seed exercises conditional pre-dispatch eligibility only; a request is not sent, and a new attempt identity/fence is not allocated. Unknown-outcome retry is denied.
+  runtimeBoundary: Synthetic event replay does not prove owner service, durable state, remote authority, provider outcome, or production retry safety.

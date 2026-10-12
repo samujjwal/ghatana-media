@@ -6,10 +6,19 @@ import { TranscriptCaptionScreen, type TranscriptCaptionScreenProps } from "./Tr
 import { MediaContractScreen, type MediaContractScreenProps } from "./MediaContractScreen";
 
 /**
- * The single Media-owned renderer entry point for currently implemented web
- * presentation families. Host adapters project domain data and typed ports;
- * this package selects the admitted Media presentation implementation.
+ * The single Media-owned renderer entry point for implemented presentation
+ * families and definition-only contract previews. Host adapters project data
+ * and typed ports; selecting an implemented renderer does not admit a product
+ * route, runtime, provider, or deployment.
  */
+export const MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS = {
+  "first-use-project": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
+  "artifact-intake": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
+  "job-recovery": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
+  "transcript-caption": { renderer: "IMPLEMENTED", productRoute: "NOT_ADMITTED" },
+  "contract-screen": { renderer: "DEFINITION_ONLY_PREVIEW", productRoute: "NOT_ADMITTED" },
+} as const;
+
 export type MediaProductRendererProps =
   | ({ readonly kind: "first-use-project" } & FirstUseProjectScreenProps)
   | ({ readonly kind: "artifact-intake" } & ArtifactIntakeScreenProps)

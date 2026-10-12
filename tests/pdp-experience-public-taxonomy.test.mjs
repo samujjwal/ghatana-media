@@ -100,6 +100,14 @@ test('generated experience candidate projects 145 bounded mappings and preserves
   assert.deepEqual(generatedProjection.candidateMappingReview.definitionSemantics.unmappedPublicActions.sort(), [
     'media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff',
   ]);
+  assert.deepEqual(generatedProjection.candidateMappingReview.definitionSemantics.explicitUnadmittedExternalOwnerActions.sort(), [
+    'media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff',
+  ]);
+  assert.deepEqual(generatedProjection.candidateMappingReview.definitionSemantics.unmappedApplicableActions, []);
+  assert.equal(generatedProjection.fieldMappingBlockers.some(({ field }) => field === 'actions'), false,
+    'exact external-owner roles remain explicit without becoming Media action mapping blockers');
+  assert.equal(generatedProjection.fieldMappingBlockers.some(({ field }) => field === 'effects'), false);
+  assert.equal(generatedProjection.fieldMappingBlockers.some(({ field }) => field === 'finality'), false);
   assert.equal(generatedProjection.acceptance, 'NOT_CLAIMED');
 });
 
@@ -198,7 +206,7 @@ test('J-29 reconnect action binds exact canonical input, trusted identity, autho
   assert.ok(!Object.hasOwn(request.properties, 'tenantId'));
   assert.ok(!Object.hasOwn(request.properties, 'principalId'));
   assert.ok(!Object.hasOwn(request.properties, 'requestFingerprint'));
-  assert.equal(request.trustedContextRef, 'media.capability-contract-envelope.request.v1#trustedContext');
+  assert.equal(contract.trustedContextRef, 'media.capability-contract-envelope.request.v1#trustedContext');
   assert.deepEqual(contract.requestIdentitySemantics.trustedContext.fields, ['tenantId', 'principalId', 'delegationRefs']);
   assert.deepEqual(contract.requestIdentitySemantics.serverComputed.fields, ['requestFingerprint']);
   assert.ok(contract.resultSchema.properties.reconnectReceipt.required.includes('requestFingerprint'));

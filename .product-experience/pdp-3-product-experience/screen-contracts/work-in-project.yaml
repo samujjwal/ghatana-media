@@ -1,13 +1,14 @@
 schemaVersion: media.screen-contract.v2
 productId: media
 screenId: media.view.work-in-project
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-schema.yaml
 surfaceId: media.surface.web
 surfaceBindingStatus: candidate-from-web-channel-and-surface-inventory; owner-binding-pending
 templateId: media.gui.template.project-overview
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.project-overview]
+layoutIds: [ media.gui.layout.project-overview ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
 componentIds:
   - media.component.project-context-summary
@@ -20,36 +21,86 @@ patternIds:
 patternBindingStatus: proposal-copy-of-existing-patternRefs; PDP-2-acceptance-pending
 tokenDependencies: []
 tokenDependenciesBindingStatus: unresolved-no-exact-canonical-reference-declared
-domainObjectRefs: [media.domain.project, media.domain.project-revision]
+domainObjectRefs:
+  - media.domain.project
+  - media.domain.project-revision
 domainObjectRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-operationRefs: [media.operation-slice.inspect-project]
+operationRefs:
+  - media.operation-slice.inspect-project
 requirementRefs: []
 requirementBindingStatus: no-direct-action-capability-requirement-crosswalk
 operationRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
+stateRefs:
+  [
+    media-project/ACTIVE,
+    media-project/ARCHIVED,
+    media-project-version/COMMITTED
+  ]
 stateRefsBindingStatus: unresolved-no-exact-canonical-reference-declared
-entry: []
-entryBindingStatus: unresolved-no-exact-canonical-reference-declared
-exit: []
-exitBindingStatus: unresolved-no-exact-canonical-reference-declared
+entry:
+  - "Before media.action.choose-intent, require exact guards
+    [current-project-context-when-required,
+    intent-is-in-the-admitted-product-catalog]; absent, stale, or unknown
+    evidence leaves the action unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.choose-intent/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+entryBindingStatus: Exact action-registry guard refs; unknown evidence blocks
+  action; runtime NOT_ADMITTED
+exit:
+  - "media.action.choose-intent:
+    select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work;
+    finality=local-selection-only;
+    recovery=preserve-the-project-and-current-selection;
+    explain-when-an-intent-is-unavailable. Source:
+    .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
+    id=media.action.choose-intent/actionDefinitionSemantics/typedDefinition;
+    runtime NOT_ADMITTED."
+exitBindingStatus: Exact action-registry effect, finality, and recovery; runtime NOT_ADMITTED
 actionConsequences:
   - actionId: media.action.choose-intent
     capabilityRefs: []
     requirementRefs: []
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: null
-    effectRef: null
-    consequence: unresolved
-    bindingStatus: pending-owner-binding
+    effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.choose-intent/actionDefinitionSemantics/typedDefinition
+    consequence: select-a-local-intent-draft-without-selecting-a-provider-or-submitting-work
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs: []
+    finality: local-selection-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - current-project-context-when-required
+      - intent-is-in-the-admitted-product-catalog
+    failureRecovery: preserve-the-project-and-current-selection;
+      explain-when-an-intent-is-unavailable
+    actorRefs:
+      - media.creator
+      - media.editor
+    runtimeAdmission: NOT_ADMITTED
 actionConsequencesBindingStatus: pending-owner-effect-and-operation-binding
 responsiveBehavior:
   sourceRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive
-  status: proposal-unverified
+  status: P2 layout responsive rule bound; screen-specific overrides empty;
+    rendering verification NOT_RUN
+  layoutRules:
+    - layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.project-overview
+      responsiveRule: Preserve project identity and pending-work finality before
+        available next actions at every width.
 responsiveBehaviorBindingStatus: proposal-only-no-screen-specific-overrides
 fixtures:
   refs:
-    []
-  status: missing-no-existing-fixtureRefs-declared
+    - media.scenario.project-created-empty
+  status: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
+  sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.project-created-empty.v1
+    - .product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml#/steps/3
+  unlinkedScreenFixtureRefs: []
+  negativeCases:
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
 fixturesBindingStatus: missing-owner-reviewed-fixture-binding
 verification:
   status: not-run
@@ -68,49 +119,57 @@ fieldBindingStatus:
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: proposal-copy; Shared-binding-pending
   patternIds: proposal-copy; PDP-2-acceptance-pending
-  tokenDependencies: unresolved; no-canonical-reference-declared
-  domainObjectRefs: unresolved; no-canonical-reference-declared
-  operationRefs: unresolved; no-canonical-reference-declared
+  tokenDependencies: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component
+    contracts own internal styling and this screen adds no token override;
+    negative: do not invent aliases or redefine Shared values"
+  domainObjectRefs: Exact P1 owner-action/operation and linked journey-step object
+    refs; runtime NOT_ADMITTED
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: no-direct-action-capability-requirement-crosswalk
   stateRefs: unresolved; local-UI-state-labels-not-promoted
-  entry: unresolved; no-canonical-reference-declared
-  exit: unresolved; no-canonical-reference-declared
-  actionConsequences: pending; owner-operation-and-effect-binding-required
-  responsiveBehavior: proposal-unverified; central-rule-reference-only
-  fixtures: missing; no-existing-fixtureRefs-declared
+  entry: Exact action-registry guards; runtime NOT_ADMITTED
+  exit: Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.
   verification: not-run; no-evidence-refs
+  recipeIds: Exact P2 recipe media.gui.recipe.project-overview; runtime NOT_ADMITTED
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.reviewer
+  - media.creator
+  - media.editor
+  - media.reviewer
 intentRef: media.intent.restore-project
-purpose: show the current project's exact identity, version context, and safe next action
+purpose: show the current project's exact identity, version context, and safe
+  next action
 contextGoalNowNext:
   context: One project is selected under a currently authorized workspace.
-  goal: Understand what is in the project and continue the requested work without losing project context.
-  now: Distinguish an empty project from one with media, derived outputs, pending work, or stale data.
+  goal: Understand what is in the project and continue the requested work without
+    losing project context.
+  now: Distinguish an empty project from one with media, derived outputs, pending
+    work, or stale data.
   next: Choose an admitted Media intent or return to the authorized project list.
 anatomy:
-- workspace-context
-- project-identity-and-version
-- source-and-output-summary
-- pending-work-summary
-- intent-launcher
-- recovery-and-navigation
+  - workspace-context
+  - project-identity-and-version
+  - source-and-output-summary
+  - pending-work-summary
+  - intent-launcher
+  - recovery-and-navigation
 componentRefs:
-- media.component.project-context-summary
-- media.component.intent-launcher
+  - media.component.project-context-summary
+  - media.component.intent-launcher
 states:
-- empty-project
-- populated-project
-- pending-work
-- stale-project-version
-- identity-expired
-- access-denied
-- offline
+  - empty-project
+  - populated-project
+  - pending-work
+  - stale-project-version
+  - identity-expired
+  - access-denied
+  - offline
 actions:
-- media.action.choose-intent
+  - media.action.choose-intent
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -137,11 +196,11 @@ localization:
   rule: use-Shared-locale-formatting-and-accessibility-contracts
 actionBindingState: proposal-intent-action-refs-owner-effect-and-finality-review-pending
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
 sourceRefs:
-- master-plan:section-20.2
-- .product-experience/pdp-0-product-truth
+  - master-plan:section-20.2
+  - .product-experience/pdp-0-product-truth
 journeyRefs:
   - J-01
   - J-20
@@ -151,7 +210,32 @@ journeyDefinitionBindings:
   decisionRef: .product-experience/decision-log.md#PXD-055
   runtimeAdmission: NOT_ADMITTED
   applicability: required-J01-view
-  operationRefs: [media.operation-slice.inspect-project]
-  domainObjectRefs: [media.domain.project, media.domain.project-revision]
-  stateRefs: [media-project/ACTIVE, media-project/ARCHIVED, media-project-version/COMMITTED]
-  semanticBoundary: Exact authorized project/current head metadata only; no artifact bytes, rights, or availability.
+  operationRefs: [ media.operation-slice.inspect-project ]
+  domainObjectRefs: [ media.domain.project, media.domain.project-revision ]
+  stateRefs:
+    [
+      media-project/ACTIVE,
+      media-project/ARCHIVED,
+      media-project-version/COMMITTED
+    ]
+  semanticBoundary: Exact authorized project/current head metadata only; no
+    artifact bytes, rights, or availability.
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: Exact P1 owner-action/operation and linked
+  journey-step object refs; runtime NOT_ADMITTED
+tokenBindingStatus: "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2
+  component contracts own internal styling and this screen adds no token
+  override; negative: do not invent aliases or redefine Shared values"
+recipeIds:
+  - media.gui.recipe.project-overview
+recipeBindingStatus: Exact P2 GUI recipe selected by
+  media.gui.template.project-overview template recipeRefs; screen-instance
+  admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.work-in-project

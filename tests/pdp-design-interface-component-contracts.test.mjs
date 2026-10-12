@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import { validateTypedComponentContracts, validateTypedComponentInstance } from "../scripts/lib/pdp-design-composition-validator.mjs";
@@ -168,7 +167,10 @@ test("identity readiness requires an exact resolved upstream context tuple", () 
 });
 
 test("typed schema validators refresh when the current source bytes change", () => {
-  const tempRoot = mkdtempSync(join(tmpdir(), "pdp-component-validator-cache-"));
+  // Keep the scratch checkout beside the Media workspace so the validator's
+  // sibling `../ghatana-tools` dependency resolves exactly as it does for the
+  // real checkout instead of an unrelated `/tmp/ghatana-tools` path.
+  const tempRoot = mkdtempSync(join(resolve(root, ".."), ".pdp-component-validator-cache-"));
   const sourcePaths = [componentPath, ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
     ".product-experience/pdp-1-domain-data/value-objects.yaml", ".product-experience/pdp-3-product-experience/screen-registry.yaml",
     ".product-experience/pdp-3-product-experience/action-registry.yaml", ".product-experience/pdp-0-product-truth/goals-jtbd.yaml"];
@@ -198,6 +200,9 @@ test("rational clock values and half-open intervals enforce exact bounded semant
   const sourceComponent = components.find((record) => record.id === "media.component.source-player");
   const source = structuredClone(sourceComponent.typedDefinition.positiveFixture);
   assert.equal(validateTypedComponentInstance(sourceComponent.id, source, root).valid, true);
+  const missingOrigin = structuredClone(source);
+  delete missingOrigin.sourceTime.originRef;
+  assert.equal(validateTypedComponentInstance(sourceComponent.id, missingOrigin, root).valid, false, "source clock origin identity is required by the current PDP-1 handoff");
   source.sourceTime.ticks = "9223372036854775808";
   assert.equal(validateTypedComponentInstance(sourceComponent.id, source, root).valid, false, "unsafe signed-64-bit ticks fail closed");
   const zeroClock = structuredClone(sourceComponent.typedDefinition.positiveFixture);
@@ -219,8 +224,8 @@ test("rational clock values and half-open intervals enforce exact bounded semant
     sourceVersionRef: { tenantId: "tenant-a", artifactId: "artifact-a", versionId: "version-a" },
     channelLayout: { layoutId: "stereo", channels: ["left", "right"] },
     interval: {
-      start: { clockKind: "media", clockId: "clock-a", streamId: "stream-a", ticks: "0", secondsPerTick: { numerator: "1", denominator: "48000" } },
-      end: { clockKind: "media", clockId: "clock-a", streamId: "stream-a", ticks: "480", secondsPerTick: { numerator: "1", denominator: "48000" } },
+      start: { clockKind: "media", clockId: "clock-a", streamId: "stream-a", originRef: "origin-a", ticks: "0", secondsPerTick: { numerator: "1", denominator: "48000" } },
+      end: { clockKind: "media", clockId: "clock-a", streamId: "stream-a", originRef: "origin-a", ticks: "480", secondsPerTick: { numerator: "1", denominator: "48000" } },
     },
     gain: { value: 1, unit: "linear-amplitude", scale: "linear" },
   }];
@@ -231,6 +236,9 @@ test("rational clock values and half-open intervals enforce exact bounded semant
   const crossClock = structuredClone(validMixer);
   crossClock.tracks[0].interval.end.clockId = "other-clock";
   assert.equal(validateTypedComponentInstance(mixer.id, crossClock, root).valid, false, "interval endpoints cannot silently align different clocks");
+  const crossOrigin = structuredClone(validMixer);
+  crossOrigin.tracks[0].interval.end.originRef = "other-origin";
+  assert.equal(validateTypedComponentInstance(mixer.id, crossOrigin, root).valid, false, "interval endpoints cannot silently align different clock origins");
   const zeroRate = structuredClone(validMixer);
   zeroRate.tracks[0].interval.start.secondsPerTick.numerator = "0";
   assert.equal(validateTypedComponentInstance(mixer.id, zeroRate, root).valid, false, "zero timebase rate is invalid");

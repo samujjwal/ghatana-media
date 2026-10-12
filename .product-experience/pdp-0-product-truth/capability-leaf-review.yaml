@@ -68124,7 +68124,6 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - user-intent
-        - versioned-project
       outputArtifactTypes:
         - versioned-project-state
     - capabilityRef: media.project.inspect
@@ -68414,7 +68413,7 @@ ownerCapabilityLeafAdjudication:
         - user-intent
         - versioned-project
       outputArtifactTypes:
-        - versioned-project-state
+        - bounded-project-search-result-page-and-opaque-continuation
     - capabilityRef: media.project.organize
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.project.organize
@@ -69277,7 +69276,8 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - user-intent
-        - versioned-project
+        - exact-versioned-project
+        - source-asset-with-immutable-version
       outputArtifactTypes:
         - versioned-project-state
     - capabilityRef: media.project.derived-asset.attach
@@ -70152,7 +70152,7 @@ ownerCapabilityLeafAdjudication:
         - source-media-or-project-reference
         - rights-and-retention-context
       outputArtifactTypes:
-        - governed-artifact-reference-or-lifecycle-observation
+        - bounded-governed-artifact-result-page-and-opaque-continuation
     - capabilityRef: media.artifact.list
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.list
@@ -70247,7 +70247,7 @@ ownerCapabilityLeafAdjudication:
         - source-media-or-project-reference
         - rights-and-retention-context
       outputArtifactTypes:
-        - governed-artifact-reference-or-lifecycle-observation
+        - bounded-governed-artifact-result-page-and-opaque-continuation
     - capabilityRef: media.artifact.download
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.download
@@ -70435,8 +70435,10 @@ ownerCapabilityLeafAdjudication:
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
-        - source-media-or-project-reference
-        - rights-and-retention-context
+        - exact-source-versioned-media-or-project-reference
+        - transformation-profile-identity-version-and-digest
+        - requested-output-artifact-type-media-type-and-byte-budget
+        - purpose-and-rights-decision-context
       outputArtifactTypes:
         - governed-artifact-reference-or-lifecycle-observation
     - capabilityRef: media.artifact.output.register
@@ -70531,8 +70533,14 @@ ownerCapabilityLeafAdjudication:
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
-        - source-media-or-project-reference
+        - exact-source-version-lineage-set
         - rights-and-retention-context
+        - output-candidate-with-lineage
+        - content-digest
+        - media-type-and-byte-length
+        - policy-decision-reference
+        - authorized-target-workspace
+        - optional-exact-project-version
       outputArtifactTypes:
         - governed-artifact-reference-or-lifecycle-observation
     - capabilityRef: media.artifact.share
@@ -70626,10 +70634,11 @@ ownerCapabilityLeafAdjudication:
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
-        - source-media-or-project-reference
+        - governed-artifact-reference
+        - recipient-and-sharing-scope
         - rights-and-retention-context
       outputArtifactTypes:
-        - governed-artifact-reference-or-lifecycle-observation
+        - artifact-sharing-grant-observation
     - capabilityRef: media.artifact.share.revoke
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.share.revoke
@@ -70721,10 +70730,10 @@ ownerCapabilityLeafAdjudication:
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
-        - source-media-or-project-reference
+        - sharing-grant-reference-or-artifact-recipient-scope
         - rights-and-retention-context
       outputArtifactTypes:
-        - governed-artifact-reference-or-lifecycle-observation
+        - artifact-sharing-revocation-observation-confirmed-or-unknown
     - capabilityRef: media.artifact.delete
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.delete
@@ -70816,10 +70825,10 @@ ownerCapabilityLeafAdjudication:
       recordKind: INDEPENDENT_NORMATIVE_OWNER_CAPABILITY_LEAF_ADJUDICATION
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
-        - source-media-or-project-reference
+        - governed-artifact-reference
         - rights-and-retention-context
       outputArtifactTypes:
-        - governed-artifact-reference-or-lifecycle-observation
+        - artifact-lifecycle-observation-access-revoked-hold-pending-erasure-confirmed-or-external-unknown
     - capabilityRef: media.artifact.retain
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.retain
@@ -73881,7 +73890,7 @@ ownerCapabilityLeafAdjudication:
         - capability-query
         - requested-operation-and-profile
       outputArtifactTypes:
-        - declared-capability-and-compatibility-result
+        - bounded-declared-capability-compatibility-result-page-and-opaque-continuation
     - capabilityRef: media.capability.check-declared-options
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.capability.check-declared-options
@@ -74455,7 +74464,7 @@ ownerCapabilityLeafAdjudication:
         - identity-and-authority-context
         - rights-evidence-reference
       outputArtifactTypes:
-        - policy-decision-reference-or-rights-observation
+        - asserted-rights-attestation-record
     - capabilityRef: media.provenance.source-lineage.inspect
       ownerDisposition: JOURNEY_STEP_CAPABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.provenance.source-lineage.inspect
@@ -79277,7 +79286,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - speech-music-nonspeech-segmentation-observation
     - capabilityRef: media.audio.analysis.measure.loudness
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.measure.loudness
@@ -79371,7 +79380,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-loudness-measurement-record
     - capabilityRef: media.audio.analysis.measure.peaks
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.measure.peaks
@@ -79465,7 +79474,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-peak-measurement-record
     - capabilityRef: media.audio.analysis.detect.clipping
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.clipping
@@ -79559,7 +79568,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-clipping-detection-observation
     - capabilityRef: media.audio.analysis.measure.noise
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.measure.noise
@@ -79653,7 +79662,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-noise-measurement-record
     - capabilityRef: media.audio.analysis.analyze.spectral
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.analyze.spectral
@@ -79747,7 +79756,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-spectral-analysis-measurement-record
     - capabilityRef: media.audio.analysis.analyze.phase
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.analyze.phase
@@ -79935,7 +79944,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-channel-analysis-measurement-record
     - capabilityRef: media.audio.analysis.detect.beat-onset
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.beat-onset
@@ -80029,7 +80038,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-beat-onset-detection-observation
     - capabilityRef: media.audio.analysis.detect.silence
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.detect.silence
@@ -80123,7 +80132,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-silence-detection-observation
     - capabilityRef: media.audio.analysis.diagnose.source-separation
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.diagnose.source-separation
@@ -80217,7 +80226,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-source-separation-diagnostic-record
     - capabilityRef: media.audio.analysis.assess.timing
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.assess.timing
@@ -80311,7 +80320,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - audio-timing-assessment-record
     - capabilityRef: media.audio.analysis.assess.intelligibility
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.audio.analysis.assess.intelligibility
@@ -80405,7 +80414,7 @@ ownerCapabilityLeafAdjudication:
         - audio-artifact
         - analysis-request
       outputArtifactTypes:
-        - typed-audio-measurement-or-observation-with-method-and-limits
+        - speech-intelligibility-assessment-record
     - capabilityRef: media.generate.image.text-to-image
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.image.text-to-image
@@ -80591,7 +80600,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-image-artifact
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.reference
@@ -80685,7 +80694,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-image-artifact
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.multi-reference
@@ -80779,7 +80788,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - multiple-authorized-image-references
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.sketch-to-image
@@ -80873,7 +80882,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-sketch-artifact
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.layout-to-image
@@ -80967,7 +80976,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-layout-artifact
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.condition.pose
@@ -81061,7 +81070,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-pose-reference
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.condition.depth
@@ -81155,7 +81164,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-depth-reference
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.condition.edge
@@ -81249,7 +81258,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-edge-reference
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.condition.segmentation
@@ -81343,7 +81352,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-segmentation-reference
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.control.palette
@@ -81437,7 +81446,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - palette-control-intent
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.control.style
@@ -81531,7 +81540,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - style-control-intent
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.image.control.reference
@@ -81625,7 +81634,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-visual-intent
-        - optional-authorized-reference-artifacts
+        - source-image-reference
       outputArtifactTypes:
         - candidate-image-artifact-with-execution-provenance
     - capabilityRef: media.generate.video.text-to-video
@@ -81813,7 +81822,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-video-intent
-        - optional-authorized-reference-artifacts
+        - source-image-artifact
       outputArtifactTypes:
         - candidate-video-artifact-with-execution-provenance
     - capabilityRef: media.generate.video.video-to-video
@@ -81907,7 +81916,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-video-intent
-        - optional-authorized-reference-artifacts
+        - source-video-artifact
       outputArtifactTypes:
         - candidate-video-artifact-with-execution-provenance
     - capabilityRef: media.generate.video.text-image-to-video
@@ -82097,7 +82106,7 @@ ownerCapabilityLeafAdjudication:
         - text-or-video-intent
         - optional-authorized-reference-artifacts
       outputArtifactTypes:
-        - candidate-video-artifact-with-execution-provenance
+        - candidate-video-keyframe-artifact
     - capabilityRef: media.generate.video.keyframe.end
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.keyframe.end
@@ -82191,7 +82200,7 @@ ownerCapabilityLeafAdjudication:
         - text-or-video-intent
         - optional-authorized-reference-artifacts
       outputArtifactTypes:
-        - candidate-video-artifact-with-execution-provenance
+        - candidate-video-keyframe-artifact
     - capabilityRef: media.generate.video.keyframe.intermediate
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.keyframe.intermediate
@@ -82285,7 +82294,7 @@ ownerCapabilityLeafAdjudication:
         - text-or-video-intent
         - optional-authorized-reference-artifacts
       outputArtifactTypes:
-        - candidate-video-artifact-with-execution-provenance
+        - candidate-video-keyframe-sequence-artifact
     - capabilityRef: media.generate.video.reference-video
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.video.reference-video
@@ -82377,7 +82386,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-video-intent
-        - optional-authorized-reference-artifacts
+        - source-video-reference
       outputArtifactTypes:
         - candidate-video-artifact-with-execution-provenance
     - capabilityRef: media.generate.video.drive.audio
@@ -82471,7 +82480,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-video-intent
-        - optional-authorized-reference-artifacts
+        - source-audio-artifact
       outputArtifactTypes:
         - candidate-video-artifact-with-execution-provenance
     - capabilityRef: media.generate.video.drive.speech
@@ -82565,7 +82574,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-video-intent
-        - optional-authorized-reference-artifacts
+        - source-speech-artifact
       outputArtifactTypes:
         - candidate-video-artifact-with-execution-provenance
     - capabilityRef: media.generate.audio.text-to-audio
@@ -82941,7 +82950,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-audio-intent
-        - optional-authorized-reference-artifacts
+        - source-video-artifact
       outputArtifactTypes:
         - candidate-audio-artifact-with-execution-provenance
     - capabilityRef: media.generate.audio.foley
@@ -83035,7 +83044,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-audio-intent
-        - optional-authorized-reference-artifacts
+        - source-video-or-scene-artifact
       outputArtifactTypes:
         - candidate-audio-artifact-with-execution-provenance
     - capabilityRef: media.generate.audio.ambience
@@ -83223,7 +83232,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-audio-intent
-        - optional-authorized-reference-artifacts
+        - source-audio-artifact
       outputArtifactTypes:
         - candidate-audio-artifact-with-execution-provenance
     - capabilityRef: media.generate.audio.music.continue
@@ -83317,7 +83326,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-audio-intent
-        - optional-authorized-reference-artifacts
+        - source-music-audio-artifact
       outputArtifactTypes:
         - candidate-audio-artifact-with-execution-provenance
     - capabilityRef: media.generate.audio.music.vary
@@ -83411,7 +83420,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-audio-intent
-        - optional-authorized-reference-artifacts
+        - source-music-audio-artifact
       outputArtifactTypes:
         - candidate-audio-artifact-with-execution-provenance
     - capabilityRef: media.generate.audio.stem.generate
@@ -83505,7 +83514,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-audio-intent
-        - optional-authorized-reference-artifacts
+        - source-audio-artifact
       outputArtifactTypes:
         - candidate-audio-artifact-with-execution-provenance
     - capabilityRef: media.speech.synthesis.text-to-speech
@@ -84633,7 +84642,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-speech-intent
-        - optional-authorized-speaker-reference
+        - authorized-speaker-reference
       outputArtifactTypes:
         - speech-artifact-with-voice-rights-and-execution-provenance
     - capabilityRef: media.speech.synthesis.speaker.clone-authorized
@@ -84727,9 +84736,9 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-speech-intent
-        - optional-authorized-speaker-reference
+        - authorized-source-speaker-recording
       outputArtifactTypes:
-        - speech-artifact-with-voice-rights-and-execution-provenance
+        - derived-authorized-speaker-voice-profile-record
     - capabilityRef: media.speech.synthesis.voice.convert
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.speech.synthesis.voice.convert
@@ -84821,7 +84830,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-speech-intent
-        - optional-authorized-speaker-reference
+        - source-speech-artifact
       outputArtifactTypes:
         - speech-artifact-with-voice-rights-and-execution-provenance
     - capabilityRef: media.speech.synthesis.speech-to-speech
@@ -84915,7 +84924,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-speech-intent
-        - optional-authorized-speaker-reference
+        - source-speech-artifact
       outputArtifactTypes:
         - speech-artifact-with-voice-rights-and-execution-provenance
     - capabilityRef: media.speech.synthesis.speech.translate
@@ -85009,7 +85018,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-speech-intent
-        - optional-authorized-speaker-reference
+        - source-speech-artifact
       outputArtifactTypes:
         - speech-artifact-with-voice-rights-and-execution-provenance
     - capabilityRef: media.speech.synthesis.dub
@@ -85103,9 +85112,9 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-speech-intent
-        - optional-authorized-speaker-reference
+        - source-media-with-speech-artifact
       outputArtifactTypes:
-        - speech-artifact-with-voice-rights-and-execution-provenance
+        - candidate-dubbed-media-artifact-with-speech-sync-provenance
     - capabilityRef: media.generate.spatial.text-to-3d
       ownerDisposition: MACHINE_CAPABILITY_WITH_EXPLICIT_CHANNEL_APPLICABILITY
       capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.generate.spatial.text-to-3d
@@ -85291,7 +85300,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-image-artifact
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.reconstruct.multiview
@@ -85385,7 +85394,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - multiple-authorized-image-views
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.reconstruct.depth
@@ -85479,7 +85488,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-depth-or-image-data
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.reconstruct.camera
@@ -85573,7 +85582,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-camera-or-multiview-data
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.generate.novel-view
@@ -85667,7 +85676,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-spatial-scene-representation
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.asset.create-3d
@@ -85855,7 +85864,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-spatial-scene-representation
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.compose-3d
@@ -85949,7 +85958,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-spatial-assets-and-scene
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.representation.nerf-adapter
@@ -86043,7 +86052,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-nerf-representation
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.representation.gaussian-splatting-adapter
@@ -86137,7 +86146,7 @@ ownerCapabilityLeafAdjudication:
       normativeMeaning: This exact P0 capability leaf has owner-defined outcome, semantic inputs and outputs, policy/authority/provenance constraints, profile and bounds references, fail-closed support states, and per-channel applicability; it defines product intent only, not a PDP-1 wire schema, implementation, qualification, or execution admission.
       inputArtifactTypes:
         - text-or-spatial-intent
-        - optional-authorized-image-or-multiview-references
+        - source-gaussian-splat-representation
       outputArtifactTypes:
         - spatial-artifact-or-media-pass-with-coordinate-and-fidelity-metadata
     - capabilityRef: media.generate.spatial.create.360-media
@@ -111862,12 +111871,46 @@ ownerDefinitionSourceReconciliation:
       semanticImpact: CLI applicability, request identity, read-only behavior, Ctrl-C observation, exit status, and host-only identity boundaries are defined at exact command scope; no runtime or admission follows from a CLI definition.
       acceptanceEffect: No transport conformance or executable CLI is claimed.
     - path: .product-experience/pdp-3-product-experience/action-registry.yaml
-      currentSha256: 598537254f897778b9a9fad54b6a700853c3218809b44360ef6751aa73196ffc
+      currentSha256: da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2
       historicalPinRef: .product-experience/pdp-3-product-experience/action-registry.yaml#experienceDefinitionSourceReconciliation/currentSha256
       changedDefinitionRefs:
         - actionDefinitionSemantics (146 original action records)
         - ownerDefinedActions (typed Media-owned reconnect and identity-handoff actions)
         - ownerPublicTaxonomyMappings (bounded PXD-077/PXD-078 candidates)
+      laterSourceDeltas:
+        - previousSha256: 598537254f897778b9a9fad54b6a700853c3218809b44360ef6751aa73196ffc
+          currentSha256: cf371281266f8b5bcbb953cb9a406147451cdcf74cbf0313558c2c181f4a7424
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/actionDefinitionSemantics
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/capabilityRefs
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/capabilityCrosswalkSources
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/journeyRefs
+            - .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerOperationBindingAdjudication
+          changedDefinitionRefs:
+            - actionDefinitionSemantics (29 existing actions; exact logical-operation classification)
+            - media.action.inspect-provenance capabilityRefs and capabilityCrosswalkSources
+            - media.action.search-product-guidance and media.action.submit-simulation journeyRefs
+          semanticImpact: Source-declared exact operation references are reflected in 29 existing action classifications; inspect-provenance carries its source-lineage capability crosswalk, and two existing journey references are corrected. The 146-action historical inventory, prior bounded PXD slices, and source-chain tips remain unchanged.
+          capabilityImpact: The action crosswalk change does not alter the 462-leaf denominator, any leaf disposition, or the 383 unresolved coverage dispositions; machine-operation coverage remains zero.
+          acceptanceEffect: Current source-definition reconciliation only; independent review remains open, runtime remains NOT_ADMITTED, and no capability, PDP phase, or Lifecycle acceptance follows.
+        - previousSha256: cf371281266f8b5bcbb953cb9a406147451cdcf74cbf0313558c2c181f4a7424
+          currentSha256: da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2
+          sourceRefs:
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/actionDefinitionSemantics
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/preconditions
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-source/capabilityCrosswalkSources
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-provenance/capabilityRefs
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.search-product-guidance/journeyRefs
+            - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.submit-simulation/journeyRefs
+          changedDefinitionRefs:
+            - classificationBasis (29 existing actions; exact logical-operation references, transport/runtime admission still NOT_ADMITTED)
+            - media.action.inspect-source exact immutable artifact-version guard across its action and source mirrors
+            - media.action.inspect-provenance source-lineage capability crosswalk
+            - media.action.search-product-guidance removes stale J-06 journey reference
+            - media.action.submit-simulation adds the source-supported J-06 journey reference
+          semanticImpact: 29 existing action classifications now acknowledge exact logical-operation refs while preserving NOT_ADMITTED transport/runtime status; inspect-source binds the exact immutable version; inspect-provenance maps source-lineage capability; and two journey references are corrected to source facts. Historical action inventories and prior bounded decision cuts remain unchanged.
+          capabilityImpact: No capability leaf association, disposition, or denominator changes; the 462-leaf denominator remains, 383 coverage dispositions remain unresolved, and machine-operation coverage remains zero.
+          acceptanceEffect: Additive current-source definition reconciliation only; no capability coverage is promoted, and independent review, runtime admission, PDP phase acceptance, and Lifecycle acceptance remain open or NOT_ADMITTED.
       semanticImpact: Current action semantics and public-taxonomy candidates are recorded as an additive current overlay. The 146-action historical inventory, prior bounded PXD slices, and source-chain tips remain unchanged; the added reconnect action is definition-only and Shared identity contracts remain unresolved pending the Shared owner.
       acceptanceEffect: Current-source reconciliation only; no Shared contract acceptance, public runtime admission, PDP phase acceptance, or Lifecycle receipt is implied.
 ownerTrustReconstructionDispositions:
@@ -112214,7 +112257,8 @@ ownerTrustReconstructionDispositions:
       acceptanceEffect: none
       inputArtifactTypes:
         - user-intent
-        - versioned-project
+        - exact-versioned-project
+        - source-asset-with-immutable-version
       outputArtifactTypes:
         - versioned-project-state
     - id: media.capability-trust-reconstruction.media-capability-adjudication-project-derived-asset-attach.v1
@@ -112608,8 +112652,10 @@ ownerTrustReconstructionDispositions:
       qualification: NOT_EVALUATED
       acceptanceEffect: none
       inputArtifactTypes:
-        - source-media-or-project-reference
-        - rights-and-retention-context
+        - exact-source-versioned-media-or-project-reference
+        - transformation-profile-identity-version-and-digest
+        - requested-output-artifact-type-media-type-and-byte-budget
+        - purpose-and-rights-decision-context
       outputArtifactTypes:
         - governed-artifact-reference-or-lifecycle-observation
     - id: media.capability-trust-reconstruction.media-capability-adjudication-artifact-output-register.v1
@@ -112634,8 +112680,14 @@ ownerTrustReconstructionDispositions:
       qualification: NOT_EVALUATED
       acceptanceEffect: none
       inputArtifactTypes:
-        - source-media-or-project-reference
+        - exact-source-version-lineage-set
         - rights-and-retention-context
+        - output-candidate-with-lineage
+        - content-digest
+        - media-type-and-byte-length
+        - policy-decision-reference
+        - authorized-target-workspace
+        - optional-exact-project-version
       outputArtifactTypes:
         - governed-artifact-reference-or-lifecycle-observation
     - id: media.capability-trust-reconstruction.media-capability-adjudication-artifact-share.v1

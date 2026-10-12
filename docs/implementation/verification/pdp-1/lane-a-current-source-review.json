@@ -1,0 +1,890 @@
+{
+  "artifactId": "media.pdp-1.lane-a-current-source-review.v1",
+  "purpose": "PDP-1 Lane A current source review of object identity, relationship binding, temporal/spatial values, versioning, and interoperability boundaries",
+  "reviewAuthority": "user-delegated Media domain definition; not an approval, independent review, runtime admission, or phase status",
+  "historicalPins": {
+    "identity": ".product-experience/decision-log.md#PXD-093 remains the preserved historical identity/source review cut; this artifact is a new current-source review and does not rewrite that pin",
+    "relationships": ".product-experience/decision-log.md#PXD-140 reconciles the 13-record current relationship population and has acceptanceEffect:none"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04",
+    ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+    ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+    ".product-experience/pdp-1-domain-data/value-objects.yaml": "d497f5bc0ab88ccd51754e9ea66925449aa793433170601fa4fe88fe40153125",
+    ".product-experience/pdp-1-domain-data/versioning.yaml": "e37745de73204fe6a68f61bd5998478e097429e9a63bea62022484e3f6a58111",
+    ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+    ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+    ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+    ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
+    ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+  },
+  "selectors": {
+    "objectPopulation": ".product-experience/pdp-1-domain-data/domain-objects.yaml#objects",
+    "canonicalIdentityPopulation": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records",
+    "relationshipPopulation": ".product-experience/pdp-1-domain-data/relationships.yaml#relationships",
+    "valuePopulation": ".product-experience/pdp-1-domain-data/value-objects.yaml#values",
+    "identityRules": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/tupleRules",
+    "currentRelationshipPopulationDecision": ".product-experience/pdp-1-domain-data/relationships.yaml#relationshipPopulationAdjudication"
+  },
+  "population": {
+    "domainObjectRecords": 39,
+    "identityContracts": 38,
+    "canonicalMediaIdentities": 37,
+    "sourceObservationWithoutCanonicalIdentity": 1,
+    "excludedLegacyTranscriptionIdentity": 1,
+    "valueRecords": 13,
+    "currentRelationshipRecords": 13,
+    "historicalRelationshipCount": 11
+  },
+  "reviewFindings": [
+    {
+      "id": "trusted-tenant-scoped-identity",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/tupleRules/@id=media.identity-rule.trusted-tenant-scope",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#currentDefinitionAdjudication/records/@id=canonical-tenant-and-global-identity"
+      ],
+      "meaning": "Canonical object joins require trusted same-tenant identity scope. Global uniqueness, principal identity, and cross-tenant deduplication are not inferred."
+    },
+    {
+      "id": "version-identity-and-lineage",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records",
+        ".product-experience/pdp-1-domain-data/relationships.yaml#relationships",
+        ".product-experience/pdp-1-domain-data/versioning.yaml#definitionAdjudication/ruleDispositions"
+      ],
+      "meaning": "Immutable version identities and typed exact-version lineage are distinct from content digests, aggregate versions, job attempts, and legacy transcript UUIDs. Durable enforcement remains unadmitted."
+    },
+    {
+      "id": "relationship-endpoints-and-population",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/relationships.yaml#relationships",
+        ".product-experience/pdp-1-domain-data/relationships.yaml#relationshipPopulationAdjudication"
+      ],
+      "meaning": "All 13 current relationship records resolve to catalogued endpoints and typed identity contracts. Preserve the historical 11-record snapshot; current count 13 is source reconciled under PXD-140. No storage or runtime parity is claimed."
+    },
+    {
+      "id": "temporal-spatial-precision-and-loss",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml#canonicalDefinitionConversionBinding",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml"
+      ],
+      "meaning": "Explicit rational clocks, selected rounding and exact loss, sample boundaries, image-version-bound pixel center/boundary conventions, and dimensioned units have owner definitions. Legacy scalar/wire bindings, clock alignment, scientific calibration, and runtime adapter qualification remain unknown or not evaluated. Spatial frames now require registered explicit source/target versions, units, signed axes, and handedness consistent with basis parity; declaration validation does not apply a transform. Provider confidence/similarity comparisons require exact provider/metric/method/version/unit scope and establish no calibration."
+    },
+    {
+      "id": "projection-and-consumer-boundaries",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/interoperability.yaml#projections",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml#packageCompatibilityBoundary",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml#unresolvedItemAdjudication"
+      ],
+      "meaning": "Current Java, TypeScript, OpenAPI, protobuf, SQL, lifecycle, and package shapes are observations/preservation constraints. Exact adapters, producer/consumer parity, external package publication, and consumer acceptance are not established."
+    },
+    {
+      "id": "twenty-one-source-backed-object-meanings",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml#proposedRecordCatalog"
+      ],
+      "meaning": "Each of the 21 proposal-scope objects now has an explicit tenant/version/reference/lifecycle/unknown definition. Existing per-object scopeStatus values remain unchanged; policy authority, scientific qualification, and runtime/materialization boundaries remain explicit."
+    },
+    {
+      "id": "consent-and-generation-control-bounded-owner-definitions",
+      "refs": [
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.consent-reference",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.generation-control-bundle",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml#GenerationControlBundle",
+        ".product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-rights-and-consent"
+      ],
+      "meaning": "Both records are applicable to P1-01 identity and typed-reference reconciliation. ConsentReference names an authority-issued revision bound to tenant, principal, purpose, region, and validity; PDP-0 remains the authority for permission/currentness. GenerationControlBundle is versioned generation intent only and cannot assert model or identity truth. Their proposal scopeStatus values, runtime/storage admission, and independent review are unchanged."
+    }
+  ],
+  "acceptanceEffect": "none",
+  "runtimeStorageAndWireParity": "NOT_ADMITTED",
+  "independentReviewAndQualification": "NOT_EVALUATED",
+  "objectReview": [
+    {
+      "objectId": "media.domain.project",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId"
+      ],
+      "currentScopeStatus": "bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.project-revision",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "revisionId"
+      ],
+      "currentScopeStatus": "bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.artifact",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "artifactId"
+      ],
+      "currentScopeStatus": "bounded-owner-identity-and-immutability-semantics-accepted; availability-rights-content-retrieval-and-cross-interface-type-equivalence-remain-unresolved",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.artifact-version",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "artifactId",
+        "versionId"
+      ],
+      "currentScopeStatus": "bounded-version-identity-semantics-defined-under-PXD-049; separate-runtime-record-and-wire-versionId-not-observed; runtime-NOT_ADMITTED; independent-PDP1-review-open",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.media-asset",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "assetId"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.recipe",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "recipeId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.processing-graph",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "graphId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; universal-runtime-IR-not-observed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.resolved-plan",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "planId"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.processing-job",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "jobId"
+      ],
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_IDENTITY; observed projections do not establish wire or persistence equivalence; adapters and runtime enforcement NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.render-job",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "jobId"
+      ],
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_IDENTITY; no independent render-job identifier namespace or runtime subtype mapping is asserted",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.artifact-verification-job",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "jobId"
+      ],
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_IDENTITY; verification target and runtime subtype mapping remain separately unresolved",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.job-attempt",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "jobId",
+        "attemptId"
+      ],
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_IDENTITY; runtime/persistence projection NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.job-lease",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "jobId",
+        "ownerId",
+        "fencingToken"
+      ],
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_IDENTITY; current DTO lacks activeAttemptRef; runtime/adapter equivalence NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.media-run",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "runId"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.checkpoint",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "runId",
+        "checkpointId"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.scene-plan",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "scenePlanId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.scene-brief",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "sceneBriefId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.scene-graph",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "sceneGraphId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.animation-graph",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "animationGraphId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.simulation-world",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "worldId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; Media-owned-simulation-IR-not-observed-in-scanned-services; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.timeline",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "timelineId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.composition-config",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "compositionConfigId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.generation-control-bundle",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "controlBundleId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; does-not-assert-model-or-identity-truth; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.continuity-state",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "projectId",
+        "continuityStateId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.quality-assessment",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "outputArtifactVersionRef",
+        "assessmentId",
+        "methodVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.render-outcome",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "jobId",
+        "outcomeId"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.delivery-outcome",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "deliveryRequestId",
+        "outcomeId",
+        "destinationRef"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.consent-reference",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "consentId",
+        "consentRevisionId"
+      ],
+      "currentScopeStatus": "proposed; consent-authority-remains-governed-by-PDP-0; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.rights-decision",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "decisionId",
+        "policyVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.provenance-manifest",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "manifestId",
+        "semanticVersion"
+      ],
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.upload-session",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "uploadId"
+      ],
+      "currentScopeStatus": "bounded-owner-identity-and-lifecycle-separation-accepted; storage-durability-and-cross-interface-type-equivalence-remain-unresolved",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.upload-chunk",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "uploadId",
+        "chunkIndex"
+      ],
+      "currentScopeStatus": "owner-defined-logical-identity; persistence-key-and-cross-interface-adapter-unverified; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.stream-session",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "sessionId"
+      ],
+      "currentScopeStatus": "owner-defined-logical-identity; existing-DTO-and-storage-equivalence-unverified; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.stream-frame",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "sessionId",
+        "sequence"
+      ],
+      "currentScopeStatus": "owner-defined-logical-identity; frame-persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.consent-record",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "consentId",
+        "consentRevisionId"
+      ],
+      "currentScopeStatus": "owner-defined-logical-identity; legacy-record-version-resolution-and-wire-equivalence-unverified; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.persisted-audio-file",
+      "identityDisposition": "SOURCE_OBSERVATION_NON_EQUIVALENCE",
+      "identityTuple": [],
+      "currentScopeStatus": "storage-observation-only; do-not-equate-with-MediaArtifact-without-owner-mapping",
+      "classification": "SOURCE_OBSERVATION_ONLY; NO_CANONICAL_PROMOTION"
+    },
+    {
+      "objectId": "media.domain.transcription",
+      "identityDisposition": "NO_CANONICAL_IDENTITY_CONTRACT",
+      "identityTuple": [],
+      "currentScopeStatus": "legacy-storage-and-service-observation-only; not-a-canonical-transcript-version; owner-mapping-and-materialization-unqualified",
+      "classification": "LEGACY_OBSERVATION_EXCLUDED_FROM_CANONICAL_OBJECT_IDENTITY"
+    },
+    {
+      "objectId": "media.domain.transcript-version",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "transcriptVersionId"
+      ],
+      "currentScopeStatus": "bounded-owner-semantics-under-PXD-062; provider-and-legacy-observations-remain-source-only; materialization-and-runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    },
+    {
+      "objectId": "media.domain.caption-version",
+      "identityDisposition": "CANONICAL_MEDIA_IDENTITY",
+      "identityTuple": [
+        "tenantId",
+        "sourceArtifactId",
+        "sourceArtifactVersionId",
+        "captionVersionId"
+      ],
+      "currentScopeStatus": "canonical-owner-semantics-bounded-under-PXD-058; observed-fixture-shape-remains-synthetic; runtime-NOT_ADMITTED; independent-PDP1-review-open",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+    }
+  ],
+  "relationshipReview": [
+    {
+      "relationshipId": "media.rel.project-revision",
+      "from": "media.domain.project",
+      "to": "media.domain.project-revision",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.project-asset",
+      "from": "media.domain.project",
+      "to": "media.domain.media-asset",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.asset-artifact-version",
+      "from": "media.domain.media-asset",
+      "to": "media.domain.artifact-version",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.job-plan",
+      "from": "media.domain.processing-job",
+      "to": "media.domain.resolved-plan",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.job-attempt",
+      "from": "media.domain.processing-job",
+      "to": "media.domain.job-attempt",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.attempt-lease",
+      "from": "media.domain.job-attempt",
+      "to": "media.domain.job-lease",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.upload-session-chunk",
+      "from": "media.domain.upload-session",
+      "to": "media.domain.upload-chunk",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.stream-session-frame",
+      "from": "media.domain.stream-session",
+      "to": "media.domain.stream-frame",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.run-checkpoint",
+      "from": "media.domain.media-run",
+      "to": "media.domain.checkpoint",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.scene-model-binding",
+      "from": "media.domain.scene-graph",
+      "to": "media.domain.simulation-world",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.animation-property-owner",
+      "from": "media.domain.animation-graph",
+      "to": "media.domain.scene-graph",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.derived-artifact",
+      "from": "media.domain.artifact-version",
+      "to": "media.domain.artifact-version",
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.assessment-subject",
+      "from": "media.domain.quality-assessment",
+      "to": [
+        "media.domain.artifact-version",
+        "media.domain.processing-job",
+        "media.domain.media-run"
+      ],
+      "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    }
+  ],
+  "valueReview": [
+    {
+      "valueId": "media.value.opaque-id",
+      "currentScopeStatus": "observed-shape; canonical-format-unselected; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; SOURCE_FORMAT_UNSELECTED",
+      "rule": "Stable opaque reference with no embedded authority; type/scope/version comes from the referring contract. Unknown or untrusted tenant scope cannot join canonical records."
+    },
+    {
+      "valueId": "media.value.artifact-digest",
+      "currentScopeStatus": "observed-shape; canonical-multialgorithm-policy-unselected; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; ALGORITHM_POLICY_DEFERRED",
+      "rule": "Digest is integrity evidence bound to named algorithm and canonical bytes, not artifact/version identity; declared-but-unverified digest is untrusted."
+    },
+    {
+      "valueId": "media.value.byte-count",
+      "currentScopeStatus": "observed-fields; wire-range-parity-pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; WIRE_RANGE_PARITY_DEFERRED",
+      "rule": "Nonnegative integer count of bytes; fractional, negative, overflowed, or unit-ambiguous input is invalid. Wire-specific integer limits remain adapter-bound."
+    },
+    {
+      "valueId": "media.value.wall-clock-instant",
+      "currentScopeStatus": "observed-forms; precision-conversion-contract-pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; PRECISION_CONVERSION_DEFERRED",
+      "rule": "Absolute lifecycle/deadline instant on wall clock, distinct from media, simulation, story, sample, and frame coordinates. Conversion requires explicit source precision and must report lost precision."
+    },
+    {
+      "valueId": "media.value.duration",
+      "currentScopeStatus": "some-fields-explicitly-milliseconds; other-unit-unknown; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; UNSPECIFIED_LEGACY_UNIT_UNKNOWN",
+      "rule": "Nonnegative interval bound to an identified clock and unit. Explicit `durationMs` is milliseconds; an unqualified duration does not inherit that unit and cannot be silently converted."
+    },
+    {
+      "valueId": "media.value.source-pts",
+      "currentScopeStatus": "unresolved; absent-from-scanned-client-contract; do-not-infer-representation",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; LEGACY_SOURCE_MAPPING_UNKNOWN",
+      "rule": "Exact position on a named source stream timebase with explicit clock/stream identity. Missing PTS, timebase, or alignment is UNKNOWN and not synthesized from wall-clock or duration."
+    },
+    {
+      "valueId": "media.value.sample-position",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; STREAM_METADATA_AND_QUALIFICATION_DEFERRED",
+      "rule": "Integer sample boundary/index tied to an exact stream, sample rate, and sample count; boundary range is [0,sampleCount], addressable samples [0,sampleCount). Priming/padding adjustment requires separate explicit mapping."
+    },
+    {
+      "valueId": "media.value.frame-rate",
+      "currentScopeStatus": "frame-rate-meaning-and-exactness-unresolved; do-not-infer-rational-or-constant-rate",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; LEGACY_SCALAR_EXACTNESS_UNKNOWN",
+      "rule": "Exact cadence is rational frames per second (or reciprocal rational frame timebase); variable-rate video requires per-frame source timestamps. Scalar fps is not promoted to rational or constant cadence without a source contract."
+    },
+    {
+      "valueId": "media.value.pixel-coordinate",
+      "currentScopeStatus": "observed-fields-with-incomplete-coordinate-semantics; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; LEGACY_COORDINATE_MAPPING_UNKNOWN",
+      "rule": "Image coordinate binds exact image version, dimensions, origin, axes, and pixel-center or pixel-boundary convention. Crop/rotation/world-frame changes require explicit image mapping; incompatible conventions reject conversion."
+    },
+    {
+      "valueId": "media.value.physical-quantity",
+      "currentScopeStatus": "unit-and-dimension-unresolved; no-default-unit-selected",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; DOMAIN_UNIT_REGISTRY_EXTERNAL_OR_UNSELECTED",
+      "rule": "Quantity carries exact magnitude, dimension, and explicit unit. Only listed SI length/time conversions are defined; missing units, dimension mismatch, unlisted units, or unsupported scientific calibration remain unresolved and cannot default."
+    },
+    {
+      "valueId": "media.value.uncertainty",
+      "currentScopeStatus": "PDP-0-quality-semantics; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; METRIC_AND_DOMAIN_AUTHORITY_REQUIRED",
+      "rule": "Uncertainty is scoped to named estimate/metric/method/version and units; confidence is not correctness, absence is not pass, and unknown is not zero."
+    },
+    {
+      "valueId": "media.value.classification",
+      "currentScopeStatus": "vocabulary-crosswalk-unresolved; pending-owner-review",
+      "classification": "MEDIA_LOGICAL_MEANING_RESOLVED; VOCABULARY_CROSSWALK_DEFERRED",
+      "rule": "Sensitivity classification propagates the strongest source floor to derivatives. Unknown or unmapped vocabulary preserves source value and blocks a lower classification claim."
+    },
+    {
+      "valueId": "media.value.policy-disposition",
+      "currentScopeStatus": "PDP-0-policy-owned; pending-owner-review",
+      "classification": "PDP0_POLICY_AUTHORITY; VALUE_SHAPE_RESOLVED",
+      "rule": "A disposition is a separate result for a named policy axis and exact subject/purpose/region/version scope. This catalog does not enumerate outcomes or substitute one axis for another."
+    }
+  ],
+  "ownerDefinedSemanticReview": [
+    {
+      "objectRef": "media.domain.media-asset",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.media-asset",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-asset",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.recipe",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.recipe",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.recipe",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.processing-graph",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.processing-graph",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-graph",
+      "currentScopeStatus": "proposed; universal-runtime-IR-not-observed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.resolved-plan",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.resolved-plan",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.resolved-plan",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.media-run",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.media-run",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.checkpoint",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.checkpoint",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.checkpoint",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.scene-plan",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.scene-plan",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.scene-brief",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.scene-brief",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-brief",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.scene-graph",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.scene-graph",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.animation-graph",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.animation-graph",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.animation-graph",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.simulation-world",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.simulation-world",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.simulation-world",
+      "currentScopeStatus": "proposed; Media-owned-simulation-IR-not-observed-in-scanned-services; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.timeline",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.timeline",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.composition-config",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.composition-config",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.composition-config",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.continuity-state",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.continuity-state",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.continuity-state",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.quality-assessment",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.quality-assessment",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.render-outcome",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.render-outcome",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.render-outcome",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.delivery-outcome",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.delivery-outcome",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.delivery-outcome",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.rights-decision",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.rights-decision",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.rights-decision",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.provenance-manifest",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.provenance-manifest",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.provenance-manifest",
+      "currentScopeStatus": "proposed; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.consent-reference",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.consent-reference",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.consent-reference",
+      "currentScopeStatus": "proposed; consent-authority-remains-governed-by-PDP-0; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    },
+    {
+      "objectRef": "media.domain.generation-control-bundle",
+      "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.generation-control-bundle",
+      "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.generation-control-bundle",
+      "currentScopeStatus": "proposed; does-not-assert-model-or-identity-truth; pending-owner-review",
+      "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
+      "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
+    }
+  ]
+}

@@ -3,22 +3,34 @@ contractSchemaRef: .product-experience/pdp-3-product-experience/screen-contract-
 surfaceId: media.surface.web
 templateId: media.gui.template.job-observation
 templateBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-layoutIds: [media.gui.layout.job-observation]
+layoutIds: [ media.gui.layout.job-observation ]
 layoutBindingStatus: media-owner-composition-link-approved; screen-admission-pending
-componentIds: [media.component.job-status-card, media.component.activity-recovery-feed]
-patternIds: [media.gui.pattern.job-status-and-recovery]
+componentIds: [ media.component.job-status-card, media.component.activity-recovery-feed ]
+patternIds: [ media.gui.pattern.job-status-and-recovery ]
 tokenDependencies:
   - media.token.state.in-progress
   - media.token.state.needs-review
   - media.token.state.blocked
   - media.token.trust.generated
-domainObjectRefs: [media.domain.processing-job, media.domain.job-attempt, media.domain.job-lease]
+domainObjectRefs:
+  - media.domain.processing-job
+  - media.domain.job-attempt
+  - media.domain.job-lease
+  - media.domain.project
+  - media.domain.artifact-version
+  - media.domain.stream-session
+  - media.domain.stream-frame
+  - media.domain.consent-reference
 operationRefs:
   - media.operation.job-status.read-dimensions.v1
   - media.operation-slice.cancel-job
   - media.operation-slice.retry-job
   - media.operation.action.inspect-job-retry-policy
-requirementRefs: [MEDIA-REQ-CAP-JOB]
+  - media.operation.action.view-job-status
+  - media.operation.action.check-job-outcome
+  - media.operation-slice.inspect-job
+  - media.operation.stream-session.inspect-execution-recovery.v1
+requirementRefs: [ MEDIA-REQ-CAP-JOB ]
 requirementBindingStatus: action-capability-crosswalk-recorded; semantic-review-pending
 stateRefs:
   - media-job/QUEUED
@@ -41,15 +53,30 @@ stateRefs:
   - media-attempt/OUTCOME_UNKNOWN
   - media-attempt/SUPERSEDED
 entry:
-  - Host supplies authenticated tenant and principal context; never infer them from the job ID or request body.
-  - The selected job identity is exact and tenant-scoped; a missing or foreign job is not global absence.
-  - Read dimensions only from the typed `media.operation.job-status.read-dimensions.v1` contract with the exact expected read authority and read version; stale, foreign, malformed, or incomplete observations remain UNKNOWN.
-  - Stage, quality-subject-version, and destination dimensions are selected explicitly by exact IDs; each selector list may be empty (meaning no rows were requested), and the view never expands to all stages, quality subjects, or destinations by default.
-  - Show overall job, attempt/lease, cancellation, remote-outcome certainty, quality, and delivery as separate dimensions; no scalar status or receipt implies another dimension.
+  - Host supplies authenticated tenant and principal context; never infer them
+    from the job ID or request body.
+  - The selected job identity is exact and tenant-scoped; a missing or foreign
+    job is not global absence.
+  - Read dimensions only from the typed
+    `media.operation.job-status.read-dimensions.v1` contract with the exact
+    expected read authority and read version; stale, foreign, malformed, or
+    incomplete observations remain UNKNOWN.
+  - Stage, quality-subject-version, and destination dimensions are selected
+    explicitly by exact IDs; each selector list may be empty (meaning no rows
+    were requested), and the view never expands to all stages, quality subjects,
+    or destinations by default.
+  - Show overall job, attempt/lease, cancellation, remote-outcome certainty,
+    quality, and delivery as separate dimensions; no scalar status or receipt
+    implies another dimension.
 exit:
-  - A dimension may be displayed as observed only when its exact typed source mapping and current read tuple validate; unmapped runtime spellings remain UNKNOWN.
-  - Cancellation request is not cancellation finality, retry acceptance is not processing completion, and a completed job requires registered outputs under the exact result contract.
-  - Preserve the exact job and prior-attempt identity across refresh, denial, interruption, and unknown outcomes; do not enable retry on unknown finality.
+  - A dimension may be displayed as observed only when its exact typed source
+    mapping and current read tuple validate; unmapped runtime spellings remain
+    UNKNOWN.
+  - Cancellation request is not cancellation finality, retry acceptance is not
+    processing completion, and a completed job requires registered outputs under
+    the exact result contract.
+  - Preserve the exact job and prior-attempt identity across refresh, denial,
+    interruption, and unknown outcomes; do not enable retry on unknown finality.
 authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/jobStatusRead
   - .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/effectAuthority
@@ -60,171 +87,313 @@ recoveryRefs:
   - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.retry-job/actionDefinitionSemantics/typedDefinition
 actionConsequences:
   - actionId: media.action.view-job-status
-    capabilityRefs: [media.job.view-status]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: media.operation.job-status.read-dimensions.v1
+    capabilityRefs:
+      - media.job.view-status
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.view-job-status
     effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.view-job-status/actionDefinitionSemantics/typedDefinition
-    consequence: Read only the exact tenant-scoped job status dimensions under the current typed read contract; absent or unmapped dimensions remain UNKNOWN.
+    consequence: read-current-job-and-attempt-evidence
     status: Media-owner-definition; read endpoint and runtime observation NOT_ADMITTED
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.view-job-status
+    finality: read-only
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - stable-job-reference
+    failureRecovery: keep-last-known-state-labelled-stale
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.request-cancellation
-    capabilityRefs: [media.job.cancel]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.job.cancel
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation-slice.cancel-job
     effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-cancellation/actionDefinitionSemantics/typedDefinition
-    consequence: Request cancellation for the existing exact logical job after current authority checks; show pending until owner evidence confirms all potentially mutating effects stopped.
+    consequence: request-cancellation-for-the-existing-logical-job
     status: Media-owner-definition; command transport and effect NOT_ADMITTED
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.cancel-job
+    finality: pending-until-authoritative-stop-or-racing-result-is-recorded
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - stable-job-reference
+      - current-cancellation-authority
+    failureRecovery: keep-job-visible-as-running-or-unknown
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.check-job-outcome
-    capabilityRefs: [media.job.check-outcome]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
-    operationRef: media.operation.job-status.read-dimensions.v1
+    capabilityRefs:
+      - media.job.check-outcome
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
+    operationRef: media.operation.action.check-job-outcome
     effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.check-job-outcome/actionDefinitionSemantics/typedDefinition
-    consequence: Reconcile the same existing job identity under current read authority; do not dispatch or imply that an unknown external effect failed.
+    consequence: collect-evidence-for-the-existing-job-identity-without-new-dispatch
     status: Media-owner-definition; read endpoint and runtime observation NOT_ADMITTED
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation.action.check-job-outcome
+    finality: remains-unknown-until-evidence-classifies-outcome
+    reversibilityDisposition: REVERSIBLE
+    confirmationDisposition: NOT_REQUIRED
+    guardRefs:
+      - existing-job-is-outcome-unknown
+    failureRecovery: preserve-unknown-state-and-disable-resubmission
+    actorRefs:
+      - media.creator
+      - media.editor
+      - media.operator
+    runtimeAdmission: NOT_ADMITTED
   - actionId: media.action.retry-job
-    capabilityRefs: [media.job.retry]
-    requirementRefs: [MEDIA-REQ-CAP-JOB]
-    referenceBindingStatus: direct-action-capability-crosswalk; proposal-only
+    capabilityRefs:
+      - media.job.retry
+    requirementRefs:
+      - MEDIA-REQ-CAP-JOB
+    referenceBindingStatus: EXACT_ACTION_REGISTRY_TYPED_DEFINITION;
+      PROPOSAL_AND_REVIEW_STATUS_PRESERVED
     operationRef: media.operation-slice.retry-job
     effectRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.retry-job/actionDefinitionSemantics/typedDefinition
-    consequence: Create at most one new fenced attempt under the same logical job only after the exact current retry-policy observation, prior-attempt classification, actor authority, rights, and bounded budget validate; unknown prior outcome holds retry.
+    consequence: create-one-new-fenced-attempt-under-the-existing-logical-job-identity;
+      do-not-create-a-second-logical-request
     status: Media-owner-definition; command transport and effect NOT_ADMITTED
-responsiveBehavior: {ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive, status: proposal-unverified, screenOverrides: []}
+    bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    operationRefs:
+      - media.operation-slice.retry-job
+    finality: new-attempt-is-confirmed-only-after-the-owner-records-its-identity-and-fence;
+      processing-outcome-remains-pending-until-authoritative-evidence
+    reversibilityDisposition: NOT_REVERSIBLE
+    confirmationDisposition: REQUIRED
+    guardRefs:
+      - stable-job-identity-and-current-tenant-context
+      - prior-attempt-is-classified-as-retryable-by-the-job-owner
+      - current-actor-has-retry-authority-for-this-job
+      - retry-budget-remains-under-current-policy
+      - rights-policy-license-resource-and-deployment-eligibility-are-rechecked-before-dispatch
+      - prior-outcome-is-not-unknown; check-the-existing-job-outcome-first
+    failureRecovery: preserve-the-job-and-prior-attempt-history;
+      do-not-dispatch-when-eligibility-authority-or-budget-is-missing-or-outcome-is-unknown
+    actorRefs:
+      - media.creator
+      - media.operator
+      - media.automation-client
+    runtimeAdmission: NOT_ADMITTED
+responsiveBehavior:
+  {
+    ref: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layoutRules.responsive,
+    status: P2 layout responsive rule bound; screen-specific overrides empty;
+      rendering verification NOT_RUN,
+    screenOverrides: [],
+    layoutRules:
+      [
+        {
+            layoutRef: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#/layouts/@id=media.gui.layout.job-observation,
+            responsiveRule: Never hide identity or unknown-finality messaging on narrow
+              screens.
+          }
+      ]
+  }
 fixtures:
-  refs: [media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-outcome-confirmed]
-  status: linked-to-deterministic-simulation-seeds; owner-review-and-behavior-verification-pending
+  refs:
+    - media.scenario.job-running
+    - media.scenario.job-outcome-unknown
+    - media.scenario.job-outcome-confirmed
+    - media.scenario.artifact-verification-running
+    - media.scenario.artifact-verification-outcome-unknown
+    - media.scenario.artifact-verification-completed
+    - media.scenario.job-retry-eligible
+  status: "EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; unlinked refs are
+    retained as proposals and are NO_APPLICABLE to this screen-step preview;
+    negative: do not claim those refs as rendered/runtime coverage."
+  sourceRefs:
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.artifact-verification-running.v1
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.artifact-verification-outcome-unknown.v1
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.artifact-verification-completed.v1
+    - .product-experience/pdp-3-product-experience/journey-scenario-bindings.yaml#records/@id=media.pdp3.journey-scenario-binding.job-retry-eligible.v1
+    - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/3
+    - .product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml#/steps/5
+  unlinkedScreenFixtureRefs:
+    - media.scenario.job-running
+    - media.scenario.job-outcome-unknown
+    - media.scenario.job-outcome-confirmed
+  negativeCases:
+    - Do not treat journey-level scenario membership as screen-specific fixture
+      evidence.
+    - Do not claim unmapped fixture refs cover this screen until an exact
+      journey-step view link exists.
+    - "P3-B/P3-F contract-preview boundary: absent or unlinked scenario refs do
+      not establish rendered, behavioral, or runtime coverage."
 verification:
   status: not-run
   evidenceRefs: []
-  checks: {structural: not-proven, rendering: not-proven, behavior: not-proven, responsive: not-proven, keyboard: not-proven, accessibility: not-proven}
+  checks:
+    {
+      structural: not-proven,
+      rendering: not-proven,
+      behavior: not-proven,
+      responsive: not-proven,
+      keyboard: not-proven,
+      accessibility: not-proven
+    }
 fieldBindingStatus:
   surfaceId: candidate-binding-pending-owner-review
   templateId: media-owner-composition-link-approved; screen-admission-pending
   layoutIds: media-owner-composition-link-approved; screen-admission-pending
   componentIds: copied-from-proposal-componentRefs; Shared-binding-pending
   patternIds: copied-from-proposal-patternRefs; PDP2-acceptance-pending
-  tokenDependencies: exact Media state/trust aliases selected; Shared values remain externally owned
-  domainObjectRefs: exact ProcessingJob, JobAttempt, JobLease identity refs
-  operationRefs: normalized job-dimension read and exact cancel/retry owner operations; runtime NOT_ADMITTED
+  tokenDependencies: Exact PDP-2 semantic token aliases declared in tokenDependencies
+  domainObjectRefs: "Exact P1 owner-action wire and linked journey-step object
+    refs; job-attempt and job-lease preserve status dimensions; runtime
+    NOT_ADMITTED"
+  operationRefs: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
   requirementRefs: action-capability-crosswalk-recorded; semantic-review-pending
   stateRefs: exact job and attempt state definitions; dimensions remain orthogonal
-  entry: exact host identity, job tuple, read authority and freshness requirements authored
-  exit: exact observation and non-inference rules authored; runtime unknown where no receipt exists
-  actionConsequences: exact operation/effect source bindings authored; runtime NOT_ADMITTED
-  responsiveBehavior: proposal-only; unverified
-  fixtures: source-proposal; behavior-unverified
+  entry: exact host identity, job tuple, read authority and freshness requirements
+    authored
+  exit: exact observation and non-inference rules authored; runtime unknown where
+    no receipt exists
+  actionConsequences: Exact action-registry typed definitions; runtime NOT_ADMITTED
+  responsiveBehavior: Exact P2 global and selected-layout responsive rules;
+    screen-specific overrides empty; verification NOT_RUN
+  fixtures: "EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; unlinked refs
+    are retained as proposals and are NO_APPLICABLE to this screen-step preview;
+    negative: do not claim those refs as rendered/runtime coverage."
   verification: not-run
+  recipeIds: Exact P2 recipe media.gui.recipe.job-observation; runtime NOT_ADMITTED
 productId: media
 screenId: media.view.job-status
-status: proposal; baseline-view-contract-authored; action-state-channel-bindings-and-owner-review-pending
+status: proposal; baseline-view-contract-authored;
+  action-state-channel-bindings-and-owner-review-pending
 channel: media.channel.web
 actors:
-- media.creator
-- media.editor
-- media.operator
+  - media.creator
+  - media.editor
+  - media.operator
 intentRef: media.intent.resolve-job
 purpose: view-one-existing-job-status-and-choose-a-safe-next-action
 contextGoalNowNext:
-  context: Stable job identity, exact source version when applicable, current authority, attempt state, and observed
-    finality.
+  context: Stable job identity, exact source version when applicable, current
+    authority, attempt state, and observed finality.
   goal: Reattach to existing long-running work and understand its current evidence.
-  now: Show the job and source identities separately, preserve attempt state and finality, and expose only measured
-    progress.
-  next: Continue observing, request cancellation, or check the same job outcome when it is unknown.
+  now: Show the job and source identities separately, preserve attempt state and
+    finality, and expose only measured progress.
+  next: Continue observing, request cancellation, or check the same job outcome
+    when it is unknown.
 anatomy:
-- job-identity
-- source-version-when-applicable
-- job-state
-- attempt-state-when-authorized
-- measured-progress-when-reported
-- finality
-- safe-next-action
+  - job-identity
+  - source-version-when-applicable
+  - job-state
+  - attempt-state-when-authorized
+  - measured-progress-when-reported
+  - finality
+  - safe-next-action
 states:
-- queued
-- running
-- cancellation-pending
-- completed
-- partially-succeeded
-- failed
-- retry-pending
-- outcome-unknown
-- reconciling
-- cancelled
+  - queued
+  - running
+  - cancellation-pending
+  - completed
+  - partially-succeeded
+  - failed
+  - retry-pending
+  - outcome-unknown
+  - reconciling
+  - cancelled
 actions:
-- media.action.view-job-status
-- media.action.request-cancellation
-- media.action.check-job-outcome
-- media.action.retry-job
+  - media.action.view-job-status
+  - media.action.request-cancellation
+  - media.action.check-job-outcome
+  - media.action.retry-job
 observation:
-  detaching: stop-watching-only-changes-the-current-view; it-does-not-cancel-or-delete-the-job
+  detaching: stop-watching-only-changes-the-current-view;
+    it-does-not-cancel-or-delete-the-job
   reattachment: use-the-same-stable-job-identity-and-read-current-owner-evidence
   progress: omit-when-not-measured; never-infer-progress-from-elapsed-time-or-state
   cancellation: report-a-request-as-pending-until-owner-confirmation-or-a-racing-result
   uncertainOutcome: view-status-or-check-the-existing-job-outcome; do-not-blindly-resubmit
-  retry: offer only when the prior attempt is classified as retryable and current authority, policy, and budget checks pass; outcome-unknown must be checked before retry; this local fixture slice does not execute retry
-responsive: identity-state-and-finality-precede-secondary-details; actions-wrap-without-horizontal-overflow
-accessibility: announce-state-change-once; label-cancellation-pending; stop-watching-is-distinct-from-cancellation
+  retry: offer only when the prior attempt is classified as retryable and current
+    authority, policy, and budget checks pass; outcome-unknown must be checked
+    before retry; this local fixture slice does not execute retry
+responsive: identity-state-and-finality-precede-secondary-details;
+  actions-wrap-without-horizontal-overflow
+accessibility: announce-state-change-once; label-cancellation-pending;
+  stop-watching-is-distinct-from-cancellation
 copyRefs:
-- media.copy.job.running
-- media.copy.job.unknown
-- media.copy.job.cancellation-pending
-- media.copy.job.observation-stopped
+  - media.copy.job.running
+  - media.copy.job.unknown
+  - media.copy.job.cancellation-pending
+  - media.copy.job.observation-stopped
 fixtureRefs:
-- media.scenario.job-running
-- media.scenario.job-outcome-unknown
-- media.scenario.job-retry-eligible
-- media.scenario.job-retry-ineligible
+  - media.scenario.job-running
+  - media.scenario.job-outcome-unknown
+  - media.scenario.job-retry-eligible
+  - media.scenario.job-retry-ineligible
 componentRefs:
-- media.component.job-status-card
-- media.component.activity-recovery-feed
+  - media.component.job-status-card
+  - media.component.activity-recovery-feed
 actionBindingState: bound-to-existing-PDP-3-actions
 actionIntents:
-- view status for one exact job
-- request cancellation for the existing job when current authority allows
-- check the outcome of the same job when finality is unknown
-- retry the same logical job after a classified retryable attempt and current policy checks
+  - view status for one exact job
+  - request cancellation for the existing job when current authority allows
+  - check the outcome of the same job when finality is unknown
+  - retry the same logical job after a classified retryable attempt and current
+    policy checks
 channelDispositions:
-- channelRef: media.channel.web
-  disposition: baseline-view-contract-proposal
-- channelRef: media.channel.cli
-  disposition: command-counterpart-not-bound
-- channelRef: media.channel.api
-  disposition: logical-operation-and-wire-contract-not-bound
-- channelRef: media.channel.embedded
-  disposition: host-rendering-and-focus-contract-not-bound
+  - channelRef: media.channel.web
+    disposition: baseline-view-contract-proposal
+  - channelRef: media.channel.cli
+    disposition: command-counterpart-not-bound
+  - channelRef: media.channel.api
+    disposition: logical-operation-and-wire-contract-not-bound
+  - channelRef: media.channel.embedded
+    disposition: host-rendering-and-focus-contract-not-bound
 copyDisposition: canonical-copy-IDs-pending
 fixtureDisposition: synthetic-fixture-contract-not-authored
 journeyRefs:
-- J-02
-- J-20
-- J-22
-- J-23
-- J-24
-- J-25
-- J-27
-- J-29
+  - J-02
+  - J-20
+  - J-22
+  - J-23
+  - J-24
+  - J-25
+  - J-27
+  - J-29
 sourceRefs:
-- master-plan:section-20.2
-- pdp-0:journey:J-02
-- pdp-0:journey:J-20
-- pdp-0:journey:J-22
-- pdp-0:journey:J-23
-- pdp-0:journey:J-24
-- pdp-0:journey:J-25
-- pdp-0:journey:J-27
-- pdp-0:journey:J-29
+  - master-plan:section-20.2
+  - pdp-0:journey:J-02
+  - pdp-0:journey:J-20
+  - pdp-0:journey:J-22
+  - pdp-0:journey:J-23
+  - pdp-0:journey:J-24
+  - pdp-0:journey:J-25
+  - pdp-0:journey:J-27
+  - pdp-0:journey:J-29
 jobFamilies:
-- artifact-verification
-- transcription
-- media-processing
+  - artifact-verification
+  - transcription
+  - media-processing
 identityRules:
-- jobId-identifies-one-owner-issued-job
-- uploadId-is-separate-and-present-only-when-returned
-- cancellation-request-is-not-cancelled-finality
-- detaching-observation-does-not-change-job-state
-- unknown-outcome-retains-the-same-job-identity-until-owner-evidence-is-recorded
+  - jobId-identifies-one-owner-issued-job
+  - uploadId-is-separate-and-present-only-when-returned
+  - cancellation-request-is-not-cancelled-finality
+  - detaching-observation-does-not-change-job-state
+  - unknown-outcome-retains-the-same-job-identity-until-owner-evidence-is-recorded
 surfaceContract:
   surfaceRef: media.channel.web
   status: channel-and-host-rendering-owner-review-pending
@@ -246,3 +415,20 @@ recovery:
 localization:
   status: Shared-localization-binding-pending-owner-review
   rule: use-Shared-locale-formatting-and-accessibility-contracts
+operationBindingStatus: Exact action registry and journey-step operation refs; runtime NOT_ADMITTED
+domainObjectBindingStatus: "Exact P1 owner-action wire and linked journey-step
+  object refs are bound; job-attempt and job-lease preserve the normalized job
+  read-model dimensions. Read-only cross-domain dimensions remain separately
+  labeled and do not imply job completion. Runtime NOT_ADMITTED."
+recipeIds:
+  - media.gui.recipe.job-observation
+recipeBindingStatus: Exact P2 GUI recipe selected by media.gui.template.job-observation template
+  recipeRefs; screen-instance admission remains pending
+keyboardSemantics:
+  sourceRef: .product-experience/pdp-2-design-interface-system/accessibility.yaml#/accessibilityRules/@id=media.a11y.keyboard-equivalence
+  rule: Actions and time-based editing have named keyboard and non-drag
+    equivalents with visible focus and predictable order.
+  application: Each selected component supplies its interaction-specific keyboard
+    mapping; unsupported mappings remain unavailable; acceptance and
+    verification are not claimed.
+displayStateBindingRef: .product-experience/pdp-3-product-experience/view-state-binding-dispositions.yaml#views/@viewRef=media.view.job-status

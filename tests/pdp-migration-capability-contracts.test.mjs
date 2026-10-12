@@ -17,7 +17,7 @@ const byId = (records, id) => records.find((record) => record.id === id);
 
 test('migration correction: estimated depth remains distinct from measured ground truth', () => {
   const capability = byId(capabilities.capabilities, 'media.generate.image.condition.depth');
-  assert.match(capability.constraints[2], /report reconstruction or estimation distinctly from measured\/ground-truth output/u);
+  assert.match(capability.constraints[2], /Report reconstruction or estimation distinctly from measured\/ground-truth output/u);
   assert.doesNotMatch(capability.constraints[2], /predicted depth is ground truth/u);
 });
 
@@ -33,7 +33,7 @@ test('migration correction: enhancer pipeline proposes only eligible operations 
 test('migration correction: operation acceptance is not completion', () => {
   const submit = byId(capabilities.capabilities, 'media.job.submit');
   assert.ok(submit.constraints.some((entry) => /Acceptance is not completion/u.test(entry)));
-  assert.match(submit.outcome, /return the Media job reference/u);
+  assert.match(submit.outcome, /identifies one accepted operation request as a Media job reference and admission observation/u);
 });
 
 test('migration correction: user rights attestation cannot establish verified consent or license', () => {

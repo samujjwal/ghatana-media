@@ -574,6 +574,194 @@ objects:
       - libs/media-experience-simulation/src/model.ts#MediaSource
       - libs/media-experience-simulation/src/fixtures.ts
       - .product-experience/pdp-0-product-truth/journey-catalog.yaml#J-03
+ownerDefinedLogicalSemantics:
+  authority: user-delegated-Media-domain-definition; narrow-P1-01-logical-meaning-only
+  status: OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed
+  criteria: >-
+    These records resolve only source-backed identity, exact references, lifecycle
+    boundaries, and conservative unknown behavior. Existing per-object scopeStatus
+    remains unchanged. No new relationship, scientific calibration, policy outcome,
+    runtime capability, storage constraint, or external-owner approval is inferred.
+  records:
+    - objectRef: media.domain.media-asset
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-asset
+      relationshipRefs: [media.rel.project-asset, media.rel.asset-artifact-version]
+      identityRule: Tenant and project scope are part of asset-use identity; asset identifies project membership/reference, not bytes. Artifact and exact immutable artifact version are separate typed references.
+      lifecycleRule: Membership/purpose/presentation edits are represented by a new containing project revision; changing bytes requires a different artifact-version reference. Removing a reference does not delete bytes.
+      sourceOrParentRule: A project revision selects the asset membership set; the asset binds one same-tenant exact artifact version, never artifact-only or latest.
+      unknownBehavior: Missing project, artifact, tenant, or version identity blocks the join; no digest, display name, or latest-version fallback is allowed.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaAsset, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-asset, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.asset-artifact-version]
+    - objectRef: media.domain.recipe
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.recipe
+      relationshipRefs: []
+      identityRule: Tenant-scoped stable recipe identity plus semantic version; semantic edits create a new version. Parameters and ports are typed specification content, not identity substitutes.
+      lifecycleRule: A recipe is immutable authored intent at a selected semantic version; drafts are not committed versions.
+      sourceOrParentRule: Recipe describes processing, animation, or simulation intent; it does not itself identify an engine/provider implementation or create an execution relationship.
+      unknownBehavior: Missing recipe version, typed parameter meaning, bounds, or required port fails validation; unknown content cannot dispatch work.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRecipe]
+    - objectRef: media.domain.processing-graph
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.processing-graph
+      relationshipRefs: []
+      identityRule: Tenant-scoped stable graph identity plus semantic version; graph identity is not provider workflow or runtime implementation identity.
+      lifecycleRule: Graph definition is immutable by semantic version; edits produce a new version. An admitted execution plan is acyclic; any bounded loop must remain within a typed node contract.
+      sourceOrParentRule: Node/edge artifact references name exact typed inputs and outputs; graph membership does not prove source consumption or lineage by itself.
+      unknownBehavior: Unknown node, edge, port type, artifact version, or parameter contract blocks plan admission; no generic/untyped map is treated as equivalent.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaProcessingGraph]
+      deferredBoundary: Universal runtime IR and engine/provider execution mapping are not observed or admitted.
+    - objectRef: media.domain.resolved-plan
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.resolved-plan
+      relationshipRefs: [media.rel.job-plan]
+      identityRule: Tenant-scoped stable planId is identity; fingerprint is an integrity/binding value and not plan identity.
+      lifecycleRule: A selected resolved plan is immutable for its bound run/accepted request; replanning creates a successor plan.
+      sourceOrParentRule: A job has zero or one plan while unresolved or where its operation needs none; when required, bind the exact plan identity and fingerprint. Absence cannot be silently replaced by another profile or latest plan.
+      unknownBehavior: If an operation requires a plan and exact plan binding is missing or unavailable after acceptance, deny dispatch or reconcile UNKNOWN; do not substitute.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ResolvedMediaPlan, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.job-plan]
+      deferredBoundary: Plan registry persistence, admission, resource reservation, and execution are not claimed.
+    - objectRef: media.domain.media-run
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.media-run
+      relationshipRefs: [media.rel.run-checkpoint]
+      identityRule: Tenant-scoped stable runId; run is distinct from source revision, plan, logical job, and attempt.
+      lifecycleRule: Run progression does not mutate its source graph/plan; terminal or uncertain observations do not rewrite prior observations.
+      sourceOrParentRule: A run binds the exact source revision or resolved plan used. Its checkpoint children use exact same-tenant run identity.
+      unknownBehavior: Missing exact source/plan reference or replay class remains UNKNOWN/unavailable; no latest source, regenerated plan, or deterministic-replay claim is inferred.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.run-checkpoint]
+      deferredBoundary: Durable run history, replay implementation, and execution qualification are not established.
+    - objectRef: media.domain.checkpoint
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.checkpoint
+      relationshipRefs: [media.rel.run-checkpoint]
+      identityRule: TenantId + runId + checkpointId; sequence orders checkpoints within the exact run and is not a standalone identity.
+      lifecycleRule: Checkpoints are immutable observations; append-only ordering does not by itself promise durable storage or replayability.
+      sourceOrParentRule: Every checkpoint belongs to one exact same-tenant run; source graph/plan and execution provenance are preserved as explicit references when known.
+      unknownBehavior: Missing sequence, source version, or execution provenance remains explicitly unknown; do not infer deterministic replay from a checkpoint or seed alone.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#MediaRun-and-Checkpoint, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.run-checkpoint]
+      deferredBoundary: Persistence, retention, and replay qualification remain unverified.
+    - objectRef: media.domain.scene-plan
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan
+      relationshipRefs: []
+      identityRule: Tenant and project scoped stable scenePlanId plus semantic version.
+      lifecycleRule: Semantic edits create a new immutable authored-intent version; scene intent is distinct from generated scene output.
+      sourceOrParentRule: Timing, references, controls, narration, and transitions are intent fields; an absent source means source-free authorship, not an invented parent.
+      unknownBehavior: Unknown timing/reference meaning remains unknown and cannot establish permission, model truth, or source ancestry.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief]
+    - objectRef: media.domain.scene-brief
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-brief
+      relationshipRefs: []
+      identityRule: Tenant and project scoped stable sceneBriefId plus semantic version.
+      lifecycleRule: Brief changes create a new intent version; a brief does not become a scene graph or simulation result by naming one.
+      sourceOrParentRule: Narrative and visual references remain typed references; no permission or behavior proof is inherited from the prose.
+      unknownBehavior: Missing or ambiguous reference, clock, or purpose cannot authorize processing or assert model behavior.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief]
+    - objectRef: media.domain.scene-graph
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+      relationshipRefs: [media.rel.scene-model-binding, media.rel.animation-property-owner]
+      identityRule: Tenant and project scoped stable sceneGraphId plus semantic version.
+      lifecycleRule: Visual entities, transforms, materials, cameras, lights, and bindings are versioned representation; engine-specific objects stay adapter-private.
+      sourceOrParentRule: Artifact references bind exact artifact versions. Scene representation is separate from physical/model state and receives no implicit simulation truth.
+      unknownBehavior: Missing asset version, transform convention, coordinate frame, or binding owner blocks the affected mapping; no default axis/unit or engine object is inferred.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SceneGraph, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.scene-model-binding, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.animation-property-owner]
+    - objectRef: media.domain.animation-graph
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.animation-graph
+      relationshipRefs: [media.rel.animation-property-owner]
+      identityRule: Tenant and project scoped stable animationGraphId plus semantic version.
+      lifecycleRule: Tracks, keyframes, curves, constraints, events, and rig mappings are immutable by semantic version.
+      sourceOrParentRule: "Each animated property has one declared owner: animation/kinematic driver or simulation-supplied value. Contradictory ownership is invalid."
+      unknownBehavior: Missing property owner, rig mapping, timebase, or target scene version blocks that binding; no engine default or implicit simulation coupling is used.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#AnimationGraph, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.animation-property-owner]
+    - objectRef: media.domain.simulation-world
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.simulation-world
+      relationshipRefs: [media.rel.scene-model-binding]
+      identityRule: Tenant-scoped stable worldId plus semantic version; identity does not certify scientific validity.
+      lifecycleRule: Initial model state, quantities, units, solver/engine requirements, boundary conditions, constraints, and sampled output contract are versioned separately from visual scene state.
+      sourceOrParentRule: Quantitative fidelity requires equations or an authoritative model reference, units, and validity range; scene meshes are not model evidence.
+      unknownBehavior: Missing unit, equation/model authority, solver version, validity range, or calibration remains unknown and blocks quantitative/scientific claims; no calibration is invented.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#SimulationWorld, .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.scene-model-binding]
+      deferredBoundary: Domain scientific authority, solver qualification, and model validity are external or not evaluated.
+    - objectRef: media.domain.timeline
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline
+      relationshipRefs: []
+      identityRule: Tenant and project scoped stable timelineId plus semantic version.
+      lifecycleRule: Timeline edits create a new immutable editorial specification version; tracks and clips retain their declared clock and exact references.
+      sourceOrParentRule: Editorial/media time is separate from simulation and wall-clock time; timeline content does not silently align clocks.
+      unknownBehavior: Unknown clock, timebase, frame cadence, origin, or rounding denies conversion and preserves source values/loss state.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml, .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions]
+    - objectRef: media.domain.composition-config
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.composition-config
+      relationshipRefs: []
+      identityRule: Tenant and project scoped stable compositionConfigId plus semantic version.
+      lifecycleRule: Audio mix, captions, graphics, color configuration, transitions, and delivery intent are a versioned editorial specification, not output evidence.
+      sourceOrParentRule: Referenced media versions and editorial clock are exact; simulation time and wall-clock deadlines remain separate.
+      unknownBehavior: Missing media version, timing basis, profile, or destination scope is unknown and cannot be silently defaulted or treated as delivered output.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml]
+    - objectRef: media.domain.continuity-state
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.continuity-state
+      relationshipRefs: []
+      identityRule: Tenant and project scoped stable continuityStateId plus semantic version.
+      lifecycleRule: Continuity references and comparison observations are versioned; a continuity observation never establishes person/entity identity.
+      sourceOrParentRule: Source/output references bind exact versions; comparison result identifies its method and scope if supplied.
+      unknownBehavior: Missing comparison method, source version, uncertainty, or applicability remains unknown and cannot be promoted to identity proof.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ContinuityState, .product-experience/pdp-0-product-truth/quality-policy.yaml]
+    - objectRef: media.domain.quality-assessment
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.quality-assessment
+      relationshipRefs: [media.rel.assessment-subject]
+      identityRule: Tenant + exact output artifact version + assessmentId + method version; score is not identity.
+      lifecycleRule: Assessment is an immutable scoped observation; superseding assessment does not rewrite prior evidence. Applicability, abstention, uncertainty, failure region, and reviewer disposition remain explicit dimensions.
+      sourceOrParentRule: Subject reference names exact artifact version, job, or run supported by the relationship; source scope is same-tenant.
+      unknownBehavior: Missing/inapplicable metric, method, unit, threshold, or evidence cannot count as pass or zero score; unsupported subject binding is rejected.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#QualityAssessment, .product-experience/pdp-0-product-truth/quality-policy.yaml, .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.assessment-subject]
+      deferredBoundary: Domain-specific metric calibration and independent assessment are not defined by generic Media identity.
+    - objectRef: media.domain.render-outcome
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.render-outcome
+      relationshipRefs: []
+      identityRule: Tenant + logical jobId + outcomeId; exact output artifact version is a separate reference.
+      lifecycleRule: Render outcome and output version are immutable observations; correction/reconciliation creates a distinct observation/version and does not mutate the source specification.
+      sourceOrParentRule: Output ArtifactVersion has explicit source/derivation lineage where inputs were actually consumed; source-free creation has no fabricated input.
+      unknownBehavior: Unknown output version, source lineage, or execution finality stays unknown; render completion does not imply delivery/publication.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome, .product-experience/pdp-1-domain-data/versioning.yaml#definitionAdjudication/ruleDispositions]
+    - objectRef: media.domain.delivery-outcome
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.delivery-outcome
+      relationshipRefs: []
+      identityRule: Tenant + deliveryRequestId + outcomeId + destinationRef; receipt identity is distinct from output ArtifactVersion identity.
+      lifecycleRule: Submission, recipient acknowledgement, and remote finality are separate observations; one output may have multiple destination-specific delivery outcomes only when each request/destination identity is explicit.
+      sourceOrParentRule: Outcome references an exact output version and authorized destination; destination authority is not derived from artifact metadata.
+      unknownBehavior: Timeout or lost response after possible submission remains UNKNOWN; do not claim delivered, retry as a new request, or substitute a destination without authorized reconciliation.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#RenderOutcome-and-DeliveryOutcome, .product-experience/pdp-1-domain-data/versioning.yaml#definitionAdjudication/ruleDispositions]
+      deferredBoundary: Destination-specific external protocol, acknowledgement evidence, and remote deletion/finality are not admitted.
+    - objectRef: media.domain.rights-decision
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.rights-decision
+      relationshipRefs: []
+      identityRule: Tenant plus authority-issued decisionId and policyVersion; subject, purpose, region, and validity are scoped decision fields, not caller-selected identity.
+      lifecycleRule: Rights decision remains distinct from consent, user assertion, license evidence, and provenance; only its designated authority determines currentness/revocation.
+      sourceOrParentRule: A Media operation may reference a decision only for its exact subject and declared purpose/scope; Media cannot broaden that scope or translate a consent record into a rights decision.
+      unknownBehavior: Missing, stale, conflicting, or unverifiable authority decision blocks rights-dependent effects; no policy outcome is inferred from metadata or model output.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+      deferredBoundary: Policy semantics, authority-issued key format, and decision currentness belong to the named external policy/rights authority.
+    - objectRef: media.domain.provenance-manifest
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.provenance-manifest
+      relationshipRefs: []
+      identityRule: Tenant-scoped stable manifestId plus semantic version; manifest identity is not the digest of its content.
+      lifecycleRule: A registered manifest is immutable lineage evidence; updates create a new version and preserve prior observation identity.
+      sourceOrParentRule: Source-free authoring records authored intent/observed generation origin and has no fabricated source version. Derived output records each exact consumed input version and producing operation/job where known. Optional reference presence alone does not prove consumption.
+      unknownBehavior: Missing provider/model/clock/conversion values remain UNKNOWN; lineage does not prove rights, consent, quality, or identity.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-1-domain-data/provenance.yaml#ownerDefinedLineageBoundary]
+      deferredBoundary: Producer completeness, event history, provider admission, and durable provenance are not established.
+    - objectRef: media.domain.consent-reference
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.consent-reference
+      relationshipRefs: []
+      identityRule: Tenant plus authority-issued consentId and immutable consentRevisionId; caller-selected IDs and a mutable integer version do not establish current identity.
+      lifecycleRule: The reference identifies an authority record revision, not a grant or active entitlement; the current authoritative scope and revocation/expiry state are rechecked at each effect boundary.
+      sourceOrParentRule: Consent is bound by its authority to tenant, principal, purpose, region, and validity. Rights/license decisions and user assertions remain separate concepts and are not derived from this reference.
+      unknownBehavior: Missing, stale, revoked, superseded, or unverifiable revision blocks consent-dependent work; prior verified consent can authorize stream termination only where PDP-0 explicitly says so.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#ConsentReference-RightsDecision-ProvenanceManifest, .product-experience/pdp-0-product-truth/state-models.yaml#models/@modelId=media-rights-and-consent, .product-experience/pdp-0-product-truth/policy-authority-model.yaml]
+      deferredBoundary: Consent authority owns decision issuance/currentness and deployed identity binding; this reference definition grants no consent or processing permission.
+    - objectRef: media.domain.generation-control-bundle
+      identityContractRef: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.generation-control-bundle
+      relationshipRefs: []
+      identityRule: Tenant-scoped stable controlBundleId plus semantic version; control values do not become person, artifact, scene, or model identity.
+      lifecycleRule: The typed set of masks, depth/normals, pose, edges, segmentation, layout, palette, trajectories, and static/motion regions is immutable per selected operation/version; edits create a new semantic version.
+      sourceOrParentRule: The bundle describes generation intent only. Any consumed media source is separately bound to its exact artifact version and provenance; control presence does not create a derived-source edge or assert a model/identity truth.
+      unknownBehavior: Missing type, coordinate frame, clock, unit, source version, or required control remains UNKNOWN and blocks that dependent mapping; no unqualified value is converted, defaulted, or promoted to truth.
+      sourceRefs: [.product-experience/pdp-0-product-truth/domain-model.yaml#GenerationControlBundle, .product-experience/pdp-0-product-truth/time-units-fidelity.yaml, .product-experience/pdp-1-domain-data/value-objects.yaml#canonicalConversionDefinitions, .product-experience/pdp-1-domain-data/provenance.yaml#ownerDefinedLineageBoundary]
+      deferredBoundary: Generator-specific control schemas, model/provider admission, calibration, and identity claims are not established by this value bundle.
 canonicalRelationshipAdjudication:
   decisionId: MEDIA-OWNER-2026-10-08-PDP1-RELATIONSHIPS-01
   authority: user-delegated-Media-product-semantic-owner-in-EXECUTE-MEDIA-PDP-0-3-38-TASKS

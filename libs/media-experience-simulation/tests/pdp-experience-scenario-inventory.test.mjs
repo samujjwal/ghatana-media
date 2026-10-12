@@ -26,6 +26,8 @@ test("PDP-3 scenario inventory has a deterministic seed or an explicit non-execu
   assert.deepEqual(intentionallyUnseeded.map(({ id }) => id), []);
   const retryEligible = scenarios.find(({ id }) => id === "media.scenario.job-retry-eligible");
   assert.match(retryEligible.pdp3PayloadState, /pre-dispatch-eligibility-fixture-seeded/u);
+  assert.equal(retryEligible.eligibilityEvidenceStatus,
+    "SOURCE_EVIDENCE_UNRESOLVED; CONDITIONAL_SCENARIO_NON_EXECUTABLE; ORACLE_UNKNOWN");
   assert.match(retryEligible.pdp3PayloadState, /retry-request-not-dispatched/u);
   assert.match(retryEligible.pdp3PayloadState, /no-local-retry-reducer/u);
 
@@ -49,7 +51,8 @@ test("PDP-3 scenario inventory has a deterministic seed or an explicit non-execu
     assert.deepEqual(first, replay, `${scenarioId} seed must be deterministic`);
   }
 
-  assert.equal(createFixtureState("media.scenario.job-retry-eligible").retryEligibility?.priorAttemptDisposition, "RETRYABLE");
+  assert.equal(createFixtureState("media.scenario.job-retry-eligible").retryEligibility, null,
+    "the conditional retry scenario has no source-backed eligibility evidence");
 });
 
 test("PDP-3 seeded scenarios enforce their declared denied, pending, and unknown outcomes", () => {
@@ -141,4 +144,29 @@ test("PDP-3 step fixture links preserve all 31 source scenarios and their execut
     }
   }
   assert.deepEqual([...linked].sort(), [...fixtureById.keys()].sort(), "every registered scenario must be allocated to an exact journey step");
+});
+
+test("J-08 local source selection declares an unseeded, conditional fixture disposition", async () => {
+  const journey = parse(await readFile(
+    resolve(repoRoot, ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml"),
+    "utf8",
+  ));
+  const step = journey.steps[0];
+  const semantics = step.stepDefinitionSemantics;
+  assert.equal(journey.journeyId, "J-08");
+  assert.equal(semantics.ordinal, 1);
+  assert.equal(semantics.action.actionRef, "media.action.choose-source");
+  assert.deepEqual(step.scenarioRefs ?? [], []);
+  assert.deepEqual(semantics.canonicalBindings.scenarioRefs, []);
+
+  const oracle = semantics.fixtureOracle;
+  assert.equal(oracle.status, "NO_STEP_SCENARIO_BOUND");
+  assert.equal(oracle.journeyRef, "J-08");
+  assert.deepEqual(oracle.scenarioRefs, []);
+  assert.deepEqual(oracle.scenarios, []);
+  assert.equal(oracle.conditionalDisposition,
+    "NO_SEEDED_SCENARIO; NON_EXECUTABLE_UNTIL_SOURCE_LINKED_FIXTURE_EXISTS");
+  assert.equal(oracle.executable, false);
+  assert.equal(oracle.ownerOracleAcceptance, "NOT_ESTABLISHED");
+  assert.equal(Object.hasOwn(oracle, "cases"), false, "no synthetic outcome cases may be invented");
 });

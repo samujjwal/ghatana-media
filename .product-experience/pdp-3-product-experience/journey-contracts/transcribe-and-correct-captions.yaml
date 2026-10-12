@@ -151,8 +151,12 @@ steps:
       stepSourceFacts:
         intent: select one authorized source artifact version for speech understanding
         result: exact-source-version-is-bound-to-the-workflow
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-03.step-01.v1/effect
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-03.step-01.v1/finality
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: A reviewable caption version is linked to the exact source and carries
@@ -408,12 +412,12 @@ steps:
     authorityRef: .product-experience/pdp-1-domain-data/operations.yaml#media.operation.transcription-submission
     sourceDecisionRef: .product-experience/decision-log.md#PXD-070
     grammarDecisionRef: .product-experience/decision-log.md#PXD-071
-    decisionRef: .product-experience/decision-log.md#PXD-072
+    decisionRef: .product-experience/decision-log.md#PXD-159
     transitionRef: null
     transitionDisposition:
       status: NOT_APPLICABLE_WITH_REASON
       transitionRef: null
-      decisionRef: .product-experience/decision-log.md#PXD-072
+      decisionRef: .product-experience/decision-log.md#PXD-159
       reason: Submission establishes one logical request receipt only; P1 defines no
         job-state or attempt transition for this operation.
     handoffRef:
@@ -446,11 +450,10 @@ steps:
         - profileId
         - profileVersion
         - profileConfigurationDigest
-        - purpose
-        - consentRef
-        - rightsEvidenceRef
-        - retentionPolicyRef
-        - processingLocation
+        - timestamps
+        - speakerDiarization
+        - purposeRef
+        - rightsEvidenceRefs
       submitAllowedFields:
         - requestMode
         - requestId
@@ -460,11 +463,14 @@ steps:
         - profileId
         - profileVersion
         - profileConfigurationDigest
-        - purpose
+        - timestamps
+        - speakerDiarization
+        - purposeRef
+        - rightsEvidenceRefs
         - consentRef
-        - rightsEvidenceRef
         - retentionPolicyRef
-        - processingLocation
+        - policyDecisionRef
+        - languageHint
       reconcileRequiredFields:
         - requestId
         - requestFingerprint
@@ -501,44 +507,75 @@ steps:
         rule: validate-supported-profile-and-intent-currently; never infer a default
       profileBinding: exact-profileId-profileVersion-profileConfigurationDigest;
         current authoritative qualification is required
+      profilePreconstructionBoundary: absent-incomplete-stale-or-unqualified-optional-P0-profile-language-slot-returns-UNSUPPORTED_PROFILE-before-operation-request-job-receipt-or-dispatch-construction; never-default-or-reinterpret-absence-as-AUTO_REQUESTED
       policyContext:
-        - purpose
+        - purposeRef
+        - rightsEvidenceRefs
         - consentRef
-        - rightsEvidenceRef
         - retentionPolicyRef
-        - processingLocation
+        - policyDecisionRef
       scalarNullability:
-        optionalDelegationRef: absent-only-means-canonical-null;
-          if-present-require-nonempty-trusted-delegation-reference
-        consentRef: nonempty-current-resolved-reference-when-required;
-          explicit-null-only-on-current-authoritative-policy-determination-that-consent-is-not-required
+        optionalDelegationRef: absent-is-canonical-null;
+          if-present-must-be-a-nonempty-trusted-delegation-reference
+        consentRef: optional-exact-reference-locator; omission-resolves-only-from-current-trusted-owner-context;
+          canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required
+        retentionPolicyRef: optional-exact-reference-locator;
+          omission-resolves-only-from-current-trusted-owner-context;
+          canonical-null-only-when-current-authoritative-policy-resolves-no-retention-policy
+        policyDecisionRef: optional-exact-reference-locator;
+          omission-resolves-only-from-current-trusted-owner-context;
+          canonical-null-only-when-no-separate-policy-decision-reference-exists
         requiredNonemptyStrings:
           - requestId
           - sourceArtifactId
           - sourceArtifactVersionId
           - profileId
           - profileVersion
-          - purpose
-          - rightsEvidenceRef
-          - retentionPolicyRef
-          - processingLocation
-        digestFields:
+          - purposeRef
+        nonnullDigestFields:
           - profileConfigurationDigest
           - authoritativeSourceContentDigest
-        digestRequirement: both-required-lowercase-64-hex-SHA256
-        rightsEvidenceRef: required-nonnull-locator-resolved-to-current-authoritative-rights-decision;
-          caller-assertion-is-not-evidence
+        rightsEvidenceRefs: nonempty-exact-reference-array-resolved-to-current-authoritative-rights-decisions;
+          preserve-array-order-and-membership; caller-assertion-is-not-evidence
+        consentRetentionAndPolicyReferences: caller-provided-values-are-exact-locators-only;
+          current-authoritative-owner-resolution-controls-effective-values-and-explicit-null;
+          caller-cannot-assert-consent-retention-or-policy-authority
+        processingLocation: never-caller-asserted; resolve-only-from-current-trusted-policy-and-qualified-profile-context
         reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
-        noOtherNulls: reject-null-required-fields-and-unlisted-nullable-values;
+        noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field;
           no-defaulting-or-ignored-payload-fields
+      authorityReferences: purposeRef-and-rightsEvidenceRefs-are-exact-input-references-only;
+        consentRef-retentionPolicyRef-and-policyDecisionRef-are-optional-exact-locators;
+        all-references-require-current-authoritative-owner-resolution-and-are-not-self-grants
+      purposeAndLocation: purposeRef-is-an-exact-typed-purpose-reference;
+        processingLocation-is-resolved-only-from-current-trusted-policy-and-qualified-profile-context
+      policyFields:
+        - purposeRef
+        - rightsEvidenceRefs
+        - consentRef
+        - retentionPolicyRef
+        - policyDecisionRef
+      optionalReferenceWireFields:
+        - consentRef
+        - retentionPolicyRef
+        - policyDecisionRef
+      callerNullRule: optional-wire-reference-fields-must-be-absent-or-nonempty-strings;
+        caller-supplied-null-is-rejected;
+        canonical-null-is-host-produced-only-under-each-field-specific-current-policy-rule
+      requestResolution:
+        optionalAuthorityReferences:
+          - consentRef
+          - retentionPolicyRef
+          - policyDecisionRef
+        absentReferenceDisposition: resolve-from-current-authoritative-owner-context-or-canonical-null-only-when-policy-says-not-applicable
+        processingLocationDisposition: resolve-from-current-trusted-policy-and-qualified-profile-context; never-accept-a-caller-asserted-location
+        fingerprintUses: exact-owner-resolved-values-including-explicit-null-and-resolvedProcessingLocation
+      fingerprintValueSource: caller-supplied-reference-locators-are-only-input-to-current-owner-resolution; fingerprint-uses-exact-owner-resolved-effective-values-from-the-retained-original-submit-snapshot-under-the-same-P1-field-names; never-substitute-caller-locator-strings-for-resolved-values
       requestFingerprint:
-        version: media.transcription-submission-fingerprint.v1
+        version: media.transcription-submission-fingerprint.v2
         digestField: requestFingerprint; lowercase-64-hex-SHA256
         algorithm: SHA-256
-        encoding: compact UTF-8 JSON array with no whitespace, exact ordered fields,
-          JSON string escaping, and explicit null/value presence; languageIntent
-          uses fixed ordered tuples [EXPLICIT, exact-languageTag] or
-          [AUTO_REQUESTED], never unordered object serialization
+        encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
         binds:
           - tenantId
           - principalId
@@ -552,20 +589,38 @@ steps:
           - profileId
           - profileVersion
           - profileConfigurationDigest
-          - purpose
+          - timestamps
+          - speakerDiarization
+          - purposeRef
+          - rightsEvidenceRefs
           - consentRef
-          - rightsEvidenceRef
           - retentionPolicyRef
-          - processingLocation
-        replay: retain the complete validated canonical submit snapshot and fingerprint
-          before first dispatch; exact same key and fingerprint only after fresh
-          current effect policy; mismatch is IDEMPOTENCY_CONFLICT and does not
-          erase or prove absence of prior receipt
+          - policyDecisionRef
+          - resolvedProcessingLocation
+        languageIntentEncoding:
+          EXPLICIT:
+            - EXPLICIT
+            - exact-languageTag
+          AUTO_REQUESTED:
+            - AUTO_REQUESTED
+          rule: fixed-ordered-tuples-never-an-unordered-object
+        scalarEncoding: fixed-string-or-explicit-null-types-only;
+          rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references;
+          timestamps-is-one-of-none-segment-word-phoneme;
+          speakerDiarization-is-a-JSON-boolean-without-coercion;
+          profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256;
+          invalid-types-or-digests-reject-before-hashing
+        normalization: validate-types-and-enums-first;
+          preserve-exact-validated-string-values-and-optional-presence;
+          no-trimming-case-folding-default-insertion-or-map-order-dependence
+        replay: retain the complete validated canonical submit snapshot, current
+          owner-resolved optional authority values, resolved processing location,
+          and fingerprint before first dispatch; exact same key and fingerprint
+          only after fresh current effect policy; mismatch is IDEMPOTENCY_CONFLICT
+          and does not erase or prove absence of prior receipt
         reconcileFingerprint: caller supplies nonnull lowercase-64-hex digest; host
           recomputes it from retained original snapshot in the same trusted
           scope; never trust a digest received from a lost response
-        languageIntentEncoding: fixed ordered tuples [EXPLICIT, exact-languageTag] or
-          [AUTO_REQUESTED]; no unordered-object serialization
       acknowledgedFields:
         - outcome
         - requestId
@@ -581,7 +636,8 @@ steps:
         - observedAt
         - uncertaintyReason
       asynchronousBoundary: REQUEST_ACKNOWLEDGED establishes logical request/job
-        identity and receipt only; it asserts no job state, provider execution,
+        identity and receipt only; acceptedAt proves no job state or worker dispatch;
+        it asserts no provider execution,
         recognition completion, transcript, quality, caption approval, or
         publication
       reconciliation: RECONCILE uses same requestId and full fingerprint in same
@@ -603,6 +659,7 @@ steps:
         - RETENTION_NOT_PERMITTED
         - PROCESSING_LOCATION_NOT_PERMITTED
         - PROFILE_NOT_QUALIFIED
+        - UNSUPPORTED_PROFILE
         - LANGUAGE_NOT_SUPPORTED
         - AUTHORIZATION_DENIED
         - IDEMPOTENCY_CONFLICT
@@ -664,19 +721,24 @@ steps:
       - tenantId
       - principalId
       - delegationRef
+      - operationId
       - requestId
       - requestFingerprint
       - sourceArtifactId
       - sourceArtifactVersionId
+      - authoritativeSourceContentDigest
       - languageIntent
       - profileId
       - profileVersion
       - profileConfigurationDigest
-      - purpose
+      - timestamps
+      - speakerDiarization
+      - purposeRef
+      - rightsEvidenceRefs
       - consentRef
-      - rightsEvidenceRef
       - retentionPolicyRef
-      - processingLocation
+      - policyDecisionRef
+      - resolvedProcessingLocation
       - submissionReceiptId
       - jobId
     bindingStatus:
@@ -735,6 +797,8 @@ steps:
           and preserve asynchronous finality.
         result: stable-logical-job-identity-and-submission-receipt-only;
           no-current-job-state-or-recognition-completion-claim
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcription-submission/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: exact-audio-logical-request-acceptance
@@ -775,19 +839,24 @@ steps:
           - tenantId
           - principalId
           - delegationRef
+          - operationId
           - requestId
           - requestFingerprint
           - sourceArtifactId
           - sourceArtifactVersionId
+          - authoritativeSourceContentDigest
           - languageIntent
           - profileId
           - profileVersion
           - profileConfigurationDigest
-          - purpose
+          - timestamps
+          - speakerDiarization
+          - purposeRef
+          - rightsEvidenceRefs
           - consentRef
-          - rightsEvidenceRef
           - retentionPolicyRef
-          - processingLocation
+          - policyDecisionRef
+          - resolvedProcessingLocation
           - submissionReceiptId
           - jobId
         intentSourceRef: .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#/steps/1
@@ -963,7 +1032,7 @@ steps:
     action: media.action.view-job-status
     actionBindingStatus: direct-action-capability-crosswalk; proposal-only
     capabilityRefs: [ media.job.view-status ]
-    result: progress-and-finality-reflect-owning-job-state
+    result: "Immediate result is limited to the exact P1 query result schema fields requestId, exactTargetRef, ownerReceipt, and observedAt. Job progress and finality remain UNKNOWN because the selected observer contract does not bind those fields; no transcript or caption finality or completion is inferred."
     surfaceRefs:
       - media.surface.web
     objectRefs:
@@ -1080,9 +1149,11 @@ steps:
         noMutationReason: read-current-job-and-attempt-evidence
       stepSourceFacts:
         intent: follow one submitted transcription job and decide its safe next action
-        result: progress-and-finality-reflect-owning-job-state
+        result: "Immediate result is limited to the exact P1 query result schema fields requestId, exactTargetRef, ownerReceipt, and observedAt. Job progress and finality remain UNKNOWN because the selected observer contract does not bind those fields; no transcript or caption finality or completion is inferred."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.view-job-status/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: A reviewable caption version is linked to the exact source and carries
@@ -1237,7 +1308,7 @@ steps:
         actionRef: media.action.view-job-status
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.view-job-status
-          intendedResult: progress-and-finality-reflect-owning-job-state
+          intendedResult: "Show job progress or finality only when supplied by a bound authoritative observer. Until those observer fields are defined, preserve UNKNOWN and do not infer transcript or caption completion."
           effect: read-current-job-and-attempt-evidence
           finality: read-only
         nonhappy:
@@ -1286,7 +1357,7 @@ steps:
         versionIdentityRule: Exact immutable version identity is required whenever the
           source action names a version; do not substitute a newer version.
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.view-job-status
-        observation: progress-and-finality-reflect-owning-job-state
+        observation: "The current query envelope does not bind job progress or finality fields; retain UNKNOWN until an authoritative observer contract supplies them."
         runtimeAdmission: NOT_ADMITTED
       intentBinding:
         status: SCREEN_PURPOSE_SOURCE
@@ -1500,6 +1571,14 @@ steps:
           link, preserving supplied text, timing, language, uncertainty, and
           evidence availability without correcting or approving it.
         result: exact-transcript-version-and-source-context-with-per-field-availability-and-supplied-uncertainty
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics/requiredFields
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics/conditionalFields
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics/availabilityValues
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics/timingAvailabilityValues
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics/sourceClockAvailabilityValues
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.transcript-version-read/outputSemantics/incompleteFields
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: exact-transcript-version-observation
@@ -1993,6 +2072,9 @@ steps:
           session-local draft while preserving its exact immutable source
           version and typed transcript-or-caption parent.
         result: one-session-local-draft-revision-with-the-same-exact-source-and-typed-parent
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: session-local-text-correction
@@ -2418,6 +2500,9 @@ steps:
           authoritative clock metadata is bound to the exact immutable source
           artifact version.
         result: one-session-local-draft-revision-with-explicit-half-open-source-tick-range
+        resultSourceRef:
+          - .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics/result
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: session-local-user-timing-edit
@@ -2782,6 +2867,8 @@ steps:
           artifact version and typed parent; registration does not approve,
           publish, deliver, or grant rights.
         result: distinct-immutable-caption-version-and-durable-registration-receipt-or-explicit-failure
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-write/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: exact-request-receipt
@@ -3131,6 +3218,8 @@ steps:
         intent: Compare two distinct exact captionVersionIds while preserving both
           identities and explicitly reporting source or clock incompatibility.
         result: exact-version-pair-and-field-level-comparison-or-explicit-incompatibility
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-version-read/outputSemantics/EXACT_PAIR
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
           status: SOURCE_DEFINED; runtime-admission-pending
           scope: exact-pair-observation

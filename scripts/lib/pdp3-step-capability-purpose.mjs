@@ -2,6 +2,35 @@ const unique = (values) => [...new Set(values ?? [])];
 
 const same = (left, right) => JSON.stringify(left ?? []) === JSON.stringify(right ?? []);
 
+const capabilityBindingIndexes = new WeakMap();
+
+function exactPdp1CapabilityBinding(capabilityRef, operationsById) {
+  if (!(operationsById instanceof Map)) return null;
+  let index = capabilityBindingIndexes.get(operationsById);
+  if (!index) {
+    index = new Map();
+    const seen = new Set();
+    for (const record of operationsById.values()) {
+      if (!record || seen.has(record) || !record.capabilityRef
+        || (record.recordKind !== "CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION"
+          && record.recordKind !== "CAPABILITY_TO_EXISTING_OPERATION_BINDING")) continue;
+      seen.add(record);
+      const matches = index.get(record.capabilityRef) ?? [];
+      matches.push(record);
+      index.set(record.capabilityRef, matches);
+    }
+    capabilityBindingIndexes.set(operationsById, index);
+  }
+  const matches = index.get(capabilityRef) ?? [];
+  if (matches.length !== 1) return null;
+  const binding = matches[0];
+  if (!Array.isArray(binding.operationRefs) || binding.operationRefs.length === 0
+    || new Set(binding.operationRefs).size !== binding.operationRefs.length
+    || binding.operationRefs.some((ref) => typeof ref !== "string" || !ref.trim())
+    || (binding.operationKind !== "COMMAND" && binding.operationKind !== "QUERY")) return null;
+  return binding;
+}
+
 function exactBindings(record, step, p0Journey, actionById, ownerBindingsById, localContractsById, context) {
   if (!record || !step || !p0Journey || record.journeyRef !== p0Journey.id
     || !same(record.outcomeRefs, p0Journey.outcomeRefs)
@@ -87,14 +116,14 @@ export function validatePdp3JourneyPurposeBinding(record, context) {
     return { valid: false, reason: "PURPOSE_OR_OPERATION_SCOPE_MISMATCH" };
   }
   if (record.purposeClass === "EXPLICIT_CAPABILITY_ALTERNATIVES") {
-    const capPurpose = validatePdp3StepCapabilityPurpose(step, context.capabilitiesById, p0Journey);
+    const capPurpose = validatePdp3StepCapabilityPurpose(step, context.capabilitiesById, p0Journey, context.operationsById);
     if (!capPurpose.valid) return capPurpose;
   }
   return { valid: true, reason: "EXACT_STEP_PURPOSE_AND_SCOPE" };
 }
 
 /** Validate that explicit capability alternatives serve the authored journey purpose. */
-export function validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Journey) {
+export function validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Journey, operationsById) {
   const binding = step?.purposeBinding;
   const options = step?.capabilityOptions;
   if (!binding || binding.status !== "OWNER_DEFINED_PURPOSE_BOUND_ALTERNATIVES" || !Array.isArray(options)) {
@@ -122,10 +151,11 @@ export function validatePdp3StepCapabilityPurpose(step, capabilitiesById, p0Jour
   }
   for (const option of options) {
     const capability = capabilitiesById.get(option.capabilityRef);
+    const operationBinding = exactPdp1CapabilityBinding(option.capabilityRef, operationsById);
     if (!capability || capability.familyId !== purposeFamily
-      || JSON.stringify(capability.ownerDefinition?.operationRefs ?? []) !== JSON.stringify(option.operationRefs)
+      || !operationBinding || !same(operationBinding.operationRefs, option.operationRefs)
       || JSON.stringify(option.requirementRefs) !== JSON.stringify(binding.requirementRefs)
-      || option.operationKind !== capability.ownerDefinition?.operationKind) {
+      || option.operationKind !== operationBinding.operationKind) {
       return { valid: false, reason: "CAPABILITY_SOURCE_DOES_NOT_MATCH_ANALYSIS_PURPOSE" };
     }
   }
@@ -149,6 +179,7 @@ export function validatePdp3JobSubmitAdapter(adapter, { step, p0Journey, capabil
   }
   for (const option of step.capabilityOptions ?? []) {
     const capability = capabilitiesById.get(option.capabilityRef);
+    const capabilityBinding = exactPdp1CapabilityBinding(option.capabilityRef, operationsById);
     const targetRef = option.operationRefs?.length === 1 ? option.operationRefs[0] : null;
     const target = targetRef ? operationsById.get(targetRef) : null;
     const expectedFamily = adapter.purposeClass === "SOURCE_ANALYSIS" ? "media.vision"
@@ -156,11 +187,12 @@ export function validatePdp3JobSubmitAdapter(adapter, { step, p0Journey, capabil
       : adapter.purposeClass === "SOURCE_VIDEO_REPAIR" ? "media.enhance.video"
       : adapter.purposeClass === "BRIEF_TO_VIDEO_GENERATION" || adapter.purposeClass === "CONTROLLED_VIDEO_GENERATION"
         ? "media.generate.video" : null;
-    if (!capability || capability.familyId !== expectedFamily || !target
+    if (!capability || capability.familyId !== expectedFamily || !capabilityBinding
+      || !same(capabilityBinding.operationRefs, option.operationRefs)
+      || capabilityBinding.operationKind !== option.operationKind || !target
       || target.capabilityRef !== option.capabilityRef || target.operationKind !== "COMMAND"
       || target.asyncSubmissionDisposition !== "COMMAND_MAY_BE_SUBMITTED"
       || !Number.isSafeInteger(target.operationVersion) || target.requestSchema?.additionalProperties !== false
-      || !same(capability.ownerDefinition?.operationRefs, option.operationRefs)
       || option.operationKind !== target.operationKind) {
       return { valid: false, reason: "TARGET_OPERATION_NOT_EXACT_ASYNC_COMMAND" };
     }

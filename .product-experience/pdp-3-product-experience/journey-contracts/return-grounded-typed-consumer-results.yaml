@@ -70,7 +70,7 @@ steps:
       proposal: Fail closed at the correct owner boundary; preserve request identity
         and reconcile asynchronous work before retry.
     postconditions: []
-    requirementRefs: []
+    requirementRefs: [MEDIA-REQ-CAP-MULTIMODAL]
     verification:
       status: not-run
       requiredChecks:
@@ -125,25 +125,26 @@ steps:
           - resolve-the-current-workspace-and-exact-target-before-access-or-change
           - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
           - preserve-the-requested-context-and-exact-version-across-recovery
-        effect: Submit one explicitly selected source-grounded multimodal COMMAND against the exact immutable source version and declared analysis dimensions; no source mutation or generic Document Intelligence extraction is implied.
+        effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
         reversibilityDisposition: NOT_REVERSIBLE
-        finality: durable request receipt only; typed result observation is separate; unknown requires same-identity reconciliation
+        finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
         failureRecovery: preserve-the-exact-target-and-current-draft;
           explain-denial-or-incomplete-evidence;
           never-claim-success-from-local-state
         domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
         exactOperationRefs:
           - media.operation.action.submit-validated-request
-          - media.operation.job.submit.v1
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
       stepSourceFacts:
         intent: Select an exact source version and explicit multimodal observation dimensions before submitting a grounded typed-result request
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.job.submit.v1; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
-          proposal: The selected source-grounded output returns source/time/region/provenance and explicit uncertainty; generic document parsing remains with Document Intelligence.
+          proposal: The request selects the exact source-grounded multimodal COMMAND; only its exact typed output can satisfy the source/time/region/provenance outcome. Generic document parsing remains with Document Intelligence.
         failure:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -175,6 +176,7 @@ steps:
         surfaceRefs:
           - media.surface.web
         objectRefs:
+          - media.domain.artifact
           - media.domain.artifact-version
           - media.domain.processing-job
           - media.domain.provenance-manifest
@@ -187,7 +189,7 @@ steps:
         canonicalOperationRef: media.operation.job.submit.v1
         authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
         operationRefs:
-          - media.operation.action.submit-validated-request
+          - media.operation.capability.media-multimodal-observe-source-grounded
         operationKinds: [COMMAND]
         capabilityOptions:
           - capabilityRef: media.multimodal.observe.source-grounded
@@ -217,12 +219,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: A typed result returns source/time/region/provenance and explicit
-            uncertainty; generic document parsing remains with Document
-            Intelligence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.job.submit.v1; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -244,22 +243,19 @@ steps:
         ownerOracleAcceptance: pending-independent-review
       stepOutcomeSemantics:
         status: SOURCE_DEFINED_ACTION_BRANCHES; INDEPENDENT_REVIEW_OPEN
-        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
-        actionRef: media.action.search-product-guidance
+        sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
+        actionRef: media.action.submit-validated-request
         positive:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: A typed result returns source/time/region/provenance and explicit
-              uncertainty; generic document parsing remains with Document
-              Intelligence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.job.submit.v1; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
         nonhappy:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
           guards:
             - resolve-the-current-workspace-and-exact-target-before-access-or-change
             - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
@@ -268,18 +264,18 @@ steps:
             explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
         recovery:
-          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.search-product-guidance
+          sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.submit-validated-request
           recovery: preserve-the-exact-target-and-current-draft;
             explain-denial-or-incomplete-evidence;
             never-claim-success-from-local-state
           automaticRetry: not-admitted; reconcile same identity only as exact source allows
       transitionApplicability:
-        status: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE REMAINS
-          SOURCE-BOUNDED
+        status: ASYNC_COMMAND_WITHOUT_LOCAL_DOMAIN_TRANSITION; OWNER_RECEIPT_AND_RESULT
+          OBSERVATION_REMAIN_SEPARATE
         transitionRef: null
         stateRefs: []
-        operationRef: media.operation.action.search-product-guidance
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
         runtimeAdmission: NOT_ADMITTED
       canonicalBindingDisposition:
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
@@ -289,11 +285,11 @@ steps:
           stateRefs: STATE_BINDING_UNRESOLVED
           canonicalOperationRef: EXACT_OPERATION_REF
           authorityRef: EXACT_AUTHORITY_REFS_ARRAY; SINGULAR PRIMARY LEFT NULL
-          transitionRef: OBSERVATION_ONLY_NO_MUTATING_TRANSITION; QUERY IDENTITY/STATE
-            REMAINS SOURCE-BOUNDED
+          transitionRef: ASYNC_COMMAND_WITHOUT_LOCAL_DOMAIN_TRANSITION; OWNER_RECEIPT_AND_RESULT
+            OBSERVATION_REMAIN_SEPARATE
           requirementRefs: REQUIREMENT_BINDING_UNRESOLVED_PENDING_CAPABILITY_CROSSWALK
           scenarioRefs: NO_STEP_SCENARIO_FIXTURE
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -302,14 +298,14 @@ steps:
           runtime admission, or lifecycle receipt
       versionedObjectObservation:
         status: OWNER_OPERATION_OBJECT_SCOPE; EXACT INSTANCE ID SUPPLIED AT USE
-        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
         objectRefs:
           - media.domain.project
           - media.domain.artifact-version
           - media.domain.processing-job
         versionIdentityRule: Exact immutable version identity is required whenever the
           source action names a version; do not substitute a newer version.
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
         observation: null
         runtimeAdmission: NOT_ADMITTED
       intentBinding:
@@ -334,16 +330,16 @@ steps:
         kind: EXACT_SOURCE_ACTION
         sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
         screenPurposeSourceRef: .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml#purpose
-        actionRef: media.action.search-product-guidance
+        actionRef: media.action.submit-validated-request
         candidateActionRefs: []
         operationRefs:
-          - media.operation.action.search-product-guidance
+          - media.operation.capability.media-multimodal-observe-source-grounded
         effectClaim: see-stepOutcomeSemantics
       stepMappingDecisionRef: .product-experience/decision-log.md#PXD-119
       operationContractBinding:
-        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
-        operationRef: media.operation.action.search-product-guidance
-        operationKind: QUERY
+        sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
+        operationRef: media.operation.capability.media-multimodal-observe-source-grounded
+        operationKind: COMMAND
         domainObjectRefs:
           - media.domain.project
           - media.domain.artifact-version
@@ -352,10 +348,18 @@ steps:
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        profileRef: media.operation-profile.scoped-query.v1
+        profileRef: media.operation-profile.async-job-command.v1
         scopeStatus: Media-owner-definition-recorded; exact operation/request/result
           meaning selected; independent-PDP1-and-PDP3-review-open;
           transport/runtime-NOT_ADMITTED
+        runtimeAdmission: NOT_ADMITTED
+      invocationBindingChain:
+        userActionOperationRef: media.operation.action.submit-validated-request
+        adapterRef: .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+        invocationOperationRef: media.operation.job.submit.v1
+        invocationWireSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema
+        selectedCapabilityRef: media.multimodal.observe.source-grounded
+        selectedCapabilityOperationRef: media.operation.capability.media-multimodal-observe-source-grounded
         runtimeAdmission: NOT_ADMITTED
       actionCapabilityBinding:
         status: EXACT_SCREEN_ACTION_CONSEQUENCE_CROSSWALK;
@@ -365,7 +369,8 @@ steps:
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/find-task-guidance.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-06.j-06.step-01
     authorityRefs:
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
       - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -487,9 +492,11 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Playback/download/review/provenance and delivery action
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: A typed result returns source/time/region/provenance and explicit
@@ -554,12 +561,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: A typed result returns source/time/region/provenance and explicit
-            uncertainty; generic document parsing remains with Document
-            Intelligence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -602,12 +606,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-output-preview-and-version
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: A typed result returns source/time/region/provenance and explicit
-              uncertainty; generic document parsing remains with Document
-              Intelligence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-output-preview-and-version/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-output-preview-and-version; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -811,9 +812,11 @@ steps:
         noMutationReason: read-version-bound-source-and-processing-lineage
       stepSourceFacts:
         intent: Source/edit/model/simulation lineage and disclosure limits
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation-slice.inspect-provenance; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: A typed result returns source/time/region/provenance and explicit
@@ -873,12 +876,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: A typed result returns source/time/region/provenance and explicit
-            uncertainty; generic document parsing remains with Document
-            Intelligence.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation-slice.inspect-provenance; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -905,12 +905,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-provenance
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: A typed result returns source/time/region/provenance and explicit
-              uncertainty; generic document parsing remains with Document
-              Intelligence.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation-slice.inspect-provenance; no unstated downstream effect or journey completion is implied."
           effect: read-version-bound-source-and-processing-lineage
           finality: read-only
         nonhappy:

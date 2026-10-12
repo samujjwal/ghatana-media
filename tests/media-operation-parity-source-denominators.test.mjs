@@ -147,15 +147,18 @@ test("CLI crosswalk is exact and SDK registry reports exact source-pair discrepa
   const notAdmittedIds = inlineList(sdkSurface, "NOT_ADMITTED");
   const boundedCanonicalReadIds = inlineList(sdkSurface, "boundedCanonicalReads");
   const boundedCanonicalOperationIds = inlineList(sdkSurface, "boundedCanonicalOperations");
+  const legacyDispositionBlock = sdkSurface.match(/\n    sourceBackedUnadmittedLegacyDispositions:\n([\s\S]*?)(?=\n    (?:parserArtifactTokensExcludedFromMethodDenominator|dispositionCounts):)/u)?.[1] ?? "";
+  const legacyDispositionIds = [...legacyDispositionBlock.matchAll(/\[([^\]]*)\]/gu)]
+    .flatMap(([, values]) => values.split(",").map((value) => value.trim()).filter(Boolean));
   assert.deepEqual(providerAdapterIds, ["media.sdk.documentIntelligenceSceneTextAdapter.recognizeFrame"]);
   assert.deepEqual(notAdmittedIds.sort(), ["media.sdk.retry", "media.sdk.retryOperation"]);
   assert.deepEqual(boundedCanonicalReadIds.sort(), ["media.sdk.getArtifact", "media.sdk.getUploadSession"]);
   assert.deepEqual(boundedCanonicalOperationIds.sort(), ["media.sdk.completeUploadSession", "media.sdk.createUploadSession", "media.sdk.uploadPart"]);
   const nonOperationIds = [...transportOnlyIds, ...clientOnlyIds];
   assert.deepEqual(transportOnlyIds.sort(), ["media.sdk.getAllServicesStatus", "media.sdk.getServiceStatus"]);
-  assert.deepEqual(clientOnlyIds.sort(), ["media.sdk.addEventListener", "media.sdk.removeEventListener"]);
+  assert.deepEqual(clientOnlyIds.sort(), ["media.sdk.addEventListener", "media.sdk.removeEventListener", "media.sdk.wait"]);
   assert.deepEqual(legacyCatalogReadIds, ["media.sdk.listProviderCapabilities"]);
-  const semanticPartition = [...candidateIds(sdkSurface), ...boundedCanonicalOperationIds, ...boundedCanonicalReadIds, ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...legacyCatalogReadIds, ...notAdmittedIds];
+  const semanticPartition = [...candidateIds(sdkSurface), ...boundedCanonicalOperationIds, ...boundedCanonicalReadIds, ...inlineList(sdkSurface, "unresolved"), ...nonOperationIds, ...providerAdapterIds, ...legacyCatalogReadIds, ...notAdmittedIds, ...legacyDispositionIds];
   assert.equal(new Set(sdkRows.map(({ id }) => id)).size, sdkRows.length, "SDK registry identities are unique");
   assertExactPartition(
     sdkRows.filter(({ id }) => !artifactIds.has(id)).map(({ id }) => id),

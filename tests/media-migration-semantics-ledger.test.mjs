@@ -222,7 +222,7 @@ test("PXD-033 remains bounded to its original exact 86 item IDs", () => {
   assert.equal(decision.decisionRef, "MEDIA-OWNER-2026-10-08-NONNORMATIVE-01");
   assert.equal(decision.acceptanceEffect, "none");
   assert.match(decision.classificationEffect, /do not imply semantic equivalence or task completion/u);
-  assert.equal(decision["p0-03"], "remains open");
+  assert.equal(decision["p0-03"], "historical 2026-10-08 population status; current-source delta disposition is tracked separately and the historical unresolved count is not a P0-03 exit gate");
   assert.equal(approved.size, 86);
   assert.equal(review.ownerDecisionOverlay.ownerClassifiedNonNormativeBlockCount, 89);
   assert.equal(review.ownerDecisionOverlay.resolvedBlockCount, 0, "no semantic block is accepted by this classification");
@@ -851,7 +851,7 @@ test("MSC-10 viewport fixture wording maps only to the proposed PDP-2 responsive
   assert.deepEqual(responsive.variants["compact-desktop"].viewports, expected.slice(2, 3));
   assert.deepEqual(responsive.variants.tablet.viewports, expected.slice(3, 4));
   assert.deepEqual(responsive.variants.mobile.viewports, expected.slice(4));
-  assert.equal(responsive.status, "authored-proposal; P0-010-and-human-viewport-review-pending");
+  assert.equal(responsive.status, "MEDIA_OWNER_DEFINITION_ACCEPTED; human-viewport-review-pending");
   assert.match(responsive.statusNote, /proposed verification fixtures, not supported-device claims/u);
   assert.equal(claim.acceptanceEffect, "none");
   assert.equal(fragment.status, "UNRESOLVED");

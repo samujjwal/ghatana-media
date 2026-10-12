@@ -152,6 +152,72 @@ function topLevelBlocks(source) {
   return blocks;
 }
 
+// Read scalar values from a deliberately narrow YAML mapping shape. This is
+// not a general YAML parser: callers first select a known mapping and this
+// helper implements YAML scalar folding/quoting for its direct scalar fields.
+// Keeping the decoded value exact lets the finite status vocabulary remain
+// fail-closed while accepting the multiline YAML spellings used by contracts.
+function decodeYamlScalar(lines, startIndex, keyIndent, indicator) {
+  const style = indicator[0];
+  const header = indicator[1].trim();
+  const contentLines = [];
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.trim() && line.match(/^\s*/u)[0].length <= keyIndent) break;
+    contentLines.push(line);
+  }
+  const nonBlankIndent = contentLines.filter((line) => line.trim()).reduce((minimum, line) =>
+    Math.min(minimum, line.match(/^\s*/u)[0].length), Infinity);
+  const content = contentLines.map((line) => line.trim() ? line.slice(nonBlankIndent) : "");
+
+  if (style === ">" || style === "|") {
+    const chomping = header.slice(1).includes("-") ? "strip" : header.slice(1).includes("+") ? "keep" : "clip";
+    const folded = style === ">"
+      ? content.reduce((result, line, index) => {
+        if (index === 0) return line;
+        const previous = content[index - 1];
+        return result + (line && previous ? " " : "\n") + line;
+      }, "")
+      : content.join("\n");
+    return chomping === "strip" ? folded : chomping === "keep" ? `${folded}${"\n".repeat(contentLines.filter((line) => !line.trim()).length + 1)}` : `${folded}\n`;
+  }
+
+  const quoted = style === "'" || style === '"';
+  if (quoted) {
+    let value = header;
+    for (const line of content) {
+      if (style === "'" && value.endsWith("'") && !value.endsWith("''")) break;
+      if (style === '"' && /(?<!\\)"\s*$/u.test(value)) break;
+      value += `${value.endsWith("\\") ? "" : " "}${line.trim()}`;
+    }
+    if (style === "'") {
+      if (value.startsWith("'") && value.endsWith("'")) value = value.slice(1, -1).replace(/''/gu, "'");
+      return value;
+    }
+    try { return JSON.parse(value); }
+    catch { return value.startsWith('"') && value.endsWith('"') ? value.slice(1, -1) : value; }
+  }
+
+  const plainLines = [header, ...content].filter((line) => line.trim());
+  return plainLines.join(" ").replace(/\s+#.*$/u, "").trim();
+}
+
+function directYamlMappingScalars(source, parentKey) {
+  const lines = source.split(/\r?\n/u);
+  const parentIndex = lines.findIndex((line) => new RegExp(`^${parentKey}:\\s*$`, "u").test(line));
+  if (parentIndex < 0) return new Map();
+  const result = new Map();
+  for (let index = parentIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.trim() && line.match(/^\s*/u)[0].length === 0) break;
+    const match = line.match(/^(\s+)([A-Za-z][A-Za-z0-9_-]*):(?:[ \t]+(.*)|[ \t]*)$/u);
+    if (!match || match[1].length !== 2) continue;
+    const scalar = match[3] ?? "";
+    result.set(match[2], decodeYamlScalar(lines, index, match[1].length, [scalar[0], scalar]));
+  }
+  return result;
+}
+
 function assertBlocksHaveFields(blocks, fields, label) {
   let complete = 0;
   for (const block of blocks) {
@@ -292,6 +358,8 @@ const allowedScreenBindingStatuses = new Set([
   "PDP-1-exact-slices-defined; runtime-admission-pending",
   "PDP-0-states-defined-for-observation; lifecycle-transition-acceptance-pending",
   "owner-defined-action-semantics; runtime-admission-pending",
+  "Exact action-registry typed-definition guards in actionConsequences.guardRefs; runtime NOT_ADMITTED",
+  "Exact action-registry typed-definition effects, finality, and recovery in actionConsequences; runtime NOT_ADMITTED",
   "no-canonical-entry-contract-declared",
   "no-canonical-exit-contract-declared",
   "no-canonical-references-declared",
@@ -328,6 +396,32 @@ const allowedScreenBindingStatuses = new Set([
   "unresolved; no-canonical-reference-declared",
   "unresolved; no-exact-template-catalog-match",
   "unresolved; owner-effect-binding-pending",
+  // Exact multiline scalar values currently authored by screen contracts.
+  // These remain proposal-only statuses; the list stays finite and does not
+  // turn any local observation into owner or phase acceptance.
+  "NO_APPLICABLE_SCREEN_LOCAL_TOKEN_DEPENDENCY; PDP-2 component contracts own internal styling and this screen adds no token override; negative: do not invent aliases or redefine Shared values",
+  "Exact P1 owner-action/operation and linked journey-step object refs; runtime NOT_ADMITTED",
+  "Exact action registry and journey-step operation refs; runtime NOT_ADMITTED",
+  "Exact action-registry guards; runtime NOT_ADMITTED",
+  "Exact action-registry effects/finality/recovery; runtime NOT_ADMITTED",
+  "Exact action-registry typed definitions; runtime NOT_ADMITTED",
+  "Exact P2 global and selected-layout responsive rules; screen-specific overrides empty; verification NOT_RUN",
+  "NO_APPLICABLE_FIXTURE_FOR_P3B_CONTRACT_PREVIEW; P3-F permits honest definition-only previews without synthetic scenario fixtures; negative: do not claim rendered or runtime fixture coverage.",
+  "EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; runtime NOT_ADMITTED.",
+  "Media-owned job outcome composition selected from exact job observation, outcome evidence, and safe recovery anatomy; renderer and acceptance pending",
+  "Media-owned exact version comparison composition selected from source playback, paired result comparison, and provenance; renderer and acceptance pending",
+  "exact-selected-Media-component-composition; renderer/Shared-binding-and-acceptance-pending",
+  "NO_APPLICABLE; source actions are local selection and declare no domain object; negative: do not infer project creation or provider binding",
+  "NO_APPLICABLE; source actions are local selection and linked steps declare no Media operation; negative: do not infer submission or mutation",
+  "NO_APPLICABLE; local choice is not PDP-1 lifecycle state; negative: it cannot authorize a transition",
+  "exact action guards in entry; missing or unknown guard evidence keeps action unavailable",
+  "exact local effect, finality, and recovery in exit; runtime not admitted",
+  "EXACT_JOURNEY_STEP_SCENARIO_BINDING_FOR_LISTED_REFS; unlinked refs are retained as proposals and are NO_APPLICABLE to this screen-step preview; negative: do not claim those refs as rendered/runtime coverage.",
+  "Exact PDP-2 semantic token aliases declared in tokenDependencies",
+  "Exact P1 owner-action wire and linked journey-step object refs; job-attempt and job-lease preserve status dimensions; runtime NOT_ADMITTED",
+  "exact job and attempt state definitions; dimensions remain orthogonal",
+  "exact host identity, job tuple, read authority and freshness requirements authored",
+  "exact observation and non-inference rules authored; runtime unknown where no receipt exists",
 ]);
 let screenCoreComplete = 0;
 for (let index = 0; index < screenSources.length; index += 1) {
@@ -341,9 +435,9 @@ for (let index = 0; index < screenSources.length; index += 1) {
     screenCoreComplete += 1;
     const schemaRef = source.match(/^contractSchemaRef:\s*([^\s#]+)/mu)?.[1];
     if (!schemaRef || !existsSync(join(root, schemaRef))) fail(`Screen contract ${path} has an unresolved contractSchemaRef`);
-    const bindingBlock = source.match(/^fieldBindingStatus:\s*\n((?:[ \t]+.*\n?)*)/mu)?.[1] ?? "";
+    const bindingStatuses = directYamlMappingScalars(source, "fieldBindingStatus");
     for (const field of screenRequiredFields.filter((candidate) => !["fieldBindingStatus", "schemaVersion", "contractSchemaRef"].includes(candidate))) {
-      const status = bindingBlock.match(new RegExp(`^\\s+${field}:\\s*(.*?)\\s*$`, "mu"))?.[1];
+      const status = bindingStatuses.get(field);
       if (!status) {
         fail(`Screen contract ${path} lacks a fieldBindingStatus entry for ${field}`);
       } else if (/\b(?:accepted|complete|completed)\b/iu.test(status)) {
@@ -375,17 +469,72 @@ const registeredActionCapabilities = new Map();
 for (const block of topLevelBlocks(actionSource.split(/^actions:\s*$/mu)[1] ?? "")) {
   const id = block.match(/^- id: (media\.action\.[A-Za-z0-9._-]+)$/mu)?.[1];
   if (!id) continue;
-  const section = block.match(/^\s*capabilityRefs:\s*\[([^\]]*)\]/mu)?.[1] ?? "";
-  registeredActionCapabilities.set(id, [...section.matchAll(/\b(media\.[A-Za-z0-9._-]+)\b/gu)].map((match) => match[1]));
+  registeredActionCapabilities.set(id, parseReferenceList(block, "capabilityRefs", `${id} in Action Registry`, 2));
 }
-const parseInlineRefs = (source, field, label) => {
-  const section = source.match(new RegExp(`^\\s*${field}:\\s*\\[([^\\]]*)\\]`, "mu"))?.[1];
-  if (section === undefined) {
-    if (!new RegExp(`^\\s*${field}:\\s*\\[`, "mu").test(source)) fail(`${label} lacks an inline ${field} binding`);
+function parseReferenceList(source, field, label, indent) {
+  const indentation = " ".repeat(indent);
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const propertyPattern = new RegExp(`^${indentation}${escapedField}:[ \\t]*(.*)$`, "mu");
+  const propertyMatch = propertyPattern.exec(source);
+  if (!propertyMatch) {
+    fail(`${label} lacks a ${field} binding`);
     return [];
   }
-  return [...section.matchAll(/[A-Za-z][A-Za-z0-9._:/-]*/gu)].map((match) => match[0]);
-};
+
+  const lines = source.split(/\r?\n/u);
+  const propertyIndex = source.slice(0, propertyMatch.index).split(/\r?\n/u).length - 1;
+  const inlineValue = propertyMatch[1].trim();
+  let flowValue = inlineValue;
+  let continuationIndex = propertyIndex + 1;
+  if (flowValue === "") {
+    while (continuationIndex < lines.length && !lines[continuationIndex].trim()) continuationIndex += 1;
+    const next = lines[continuationIndex] ?? "";
+    if (next.match(/^[ \t]*/u)[0].length > indent && next.trimStart().startsWith("[")) {
+      flowValue = next.trim();
+      continuationIndex += 1;
+    }
+  }
+  if (flowValue.startsWith("[")) {
+    while (!flowValue.includes("]") && continuationIndex < lines.length) {
+      const line = lines[continuationIndex];
+      if (line.trim() && line.match(/^[ \t]*/u)[0].length <= indent) break;
+      flowValue += ` ${line.trim()}`;
+      continuationIndex += 1;
+    }
+    const inlineMatch = flowValue.match(/^\[([\s\S]*)\][ \t]*(?:#.*)?$/u);
+    if (!inlineMatch) {
+      fail(`${label} has a malformed ${field} flow list`);
+      return [];
+    }
+    return [...inlineMatch[1].matchAll(/[A-Za-z][A-Za-z0-9._:/-]*/gu)].map((match) => match[0]);
+  }
+
+  // Empty mapping value followed by exactly-indented sequence items is the
+  // block-list spelling of the same authored YAML sequence. Do not search
+  // descendants: nested lists are not direct bindings for this field.
+  if (inlineValue !== "") {
+    fail(`${label} has a malformed ${field} binding; expected an inline or block list`);
+    return [];
+  }
+  const itemIndent = `${indentation}  `;
+  const refs = [];
+  let sawItem = false;
+  for (let index = propertyIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line.trim()) continue;
+    const lineIndent = line.match(/^[ \t]*/u)[0];
+    if (lineIndent.length <= indent) break;
+    const item = line.match(new RegExp(`^${itemIndent}-[ \\t]+(.+?)[ \\t]*(?:#.*)?$`, "u"));
+    if (!item) {
+      fail(`${label} has a malformed ${field} block list`);
+      return [];
+    }
+    sawItem = true;
+    refs.push(...[...item[1].matchAll(/[A-Za-z][A-Za-z0-9._:/-]*/gu)].map((match) => match[0]));
+  }
+  if (!sawItem) fail(`${label} has an empty ${field} block list; use [] to declare no references`);
+  return refs;
+}
 let screensWithRequirementCrosswalk = 0;
 let directActionCapabilityBindings = 0;
 for (const source of screenSources) {
@@ -397,20 +546,20 @@ for (const source of screenSources) {
   for (const block of consequenceBlocks) {
     const actionId = block.match(/^  - actionId: (media\.action\.[A-Za-z0-9._-]+)$/mu)?.[1];
     const actionCapabilities = registeredActionCapabilities.get(actionId) ?? [];
-    const declaredCapabilities = parseInlineRefs(block, "capabilityRefs", `${screenId} action ${actionId}`);
+    const declaredCapabilities = parseReferenceList(block, "capabilityRefs", `${screenId} action ${actionId}`, 4);
     if (JSON.stringify(declaredCapabilities) !== JSON.stringify(actionCapabilities)) {
       fail(`${screenId} action ${actionId} capabilityRefs do not match the PDP-3 Action Registry`);
     }
     const actionRequirements = new Set(actionCapabilities.flatMap((capability) => [...(requirementCapabilitiesById.get(capability) ?? [])]));
     for (const requirement of actionRequirements) expectedRequirements.add(requirement);
-    const declaredActionRequirements = parseInlineRefs(block, "requirementRefs", `${screenId} action ${actionId}`);
+    const declaredActionRequirements = parseReferenceList(block, "requirementRefs", `${screenId} action ${actionId}`, 4);
     const expectedActionRequirements = [...actionRequirements].sort();
     if (JSON.stringify(declaredActionRequirements) !== JSON.stringify(expectedActionRequirements)) {
       fail(`${screenId} action ${actionId} requirementRefs do not match the exact capability crosswalk`);
     }
     if (expectedActionRequirements.length) directActionCapabilityBindings += 1;
   }
-  const declaredRequirements = parseInlineRefs(source, "requirementRefs", screenId);
+  const declaredRequirements = parseReferenceList(source, "requirementRefs", screenId, 0);
   const expected = [...expectedRequirements].sort();
   if (JSON.stringify(declaredRequirements) !== JSON.stringify(expected)) {
     fail(`${screenId} requirementRefs do not match the union of registered action-capability requirement links`);
@@ -431,12 +580,12 @@ for (const source of journeySources) {
     if (!actionId) continue;
     journeyStepsWithAction += 1;
     const actionCapabilities = registeredActionCapabilities.get(actionId) ?? [];
-    const declaredCapabilities = parseInlineRefs(block, "capabilityRefs", `journey step ${actionId}`);
+    const declaredCapabilities = parseReferenceList(block, "capabilityRefs", `journey step ${actionId}`, stepStart.length + 2);
     if (JSON.stringify(declaredCapabilities) !== JSON.stringify(actionCapabilities)) {
       fail(`Journey step ${actionId} capabilityRefs do not match the PDP-3 Action Registry`);
     }
     const expectedRequirements = [...new Set(actionCapabilities.flatMap((capability) => [...(requirementCapabilitiesById.get(capability) ?? [])]))].sort();
-    const declaredRequirements = parseInlineRefs(block, "requirementRefs", `journey step ${actionId}`);
+    const declaredRequirements = parseReferenceList(block, "requirementRefs", `journey step ${actionId}`, stepStart.length + 2);
     if (JSON.stringify(declaredRequirements) !== JSON.stringify(expectedRequirements)) {
       fail(`Journey step ${actionId} requirementRefs do not match the exact capability crosswalk`);
     }
@@ -505,10 +654,13 @@ const stateSource = read(join(productRoot, "pdp-1-domain-data/states.yaml"));
 const machineIds = new Set(idsFrom(stateSource, /^\s*- machineId: ([A-Za-z0-9._-]+)$/gmu));
 const transitionSource = read(join(productRoot, "pdp-1-domain-data/transitions.yaml"));
 const transitionRecords = transitionSource.split(/^transitionRecords:\s*$/mu)[1] ?? "";
-const transitionBlocks = transitionRecords.split(/(?=^\s+- id: )/mu).filter((block) => /^\s+- id: /mu.test(block));
-unique(transitionBlocks.map((block) => block.match(/^\s+- id: ([^\s]+)/mu)?.[1]).filter(Boolean), "PDP-1 transition ID");
+// Transition records are the two-space-indented list directly under
+// transitionRecords. Deeply nested triggerCases also contain `- id` entries;
+// their indentation must not create top-level transition blocks.
+const transitionBlocks = transitionRecords.split(/(?=^  - id: )/mu).filter((block) => /^  - id: /mu.test(block));
+unique(transitionBlocks.map((block) => block.match(/^  - id: ([^\s]+)/mu)?.[1]).filter(Boolean), "PDP-1 transition ID");
 for (const transition of transitionBlocks) {
-  const id = transition.match(/^\s+- id: ([^\s]+)/mu)?.[1] ?? "unknown";
+  const id = transition.match(/^  - id: ([^\s]+)/mu)?.[1] ?? "unknown";
   const machine = transition.match(/^\s*sourceMachineId: ([^\s]+)/mu)?.[1];
   if (!machine || !machineIds.has(machine)) fail(`Transition ${id} has an unresolved state-machine reference`);
   const refs = transition.match(/^\s*operationRefs:\s*\[([^\]]*)\]/mu)?.[1] ?? "";

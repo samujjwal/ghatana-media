@@ -68,6 +68,53 @@
   "independentAcceptance": "OPEN",
   "notes": "This overlay records current source deltas and their bounded impact. It does not rewrite the historical token source pin or convert a local candidate/source snapshot into a verified public package API.",
   "currentSourceSha256": "acaf3c0674ff542c77346fb7651a7e5193ac94738cf6be8bbae897d9f2a55637",
+  "postReviewCurrentSourceDelta": {
+    "status": "SOURCE_BYTES_RECONCILED_ONLY; NO_SEMANTIC_REVIEW_OR_ACCEPTANCE",
+    "priorSourceSha256": "acaf3c0674ff542c77346fb7651a7e5193ac94738cf6be8bbae897d9f2a55637",
+    "currentSourceSha256": "2e616841001f657327b71331435cb61c96dcba8d2fe2d8e8880aed724d4d4e2a",
+    "priorParsedSourceSha256": "3f35286023b21f2f89e88b0c72910deaac9fce75a52a1bf164dd7e651876eb16",
+    "changes": [
+      {
+        "jsonPointer": "/sharedPublicContract/aliasResolutionObservation/limitations",
+        "operation": "REPLACE",
+        "priorValue": [
+          "registry-publication-unverified",
+          "immutable-release-binding-unverified",
+          "Shared-owner-review-pending",
+          "visual-and-accessibility-acceptance-pending",
+          "CSS-recipe-variable-and-unit-bridge-unresolved"
+        ],
+        "currentValue": [
+          "registry-publication-unverified",
+          "immutable-release-binding-unverified",
+          "Shared-owner-review-pending",
+          "visual-and-accessibility-acceptance-pending"
+        ]
+      },
+      {
+        "jsonPointer": "/aliases/0/currentCssConsumer",
+        "operation": "ADD",
+        "currentValueSha256": "b4fc1e067d28aa5ca2260937018c6015bb9372710b4ffd1e8ad83b4785e383d0"
+      },
+      {
+        "jsonPointer": "/aliases/1/currentCssConsumer",
+        "operation": "ADD",
+        "currentValueSha256": "73879f86b1e42027c2b948d0772d8421cc05f94c0b9f5d6fd4a38bec11c78cc2"
+      },
+      {
+        "jsonPointer": "/aliases/2/currentCssConsumer",
+        "operation": "ADD",
+        "currentValueSha256": "1de4c1820fbf676ccae2c1e1cfd6cc48e78f24efd873fb49c516d3705cbf6641"
+      },
+      {
+        "jsonPointer": "/cssVariableBindings",
+        "operation": "ADD",
+        "currentValueSha256": "69298190960877880aaa4006b10bbbd19023d49017159594d8e2c99c15ea4462",
+        "bindingCount": 44
+      }
+    ],
+    "acceptanceEffect": "none; current source-byte delta only, with no semantic review, token-package admission, Lifecycle proof, or phase acceptance"
+  },
   "completeScalarDeltaRecords": [
     {
       "path": "sharedPublicContract.pinnedDevelopmentSnapshotQualification.sourceManifest",

@@ -13,6 +13,18 @@ commands:
     canonicalCommand: "ghatana-media upload inspect"
     options: [--upload, --format]
     execution: synthetic-fixture-only
+    actionBinding:
+      actionRef: media.action.inspect-artifact
+      actionDefinitionRef: .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.inspect-artifact
+      canonicalOperationRef: null
+      operationBinding: NO_EXACT_CLI_OPERATION_ID; action-reference-only
+      request: exact-command-options-as-declared; parser-rejects-unknown-duplicate-and-missing-options
+      result: media-cli-human-report-or-json-projection-from-shared-simulation-state
+      errors: media.cli-error.v1/INVALID_ARGUMENT-before-action; transition-reasonCode-from-simulator-after-action
+      authority: simulator-preconditions-and-fixture-authority; CLI-arguments-do-not-establish-principal-or-authority
+      finality: action-definition-finality-and-transition-result-state; simulated-effects-are-not-remote-finality
+      unknownAndRetry: inspect-or-reconcile-the-same-identity; no-blind-replay; retry-never-dispatches-from-unknown
+      runtimeAdmission: NOT_ADMITTED
   - id: media.fixture-cli.upload-resume
     canonicalCommand: "ghatana-media upload resume"
     options: [--upload, --format]

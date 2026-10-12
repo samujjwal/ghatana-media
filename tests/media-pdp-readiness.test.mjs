@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import { buildReadiness, buildPdp0DevStatus, writePdp0DevStatus, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut, selectApprovedMediaDecisions, assessCurrentTaskDependencies } from '../scripts/report-media-pdp-readiness.mjs';
 import path from 'node:path';
@@ -30,10 +31,39 @@ test('approved PDP-0 media decisions include only current direct and scoped corr
 test('current PDP-0 corrective source fingerprints exclude generated verification logs',()=>{
  const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
  for(const record of artifact.records){
-  for(const file of Object.keys(record.currentCorrectiveReview?.sourceFingerprints??{})){
+  for(const file of Object.keys((record.currentCorrectiveReview??record.currentSourceReview)?.sourceFingerprints??{})){
    assert.equal(/\/P0-\d+\.log$/u.test(file),false,`${record.taskId} does not fingerprint a generated test log`);
   }
  }
+});
+test('PXD-153 is a separate narrow current review and PXD-142 remains historical',()=>{
+ const artifact=JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/direct-definition-criteria-review.json','utf8'));
+ const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+ const byId=new Map(artifact.records.map(record=>[record.taskId,record]));
+ for(const id of ['P0-01','P0-02','P0-06','P0-07']){
+  const record=byId.get(id);
+  const historical=record.historicalCorrectiveReviews.find(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-142');
+  assert.ok(historical,`${id} retains the PXD-142 review`);
+  assert.equal(historical.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],'d66135cd7fb2f8fa4d506fcfde197d28af43e478defc35dd886986100466cfcf');
+  assert.equal(historical.sourceFingerprints['tests/pdp0-existing-operation-semantic-corrections.test.mjs'],'bf28351e12327accacbda1b61cfd7a7aa2b587de9f485af11ae8af313fdd9df2');
+  assert.match(historical.scope,/exact three capability typed-input corrections and five conditional-success output families/u);
+  const current=record.currentCorrectiveReview;
+  assert.equal(current.decisionRef,'.product-experience/decision-log.md#PXD-153');
+  assert.equal(current.status,id==='P0-06'||id==='P0-07'?'APPROVED_CURRENT_SOURCE_REVIEW':'APPROVED_CURRENT_CORRECTION');
+  assert.match(current.scope,/declaredByteLength\.minimum/u);
+  assert.doesNotMatch(current.scope,/three capability typed-input corrections|five conditional-success output families/u);
+  assert.equal(current.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'],sha('.product-experience/pdp-0-product-truth/capabilities.yaml'));
+  assert.equal(resolveCriterionReviewSourceCut(record,sha).sourceCutCurrent,true,`${id} has a current scoped PXD-153 review`);
+ }
+ for(const id of ['P0-06','P0-07']){
+  const current=byId.get(id).currentCorrectiveReview;
+  assert.match(current.scope,/no-effect/iu);
+  assert.match(current.scope,/unchanged/u);
+  assert.equal(current.status,'APPROVED_CURRENT_SOURCE_REVIEW');
+  assert.ok(byId.get(id).historicalCorrectiveReviews.some(review=>review.decisionRef==='.product-experience/decision-log.md#PXD-142'));
+ }
+ assert.equal(byId.get('P0-05').currentCorrectiveReview.decisionRef,'.product-experience/decision-log.md#PXD-138');
+ assert.equal(byId.get('P0-05').currentSourceReview,undefined);
 });
 broadTest('a corrective approval uses its own reviewed source cut and preserves historical pins',()=>{
  const historical={sourceFingerprints:{source:'old'}};

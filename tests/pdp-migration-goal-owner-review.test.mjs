@@ -20,7 +20,10 @@ const readYaml = (path) => {
 const sha = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const artifact = JSON.parse(readText("docs/implementation/verification/pdp-38/migration-goal-owner-review.json"));
 const approval = JSON.parse(readText("docs/implementation/verification/pdp-38/migration-coordinator-review-112.json"));
+const currentOwnerObservations = JSON.parse(readText("docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"));
+const pxd090TargetRefinement = JSON.parse(readText("docs/implementation/verification/pdp-38/migration-coordinator-112-target-refinement.json"));
 const approvedById = new Map(approval.records.map((record) => [record.claimId, record]));
+const currentObservationById = new Map(currentOwnerObservations.records.map((record) => [record.claimId, record]));
 const ledger = readYaml(".product-experience/pdp-0-product-truth/migration-semantics-review.yaml");
 const claims = ledger.pdp38ClaimReconciliation.records.flatMap((record) => record.claims ?? [])
   .flatMap((claim) => claim.subclaims ?? [claim]);
@@ -116,10 +119,35 @@ test("the complete 39-claim goal cohort keeps history and distinguishes semantic
       assert.fail(`${row.claimId} now has a source-owned clause and must not remain in the unresolved partition`);
     }
     const target = resolveRef(row.proposedTargetRef);
-    assert.equal(sha(target), row.proposedTargetValueSha256, `${row.claimId} exact target hash`);
     validateMaterial(row, target);
     assert.equal(original.targetRef, approved.currentTargetRef);
-    assert.equal(original.targetTextSha256, approved.currentTargetValueSha256);
+    if (row.claimId === "MPSEM-0181-C002") {
+      const currentObservation = currentObservationById.get(row.claimId);
+      assert.equal(approved.currentTargetValueSha256, row.proposedTargetValueSha256,
+        `${row.claimId} retains the exact historical PXD-090 target hash`);
+      assert.equal(currentObservation.historicalTargetTextSha256, approved.currentTargetValueSha256,
+        `${row.claimId} PXD-120 observation preserves the historical PXD-090 hash`);
+      assert.equal(currentObservation.targetRef, row.proposedTargetRef,
+        `${row.claimId} PXD-120 observation retains the exact owner target`);
+      assert.equal(currentObservation.currentTargetValueSha256, sha(target),
+        `${row.claimId} PXD-120 observation binds the exact current owner target`);
+      assert.equal(original.targetTextSha256, currentObservation.currentTargetValueSha256,
+        `${row.claimId} current ledger locator matches the PXD-120 current target`);
+      assert.equal(currentObservation.acceptanceEffect, "none");
+      assert.equal(currentObservation.disposition,
+        "CURRENT_OWNER_RULE_EXTENDED_WITH_EXPLICIT_REUSE_FIRST_CLAUSE; CLAIM_PARITY_REVIEWED");
+      assert.equal(pxd090TargetRefinement.claimId, row.claimId);
+      assert.equal(pxd090TargetRefinement.historicalApproval.targetValueSha256,
+        approved.currentTargetValueSha256);
+      assert.equal(pxd090TargetRefinement.currentOwnerTarget.targetValueSha256,
+        currentObservation.currentTargetValueSha256);
+      assert.equal(pxd090TargetRefinement.acceptanceEffect,
+        "none; this source observation does not change PXD-090 approval scope, migration acceptance, qualification, or runtime admission");
+      assert.equal(pxd090TargetRefinement.runtimeAdmission, "NOT_ADMITTED");
+    } else {
+      assert.equal(sha(target), row.proposedTargetValueSha256, `${row.claimId} exact target hash`);
+      assert.equal(original.targetTextSha256, approved.currentTargetValueSha256);
+    }
   }
   assert.equal(artifact.records.filter((row) => row.proposedTargetRef).length, 38);
   assert.equal(artifact.records.filter((row) => row.proposedDisposition === "NON_NORMATIVE_SOURCE_METADATA").length, 1);

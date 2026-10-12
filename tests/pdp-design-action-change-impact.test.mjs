@@ -26,12 +26,20 @@ test("new capabilities and changed action consequences require exact owner impac
   assert.match(rule.rule, /do not infer behavior from a capability name, UI label, route, implementation/u);
   assert.match(rule.rule, /exact effect finality and authority scope/u);
   assert.equal(rule.acceptanceEffect, "none");
-  assert.deepEqual(source.normativeRuleRecords, [{
-    id: "media.p2.rule.action-change-impact.v1",
-    ruleRef: `${file}#changeImpactRule`,
-    sourceAuthority: `${file}#authority`,
-    acceptanceEffect: "none",
-  }]);
+  assert.deepEqual(source.normativeRuleRecords, [
+    {
+      id: "media.p2.rule.action-change-impact.v1",
+      ruleRef: `${file}#changeImpactRule`,
+      sourceAuthority: `${file}#authority`,
+      acceptanceEffect: "none",
+    },
+    {
+      id: "media.p2.rule.immutable-output-correction.v1",
+      ruleRef: `${file}#immutableOutputCorrectionRule`,
+      sourceAuthority: ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records",
+      acceptanceEffect: "none",
+    },
+  ]);
 });
 
 test("impact review fails closed when an effect-changing dimension is omitted", () => {

@@ -154,6 +154,14 @@ journeys:
       runtimeAdmission: NOT_ADMITTED
       rationale: Capability choices are constrained by the PDP-0 source-analysis outcome; screen labels do not select an operation family.
     operationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+    invocationBindingChain:
+      userActionOperationRef: media.operation.action.submit-validated-request
+      adapterRef: .product-experience/pdp-3-product-experience/capability-invocation-adapters.yaml#records/@id=media.pdp3.invocation-adapter.j06-source-grounded.v1
+      invocationOperationRef: media.operation.job.submit.v1
+      invocationWireSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema
+      selectedCapabilityRef: media.multimodal.observe.source-grounded
+      selectedCapabilityOperationRef: media.operation.capability.media-multimodal-observe-source-grounded
+      runtimeAdmission: NOT_ADMITTED
     effect: Request the explicitly named operation for the exact target only after
       fresh actor, capability, policy, and target checks.
     finality: external-effect-or-request; owner-acknowledgment-required; unknown-is-not-failure
@@ -4279,16 +4287,25 @@ journeys:
     runtimeAdmission: NOT_ADMITTED
     decisionRef: .product-experience/decision-log.md#PXD-075
     inputCases:
-    - &id285
-      case: all-guards-authoritatively-pass
+    - case: explicit-capability-selection:media.generate.video.text-to-video
       guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.text-to-video
+      selectedOperationRef: media.operation.capability.media-generate-video-text-to-video
       expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
-    - &id286
-      case: any-guard-denied
+    - case: explicit-capability-selection:media.generate.video.image-to-video
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.image-to-video
+      selectedOperationRef: media.operation.capability.media-generate-video-image-to-video
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.generate.video.text-image-to-video
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.text-image-to-video
+      selectedOperationRef: media.operation.capability.media-generate-video-text-image-to-video
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: any-guard-denied
       guardVerdict: DENIED
       expectedDecision: DENY_WITHOUT_EFFECT
-    - &id287
-      case: any-guard-unknown
+    - case: any-guard-unknown
       guardVerdict: UNKNOWN
       expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
     expectedSemantics: &id288
@@ -4358,11 +4375,29 @@ journeys:
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
-      - *id285
+      - case: explicit-capability-selection:media.generate.video.text-to-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.text-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-text-to-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.image-to-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.image-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-image-to-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.text-image-to-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.text-image-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-text-image-to-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
       deniedCases:
-      - *id286
+      - case: any-guard-denied
+        guardVerdict: DENIED
+        expectedDecision: DENY_WITHOUT_EFFECT
       unknownCases:
-      - *id287
+      - case: any-guard-unknown
+        guardVerdict: UNKNOWN
+        expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
       expectedSemantics: *id288
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
@@ -4802,7 +4837,7 @@ journeys:
     operationKinds: [COMMAND]
     capabilityOptions: &id316 []
     operationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
-    effect: Request delivery of the exact immutable artifact version to the selected authorized destination; the request receipt is not destination delivery.
+    effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
     finality: request-accepted-or-unknown; destination acknowledgment required for delivery
     recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
       never-claim-success-from-local-state
@@ -4812,7 +4847,7 @@ journeys:
     - &id320
       case: all-guards-authoritatively-pass
       guardVerdict: PASS
-      expectedDecision: REQUEST_DELIVERY_WITH_EXACT_VERSION
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
     - &id321
       case: any-guard-denied
       guardVerdict: DENIED
@@ -5360,7 +5395,7 @@ journeys:
     operationKinds: [COMMAND]
     capabilityOptions: &id353 []
     operationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
-    effect: Request delivery of the exact immutable artifact version to the selected authorized destination; the request receipt is not destination delivery.
+    effect: Request the explicitly named operation for the exact target only after fresh actor, capability, policy, and target checks.
     finality: request-accepted-or-unknown; destination acknowledgment required for delivery
     recovery: preserve-the-exact-target-and-current-draft; explain-denial-or-incomplete-evidence;
       never-claim-success-from-local-state
@@ -5370,7 +5405,7 @@ journeys:
     - &id355
       case: all-guards-authoritatively-pass
       guardVerdict: PASS
-      expectedDecision: REQUEST_DELIVERY_WITH_EXACT_VERSION
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
     - &id356
       case: any-guard-denied
       guardVerdict: DENIED
@@ -6793,8 +6828,8 @@ journeys:
       - media.scenario.project-create-outcome-unknown
       - media.scenario.project-created-empty
       - media.scenario.intent-unavailable
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.identity-required, media.scenario.workspace-access-denied]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -6925,8 +6960,8 @@ journeys:
       - media.scenario.project-create-outcome-unknown
       - media.scenario.project-created-empty
       - media.scenario.intent-unavailable
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.first-use-empty]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases: []
@@ -7055,8 +7090,8 @@ journeys:
       - media.scenario.project-create-outcome-unknown
       - media.scenario.project-created-empty
       - media.scenario.intent-unavailable
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.project-create-outcome-unknown, media.scenario.intent-unavailable]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -7186,8 +7221,8 @@ journeys:
       - media.scenario.project-create-outcome-unknown
       - media.scenario.project-created-empty
       - media.scenario.intent-unavailable
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.project-created-empty]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -7369,16 +7404,45 @@ journeys:
     runtimeAdmission: NOT_ADMITTED
     decisionRef: .product-experience/decision-log.md#PXD-075
     inputCases:
-    - &id474
-      case: all-guards-authoritatively-pass
+    - case: explicit-capability-selection:media.generate.video.image-to-video
       guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.image-to-video
+      selectedOperationRef: media.operation.capability.media-generate-video-image-to-video
       expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
-    - &id475
-      case: any-guard-denied
+    - case: explicit-capability-selection:media.generate.video.video-to-video
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.video-to-video
+      selectedOperationRef: media.operation.capability.media-generate-video-video-to-video
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.generate.video.text-image-to-video
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.text-image-to-video
+      selectedOperationRef: media.operation.capability.media-generate-video-text-image-to-video
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.generate.video.keyframe.start
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.keyframe.start
+      selectedOperationRef: media.operation.capability.media-generate-video-keyframe-start
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.generate.video.keyframe.end
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.keyframe.end
+      selectedOperationRef: media.operation.capability.media-generate-video-keyframe-end
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.generate.video.keyframe.intermediate
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.keyframe.intermediate
+      selectedOperationRef: media.operation.capability.media-generate-video-keyframe-intermediate
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.generate.video.reference-video
+      guardVerdict: PASS
+      selectedCapabilityRef: media.generate.video.reference-video
+      selectedOperationRef: media.operation.capability.media-generate-video-reference-video
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: any-guard-denied
       guardVerdict: DENIED
       expectedDecision: DENY_WITHOUT_EFFECT
-    - &id476
-      case: any-guard-unknown
+    - case: any-guard-unknown
       guardVerdict: UNKNOWN
       expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
     expectedSemantics: &id477
@@ -7456,11 +7520,49 @@ journeys:
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
-      - *id474
+      - case: explicit-capability-selection:media.generate.video.image-to-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.image-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-image-to-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.video-to-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.video-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-video-to-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.text-image-to-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.text-image-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-text-image-to-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.keyframe.start
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.keyframe.start
+        selectedOperationRef: media.operation.capability.media-generate-video-keyframe-start
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.keyframe.end
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.keyframe.end
+        selectedOperationRef: media.operation.capability.media-generate-video-keyframe-end
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.keyframe.intermediate
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.keyframe.intermediate
+        selectedOperationRef: media.operation.capability.media-generate-video-keyframe-intermediate
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.generate.video.reference-video
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.reference-video
+        selectedOperationRef: media.operation.capability.media-generate-video-reference-video
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
       deniedCases:
-      - *id475
+      - case: any-guard-denied
+        guardVerdict: DENIED
+        expectedDecision: DENY_WITHOUT_EFFECT
       unknownCases:
-      - *id476
+      - case: any-guard-unknown
+        guardVerdict: UNKNOWN
+        expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
       expectedSemantics: *id477
       oracleBoundary: Pure definition oracle. Guard verdicts are explicit fixture
         inputs, not inferred from labels; this does not execute transport/provider
@@ -8384,11 +8486,28 @@ journeys:
         the current session/frame identities. Do not turn fencing intent into a provider-close
         or cancellation success.
       inputs:
-      - exactSessionIdentity
-      - currentConsentAuthorityDisposition
-      - currentLeaseAndFencingToken
-      - currentSessionState
-      - lastAcknowledgedFrameSequence
+      - hostAttestedTenantAndPrincipal
+      - sessionId
+      - observedAt
+      - readVersion
+      - canonicalStateRef
+      - stateAuthorityRef
+      - stateEvidenceRef
+      - consentRef
+      - consentRevision
+      - consentCurrentness
+      - purposeRef
+      - purposeRevision
+      - purposeCurrentness
+      - leaseVersion
+      - leaseCurrentness
+      - fencingToken
+      - lastAcknowledgedSequence
+      - nextSequence
+      - resolvedFrameOutcomeCoverage
+      - resolvedFrameOutcomeRange
+      - resolvedFrameOutcomeRefs
+      - reconnectBudgetRemaining
       outputs:
       - newFrameAdmission=DENIED_OR_UNKNOWN
       - existingFrameOutcomes=UNCHANGED_OR_UNKNOWN
@@ -8409,8 +8528,8 @@ journeys:
       - .product-experience/pdp-1-domain-data/states.yaml#media-attempt
       - .product-experience/pdp-1-domain-data/states.yaml#media-rights-and-consent
       - .product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords
-      candidateOperationRef: media.operation.stream-session
-      candidateOperationStatus: PDP1_PROPOSAL_ONLY; NO_CANONICAL_BINDING_OR_RUNTIME_ADMISSION
+      candidateOperationRef: media.operation.stream-session.inspect-execution-recovery.v1
+      candidateOperationStatus: EXACT_PXD_160_SUPPORTING_QUERY; SINGLE_SNAPSHOT; DISPATCH_NONE; RUNTIME_NOT_ADMITTED
       objectIdentityDisposition: stream-session and stream-frame remain explicit source
         observations, not canonical Media product objects
       runtimeAdmission: NOT_ADMITTED
@@ -8435,6 +8554,7 @@ journeys:
       contradictory evidence remains UNKNOWN and requires same-identity owner observation
     runtimeAdmission: NOT_ADMITTED
     decisionRef: .product-experience/decision-log.md#PXD-119
+    supportingObservationDecisionRef: .product-experience/decision-log.md#PXD-160
     inputCases:
     - &id530
       case: action-identity-unresolved
@@ -8483,8 +8603,9 @@ journeys:
       supportingObservationOperationRefs:
       - media.operation.stream-session.inspect.v1
       - media.operation.consent-record-inspect.v1
+      - media.operation.stream-session.inspect-execution-recovery.v1
       operationKinds: []
-      supportingOperationKinds: [QUERY]
+      supportingOperationKinds: [QUERY, QUERY, QUERY]
       capabilityOptions: *id526
       domainObjectRefs:
       - media.domain.stream-session
@@ -8503,6 +8624,8 @@ journeys:
       sourceRefs: &id529
       - .product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml#/steps/1
       - .product-experience/pdp-0-product-truth/journey-actor-resolutions.yaml#journeys/@id=J-29
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.stream-session.inspect-execution-recovery.v1
+      - .product-experience/decision-log.md#PXD-160
       runtimeAdmission: NOT_ADMITTED
       decisionRef: .product-experience/decision-log.md#PXD-119
       bindingId: media.step-definition-binding.j-29-step-02.v1
@@ -9551,7 +9674,7 @@ journeys:
     scenarioBindings:
       journeyScenarioRefs: []
       status: NO_EXACT_SCENARIO_ID_IN_JOURNEY_SOURCE
-      stepSpecificScenarioRefs: []
+      stepSpecificScenarioRefs: [media.scenario.job-retry-eligible]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -9658,7 +9781,7 @@ journeys:
     scenarioBindings:
       journeyScenarioRefs: []
       status: NO_EXACT_SCENARIO_ID_IN_JOURNEY_SOURCE
-      stepSpecificScenarioRefs: []
+      stepSpecificScenarioRefs: [media.scenario.job-retry-ineligible]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -10628,11 +10751,9 @@ journeys:
     semanticRole: DOMAIN_OPERATION
     actorRefs: *id170
     guardRefs:
-    - exact-source-version-selected
-    - selected-target-is-listed-for-video-repair
-    - current-profile-rights-policy-and-authorization
-    - explicit-current-budget-and-deadline
-    - explicit-user-confirmation
+    - resolve-the-current-workspace-and-exact-target-before-access-or-change
+    - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+    - preserve-the-requested-context-and-exact-version-across-recovery
     canonicalOperationRefs:
     - media.operation.action.submit-validated-request
     operationKinds:
@@ -10731,24 +10852,90 @@ journeys:
     runtimeAdmission: NOT_ADMITTED
     decisionRef: .product-experience/decision-log.md#PXD-075
     inputCases:
-    - &j08_repair_positive
-      case: one-explicit-eligible-video-repair-capability-and-exact-source-selected
+    - case: explicit-capability-selection:media.enhance.video.spatiotemporal-super-resolution
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.spatiotemporal-super-resolution
+      selectedOperationRef: media.operation.capability.media-enhance-video-spatiotemporal-super-resolution
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.interpolation
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.interpolation
+      selectedOperationRef: media.operation.capability.media-enhance-video-interpolation
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.temporal-denoise
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.temporal-denoise
+      selectedOperationRef: media.operation.capability.media-enhance-video-temporal-denoise
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.temporal-deblur
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.temporal-deblur
+      selectedOperationRef: media.operation.capability.media-enhance-video-temporal-deblur
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.compression-repair
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.compression-repair
+      selectedOperationRef: media.operation.capability.media-enhance-video-compression-repair
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.deflicker
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.deflicker
+      selectedOperationRef: media.operation.capability.media-enhance-video-deflicker
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.temporal-consistency
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.temporal-consistency
+      selectedOperationRef: media.operation.capability.media-enhance-video-temporal-consistency
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.stabilize
       guardVerdict: PASS
       selectedCapabilityRef: media.enhance.video.stabilize
       selectedOperationRef: media.operation.capability.media-enhance-video-stabilize
-      expectedDecision: REQUEST_DEFINITION_ONLY
-    - &j08_repair_wrong_purpose
-      case: valid-video-generation-capability-is-wrong-purpose
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.rolling-shutter
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.rolling-shutter
+      selectedOperationRef: media.operation.capability.media-enhance-video-rolling-shutter
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.frame-repair
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.frame-repair
+      selectedOperationRef: media.operation.capability.media-enhance-video-frame-repair
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.frame-rate-conversion
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.frame-rate-conversion
+      selectedOperationRef: media.operation.capability.media-enhance-video-frame-rate-conversion
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.motion-blur-synthesis
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.motion-blur-synthesis
+      selectedOperationRef: media.operation.capability.media-enhance-video-motion-blur-synthesis
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.grain.adjust
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.grain.adjust
+      selectedOperationRef: media.operation.capability.media-enhance-video-grain-adjust
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.deinterlace
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.deinterlace
+      selectedOperationRef: media.operation.capability.media-enhance-video-deinterlace
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: explicit-capability-selection:media.enhance.video.inverse-telecine-cadence
+      guardVerdict: PASS
+      selectedCapabilityRef: media.enhance.video.inverse-telecine-cadence
+      selectedOperationRef: media.operation.capability.media-enhance-video-inverse-telecine-cadence
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+    - case: valid-video-generation-capability-is-wrong-purpose
       guardVerdict: PASS
       selectedCapabilityRef: media.generate.video.text-to-video
       selectedOperationRef: media.operation.capability.media-generate-video-text-to-video
       expectedDecision: REJECT_WRONG_PURPOSE
-    - &j08_repair_denied
-      case: current-authority-or-budget-denied
+    - case: current-authority-or-budget-denied
       guardVerdict: DENIED
       expectedDecision: DENY_WITHOUT_EFFECT
-    - &j08_repair_unknown
-      case: missing-stale-budget-profile-source-or-prior-outcome
+    - case: missing-stale-budget-profile-source-or-prior-outcome
       guardVerdict: UNKNOWN
       expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
     expectedSemantics: &id657
@@ -10778,11 +10965,9 @@ journeys:
       requirementRefs: [MEDIA-REQ-CAP-ENHANCE-VIDEO]
       actorRefs: *id170
       guardRefs:
-      - exact-source-version-selected
-      - selected-target-is-listed-for-video-repair
-      - current-profile-rights-policy-and-authorization
-      - explicit-current-budget-and-deadline
-      - explicit-user-confirmation
+      - resolve-the-current-workspace-and-exact-target-before-access-or-change
+      - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+      - preserve-the-requested-context-and-exact-version-across-recovery
       sourceRefs:
       - .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-08
       - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1/ownerWireSchema
@@ -10824,13 +11009,95 @@ journeys:
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
-      - *j08_repair_positive
+      - case: explicit-capability-selection:media.enhance.video.spatiotemporal-super-resolution
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.spatiotemporal-super-resolution
+        selectedOperationRef: media.operation.capability.media-enhance-video-spatiotemporal-super-resolution
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.interpolation
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.interpolation
+        selectedOperationRef: media.operation.capability.media-enhance-video-interpolation
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.temporal-denoise
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.temporal-denoise
+        selectedOperationRef: media.operation.capability.media-enhance-video-temporal-denoise
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.temporal-deblur
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.temporal-deblur
+        selectedOperationRef: media.operation.capability.media-enhance-video-temporal-deblur
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.compression-repair
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.compression-repair
+        selectedOperationRef: media.operation.capability.media-enhance-video-compression-repair
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.deflicker
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.deflicker
+        selectedOperationRef: media.operation.capability.media-enhance-video-deflicker
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.temporal-consistency
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.temporal-consistency
+        selectedOperationRef: media.operation.capability.media-enhance-video-temporal-consistency
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.stabilize
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.stabilize
+        selectedOperationRef: media.operation.capability.media-enhance-video-stabilize
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.rolling-shutter
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.rolling-shutter
+        selectedOperationRef: media.operation.capability.media-enhance-video-rolling-shutter
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.frame-repair
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.frame-repair
+        selectedOperationRef: media.operation.capability.media-enhance-video-frame-repair
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.frame-rate-conversion
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.frame-rate-conversion
+        selectedOperationRef: media.operation.capability.media-enhance-video-frame-rate-conversion
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.motion-blur-synthesis
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.motion-blur-synthesis
+        selectedOperationRef: media.operation.capability.media-enhance-video-motion-blur-synthesis
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.grain.adjust
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.grain.adjust
+        selectedOperationRef: media.operation.capability.media-enhance-video-grain-adjust
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.deinterlace
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.deinterlace
+        selectedOperationRef: media.operation.capability.media-enhance-video-deinterlace
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
+      - case: explicit-capability-selection:media.enhance.video.inverse-telecine-cadence
+        guardVerdict: PASS
+        selectedCapabilityRef: media.enhance.video.inverse-telecine-cadence
+        selectedOperationRef: media.operation.capability.media-enhance-video-inverse-telecine-cadence
+        expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
       deniedCases:
-      - *j08_repair_denied
+      - case: current-authority-or-budget-denied
+        guardVerdict: DENIED
+        expectedDecision: DENY_WITHOUT_EFFECT
       unknownCases:
-      - *j08_repair_unknown
+      - case: missing-stale-budget-profile-source-or-prior-outcome
+        guardVerdict: UNKNOWN
+        expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
       wrongPurposeCases:
-      - *j08_repair_wrong_purpose
+      - case: valid-video-generation-capability-is-wrong-purpose
+        guardVerdict: PASS
+        selectedCapabilityRef: media.generate.video.text-to-video
+        selectedOperationRef: media.operation.capability.media-generate-video-text-to-video
+        expectedDecision: REJECT_WRONG_PURPOSE
       expectedSemantics: *id657
       oracleBoundary: Definition-only command-choice adapter; target schemas and job-submit semantics are source contracts, not runtime execution or completion evidence.
     coverageDisposition: SOURCE_BINDING_RECORDED
@@ -11401,9 +11668,11 @@ journeys:
     decisionRef: .product-experience/decision-log.md#PXD-075
     inputCases:
     - &id692
-      case: all-guards-authoritatively-pass
+      case: explicit-capability-selection:media.multimodal.observe.source-grounded
       guardVerdict: PASS
-      expectedDecision: REQUEST_SOURCE_GROUNDED_ANALYSIS
+      selectedCapabilityRef: media.multimodal.observe.source-grounded
+      selectedOperationRef: media.operation.capability.media-multimodal-observe-source-grounded
+      expectedDecision: REQUEST_DEFINED_EFFECT_ONLY
     - &id693
       case: any-guard-denied
       guardVerdict: DENIED
@@ -12625,8 +12894,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.source-available]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -12763,8 +13032,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.consent-revoked, media.scenario.job-outcome-unknown]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -12879,8 +13148,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.job-running, media.scenario.job-outcome-unknown, media.scenario.job-outcome-confirmed]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -13012,8 +13281,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.transcript-ready, media.scenario.language-uncertain, media.scenario.source-quarantined, media.scenario.caption-source-mismatch]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -13142,8 +13411,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.caption-corrected, media.scenario.caption-conflict]
       primaryOperationRefs: [media.operation.caption-draft-write]
       supportingObservationOperationRefs: []
       ownerDomainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version,
@@ -13298,8 +13567,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.alignment-required, media.scenario.caption-conflict]
       primaryOperationRefs: [media.operation.caption-draft-write]
       supportingObservationOperationRefs: []
       ownerDomainObjectRefs: [media.domain.artifact-version, media.domain.transcript-version,
@@ -13453,8 +13722,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.caption-corrected, media.scenario.caption-conflict]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -13570,8 +13839,8 @@ journeys:
       - media.scenario.caption-conflict
       - media.scenario.caption-version-comparison
       - media.scenario.caption-source-mismatch
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.caption-version-comparison, media.scenario.caption-source-mismatch]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -14238,8 +14507,8 @@ journeys:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.upload-permission-revoked]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -14373,8 +14642,8 @@ journeys:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.upload-interrupted]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -14531,8 +14800,8 @@ journeys:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.upload-interrupted, media.scenario.upload-outcome-unknown, media.scenario.upload-permission-revoked]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -14643,8 +14912,8 @@ journeys:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.artifact-verification-running, media.scenario.artifact-verification-outcome-unknown, media.scenario.artifact-verification-completed]
       runtimeAdmission: NOT_ADMITTED
     branchOracles:
       positiveCases:
@@ -14662,19 +14931,21 @@ journeys:
     ordinal: 5
     sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
     viewRef: media.view.inspect-media
-    stepIntent: inspect one exact artifact version, its integrity evidence, metadata,
-      and separately governed lifecycle
+    stepIntent: inspect the exact artifact-version metadata and its time-scoped recorded integrity/lifecycle disposition
     sessionRecoveryDefinition:
-    actionRef: media.action.inspect-artifact
+    actionRef: media.action.inspect-source
     semanticRole: DOMAIN_OPERATION
     actorRefs: *id333
-    guardRefs: *id334
-    canonicalOperationRefs: *id749
+    guardRefs:
+    - exact-artifact-and-immutable-version-identity
+    - current-read-authority
+    canonicalOperationRefs:
+    - media.operation-slice.inspect-artifact-version
     operationKinds:
     - QUERY
     capabilityOptions: &id879 []
     operationDisposition: EXACT_OPERATION_REFERENCE
-    effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+    effect: read-exact-artifact-version-metadata-and-time-scoped-recorded-integrity-lifecycle-disposition
     finality: read-only; inspection-does-not-promote-quarantine-or-attach-to-a-project
     recovery: keep-the-identity-visible-only-as-permitted-and-distinguish-unavailable-metadata-from-a-negative-result
     runtimeAdmission: NOT_ADMITTED
@@ -14694,7 +14965,7 @@ journeys:
       expectedDecision: HOLD_WITHOUT_EFFECT_OR_REPLAY
     expectedSemantics: &id884
       positive:
-        effect: read-the-exact-artifact-version-integrity-metadata-and-separately-governed-policy-dispositions
+        effect: read-exact-artifact-version-metadata-and-time-scoped-recorded-integrity-lifecycle-disposition
         finality: read-only; inspection-does-not-promote-quarantine-or-attach-to-a-project
         completionClaim: none; source finality is descriptive only
       denied:
@@ -14709,22 +14980,26 @@ journeys:
       or establish runtime admission.
     canonicalBindings:
       bindingKind: EXACT_SINGLE_OPERATION
-      actionRef: media.action.inspect-artifact
+      actionRef: media.action.inspect-source
       operationRefs:
-      - media.operation-slice.inspect-artifact
+      - media.operation-slice.inspect-artifact-version
       operationKinds:
       - QUERY
       capabilityOptions: *id879
       domainObjectRefs: []
       stateRefs: []
-      authorityRefs: []
+      authorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse
       requirementRefs:
       - MEDIA-REQ-CAP-ARTIFACT
       actorRefs: *id333
-      guardRefs: *id334
+      guardRefs:
+      - exact-artifact-and-immutable-version-identity
+      - current-read-authority
       sourceRefs: &id880
-      - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts.records
-      - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation-slice.inspect-artifact
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/requestSchema
+      - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/ownerWireSchema/resultSchema
       - .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
       runtimeAdmission: NOT_ADMITTED
       decisionRef: .product-experience/decision-log.md#PXD-075
@@ -14732,29 +15007,20 @@ journeys:
       semanticDefinitionId: media.step-semantic-definition.j-02-step-05.v1
       pdp1JourneyOperationBindingId: media.pdp1.journey-operation-binding.upload-import-and-verify-artifact.J02-5
       pdp1JourneyOperationBindingRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedJourneyOperationBindings/records/@id=media.pdp1.journey-operation-binding.upload-import-and-verify-artifact.J02-5
-      primaryOperationRefs: [media.operation-slice.inspect-artifact]
-      supportingObservationOperationRefs: [media.operation.artifact.lifecycle.observe.v1]
+      primaryOperationRefs: [media.operation-slice.inspect-artifact-version]
+      supportingObservationOperationRefs: []
       ownerDomainObjectRefs: [media.domain.artifact, media.domain.artifact-version]
-      ownerStateRefs: [.product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/EXPIRED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ERASURE_REQUESTED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/PHYSICAL_ERASURE_PENDING,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/BLOCKED_BY_HOLD,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ERASURE_CONFIRMED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/EXTERNAL_ERASURE_UNCONFIRMED]
-      ownerAuthorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation,
-        .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse]
+      ownerStateRefs: []
+      ownerAuthorityRefs:
+      - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse
       ownerRequirementRefs: [.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT]
-      stateBindingDisposition: PRIMARY_METADATA_QUERY_DOES_NOT_INCLUDE_LIFECYCLE_STATE;
-        lifecycle facts require the separate typed observer operation.
-      ownerResultSemantics: Read only an exact artifact and immutable version under
-        trusted principal and current read policy; lifecycle state comes only from
-        the separate lifecycle observer.
+      stateBindingDisposition: NO_CURRENT_STATE_BINDING; exact-version recorded integrity/lifecycle disposition is a time-scoped read result and establishes no current product state.
+      ownerResultSemantics: Read only one exact artifact and immutable version under
+        trusted principal and current read policy; return metadata and the
+        time-scoped recorded integrity/lifecycle disposition at observedAt. This
+        does not establish current availability, current rights or consent,
+        retention authority, or permission to process or deliver.
       failClosedCases: [Unknown or stale read remains UNKNOWN., 'Never infer AVAILABLE
           from metadata, existence, or an object reference.']
       ownerOperationScopeStatus: OWNER_DEFINED_DEFINITION_ONLY; runtime-admission
@@ -14763,9 +15029,9 @@ journeys:
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml#/steps/4
       journeyRef: J-02
       sourceStepOrdinal: 5
-      stepIntent: inspect one exact artifact version, its integrity evidence, metadata,
-        and separately governed lifecycle
-      sourceActionRefs: []
+      stepIntent: inspect the exact artifact-version metadata and its time-scoped recorded integrity/lifecycle disposition
+      sourceActionRefs:
+      - media.action.inspect-source
       sourceCapabilityRefs:
       - media.artifact.inspect
       ownerDefinitionRefs: *id880
@@ -14781,31 +15047,20 @@ journeys:
       - media.scenario.artifact-verification-running
       - media.scenario.artifact-verification-outcome-unknown
       - media.scenario.artifact-verification-completed
-      status: JOURNEY_LEVEL_SOURCE_FIXTURES_ONLY
-      stepSpecificScenarioRefs: []
-      primaryOperationRefs: [media.operation-slice.inspect-artifact]
-      supportingObservationOperationRefs: [media.operation.artifact.lifecycle.observe.v1]
+      status: STEP_AND_JOURNEY_LEVEL_FIXTURES_SOURCE_BOUND_ONLY
+      stepSpecificScenarioRefs: [media.scenario.upload-checksum-mismatch, media.scenario.upload-format-unsupported, media.scenario.upload-quarantined, media.scenario.upload-verified-available]
+      primaryOperationRefs: [media.operation-slice.inspect-artifact-version]
+      supportingObservationOperationRefs: []
       ownerDomainObjectRefs: [media.domain.artifact, media.domain.artifact-version]
-      ownerStateRefs: [.product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/AVAILABLE,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/QUARANTINED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/REJECTED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/EXPIRED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ERASURE_REQUESTED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ACCESS_REVOKED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/PHYSICAL_ERASURE_PENDING,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/BLOCKED_BY_HOLD,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/ERASURE_CONFIRMED,
-        .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/EXTERNAL_ERASURE_UNCONFIRMED]
-      ownerAuthorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation,
-        .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=artifact-fetch-and-cache-reuse]
+      ownerStateRefs: []
+      ownerAuthorityRefs: []
       ownerRequirementRefs: [.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-ARTIFACT]
-      stateBindingDisposition: PRIMARY_METADATA_QUERY_DOES_NOT_INCLUDE_LIFECYCLE_STATE;
-        lifecycle facts require the separate typed observer operation.
-      ownerResultSemantics: Read only an exact artifact and immutable version under
-        trusted principal and current read policy; lifecycle state comes only from
-        the separate lifecycle observer.
+      stateBindingDisposition: NO_CURRENT_STATE_BINDING; exact-version recorded integrity/lifecycle disposition is a time-scoped read result and establishes no current product state.
+      ownerResultSemantics: Read only one exact artifact and immutable version under
+        trusted principal and current read policy; return metadata and the
+        time-scoped recorded integrity/lifecycle disposition at observedAt. This
+        does not establish current availability, current rights or consent,
+        retention authority, or permission to process or deliver.
       failClosedCases: [Unknown or stale read remains UNKNOWN., 'Never infer AVAILABLE
           from metadata, existence, or an object reference.']
       ownerOperationScopeStatus: OWNER_DEFINED_DEFINITION_ONLY; runtime-admission
@@ -15419,7 +15674,7 @@ guardFactEvaluationCoverage:
   stepCount: 130
   sourceBindingsRecorded: 130
   typedLocalContractSteps: 27
-  guardedDomainIdentityWorkflowSteps: 94
+  guardedDomainIdentityWorkflowSteps: 96
   guardedDomainIdentityWorkflowFactEvaluators: 57
   sourceGuardlessPassiveOrChoiceSteps: 9
   fixtureOutcomeFieldsAreEvidence: false
@@ -15430,7 +15685,7 @@ guardFactEvaluationCoverage:
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   definitionFixturePredicateEvaluators: 57
-  evaluatedGuardInstances: 254
+  evaluatedGuardInstances: 260
   unresolvedGuardFactInstances: 0
   trustedRuntimeGuardEvaluators: 0
   runtimeReceiptBindings: 0

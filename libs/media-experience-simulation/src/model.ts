@@ -33,6 +33,81 @@ export type FixtureId =
 
 export type ScenarioId = `media.scenario.${FixtureId}`;
 
+/** Test-only, schema-shaped operation sample; never sent to a runtime. */
+export interface OperationDefinitionFixture {
+  readonly fixtureId: string;
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly actionRef: string;
+  readonly capabilityRef: string | null;
+  readonly operationRef: string;
+  readonly requestSchemaRef: string;
+  readonly resultSchemaRef: string;
+  readonly request: Readonly<Record<string, unknown>>;
+  readonly resultShape: Readonly<Record<string, unknown>>;
+  readonly synthetic: true;
+  readonly resultIsOwnerEvidence: false;
+  readonly dispatch: "NEVER";
+  readonly runtimeAdmission: "NOT_ADMITTED";
+}
+
+/** Source-authored guard verdict input; contains no state, authority, or runtime evidence. */
+export interface StepBranchDefinitionFixture {
+  readonly fixtureKind: "STEP_GUARD_BRANCH_INPUT";
+  readonly fixtureId: string;
+  readonly sourceRef: string;
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly branch: "positive" | "denied" | "unknown";
+  readonly case: string;
+  readonly guardVerdict: "PASS" | "DENIED" | "UNKNOWN";
+  readonly expectedDecision: string;
+  readonly selectedCapabilityRef?: string;
+  readonly selectedOperationRef?: string;
+  readonly synthetic: true;
+  readonly dispatch: "NEVER";
+  readonly ownerAcceptedOutcomeOracle: false;
+  readonly runtimeAdmission: "NOT_ADMITTED";
+}
+
+/** Exact source rule for a stale/mismatched version tuple, without invented tuple values. */
+export interface VersionMismatchGuardDefinitionFixture {
+  readonly fixtureKind: "VERSION_MISMATCH_GUARD_RULE";
+  readonly fixtureId: string;
+  readonly sourceRef: string;
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly exactIdentityTupleFields: readonly string[];
+  readonly syntheticExpectedTuple: Readonly<Record<string, string>>;
+  readonly syntheticPresentedTuple: Readonly<Record<string, string>>;
+  readonly conditionEvaluated: false;
+  readonly mismatchCondition: "MISSING_STALE_FOREIGN_OR_MISMATCHED_EXACT_VERSION_TUPLE";
+  readonly expectedGuardVerdict: "UNKNOWN";
+  readonly expectedEffect: "NONE";
+  readonly expectedDecision: "HOLD_WITHOUT_EFFECT_OR_REPLAY";
+  readonly synthetic: true;
+  readonly dispatch: "NEVER";
+  readonly runtimeAdmission: "NOT_ADMITTED";
+}
+
+/** Synthetic request shape for a source-defined draft-revision denial; not an evaluated outcome. */
+export interface StaleDraftRevisionDefinitionFixture {
+  readonly fixtureKind: "STALE_DRAFT_REVISION_REQUEST";
+  readonly fixtureId: string;
+  readonly sourceRefs: readonly string[];
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly operationRef: "media.operation.caption-draft-write";
+  readonly requestSchemaRef: string;
+  readonly request: Readonly<Record<string, unknown>>;
+  readonly requestIsSyntheticSchemaSample: true;
+  readonly mismatchCondition: "EXPECTED_DRAFT_REVISION_DOES_NOT_MATCH_CURRENT_SESSION_LOCAL_DRAFT";
+  readonly expectedDecision: "REJECT_WITHOUT_ADVANCE_IF_CONDITION_HOLDS";
+  readonly conditionEvaluated: false;
+  readonly dispatch: "NEVER";
+  readonly runtimeAdmission: "NOT_ADMITTED";
+}
+
 export type JobState =
   | "NOT_SUBMITTED"
   | "QUEUED"
@@ -157,7 +232,11 @@ export interface CaptionVersionRecord {
   readonly segments: readonly TimedTextSegment[];
 }
 
-/** Synthetic, pre-dispatch facts used only to evaluate the retry guard. */
+/** Conditional pre-dispatch facts; eligibility requires every fact to resolve to owner evidence. */
+export type RetryEligibilityEvidenceFact =
+  | "priorAttempt" | "priorEffect" | "authority" | "policy" | "rights"
+  | "consent" | "license" | "resource" | "deployment" | "profile" | "retryBudget";
+
 export interface RetryEligibilityEvidence {
   readonly tenantId: string;
   readonly principalId: string;
@@ -171,11 +250,14 @@ export interface RetryEligibilityEvidence {
   readonly policyDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
   readonly rightsDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
   readonly consentDisposition: "CURRENT_ACTIVE" | "REVOKED" | "UNKNOWN";
+  readonly licenseDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
+  readonly resourceDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
+  readonly deploymentDisposition: "CURRENT_ALLOWED" | "DENIED" | "UNKNOWN";
   readonly profileDisposition: "CURRENT_QUALIFIED" | "UNQUALIFIED" | "UNKNOWN";
   readonly retryBudgetRemaining: number;
   readonly retryBudgetRef: string;
   readonly observedAt: string;
-  readonly evidenceRefs: readonly string[];
+  readonly evidenceRefs: Readonly<Record<RetryEligibilityEvidenceFact, string>>;
 }
 
 interface MediaExperienceCommonState {

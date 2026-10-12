@@ -116,7 +116,7 @@ test('PDP-3 search and inspection source records project to the public schema sh
   assert.equal(specification.acceptance, 'NOT_CLAIMED');
 });
 
-test('residual report drops mapped PDP-2 and search/inspection fields while retaining other PDP-3 gaps', () => {
+test('residual report keeps mapped PDP-2/PDP-3 fields distinct from pending owner review', () => {
   const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
     encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
   }));
@@ -124,8 +124,8 @@ test('residual report drops mapped PDP-2 and search/inspection fields while reta
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
   assert.equal(pdp2.unresolvedFieldCount, 0);
   assert.deepEqual(pdp2.unresolvedFields.map(({ field }) => field), []);
-  assert.equal(pdp3.unresolvedFieldCount, 5);
-  assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), [
-    'actions', 'effects', 'finality', 'journeys', 'transitions',
-  ]);
+  assert.equal(pdp3.unresolvedFieldCount, 0);
+  assert.deepEqual(pdp3.unresolvedFields.map(({ field }) => field), []);
+  assert.ok(pdp3.ownerReviewPendingFields.includes('journeys'));
+  assert.match(pdp3.ownerDecisionStatus, /^PENDING\b/u);
 });

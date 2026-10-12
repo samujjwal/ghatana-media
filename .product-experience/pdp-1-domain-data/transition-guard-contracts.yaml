@@ -329,10 +329,11 @@
       "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "holdCheckPass": {
-      "description": "holdCheckPass",
+      "description": "Legacy aggregate hold-check input; no current transition edge consumes this predicate, and it cannot substitute for a scoped current hold disposition.",
       "valueType": "boolean",
       "unknown": "deny",
       "inputKind": "DEFINITION_MODEL_INPUT",
+      "factDisposition": "UNBOUND_UNUSED; retained only as an observed legacy fact identity; no current edge or exclusivity group may use it to authorize a transition.",
       "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "holdReleaseOrBoundaryEvidence": {
@@ -767,6 +768,11 @@
       "valueType": "boolean",
       "unknown": "deny",
       "inputKind": "DEFINITION_MODEL_INPUT",
+      "sourceRefs": [
+        ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/observationSchema",
+        ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/activeRule",
+        ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/unknownRule"
+      ],
       "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "hold.absent": {
@@ -774,6 +780,11 @@
       "valueType": "boolean",
       "unknown": "deny",
       "inputKind": "DEFINITION_MODEL_INPUT",
+      "sourceRefs": [
+        ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/observationSchema",
+        ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/outcomeClassifier/currentReadReceiptSchema/properties/holdRead",
+        ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/erasureFinality/confirmedRequires"
+      ],
       "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "hold.unknown": {
@@ -781,6 +792,8 @@
       "valueType": "boolean",
       "unknown": "deny",
       "inputKind": "DEFINITION_MODEL_INPUT",
+      "factDisposition": "EXCLUSIVITY_ONLY; a positive UNKNOWN disposition contradicts positive ACTIVE or ABSENT for the same current scoped hold read and never authorizes an edge.",
+      "authorityRef": ".product-experience/pdp-1-domain-data/privacy.yaml#ownerDefinedErasureInventoryContract/holds/unknownRule",
       "truthBoundary": "Synthetic model input for pure definition tests only; no runtime/source truth is claimed."
     },
     "outcome.media.job.running.supported": {
@@ -1450,7 +1463,7 @@
       "stateDimension": null,
       "sourceTransitionRef": ".product-experience/pdp-1-domain-data/transitions.yaml#transitionRecords/@id=media-job/T03",
       "sourceGuard": "retry-budget-policy-and-authority-rechecked",
-      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; independent-review-open; provider-proof-separate",
+      "ownerGuardDisposition": "Media-owner-definition-recorded-from-PDP0-guard; retry eligibility applies only to RETRY_PENDING-to-RUNNING; terminal, cancellation, and unresolved outcomes use exact target observations; runtime/provider proof separate",
       "edgeRules": [
         {
           "from": "RETRY_PENDING",
@@ -1484,9 +1497,6 @@
                 "fact": "tenant.matches"
               },
               {
-                "fact": "retryBudgetAvailable"
-              },
-              {
                 "fact": "policyCurrent"
               },
               {
@@ -1507,9 +1517,6 @@
                 "fact": "tenant.matches"
               },
               {
-                "fact": "retryBudgetAvailable"
-              },
-              {
                 "fact": "policyCurrent"
               },
               {
@@ -1528,9 +1535,6 @@
             "all": [
               {
                 "fact": "tenant.matches"
-              },
-              {
-                "fact": "retryBudgetAvailable"
               },
               {
                 "fact": "policyCurrent"
@@ -2677,6 +2681,9 @@
                 "fact": "copyInventoryComplete"
               },
               {
+                "fact": "hold.absent"
+              },
+              {
                 "fact": "erasure.externalCopyUnconfirmed"
               }
             ]
@@ -2705,7 +2712,19 @@
                 "fact": "deletionEvidenceRecorded"
               },
               {
-                "fact": "erasure.allControlledCopiesConfirmed"
+                "fact": "hold.absent"
+              },
+              {
+                "all": [
+                  {
+                    "fact": "erasure.allControlledCopiesConfirmed"
+                  },
+                  {
+                    "not": {
+                      "fact": "erasure.externalCopyUnconfirmed"
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -2737,6 +2756,9 @@
               },
               {
                 "fact": "deletionEvidenceRecorded"
+              },
+              {
+                "fact": "hold.absent"
               },
               {
                 "fact": "erasure.externalCopyUnconfirmed"
@@ -2782,6 +2804,9 @@
               },
               {
                 "fact": "holdReleaseOrBoundaryEvidence"
+              },
+              {
+                "fact": "hold.absent"
               },
               {
                 "fact": "erasure.externalCopyUnconfirmed"
@@ -5233,7 +5258,8 @@
       "id": "outcome.media-upload-and-artifact.t05",
       "factIds": [
         "hold.absent",
-        "hold.active"
+        "hold.active",
+        "hold.unknown"
       ],
       "rule": "at-most-one-positive-outcome-fact"
     },
@@ -5241,7 +5267,8 @@
       "id": "outcome.media-upload-and-artifact.t06",
       "factIds": [
         "hold.absent",
-        "hold.active"
+        "hold.active",
+        "hold.unknown"
       ],
       "rule": "at-most-one-positive-outcome-fact"
     },
@@ -5250,16 +5277,16 @@
       "factIds": [
         "hold.absent",
         "hold.active",
-        "erasure.externalCopyUnconfirmed"
+        "hold.unknown"
       ],
       "rule": "at-most-one-positive-outcome-fact"
     },
     {
       "id": "outcome.media-upload-and-artifact.t08",
       "factIds": [
-        "erasure.allControlledCopiesConfirmed",
+        "hold.absent",
         "hold.active",
-        "erasure.externalCopyUnconfirmed"
+        "hold.unknown"
       ],
       "rule": "at-most-one-positive-outcome-fact"
     },
@@ -5267,7 +5294,8 @@
       "id": "outcome.media-upload-and-artifact.t09",
       "factIds": [
         "hold.absent",
-        "erasure.externalCopyUnconfirmed"
+        "hold.active",
+        "hold.unknown"
       ],
       "rule": "at-most-one-positive-outcome-fact"
     },

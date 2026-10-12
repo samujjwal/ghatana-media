@@ -6,6 +6,8 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts,
   const effectRefsByAction = new Map();
   const conditionalActions = [];
   const unmappedPublicActions = [];
+  const explicitUnadmittedExternalOwnerActions = [];
+  const unmappedApplicableActions = [];
   const seen = new Set();
   const fail = (message) => { throw new Error(`Invalid experience definition: ${message}`); };
   const nonempty = (value) => typeof value === 'string' && value.trim().length > 0;
@@ -127,6 +129,44 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts,
         || !mapping.publicEffectCandidate || !mapping.publicFinalityCandidate) {
         if (kind === 'CONDITIONAL' || kind === 'UNKNOWN') conditionalActions.push(action.id);
         unmappedPublicActions.push(action.id);
+        // PXD-075 permits exact external-owner roles to remain explicitly
+        // unadmitted. Preserve their missing public Media effect/finality,
+        // but do not count them as applicable Media mapping gaps.
+        const externalRoleDisposition = new Map([
+          ['EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION', 'EXTERNAL_SHARED_IDENTITY_HANDOFF_OR_OBSERVATION; NO_MEDIA_DOMAIN_MUTATION'],
+          ['EXTERNAL_SHARED_IDENTITY_HANDOFF', 'EXTERNAL_SHARED_IDENTITY_HANDOFF; NO_MEDIA_DOMAIN_MUTATION'],
+        ]).get(typed.semanticRole);
+        if (externalRoleDisposition) {
+          const sourceFacts = mapping?.sourceEnvelopeFacts;
+          const validUnadmittedExternalRole = mapping
+            && mapping.semanticRole === typed.semanticRole
+            && typed.domainOperationDisposition === externalRoleDisposition
+            && mapping.domainOperationDisposition === externalRoleDisposition
+            && typed.exactOperationRefs?.length === 0
+            && mapping.operationRefs?.length === 0
+            && mapping.canonicalOperationFacts?.length === 0
+            && mapping.publicEffectCandidate === null
+            && mapping.publicFinalityCandidate === null
+            && mapping.publicTaxonomyDisposition === 'UNMAPPED_PENDING_SEMANTIC_REVIEW'
+            && mapping.mappingReviewStatus === 'UNMAPPED_PENDING_EXACT_SHARED_ROLE_BINDING'
+            && mapping.mappingDecisionRef === null
+            && mapping.runtimeAdmission === 'NOT_ADMITTED'
+            && mapping.sourceEnvelopeOperationRefs?.length === 0
+            && mapping.sourceEnvelopeCanonicalBindings === null
+            && sourceFacts?.domainOperationDisposition === externalRoleDisposition
+            && sourceFacts?.operationRefs?.length === 0
+            && sourceFacts?.operationKindFacts?.length === 0
+            && sourceFacts?.domainObjectRefs?.length === 0
+            && sourceFacts?.stateRefs?.length === 0
+            && sourceFacts?.authorityRefs?.length === 0
+            && sourceFacts?.requirementRefs?.length === 0
+            && sourceFacts?.profileRef === null
+            && sourceFacts?.runtimeAdmission === 'NOT_ADMITTED';
+          if (!validUnadmittedExternalRole) fail(`invalid explicit unadmitted external-owner role ${action.id}`);
+          explicitUnadmittedExternalOwnerActions.push(action.id);
+          continue;
+        }
+        unmappedApplicableActions.push(action.id);
         continue;
       }
       if (kind !== mapping.reversibilityDisposition || typed.confirmationDisposition !== mapping.confirmationDisposition) fail(`taxonomy disposition mismatch ${action.id}`);
@@ -193,5 +233,14 @@ export function resolveExperienceDefinitionSemantics(actions, recoveryContracts,
     if (entry.automaticRecovery) fail(`automatic external recovery not admitted ${contract.id}`);
     claimId(entry.id); recoveries.push(entry);
   }
-  return { effects, finality, recoveries, effectRefsByAction, conditionalActions, unmappedPublicActions };
+  return {
+    effects,
+    finality,
+    recoveries,
+    effectRefsByAction,
+    conditionalActions,
+    unmappedPublicActions,
+    unmappedApplicableActions,
+    explicitUnadmittedExternalOwnerActions,
+  };
 }

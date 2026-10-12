@@ -28,12 +28,20 @@ test("exact content uses versioned approved source bindings and deterministic co
   assert.deepEqual(rule.nonClaims, ["no-runtime-rendering-proof", "no-license-clearance", "no-human-meaning-approval", "no-phase-acceptance"]);
   assert.equal(rule.acceptanceEffect, "none");
   assert.equal(rule.status, "OWNER_DEFINED_DESIGN_RULE; rendering and owner review evidence remain separate");
-  assert.deepEqual(source.normativeRuleRecords, [{
-    id: "media.p2.rule.exact-content-overlay.v1",
-    ruleRef: `${file}#exactContentOverlayRule`,
-    sourceAuthority: `${file}#authority`,
-    acceptanceEffect: "none",
-  }]);
+  assert.deepEqual(source.normativeRuleRecords, [
+    {
+      id: "media.p2.rule.exact-content-overlay.v1",
+      ruleRef: `${file}#exactContentOverlayRule`,
+      sourceAuthority: `${file}#authority`,
+      acceptanceEffect: "none",
+    },
+    {
+      id: "media.p2.rule.same-revision-editor-projections.v1",
+      ruleRef: `${file}#revisionProjectionRule`,
+      sourceAuthority: ".product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics",
+      acceptanceEffect: "none",
+    },
+  ]);
 });
 
 test("material weakening of exact-content identity, owner authority, or translation review is rejected", () => {

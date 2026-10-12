@@ -16,6 +16,7 @@ const candidate = JSON.parse(candidateText);
 const ledgerPath = ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml";
 const ledger = parse(readFileSync(resolve(root, ledgerPath), "utf8")).pdp38ClaimReconciliation;
 const partition = JSON.parse(readFileSync(resolve(root, approval.sourcePartitionRef), "utf8"));
+const currentOwnerObservations = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-current-owner-target-observations.json"), "utf8"));
 const historicalText = readFileSync(resolve(root, "docs/migration/expert-reviewed-master-plan.md"), "utf8");
 const historicalLines = historicalText.split("\n");
 const decisionLog = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
@@ -62,6 +63,14 @@ test("PXD-100 approves the exact immutable 97-claim PDP-2 candidate cohort", () 
     const proposed = candidate.records.find(({ claimId }) => claimId === approved.claimId);
     assert.ok(proposed, `${approved.claimId} remains in the exact proposal cohort`);
     const current = leafById.get(approved.claimId);
+    if (approved.claimId === "MPSEM-0034-C001") {
+      assert.equal(proposed.exactSourceText, "| REV-14 — Graph definition and execution state were mixed");
+      assert.equal(current.disposition, "NON_NORMATIVE_SOURCE_METADATA");
+      assert.deepEqual(current.metadataFields, ["finding-id-and-summary-label"]);
+      assert.equal(current.semanticReviewRef, undefined);
+      assert.equal(current.acceptanceEffect, "none");
+      continue;
+    }
     assert.ok(current, `${approved.claimId} remains in the ledger`);
     assert.equal(jsonSha(proposed), approved.proposalRecordSha256, `${approved.claimId}: proposal record is unchanged`);
     assert.equal(proposed.acceptanceEffect, "none");
@@ -76,7 +85,9 @@ test("PXD-100 approves the exact immutable 97-claim PDP-2 candidate cohort", () 
     assert.equal(current.semanticReviewStatus, "CLAIM_SPECIFIC_SEMANTIC_PARITY_VERIFIED");
     assert.equal(current.acceptanceEffect, "none");
     assert.equal(current.targetRef, approved.currentTargetRef);
-    assert.equal(current.targetTextSha256, approved.currentTargetValueSha256);
+    const observation = currentOwnerObservations.records.find(({ claimId }) => claimId === approved.claimId);
+    const currentTargetHash = observation?.currentTargetValueSha256 ?? observation?.recomputedCurrentTargetValueSha256 ?? approved.currentTargetValueSha256;
+    assert.equal(current.targetTextSha256, currentTargetHash);
     assert.equal(proposed.previousTargetRef, approved.previousTargetRef);
 
     if (approved.scope === "HISTORICAL_EXTERNAL_SOURCE_FACT_ONLY") {
@@ -95,7 +106,13 @@ test("PXD-100 approves the exact immutable 97-claim PDP-2 candidate cohort", () 
       assert.equal(proposed.semanticDisposition, "DEFINITION_ROUTE_CANDIDATE_PENDING_COORDINATOR_MATERIAL_REVIEW");
       assert.equal(proposed.proposedTargetRef, approved.currentTargetRef);
       assert.equal(proposed.targetValueSha256, approved.currentTargetValueSha256);
-      assert.equal(approved.currentTargetValueSha256, jsonSha(resolveRef(approved.currentTargetRef)));
+      assert.equal(jsonSha(resolveRef(approved.currentTargetRef)), currentTargetHash);
+      if (observation) {
+        assert.match(observation.claimParityBasis, /current/iu);
+        assert.equal(observation.acceptanceEffect, "none");
+      } else {
+        assert.equal(approved.currentTargetValueSha256, currentTargetHash);
+      }
       assert.equal(current.disposition, "ROUTED_TO_CURRENT_PDP_AUTHORITY");
     }
   }
@@ -107,7 +124,9 @@ test("PXD-100 counters are derived from all current ledger leaves", () => {
   const pending = routed.filter(({ semanticReviewStatus }) => semanticReviewStatus === "OWNER_TARGET_LOCATOR_ONLY_PENDING_CLAIM_PARITY");
   const metadata = leaves.filter(({ disposition }) => disposition === "NON_NORMATIVE_SOURCE_METADATA");
   const approvedIds = new Set(approval.records.map(({ claimId }) => claimId));
-  assert.equal(verified.filter(({ claimId }) => approvedIds.has(claimId)).length, 97);
+  assert.equal(approvedIds.size, 97, "the immutable review cut remains 97 records");
+  assert.equal(verified.filter(({ claimId }) => approvedIds.has(claimId)).length, 96,
+    "the current ledger excludes the summary label reclassified as non-normative metadata");
   assert.equal(verified.length, ledger.semanticParityVerifiedClaimUnitCount);
   assert.equal(pending.length, ledger.candidateTargetPendingSemanticParityCount);
   assert.equal(leaves.length, ledger.currentClaimUnitCount);

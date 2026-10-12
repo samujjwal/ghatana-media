@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "media.pdp38-pxd086-current-source-delta.v1",
+  "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json",
+  "priorSourceCommit": "6ccc7b6",
+  "sourcePath": ".product-experience/pdp-0-product-truth/handoff-contracts.yaml",
+  "priorSourceFileSha256": "0c0281ee97f39d0c41e0e91c95cc19ef5b850bc385e748b47044e3b8918d1a73",
+  "currentSourceFileSha256": "43c015f3e2a4af776d51025b8dbd57ec6f4e78b9d0429c8926ef6c5dbe3ced15",
+  "priorParsedTreeSha256": "09ae81c171b83c25b44a79593906564b6a85d80df3d45bf1191326a3d0b40f61",
+  "currentParsedTreeSha256": "aa8017d7bcf2b4f8ecc021608fc2aa0d4292e0634b5b3734a23a414fe8cde547",
+  "changedPaths": [
+    {
+      "path": "dependencies/p0-003",
+      "priorValueSha256": "d6cf47eddfbf62a0dd6c1c19908bd2567aea7bd226a6ce733a118d1064aa1ae3",
+      "currentValueSha256": "6b24d98d4f7db74e3fd09e270c0f6bbfbee2d25589c0cb33e156b2a43f1c9b13"
+    },
+    {
+      "path": "dependencies/p0-006",
+      "priorValueSha256": "5b8126299e55bd348d066dd10f96579aa4cad814f45959a8dda8dab714d76ccc",
+      "currentValueSha256": "a581fa673e21ea0ae4858527686976e319358aa54ff22bbc275af7f6b22718a3"
+    },
+    {
+      "path": "dependencies/p0-007",
+      "priorValueSha256": "1698496ed9eb10baea996c77c86f8a8dcd391f05c28957da179b8383fa96a939",
+      "currentValueSha256": "2aec1416f41820f353b095475d84108eef2f32f4396a2be2ca91143d983428f0"
+    },
+    {
+      "path": "dependencies/p0-008",
+      "priorValueSha256": "78d62250144da058ea3b79f1d2bb09d779a8ba28b74ac8dfd0635c398ad53938",
+      "currentValueSha256": "67312b647e228b20706315b1bb4a7bcc685e435a3b8028fc482e3377ae012e15"
+    },
+    {
+      "path": "pdpPhaseHandoffContracts",
+      "priorValueSha256": null,
+      "currentValueSha256": "2d5761f1ead44f4f6494d279051612100c6404345b50ec5788f600b7687ed88e"
+    },
+    {
+      "path": "handoffs/@id=ai-inference-execution/status",
+      "priorValueSha256": "cfbcf77b0632fc1ba79bc4a663663dc07a0cb5a26e1b792499db32091f3d76ed",
+      "currentValueSha256": "13efa6b8087068b0056ca5d74849dc6d20f99e950076c74a3763fb6c1650c128"
+    },
+    {
+      "path": "handoffs/@id=ai-inference-execution/operationAndVersion/admission",
+      "priorValueSha256": "de9ae3538774f91e1dd6b2e3f403ef158b7c7ab4281d4033ad83ccea9cb0e3b1",
+      "currentValueSha256": "9334a58b1ee6ed1954d48fbe8835f92e901a3c46f6e30aca6e8772c618259958"
+    },
+    {
+      "path": "handoffs/@id=ai-inference-execution/retryReconciliation",
+      "priorValueSha256": "76733c7ab685777dd000efc843cf3a5b56230fc6f4ca340342f5e533989ce948",
+      "currentValueSha256": "e3f14ab7df068f2a1df8633d4c3de70f49bdd7530f56ee650a4f2fdea06b872e"
+    },
+    {
+      "path": "handoffs/@id=action-plane-publication/status",
+      "priorValueSha256": "666a31922da8ec91663a2af7985e659bb53124b203ced0f09681cad146bbd4a5",
+      "currentValueSha256": "5c2d39f8452e9594a5513ea56129c40f82ba099ea1ed5b7d41f844a3d421970e"
+    },
+    {
+      "path": "handoffs/@id=agent-runtime-media-action/operationAndVersion/value",
+      "priorValueSha256": "be4b4263a74d28f24d6c285079a79901478f4ac53d201f793338d3efe084b97b",
+      "currentValueSha256": "b9ab4c90cf4dba60cbd17a312983884a8a46b78600c1b4440859977bdac71399"
+    }
+  ],
+  "scope": "Current owner source changes in the handoff register are recorded separately from the immutable PXD-086 historical claim cohort. The contract keeps PDP-0 capability intent stable and explicit while leaving operation, request/result schemas, domain state, qualification, and runtime admission downstream.",
+  "disposition": "SEPARATE_CURRENT_OWNER_SOURCE_DELTA; HISTORICAL_PXD086_COHORT_UNCHANGED",
+  "acceptanceEffect": "none",
+  "runtimeAdmission": "NOT_ADMITTED"
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "media.pdp38-pxd086-cli-current-source-observation.v1",
+  "historicalReviewRef": "docs/implementation/verification/pdp-38/migration-profile-handoff-source-review.json",
+  "priorOwnerDefinitionDeltaRef": "docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json",
+  "sourcePath": ".product-experience/pdp-2-design-interface-system/cli-language.yaml",
+  "priorSourceCommit": "f9b4df6",
+  "priorSourceFileSha256": "b63310559bf9ecd8265353ccdcbfbf9905851bec7facd8c76e1a21c428446d38",
+  "currentSourceFileSha256": "33b468a1ba56455bd2d8e828f3e24c5fc4d5075337ee396f512533d0c91cded8",
+  "changedPaths": [
+    {
+      "path": "ownerDefinedInvocationRules",
+      "priorValueSha256": "cbc51f5be57f9c9324cd2f069cee8cdcbc1cb9f1eb2fb012bcc0d120bf31d1e6",
+      "currentValueSha256": "fc3d40a7a51d73520893b6c059e2352d8f5f54cda6af7b0b3e3904fddca2fc84"
+    },
+    {
+      "path": "normativeRuleRecords",
+      "priorValueSha256": "c5dcb9d866b2adfaebd0f23260d327edf417c921d6df7d1a0d369eee78032cf1",
+      "currentValueSha256": "a79a3ad4838bbb7fa7f0527c34ebf4c4a9e3b9af09882184ea61fc77b831d8f5"
+    },
+    {
+      "path": "ownerDefinedCanonicalCommandContracts",
+      "priorValueSha256": null,
+      "currentValueSha256": "bc64164c7e641c2152e6cd781dfc141ea0e4eb6eb7b0f1adab84dea327a9ba23"
+    },
+    {
+      "path": "machineOutput/productExitCodeTaxonomy/codes",
+      "priorValueSha256": "be187b231b2416ef2422afbceed60feced6e8a7004c64b0994d81d0253911119",
+      "currentValueSha256": "16d775ff0f4b3a2be92b350c7e6fc3b4900d9bbe005e94588edb9c31fa452dc0"
+    },
+    {
+      "path": "machineOutput/productExitCodeTaxonomy/distinctions",
+      "priorValueSha256": "bba7d3538dbd9f9a4c722d372e2191a7a36cea088acd1d9111dc340f79173382",
+      "currentValueSha256": "09be75c453b505f123feb9fe500b1bd5d66b5e347a29cb84455da1fbbb0d00eb"
+    }
+  ],
+  "scope": "This later CLI definition cut is explicitly separate from the immutable PXD-086 source fingerprint. PXD-086 claim targets remain verified claim by claim; current CLI definitions are checked against the bounded PXD-100 review records.",
+  "disposition": "SEPARATE_CURRENT_SOURCE_EXTENSION; PXD086_HISTORICAL_COHORT_UNCHANGED",
+  "acceptanceEffect": "none",
+  "runtimeAdmission": "NOT_ADMITTED"
+}

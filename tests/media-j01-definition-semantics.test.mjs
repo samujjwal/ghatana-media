@@ -7,7 +7,7 @@ import { resolveExperienceDefinitionSemantics } from '../scripts/lib/media-exper
 const toolsRequire = createRequire(new URL('../../ghatana-tools/package.json', import.meta.url));
 const { parse } = toolsRequire('yaml');
 const base = '.product-experience/pdp-3-product-experience';
-const [journey, operations, actionRegistry, sourceBindings, screenRegistry, decisionLog, journeyRegistry] = await Promise.all([
+const [journey, operations, actionRegistry, sourceBindings, screenRegistry, decisionLog, journeyRegistry, taxonomy] = await Promise.all([
   readFile(`${base}/journey-contracts/first-use-and-project-creation.yaml`, 'utf8').then(parse),
   readFile('.product-experience/pdp-1-domain-data/operations.yaml', 'utf8').then(parse),
   readFile(`${base}/action-registry.yaml`, 'utf8').then(parse),
@@ -15,6 +15,7 @@ const [journey, operations, actionRegistry, sourceBindings, screenRegistry, deci
   readFile(`${base}/screen-registry.yaml`, 'utf8').then(parse),
   readFile('.product-experience/decision-log.md', 'utf8'),
   readFile(`${base}/journey-registry.yaml`, 'utf8').then(parse),
+  readFile(`${base}/public-effect-finality-taxonomy.yaml`, 'utf8').then(parse),
 ]);
 const decision = '.product-experience/decision-log.md#PXD-055';
 const sourceDecision = '.product-experience/decision-log.md#PXD-054';
@@ -138,7 +139,7 @@ test('create finality is receipt-bound; project reads do not claim reversible re
     assert.equal(semantics.publicEffect, undefined);
     assert.equal(semantics.publicFinality, undefined);
   }
-  const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, []);
+  const projection = resolveExperienceDefinitionSemantics(actionRegistry.actions, [], taxonomy);
   assert.ok(projection.effects.some(({ id }) => id === create.publicEffect.id));
   assert.ok(projection.finality.some(({ id }) => id === create.publicFinality.id));
 });
@@ -150,13 +151,13 @@ test('PXD-055 cannot authorize unrelated actions or substitute another operation
   const unrelated = clone();
   unrelated.id = 'media.action.archive-project';
   unrelated.actionDefinitionSemantics.actionRef = unrelated.id;
-  assert.throws(() => resolveExperienceDefinitionSemantics([unrelated], []), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
+  assert.throws(() => resolveExperienceDefinitionSemantics([unrelated], [], taxonomy), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
 
   const wrongOperation = clone();
   wrongOperation.actionDefinitionSemantics.operationRef = 'media.operation-slice.list-projects';
-  assert.throws(() => resolveExperienceDefinitionSemantics([wrongOperation], []), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
+  assert.throws(() => resolveExperienceDefinitionSemantics([wrongOperation], [], taxonomy), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
 
   const wrongSource = clone();
   wrongSource.actionDefinitionSemantics.sourceDecisionRef = '.product-experience/decision-log.md#PXD-053';
-  assert.throws(() => resolveExperienceDefinitionSemantics([wrongSource], []), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
+  assert.throws(() => resolveExperienceDefinitionSemantics([wrongSource], [], taxonomy), /unbounded historical public record|unlinked exact operation|historical decision scope drift/);
 });

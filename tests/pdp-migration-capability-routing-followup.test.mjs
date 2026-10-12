@@ -16,7 +16,10 @@ const [fragment, baseline, reuse, time, qualification, glossary, navigation] = a
 ]);
 const policyPath = ".product-experience/pdp-0-product-truth/policy-authority-model.yaml";
 const frozenDeltas = JSON.parse(await readFile("docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json", "utf8"));
+const currentSourceObservations = JSON.parse(await readFile("docs/implementation/verification/pdp-38/migration-capability-followup-current-source-observations.json", "utf8"));
+const policyInputThreatsObservation = JSON.parse(await readFile("docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json", "utf8"));
 const policyAuthority = await readFile(policyPath, "utf8").then(yaml.parse);
+const qualificationSourceSha256 = createHash('sha256').update(await readFile('.product-experience/pdp-0-product-truth/qualification-policy.yaml')).digest('hex');
 const historicalPolicyText = await import("node:child_process").then(({ execFileSync }) => execFileSync("git", ["show", `${frozenDeltas.priorSourceCommit}:${policyPath}`], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 }));
 const historicalPolicy = yaml.parse(historicalPolicyText);
 const hash = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -62,16 +65,50 @@ test('clock and conversion migration claims route to distinct exact time policie
 test('per-metric qualification claim routes to exact leaf and profile scope policy', () => {
   const record = fragment.records.find((entry) => entry.claimId === 'MPSEM-0035-C003');
   const original = baseline.records.find((entry) => entry.claimId === record.claimId);
-  const value = qualification.decisionRules[4];
+  const value = record.reviewedPredicates.find(({ evidence }) => evidence.targetValue !== undefined).evidence.targetValue;
   assert.equal(record.semanticReviewStatus, 'SEMANTIC_PARITY_VERIFIED');
   assert.equal(record.exactSourceText, original.exactSourceText);
   assert.equal(record.sourceTextSha256, original.sourceTextSha256);
   assert.equal(record.proposedTargetRef, '.product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules/4');
-  assert.equal(record.targetValueSha256, hash(value));
+  assert.equal(record.targetValueSha256, hash(value), 'the historical followup review retains its original target bytes');
   assert.match(value, /declared leaf and scope/u);
   assert.match(value, /quality dataset/u);
   assert.equal(record.acceptanceEffect, 'none');
   assert.match(record.negativeCases.join(' '), /No model, provider, metric/u);
+  const observation = currentSourceObservations.records.find(({ claimId }) => claimId === record.claimId);
+  assert.equal(observation.targetRef, record.proposedTargetRef);
+  assert.equal(observation.historicalTargetValueSha256, record.targetValueSha256);
+  assert.equal(observation.currentTargetValueSha256, hash(qualification.decisionRules[4]));
+  assert.equal(observation.currentSourceFileSha256, qualificationSourceSha256);
+  assert.equal(observation.currentReviewStatus, 'PENDING_COORDINATOR_MATERIAL_REVIEW');
+  assert.equal(observation.semanticEquivalence, 'NOT_ASSERTED');
+  assert.equal(observation.semanticPromotion, false);
+  assert.equal(observation.acceptanceEffect, 'none');
+  assert.match(qualification.decisionRules[4], /unknown applicability or a NOT_EVALUATED bound/u);
+  assert.equal(qualification.decisionRules[5], value, 'the reviewed clause shifted but is not approved at a new locator');
+});
+
+test('whole-array availability claim records the inserted rule as pending current-source change', () => {
+  const record = fragment.records.find(({ claimId }) => claimId === 'MPSEM-0043-C002');
+  const original = baseline.records.find(({ claimId }) => claimId === record.claimId);
+  const evidence = record.reviewedPredicates.find(({ evidence }) => evidence.targetValue !== undefined).evidence;
+  const observation = currentSourceObservations.records.find(({ claimId }) => claimId === record.claimId);
+  assert.equal(record.semanticReviewStatus, 'SEMANTIC_PARITY_VERIFIED');
+  assert.equal(record.exactSourceText, original.exactSourceText);
+  assert.equal(record.sourceTextSha256, original.sourceTextSha256);
+  assert.equal(record.proposedTargetRef, '.product-experience/pdp-0-product-truth/qualification-policy.yaml#decisionRules');
+  assert.equal(hash(evidence.targetValue), record.targetValueSha256);
+  assert.equal(evidence.targetValue.length, 9);
+  assert.equal(qualification.decisionRules.length, 10);
+  assert.deepEqual(qualification.decisionRules.slice(0, 4), evidence.targetValue.slice(0, 4));
+  assert.deepEqual(qualification.decisionRules.slice(5), evidence.targetValue.slice(4));
+  assert.equal(observation.historicalTargetValueSha256, record.targetValueSha256);
+  assert.equal(observation.currentTargetValueSha256, hash(qualification.decisionRules));
+  assert.equal(observation.currentSourceFileSha256, qualificationSourceSha256);
+  assert.equal(observation.currentReviewStatus, 'PENDING_COORDINATOR_MATERIAL_REVIEW');
+  assert.equal(observation.semanticEquivalence, 'NOT_ASSERTED');
+  assert.equal(observation.semanticPromotion, false);
+  assert.equal(observation.acceptanceEffect, 'none');
 });
 
 test('untrusted decoder and executable isolation claim routes to the exact security baseline', () => {
@@ -93,17 +130,28 @@ test("PXD-100 browser/local-worker rule is a single additive current source delt
   const impact = frozenDeltas.records.find(({ claimId }) => claimId === "MPSEM-0388-C005");
   const current = policyAuthority.productPolicy.inputAndExecutionThreats;
   const historical = historicalPolicy.productPolicy.inputAndExecutionThreats;
-  const currentWithoutAddition = structuredClone(policyAuthority);
-  delete currentWithoutAddition.productPolicy.inputAndExecutionThreats.browserToLocalWorkerBoundary;
+  const currentWithoutAdditions = structuredClone(current);
+  delete currentWithoutAdditions.browserToLocalWorkerBoundary;
+  delete currentWithoutAdditions.archiveExtractionDestinationRule;
   const currentReview = JSON.parse(await readFile("docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json", "utf8"));
   const reviewed = currentReview.records.find(({ claimId }) => claimId === "MPSEM-0388-C005");
   const boundary = current.browserToLocalWorkerBoundary;
+  const latestObservation = policyInputThreatsObservation.records.find(({ claimId }) => claimId === "MPSEM-0039-C003");
 
   assert.ok(impact, "the browser boundary has an exact additive impact record");
   assert.equal(impact.semanticPromotion, false);
   assert.equal(impact.historicalTargetValueSha256, hash(historical));
-  assert.equal(impact.currentTargetValueSha256, hash(current));
-  assert.deepEqual(currentWithoutAddition, historicalPolicy, "the prior policy tree is intact after removing only the new boundary");
+  assert.match(impact.currentTargetValueSha256, /^[a-f0-9]{64}$/u, "historical intermediate source snapshot stays pinned");
+  assert.deepEqual(currentWithoutAdditions, historical, "the two later fields leave the historical input-threat rules intact");
+  assert.equal(latestObservation.currentTargetValueSha256, hash(current));
+  assert.equal(latestObservation.sourceFileSha256, createHash('sha256').update(await readFile(policyPath)).digest('hex'));
+  assert.deepEqual(latestObservation.addedPaths, [
+    "#/productPolicy/inputAndExecutionThreats/archiveExtractionDestinationRule",
+    "#/productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary",
+  ]);
+  assert.equal(latestObservation.historicalProjectionSha256, hash(historical));
+  assert.equal(latestObservation.semanticPromotion, false);
+  assert.equal(latestObservation.acceptanceEffect, "none");
   assert.deepEqual(reviewed?.currentTargetRef, `${policyPath}#productPolicy/inputAndExecutionThreats/browserToLocalWorkerBoundary`);
   assert.equal(hash(boundary), reviewed.currentTargetValueSha256, "PXD-100 pins the current exact target");
   assert.match(boundary.rule, /loopback is not authentication or authorization/u);
@@ -128,7 +176,7 @@ test('capability availability, invocation, recipe, and document-intelligence cla
     assert.equal(record.exactSourceText, original.exactSourceText);
     assert.equal(record.sourceTextSha256, original.sourceTextSha256);
     assert.equal(record.proposedTargetRef, ref);
-    assert.equal(record.targetValueSha256, hash(value));
+    if (claimId !== 'MPSEM-0043-C002') assert.equal(record.targetValueSha256, hash(value));
     assert.equal(record.acceptanceEffect, 'none');
     assert.ok(record.negativeCases.length >= 2);
   }

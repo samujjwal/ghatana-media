@@ -29,12 +29,13 @@ steps:
     screenContractRef: screen-contracts/select-source.yaml
     viewIntent: Select one exact authorized immutable video version before bounded repair.
     actionRef: media.action.choose-source
-    actionBindingState: LOCAL_SESSION_SELECTION_ONLY; no canonical operation or committed object mutation
+    actionBindingState: LOCAL_SESSION_SELECTION_ONLY; no canonical operation or
+      committed object mutation
     stateRefs: []
     stateBindingState: local selection revision is not a canonical P1 state
     candidateActionRefs: []
-    surfaceRefs: [media.surface.web]
-    objectRefs: [media.domain.artifact-version]
+    surfaceRefs: [ media.surface.web ]
+    objectRefs: [ media.domain.artifact-version ]
     canonicalOperationRef: null
     authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
     decisionRef: .product-experience/decision-log.md#PXD-119
@@ -42,24 +43,29 @@ steps:
     handoffRef: null
     success:
       status: owner-definition
-      predicate: one visible, selectable immutable video artifact version matches trusted tenant/workspace/project and current local catalog revision
-      effect: bind that exact tenant/artifact/version tuple to the local repair workflow draft
+      predicate: one visible, selectable immutable video artifact version matches
+        trusted tenant/workspace/project and current local catalog revision
+      effect: bind that exact tenant/artifact/version tuple to the local repair
+        workflow draft
       finality: local-selection-only; no repair is submitted
     failure:
       status: owner-definition
-      predicate: source is denied, wrong media type, outside project scope, or not selectable
+      predicate: source is denied, wrong media type, outside project scope, or not
+        selectable
       effect: preserve the prior local selection and committed source
     degradedBehavior:
       status: owner-definition
       predicate: catalog currentness or read authority is unknown/stale
-      effect: hold without selection; refresh the same host context before a new explicit selection
+      effect: hold without selection; refresh the same host context before a new
+        explicit selection
     recovery:
       status: owner-definition
-      rule: preserve exact source and session identity; never substitute latest or replay a stale catalog selection
+      rule: preserve exact source and session identity; never substitute latest or
+        replay a stale catalog selection
     postconditions:
       - exact immutable source version is selected in the local draft
       - committed source and project revision remain unchanged
-    requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
+    requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
     verification:
       status: source-definition-only
       actualEvidence: []
@@ -81,44 +87,82 @@ steps:
       bindingStatus: SOURCE_DEFINED_ACTION_SEMANTICS; REVIEW_AND_RUNTIME_OPEN
       action:
         actionRef: media.action.choose-source
+        actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         semanticRole: LOCAL_SELECTION_OR_SESSION_DRAFT
-        actorRefs: [media.creator, media.editor]
+        actorRefs: [ media.creator, media.editor ]
         guards:
-          - trusted-editor-session-current-and-same-session
-          - actor-exactly-matches-host-session-and-action-actor-set
-          - draft-revision-cas-matches-current-local-revision
-          - catalog-is-current-and-selected-ref-is-visible-and-selectable
-        effect: Select exactly one current catalog item by its tenant/artifact/version tuple into the local session draft; do not dispatch work.
+          - source-version-visible
+          - current-read-authority
+        effect: bind-one-exact-source-version-to-the-current-workflow
         reversibilityDisposition: REVERSIBLE
-        finality: LOCAL_DRAFT_REVISION_ONLY; no committed object or remote effect
-        failureRecovery: on denial keep prior draft; on stale or unknown catalog hold and refresh the same session before explicit reselection
+        finality: local-selection-only
+        failureRecovery: preserve-project-and-filter-context
+        exactOperationRefs: []
         domainOperationDisposition: NO_DOMAIN_OPERATION_LOCAL_SELECTION_OR_SESSION_DRAFT
+        runtimeAdmission: NOT_ADMITTED
       versionedObjectObservation:
-        status: EXACT_SOURCE_CANDIDATE_DOMAIN_IDENTITY; LOCAL_SELECTION_ONLY; NO_CANONICAL_MUTATION
+        status: EXACT_SOURCE_CANDIDATE_DOMAIN_IDENTITY; LOCAL_SELECTION_ONLY;
+          NO_CANONICAL_MUTATION
         operationContractRef: null
-        objectRefs: [media.domain.artifact-version]
-        versionIdentityRule: Select the exact tenant/artifact/version tuple from the current host catalog; never resolve a latest alias.
+        objectRefs: [ media.domain.artifact-version ]
+        versionIdentityRule: Select the exact tenant/artifact/version tuple from the
+          current host catalog; never resolve a latest alias.
         sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1
         observation: HOST_CATALOG_MEMBER_ONLY; NO_RUNTIME_OR_OWNER_READ_CLAIM
         runtimeAdmission: NOT_ADMITTED
-        canonicalObjectRefs: [media.domain.artifact-version]
+        canonicalObjectRefs: [ media.domain.artifact-version ]
       stepSourceFacts:
-        intent: Select one exact authorized immutable video source version for bounded repair.
-        success: exact catalog tuple selected; source remains unchanged
-        failure: denied or out-of-scope source leaves prior draft unchanged
-        unknown: stale or untrusted catalog currentness holds without selection
+        intent: Select one exact authorized immutable video source version for bounded
+          repair.
+        result: "Immediate result is the current local draft revision advanced exactly once by expectedDraftRevision compare-and-set with only media.local-draft.slot.source-artifact-version replaced; committed media objects are unchanged and no remote dispatch occurs."
+        resultSourceRef:
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1/effect
+          - .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1/finality
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
+        success:
+          status: owner-definition
+          predicate: one visible, selectable immutable video artifact version matches
+            trusted tenant/workspace/project and current local catalog revision
+          effect: bind that exact tenant/artifact/version tuple to the local repair
+            workflow draft
+          finality: local-selection-only; no repair is submitted
+        failure:
+          status: owner-definition
+          predicate: source is denied, wrong media type, outside project scope, or not
+            selectable
+          effect: preserve the prior local selection and committed source
+        unknown:
+          status: owner-definition
+          predicate: catalog currentness or read authority is unknown/stale
+          effect: hold without selection; refresh the same host context before a new
+            explicit selection
+        recovery:
+          status: owner-definition
+          rule: preserve exact source and session identity; never substitute latest or
+            replay a stale catalog selection
       canonicalBindings:
         bindingKind: EXPLICIT_NO_DOMAIN_DISPATCH
         actionRef: media.action.choose-source
+        surfaceRefs: [ media.surface.web ]
+        canonicalOperationRef: null
+        authorityRef: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+        transitionRef: null
         operationRefs: []
         operationKinds: []
         capabilityOptions: []
-        objectRefs: [media.domain.artifact-version]
+        objectRefs: [ media.domain.artifact-version ]
         stateRefs: []
-        authorityRefs: [.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope]
-        requirementRefs: [MEDIA-REQ-CAP-ARTIFACT]
-        actorRefs: [media.creator, media.editor]
-        sourceRefs: [.product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1]
+        authorityRefs:
+          [
+            .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+          ]
+        requirementRefs: [ MEDIA-REQ-CAP-ARTIFACT ]
+        scenarioRefs: []
+        actorRefs: [ media.creator, media.editor ]
+        sourceRefs:
+          [
+            .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1
+          ]
         runtimeAdmission: NOT_ADMITTED
         decisionRef: .product-experience/decision-log.md#PXD-075
         bindingId: media.step-definition-binding.j-08-step-01.v1
@@ -128,12 +172,30 @@ steps:
         localObjectRef: media.local-object.editor-session-draft
         localDraftSlotRef: media.local-draft.slot.source-artifact-version
         localStateRef: media.local-state.editor-session-draft-revision
+      transitionApplicability:
+        disposition: LOCAL_SELECTION_ONLY_NO_CANONICAL_TRANSITION
+        transitionRef: null
+        stateRefs: []
+        sourceRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1
+        reason: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-01.v1
+        runtimeAdmission: NOT_ADMITTED
+      fixtureOracle:
+        status: NO_STEP_SCENARIO_BOUND
+        sourceRef: .product-experience/pdp-3-product-experience/scenario-fixture-registry.yaml#fixtures
+        journeyRef: J-08
+        scenarioRefs: []
+        scenarios: []
+        conditionalDisposition: NO_SEEDED_SCENARIO; NON_EXECUTABLE_UNTIL_SOURCE_LINKED_FIXTURE_EXISTS
+        executable: false
+        ownerOracleAcceptance: NOT_ESTABLISHED
   - view: media.view.improve-media
     legacyViewRef: M-ENHANCE
     screenContractRef: screen-contracts/improve-media.yaml
-    viewIntent: Select and submit one explicit eligible video repair operation for the exact selected source version.
+    viewIntent: Select and submit one explicit eligible video repair operation for
+      the exact selected source version.
     actionRef: media.action.submit-validated-request
-    actionBindingState: EXPLICIT_CAPABILITY_CHOICE; no default target; bounded request definition only
+    actionBindingState: EXPLICIT_CAPABILITY_CHOICE; no default target; bounded
+      request definition only
     stateRefs:
       - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/OUTCOME_UNKNOWN
     stateBindingState: Job acceptance is not completion; status remains an owner observation.
@@ -217,28 +279,32 @@ steps:
       action:
         actionRef: media.action.submit-validated-request
         semanticRole: DOMAIN_OPERATION
-        actorRefs: [media.creator, media.editor]
+        actorRefs: [ media.creator, media.editor ]
         guards:
-          - exact-source-version-selected
-          - selected-target-is-listed-for-video-repair
-          - current-profile-rights-policy-and-authorization
-          - explicit-current-budget-and-deadline
-          - explicit-user-confirmation
-        effect: Submit only the explicitly selected eligible video repair operation against the selected exact immutable source version; preserve the source.
+          - resolve-the-current-workspace-and-exact-target-before-access-or-change
+          - confirm-current-actor-authority-and-owner-approved-capability-before-governed-effects
+          - preserve-the-requested-context-and-exact-version-across-recovery
+        effect: Request the explicitly named operation for the exact target only after
+          fresh actor, capability, policy, and target checks.
         reversibilityDisposition: NOT_REVERSIBLE
-        finality: job acceptance is not repair completion; unknown remains unknown and requires same-request reconciliation
-        failureRecovery: reconcile the exact request identity; never blind-retry an unknown outcome; preserve source and any earlier safe output
-        domainOperationDisposition: EXACT_OWNER_DEFINED_OPERATION_REQUEST
-        exactOperationRefs: [media.operation.action.submit-validated-request]
+        finality: external-effect-or-request; owner-acknowledgment-required;
+          unknown-is-not-failure
+        failureRecovery: preserve-the-exact-target-and-current-draft;
+          explain-denial-or-incomplete-evidence;
+          never-claim-success-from-local-state
+        domainOperationDisposition: OWNER_DEFINED_EXACT_OPERATION_REFERENCE
+        exactOperationRefs: [ media.operation.action.submit-validated-request ]
         runtimeAdmission: NOT_ADMITTED
         actionDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
         selectionBasis: EXACT_STEP_VIEW_INTENT_TO_TYPED_ACTION_EFFECT
         transitionDisposition: REQUEST_ONLY; OWNER_JOB_STATE_OBSERVATION_REQUIRED
       stepSourceFacts:
         intent: Preserve/enhance/creative choice, measured defects, safe plan
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Eligible stabilized/upscaled/repaired output is compared under
@@ -272,9 +338,12 @@ steps:
       canonicalBindings:
         bindingKind: EXPLICIT_USER_CHOICE_AMONG_EXACT_OPERATIONS
         actionRef: media.action.submit-validated-request
+        surfaceRefs: [ media.surface.web ]
         canonicalOperationRef: media.operation.action.submit-validated-request
-        operationRefs: [media.operation.action.submit-validated-request]
-        operationKinds: [COMMAND]
+        authorityRef: null
+        transitionRef: null
+        operationRefs: [ media.operation.action.submit-validated-request ]
+        operationKinds: [ COMMAND ]
         capabilityRefs:
           - media.enhance.video.spatiotemporal-super-resolution
           - media.enhance.video.interpolation
@@ -291,12 +360,15 @@ steps:
           - media.enhance.video.grain.adjust
           - media.enhance.video.deinterlace
           - media.enhance.video.inverse-telecine-cadence
-        objectRefs: [media.domain.artifact-version, media.domain.processing-job]
-        stateRefs: [.product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED]
+        objectRefs: [ media.domain.artifact-version, media.domain.processing-job ]
+        stateRefs:
+          [
+            .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/OUTCOME_UNKNOWN
+          ]
         authorityRefs:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
-        requirementRefs: [MEDIA-REQ-CAP-ENHANCE-VIDEO]
+        requirementRefs: [ MEDIA-REQ-CAP-ENHANCE-VIDEO ]
         scenarioRefs: []
         sourceRefs:
           - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request
@@ -305,9 +377,13 @@ steps:
         localObjectRef: media.local-object.editor-session-draft
         localDraftSlotRef: media.local-draft.slot.media-improvement-intent
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: selected target and exact bounded operation are captured in request; no local patch is execution evidence
-        localAuthorityDisposition: source action actor is not canonical effect authority; operation rechecks host identity, rights, policy, and confirmation
-        canonicalIdentityDisposition: exact source artifact version is an immutable target; accepted job identity is owner-issued, not inferred
+        localRevisionRule: selected target and exact bounded operation are captured in
+          request; no local patch is execution evidence
+        localAuthorityDisposition: source action actor is not canonical effect
+          authority; operation rechecks host identity, rights, policy, and
+          confirmation
+        canonicalIdentityDisposition: exact source artifact version is an immutable
+          target; accepted job identity is owner-issued, not inferred
         runtimeAdmission: NOT_ADMITTED
         decisionRef: .product-experience/decision-log.md#PXD-119
         bindingId: media.step-definition-binding.j-08-step-02.v1
@@ -328,11 +404,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Eligible stabilized/upscaled/repaired output is compared under
-            applicable metrics with limitations visible.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -358,11 +432,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.choose-media-improvement-intent
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Eligible stabilized/upscaled/repaired output is compared under
-              applicable metrics with limitations visible.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.submit-validated-request/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.submit-validated-request; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Change only the current local draft or selection; keep committed source
             and versioned objects unchanged until a separately specified commit.
           finality: local-draft-only; not-a-committed-result
@@ -416,8 +488,8 @@ steps:
         runtimeAdmission: NOT_ADMITTED
         localObjectRef: media.local-object.editor-session-draft
         localStateRef: media.local-state.editor-session-draft-revision
-        localRevisionRule: request expectedDraftRevision exactly equals the trusted current
-          session draftRevision
+        localRevisionRule: request expectedDraftRevision exactly equals the trusted
+          current session draftRevision
         canonicalObjectRefs: []
       intentBinding:
         status: STEP_INTENT_SOURCE
@@ -449,8 +521,8 @@ steps:
         sourceRefs:
           - .product-experience/pdp-3-product-experience/screen-contracts/improve-media.yaml
         acceptance: crosswalk source only; no independent review/runtime admission
-      localStepEffectContractRef: .product-experience/pdp-3-product-experience/local-step-effect-contracts.yaml#records/@id=media.local-step-effect.j-08.step-02.v1
-    scenarioRefs: []
+    definitionFixtureRefs:
+      - media.definition-fixture.j-08.j-08.step-02
     capabilityRefs: []
   - view: media.view.compare-results
     legacyViewRef: M-COMPARE
@@ -566,9 +638,11 @@ steps:
           mutate a source object or infer permission from its presence.
       stepSourceFacts:
         intent: Before/after, candidate ranking and applicable measurements
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Eligible stabilized/upscaled/repaired output is compared under
@@ -631,11 +705,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Eligible stabilized/upscaled/repaired output is compared under
-            applicable metrics with limitations visible.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -677,11 +749,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.compare-candidate-on-metric
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Eligible stabilized/upscaled/repaired output is compared under
-              applicable metrics with limitations visible.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.compare-candidate-on-metric/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.compare-candidate-on-metric; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality
@@ -890,9 +960,11 @@ steps:
         noMutationReason: read-version-bound-source-and-processing-lineage
       stepSourceFacts:
         intent: Applicable dimensions, abstentions, defects and repair plan
-        result: null
+        result: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
+        resultSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+        resultDisposition: SOURCE_BOUND_IMMEDIATE_RESULT
         success:
-          status: candidate-proposal
+          status: JOURNEY_TERMINAL_OUTCOME_CONTEXT_ONLY
           scope: journey-level-not-allocated-to-this-step
           sourceRef: journey.terminalSuccess
           proposal: Eligible stabilized/upscaled/repaired output is compared under
@@ -956,11 +1028,9 @@ steps:
         scenarioRefs: []
         scenarios: []
         positiveBranch:
-          status: candidate-proposal
-          scope: journey-level-not-allocated-to-this-step
-          sourceRef: journey.terminalSuccess
-          proposal: Eligible stabilized/upscaled/repaired output is compared under
-            applicable metrics with limitations visible.
+          status: SOURCE_BOUND_IMMEDIATE_RESULT
+          sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+          summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
         nonhappyBranch:
           status: candidate-proposal
           scope: journey-level-not-allocated-to-this-step
@@ -986,11 +1056,9 @@ steps:
         positive:
           sourceRef: .product-experience/pdp-3-product-experience/action-registry.yaml#media.action.inspect-quality-evidence
           intendedResult:
-            status: candidate-proposal
-            scope: journey-level-not-allocated-to-this-step
-            sourceRef: journey.terminalSuccess
-            proposal: Eligible stabilized/upscaled/repaired output is compared under
-              applicable metrics with limitations visible.
+            status: SOURCE_BOUND_IMMEDIATE_RESULT
+            sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.action.inspect-quality-evidence/resultSchema
+            summary: "Immediate result is limited to the exact P1 result schema for media.operation.action.inspect-quality-evidence; fields requestId, exactTargetRef, ownerReceipt, observedAt; finality: profile-specific durable or owner receipt only; no unstated downstream effect is implied; no unstated downstream effect or journey completion is implied."
           effect: Read or navigate using the exact selected context; do not mutate a
             source object or infer permission from its presence.
           finality: read-only-or-navigation; no-write-finality

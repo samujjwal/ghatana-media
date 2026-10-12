@@ -1,0 +1,126 @@
+schemaVersion: media.pdp2.phase-handoffs.v1
+semanticOwner: media
+authority: user-delegated-Media-design-and-interface-definition
+handoffs:
+  pdp2ToPdp3DesignInterface:
+    id: media.pdp2-pdp3.design-interface-handoff.v1
+    sourcePhase: PDP-2
+    consumerPhase: PDP-3
+    status: DEFINITION_HANDOFF_CONTRACT
+    authorityBoundary: >-
+      This contract exports the reusable design, component, responsive, accessibility, and machine-interface meanings
+      for PDP-3 screen and journey definitions. It does not claim Shared package release or owner acceptance, independent
+      design/accessibility certification, implementation admission, runtime availability, or production deployment.
+    sourcePopulations:
+      componentFamilies: {count: 31, source: .product-experience/pdp-2-design-interface-system/component-contracts.yaml#components}
+      componentValueTypes: {count: 122, source: .product-experience/pdp-2-design-interface-system/component-value-types.yaml#normativeTypeRecords}
+      semanticTokenAliases: {count: 9, source: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#aliases}
+      sharedPublicCssVariables: {count: 24, source: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#cssVariableBindings/bindings}
+      mediaCssProjections: {count: 20, source: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#cssVariableBindings/bindings}
+      templates: {count: 13, source: .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml#templates}
+      layouts: {count: 11, source: .product-experience/pdp-2-design-interface-system/gui/layout.yaml#layouts}
+      recipes: {count: 13, source: .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml#recipes}
+      compositionRules: {count: 42, source: .product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml#normativeRuleRecords}
+      interactionPatterns: {count: 19, source: .product-experience/pdp-2-design-interface-system/gui/patterns/catalog.yaml#patterns}
+      machineInterfaceInvariants: {count: 12, source: .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#invariants}
+      selectedScreenDesignLinks: {count: 47, source: .product-experience/pdp-3-product-experience/screen-contracts}
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/handoff-contracts.yaml#/handoffs/pdp1ToPdp2CanonicalDomain
+      - .product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md
+      - .product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json
+      - .product-experience/pdp-2-design-interface-system/component-contracts.yaml
+      - .product-experience/pdp-2-design-interface-system/component-value-types.yaml
+      - .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/templates/catalog.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/layout.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/recipes/catalog.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/composition-validation-grammar.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml
+      - .product-experience/pdp-2-design-interface-system/gui/reuse-audit.yaml
+      - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml
+      - .product-experience/pdp-2-design-interface-system/api/async-operations.yaml
+      - .product-experience/pdp-2-design-interface-system/api/auth.yaml
+      - .product-experience/pdp-2-design-interface-system/api/cancellation.yaml
+      - .product-experience/pdp-2-design-interface-system/api/compatibility.yaml
+      - .product-experience/pdp-2-design-interface-system/api/concurrency.yaml
+      - .product-experience/pdp-2-design-interface-system/api/conventions.yaml
+      - .product-experience/pdp-2-design-interface-system/api/correlation.yaml
+      - .product-experience/pdp-2-design-interface-system/api/errors.yaml
+      - .product-experience/pdp-2-design-interface-system/api/filtering-sorting.yaml
+      - .product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml
+      - .product-experience/pdp-2-design-interface-system/api/idempotency.yaml
+      - .product-experience/pdp-2-design-interface-system/api/identifiers.yaml
+      - .product-experience/pdp-2-design-interface-system/api/pagination.yaml
+      - .product-experience/pdp-2-design-interface-system/api/read-consumer-adapters.yaml
+      - .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml
+      - .product-experience/pdp-2-design-interface-system/api/versioning.yaml
+      - .product-experience/pdp-2-design-interface-system/cli-language.yaml
+      - .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+      - .product-experience/pdp-2-design-interface-system/sdk/conventions.yaml
+      - .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+      - .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml
+      - .product-experience/pdp-2-design-interface-system/accessibility.yaml
+      - .product-experience/pdp-2-design-interface-system/responsive-adaptive.yaml
+      - .product-experience/pdp-2-design-interface-system/motion.yaml
+      - .product-experience/pdp-2-design-interface-system/localization-content.yaml
+      - .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml
+      - .product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml
+    requiredMeaning:
+      reusableComposition: >-
+        Bind each screen to exact template, layout, region, component, recipe, pattern, and composition-rule identities.
+        Use the reviewed family classification; a contract-only family is a definition, not an implemented control.
+      designAuthority: >-
+        Consume exact Media semantic aliases and the pinned public Shared CSS-variable contract. Preserve Shared ownership
+        of primitive values and defer immutable package, registry, and owner admission.
+      stateAndFinality: >-
+        Present exact PDP-1 state, action, guard, effect, request identity, and operation references. Keep pending,
+        accepted, completed, denied, cancelled, and outcome-unknown meanings distinct; unknown is never a blind retry.
+      responsiveAndAccessibleBehavior: >-
+        Preserve information order and essential rights, source/version, job state, unknown finality, and safe recovery
+        across narrow reflow, zoom, RTL, forced colors, and reduced motion. Labels, keyboard behavior, focus, and live
+        region semantics remain part of each selected component contract.
+      interfaceMeaning: >-
+        Preserve exact typed HTTP, gRPC, SDK, CLI, event, and Agent Tool operation/request/result/error/authority
+        meanings. For gRPC, keep exact service/RPC identity, request and response fields, streaming shape, and its
+        explicit operation/non-operation disposition; unresolved semantic field parity remains unresolved. Unadmitted
+        or fixture-only interfaces remain visibly non-callable and do not gain invented routes or guarantees.
+    consumerObligations:
+      - Complete the 47 concrete screens, 30 journeys, and 130 journey steps against the frozen PDP-0, PDP-1, and PDP-2 meanings.
+      - Bind screen actions to exact operation, request/result/error, capability, requirement, state, guard, effect, and finality references where applicable.
+      - Keep all state and action variants source-linked and define denial, pending, loading, error, empty, partial, and outcome-unknown cases where applicable.
+      - Use reusable templates, layouts, recipes, patterns, component families, and token aliases; do not create screen-local semantic primitives.
+      - Treat candidate screen links as inputs to PDP-3 review, not as evidence that screen behavior is complete.
+      - Preserve the exact PDP-1 canonical-domain handoff and all PDP-2 identity references; reject stale, duplicate, or name-matched substitutions.
+      - Record development completion separately from external admission and independent certification.
+    negativeCases:
+      - A contract-only component is presented as an implemented or callable control.
+      - A public Shared package name or CSS variable is accepted without the exact pinned public-export and semantic-source binding.
+      - A narrow, zoomed, RTL, forced-color, or reduced-motion presentation hides a right, source/version, denial, or unknown outcome.
+      - A cancellation request, accepted job, timeout, or abort is presented as confirmed finality.
+      - An unknown outcome triggers a blind retry or is rendered as success or failure.
+      - A screen invents an operation, route, permission, effect, availability, or event-delivery guarantee.
+      - A semantic state or action is bound by display label while its exact source identity differs.
+      - A missing Shared release or independent review is represented as approval or qualification.
+    deferredEvidence:
+      - Shared package immutable release, registry publication, and Shared owner acceptance.
+      - Independent visual, accessibility, and specialist conformance certification.
+      - Runtime, production-host, provider, route, and event-delivery admission.
+      - Lifecycle receipts, convergence, release certification, and production deployment.
+    deferredDownstreamFindings:
+      - id: PDP3-J03-2-DECISION-REFERENCE-CROSSWALK
+        ownerPhase: PDP-3
+        disposition: SOURCE_CROSS_REFERENCE_RECONCILIATION_REQUIRED
+        sourceRefs:
+          - .product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml#boundedTranscriptionSubmissionSlice/journeyDecisionRef
+          - .product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml#steps/@stepId=J03-2/decisionRef
+          - .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.request-transcription/actionDefinitionSemantics/reviewDecisionRef
+        observedReferences:
+          pdp2GrammarJourneyDecisionRef: .product-experience/decision-log.md#PXD-072
+          pdp3JourneyStepDecisionRef: .product-experience/decision-log.md#PXD-159
+          pdp3ActionRegistryReviewDecisionRef: .product-experience/decision-log.md#PXD-072
+        reviewQuestion: >-
+          Determine whether these fields intentionally name distinct decisions or whether an exact PDP-3 projection
+          update is needed. Preserve the PDP-2 grammar's PXD-072 journeyDecisionRef until that cross-reference is
+          reconciled; this item records a question, not a proven defect or runtime-admission finding.
+    developmentStatusRef: docs/implementation/pdp-2-phase-dev-status.json
+    scopeStatus: design-and-interface-definitions-exported-for-PDP3; development-gate-status-is-recorded-separately

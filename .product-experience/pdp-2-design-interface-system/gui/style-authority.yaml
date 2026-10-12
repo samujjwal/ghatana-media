@@ -122,6 +122,16 @@ hostPresentationContract:
       consumer until an exact public Theme adapter and source import are separately defined and tested.
   typographyAndGeometry:
     tokenAuthority: Shared-public-token-exports; Media-selects-semantic-roles-and-structural-application
+    cssVariableBridge:
+      source: .product-experience/pdp-2-design-interface-system/media-token-aliases.yaml#cssVariableBindings
+      publicExport: "@ghatana/tokens#./tokens.css"
+      consumerStylesheet: libs/audio-video-ui/src/styles.css
+      status: VERIFIED_AGAINST_PINNED_PUBLIC_SOURCE_SNAPSHOT; registry-publication-and-immutable-release-pending
+      rule: >-
+        Bind every referenced Shared CSS variable and every declared Media alias to its exact Shared semantic source and
+        value type. Typography font sizes retain rem lengths, line heights remain unitless ratios, weights remain
+        unitless numbers, and Shared numeric geometry values become CSS pixel lengths through one explicit * 1px calc.
+        Missing variables do not receive local fallback values or inferred units.
     typography:
       package: "@ghatana/tokens"
       publicSubpath: "./tokens.css"
@@ -130,6 +140,7 @@ hostPresentationContract:
         body: { sharedRole: body, cssVariables: [--gh-semantic-typography-body-font-size, --gh-semantic-typography-body-font-weight, --gh-semantic-typography-body-line-height], application: root-copy-and-control-default }
         pageTitle: { sharedRole: pageTitle, cssVariables: [--gh-semantic-typography-page-title-font-size, --gh-semantic-typography-page-title-line-height], application: h1 }
         sectionTitle: { sharedRole: sectionTitle, cssVariables: [--gh-semantic-typography-section-title-font-size, --gh-semantic-typography-section-title-font-weight], application: h2-and-emphasis }
+        button: { sharedRole: button, cssVariables: [--gh-semantic-typography-button-font-size], application: native-and-Shared-button-copy }
         supporting: { sharedRole: supporting, cssVariables: [--gh-semantic-typography-supporting-font-size, --gh-semantic-typography-supporting-line-height], application: supporting-navigation-text }
         metadata: { sharedRole: metadata, cssVariables: [--gh-semantic-typography-metadata-font-size, --gh-semantic-typography-metadata-line-height], application: descriptive-metadata-only }
       rules:
@@ -146,6 +157,8 @@ hostPresentationContract:
         standardGutter: { sharedRole: geometry.gutter.standard, cssVariable: --gh-semantic-geometry-gutter-standard, application: section-padding-and-standard-grid-gap }
         comfortableGutter: { sharedRole: geometry.gutter.comfortable, cssVariable: --gh-semantic-geometry-gutter-comfortable, application: primary-content-inset }
         compactRhythm: { sharedRole: geometry.sectionRhythm.compact, cssVariable: --gh-semantic-geometry-section-rhythm-compact, application: workflow-header-and-navigation-rhythm }
+        standardRhythm: { sharedRole: geometry.sectionRhythm.standard, cssVariable: --gh-semantic-geometry-section-rhythm-standard, application: standard-content-section-rhythm }
+        comfortableRhythm: { sharedRole: geometry.sectionRhythm.comfortable, cssVariable: --gh-semantic-geometry-section-rhythm-comfortable, application: spacious-content-section-rhythm }
         minimumInteractiveTarget: { sharedRole: breakpoints.touchTargets.minimum, cssVariable: --gh-breakpoints-touch-targets-minimum, application: action-button-and-input-min-height }
       layoutApplicability:
         narrow: use-logical-properties-and-single-column-at-existing-breakpoint; wrap-content-and-facts

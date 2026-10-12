@@ -4,12 +4,299 @@ import type {
   ArtifactIntakeExperienceState,
   FirstUseExperienceState,
   FixtureId,
+  OperationDefinitionFixture,
   MediaExperienceState,
-  RetryEligibilityEvidence,
   ScenarioId,
+  StepBranchDefinitionFixture,
+  StaleDraftRevisionDefinitionFixture,
   TimedTextSegment,
   TranscriptionExperienceState,
+  VersionMismatchGuardDefinitionFixture,
 } from "./model.js";
+
+export interface OperationDefinitionFixtureInput {
+  readonly fixtureId: string;
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly actionRef: string;
+  readonly capabilityRef: string | null;
+  readonly operationRef: string;
+  readonly requestSchemaRef: string;
+  readonly resultSchemaRef: string;
+  readonly requestSchema: Readonly<Record<string, unknown>>;
+  readonly resultSchema: Readonly<Record<string, unknown>>;
+}
+
+export interface StepBranchDefinitionFixtureInput {
+  readonly fixtureId: string;
+  readonly sourceRef: string;
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly branch: StepBranchDefinitionFixture["branch"];
+  readonly case: string;
+  readonly guardVerdict: StepBranchDefinitionFixture["guardVerdict"];
+  readonly expectedDecision: string;
+  readonly selectedCapabilityRef?: string;
+  readonly selectedOperationRef?: string;
+}
+
+export interface VersionMismatchGuardDefinitionFixtureInput {
+  readonly fixtureId: string;
+  readonly sourceRef: string;
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly versionDisposition: string;
+  readonly versionBindingRule: string;
+  readonly exactVersionTupleFields: readonly string[];
+  readonly missingOrStaleDisposition: string;
+}
+
+export interface StaleDraftRevisionDefinitionFixtureInput {
+  readonly fixtureId: string;
+  readonly sourceRefs: readonly string[];
+  readonly journeyRef: string;
+  readonly stepRef: string;
+  readonly operationRef: "media.operation.caption-draft-write";
+  readonly requestSchemaRef: string;
+  readonly requestSchema: DefinitionSchema;
+}
+
+type DefinitionSchema = Readonly<Record<string, unknown>>;
+
+function syntheticString(schema: DefinitionSchema, path: string): string {
+  if (typeof schema.const === "string") return schema.const;
+  if (Array.isArray(schema.enum)) return String(schema.enum[0]);
+  if (schema.format === "date-time") return "2026-01-01T00:00:00Z";
+  if (schema.format === "uri") return "https://synthetic.invalid/definition-fixture";
+  const pattern = typeof schema.pattern === "string" ? schema.pattern : "";
+  if (pattern === "^sha256:[a-f0-9]{64}$") return `sha256:${"0".repeat(64)}`;
+  const length = typeof schema.minLength === "number" ? schema.minLength : 1;
+  const candidate = `synthetic-${path.replace(/[^A-Za-z0-9._:-]/gu, "-")}`;
+  if (!pattern || new RegExp(pattern, "u").test(candidate)) return candidate.slice(0, Math.max(length, 1));
+  for (const value of ["synthetic-1", "synthetic_id", "synthetic-reference", "2026-01-01T00:00:00Z", "0"]) {
+    if (new RegExp(pattern, "u").test(value) && value.length >= length) return value;
+  }
+  return candidate;
+}
+
+function mergeObjectSchemas(schemas: readonly DefinitionSchema[]): DefinitionSchema {
+  const properties: Record<string, unknown> = {};
+  const required = new Set<string>();
+  const mergeProperties = (next: unknown) => {
+    if (!next || typeof next !== "object" || Array.isArray(next)) return;
+    for (const [name, value] of Object.entries(next)) {
+      const prior = properties[name];
+      properties[name] = prior && value && typeof prior === "object" && typeof value === "object" && !Array.isArray(prior) && !Array.isArray(value)
+        ? { ...prior, ...value }
+        : value;
+    }
+  };
+  for (const schema of schemas) {
+    if (Array.isArray(schema.required)) for (const field of schema.required) if (typeof field === "string") required.add(field);
+    mergeProperties(schema.properties);
+    if (Array.isArray(schema.allOf)) {
+      const nested = mergeObjectSchemas(schema.allOf.filter((item): item is DefinitionSchema => item !== null && typeof item === "object"));
+      mergeProperties(nested.properties);
+      if (Array.isArray(nested.required)) for (const field of nested.required) if (typeof field === "string") required.add(field);
+    }
+  }
+  return { ...schemas[0], properties, required: [...required] };
+}
+
+function definitionSample(schema: DefinitionSchema, path: string): unknown {
+  if (schema.const !== undefined) return schema.const;
+  if (Array.isArray(schema.enum)) return schema.enum[0];
+  const alternatives = (schema.oneOf ?? schema.anyOf) as DefinitionSchema[] | undefined;
+  if (alternatives?.length) return definitionSample(alternatives[0], `${path}-choice`);
+  const type = schema.type;
+  if (type === "object" || schema.properties) {
+    const merged = mergeObjectSchemas([schema]);
+    const properties = merged.properties as Record<string, DefinitionSchema>;
+    const result: Record<string, unknown> = {};
+    const required = new Set(merged.required as string[]);
+    for (const name of required) {
+      const property = properties[name];
+      if (!property) continue;
+      const conditionalSchemas = ((schema.allOf as DefinitionSchema[] | undefined) ?? [])
+        .filter((entry) => {
+          const condition = entry.if as DefinitionSchema | undefined;
+          const conditionProperties = condition?.properties as Record<string, DefinitionSchema> | undefined;
+          return conditionProperties && Object.entries(conditionProperties).every(([key, value]) =>
+            value.const === undefined || result[key] === value.const);
+        })
+        .map((entry) => entry.then as DefinitionSchema | undefined)
+        .filter((entry): entry is DefinitionSchema => Boolean(entry?.properties));
+      const conditionalProperty = conditionalSchemas.map((entry) => (entry.properties as Record<string, DefinitionSchema>)[name]).filter(Boolean);
+      const effective = conditionalProperty.length
+        ? Object.assign({}, property, ...conditionalProperty)
+        : property;
+      result[name] = definitionSample(effective, `${path}-${name}`);
+    }
+    for (const entry of (schema.allOf as DefinitionSchema[] | undefined) ?? []) {
+      const condition = entry.if as DefinitionSchema | undefined;
+      const conditionProperties = condition?.properties as Record<string, DefinitionSchema> | undefined;
+      const matches = conditionProperties && Object.entries(conditionProperties).every(([key, value]) =>
+        value.const === undefined || result[key] === value.const);
+      if (!matches) continue;
+      const thenSchema = entry.then as DefinitionSchema | undefined;
+      const thenProperties = thenSchema?.properties as Record<string, DefinitionSchema> | undefined;
+      for (const name of (thenSchema?.required as string[] | undefined) ?? []) {
+        required.add(name);
+        if (result[name] === undefined && properties[name]) {
+          result[name] = definitionSample(
+            thenProperties?.[name] ? { ...properties[name], ...thenProperties[name] } : properties[name],
+            `${path}-${name}`,
+          );
+        }
+      }
+    }
+    return result;
+  }
+  if (type === "array") {
+    const count = typeof schema.minItems === "number" ? schema.minItems : 0;
+    const itemSchema = (schema.items ?? {}) as DefinitionSchema;
+    return Array.from({ length: Math.max(count, 1) }, (_, index) => definitionSample(itemSchema, `${path}-${index}`));
+  }
+  if (type === "integer" || type === "number") return typeof schema.minimum === "number" ? schema.minimum : 0;
+  if (type === "boolean") return false;
+  if (type === "null") return null;
+  return syntheticString(schema, path);
+}
+
+/** Build closed, deterministic request/result samples from exact PDP-1 schemas only. */
+export function createOperationDefinitionFixture(input: OperationDefinitionFixtureInput): OperationDefinitionFixture {
+  const request = definitionSample(input.requestSchema, `${input.fixtureId}-request`) as Record<string, unknown>;
+  const resultShape = definitionSample(input.resultSchema, `${input.fixtureId}-result`) as Record<string, unknown>;
+  return {
+    fixtureId: input.fixtureId,
+    journeyRef: input.journeyRef,
+    stepRef: input.stepRef,
+    actionRef: input.actionRef,
+    capabilityRef: input.capabilityRef,
+    operationRef: input.operationRef,
+    requestSchemaRef: input.requestSchemaRef,
+    resultSchemaRef: input.resultSchemaRef,
+    request,
+    resultShape,
+    synthetic: true,
+    resultIsOwnerEvidence: false,
+    dispatch: "NEVER",
+    runtimeAdmission: "NOT_ADMITTED",
+  };
+}
+
+/** Project one exact step-oracle case as a guard-verdict input, never as evidence. */
+export function createStepBranchDefinitionFixture(input: StepBranchDefinitionFixtureInput): StepBranchDefinitionFixture {
+  if (!input.fixtureId.trim() || !input.sourceRef.trim() || !input.journeyRef.trim() || !input.stepRef.trim() || !input.case.trim()) {
+    throw new Error("step branch definition fixture requires exact source and case identities");
+  }
+  if (!["positive", "denied", "unknown"].includes(input.branch)) {
+    throw new Error("step branch fixture does not infer an unlisted branch category");
+  }
+  const expectedVerdict = input.branch === "positive" ? "PASS" : input.branch === "denied" ? "DENIED" : "UNKNOWN";
+  if (input.guardVerdict !== expectedVerdict) {
+    throw new Error(`${input.branch} branch requires ${expectedVerdict} guard verdict`);
+  }
+  if (input.branch === "denied" && input.expectedDecision !== "DENY_WITHOUT_EFFECT") {
+    throw new Error("denied branch must preserve the source deny-without-effect decision");
+  }
+  if (input.branch === "unknown" && input.expectedDecision !== "HOLD_WITHOUT_EFFECT_OR_REPLAY") {
+    throw new Error("unknown branch must preserve the source hold-without-replay decision");
+  }
+  if (input.branch === "positive" && ["DENY_WITHOUT_EFFECT", "HOLD_WITHOUT_EFFECT_OR_REPLAY"].includes(input.expectedDecision)) {
+    throw new Error("positive branch cannot project a denied or unknown decision");
+  }
+  return {
+    fixtureKind: "STEP_GUARD_BRANCH_INPUT",
+    fixtureId: input.fixtureId,
+    sourceRef: input.sourceRef,
+    journeyRef: input.journeyRef,
+    stepRef: input.stepRef,
+    branch: input.branch,
+    case: input.case,
+    guardVerdict: input.guardVerdict,
+    expectedDecision: input.expectedDecision,
+    ...(input.selectedCapabilityRef ? { selectedCapabilityRef: input.selectedCapabilityRef } : {}),
+    ...(input.selectedOperationRef ? { selectedOperationRef: input.selectedOperationRef } : {}),
+    synthetic: true,
+    dispatch: "NEVER",
+    ownerAcceptedOutcomeOracle: false,
+    runtimeAdmission: "NOT_ADMITTED",
+  };
+}
+
+/** Project the P1 exact-version mismatch rule without inventing any identity values. */
+export function createVersionMismatchGuardDefinitionFixture(
+  input: VersionMismatchGuardDefinitionFixtureInput,
+): VersionMismatchGuardDefinitionFixture {
+  if (!input.fixtureId.trim() || !input.sourceRef.trim() || !input.journeyRef.trim() || !input.stepRef.trim()) {
+    throw new Error("version mismatch fixture requires exact source and step identities");
+  }
+  if (input.versionDisposition !== "EXACT_CANONICAL_VERSION_TUPLE_REQUIRED" ||
+      !/missing, stale, foreign-tenant, mismatched, or substituted-latest identity is UNKNOWN/iu.test(input.versionBindingRule) ||
+      input.missingOrStaleDisposition !== "UNKNOWN" || input.exactVersionTupleFields.length === 0) {
+    throw new Error("source does not define an exact version mismatch as UNKNOWN");
+  }
+  const exactIdentityTupleFields = [...input.exactVersionTupleFields];
+  const syntheticExpectedTuple = Object.fromEntries(exactIdentityTupleFields.map((field) => [field, `synthetic-expected-${field}`]));
+  const syntheticPresentedTuple = Object.fromEntries(exactIdentityTupleFields.map((field) => [field,
+    field === "versionId" || /revision/iu.test(field) ? `synthetic-stale-${field}` : `synthetic-expected-${field}`]));
+  if (exactIdentityTupleFields.every((field) => syntheticExpectedTuple[field] === syntheticPresentedTuple[field])) {
+    const versionField = exactIdentityTupleFields.find((field) => /version|revision/iu.test(field));
+    if (versionField) syntheticPresentedTuple[versionField] = `synthetic-stale-${versionField}`;
+    else throw new Error("exact identity tuple has no version component to mismatch");
+  }
+  return {
+    fixtureKind: "VERSION_MISMATCH_GUARD_RULE",
+    fixtureId: input.fixtureId,
+    sourceRef: input.sourceRef,
+    journeyRef: input.journeyRef,
+    stepRef: input.stepRef,
+    exactIdentityTupleFields,
+    syntheticExpectedTuple,
+    syntheticPresentedTuple,
+    conditionEvaluated: false,
+    mismatchCondition: "MISSING_STALE_FOREIGN_OR_MISMATCHED_EXACT_VERSION_TUPLE",
+    expectedGuardVerdict: "UNKNOWN",
+    expectedEffect: "NONE",
+    expectedDecision: "HOLD_WITHOUT_EFFECT_OR_REPLAY",
+    synthetic: true,
+    dispatch: "NEVER",
+    runtimeAdmission: "NOT_ADMITTED",
+  };
+}
+
+/** Build a schema-shaped caption-draft request with a source-defined stale-revision disposition. */
+export function createStaleDraftRevisionDefinitionFixture(
+  input: StaleDraftRevisionDefinitionFixtureInput,
+): StaleDraftRevisionDefinitionFixture {
+  if (!input.fixtureId.trim() || !input.journeyRef.trim() || !input.stepRef.trim() ||
+      input.sourceRefs.length === 0 || input.sourceRefs.some((ref) => !ref.trim()) || !input.requestSchemaRef.trim()) {
+    throw new Error("stale draft fixture requires exact journey, operation, schema, and fail-closed source refs");
+  }
+  const properties = input.requestSchema.properties as Record<string, DefinitionSchema> | undefined;
+  if (!Array.isArray(input.requestSchema.required) || !input.requestSchema.required.includes("expectedDraftRevision") ||
+      properties?.expectedDraftRevision?.type !== "integer") {
+    throw new Error("caption-draft request schema does not bind expectedDraftRevision as an integer");
+  }
+  const request = definitionSample(input.requestSchema, `${input.fixtureId}-request`) as Record<string, unknown>;
+  return {
+    fixtureKind: "STALE_DRAFT_REVISION_REQUEST",
+    fixtureId: input.fixtureId,
+    sourceRefs: [...input.sourceRefs],
+    journeyRef: input.journeyRef,
+    stepRef: input.stepRef,
+    operationRef: input.operationRef,
+    requestSchemaRef: input.requestSchemaRef,
+    request,
+    requestIsSyntheticSchemaSample: true,
+    mismatchCondition: "EXPECTED_DRAFT_REVISION_DOES_NOT_MATCH_CURRENT_SESSION_LOCAL_DRAFT",
+    expectedDecision: "REJECT_WITHOUT_ADVANCE_IF_CONDITION_HOLDS",
+    conditionEvaluated: false,
+    dispatch: "NEVER",
+    runtimeAdmission: "NOT_ADMITTED",
+  };
+}
 
 export const syntheticTranscriptSegments: readonly TimedTextSegment[] = [
   {
@@ -418,31 +705,9 @@ const seeds: Record<FixtureId, MediaExperienceState> = {
       attemptState: "FAILED",
       finality: "CONFIRMED",
     },
-    retryEligibility: {
-      tenantId: "fixture-tenant-001",
-      principalId: "fixture-principal-creator-001",
-      jobId: "fixture-job-retryable-001",
-      jobVersion: 12,
-      priorAttemptId: "fixture-job-retryable-attempt-3",
-      priorAttemptFencingToken: 3,
-      priorAttemptDisposition: "RETRYABLE",
-      priorEffectDisposition: "NO_EFFECT_CONFIRMED",
-      authorityDisposition: "CURRENT_ALLOWED",
-      policyDisposition: "CURRENT_ALLOWED",
-      rightsDisposition: "CURRENT_ALLOWED",
-      consentDisposition: "CURRENT_ACTIVE",
-      profileDisposition: "CURRENT_QUALIFIED",
-      retryBudgetRemaining: 1,
-      retryBudgetRef: "fixture:policy:retry-budget:v4",
-      observedAt: "2026-10-09T12:00:00.000Z",
-      evidenceRefs: [
-        "fixture:evidence:classified-prior-attempt-3",
-        "fixture:evidence:authoritative-no-effect-reconciliation-3",
-        "fixture:evidence:current-retry-authority",
-        "fixture:evidence:current-policy-rights-profile",
-        "fixture:evidence:retry-budget-v4",
-      ],
-    } satisfies RetryEligibilityEvidence,
+    // The scenario remains conditional, but no source-backed prior-attempt or
+    // current eligibility evidence exists to evaluate. Never seed it as eligible.
+    retryEligibility: null,
   },
   "caption-conflict": {
     ...readyState("media.scenario.caption-conflict"),

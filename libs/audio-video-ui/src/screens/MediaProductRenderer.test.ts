@@ -197,4 +197,33 @@ describe("MediaProductRenderer", () => {
     expect(html).toContain("Check job outcome");
     expect(actionPort.invoke).not.toHaveBeenCalled();
   });
+
+  it("renders RTL transcript timing with labeled native keyboard controls and an announced unknown status", () => {
+    const props: MediaProductRendererProps = {
+      kind: "transcript-caption",
+      ...common,
+      context: { locale: "ar", direction: "rtl" },
+      actions: [
+        { id: "media.action.correct-caption", label: "Apply caption correction", enabled: true },
+        { id: "media.action.align-caption-timing", label: "Apply timing alignment", enabled: true },
+      ],
+      transcript: {
+        view: "correct-captions",
+        clockId: "source-clock",
+        durationTicks: 100,
+        segments: [{ id: "seg-1", startTime: "10", endTime: "20", startTick: 10, endTick: 20, text: "مرحبا" }],
+      },
+    };
+
+    const html = renderToStaticMarkup(React.createElement(MediaProductRenderer, props));
+
+    expect(html).toContain('<div dir="rtl" lang="ar">');
+    expect(html).toContain('role="status"');
+    expect(html).toContain('<label for="caption-start-seg-1">Start tick</label>');
+    expect(html).toContain('<input id="caption-start-seg-1" class="media-input" type="number"');
+    expect(html).toContain('<label for="caption-end-seg-1">End tick</label>');
+    expect(html).toContain('<input id="caption-end-seg-1" class="media-input" type="number"');
+    expect(html).toContain('Timing in source clock ticks (source-clock)');
+    expect(html).toContain('<button type="button" class="media-action-button media-action-button--primary">Apply timing alignment</button>');
+  });
 });

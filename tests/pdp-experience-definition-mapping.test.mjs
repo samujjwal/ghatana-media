@@ -18,6 +18,10 @@ test('PDP-3 typed action semantics project only exact owner definitions', () => 
   assert.equal(result.effects.length, 144, 'bounded PXD-078 candidates project with enum reversibility dispositions');
   assert.equal(result.finality.length, 144, 'bounded PXD-078 candidates project with enum confirmation/undoability dispositions');
   assert.equal(result.unmappedPublicActions.length, 2, 'the exact Shared identity handoffs remain unmapped');
+  assert.deepEqual(result.explicitUnadmittedExternalOwnerActions.sort(), [
+    'media.action.select-identity-confirmed-workspace', 'media.action.start-upstream-identity-handoff',
+  ], 'Shared identity actions retain their explicit external-owner role without a fabricated Media effect');
+  assert.deepEqual(result.unmappedApplicableActions, [], 'explicit external-owner roles are not applicable Media effect/finality gaps');
   assert.equal(result.effects.length + result.unmappedPublicActions.length, 146,
     'every original action is either mapped or remains explicitly unmapped');
   assert.ok(!result.conditionalActions.includes('media.action.begin-artifact-upload'), 'conditional enum values are representable without boolean coercion');
@@ -68,4 +72,19 @@ test('PDP-3 typed action mapping rejects stale decision, effect, role, and opera
     const action = actions.find((entry) => ['CONDITIONAL', 'UNKNOWN'].includes(entry.actionDefinitionSemantics.typedDefinition.reversibilityDisposition));
     action.actionDefinitionSemantics.publicEffect = { id: 'bad', name: 'bad', kind: 'state-change', description: 'bad', reversible: false };
   }, /conditional boolean coercion|unbounded historical public record/u);
+});
+
+test('PDP-3 external-owner exceptions fail closed when the exact role, no-mutation, or non-admission boundary drifts', () => {
+  const clone = () => structuredClone(taxonomy);
+  const reject = (mutate) => {
+    const altered = clone();
+    mutate(altered.records.find((record) => record.actionRef === 'media.action.select-identity-confirmed-workspace'));
+    assert.throws(() => resolveExperienceDefinitionSemantics(actionRegistry.actions, recoveryRegistry.contracts, altered),
+      /invalid explicit unadmitted external-owner role/u);
+  };
+  reject((record) => { record.domainOperationDisposition = 'EXACT_OPERATION_REFERENCE'; });
+  reject((record) => { record.operationRefs.push('media.operation.forged'); });
+  reject((record) => { record.runtimeAdmission = 'ADMITTED'; });
+  reject((record) => { record.sourceEnvelopeFacts.domainObjectRefs.push('media.domain.project'); });
+  reject((record) => { record.publicFinalityCandidate = { confirmationDisposition: 'REQUIRED', undoabilityDisposition: 'NOT_REVERSIBLE' }; });
 });

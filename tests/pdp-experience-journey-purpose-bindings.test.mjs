@@ -25,6 +25,19 @@ const actionRegistry = parse(actionText);
 const operations = parse(operationText);
 const localContracts = parse(localText);
 const capabilityById = new Map(capabilities.map((item) => [item.id, item]));
+const operationRecords = [
+  ...(operations.operations ?? []),
+  ...(operations.individualOperationContracts?.records ?? []),
+  ...(operations.ownerDefinedOperationContracts?.records ?? []),
+  ...(operations.capabilityOperationContracts?.records ?? []),
+];
+const operationsById = new Map(operationRecords.flatMap((record) => [
+  [record.id, record],
+  ...(record.operationRefs ?? []).map((ref) => [ref, record]),
+]));
+const capabilityOperationsByRef = new Map(operations.capabilityOperationContracts.records
+  .filter((record) => record.capabilityRef)
+  .map((record) => [record.capabilityRef, record]));
 const p0ById = new Map(p0.journeys.map((item) => [item.id, item]));
 const actionsById = new Map([...actionRegistry.actions, ...actionRegistry.ownerDefinedActions].map((item) => [item.id, item]));
 const actionSourceRefsById = new Map([
@@ -44,6 +57,7 @@ const purposeContext = {
   ownerBindingsById,
   localContractsById,
   capabilitiesById: capabilityById,
+  operationsById,
 };
 
 test("all 130 step-purpose records resolve exact PDP-0 purpose and PDP-3 bindings", () => {
@@ -104,7 +118,7 @@ test("capability choice alternatives are source-checked against the journey purp
       const options = step.canonicalBindings.capabilityOptions ?? [];
       if (!options.length) continue;
       assert.ok(step.purposeBinding, `${step.id} needs an explicit capability purpose`);
-      const result = validatePdp3StepCapabilityPurpose(step, capabilityById, p0ById.get(journey.journeyId));
+      const result = validatePdp3StepCapabilityPurpose(step, capabilityById, p0ById.get(journey.journeyId), operationsById);
       assert.deepEqual(result, { valid: true, reason: "EXACT_SOURCE_ANALYSIS_ALTERNATIVES" }, step.id);
     }
   }
@@ -112,12 +126,26 @@ test("capability choice alternatives are source-checked against the journey purp
   const wrongPurposeFixture = j05.steps[0].inputCases.find((item) => item.expectedDecision === "REJECT_WRONG_PURPOSE");
   assert.equal(wrongPurposeFixture.selectedCapabilityRef, "media.generate.image.text-to-image");
   const wrongButValid = structuredClone(j05.steps[0]);
-  const generated = capabilityById.get(wrongPurposeFixture.selectedCapabilityRef);
+  const generated = capabilityOperationsByRef.get(wrongPurposeFixture.selectedCapabilityRef);
   wrongButValid.capabilityOptions[0] = {
-    capabilityRef: generated.id,
-    operationRefs: generated.ownerDefinition.operationRefs,
-    operationKind: generated.ownerDefinition.operationKind,
+    capabilityRef: generated.capabilityRef,
+    operationRefs: generated.operationRefs,
+    operationKind: generated.operationKind,
     requirementRefs: ["MEDIA-REQ-CAP-GENERATE-IMAGE"],
   };
-  assert.equal(validatePdp3StepCapabilityPurpose(wrongButValid, capabilityById, p0ById.get("J-05")).valid, false);
+  assert.equal(validatePdp3StepCapabilityPurpose(wrongButValid, capabilityById, p0ById.get("J-05"), operationsById).valid, false);
+});
+
+test("capability alternatives resolve through frozen PDP-1 contracts without requiring P0 operation references", () => {
+  const journey = oracle.journeys.find((item) => item.journeyId === "J-05");
+  const step = structuredClone(journey.steps[0]);
+  const capabilitiesWithoutOperationProjection = new Map(capabilityById);
+  for (const option of step.capabilityOptions) {
+    const capability = structuredClone(capabilityById.get(option.capabilityRef));
+    if (capability.ownerDefinition) delete capability.ownerDefinition.operationRefs;
+    capabilitiesWithoutOperationProjection.set(capability.id, capability);
+  }
+  assert.deepEqual(validatePdp3StepCapabilityPurpose(step, capabilitiesWithoutOperationProjection,
+    p0ById.get("J-05"), operationsById),
+  { valid: true, reason: "EXACT_SOURCE_ANALYSIS_ALTERNATIVES" });
 });

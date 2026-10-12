@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 const fingerprintPattern = /^[a-f0-9]{64}$/u;
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 const nonblank = (value) => typeof value === "string" && value.trim().length > 0;
 
 function completeTuple(tuple) {
@@ -15,6 +15,18 @@ function matchesTuple(observation, expected) {
   return observation && ["tenantId", "streamId", "eventId", "eventType", "eventVersion", "aggregateType", "aggregateId", "payloadFingerprint"]
     .every((key) => observation[key] === expected[key])
     && observation.aggregateVersion === expected.aggregateVersion;
+}
+
+// Mirrors EventPlaneHttpHandler.stableUuid: UUID caller IDs are preserved;
+// other caller IDs use UUID.nameUUIDFromBytes (RFC 4122 version 3 / MD5).
+function expectedStoredEventId(callerEventId) {
+  if (typeof callerEventId !== "string" || callerEventId.length === 0) return undefined;
+  if (uuidPattern.test(callerEventId)) return callerEventId.toLowerCase();
+  const bytes = createHash("md5").update(callerEventId, "utf8").digest();
+  bytes[6] = (bytes[6] & 0x0f) | 0x30;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = bytes.toString("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 function validUtcInstant(value) {
@@ -58,7 +70,7 @@ export function evaluateMediaEventDelivery({ expected, append, lookup } = {}) {
     const binding = append.trustedRequestBinding;
     const validResponse = response && response.eventId === expected.eventId
       && response.streamId === expected.streamId
-      && uuidPattern.test(response.storedEventId ?? "")
+      && response.storedEventId === expectedStoredEventId(expected.eventId)
       && typeof response.offset === "string" && /^(0|[1-9][0-9]*)$/u.test(response.offset);
     if (validResponse && append.authorityRef === expected.publisherAuthorityRef && matchesTuple(binding, expected)) {
       return { disposition: "EVENT_PLANE_ACCEPTED", source: "EXACT_APPEND_RECEIPT" };
@@ -73,7 +85,8 @@ export function evaluateMediaEventDelivery({ expected, append, lookup } = {}) {
   }
 
   if (lookup?.outcome === "MATCHED_RECORD" && exactLookupReceipt(lookup, expected)
-    && matchesTuple(lookup.recordBinding, expected)) {
+    && matchesTuple(lookup.recordBinding, expected)
+    && lookup.recordBinding.storedEventId === expectedStoredEventId(expected.eventId)) {
     return { disposition: "RECONCILED_ACCEPTED", source: "EXACT_CURRENT_LOOKUP" };
   }
   return {

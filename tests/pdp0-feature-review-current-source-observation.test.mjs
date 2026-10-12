@@ -189,6 +189,8 @@ test("text-to-image observation records the exact P0/P1 decoupling delta without
   const correction = JSON.parse(readText(correctionPath));
   const pxd105 = JSON.parse(readText(pxd105Path));
   const semanticReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json"));
+  const correctionReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json"));
+  const uploadCorrectionReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"));
   const leaf = source.capabilities.find(({ id }) => id === observation.record.identity);
   const historicalReferent = pxd098.records.flatMap(({ referents = [] }) => referents)
     .find(({ identity }) => identity === observation.record.identity);
@@ -213,7 +215,8 @@ test("text-to-image observation records the exact P0/P1 decoupling delta without
   assert.notEqual(hash(JSON.stringify(leaf)), observation.record.currentContentSha256,
     "the old record digest remains historical and is not presented as the current record");
   assert.equal(semanticReview.decisionRef, ".product-experience/decision-log.md#PXD-122");
-  assert.equal(semanticReview.source.currentSha256, hash(sourceText));
+  assert.equal(semanticReview.source.currentSha256, correctionReview.historicalPins.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122")).capabilitySha256,
+    "PXD-122 remains pinned to its historical capability source cut");
   assert.equal(semanticReview.source.historicalComparison.priorSha256, observation.currentSourceSha256);
   assert.equal(semanticReview.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(historicalReferent.contentSha256, observation.record.historicalPxd098ContentSha256);
@@ -223,7 +226,8 @@ test("text-to-image observation records the exact P0/P1 decoupling delta without
   assert.deepEqual(leaf.inputArtifactTypes, leaf.ownerDefinition.typedInputSlots.map(({ sourceType }) => sourceType));
   assert.equal(observation.record.semanticEquivalence, "NOT_ASSERTED");
   assert.equal(observation.acceptanceEffect, "none");
-  assert.equal(semanticReview.source.currentSha256, hash(sourceText));
+  assert.equal(hash(sourceText), uploadCorrectionReview.source.currentSha256,
+    "PXD-153 pins the current capability source while PXD-142 remains historical");
   assert.notEqual(observation.record.currentContentSha256, hash(JSON.stringify(leaf)));
   assert.match(observation.record.interpretation, /does not claim that the record is unchanged/u);
   assert.match(observation.acceptanceBoundary, /No new clause approval/u);
@@ -237,9 +241,14 @@ test("capability-wide owner binding observation preserves all 462 P0 identities 
   const observationText = readText(observationPath);
   const observation = JSON.parse(observationText);
   const semanticReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-capability-semantic-current-source-review.json"));
+  const correctionReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-existing-operation-semantic-corrections-current-source-review.json"));
+  const uploadCorrectionReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json"));
   assert.equal(observation.source.currentSha256, semanticReview.source.historicalComparison.priorSha256,
     "PXD-121 remains pinned to its observed historical source cut");
-  assert.equal(semanticReview.source.currentSha256, hash(sourceText));
+  assert.equal(semanticReview.source.currentSha256, correctionReview.historicalPins.find(({ decisionRef }) => decisionRef.endsWith("#PXD-122")).capabilitySha256,
+    "PXD-122 remains pinned to its historical capability source cut");
+  assert.equal(uploadCorrectionReview.source.currentSha256, hash(sourceText),
+    "PXD-153 pins the current capability source while PXD-142 remains historical");
   assert.equal(semanticReview.source.historicalComparison.parsedPathDelta, "NOT_ASSERTED");
   assert.equal(observation.source.recordPopulation.count, 462);
   assert.equal(observation.source.recordPopulation.identitySetChange, "none");

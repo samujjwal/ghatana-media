@@ -41,7 +41,8 @@ function semanticRequestAndResult(operation) {
   if (operation.requestSchema && operation.resultSchema) {
     return { request: operation.requestSchema, result: operation.resultSchema };
   }
-  if (operation.inputSemantics?.requiredFields?.length && operation.outputSemantics?.requiredFields?.length) {
+  if (operation.inputSemantics && Object.keys(operation.inputSemantics).length > 0
+    && operation.outputSemantics && Object.keys(operation.outputSemantics).length > 0) {
     return { request: operation.inputSemantics, result: operation.outputSemantics };
   }
   // The existing artifact metadata read is a source-observed HTTP adapter, not a
