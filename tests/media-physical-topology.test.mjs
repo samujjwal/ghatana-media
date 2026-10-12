@@ -40,3 +40,47 @@ test('rejects containment cycles and unreferenced phase meaning', () => {
   assert.ok(errors.some((error) => error.includes('containment cycle')));
   assert.ok(errors.some((error) => error.includes('not in canonical source')));
 });
+
+test('root screen and journey references exactly match canonical registries', () => {
+  const changed = copy();
+  const root = changed.compositions.find((item) => item.kind === 'REPOSITORY_ROOT');
+  root.phaseApplicability['PDP-3'].screenIds = root.phaseApplicability['PDP-3'].screenIds.filter((id) => id !== 'media.view.review-workspace-settings');
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('repository root PDP-3 screen IDs must exactly match')));
+});
+
+test('requires a physical host or semantic composition for every PDP-3 screen and journey', () => {
+  const changed = copy();
+  for (const node of [...changed.manifestCandidates, ...changed.compositions.filter((item) => item.kind !== 'REPOSITORY_ROOT')]) {
+    node.phaseApplicability['PDP-3'].screenIds = node.phaseApplicability['PDP-3'].screenIds.filter((id) => id !== 'media.view.review-workspace-settings');
+    node.phaseApplicability['PDP-3'].journeyIds = node.phaseApplicability['PDP-3'].journeyIds.filter((id) => id !== 'J-23');
+  }
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('responsible physical/composition PDP-3 screen IDs must exactly match')));
+  assert.ok(errors.some((error) => error.includes('responsible physical/composition PDP-3 journey IDs must exactly match')));
+});
+
+test('root contains six compositions and only ungrouped support units directly', () => {
+  const changed = copy();
+  const root = changed.compositions.find((item) => item.kind === 'REPOSITORY_ROOT');
+  root.children.push('media.physical.launcher');
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('repository root direct CONTAINS must be')));
+  assert.ok(errors.some((error) => error.includes('cannot directly repeat a physical member')));
+});
+
+test('shared physical members are enumerated once by canonical surface ID and keep distinct composition roles', () => {
+  const changed = copy();
+  const root = changed.compositions.find((item) => item.kind === 'REPOSITORY_ROOT');
+  root.sharedPhysicalMemberships.pop();
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('shared physical membership must enumerate')));
+});
+
+test('dependency edges cannot be represented as containment members', () => {
+  const changed = copy();
+  const composition = changed.compositions.find((item) => item.kind === 'SEMANTIC_COMPOSITION');
+  composition.children.push({ relation: 'DEPENDS_ON', targetId: 'media.physical.launcher' });
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('children must be direct CONTAINS IDs')));
+});

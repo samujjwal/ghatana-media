@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "media.agent-tool-runtime-dispositions.v1",
+  "status": "ALL_TOOLS_NOT_ADMITTED",
+  "sourceBasis": "Current source-owned handler observations in tool-registry.yaml identify Java handler classes and dynamic ToolExecutionEnvelope inputs; operation links in these records remain candidates. These dispositions describe the available boundary and do not establish handler parity or admission.",
+  "tools": [
+    {
+      "toolId": "av.speech-to-text",
+      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+      "status": "NOT_ADMITTED",
+      "requestMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The proposed artifact-version and language request mapping is not an implemented typed adapter; handler accepts a dynamic envelope and may also accept a flat artifact fallback."
+      },
+      "resultErrorMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; no canonical transcript, provenance, finality, or public typed-error mapping is established."
+      },
+      "operationMapping": {
+        "disposition": "NOT_ADMITTED",
+        "reason": "media.operation.transcription-submission is a candidate link only; no accepted PDP-1 operation mapping or exact handler equivalence exists."
+      },
+      "authorityExecution": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The handler evidence does not bind a trusted principal, delegation, resource-version policy, deadline, cancellation, or scoped idempotency contract."
+      }
+    },
+    {
+      "toolId": "av.text-to-speech",
+      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+      "status": "NOT_ADMITTED",
+      "requestMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The proposed synthesis profile, encoding, and artifact-storage fields have no exact typed adapter to an accepted owner operation or qualified profile."
+      },
+      "resultErrorMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; no canonical audio artifact, provenance, finality, or public typed-error mapping is established."
+      },
+      "operationMapping": {
+        "disposition": "NOT_ADMITTED",
+        "reason": "media.operation.capability.media-speech-synthesis-text-to-speech is a candidate link only; no accepted PDP-1 operation mapping or exact handler equivalence exists."
+      },
+      "authorityExecution": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The handler evidence does not bind a trusted principal, delegation, target artifact policy, deadline, cancellation, or scoped idempotency contract."
+      }
+    },
+    {
+      "toolId": "av.vision-analysis",
+      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+      "status": "NOT_ADMITTED",
+      "requestMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The proposed analysis-type and custom-model request has no exact typed adapter to an accepted operation or qualified model profile and immutable artifact version."
+      },
+      "resultErrorMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; no canonical observation, provenance, finality, or public typed-error mapping is established."
+      },
+      "operationMapping": {
+        "disposition": "NOT_ADMITTED",
+        "reason": "media.operation.capability.media-vision-detect is a candidate link only; no accepted PDP-1 operation mapping or exact handler equivalence exists."
+      },
+      "authorityExecution": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The handler evidence does not bind trusted principal and delegation, vision-specific rights/consent policy, deadline, cancellation, or scoped idempotency."
+      }
+    },
+    {
+      "toolId": "av.multimodal-inference",
+      "handlerSource": "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+      "status": "NOT_ADMITTED",
+      "requestMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The proposed modality flags and sampling controls have no exact typed adapter to an accepted operation, immutable source version, or qualified component profile."
+      },
+      "resultErrorMapping": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; component results, partial outcomes, provenance, finality, and public typed errors are unmapped."
+      },
+      "operationMapping": {
+        "disposition": "NOT_ADMITTED",
+        "reason": "media.operation.capability.media-multimodal-analyze-cross-modal is a candidate link only; no accepted PDP-1 operation mapping or exact handler equivalence exists."
+      },
+      "authorityExecution": {
+        "disposition": "UNSUPPORTED_NO_DISPATCH",
+        "reason": "The handler evidence does not bind trusted principal and delegation, combined modality rights/consent, deadline, cancellation, or scoped idempotency."
+      }
+    }
+  ]
+}

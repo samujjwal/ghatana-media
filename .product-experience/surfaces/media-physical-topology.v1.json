@@ -2,7 +2,7 @@
   "schemaVersion": "media.physical-topology.v1",
   "productId": "media",
   "authority": "Media-owned discovery and applicability crosswalk; does not replace PDP authority or Lifecycle public schema.",
-  "sourceCut": "0837fefe303acb7fe7fc4403a35ed33786551ee7",
+  "sourceCut": "81386992d273a98237451702c2daf618c77c8e51",
   "discoverySources": [
     "settings.gradle.kts",
     "pnpm-workspace.yaml",
@@ -698,6 +698,7 @@
             "J-05",
             "J-06",
             "J-20",
+            "J-23",
             "J-24",
             "J-25"
           ],
@@ -1401,6 +1402,7 @@
             "media.view.review-quality",
             "media.view.review-rights-and-consent",
             "media.view.review-transcript",
+            "media.view.review-workspace-settings",
             "media.view.select-source",
             "media.view.use-authorized-voice",
             "media.view.work-in-project",
@@ -3563,38 +3565,19 @@
       "canonicalOwner": "media",
       "containmentSemantics": "CONTAINS all active physical and support candidates explicitly; does not imply deployability or qualification.",
       "children": [
-        "media.physical.adapters-ledger",
-        "media.physical.apps-media-experience-explorer",
+        "media.composition.client-and-machine-interfaces",
+        "media.composition.creation-composition-and-delivery",
+        "media.composition.governed-job-execution",
+        "media.composition.ingestion-and-versioned-artifacts",
+        "media.composition.speech-and-caption-workflows",
+        "media.composition.vision-and-multimodal-analysis",
         "media.physical.audio-video-observability",
         "media.physical.integration-tests",
-        "media.physical.launcher",
-        "media.physical.libs-audio-video-client",
-        "media.physical.libs-audio-video-types",
-        "media.physical.libs-audio-video-ui",
         "media.physical.libs-common",
         "media.physical.libs-java-common",
         "media.physical.libs-media-experience-simulation",
-        "media.physical.modules-audio-streaming",
-        "media.physical.modules-infrastructure-cache",
-        "media.physical.modules-infrastructure-messaging",
-        "media.physical.modules-infrastructure-persistence",
-        "media.physical.modules-infrastructure-security",
         "media.physical.modules-integration-tests",
-        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
-        "media.physical.modules-intelligence-multimodal-service",
-        "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
-        "media.physical.modules-speech-stt-service",
-        "media.physical.modules-speech-tts-service",
-        "media.physical.modules-video-streaming",
-        "media.physical.modules-vision-vision-service",
-        "media.physical.providers-aws-postgresql",
-        "media.physical.runtime-contracts",
-        "media.composition.ingestion-and-versioned-artifacts",
-        "media.composition.governed-job-execution",
-        "media.composition.speech-and-caption-workflows",
-        "media.composition.vision-and-multimodal-analysis",
-        "media.composition.creation-composition-and-delivery",
-        "media.composition.client-and-machine-interfaces"
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
       ],
       "phaseApplicability": {
         "PDP-0": {
@@ -3693,13 +3676,121 @@
             "media.view.review-quality",
             "media.view.review-rights-and-consent",
             "media.view.review-transcript",
+            "media.view.review-workspace-settings",
             "media.view.select-source",
             "media.view.use-authorized-voice",
             "media.view.work-in-project",
             "media.view.work-with-speech"
           ]
         }
-      }
+      },
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "dependencies": [],
+      "sharedPhysicalMemberships": [
+        {
+          "surfaceId": "media.physical.launcher",
+          "parentCompositionIds": [
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.governed-job-execution",
+            "media.composition.ingestion-and-versioned-artifacts"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.libs-audio-video-client",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.creation-composition-and-delivery"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.libs-audio-video-types",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.creation-composition-and-delivery"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.libs-audio-video-ui",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.creation-composition-and-delivery"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-cache",
+          "parentCompositionIds": [
+            "media.composition.governed-job-execution",
+            "media.composition.ingestion-and-versioned-artifacts"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-messaging",
+          "parentCompositionIds": [
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.governed-job-execution",
+            "media.composition.ingestion-and-versioned-artifacts"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-persistence",
+          "parentCompositionIds": [
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.governed-job-execution",
+            "media.composition.ingestion-and-versioned-artifacts"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-infrastructure-security",
+          "parentCompositionIds": [
+            "media.composition.governed-job-execution",
+            "media.composition.ingestion-and-versioned-artifacts"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.vision-and-multimodal-analysis"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-speech-stt-service",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.speech-and-caption-workflows"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-speech-tts-service",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.speech-and-caption-workflows"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.modules-vision-vision-service",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.vision-and-multimodal-analysis"
+          ]
+        },
+        {
+          "surfaceId": "media.physical.runtime-contracts",
+          "parentCompositionIds": [
+            "media.composition.client-and-machine-interfaces",
+            "media.composition.creation-composition-and-delivery",
+            "media.composition.governed-job-execution",
+            "media.composition.ingestion-and-versioned-artifacts",
+            "media.composition.vision-and-multimodal-analysis"
+          ]
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
@@ -3844,7 +3935,33 @@
             "media.view.review-rights-and-consent"
           ]
         }
-      }
+      },
+      "dependencies": [],
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "crossChildObligations": [
+        {
+          "id": "media.composition.ingestion-and-versioned-artifacts.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.runtime-contracts",
+            "media.physical.launcher",
+            "media.physical.modules-infrastructure-persistence",
+            "media.physical.modules-infrastructure-security",
+            "media.physical.modules-infrastructure-messaging",
+            "media.physical.modules-infrastructure-cache",
+            "media.physical.providers-aws-postgresql",
+            "media.physical.adapters-ledger"
+          ],
+          "meaning": "Versioned intake, artifact identity, provenance and governed output boundaries across runtime and contract owners.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.governed-job-execution",
@@ -3950,7 +4067,31 @@
             "media.view.work-in-project"
           ]
         }
-      }
+      },
+      "dependencies": [],
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "crossChildObligations": [
+        {
+          "id": "media.composition.governed-job-execution.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.runtime-contracts",
+            "media.physical.launcher",
+            "media.physical.modules-infrastructure-messaging",
+            "media.physical.modules-infrastructure-persistence",
+            "media.physical.modules-infrastructure-security",
+            "media.physical.modules-infrastructure-cache"
+          ],
+          "meaning": "Job admission, state, cancellation, retry and result publication across host, contracts and worker service boundaries.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.speech-and-caption-workflows",
@@ -4089,7 +4230,29 @@
             "media.view.work-with-speech"
           ]
         }
-      }
+      },
+      "dependencies": [],
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "crossChildObligations": [
+        {
+          "id": "media.composition.speech-and-caption-workflows.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.modules-speech-stt-service",
+            "media.physical.modules-speech-tts-service",
+            "media.physical.modules-audio-streaming",
+            "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
+          ],
+          "meaning": "Transcription, authorized synthesis, versioned transcript/caption review, and job integration.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.vision-and-multimodal-analysis",
@@ -4200,7 +4363,29 @@
             "media.view.review-quality"
           ]
         }
-      }
+      },
+      "dependencies": [],
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "crossChildObligations": [
+        {
+          "id": "media.composition.vision-and-multimodal-analysis.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.modules-vision-vision-service",
+            "media.physical.modules-intelligence-multimodal-service",
+            "media.physical.modules-video-streaming",
+            "media.physical.runtime-contracts"
+          ],
+          "meaning": "Typed image/video analysis and cross-modal results over shared artifact/job contracts.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.creation-composition-and-delivery",
@@ -4416,7 +4601,32 @@
             "media.view.review-quality"
           ]
         }
-      }
+      },
+      "dependencies": [],
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "crossChildObligations": [
+        {
+          "id": "media.composition.creation-composition-and-delivery.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.launcher",
+            "media.physical.runtime-contracts",
+            "media.physical.modules-infrastructure-persistence",
+            "media.physical.modules-infrastructure-messaging",
+            "media.physical.libs-audio-video-types",
+            "media.physical.libs-audio-video-client",
+            "media.physical.libs-audio-video-ui"
+          ],
+          "meaning": "Media creation, composition, quality and delivery outcomes across source artifacts, jobs, and consumer contracts.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     },
     {
       "surfaceId": "media.composition.client-and-machine-interfaces",
@@ -4601,6 +4811,7 @@
             "J-05",
             "J-06",
             "J-20",
+            "J-23",
             "J-24",
             "J-25"
           ],
@@ -4624,19 +4835,47 @@
             "media.view.review-outputs",
             "media.view.review-quality",
             "media.view.review-transcript",
+            "media.view.review-workspace-settings",
             "media.view.select-source",
             "media.view.use-authorized-voice",
             "media.view.work-in-project",
             "media.view.work-with-speech"
           ]
         }
-      }
+      },
+      "dependencies": [],
+      "membershipSemantics": {
+        "relation": "CONTAINS",
+        "meaning": "children are direct members only",
+        "aggregationKey": "surfaceId",
+        "aggregateUniqueMembers": true,
+        "dependenciesAreMembership": false
+      },
+      "crossChildObligations": [
+        {
+          "id": "media.composition.client-and-machine-interfaces.direct-integration",
+          "canonicalOwner": "media",
+          "participantSurfaceIds": [
+            "media.physical.runtime-contracts",
+            "media.physical.libs-audio-video-types",
+            "media.physical.libs-audio-video-client",
+            "media.physical.libs-audio-video-ui",
+            "media.physical.modules-speech-stt-service",
+            "media.physical.modules-speech-tts-service",
+            "media.physical.modules-vision-vision-service",
+            "media.physical.modules-intelligence-multimodal-service",
+            "media.physical.apps-media-experience-explorer"
+          ],
+          "meaning": "Stable typed client, service and user interface contracts for product and integrating consumers.",
+          "status": "SOURCE_PLANNING_ONLY"
+        }
+      ]
     }
   ],
   "lifecycleContractStatus": {
-    "status": "PARTIAL_PUBLIC_CONTRACT_AVAILABLE",
+    "status": "SOURCE_CANDIDATE_AVAILABLE_PUBLIC_ADMISSION_PENDING",
     "checkedRepository": "../ghatana-lifecycle",
-    "checkedRevision": "556d6ef84c6baf01171cae354bf7d631af23823b",
+    "checkedRevision": "8dbc140e6aaa96031b920b9344bcee2ab7a24047",
     "checkedSource": [
       "tools/surface-convergence/package.json",
       "tools/surface-convergence/src/index.d.ts",
@@ -4670,15 +4909,31 @@
         "version": "0.1.0-rc.1",
         "state": "CHECKED_IN_EXPORT_MAP_PRESENT",
         "evidence": "Generic ClosureGraph and PhaseProgram source/types exist, but do not provide the missing Media physical-to-semantic bindings or SurfaceExperiencePack. Package license is UNLICENSED; no source-free installed artifact is established."
+      },
+      {
+        "name": "SurfaceExperiencePack",
+        "version": "ghatana.surface-experience-pack.v1",
+        "state": "SOURCE_CANDIDATE_AVAILABLE_TEST_ONLY",
+        "evidence": "Current Lifecycle source exposes a versioned producer, JSON Schema and read-only gtool show candidate. The source checkout is not a published immutable or licensed artifact; Media candidate use is TEST_ONLY and does not establish native admission."
       }
     ],
-    "hierarchicalMediaContractStatus": "UPSTREAM_NOT_AVAILABLE",
+    "hierarchicalMediaContractStatus": "SOURCE_CANDIDATE_AVAILABLE_PUBLIC_ADMISSION_PENDING",
     "missingContracts": [
-      "Dedicated typed Media physical-to-semantic ClosureGraph source package",
-      "SurfaceExperiencePack",
-      "Public binding contract joining Media applicability cells to multiple phase programs"
+      "Published immutable and appropriately licensed Lifecycle package artifact",
+      "Media owner binding for physical, composition and repository-root surfaces",
+      "Program-qualified native issuer and storage/admission semantics for Media"
     ],
-    "conclusion": "Generic Lifecycle ClosureGraph, PhaseProgram, closure-dependency-graph, and gtool source/export-map APIs exist at the inspected sibling revision. They are UNLICENSED workspace packages, not qualified source-free public artifacts. No SurfaceExperiencePack or Media physical-to-semantic binding to multiple phase programs was found. Keep Media descriptors provisional and the hierarchical Media contract UPSTREAM_NOT_AVAILABLE; do not clone generic Lifecycle graph/currentness/evidence logic."
+    "conclusion": "Lifecycle main provides a versioned SurfaceExperiencePack producer, exact schema and read-only gtool show candidate. Media may consume the schema-versioned source candidate in TEST_ONLY mode. The package is not established as a published immutable licensed artifact, no Media owner binding or program-qualified native issuer/storage contract is established, and native status remains NOT_ADMITTED.",
+    "sourceCandidate": {
+      "protocolVersion": "ghatana.surface-experience-pack.v1",
+      "producerSource": "tools/verification-planner/src/closure/surface-experience-pack.mjs",
+      "schemaSource": "explorer/surface-experience-pack.schema.json",
+      "readOnlySelector": "gtool experience show --surface <id> --program <program-id>",
+      "explicitCandidateSelector": "--candidate",
+      "mediaUse": "TEST_ONLY",
+      "publicAdmission": "PENDING",
+      "nativeLifecycleStatus": "NOT_ADMITTED"
+    }
   },
   "additionalBoundarySources": [
     {

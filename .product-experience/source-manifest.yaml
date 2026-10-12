@@ -17,7 +17,7 @@ externalOwnerObservations:
   repositories:
   - repositoryId: ghatana
     available: true
-    revision: 688c948cdf815738deb73d0d49f139e0ea45be26
+    revision: 65567dfff57d5ee9f5d7e8479dd311e5a7b6895d
     workingTree: MODIFIED
     files:
       - path: "config/repo-boundary.json"
@@ -61,7 +61,7 @@ externalOwnerObservations:
     workingTree: MODIFIED
     files:
       - path: "pnpm-lock.yaml"
-        sha256: 6a2f09475d4a9be1197613e126e712da2e5838332ca744dc338ca6b164917cfc
+        sha256: ef20b9621d7040f84ff68effa370490c1b5871f9175488bd9f59def1dc3e1ce3
       - path: "products/org/apps/api/src/modules/document-extraction/document-intelligence.config.ts"
         sha256: aeda2d44fcbfc86fb90de8909ed7952590fdd7f4a6593277cfe39bfd83a07223
   - repositoryId: ghatana-tools
@@ -661,7 +661,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 539ae8d99c596b19ccfe439303ed20273cd712f32c4cd84fe12149f7be7ddfe9
+      contentSha256: 0582851a80f19fc4f97656c54ad527a6b3b755719a115d4e9b7667b5c885dcef
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-INTERFACE-PARITY-README
@@ -3422,6 +3422,29 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-MEDIA-P3-AGENT-TOOL-RUNTIME-DISPOSITIONS
+    title: "Runtime Dispositions"
+    owner: ghatana-media-product-owners
+    authorityClass: OBSERVATION_ONLY_SOURCE
+    owningPhase: PDP-3
+    path: .product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json
+    surfaceIds: [media.surface.agent-tools]
+    semanticStatus: OBSERVATION_ONLY_CROSSWALK; CANONICAL_DEFINITIONS_IN_SEARCH_INSPECTION_CONTRACTS; RUNTIME_NOT_ADMITTED; INDEPENDENT_ACCEPTANCE_PENDING
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
+    dependencies: []
+    dependents: []
+    schema: pdp.3.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 2f0e495a97c39a9f871a58acc5676982856692f6e9c6b59869b0bed5456e4ed6
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-1382A9C1C8E7
@@ -8090,7 +8113,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: 697ea48d5a27176c5cf7228ac3d7e69c1aa91b0335f1d1a3ed1aa9cff6d1c874
+      contentSha256: d9370aff70eb1fdf7e69fb0fed4c33a9f88dc8b38b4e6075e39be402849c46c3
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-TRACEABILITY

@@ -1,247 +1,163 @@
 {
   "schemaVersion": "media.post-pdp-targeted-verification.v1",
   "asOf": "2026-10-12",
-  "reviewedBaseRevision": "0837fefe303acb7fe7fc4403a35ed33786551ee7",
-  "scope": "Final implementation verification after EXP-02/EXP-07, post-cut PDP source-pin refresh, and canonical Media RUN-02/03/OpenAPI follow-up: repository-wide Node suite, generated artifacts, topology, experience, browser focus inspection, canonical-source Java checks, and focused status/handoff tests. Owner-gated acceptance, runtime qualification, Lifecycle receipt, migration cutover, and release remain separate.",
+  "reviewedBaseRevision": "81386992d273a98237451702c2daf618c77c8e51",
+  "scope": "Final local implementation verification for the October 12 owner-reviewed execution plan. Canonical Media changes are uncommitted; the owner-only acceptance, transfer, runtime qualification, Lifecycle receipt, and release gates remain distinct.",
   "checks": [
     {
-      "taskIds": [
-        "BASE-01",
-        "BASE-03"
-      ],
+      "taskIds": ["BASE-01", "BASE-03"],
+      "command": "node scripts/report-media-pdp-readiness.mjs --verify --phase-dev-status=PDP-3 --write",
+      "result": "PASS",
+      "passed": 339,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "PDP-3 direct-development criteria P3-01…P3-10 each pass; strict current projection is schema-valid and current; changedDuringVerification is empty. Status remains DEV_COMPLETE."
+    },
+    {
+      "taskIds": ["BASE-01", "BASE-03"],
       "command": "node scripts/generate-media-post-pdp-status.mjs --check --strict",
       "result": "PASS",
-      "evidence": "Deterministic dimensional status projection; all four refreshed phase source pin sets match the current working tree."
+      "evidence": "Generated dimensional status is current. PDP-3 pins are current; PDP-0/1/2 remain DEV_COMPLETE at the accepted definition cut with post-cut stale source references recorded, not rewritten."
     },
     {
-      "taskIds": [
-        "BASE-04",
-        "BASE-05"
-      ],
-      "command": "node scripts/generate-media-pdp3-implementation-handoff.mjs --check",
+      "taskIds": ["BASE-04", "BASE-05"],
+      "command": "node scripts/generate-media-pdp3-implementation-handoff.mjs --check && node scripts/generate-media-phase-projections.mjs --check --strict",
       "result": "PASS",
-      "evidence": "Deterministic implementation handoff output and source-pin validation."
+      "evidence": "Handoff and phase projections are deterministic; ProductDefinition, ExperienceLanguage, and ExperienceSpecification are schema-valid and pass the public validator."
     },
     {
-      "taskIds": [
-        "BASE-04",
-        "BASE-05"
-      ],
-      "command": "node --test tests/pdp3-implementation-handoff.test.mjs",
+      "taskIds": ["BASE-04", "SUR-10"],
+      "command": "node scripts/generate-media-product-manifest.mjs (repeated; compare generated hashes)",
       "result": "PASS",
-      "passed": 4,
-      "failed": 0,
-      "skipped": 0
+      "sourceManifestRecords": 349,
+      "explorerRecords": 350,
+      "sourceManifestSha256": "3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
+      "explorerIndexSha256": "e88b8d0ce9c41b710ca065b8a25ff2ab95d257b0d24ee88599ac86c42b3ba7ac",
+      "evidence": "Repeated generation is stable; the generated external-owner observation pins the current neighboring checkout files."
     },
     {
-      "taskIds": [
-        "BASE-02",
-        "BASE-03"
-      ],
-      "command": "node --test tests/post-pdp-current-status.test.mjs",
+      "taskIds": ["MIG-01"],
+      "command": "node scripts/report-media-source-target-tree.mjs",
       "result": "PASS",
-      "passed": 2,
-      "failed": 0,
-      "skipped": 0
+      "sourceRevision": "65567dfff57d5ee9f5d7e8479dd311e5a7b6895d",
+      "sourceMediaTree": "f73623d95f7951d7b265d1add23867c1df9a0a84",
+      "targetRevision": "81386992d273a98237451702c2daf618c77c8e51",
+      "sourceTrackedPaths": 652,
+      "identicalModeAndBlob": 537,
+      "differentModeOrBlob": 103,
+      "absentAtSameRelativePath": 12,
+      "evidence": "Committed-tree comparison only; owner review across release branches remains required."
     },
     {
-      "taskIds": [
-        "EXP-01",
-        "BASE-01"
-      ],
-      "command": "pnpm --filter @audio-video/ui exec vitest run src/screens/MediaProductRenderer.test.ts",
+      "taskIds": ["MIG-02", "MIG-03", "MIG-04"],
+      "command": "node scripts/generate-media-transfer-manifest.mjs --check",
       "result": "PASS",
-      "passed": 11,
-      "failed": 0,
-      "skipped": 0,
-      "sourceSha256": "538209c8bb5797430a86f2606073a5b98db836e04fc88e9b91b29f3a5e39ee7c"
+      "rows": 2817,
+      "authorizedTransfers": 0,
+      "evidence": "Candidate is deterministic and every path remains NOT_AUTHORIZED. No transfer, authority switch, or cutover occurred."
     },
     {
-      "taskIds": [
-        "BASE-02",
-        "BASE-04"
-      ],
-      "command": "node scripts/generate-media-product-manifest.mjs (run twice, compare .product-experience/source-manifest.yaml SHA-256)",
-      "result": "PASS",
-      "sourceManifestSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
-      "evidence": "After the final source-pin refresh, two deterministic runs produced 348 manifest records and 349 Explorer records with identical source-manifest SHA-256. The generator does not implement --check; comparison was verified by hashing the generated output."
-    },
-    {
-      "taskIds": [
-        "BASE-04",
-        "BASE-05"
-      ],
-      "command": "node scripts/generate-media-phase-projections.mjs --check --strict",
-      "result": "PASS",
-      "evidence": "ProductDefinition, ExperienceLanguage, and ExperienceSpecification projections schema-valid and public-validator passed."
-    },
-    {
-      "taskIds": [
-        "EXP-01"
-      ],
-      "command": "node --test tests/pdp-design-responsive-rendered-references.test.mjs",
-      "result": "PASS",
-      "passed": 3,
-      "failed": 0,
-      "skipped": 0,
-      "evidence": "Responsive rendered-reference assertions pass against the refreshed nine-viewport capture set."
-    },
-    {
-      "taskIds": [
-        "EXP-02"
-      ],
-      "command": "Playwright inspection of Media CLI Explorer command input keyboard focus",
-      "result": "PASS",
-      "evidence": "#command-input received keyboard focus; :focus-visible=true with a 2px solid rgb(143,201,255) outline and 3px offset. Visual screenshot: /tmp/ghatana-media-cli-focus.png. Independent AT review remains open."
-    },
-    {
-      "taskIds": [
-        "EXP-07"
-      ],
-      "command": "pnpm check:product-experience-local",
-      "result": "PASS",
-      "evidence": "Source-linked GUI/API/CLI/SDK/event/agent examples remain structurally valid; checker reports proposal-only behavior and owner/semantic acceptance limitations explicitly."
-    },
-    {
-      "taskIds": [
-        "SUR-01",
-        "SUR-02",
-        "SUR-03",
-        "SUR-10"
-      ],
-      "command": "node scripts/check-media-physical-topology.mjs",
-      "result": "PASS",
-      "evidence": "26 manifest candidates, 17 consumers, 7 proposed compositions; SUR-08 remains UPSTREAM_NOT_AVAILABLE."
-    },
-    {
-      "taskIds": [
-        "RUN-02",
-        "RUN-03"
-      ],
-      "command": "./gradlew -Pghatana.shared.profile=development :services:media:runtime-contracts:test :services:media:providers:aws-postgresql:test --console=plain",
-      "result": "PASS",
-      "passed": 42,
-      "failed": 0,
-      "skipped": 0,
-      "evidence": "19 runtime-contract tests and 23 AWS/PostgreSQL provider tests; includes canonical/blank artifact-version behavior, provider-state persistence, and unknown-outcome/replay-retention coverage."
-    },
-    {
-      "taskIds": [
-        "RUN-02",
-        "RUN-04"
-      ],
-      "command": "./gradlew -I /tmp/media-openapi-test-exclude.gradle :services:media:modules:integration-tests:test --tests 'com.ghatana.audio.video.integration.MediaOpenApiContractConsumptionTest' -x :services:media:modules:intelligence:multimodal-service:compileJava --console=plain",
-      "result": "PASS",
-      "passed": 2,
-      "failed": 0,
-      "skipped": 0,
-      "evidence": "OpenAPI contract assertions cover optional pinned artifact version, legacy empty response version, OUTCOME_UNKNOWN, PROCESSING_OUTCOME_UNKNOWN, and optional exact requestId query. Excludes only existing unrelated MultimodalContractTest.java compilation and skips the unrelated multimodal-service compile."
-    },
-    {
-      "taskIds": [
-        "RUN-02",
-        "RUN-04"
-      ],
-      "command": "pnpm check:openapi-canonical",
-      "result": "NON_GREEN",
-      "evidence": "No Media contract findings. The check reports only the existing unrelated ai-inference runtime route manifest fingerprint mismatch (expected sha256:141fb4643f8bd56e23f7a1153d3db5a75d1362753837a9e305e02837047f512e)."
-    },
-    {
-      "taskIds": [
-        "RUN-04"
-      ],
-      "command": "./gradlew -I /tmp/media-artifact-version-test-exclude.gradle :services:media:launcher:test --tests 'com.ghatana.media.launcher.MediaJobReconciliationReadTest' -x :services:media:modules:intelligence:multimodal-service:compileJava --console=plain",
-      "result": "PASS",
-      "passed": 2,
-      "failed": 0,
-      "skipped": 0,
-      "evidence": "Tests cover exact requestId match/mismatch and handler-level query match, mismatch 404, duplicate rejection, unchanged OUTCOME_UNKNOWN response, and zero provider dispatch. Authentication itself remains separately enforced by the security filter; the init script excludes only the existing MediaLifecyclePublisherTest.java and skips the unrelated multimodal-service compile."
-    },
-    {
-      "taskIds": [
-        "RUN-02",
-        "RUN-03"
-      ],
-      "command": "./gradlew -I /tmp/media-artifact-version-test-exclude.gradle :services:media:launcher:test --tests 'com.ghatana.media.launcher.MediaJobArtifactVersionTest' --tests 'com.ghatana.media.launcher.MediaRuntimeJobTimeoutTest' --tests 'com.ghatana.media.launcher.MediaRuntimeJobGovernanceTest' -x :services:media:modules:intelligence:multimodal-service:compileJava --console=plain",
-      "result": "PASS",
-      "passed": 6,
-      "failed": 0,
-      "skipped": 0,
-      "evidence": "Stale pinned content fails before provider dispatch (zero provider calls); unknown timeout outcome is preserved without fallback; bounded governance/fallback assertions pass. The init script excludes only the existing MediaLifecyclePublisherTest.java and skips the unrelated multimodal-service compile."
-    },
-    {
-      "taskIds": [
-        "BASE-04",
-        "SUR-10"
-      ],
-      "command": "git diff --check",
-      "result": "PASS"
-    },
-    {
-      "taskIds": [
-        "BASE-04",
-        "EXP-05"
-      ],
+      "taskIds": ["EXP-05"],
       "command": "node scripts/check-media-contract-parity.mjs",
       "result": "NON_GREEN",
-      "evidence": "Structural inventories agree; 47 findings have 45 dispositions and 2 unresolved: Agent Tool operation/input/result parity, and proposal-only PDP-1 operation binding."
+      "sourceFindings": 47,
+      "dispositioned": 46,
+      "unresolved": 1,
+      "evidence": "Structural inventories agree. The remaining finding is proposal-only PDP-1 operation binding pending owner semantic/runtime acceptance; Agent Tool runtime disposition is explicit NOT_ADMITTED/unsupported."
     },
     {
-      "taskIds": [
-        "EXP-02"
-      ],
-      "command": "node --test tests/media-experience-explorer-accessibility.test.mjs",
+      "taskIds": ["EXP-05", "BASE-04"],
+      "command": "node scripts/check-media-contract-parity.mjs --definition-only",
       "result": "PASS",
-      "passed": 1,
+      "evidence": "Definition-only structural parity passes; two owner/runtime gates are deferred rather than presented as accepted bindings."
+    },
+    {
+      "taskIds": ["RUN-01", "RUN-02", "RUN-03", "RUN-04", "RUN-08", "RUN-09", "RUN-10"],
+      "command": "./gradlew -Pghatana.shared.profile=development :services:media:runtime-contracts:test :services:media:providers:aws-postgresql:test :services:media:launcher:test :services:media:audio-video-observability:test :services:media:modules:speech:stt-service:test :services:media:modules:vision:vision-service:test :services:media:modules:intelligence:multimodal-service:test :services:media:modules:integration-tests:test --no-daemon --max-workers=2 --console=plain",
+      "result": "PASS",
+      "passed": 788,
       "failed": 0,
       "skipped": 0,
-      "evidence": "Focused regression test verifies command input retains an accessible visible keyboard-focus indicator."
+      "moduleCounts": {
+        "runtime-contracts": 34,
+        "aws-postgresql": 38,
+        "launcher": 70,
+        "audio-video-observability": 83,
+        "stt-service": 151,
+        "vision-service": 226,
+        "multimodal-service": 157,
+        "integration-tests": 29
+      },
+      "evidence": "Combined canonical Media test run completed successfully without compile exclusions."
     },
     {
-      "taskIds": [
-        "BASE-01",
-        "BASE-03"
-      ],
-      "command": "node scripts/generate-media-post-pdp-status.mjs --check --strict",
+      "taskIds": ["RUN-05"],
+      "command": "./gradlew :services:media:runtime-contracts:test --tests com.ghatana.media.runtime.MediaSpeechToTextAdmissionTest :services:media:launcher:test --tests com.ghatana.media.launcher.MediaRuntimeSpeechAdmissionTest --no-daemon --max-workers=2",
       "result": "PASS",
-      "evidence": "All four PDP sourceShaSet collections match the current working tree; no staleSourceRefs. PDP-0..3 remain DEV_COMPLETE at their original definition cut."
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "Typed STT refusal occurs before job creation/provider effect for absent/unqualified profile, missing timing/source-clock, stale version, implicit/unsupported language, and consent/rights gaps. No positive J-03 path is admitted."
     },
     {
-      "taskIds": [
-        "BASE-04",
-        "BASE-05"
-      ],
-      "command": "node --test tests/post-pdp-current-status.test.mjs tests/pdp3-implementation-handoff.test.mjs",
+      "taskIds": ["RUN-06"],
+      "command": "./gradlew :services:media:runtime-contracts:test --tests '*MediaVisualContractsTest' --no-build-cache",
       "result": "PASS",
       "passed": 6,
       "failed": 0,
       "skipped": 0,
-      "evidence": "Focused status dimension, gap census, handoff population, duplicate/missing identity, and stale-pin tests pass after the final post-cut pin refresh."
+      "evidence": "Typed frame/timeline, timebase/span, coordinate, profile identity, locale, uncertainty, consent, and NOT_ADMITTED contracts pass."
     },
     {
-      "taskIds": [
-        "BASE-04"
-      ],
-      "command": "node scripts/generate-media-product-manifest.mjs (regenerate after final source-pin refresh)",
+      "taskIds": ["RUN-07"],
+      "command": "./gradlew :services:media:runtime-contracts:test --tests com.ghatana.media.runtime.MediaCreationContractsTest",
       "result": "PASS",
-      "evidence": "Regeneration is idempotent: source-manifest SHA-256 1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2 and Explorer index SHA-256 aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890 remain unchanged across repeat runs. This script does not implement a --check option."
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "Creation and source-derived lanes, exact source pin, digest/provenance, NOT_ADMITTED without a qualified provider, and separate known/unknown delivery contracts pass. No engine output is claimed."
+    },
+    {
+      "taskIds": ["BASE-04", "EXP-05", "MIG-01", "MIG-02", "RUN-05", "RUN-06", "RUN-07"],
+      "command": "node --test tests/media-source-manifest-external-observations.test.mjs tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+      "result": "PASS",
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "Refreshed live external and MPSEM-0167 observations match their current files while preserving prior hashes, proposal status, and no-acceptance effect."
+    },
+    {
+      "taskIds": ["BASE-01", "BASE-02", "BASE-03", "BASE-04", "EXP-01", "EXP-05", "MIG-01", "MIG-02", "RUN-01", "RUN-10"],
+      "command": "node --test --test-concurrency=4 tests/*.test.mjs",
+      "result": "PASS",
+      "passed": 1461,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 827582.402476,
+      "log": "/tmp/media-node-suite-final-clean-2026-10-12.log",
+      "evidence": "Final clean run after refreshing the two stale live-evidence pins and updating task evidence."
+    },
+    {
+      "taskIds": ["BASE-04", "RUN-01", "RUN-10"],
+      "command": "git diff --check (target and canonical Media working trees)",
+      "result": "PASS"
     }
   ],
   "limitations": [
-    "Phase-development test records remain at their recorded definition cut; post-cut checks and implementation projections are separately recorded.",
-    "The generated current-status view intentionally preserves its historical 1,423/1,423 report; this verification record contains the current final-tree integrated result of 1,439/1,439.",
-    "Independent domain/security and visual/accessibility acceptance, Lifecycle receipt, production runtime qualification, source-transfer/cutover approval, and release authorization are not asserted.",
-    "The unfiltered launcher dependency graph cannot compile multimodal-service because AbstractTypedAgent is absent from the selected workspace dependency; focused Media launcher tests pass when that unrelated compile is skipped. RUN-04 handler behavior is unit-tested with tenant/principal headers, but is not end-to-end through the authentication filter/network; provider/attempt outcome reconciliation remains unsupported.",
-    "Contract parity remains non-green with two unresolved owner/semantic bindings; no route or operation semantics were fabricated to close them."
+    "PDP-0/1/2 retain their accepted definition cut and have post-cut stale source pins; PDP-3 is current and DEV_COMPLETE. No independent PDP certification is asserted.",
+    "Strict contract parity remains non-green with one proposal-only PDP-1 operation binding pending owner acceptance.",
+    "RUN-05 remains disabled until an admitted STT profile, rights authority, and immutable transcript-version store exist; HTTP maps its typed denial to generic MEDIA_STATE_CONFLICT 409.",
+    "RUN-06 and RUN-07 add contract/staging checks only; no live inference or generation provider, quality qualification, UI/launcher vertical, or generated media is claimed.",
+    "Shared #234/#242, Platform #254, Tools #31, Media issue #4, Lifecycle receipts/issue #1, independent acceptance, production qualification, transfer/cutover, and release approval remain with their respective owners.",
+    "No source transfer, commit, deployment, production release, Lifecycle receipt, or acceptance on behalf of another owner occurred. Unrelated AEP work was preserved."
   ],
   "integratedSuite": {
-    "command": "node --test tests/*.test.mjs",
+    "command": "node --test --test-concurrency=4 tests/*.test.mjs",
     "result": "PASS",
-    "tests": 1439,
-    "passed": 1439,
+    "tests": 1461,
+    "passed": 1461,
     "failed": 0,
     "skipped": 0,
-    "durationMs": 817489.812762,
-    "evidence": "The full integrated repository suite passed after refreshing the two stale evidence pins (responsive-reference renderer fingerprint and MPSEM-0167-C001 source-manifest hash). The final run covered the integrated working tree; no failures or skips."
+    "durationMs": 827582.402476
   }
 }

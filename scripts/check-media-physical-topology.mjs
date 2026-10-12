@@ -6,6 +6,17 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const topologyPath = path.join(repo, '.product-experience/surfaces/media-physical-topology.v1.json');
 const source = (p) => fs.readFileSync(path.join(repo, p), 'utf8');
 const ids = (p) => new Set([...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]));
+const idList = (p) => [...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]);
+
+function compareExactIds(actualValues, expectedValues, label, fail) {
+  const actual = new Set(actualValues ?? []);
+  const expected = new Set(expectedValues ?? []);
+  if (actual.size !== (actualValues ?? []).length) fail(`${label} contains duplicate IDs`);
+  if (expected.size !== (expectedValues ?? []).length) fail(`${label} canonical source contains duplicate IDs`);
+  const missing = [...expected].filter((id) => !actual.has(id));
+  const extra = [...actual].filter((id) => !expected.has(id));
+  if (missing.length || extra.length) fail(`${label} must exactly match canonical IDs (missing: ${missing.join(', ') || 'none'}; extra: ${extra.join(', ') || 'none'})`);
+}
 
 export function validateTopology(topology, root = repo) {
   const errors = [];
@@ -58,7 +69,20 @@ export function validateTopology(topology, root = repo) {
   const compositionById = new Map(compositions.map((x) => [x.surfaceId, x]));
   if (new Set(compositions.map((x) => x.surfaceId)).size !== compositions.length) fail('composition identities must be unique');
   for (const composition of compositions) {
-    if (!composition.canonicalOwner || !composition.directMeaning || !composition.children?.length) fail(`${composition.surfaceId}: composition must state owner, direct meaning and children`);
+    if (composition.canonicalOwner !== 'media' || !composition.directMeaning || !composition.children?.length) fail(`${composition.surfaceId}: composition must state Media canonical owner, direct meaning and children`);
+    if (!composition.membershipSemantics || composition.membershipSemantics.relation !== 'CONTAINS'
+      || composition.membershipSemantics.meaning !== 'children are direct members only'
+      || composition.membershipSemantics.aggregationKey !== 'surfaceId'
+      || composition.membershipSemantics.aggregateUniqueMembers !== true
+      || composition.membershipSemantics.dependenciesAreMembership !== false) {
+      fail(`${composition.surfaceId}: direct CONTAINS and unique surfaceId aggregation semantics are required`);
+    }
+    if (new Set(composition.children).size !== composition.children.length) fail(`${composition.surfaceId}: direct CONTAINS children must be unique`);
+    if (!Array.isArray(composition.dependencies ?? [])) fail(`${composition.surfaceId}: dependencies must be a separate list from containment`);
+    for (const dependency of composition.dependencies ?? []) {
+      if (composition.children.includes(dependency)) fail(`${composition.surfaceId}: DEPENDS_ON cannot also be direct CONTAINS membership: ${dependency}`);
+      if (!byId.has(dependency) && !compositionById.has(dependency)) fail(`${composition.surfaceId}: unknown DEPENDS_ON target ${dependency}`);
+    }
     for (const phase of phases) {
       const cell = composition.phaseApplicability?.[phase];
       if (!cell?.disposition || !cell?.rationale) fail(`${composition.surfaceId}: ${phase} applicability cell is incomplete`);
@@ -66,10 +90,53 @@ export function validateTopology(topology, root = repo) {
         if (!fs.existsSync(path.join(root, ref))) fail(`${composition.surfaceId}: ${phase} has missing authority ref ${ref}`);
       }
     }
-    for (const child of composition.children ?? []) if (!byId.has(child) && !compositionById.has(child)) fail(`${composition.surfaceId}: unknown child ${child}`);
+    for (const child of composition.children ?? []) {
+      if (typeof child !== 'string') fail(`${composition.surfaceId}: children must be direct CONTAINS IDs; dependency edges belong in dependencies`);
+      else if (!byId.has(child) && !compositionById.has(child)) fail(`${composition.surfaceId}: unknown direct CONTAINS child ${child}`);
+    }
+    if (composition.kind === 'SEMANTIC_COMPOSITION') {
+      const obligations = composition.crossChildObligations ?? [];
+      if (obligations.length !== 1) fail(`${composition.surfaceId}: one explicit Media-owned direct cross-child integration obligation is required`);
+      for (const obligation of obligations) {
+        if (obligation.canonicalOwner !== composition.canonicalOwner || obligation.status !== 'SOURCE_PLANNING_ONLY'
+          || obligation.meaning !== composition.directMeaning) {
+          fail(`${composition.surfaceId}: cross-child obligation must retain Media ownership, composition meaning, and source-planning status`);
+        }
+        compareExactIds(obligation.participantSurfaceIds, composition.children, `${composition.surfaceId} cross-child participants`, fail);
+      }
+    }
   }
   const roots = compositions.filter((x) => x.kind === 'REPOSITORY_ROOT');
   if (roots.length !== 1) fail('exactly one repository root composition is required');
+  if (compositions.length !== 7) fail('topology must contain one repository root and exactly six semantic compositions');
+  const rootNode = roots[0];
+  if (rootNode) {
+    const semanticIds = compositions.filter((x) => x.kind !== 'REPOSITORY_ROOT').map((x) => x.surfaceId);
+    const semanticPhysicalIds = new Set(compositions.filter((x) => x.kind !== 'REPOSITORY_ROOT').flatMap((x) => x.children.filter((id) => byId.has(id))));
+    const ungroupedSupportIds = candidates.filter((candidate) => !semanticPhysicalIds.has(candidate.surfaceId)).map((candidate) => candidate.surfaceId);
+    const expectedRootChildren = [...semanticIds, ...ungroupedSupportIds].sort();
+    const actualRootChildren = [...rootNode.children].sort();
+    if (JSON.stringify(actualRootChildren) !== JSON.stringify(expectedRootChildren)) {
+      fail('repository root direct CONTAINS must be the six semantic compositions plus only ungrouped physical support units');
+    }
+    if (rootNode.children.some((id) => byId.has(id) && semanticPhysicalIds.has(id))) fail('repository root cannot directly repeat a physical member already grouped by a semantic composition');
+    if (!rootNode.membershipSemantics || rootNode.membershipSemantics.aggregateUniqueMembers !== true) fail('repository root must declare deduplicated aggregation by surfaceId');
+    const membershipParents = new Map();
+    for (const composition of compositions.filter((x) => x.kind !== 'REPOSITORY_ROOT')) {
+      for (const child of composition.children) if (byId.has(child)) membershipParents.set(child, [...(membershipParents.get(child) ?? []), composition.surfaceId]);
+    }
+    const expectedShared = [...membershipParents].filter(([, parents]) => parents.length > 1).map(([surfaceId, parents]) => ({ surfaceId, parentCompositionIds: [...parents].sort() })).sort((a, b) => a.surfaceId.localeCompare(b.surfaceId));
+    const declaredShared = [...(rootNode.sharedPhysicalMemberships ?? [])].map(({ surfaceId, parentCompositionIds }) => ({ surfaceId, parentCompositionIds: [...parentCompositionIds].sort() })).sort((a, b) => a.surfaceId.localeCompare(b.surfaceId));
+    if (JSON.stringify(declaredShared) !== JSON.stringify(expectedShared)) fail('shared physical membership must enumerate each multi-parent leaf and its distinct semantic compositions exactly once');
+    for (const item of rootNode.sharedPhysicalMemberships ?? []) {
+      for (const parentId of item.parentCompositionIds ?? []) {
+        const parent = compositionById.get(parentId);
+        if (!parent?.directMeaning) fail(`${item.surfaceId}: shared membership parent ${parentId} lacks a distinct semantic role`);
+      }
+      const meanings = (item.parentCompositionIds ?? []).map((parentId) => compositionById.get(parentId)?.directMeaning).filter(Boolean);
+      if (new Set(meanings).size !== meanings.length) fail(`${item.surfaceId}: shared membership parents must declare distinct semantic roles`);
+    }
+  }
   const reachable = new Set();
   const visiting = new Set();
   const visit = (id) => {
@@ -86,7 +153,7 @@ export function validateTopology(topology, root = repo) {
   };
   if (roots[0]) {
     visit(roots[0].surfaceId);
-    for (const id of byId.keys()) if (!roots[0].children.includes(id) && !reachable.has(id)) fail(`orphan physical candidate ${id} has no containment path from repository root`);
+    for (const id of byId.keys()) if (!reachable.has(id)) fail(`orphan physical candidate ${id} has no containment path from repository root`);
     for (const item of [...byId.keys(), ...compositionById.keys()]) if (!reachable.has(item)) fail(`unreachable topology node ${item}`);
   }
   const sourceIds = new Set();
@@ -101,6 +168,12 @@ export function validateTopology(topology, root = repo) {
     const p1 = node.phaseApplicability?.['PDP-1'];
     for (const ref of [...(p1?.operationIds ?? []), ...(p1?.domainObjectIds ?? [])]) if (!sourceIds.has(ref)) fail(`${node.surfaceId}: PDP-1 ref is not in canonical source: ${ref}`);
   }
+  const rootPdp3 = rootNode?.phaseApplicability?.['PDP-3'];
+  compareExactIds(rootPdp3?.screenIds, idList('.product-experience/pdp-3-product-experience/screen-registry.yaml'), 'repository root PDP-3 screen IDs', fail);
+  compareExactIds(rootPdp3?.journeyIds, idList('.product-experience/pdp-3-product-experience/journey-registry.yaml'), 'repository root PDP-3 journey IDs', fail);
+  const responsibleNodes = [...candidates, ...compositions.filter((composition) => composition.kind !== 'REPOSITORY_ROOT')];
+  compareExactIds([...new Set(responsibleNodes.flatMap((node) => node.phaseApplicability?.['PDP-3']?.screenIds ?? []))], idList('.product-experience/pdp-3-product-experience/screen-registry.yaml'), 'responsible physical/composition PDP-3 screen IDs', fail);
+  compareExactIds([...new Set(responsibleNodes.flatMap((node) => node.phaseApplicability?.['PDP-3']?.journeyIds ?? []))], idList('.product-experience/pdp-3-product-experience/journey-registry.yaml'), 'responsible physical/composition PDP-3 journey IDs', fail);
   for (const entry of topology.additionalBoundarySources ?? []) {
     const ref = entry.sourcePath.split('#')[0];
     if (!fs.existsSync(path.join(root, ref))) fail(`additional boundary source is missing: ${entry.sourcePath}`);
@@ -109,8 +182,13 @@ export function validateTopology(topology, root = repo) {
   }
   const archivedPaths = new Set(topology.archivedManifestLocations.map((x) => x.path));
   if (archivedPaths.size !== 4 || [...archivedPaths].some((p) => !fs.existsSync(path.join(root, p)))) fail('four archived desktop manifests must be accounted for with extant source paths');
-  if (topology.lifecycleContractStatus?.status !== 'PARTIAL_PUBLIC_CONTRACT_AVAILABLE') fail('Lifecycle public-contract audit state must reflect available generic APIs');
-  if (topology.lifecycleContractStatus?.hierarchicalMediaContractStatus !== 'UPSTREAM_NOT_AVAILABLE') fail('missing Media hierarchical contract must remain explicitly UPSTREAM_NOT_AVAILABLE');
+  if (topology.lifecycleContractStatus?.status !== 'SOURCE_CANDIDATE_AVAILABLE_PUBLIC_ADMISSION_PENDING') fail('Lifecycle availability must distinguish source candidate from public admission');
+  if (topology.lifecycleContractStatus?.hierarchicalMediaContractStatus !== 'SOURCE_CANDIDATE_AVAILABLE_PUBLIC_ADMISSION_PENDING') fail('Lifecycle source candidate must remain public-admission-pending');
+  if (topology.lifecycleContractStatus?.sourceCandidate?.mediaUse !== 'TEST_ONLY'
+    || topology.lifecycleContractStatus?.sourceCandidate?.publicAdmission !== 'PENDING'
+    || topology.lifecycleContractStatus?.sourceCandidate?.nativeLifecycleStatus !== 'NOT_ADMITTED') {
+    fail('Lifecycle source candidate must remain TEST_ONLY and native NOT_ADMITTED');
+  }
   return errors;
 }
 

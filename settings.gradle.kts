@@ -9,6 +9,77 @@ val monorepoRoot = if (isStandaloneBuild) {
     rootDir.parentFile.parentFile
 }
 val productProjectPrefix = if (isStandaloneBuild) "services:media" else "media"
+
+val mediaDependencyProfile = providers.gradleProperty("ghatana.media.dependencyProfile")
+    .orElse("DEV_SOURCE_COMPOSITE")
+    .get()
+if (mediaDependencyProfile !in setOf("DEV_SOURCE_COMPOSITE", "RELEASE_ARTIFACT_ONLY")) {
+    throw GradleException(
+        "Unknown ghatana.media.dependencyProfile '$mediaDependencyProfile'; " +
+            "use DEV_SOURCE_COMPOSITE or RELEASE_ARTIFACT_ONLY"
+    )
+}
+val sourceCompositeEnabled = mediaDependencyProfile == "DEV_SOURCE_COMPOSITE"
+
+if (mediaDependencyProfile == "RELEASE_ARTIFACT_ONLY") {
+    val lockPath = providers.gradleProperty("ghatana.media.releaseArtifactLock")
+        .orElse("config/dependency-admission/release-artifact-lock.json")
+        .get()
+    val lockFile = file(lockPath)
+    if (!lockFile.isFile) {
+        throw GradleException(
+            "RELEASE_ARTIFACT_ONLY requires an admitted immutable artifact lock at $lockPath"
+        )
+    }
+    @Suppress("UNCHECKED_CAST")
+    val lock = groovy.json.JsonSlurper().parse(lockFile) as? Map<String, Any?>
+        ?: throw GradleException("RELEASE_ARTIFACT_ONLY artifact lock must be a JSON object")
+    if (lock["schemaVersion"] != "media.release-artifact-lock.v1"
+        || lock["profile"] != "RELEASE_ARTIFACT_ONLY"
+        || lock["status"] != "ADMITTED") {
+        throw GradleException(
+            "RELEASE_ARTIFACT_ONLY is not admitted: artifact lock status is ${lock["status"] ?: "missing"}"
+        )
+    }
+    @Suppress("UNCHECKED_CAST")
+    val policy = groovy.json.JsonSlurper().parse(file("config/dependency-profile-policy.json")) as Map<String, Any?>
+    @Suppress("UNCHECKED_CAST")
+    val profiles = policy["profiles"] as Map<String, Map<String, Any?>>
+    @Suppress("UNCHECKED_CAST")
+    val releasePolicy = profiles["RELEASE_ARTIFACT_ONLY"] as Map<String, Any?>
+    if (releasePolicy["status"] != "ADMITTED" || releasePolicy["releaseEligible"] != true) {
+        throw GradleException("RELEASE_ARTIFACT_ONLY is not enabled by dependency-profile-policy.json")
+    }
+    @Suppress("UNCHECKED_CAST")
+    val requiredIds = (releasePolicy["requiredDependencyIds"] as List<String>).toSet()
+    @Suppress("UNCHECKED_CAST")
+    val artifacts = lock["artifacts"] as? List<Map<String, Any?>> ?: emptyList()
+    val artifactIds = artifacts.mapNotNull { it["dependencyId"] as? String }
+    if (artifactIds.toSet() != requiredIds || artifactIds.size != artifactIds.toSet().size) {
+        throw GradleException("RELEASE_ARTIFACT_ONLY lock must contain each required dependency exactly once")
+    }
+    val missingEvidence = artifacts.flatMap { artifact ->
+        listOf("owner", "ownerDecisionRef", "coordinates", "version", "artifactSha256", "licenseExpression", "licenseReportRef", "sbomSha256", "installedConsumerTestRef")
+            .filter { field -> artifact[field] !is String || (artifact[field] as String).isBlank() }
+            .map { field -> "${artifact["dependencyId"] ?: "unknown"}.$field" }
+    }
+    val nonIsolatedConsumers = artifacts.filter { it["sourceFree"] != true }.map { it["dependencyId"] }
+    val invalidDigests = artifacts.filter { artifact ->
+        val artifactDigest = artifact["artifactSha256"] as? String
+        val sbomDigest = artifact["sbomSha256"] as? String
+        artifactDigest?.matches(Regex("sha256:[a-f0-9]{64}")) != true
+            || sbomDigest?.matches(Regex("sha256:[a-f0-9]{64}")) != true
+            || (artifact["version"] as? String)?.contains("SNAPSHOT") != false
+    }.map { it["dependencyId"] }
+    if (missingEvidence.isNotEmpty() || nonIsolatedConsumers.isNotEmpty() || invalidDigests.isNotEmpty()) {
+        throw GradleException(
+            "RELEASE_ARTIFACT_ONLY lock is incomplete; missing fields=$missingEvidence, " +
+                "consumers still use source bindings=$nonIsolatedConsumers, invalid artifact/version digests=$invalidDigests"
+        )
+    }
+}
+extra["mediaDependencyProfile"] = mediaDependencyProfile
+logger.lifecycle("Media dependency profile: $mediaDependencyProfile")
 // Standalone builds retain the monorepo project coordinates so existing media
 // build files and dependency declarations remain identical in both modes.
 
@@ -153,7 +224,7 @@ fileTree(rootDir) {
 // In standalone mode, include ghatana-shared as a composite build so that
 // shared platform modules and services are available.
 val ghatanaSharedPath = File(monorepoRoot.parentFile, "ghatana-shared")
-if (isStandaloneBuild && ghatanaSharedPath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && ghatanaSharedPath.exists()) {
     logger.lifecycle("Including ghatana-shared composite build from: $ghatanaSharedPath")
     includeBuild(ghatanaSharedPath) {
         name = "ghatana-shared"
@@ -190,8 +261,10 @@ if (isStandaloneBuild && ghatanaSharedPath.exists()) {
             }
         }
     }
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && sourceCompositeEnabled) {
     logger.lifecycle("WARNING: ghatana-shared not found at $ghatanaSharedPath — standalone build requires immutable published artifacts")
+} else if (isStandaloneBuild) {
+    logger.lifecycle("Using published Shared artifacts; source composite substitution is disabled")
 }
 
 // Kernel's published product API currently uses a stable 0.1.0 coordinate,
@@ -200,7 +273,7 @@ val ghatanaKernelPath = providers.gradleProperty("ghatana.kernel.path")
     .map { file(it) }
     .orElse(File(monorepoRoot.parentFile, "ghatana-kernel"))
     .get()
-if (isStandaloneBuild && ghatanaKernelPath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && ghatanaKernelPath.exists()) {
     logger.lifecycle("Including ghatana-kernel composite build from: $ghatanaKernelPath")
     includeBuild(ghatanaKernelPath) {
         name = "ghatana-kernel"
@@ -209,8 +282,10 @@ if (isStandaloneBuild && ghatanaKernelPath.exists()) {
                 .using(project(":platform-kernel:kernel-product-api"))
         }
     }
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && sourceCompositeEnabled) {
     logger.lifecycle("WARNING: ghatana-kernel not found at $ghatanaKernelPath — kernel API requires published artifacts")
+} else if (isStandaloneBuild) {
+    logger.lifecycle("Using the published Kernel API; source composite substitution is disabled")
 }
 
 // ============================================================================
@@ -223,7 +298,7 @@ val ghatanaToolsPath = providers.gradleProperty("ghatana.tools.path")
     .map { file(it) }
     .orElse(File(monorepoRoot.parentFile, "ghatana-tools"))
     .get()
-if (isStandaloneBuild && ghatanaToolsPath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && ghatanaToolsPath.exists()) {
     logger.lifecycle("Including ghatana-tools composite build from: $ghatanaToolsPath")
     includeBuild(ghatanaToolsPath) {
         name = "ghatana-tools"
@@ -244,8 +319,10 @@ if (isStandaloneBuild && ghatanaToolsPath.exists()) {
             }
         }
     }
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && sourceCompositeEnabled) {
     logger.lifecycle("WARNING: ghatana-tools not found at $ghatanaToolsPath — tool-runtime consumers require the canonical sibling checkout")
+} else if (isStandaloneBuild) {
+    logger.lifecycle("Using published Tools artifacts; source composite substitution is disabled")
 }
 
 // ============================================================================
@@ -259,20 +336,22 @@ val ghatanaLifecyclePath = providers.gradleProperty("ghatana.lifecycle.path")
     .map { file(it) }
     .orElse(File(monorepoRoot.parentFile, "ghatana-lifecycle"))
     .get()
-if (isStandaloneBuild && ghatanaLifecyclePath.exists()) {
+if (isStandaloneBuild && sourceCompositeEnabled && ghatanaLifecyclePath.exists()) {
     logger.lifecycle("Including ghatana-lifecycle composite build from: $ghatanaLifecyclePath")
     includeBuild(ghatanaLifecyclePath) {
         name = "ghatana-lifecycle"
     }
-} else if (isStandaloneBuild) {
+} else if (isStandaloneBuild && sourceCompositeEnabled) {
     logger.lifecycle("Lifecycle sibling not found at $ghatanaLifecyclePath — no Lifecycle composite build included")
+} else if (isStandaloneBuild) {
+    logger.lifecycle("Lifecycle source build is disabled under the published-artifact profile")
 }
 
 // Standalone media sources still use a small set of platform/Data Cloud
 // project coordinates. Map those coordinates to their canonical monorepo
 // sources so configuring the media graph does not silently fall back to
 // duplicate or stale compatibility artifacts.
-if (isStandaloneBuild) {
+if (isStandaloneBuild && sourceCompositeEnabled) {
     include(":platform:java:launcher-support")
     include(":integration-tests:service-contract-test-utils")
     project(":platform").projectDir = File(monorepoRoot, "platform")
@@ -316,7 +395,9 @@ pluginManagement {
     } else {
         File(rootDir.parentFile.parentFile.parentFile, "ghatana-shared/build-logic")
     }
-    if (sharedBuildLogic.exists()) {
+    val pluginDependencyProfile = gradle.startParameter.projectProperties["ghatana.media.dependencyProfile"]
+        ?: "DEV_SOURCE_COMPOSITE"
+    if (sharedBuildLogic.exists() && pluginDependencyProfile == "DEV_SOURCE_COMPOSITE") {
         includeBuild(sharedBuildLogic)
     }
     plugins {

@@ -28,6 +28,7 @@
   --media-rhythm-standard: calc(var(--gh-semantic-geometry-section-rhythm-standard) * 1px);
   --media-rhythm-comfortable: calc(var(--gh-semantic-geometry-section-rhythm-comfortable) * 1px);
   --media-interactive-target: calc(var(--gh-breakpoints-touch-targets-minimum) * 1px);
+  container: media-task / inline-size;
   box-sizing: border-box;
   width: min(100% - 2rem, 80rem);
   margin-inline: auto;
@@ -39,6 +40,27 @@
   font-size: var(--media-font-body);
   font-weight: var(--gh-semantic-typography-body-font-weight);
   line-height: var(--media-line-body);
+}
+
+/* Hosts can choose density once on the workflow root; screen bodies inherit the same rhythm. */
+.media-task-flow[data-density="compact"] {
+  padding-block: var(--media-space-compact);
+}
+.media-task-flow[data-density="compact"] > section[aria-labelledby="media-operation-title"],
+.media-task-flow[data-density="compact"] > div > section,
+.media-task-flow[data-density="compact"] > div > aside > section {
+  margin-block: var(--media-space-compact);
+  padding: var(--media-space-compact);
+}
+
+.media-task-flow[data-density="comfortable"] {
+  padding-block: var(--media-space-comfortable);
+}
+.media-task-flow[data-density="comfortable"] > section[aria-labelledby="media-operation-title"],
+.media-task-flow[data-density="comfortable"] > div > section,
+.media-task-flow[data-density="comfortable"] > div > aside > section {
+  margin-block: var(--media-space-comfortable);
+  padding: var(--media-space-comfortable);
 }
 
 /* System preference is the default mode; hosts may set data-color-scheme on this root or an ancestor. */
@@ -95,14 +117,21 @@
   min-height: 7rem;
   padding: var(--media-space-compact);
   border: 1px solid GrayText;
-  border-radius: .5rem;
+  border-radius: .25rem;
   color: CanvasText;
   background: Canvas;
   text-align: start;
   font: inherit;
 }
 .media-task-flow nav li > button[aria-current="step"] { outline: 2px solid Highlight; outline-offset: 1px; }
-.media-task-flow nav li > button:disabled { cursor: default; }
+.media-task-flow nav li > button:disabled {
+  opacity: 1;
+  color: ButtonText;
+  background: ButtonFace;
+  border-style: dashed;
+  cursor: default;
+}
+.media-task-flow nav li > button:disabled > span:nth-child(3) { color: ButtonText; }
 .media-task-flow nav li > button:not(:disabled) { cursor: pointer; }
 .media-task-flow nav li > button:not(:disabled):hover { border-color: Highlight; }
 .media-task-flow nav li > button > span:first-child { display: flex; align-items: center; justify-content: space-between; gap: var(--media-space-compact); }
@@ -230,6 +259,18 @@
 .media-task-flow .media-screen-body > ul > li + li,
 .media-task-flow .media-screen-body > ol > li + li { border-block-start: 1px solid GrayText; }
 .media-task-flow .media-screen-body textarea { min-height: 4rem; }
+.media-task-flow .media-screen-body fieldset {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--media-space-compact) var(--media-space-standard);
+  min-width: 0;
+  margin-block: var(--media-space-standard);
+  padding: var(--media-space-standard);
+  border: 1px solid GrayText;
+  border-radius: .25rem;
+}
+.media-task-flow .media-screen-body fieldset legend { font-weight: var(--media-weight-emphasis); }
+.media-task-flow .media-screen-body fieldset button { grid-column: 1 / -1; }
 
 .media-family { min-width: 0; overflow-wrap: anywhere; }
 .media-family__header { display: flex; align-items: start; justify-content: space-between; gap: var(--media-space-standard); flex-wrap: wrap; }
@@ -256,6 +297,11 @@
   .media-family dl { grid-template-columns: minmax(0, 1fr); }
 }
 
+@container media-task (max-width: 48rem) {
+  .media-task-flow > div:last-child { grid-template-columns: minmax(0, 1fr); gap: var(--media-space-compact); }
+  .media-task-flow nav ol { grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .media-task-flow *, .media-task-flow *::before, .media-task-flow *::after {
     scroll-behavior: auto !important;
@@ -271,6 +317,7 @@
   .media-task-flow .media-progress--success { color: LinkText; }
   .media-task-flow .media-progress--warning { color: Mark; }
   .media-task-flow nav li > button[aria-current="step"] { outline-color: Highlight; }
+  .media-task-flow nav li > button:disabled { color: ButtonText; background: ButtonFace; border-color: CanvasText; }
   .media-task-flow > section[aria-labelledby="media-operation-title"],
   .media-task-flow > div > section,
   .media-task-flow > div > aside > section,

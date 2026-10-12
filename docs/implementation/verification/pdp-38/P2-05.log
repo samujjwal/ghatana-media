@@ -2,115 +2,115 @@ TAP version 13
 # Subtest: missing admissions pass with zero exact identities proven
 ok 1 - missing admissions pass with zero exact identities proven
   ---
-  duration_ms: 15.598525
+  duration_ms: 12.106111
   type: 'test'
   ...
 # Subtest: the review host imports the exact candidate product-renderer export intended for production
 ok 2 - the review host imports the exact candidate product-renderer export intended for production
   ---
-  duration_ms: 8.411136
+  duration_ms: 7.411297
   type: 'test'
   ...
 # Subtest: public Explorer render binding carries typed ports and the Tools Product viewport consumes it
 ok 3 - public Explorer render binding carries typed ports and the Tools Product viewport consumes it
   ---
-  duration_ms: 4.366974
+  duration_ms: 4.059998
   type: 'test'
   ...
 # Subtest: admitted Web record passes only with identical public export and resolvable PDP-2 provenance
 ok 4 - admitted Web record passes only with identical public export and resolvable PDP-2 provenance
   ---
-  duration_ms: 6.382635
+  duration_ms: 4.997961
   type: 'test'
   ...
 # Subtest: rejects missing host identity and unresolved design provenance
 ok 5 - rejects missing host identity and unresolved design provenance
   ---
-  duration_ms: 5.349552
+  duration_ms: 4.933009
   type: 'test'
   ...
 # Subtest: rejects an admitted symbol absent from the representation export map
 ok 6 - rejects an admitted symbol absent from the representation export map
   ---
-  duration_ms: 5.733805
+  duration_ms: 5.391624
   type: 'test'
   ...
 # Subtest: rejects presentation-to-review dependencies and production scenario fixtures
 ok 7 - rejects presentation-to-review dependencies and production scenario fixtures
   ---
-  duration_ms: 4.244947
+  duration_ms: 4.043819
   type: 'test'
   ...
 # Subtest: rejects deep source imports and package subpaths absent from exports
 ok 8 - rejects deep source imports and package subpaths absent from exports
   ---
-  duration_ms: 3.636242
+  duration_ms: 3.590394
   type: 'test'
   ...
 # Subtest: validates declared screen-to-token design links and reports broken candidate links
 ok 9 - validates declared screen-to-token design links and reports broken candidate links
   ---
-  duration_ms: 1.752809
+  duration_ms: 1.78274
   type: 'test'
   ...
 # Subtest: counts a resolved admitted screen design chain
 ok 10 - counts a resolved admitted screen design chain
   ---
-  duration_ms: 10.14583
+  duration_ms: 13.857237
   type: 'test'
   ...
 # Subtest: an unresolved admitted screen design link is a hard failure
 ok 11 - an unresolved admitted screen design link is a hard failure
   ---
-  duration_ms: 6.448788
+  duration_ms: 5.937875
   type: 'test'
   ...
 # Subtest: unresolved candidate screen design links remain nonfatal
 ok 12 - unresolved candidate screen design links remain nonfatal
   ---
-  duration_ms: 5.008377
+  duration_ms: 5.124157
   type: 'test'
   ...
 # Subtest: a missing pattern nested under an admitted screen template is a hard failure
 ok 13 - a missing pattern nested under an admitted screen template is a hard failure
   ---
-  duration_ms: 4.703482
+  duration_ms: 4.592399
   type: 'test'
   ...
 # Subtest: a missing pattern nested under a candidate screen template stays nonfatal
 ok 14 - a missing pattern nested under a candidate screen template stays nonfatal
   ---
-  duration_ms: 5.661272
+  duration_ms: 4.763031
   type: 'test'
   ...
 # Subtest: a template pattern with an unresolved component source fails only when admitted
 ok 15 - a template pattern with an unresolved component source fails only when admitted
   ---
-  duration_ms: 5.436149
+  duration_ms: 4.875547
   type: 'test'
   ...
 # Subtest: PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
 ok 16 - PDP-2 recipe review keeps recipe identity distinct from template, pattern, and layout IDs
   ---
-  duration_ms: 4361.02085
+  duration_ms: 2895.759618
   type: 'test'
   ...
 # Subtest: PDP-2 rejects stale, duplicate, and cross-domain chain references
 ok 17 - PDP-2 rejects stale, duplicate, and cross-domain chain references
   ---
-  duration_ms: 2.685148
+  duration_ms: 1.876233
   type: 'test'
   ...
 # Subtest: PDP-2 reusable composition catalogs preserve the exact template/layout/recipe/pattern populations
 ok 18 - PDP-2 reusable composition catalogs preserve the exact template/layout/recipe/pattern populations
   ---
-  duration_ms: 11.076519
+  duration_ms: 5.634885
   type: 'test'
   ...
 # Subtest: PDP-2 reusable composition validator rejects broken reciprocal and semantic chains
 ok 19 - PDP-2 reusable composition validator rejects broken reciprocal and semantic chains
   ---
-  duration_ms: 83.264033
+  duration_ms: 43.938284
   type: 'test'
   ...
 1..19
@@ -121,4 +121,4 @@ ok 19 - PDP-2 reusable composition validator rejects broken reciprocal and seman
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4602.793131
+# duration_ms 3038.000574

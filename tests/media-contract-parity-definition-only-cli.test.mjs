@@ -17,7 +17,9 @@ test('definition-only contract parity CLI passes while strict default retains it
   assert.equal(strict.status, 1, strict.stderr || strict.stdout);
   const strictOutput = `${strict.stdout}\n${strict.stderr}`;
   assert.match(strictOutput, /Media contract parity: NON-GREEN/u);
-  assert.match(strictOutput, /Agent Tool structural inventory found 4 tools/u);
+  assert.match(strictOutput, /source findings audited: 47 \(46 dispositioned; 1 unresolved\)/u);
+  assert.match(strictOutput, /explicit gaps \(1\):/u);
   assert.match(strictOutput, /PDP-1 operations remain proposal-only/u);
+  assert.doesNotMatch(strictOutput, /Agent Tool structural inventory found 4 tools/u);
   assert.doesNotMatch(strictOutput, /deferred for development completion/u);
 });

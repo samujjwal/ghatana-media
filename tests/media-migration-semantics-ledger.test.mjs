@@ -1267,8 +1267,7 @@ test("MSC-01 and MSC-09 owner-routing claims are reconciled at bounded source sp
   const review = readYaml(reviewPath);
   const evidence = review.migrationClaimReconciliations;
   const plan = readFileSync(resolve(root, sourcePath), "utf8").split("\n");
-  const checklistPath = "/home/samujjwal/Downloads/Ghatana-Media-TODO-Checklist-2026-10-07.md";
-  const checklist = readFileSync(checklistPath, "utf8");
+  const checklist = readFileSync(resolve(root, "docs/implementation/media-task-completion-blocker-report-2026-10-08.md"), "utf8");
   const authority = readYaml(".product-experience/authority-map.yaml");
   const decisions = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
   const truth = readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md"), "utf8");
@@ -1321,8 +1320,8 @@ test("MSC-01 and MSC-09 owner-routing claims are reconciled at bounded source sp
   assert.equal(scopedRoutingClaims.filter(({ disposition }) => disposition === "superseded").length, 2);
   assert.equal(scopedRoutingClaims.filter(({ disposition }) => disposition === "unresolved").length, 0);
   assert.ok(scopedRoutingClaims.every(({ acceptanceEffect }) => acceptanceEffect === "none"), "new MSC-01/09 routing claims remain non-accepting source proposals");
-  assert.match(checklist, /`P0-04` \| P0 \| Resolve ProductDefinition actor/u);
-  assert.match(checklist, /`P0-05` \| P0 \| Resolve ProductDefinition rules/u);
+  assert.match(checklist, /#### P0-04 Resolve ProductDefinition actor, user intent, requirement and journey mappings/u);
+  assert.match(checklist, /#### P0-05 Resolve ProductDefinition rules, invariants, trust and ownership/u);
   assert.doesNotMatch(checklist, /`P0-004`|`P0-005`/u);
 
   assert.match(authority.phaseAuthorities[0].scope, /product-level\s+policy/u);

@@ -2,361 +2,361 @@ TAP version 13
 # Subtest: J03-2 binds only the existing audio transcription-submission identity
 ok 1 - J03-2 binds only the existing audio transcription-submission identity
   ---
-  duration_ms: 6.195426
+  duration_ms: 4.486748
   type: 'test'
   ...
 # Subtest: request snapshot, scoped key, profile, language, receipt, and reconciliation match P1/P2/P3
 ok 2 - request snapshot, scoped key, profile, language, receipt, and reconciliation match P1/P2/P3
   ---
-  duration_ms: 1.199532
+  duration_ms: 1.354167
   type: 'test'
   ...
 # Subtest: the screen preserves the selected submission consequence and keeps every bound action not admitted
 ok 3 - the screen preserves the selected submission consequence and keeps every bound action not admitted
   ---
-  duration_ms: 0.434496
+  duration_ms: 0.465412
   type: 'test'
   ...
 # Subtest: negative mutations reject wrong IDs, broadened effects, status edges, and false admission
 ok 4 - negative mutations reject wrong IDs, broadened effects, status edges, and false admission
   ---
-  duration_ms: 13.615573
+  duration_ms: 8.06233
   type: 'test'
   ...
 # Subtest: J03 submission definition changes no journey, step, action, or runtime-evidence population
 ok 5 - J03 submission definition changes no journey, step, action, or runtime-evidence population
   ---
-  duration_ms: 2333.184378
+  duration_ms: 1587.707061
   type: 'test'
   ...
 # Subtest: all 130 journey steps bind an immediate result to an exact resolvable source
 ok 6 - all 130 journey steps bind an immediate result to an exact resolvable source
   ---
-  duration_ms: 12.76857
+  duration_ms: 8.107285
   type: 'test'
   ...
 # Subtest: source-backed result refs do not contradict the journey step mirror
 ok 7 - source-backed result refs do not contradict the journey step mirror
   ---
-  duration_ms: 0.881769
+  duration_ms: 0.723147
   type: 'test'
   ...
 # Subtest: J-03 job-status mirror uses the bounded P1 query result while its historical snapshot stays pinned
 ok 8 - J-03 job-status mirror uses the bounded P1 query result while its historical snapshot stays pinned
   ---
-  duration_ms: 0.39516
+  duration_ms: 0.283291
   type: 'test'
   ...
 # Subtest: PDP-1 operation selectors resolve exact array records and reject dotted pseudo-identities
 ok 9 - PDP-1 operation selectors resolve exact array records and reject dotted pseudo-identities
   ---
-  duration_ms: 2.000213
+  duration_ms: 2.543418
   type: 'test'
   ...
 # Subtest: each PDP-1 journey operation join is projected with exact operation, object, state, authority, and requirement refs
 ok 10 - each PDP-1 journey operation join is projected with exact operation, object, state, authority, and requirement refs
   ---
-  duration_ms: 11.21763
+  duration_ms: 11.255278
   type: 'test'
   ...
 # Subtest: PDP-3 step bindings reject different but valid same-source identities and reordered commands
 ok 11 - PDP-3 step bindings reject different but valid same-source identities and reordered commands
   ---
-  duration_ms: 1.912038
+  duration_ms: 2.42956
   type: 'test'
   ...
 # Subtest: artifact state observation is a supporting read, never artifact availability or erase finality
 ok 12 - artifact state observation is a supporting read, never artifact availability or erase finality
   ---
-  duration_ms: 1.105661
+  duration_ms: 1.363743
   type: 'test'
   ...
 # Subtest: J-02 exact-version inspection binds the source-backed time-scoped disposition query
 ok 13 - J-02 exact-version inspection binds the source-backed time-scoped disposition query
   ---
-  duration_ms: 0.419734
+  duration_ms: 0.451394
   type: 'test'
   ...
 # Subtest: all 130 step-purpose records resolve exact PDP-0 purpose and PDP-3 bindings
 ok 14 - all 130 step-purpose records resolve exact PDP-0 purpose and PDP-3 bindings
   ---
-  duration_ms: 15.092289
+  duration_ms: 8.54243
   type: 'test'
   ...
 # Subtest: purpose classifications reject missing scope and valid but wrong non-menu operations
 ok 15 - purpose classifications reject missing scope and valid but wrong non-menu operations
   ---
-  duration_ms: 0.631578
+  duration_ms: 0.431821
   type: 'test'
   ...
 # Subtest: capability choice alternatives are source-checked against the journey purpose
 ok 16 - capability choice alternatives are source-checked against the journey purpose
   ---
-  duration_ms: 1.671899
+  duration_ms: 1.005465
   type: 'test'
   ...
 # Subtest: capability alternatives resolve through frozen PDP-1 contracts without requiring P0 operation references
 ok 17 - capability alternatives resolve through frozen PDP-1 contracts without requiring P0 operation references
   ---
-  duration_ms: 4.363762
+  duration_ms: 3.025333
   type: 'test'
   ...
 # Subtest: rights/consent guard derives only from two exact current permitted query receipts
 ok 18 - rights/consent guard derives only from two exact current permitted query receipts
   ---
-  duration_ms: 9527.145401
+  duration_ms: 7749.033882
   type: 'test'
   ...
 # Subtest: rights/consent guard holds on missing, stale, foreign, mismatched, or malformed facts
 ok 19 - rights/consent guard holds on missing, stale, foreign, mismatched, or malformed facts
   ---
-  duration_ms: 4.298136
+  duration_ms: 2.335268
   type: 'test'
   ...
 # Subtest: unbound guard names and guard fact schemas cannot be substituted by arbitrary records
 ok 20 - unbound guard names and guard fact schemas cannot be substituted by arbitrary records
   ---
-  duration_ms: 0.849519
+  duration_ms: 0.429539
   type: 'test'
   ...
 # Subtest: all 130 steps bind fail-closed, but fixture booleans never establish guard semantics
 ok 21 - all 130 steps bind fail-closed, but fixture booleans never establish guard semantics
   ---
-  duration_ms: 13.48863
+  duration_ms: 8.133869
   type: 'test'
   ...
 # Subtest: all 130 projected steps retain exact action and step recovery source clauses
 ok 22 - all 130 projected steps retain exact action and step recovery source clauses
   ---
-  duration_ms: 455.696047
+  duration_ms: 373.263775
   type: 'test'
   ...
 # Subtest: step source-binding coverage is not reported as guard-semantic completion
 ok 23 - step source-binding coverage is not reported as guard-semantic completion
   ---
-  duration_ms: 1.030261
+  duration_ms: 0.923787
   type: 'test'
   ...
 # Subtest: J-05 capability alternatives follow source-analysis purpose, not create-image/create-video labels
 ok 24 - J-05 capability alternatives follow source-analysis purpose, not create-image/create-video labels
   ---
-  duration_ms: 5.248116
+  duration_ms: 3.411001
   type: 'test'
   ...
 # Subtest: step oracle enrichment preserves the distinction between source bindings and evaluated guards
 ok 25 - step oracle enrichment preserves the distinction between source bindings and evaluated guards
   ---
-  duration_ms: 14.626484
+  duration_ms: 3.034096
   type: 'test'
   ...
 # Subtest: step oracle rejects stale or forged source and target tuples and never treats unknown as retry permission
 ok 26 - step oracle rejects stale or forged source and target tuples and never treats unknown as retry permission
   ---
-  duration_ms: 0.840536
+  duration_ms: 0.773095
   type: 'test'
   ...
 # Subtest: J-06 operation identities remain distinct across the explicit invocation adapter chain
 ok 27 - J-06 operation identities remain distinct across the explicit invocation adapter chain
   ---
-  duration_ms: 1.110071
+  duration_ms: 1.156693
   type: 'test'
   ...
 # Subtest: source-bound step scenario refs are exact in the step oracle
 ok 28 - source-bound step scenario refs are exact in the step oracle
   ---
-  duration_ms: 1.624781
+  duration_ms: 1.759362
   type: 'test'
   ...
 # Subtest: all 96 guarded domain, identity and ordered-workflow steps have exact guard contract rows
 ok 29 - all 96 guarded domain, identity and ordered-workflow steps have exact guard contract rows
   ---
-  duration_ms: 6.69134
+  duration_ms: 6.747775
   type: 'test'
   ...
 # Subtest: guard source references resolve to exact action, operation and observation definitions
 ok 30 - guard source references resolve to exact action, operation and observation definitions
   ---
-  duration_ms: 5.736201
+  duration_ms: 4.365582
   type: 'test'
   ...
 # Subtest: all 58 unique guards have typed predicate definitions with source-only boundaries
 ok 31 - all 58 unique guards have typed predicate definitions with source-only boundaries
   ---
-  duration_ms: 1.243014
+  duration_ms: 1.19265
   type: 'test'
   ...
 # Subtest: P3 guard fact coverage distinguishes implemented query facts from the unresolved population
 ok 32 - P3 guard fact coverage distinguishes implemented query facts from the unresolved population
   ---
-  duration_ms: 0.689269
+  duration_ms: 0.697025
   type: 'test'
   ...
 # Subtest: typed no-mutation dispositions reject missing or invalid reasons
 ok 33 - typed no-mutation dispositions reject missing or invalid reasons
   ---
-  duration_ms: 21.631253
+  duration_ms: 11.966431
   type: 'test'
   ...
 # Subtest: applicable conflict paths bind exact P0 exception and recovery sources
 ok 34 - applicable conflict paths bind exact P0 exception and recovery sources
   ---
-  duration_ms: 2617.788891
+  duration_ms: 1551.596136
   type: 'test'
   ...
 # Subtest: all 130 PDP-3 journey steps preserve their exact source facts and action disposition
 ok 35 - all 130 PDP-3 journey steps preserve their exact source facts and action disposition
   ---
-  duration_ms: 1840.211007
+  duration_ms: 1104.671626
   type: 'test'
   ...
 # Subtest: ambiguous live-session steps are not rebound to unrelated generic job actions
 ok 36 - ambiguous live-session steps are not rebound to unrelated generic job actions
   ---
-  duration_ms: 58.457133
+  duration_ms: 33.468831
   type: 'test'
   ...
 # Subtest: first-use identity step binds the approved Media adapter definition without claiming Shared wire or runtime acceptance
 ok 37 - first-use identity step binds the approved Media adapter definition without claiming Shared wire or runtime acceptance
   ---
-  duration_ms: 6.300313
+  duration_ms: 3.448793
   type: 'test'
   ...
 # Subtest: all 130 step version-binding definitions join exact journey and P1 identity sources
 ok 38 - all 130 step version-binding definitions join exact journey and P1 identity sources
   ---
-  duration_ms: 21.584612
+  duration_ms: 12.64281
   type: 'test'
   ...
 # Subtest: all projected journey steps have exact version semantics or a source-backed UNKNOWN disposition
 ok 39 - all projected journey steps have exact version semantics or a source-backed UNKNOWN disposition
   ---
-  duration_ms: 38.49502
+  duration_ms: 26.738194
   type: 'test'
   ...
 # Subtest: local draft steps bind only their host-session revision CAS
 ok 40 - local draft steps bind only their host-session revision CAS
   ---
-  duration_ms: 0.732029
+  duration_ms: 0.717462
   type: 'test'
   ...
 # Subtest: J-02 begin-upload does not require an artifact version before the owner issues one
 ok 41 - J-02 begin-upload does not require an artifact version before the owner issues one
   ---
-  duration_ms: 0.506839
+  duration_ms: 0.49489
   type: 'test'
   ...
 # Subtest: canonical version joins compare a complete trusted tuple and reject valid-looking foreign aliases
 ok 42 - canonical version joins compare a complete trusted tuple and reject valid-looking foreign aliases
   ---
-  duration_ms: 1.325895
+  duration_ms: 1.29676
   type: 'test'
   ...
 # Subtest: transitive caption reads require both exact caption identities to join the same selected source version
 ok 43 - transitive caption reads require both exact caption identities to join the same selected source version
   ---
-  duration_ms: 1.321371
+  duration_ms: 1.365533
   type: 'test'
   ...
 # Subtest: consent revision joins require a current, exact tenant and purpose read plus canonical revision identity
 ok 44 - consent revision joins require a current, exact tenant and purpose read plus canonical revision identity
   ---
-  duration_ms: 2.510404
+  duration_ms: 2.508014
   type: 'test'
   ...
 # Subtest: versioned operation request selectors resolve exact operation fields and expose uncovered inputs
 ok 45 - versioned operation request selectors resolve exact operation fields and expose uncovered inputs
   ---
-  duration_ms: 22.615502
+  duration_ms: 11.104692
   type: 'test'
   ...
 # Subtest: J-01 project inspection binds the owner-returned exact head revision
 ok 46 - J-01 project inspection binds the owner-returned exact head revision
   ---
-  duration_ms: 0.969858
+  duration_ms: 0.873101
   type: 'test'
   ...
 # Subtest: J-02 exact-version inspection joins one owner query and both exact request identities
 ok 47 - J-02 exact-version inspection joins one owner query and both exact request identities
   ---
-  duration_ms: 4.349096
+  duration_ms: 1.124143
   type: 'test'
   ...
 # Subtest: J-22 delivery request binds one exact artifact version without claiming destination delivery
 ok 48 - J-22 delivery request binds one exact artifact version without claiming destination delivery
   ---
-  duration_ms: 0.635965
+  duration_ms: 0.519584
   type: 'test'
   ...
 # Subtest: scope guards derive truth from exact scoped identities and verified query result shape
 ok 49 - scope guards derive truth from exact scoped identities and verified query result shape
   ---
-  duration_ms: 20.139299
+  duration_ms: 10.290974
   type: 'test'
   ...
 # Subtest: artifact inspection requires the exact immutable artifact-version pair
 ok 50 - artifact inspection requires the exact immutable artifact-version pair
   ---
-  duration_ms: 11.261143
+  duration_ms: 6.744437
   type: 'test'
   ...
 # Subtest: authority guards require exact actor, operation, target, scope, validity and admitted capability
 ok 51 - authority guards require exact actor, operation, target, scope, validity and admitted capability
   ---
-  duration_ms: 16.417066
+  duration_ms: 6.970765
   type: 'test'
   ...
 # Subtest: continuity guards distinguish an exact continuation from a current revision conflict
 ok 52 - continuity guards distinguish an exact continuation from a current revision conflict
   ---
-  duration_ms: 9.726826
+  duration_ms: 5.149346
   type: 'test'
   ...
 # Subtest: typed observation guards require exact subject, purpose, version and evidence
 ok 53 - typed observation guards require exact subject, purpose, version and evidence
   ---
-  duration_ms: 10.854375
+  duration_ms: 7.34939
   type: 'test'
   ...
 # Subtest: caption validity, source clocks, two-version comparison, and language intent are guard-specific
 ok 54 - caption validity, source clocks, two-version comparison, and language intent are guard-specific
   ---
-  duration_ms: 44.261723
+  duration_ms: 23.853658
   type: 'test'
   ...
 # Subtest: receipt currentness, expected version, step binding and fingerprint fail closed
 ok 55 - receipt currentness, expected version, step binding and fingerprint fail closed
   ---
-  duration_ms: 2.977958
+  duration_ms: 1.488689
   type: 'test'
   ...
 # Subtest: stream guards derive session, lease, frame, budget and sequence facts structurally
 ok 56 - stream guards derive session, lease, frame, budget and sequence facts structurally
   ---
-  duration_ms: 27.851144
+  duration_ms: 22.2282
   type: 'test'
   ...
 # Subtest: job guards require exact canonical job and attempt state evidence
 ok 57 - job guards require exact canonical job and attempt state evidence
   ---
-  duration_ms: 17.382553
+  duration_ms: 11.485268
   type: 'test'
   ...
 # Subtest: explicit time ticks must be user supplied and fit the exact source clock
 ok 58 - explicit time ticks must be user supplied and fit the exact source clock
   ---
-  duration_ms: 12.912334
+  duration_ms: 4.982666
   type: 'test'
   ...
 # Subtest: every indexed step-guard instance fails closed without a receipt
 ok 59 - every indexed step-guard instance fails closed without a receipt
   ---
-  duration_ms: 1.574267
+  duration_ms: 1.628422
   type: 'test'
   ...
 # Subtest: PDP-3 reconciles the frozen J03-2 handoff references as distinct lineage and projection decisions
 ok 60 - PDP-3 reconciles the frozen J03-2 handoff references as distinct lineage and projection decisions
   ---
-  duration_ms: 1.834528
+  duration_ms: 6.65363
   type: 'test'
   ...
 1..60
@@ -367,4 +367,4 @@ ok 60 - PDP-3 reconciles the frozen J03-2 handoff references as distinct lineage
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 51555.10012
+# duration_ms 42755.042163

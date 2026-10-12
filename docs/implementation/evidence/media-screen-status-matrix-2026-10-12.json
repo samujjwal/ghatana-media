@@ -1,0 +1,434 @@
+{
+  "schemaVersion": "media.screen-status-matrix.v1",
+  "sourceRegistry": ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+  "observationScope": "local Explorer and Media renderer source; not production deployment or product route admission",
+  "counts": {
+    "CONTRACT_PREVIEW": 35,
+    "LOCAL_SIMULATION": 12
+  },
+  "screens": [
+    {
+      "screenId": "media.view.resume-work",
+      "label": "Resume work",
+      "declaredRoute": "/",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.find-projects",
+      "label": "Find projects",
+      "declaredRoute": "/projects",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "first-use-project:find-projects",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.work-in-project",
+      "label": "Work in a project",
+      "declaredRoute": "/projects/:id",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "first-use-project:work-in-project",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.browse-media",
+      "label": "Browse media",
+      "declaredRoute": "/assets",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "artifact-intake:browse-media",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.inspect-media",
+      "label": "Inspect media",
+      "declaredRoute": "/assets/:id",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "artifact-intake:inspect-media",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.import-media",
+      "label": "Import media",
+      "declaredRoute": "Contextual upload/import view",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "artifact-intake:import-media",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.create-media",
+      "label": "Create media",
+      "declaredRoute": "/create",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-creation-plan",
+      "label": "Review a creation plan",
+      "declaredRoute": "Project plan view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.arrange-scenes",
+      "label": "Arrange scenes",
+      "declaredRoute": "Project storyboard",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.create-image",
+      "label": "Create an image",
+      "declaredRoute": "Project image workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.create-video",
+      "label": "Create a video",
+      "declaredRoute": "Project video workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.create-audio",
+      "label": "Create audio",
+      "declaredRoute": "Project audio workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.work-with-speech",
+      "label": "Work with speech",
+      "declaredRoute": "Project speech workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.use-authorized-voice",
+      "label": "Use an authorized voice",
+      "declaredRoute": "Project authorized voice workflow",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.edit-captions",
+      "label": "Edit captions",
+      "declaredRoute": "Project caption editor",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-dubbing",
+      "label": "Review dubbing",
+      "declaredRoute": "Project dubbing workflow",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.improve-media",
+      "label": "Improve media",
+      "declaredRoute": "Project enhancement view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.compare-results",
+      "label": "Compare results",
+      "declaredRoute": "Artifact/version comparison",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.edit-media",
+      "label": "Edit media",
+      "declaredRoute": "Project edit workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.edit-media-region",
+      "label": "Edit a media region",
+      "declaredRoute": "Edit mask/tracking view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.animate-media",
+      "label": "Animate media",
+      "declaredRoute": "Project animation workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.compose-scene",
+      "label": "Compose a scene",
+      "declaredRoute": "Project scene workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.explore-simulation",
+      "label": "Explore a simulation",
+      "declaredRoute": "Project simulation workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.compose-media",
+      "label": "Compose media",
+      "declaredRoute": "Project composition workspace",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.adjust-color",
+      "label": "Adjust color",
+      "declaredRoute": "Composition color view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-quality",
+      "label": "Review quality",
+      "declaredRoute": "Project quality view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.prepare-render",
+      "label": "Prepare a render",
+      "declaredRoute": "Project render setup",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-activity",
+      "label": "Review activity",
+      "declaredRoute": "/activity",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.job-status",
+      "label": "View job status",
+      "declaredRoute": "/jobs/:id",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "job-recovery:job-status",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-outputs",
+      "label": "Review outputs",
+      "declaredRoute": "Project outputs",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.inspect-output",
+      "label": "Inspect an output",
+      "declaredRoute": "/outputs/:id",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.deliver-output",
+      "label": "Deliver an output",
+      "declaredRoute": "Project delivery view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-exact-version",
+      "label": "Review an exact version",
+      "declaredRoute": "/reviews/:id",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-rights-and-consent",
+      "label": "Review rights and consent",
+      "declaredRoute": "Contextual rights view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.inspect-provenance",
+      "label": "Inspect provenance",
+      "declaredRoute": "Artifact provenance view",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.choose-eligible-processing-option",
+      "label": "Choose an eligible processing option",
+      "declaredRoute": "Advanced project/admin context",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.check-processing-options",
+      "label": "Check processing options",
+      "declaredRoute": "Operator-only capability context",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.check-processing-readiness",
+      "label": "Check processing readiness",
+      "declaredRoute": "Operator console",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-workspace-settings",
+      "label": "Review workspace settings",
+      "declaredRoute": "/settings",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.authenticate-and-select-context",
+      "label": "Authenticate and select context",
+      "declaredRoute": "Authentication/tenant handoff",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "first-use-project:authenticate-and-select-context",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.find-task-guidance",
+      "label": "Find task guidance",
+      "declaredRoute": "Contextual help/command guide",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.select-source",
+      "label": "Select a source",
+      "declaredRoute": "Contextual route not specified",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "transcript-caption:select-source",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.monitor-transcription",
+      "label": "Monitor transcription",
+      "declaredRoute": "Contextual route not specified",
+      "status": "CONTRACT_PREVIEW",
+      "runtimeBinding": "MediaContractScreen definition preview",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.review-transcript",
+      "label": "Review a transcript",
+      "declaredRoute": "Contextual route not specified",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "transcript-caption:review-transcript",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.correct-captions",
+      "label": "Correct captions",
+      "declaredRoute": "Contextual route not specified",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "transcript-caption:correct-captions",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.compare-caption-versions",
+      "label": "Compare caption versions",
+      "declaredRoute": "Contextual route not specified",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "transcript-caption:compare-caption-versions",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    },
+    {
+      "screenId": "media.view.check-job-outcome",
+      "label": "Check job outcome",
+      "declaredRoute": "Contextual route not specified",
+      "status": "LOCAL_SIMULATION",
+      "runtimeBinding": "job-recovery:check-job-outcome",
+      "productRoute": "NOT_ADMITTED",
+      "networkCapability": "NOT_CLAIMED"
+    }
+  ]
+}

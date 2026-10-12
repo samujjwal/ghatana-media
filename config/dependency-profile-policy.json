@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "media.dependency-profile-policy.v1",
+  "productId": "media",
+  "defaultProfile": "DEV_SOURCE_COMPOSITE",
+  "profiles": {
+    "DEV_SOURCE_COMPOSITE": {
+      "resolution": "pinned local sibling and workspace sources may be substituted for declared public coordinates",
+      "purpose": "source development and targeted integration against checked-out owner implementations",
+      "releaseEligible": false,
+      "requiredDependencyIds": [],
+      "authorityBoundary": "Source presence does not establish publication, immutable identity, license admission, or consumer qualification."
+    },
+    "RELEASE_ARTIFACT_ONLY": {
+      "resolution": "owner-issued immutable artifacts only; sibling builds and workspace source links are disabled",
+      "purpose": "isolated release-consumer verification after each dependency has an admitted artifact record",
+      "releaseEligible": false,
+      "status": "NOT_ADMITTED",
+      "requiredDependencyIds": [
+        "shared-platform-java",
+        "tools-java-runtime",
+        "kernel-product-api",
+        "ghatana-platform-project-apis",
+        "shared-typescript-ui",
+        "tools-product-development-typescript"
+      ],
+      "requiredEvidence": [
+        "owner",
+        "ownerDecisionRef",
+        "coordinates",
+        "version",
+        "artifactSha256",
+        "licenseExpression",
+        "licenseReportRef",
+        "sbomSha256",
+        "installedConsumerTestRef",
+        "sourceFree"
+      ],
+      "forbiddenVersionSubstrings": ["SNAPSHOT"],
+      "authorityBoundary": "The local lock validator checks evidence fields and digests; it cannot issue an upstream owner decision or license approval."
+    }
+  },
+  "dependencyBoundaries": [
+    {
+      "id": "shared-platform-java",
+      "owner": "ghatana-shared",
+      "consumption": "Java runtime, compile-time and test support",
+      "sourceBinding": "settings.gradle.kts composite substitutions for com.ghatana.platform coordinates",
+      "toolchainOwnsVersionSelection": true
+    },
+    {
+      "id": "tools-java-runtime",
+      "owner": "ghatana-tools",
+      "consumption": "Java runtime and compile-time Agent Tool APIs",
+      "sourceBinding": "settings.gradle.kts composite substitutions for com.ghatana.platform tool-runtime coordinates",
+      "toolchainOwnsVersionSelection": true
+    },
+    {
+      "id": "kernel-product-api",
+      "owner": "ghatana-kernel",
+      "consumption": "Java product API",
+      "sourceBinding": "settings.gradle.kts composite substitution for com.ghatana.kernel:kernel-product-api",
+      "toolchainOwnsVersionSelection": true
+    },
+    {
+      "id": "ghatana-platform-project-apis",
+      "owner": "ghatana",
+      "consumption": "Java launcher support, integration test utilities, Event Plane contracts, Data Cloud APIs, and AI Inference APIs",
+      "sourceBinding": "standalone settings.gradle.kts project inclusion from the sibling monorepo",
+      "toolchainOwnsVersionSelection": true
+    },
+    {
+      "id": "shared-typescript-ui",
+      "owner": "ghatana-shared",
+      "consumption": "Media UI runtime packages",
+      "sourceBinding": "pnpm workspace and @ghatana/design-system, @ghatana/theme, and @ghatana/tokens",
+      "toolchainOwnsVersionSelection": true
+    },
+    {
+      "id": "tools-product-development-typescript",
+      "owner": "ghatana-tools",
+      "consumption": "Media definition and Explorer development tooling",
+      "sourceBinding": "pnpm sibling workspace packages under libs/product-development",
+      "toolchainOwnsVersionSelection": true
+    },
+    {
+      "id": "lifecycle-surface-experience-pack-candidate",
+      "owner": "ghatana-lifecycle",
+      "consumption": "test-only source candidate; no native Media runtime binding",
+      "sourceBinding": "read-only Explorer development adapter when available",
+      "releaseArtifactRequiredNow": false,
+      "nativeAdmission": "NOT_ADMITTED"
+    },
+    {
+      "id": "third-party-locked-dependencies",
+      "owner": "toolchain-and-package-publishers",
+      "consumption": "Gradle, pnpm, Cargo and container dependency closures",
+      "sourceBinding": "product-owned version catalog and lock files",
+      "releaseEvidenceSource": "scripts/report-media-dependency-inventory.mjs",
+      "licenseAdmission": "REVIEW_REQUIRED"
+    }
+  ]
+}

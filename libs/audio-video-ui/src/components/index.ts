@@ -97,7 +97,9 @@ export { MEDIA_COMPONENT_RUNTIME_CONTRACTS, validateMediaFamilyProjection } from
 export type { MediaFamilyProjectionValidation } from "./MediaComponentRuntimeContracts";
 export type {
   MediaTaskAction,
+  MediaTaskColorScheme,
   MediaTaskCurrentProjection,
+  MediaTaskDensity,
   MediaTaskFlowProps,
   MediaTaskOperation,
   MediaTaskOperationObservation,

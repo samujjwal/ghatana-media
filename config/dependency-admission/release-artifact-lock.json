@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "media.release-artifact-lock.v1",
+  "profile": "RELEASE_ARTIFACT_ONLY",
+  "status": "NOT_ADMITTED",
+  "authority": "LOCAL_CANDIDATE_ONLY_NO_OWNER_APPROVAL",
+  "artifacts": [],
+  "unresolvedDependencyIds": [
+    "shared-platform-java",
+    "tools-java-runtime",
+    "kernel-product-api",
+    "ghatana-platform-project-apis",
+    "shared-typescript-ui",
+    "tools-product-development-typescript"
+  ],
+  "missingEvidence": [
+    "owner-issued coordinates and owner decision references",
+    "immutable artifact and SBOM digests",
+    "complete license expressions and transitive license report",
+    "source-free installed-consumer results"
+  ],
+  "reason": "No complete immutable artifact, owner decision, license/SBOM record, and source-free installed-consumer evidence set has been admitted."
+}

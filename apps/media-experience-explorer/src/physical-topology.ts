@@ -50,12 +50,29 @@ export function applicabilityRelation(disposition: string): "DIRECT" | "REFERENC
 }
 
 export function consumersFor(selection: TopologySelection, node: TopologyNode) {
-  const descendants = (id: string, visited = new Set<string>()): string[] => {
-    if (visited.has(id)) return [];
+  const physicalIds = physicalMembersFor(selection, node).map((item) => item.surfaceId);
+  return mediaPhysicalTopology.consumerCrosswalk.filter((consumer) => consumer.physicalRefs.some((ref) => physicalIds.includes(ref)));
+}
+
+export function directChildrenFor(node: TopologyNode): TopologyNode[] {
+  return (node.children ?? []).map((id) => mediaPhysicalTopology.manifestCandidates.find((candidate) => candidate.surfaceId === id)
+    ?? mediaPhysicalTopology.compositions.find((candidate) => candidate.surfaceId === id)).filter((item): item is TopologyNode => item !== undefined);
+}
+
+export function physicalMembersFor(selection: TopologySelection, node: TopologyNode): TopologyNode[] {
+  if (selection.kind === "physical") return [node];
+  const members = new Map<string, TopologyNode>();
+  const descendants = (id: string, visited = new Set<string>()) => {
+    if (visited.has(id)) return;
     visited.add(id);
     const composition = mediaPhysicalTopology.compositions.find((entry) => entry.surfaceId === id);
-    return composition ? (composition.children ?? []).flatMap((childId) => descendants(childId, visited)) : [id];
+    if (composition) {
+      for (const childId of composition.children ?? []) descendants(childId, visited);
+      return;
+    }
+    const physical = mediaPhysicalTopology.manifestCandidates.find((candidate) => candidate.surfaceId === id);
+    if (physical) members.set(physical.surfaceId, physical);
   };
-  const physicalIds = selection.kind === "physical" ? [node.surfaceId] : descendants(node.surfaceId);
-  return mediaPhysicalTopology.consumerCrosswalk.filter((consumer) => consumer.physicalRefs.some((ref) => physicalIds.includes(ref)));
+  descendants(node.surfaceId);
+  return [...members.values()];
 }

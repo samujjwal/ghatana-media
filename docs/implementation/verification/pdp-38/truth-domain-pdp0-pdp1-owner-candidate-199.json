@@ -6025,17 +6025,18 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+              "currentSourceFileSha256": "3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "67278a175ed6f0cc952e8095f0169199ae8b26c8afd891824fb8af7d7be13849",
-              "reason": "Exact source-manifest value re-observed after BASE/SUR status-pin refresh. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
-              "previousCurrentSourceFileSha256": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+              "reason": "Exact source-manifest value re-observed after the generated external-owner observation was refreshed from the live sibling checkout. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
+              "previousCurrentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
               "supersededCurrentSourceFileSha256": "3e7c45f6d7e2dec70de2683b0ccd0a7151dc5df49aa891b2ca0431ea964049ad",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
                 "c63d13caed95fa575e043279b0358e80ca5c31da4324dd12ef4ba5df1db761bf",
-                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+                "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2"
               ]
             }
           },
@@ -6045,17 +6046,18 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+              "currentSourceFileSha256": "3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "fbb4c60105fedf403d0f2cc7532815a0cfcc8e543308ed59af335359f3657531",
-              "reason": "Exact source-manifest value re-observed after BASE/SUR status-pin refresh. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
-              "previousCurrentSourceFileSha256": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+              "reason": "Exact source-manifest value re-observed after the generated external-owner observation was refreshed from the live sibling checkout. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
+              "previousCurrentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
               "supersededCurrentSourceFileSha256": "3e7c45f6d7e2dec70de2683b0ccd0a7151dc5df49aa891b2ca0431ea964049ad",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
                 "c63d13caed95fa575e043279b0358e80ca5c31da4324dd12ef4ba5df1db761bf",
-                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+                "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2"
               ]
             }
           },
@@ -6065,17 +6067,18 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+              "currentSourceFileSha256": "3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "a17ac49c8e9910dde9ed73c970ecf324ac48b981daaddba6e93cf7d46b062749",
-              "reason": "Exact source-manifest value re-observed after BASE/SUR status-pin refresh. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
-              "previousCurrentSourceFileSha256": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+              "reason": "Exact source-manifest value re-observed after the generated external-owner observation was refreshed from the live sibling checkout. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
+              "previousCurrentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
               "supersededCurrentSourceFileSha256": "3e7c45f6d7e2dec70de2683b0ccd0a7151dc5df49aa891b2ca0431ea964049ad",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
                 "c63d13caed95fa575e043279b0358e80ca5c31da4324dd12ef4ba5df1db761bf",
-                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+                "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2"
               ]
             }
           },
@@ -6085,17 +6088,18 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+              "currentSourceFileSha256": "3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "82b11bb8e13b567c0f76d554cfdbf2b5ef4d0802e1e47a85daf0f964fdd5e2a0",
-              "reason": "Exact source-manifest value re-observed after BASE/SUR status-pin refresh. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
-              "previousCurrentSourceFileSha256": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+              "reason": "Exact source-manifest value re-observed after the generated external-owner observation was refreshed from the live sibling checkout. Historical source-file digests and selected value pins are preserved; the material review remains pending and acceptanceEffect remains none.",
+              "previousCurrentSourceFileSha256": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
               "supersededCurrentSourceFileSha256": "3e7c45f6d7e2dec70de2683b0ccd0a7151dc5df49aa891b2ca0431ea964049ad",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
                 "c63d13caed95fa575e043279b0358e80ca5c31da4324dd12ef4ba5df1db761bf",
-                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+                "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+                "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2"
               ]
             }
           }

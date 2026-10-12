@@ -3002,9 +3002,9 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.match(output, /Media contract parity: NON-GREEN/u);
   assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
   assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /source findings audited: 47 \(45 dispositioned; 2 unresolved\)/u);
-  assert.match(output, /source-dispositioned findings: 45/u);
-  assert.match(output, /historical source findings: 52 \(50 dispositioned; 2 unresolved; 5 retired routes\)/u);
+  assert.match(output, /source findings audited: 47 \(46 dispositioned; 1 unresolved\)/u);
+  assert.match(output, /source-dispositioned findings: 46/u);
+  assert.match(output, /historical source findings: 52 \(51 dispositioned; 1 unresolved; 5 retired routes\)/u);
 });
 
 test("screen composition records retain Shared-boundary design metadata", () => {

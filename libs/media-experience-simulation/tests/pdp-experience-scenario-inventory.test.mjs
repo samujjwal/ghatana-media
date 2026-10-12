@@ -55,6 +55,41 @@ test("PDP-3 scenario inventory has a deterministic seed or an explicit non-execu
     "the conditional retry scenario has no source-backed eligibility evidence");
 });
 
+test("scenario seeds stay limited to four journeys while all other journeys remain bounded oracles", () => {
+  const audit = scenarioRegistry.unseededJourneyFixtureAudit;
+  const coverage = scenarioRegistry.journeyCoverage;
+  const seededJourneyIds = ["J-01", "J-02", "J-03", "J-20"];
+  const selectedCandidateIds = ["J-04", "J-05", "J-07", "J-08", "J-09", "J-16", "J-18", "J-26"];
+
+  assert.equal(coverage.journeyContractCount, 30);
+  assert.equal(coverage.journeysWithOneOrMoreExactScenarioSeeds, 4);
+  assert.equal(coverage.journeyContractsWithoutExactScenarioSeeds, 26);
+  assert.deepEqual(coverage.journeysWithExactSimulationSeeds, seededJourneyIds);
+  assert.equal(audit.planJourneyDenominator, 30);
+  assert.equal(audit.scenarioSeededJourneyCount, 4);
+  assert.equal(audit.unseededJourneyCount, 26);
+  assert.equal(audit.records.length, 26);
+  assert.ok(audit.status.includes("ALL_26_UNSEEDED_JOURNEYS_HAVE_BOUNDED_SYNTHETIC_DEFINITION_ORACLES"));
+
+  const unseededById = new Map(audit.records.map((record) => [record.journeyRef, record]));
+  assert.equal(unseededById.size, 26);
+  for (const journeyId of selectedCandidateIds) {
+    const record = unseededById.get(journeyId);
+    assert.ok(record, `${journeyId} remains in the bounded-oracle-only set`);
+    assert.deepEqual(record.scenarioRefs, [], `${journeyId} has no rich state seed without exact owner facts`);
+    assert.ok(record.oracleSteps.length > 0, `${journeyId} retains its source-linked step oracles`);
+    assert.ok(record.oracleSteps.every((step) => step.scenarioRefs.length === 0 &&
+      step.fixtureOracleStatus === "EXACT_STEP_ORACLE_AND_FIXTURE_COVERAGE_LINKED"),
+    `${journeyId} uses exact bounded step oracles without binding scenario state`);
+    assert.match(record.fixtureDisposition, /^BOUNDED_SYNTHETIC_DEFINITION_FIXTURE;/u);
+    assert.match(record.fixtureDisposition, /unbound start state and authority remain UNKNOWN/u);
+    assert.equal(record.runtimeAdmission, "NOT_ADMITTED");
+    assert.equal(record.ownerAcceptedOutcomeOracle, false);
+  }
+
+  for (const journeyId of seededJourneyIds) assert.ok(!unseededById.has(journeyId));
+});
+
 test("PDP-3 seeded scenarios enforce their declared denied, pending, and unknown outcomes", () => {
   for (const scenarioId of mediaExperienceScenarioIds) {
     const state = createFixtureState(scenarioId);

@@ -80,7 +80,7 @@ test("preserves matching OpenAPI/runtime/PDP-3 route identity while reporting se
   assert.match(result.gaps.join("\n"), /not accepted mappings/);
 });
 
-test("records four exact Media operation candidates while keeping handler parity and runtime admission open", () => {
+test("dispositions the four unadmitted Agent Tool boundaries without accepting operation parity", () => {
   const toolRegistry = readFileSync(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml", "utf8");
   const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
   const conventions = readFileSync(".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml", "utf8");
@@ -116,12 +116,42 @@ test("records four exact Media operation candidates while keeping handler parity
 
   const actual = analyzeContractParity(validStructuralInput({
     agentToolRegistry: toolRegistry,
+    agentToolConventions: conventions,
+    agentToolRuntimeDispositions: readFileSync(".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json", "utf8"),
     pdp1Operations: operations,
   }));
   assert.deepEqual(actual.gaps.filter((gap) => gap.startsWith("Agent Tool structural inventory") || gap.startsWith("semantic binding unresolved:")), [
-    "Agent Tool structural inventory found 4 tools; operation bindings and complete input/result contract parity remain pending",
     "semantic binding unresolved: PDP-1 operations remain proposal-only;; structural identities are not accepted mappings",
   ]);
+  assert.ok(actual.reconciledFindings.some(({ finding, disposition }) =>
+    finding.startsWith("Agent Tool structural inventory found 4 tools")
+      && disposition === "all-four-tool-boundaries-explicitly-unsupported-and-execution-NOT_ADMITTED"));
+  assert.equal(parsedRegistry.tools.some(({ executionAdmitted }) => executionAdmitted !== false), false);
+});
+
+test("does not disposition Agent Tool parity when a boundary reason or fail-closed status is missing", () => {
+  const toolRegistry = readFileSync(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml", "utf8");
+  const conventions = readFileSync(".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml", "utf8");
+  const operations = readFileSync(".product-experience/pdp-1-domain-data/operations.yaml", "utf8");
+  const dispositions = JSON.parse(readFileSync(".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json", "utf8"));
+  dispositions.tools[0].requestMapping.reason = "";
+  const result = analyzeContractParity(validStructuralInput({
+    agentToolRegistry: toolRegistry,
+    agentToolConventions: conventions,
+    agentToolRuntimeDispositions: JSON.stringify(dispositions),
+    pdp1Operations: operations,
+  }));
+  assert.ok(result.gaps.some((gap) => gap.startsWith("Agent Tool structural inventory found 4 tools")));
+
+  dispositions.tools[0].requestMapping.reason = "A sufficiently detailed boundary reason that remains explicitly closed.";
+  dispositions.tools[0].authorityExecution.disposition = "ADMITTED";
+  const admittedBoundary = analyzeContractParity(validStructuralInput({
+    agentToolRegistry: toolRegistry,
+    agentToolConventions: conventions,
+    agentToolRuntimeDispositions: JSON.stringify(dispositions),
+    pdp1Operations: operations,
+  }));
+  assert.ok(admittedBoundary.gaps.some((gap) => gap.startsWith("Agent Tool structural inventory found 4 tools")));
 });
 
 test("detects HTTP route or operation identity drift", () => {
@@ -660,21 +690,21 @@ test("retired unsafe retry remains in historical finding census only while sourc
   assert.equal(analyzeContractParity(legacyUpload).retiredFindings.length, 2);
 });
 
-test("live source finding census keeps unresolved owner gaps and retired routes explicit", () => {
+test("live source finding census dispositionally closes only the fail-closed Agent Tool gap", () => {
   const result = analyzeContractParity(collectLiveInput());
-  // The historical source census remains 47 findings: 45 dispositioned and
-  // two open. New typed contract validation gaps stay visible in the current
-  // result without changing that historical program truth.
+  // The historical source census remains 47 findings: one Agent Tool finding
+  // now has explicit NOT_ADMITTED boundary dispositions; PDP-1 owner acceptance
+  // remains open. New typed contract gaps cannot rewrite that census.
   assert.equal(result.historicalObservedFindingCount, 47);
   assert.equal(result.observedFindingCount, 47);
-  assert.equal(result.reconciledFindings.length, 45);
-  assert.equal(result.gaps.length, 2);
+  assert.equal(result.reconciledFindings.length, 46);
+  assert.equal(result.gaps.length, 1);
   assert.equal(result.historicalFindingCount, 52);
-  assert.equal(result.historicalDispositionedCount, 50);
-  assert.equal(result.historicalUnresolvedCount, 2);
+  assert.equal(result.historicalDispositionedCount, 51);
+  assert.equal(result.historicalUnresolvedCount, 1);
   assert.equal(result.typedContractGaps.length, 0);
   assert.equal(result.retiredFindings.length, 5);
-  assert.match(result.gaps.join("\n"), /Agent Tool structural inventory found 4 tools/u);
+  assert.doesNotMatch(result.gaps.join("\n"), /Agent Tool structural inventory found 4 tools/u);
   assert.match(result.gaps.join("\n"), /PDP-1 operations remain proposal-only/u);
 });
 

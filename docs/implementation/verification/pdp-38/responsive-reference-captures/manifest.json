@@ -1,11 +1,11 @@
 {
   "schemaVersion": "media.pdp-responsive-rendered-reference-captures.v1",
-  "generatedAt": "2026-10-12T16:32:56.887Z",
+  "generatedAt": "2026-10-12T19:38:10.838Z",
   "sourceBaseUrl": "http://127.0.0.1:4179/",
   "sourceFingerprints": {
     ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
     "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-    "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+    "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
     "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
     "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
   },
@@ -23,16 +23,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "review-transcript-narrow-390.png",
-      "screenshotSha256": "cebcba3e4b9e9b3a08b48e2bb8c4cd4cf5baa8867dd1d17fa10616be9457eea9",
+      "screenshotSha256": "6f1fb627f724f307f50af5b7b479a3dd00474af16c4af3bfcbf3b8b5eec2023c",
       "contractSha256": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "69caa2ebc241ebc4ff414087cb80f9e9e8b2f6ff3722dd15051c8b10ff1af89f",
+      "propProjectionSha256": "a137686793cac6053c117fccb0cb7484ace0be1219ca67bbb353981cc31ca5de",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "transcript-caption",
@@ -84,7 +84,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentTranscription and captionsFixture state",
+            "name": "1\nCURRENT\nTranscription and captions\nFixture state",
             "disabled": true
           },
           {
@@ -261,16 +261,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "review-transcript-medium-768.png",
-      "screenshotSha256": "6f09b89e914bd1d68a9f5564ad36adee34700e69b2669d60b3b1dc49dc11e3c7",
+      "screenshotSha256": "f1a690e1df074bcfcd5d1845823698f5729a6b653683ddae88efed3e1bba7c59",
       "contractSha256": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "69caa2ebc241ebc4ff414087cb80f9e9e8b2f6ff3722dd15051c8b10ff1af89f",
+      "propProjectionSha256": "a137686793cac6053c117fccb0cb7484ace0be1219ca67bbb353981cc31ca5de",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "transcript-caption",
@@ -322,7 +322,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentTranscription and captionsFixture state",
+            "name": "1\nCURRENT\nTranscription and captions\nFixture state",
             "disabled": true
           },
           {
@@ -499,16 +499,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "review-transcript-wide-1280.png",
-      "screenshotSha256": "268e43fe28c2ceb035f27968e8fa9808e857794bff6100bc8c832cc66ce23794",
+      "screenshotSha256": "49ee01f771d22ccb16fc3207d27f2e8b3589ea297f2a166d365129fc18de54d8",
       "contractSha256": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "69caa2ebc241ebc4ff414087cb80f9e9e8b2f6ff3722dd15051c8b10ff1af89f",
+      "propProjectionSha256": "a137686793cac6053c117fccb0cb7484ace0be1219ca67bbb353981cc31ca5de",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "transcript-caption",
@@ -560,7 +560,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentTranscription and captionsFixture state",
+            "name": "1\nCURRENT\nTranscription and captions\nFixture state",
             "disabled": true
           },
           {
@@ -737,16 +737,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "job-status-narrow-390.png",
-      "screenshotSha256": "5735a6417dd930f708745c1180b90f3bbd7e841718fc2fab239b851cc7fb003a",
+      "screenshotSha256": "07f4aba0074c361dfaf3392f0985e39cfeaf1aba210282919bb3fd53d6a9286a",
       "contractSha256": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "f4f138d1d673b3d04888d8cacf436362fba8c0b84b4a95065b104115438d47dc",
+      "propProjectionSha256": "6a4a8333aaedf1cdf67a0bb2f0d301b9b311abe20e50bf3e07a0eb124b0f560b",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "job-recovery",
@@ -774,7 +774,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentArtifact verificationFixture state",
+            "name": "1\nCURRENT\nArtifact verification\nFixture state",
             "disabled": true
           },
           {
@@ -867,16 +867,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "job-status-medium-768.png",
-      "screenshotSha256": "1d528136b2c2eb4cbb00e16d5c5c965a5cf9bc73727494ddcce6120066fcfbbb",
+      "screenshotSha256": "0f98b356b8627a7ad875b256f636d3e1c97ae1ba7035ee9568d2fa419fad6582",
       "contractSha256": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "f4f138d1d673b3d04888d8cacf436362fba8c0b84b4a95065b104115438d47dc",
+      "propProjectionSha256": "6a4a8333aaedf1cdf67a0bb2f0d301b9b311abe20e50bf3e07a0eb124b0f560b",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "job-recovery",
@@ -904,7 +904,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentArtifact verificationFixture state",
+            "name": "1\nCURRENT\nArtifact verification\nFixture state",
             "disabled": true
           },
           {
@@ -997,16 +997,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "job-status-wide-1280.png",
-      "screenshotSha256": "a285600fbd025d6b8a23c6fdf39ba1c66d58e2432469845f2c4c64451f66f5cc",
+      "screenshotSha256": "26564191131d2127e82cff36a0e332e11e8a29cea71b31ddee220964f7c2e878",
       "contractSha256": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "f4f138d1d673b3d04888d8cacf436362fba8c0b84b4a95065b104115438d47dc",
+      "propProjectionSha256": "6a4a8333aaedf1cdf67a0bb2f0d301b9b311abe20e50bf3e07a0eb124b0f560b",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "job-recovery",
@@ -1034,7 +1034,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentArtifact verificationFixture state",
+            "name": "1\nCURRENT\nArtifact verification\nFixture state",
             "disabled": true
           },
           {
@@ -1127,16 +1127,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "work-in-project-narrow-390.png",
-      "screenshotSha256": "06f213b0dbbdbb6b7d5165543523b87df25341e8dfcb255e2d7767c4581b4c78",
+      "screenshotSha256": "2f822f62691461d3058abfe4eb9e25094e7202676578f3ceddcc3ebc203fcf45",
       "contractSha256": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "d3efd586de350223371476bd8ad0d4821224c8da304b0cb28ed6266be85ed1b5",
+      "propProjectionSha256": "dfc7cfb0b7e5a0c394d46232ba02913f73252aa8a082a5411e6021aacca1cb20",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "first-use-project",
@@ -1167,7 +1167,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentFirst-use projectFixture state",
+            "name": "1\nCURRENT\nFirst-use project\nFixture state",
             "disabled": true
           },
           {
@@ -1253,16 +1253,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "work-in-project-medium-768.png",
-      "screenshotSha256": "907d0b79e037c10aa1e11a55bd0a64d6f0dac7802b9202269eafe2b879965cd7",
+      "screenshotSha256": "1d1dc685d3293247f8208a2d9d70e9eda688a7c7f42e6bb872518266692bfe17",
       "contractSha256": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "d3efd586de350223371476bd8ad0d4821224c8da304b0cb28ed6266be85ed1b5",
+      "propProjectionSha256": "dfc7cfb0b7e5a0c394d46232ba02913f73252aa8a082a5411e6021aacca1cb20",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "first-use-project",
@@ -1293,7 +1293,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentFirst-use projectFixture state",
+            "name": "1\nCURRENT\nFirst-use project\nFixture state",
             "disabled": true
           },
           {
@@ -1379,16 +1379,16 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "work-in-project-wide-1280.png",
-      "screenshotSha256": "27d1d730fbb1b9d360f0be834d02475b0f8cc411dd5ea38ec04a43b3962c62e0",
+      "screenshotSha256": "f71ae5c93d9d057ff06ef6373a4474447a7d56ec15bc22ebed4d61ea0261f32b",
       "contractSha256": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
         "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
-        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
+        "apps/media-experience-explorer/src/main.ts": "5a1e8b287ec8ec78e2836e9367606ea6540ade7db6cd338f8b93943256a53444",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
-      "propProjectionSha256": "d3efd586de350223371476bd8ad0d4821224c8da304b0cb28ed6266be85ed1b5",
+      "propProjectionSha256": "dfc7cfb0b7e5a0c394d46232ba02913f73252aa8a082a5411e6021aacca1cb20",
       "propProjection": {
         "rendererExport": "@audio-video/ui#MediaProductRenderer",
         "rendererVariant": "first-use-project",
@@ -1419,7 +1419,7 @@
           {
             "tag": "button",
             "role": null,
-            "name": "1currentFirst-use projectFixture state",
+            "name": "1\nCURRENT\nFirst-use project\nFixture state",
             "disabled": true
           },
           {

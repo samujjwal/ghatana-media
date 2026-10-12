@@ -3,9 +3,10 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { formatTopologyHash, isTopologyRoute, parseTopologyHash } from "../apps/media-experience-explorer/src/topology-route.js";
 
-const [app, topologySource] = await Promise.all([
+const [app, topologySource, adapterSource] = await Promise.all([
   readFile(new URL("../apps/media-experience-explorer/src/main.ts", import.meta.url), "utf8"),
   readFile(new URL("../apps/media-experience-explorer/src/physical-topology.ts", import.meta.url), "utf8"),
+  readFile(new URL("../apps/media-experience-explorer/src/lifecycle-pack-adapter.js", import.meta.url), "utf8"),
 ]);
 const topology = JSON.parse(await readFile(new URL("../.product-experience/surfaces/media-physical-topology.v1.json", import.meta.url), "utf8"));
 
@@ -31,11 +32,12 @@ test("selected node projection preserves declared applicability, authority refer
 });
 
 test("hierarchical Lifecycle status and qualification limits stay explicit", () => {
-  assert.equal(topology.lifecycleContractStatus.hierarchicalMediaContractStatus, "UPSTREAM_NOT_AVAILABLE");
-  assert.match(app, /Lifecycle hierarchy: UPSTREAM_NOT_AVAILABLE/u);
-  assert.match(app, /no Lifecycle API is connected/u);
+  assert.equal(topology.lifecycleContractStatus.hierarchicalMediaContractStatus, "SOURCE_CANDIDATE_AVAILABLE_PUBLIC_ADMISSION_PENDING");
+  assert.match(app, /Lifecycle source candidate · TEST_ONLY · native NOT_ADMITTED/u);
+  assert.match(app, /Version-negotiated candidate adapter/u);
   assert.match(app, /do not assert deployment, production availability, runtime qualification/u);
-  assert.doesNotMatch(app, /SurfaceExperiencePack|Lifecycle API integration complete/u);
+  assert.match(adapterSource, /ghatana\.surface-experience-pack\.v1/u);
+  assert.doesNotMatch(app, /Lifecycle API integration complete/u);
 });
 
 test("each root, composition, and physical node has a stable reloadable direct link", () => {
@@ -51,6 +53,25 @@ test("each root, composition, and physical node has a stable reloadable direct l
   }
   assert.match(app, /history\.pushState\(\{ explorerMode: "physical-topology", topologySelection \}, "", formatTopologyHash\(topologySelection\)\)/u);
   assert.match(app, /Stable direct link to this node/u);
+});
+
+test("root aggregation deduplicates shared physical candidates by surface identity", () => {
+  const rootNode = topology.compositions.find((node) => node.kind === "REPOSITORY_ROOT");
+  const physicalIds = new Set(topology.manifestCandidates.map((node) => node.surfaceId));
+  const compositionById = new Map(topology.compositions.map((node) => [node.surfaceId, node]));
+  const members = new Set();
+  const visited = new Set();
+  const visit = (id) => {
+    if (visited.has(id)) return;
+    visited.add(id);
+    const composition = compositionById.get(id);
+    if (composition) composition.children.forEach(visit);
+    else if (physicalIds.has(id)) members.add(id);
+  };
+  rootNode.children.forEach(visit);
+  assert.equal(members.size, topology.manifestCandidates.length);
+  assert.equal(rootNode.children.filter((id) => physicalIds.has(id)).length, 7);
+  assert.equal(rootNode.children.filter((id) => compositionById.get(id)?.kind !== undefined && id !== rootNode.surfaceId).length, 6);
 });
 
 test("malformed, incomplete, and missing-node links fail closed with a selectable root fallback", () => {

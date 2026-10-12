@@ -1001,6 +1001,13 @@
     "title": "Action Registry"
   },
   {
+    "artifactId": "ART-MEDIA-P3-AGENT-TOOL-RUNTIME-DISPOSITIONS",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json",
+    "title": "Runtime Dispositions"
+  },
+  {
     "artifactId": "ART-MEDIA-1382A9C1C8E7",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",

@@ -24,6 +24,47 @@ const DEFINITION_ONLY_DEFERRED = "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETI
 const TOOL_CONVENTIONS_PATH = ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml";
 const OPERATION_REVIEW_PATH = ".product-experience/pdp-1-domain-data/operations-current-source-review.json";
 
+/**
+ * A strict parity finding may be dispositioned only when every observed tool
+ * has a source-pinned, fail-closed runtime boundary. This is not handler
+ * parity: request/result/operation/authority remain explicitly unsupported
+ * and the registry must continue to deny execution.
+ */
+function exactAgentToolNotAdmittedDisposition(input) {
+  try {
+    const registry = parseYamlSource(input.agentToolRegistry ?? "");
+    const conventions = parseYamlSource(input.agentToolConventions ?? "");
+    const tools = registry?.tools;
+    const contracts = conventions?.mediaOwnedToolDefinitionContracts?.contracts;
+    const dispositions = input.agentToolRuntimeDispositions
+      ? JSON.parse(input.agentToolRuntimeDispositions)
+      : undefined;
+    if (!Array.isArray(tools) || tools.length !== 4 || !Array.isArray(contracts) || contracts.length !== 4
+      || dispositions?.schemaVersion !== "media.agent-tool-runtime-dispositions.v1"
+      || dispositions?.status !== "ALL_TOOLS_NOT_ADMITTED") return false;
+    const rows = dispositions.tools;
+    if (!Array.isArray(rows) || rows.length !== 4 || new Set(rows.map((row) => row?.toolId)).size !== 4) return false;
+    const byId = new Map(rows.map((row) => [row.toolId, row]));
+    const boundaryKeys = ["requestMapping", "resultErrorMapping", "operationMapping", "authorityExecution"];
+    for (const tool of tools) {
+      const row = byId.get(tool.id);
+      const contract = contracts.find((item) => item.toolId === tool.id);
+      if (!row || !contract || tool.executionAdmitted !== false || contract.runtimeAdmission !== "NOT_ADMITTED"
+        || row.handlerSource !== tool.handlerSource || row.handlerSource !== contract.handlerSource
+        || row.status !== "NOT_ADMITTED") return false;
+      for (const key of boundaryKeys) {
+        const boundary = row[key];
+        const allowedDisposition = key === "operationMapping" ? "NOT_ADMITTED" : "UNSUPPORTED_NO_DISPATCH";
+        if (!boundary || boundary.disposition !== allowedDisposition
+          || typeof boundary.reason !== "string" || boundary.reason.trim().length < 24) return false;
+      }
+    }
+    return rows.every((row) => tools.some((tool) => tool.id === row.toolId));
+  } catch {
+    return false;
+  }
+}
+
 function resolveYamlSelector(source, selector) {
   let value = source;
   for (const part of selector.split("/").filter(Boolean)) {
@@ -741,7 +782,17 @@ export function analyzeContractParity(input, { mode = "strict" } = {}) {
       for (const error of typedBindingErrors) gaps.push(`typed contract binding: ${error}`);
     }
   }
-  if (toolIds.length) gaps.push(`Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`);
+  if (toolIds.length) {
+    const finding = `Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`;
+    if (toolIds.length === 4 && exactAgentToolNotAdmittedDisposition(input)) {
+      reconciledFindings.push({
+        finding,
+        disposition: "all-four-tool-boundaries-explicitly-unsupported-and-execution-NOT_ADMITTED",
+      });
+    } else {
+      gaps.push(finding);
+    }
+  }
   // SDK method identities and HTTP call sites are different populations. The
   // call-site parser above reports an unparsed method individually; a registry
   // record without an `httpMethod` is not evidence that the source call site is
@@ -765,6 +816,17 @@ export function analyzeContractParity(input, { mode = "strict" } = {}) {
       });
     } else if (toolFinding) {
       gaps.push("definition-only prerequisite failed: exact four-tool source definitions, operation joins, or NOT_ADMITTED/NOT_BOUND boundary are invalid");
+    } else {
+      const dispositionedToolFinding = reconciledFindings.find(({ finding }) => finding === `Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`);
+      if (dispositionedToolFinding && toolIds.length === 4 && exactAgentDefinitionBoundary(input)) {
+        reconciledFindings.splice(reconciledFindings.indexOf(dispositionedToolFinding), 1);
+        deferredFindings.push({
+          id: "agent-tool-runtime-and-shared-admission",
+          status: DEFINITION_ONLY_DEFERRED,
+          finding: dispositionedToolFinding.finding,
+          reason: "All four exact handler boundaries are deliberately unsupported and NOT_ADMITTED; execution and Shared admission are separate from development definition completion.",
+        });
+      }
     }
     const operationFinding = gaps.find((gap) => gap === `semantic binding unresolved: PDP-1 operations remain ${operationStatus}; structural identities are not accepted mappings`);
     if (operationFinding && operationStatus.startsWith("proposal-only;")
@@ -852,6 +914,7 @@ export function collectLiveInput() {
     typedContractBindings: read(".product-experience/interface-parity/typed-contract-bindings.json"),
     pdp1DomainObjects: read(".product-experience/pdp-1-domain-data/domain-objects.yaml"),
     agentToolRegistry: read(".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"),
+    agentToolRuntimeDispositions: read(".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json"),
     agentToolConventions: read(TOOL_CONVENTIONS_PATH),
     ownerActionWireContracts: read(".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml"),
     operationCurrentSourceReview: read(OPERATION_REVIEW_PATH),

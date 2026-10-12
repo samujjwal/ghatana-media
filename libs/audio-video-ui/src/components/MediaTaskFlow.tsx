@@ -13,6 +13,8 @@ import { MediaProgress } from "./MediaProgress";
 /** Host-defined step IDs keep the composition independent of one workflow vocabulary. */
 export type MediaTaskStepId = string;
 export type MediaTaskStepState = "available" | "current" | "complete" | "blocked";
+export type MediaTaskDensity = "compact" | "standard" | "comfortable";
+export type MediaTaskColorScheme = "light" | "dark";
 
 export interface MediaTaskStep {
   readonly id: MediaTaskStepId;
@@ -98,6 +100,9 @@ export interface MediaTaskFlowProps {
   readonly operation?: MediaTaskOperation;
   readonly children: React.ReactNode;
   readonly className?: string;
+  /** Optional presentation preferences; they do not alter projected workflow meaning. */
+  readonly density?: MediaTaskDensity;
+  readonly colorScheme?: MediaTaskColorScheme;
 }
 
 function legacyObservation(operation?: MediaTaskOperation): MediaTaskOperationObservation | undefined {
@@ -118,6 +123,7 @@ export function MediaTaskFlow({
   title, description, steps, currentStepId, summary, currentProjection,
   onStepSelect, availableActions = [], nextSafeActions, operationObservation,
   primaryAction, secondaryActions = [], operation, children, className,
+  density = "standard", colorScheme,
 }: MediaTaskFlowProps): React.ReactElement {
   const projection = currentProjection ?? {
     title: title ?? "Media task",
@@ -149,7 +155,8 @@ export function MediaTaskFlow({
   const boundedProgress = measured ? Math.max(0, Math.min(100, progress.value)) : undefined;
 
   return (
-    <main className={`media-task-flow ${className ?? ""}`} aria-labelledby="media-task-flow-title">
+    <main className={`media-task-flow ${className ?? ""}`} data-density={density}
+      data-color-scheme={colorScheme} aria-labelledby="media-task-flow-title">
       <header >
         <h1 id="media-task-flow-title" >{projection.title}</h1>
         <p >{projection.description}</p>
