@@ -1,5 +1,7 @@
 # Post-PDP remaining work and completion path — 2026-10-12
 
+> **Execution priority / delegated Media owner direction (2026-10-12):** Follow [the source-reviewed 47-task owner execution directive](post-pdp-owner-reviewed-execution-directive-2026-10-12.md) for the current technical decisions, verified topology/runtime defects, no-wait engineering paths, task-by-task implementation and wave order. This checklist preserves original task IDs, historical dispositions and closure requirements; the directive does not create independent reviews, native receipts, published contracts, production cutover or release authorization.
+
 This checklist expands the 47-task disposition into the concrete actions, owners, and evidence required to reach the post-PDP goal. It is a work plan, not an owner approval, Lifecycle receipt, migration admission, or release authorization.
 
 ## Goal and current position
