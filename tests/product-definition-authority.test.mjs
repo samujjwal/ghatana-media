@@ -2659,7 +2659,7 @@ test("PDP1 operation proposal preserves source denominators and the complete pro
 
 });
 
-test("active G-05 mirrors match current proposal counts without implying acceptance", () => {
+test("G-05 proposal counts stay distinct from its historical snapshot and acceptance", () => {
   const acceptance = readFileSync(resolve(root, ".product-experience/acceptance.yaml"), "utf8");
   const gap = readFileSync(resolve(root, ".product-experience/gaps.yaml"), "utf8");
   const closureMatrix = readFileSync(resolve(root, ".product-experience/mandatory-surface-closure-matrix.yaml"), "utf8");
@@ -2668,9 +2668,10 @@ test("active G-05 mirrors match current proposal counts without implying accepta
 
   assert.match(acceptance, /14 of 146 UI actions have exact proposed operation refs, zero are ambiguous, and 132 remain unresolved/u);
   assert.match(acceptance, /17 proposed family refs and 26 unresolved identities/u);
-  assert.match(gap, /14 exact proposed\s+operation refs and 132 unresolved; none is ambiguous/u);
+  assert.match(gap, /currentStatusRef: \.product-experience\/gap-current-status\.yaml#GAP-05/u);
+  assert.match(gap, /Historical PDP3-002\/PDP1-002 review snapshot \(retained as provenance, not a current denominator\): PDP1-002 recorded 14 proposals:[\s\S]*?14 exact proposed\s+operation refs and 132 unresolved; none was marked ambiguous/u);
   assert.match(gap, /PDP1 proposes 17 family links and\s+leaves 26 unresolved/u);
-  assert.match(gap, /Resolve the 132 unmatched UI action links; bind the 27 HTTP IDs and 26\s+gRPC identities/u);
+  assert.match(gap, /owner acceptance of public wire\/client bindings,[\s\S]*?remains open[\s\S]*?current classification in gap-current-status\.yaml/u);
   assert.match(closureMatrix, /14 exact proposed operation refs, zero ambiguous links, and 132 unresolved/u);
   assert.match(closureMatrix, /17 proposed family refs and 26 unresolved identities/u);
   assert.match(dashboard, /^observationDate: '2026-10-08'$/mu);

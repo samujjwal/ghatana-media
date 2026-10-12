@@ -13,6 +13,9 @@ acceptanceAuthority:
   principle: These records collect scope, required human approvals, and evidence inputs. They do not calculate acceptance.
     Acceptance results and currentness must come from an owner-approved validation workflow after its schema binding
     is established.
+  informationalStatusView: ../docs/implementation/post-pdp-current-status.json
+  distinctStatusDimensions: [phaseDevelopment, independentAccepted, runtimeQualified, LifecycleReceiptCurrent, publicContractAcceptance, migrationCutover, productionQualified, releaseReady]
+  statusViewAuthority: The linked projection reports recorded source-development gates and separately owned external states; it does not calculate or grant acceptance.
   editableDecisionState: human-review-inputs-only
   independentReviewRequiredForFullPDP0: P0-010
   schemaAndValidatorBinding: pending

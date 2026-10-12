@@ -15,11 +15,17 @@ canonical folders use these phase labels:
 
 | Master-prompt authority | Media local source | Coverage status |
 | --- | --- | --- |
-| PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | Active sequential development-completion work; channel applicability is owner-defined at the exact-leaf level, while phase exit remains pending |
-| PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | Proposed object, value, relationship, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision registries; semantic review pending |
-| PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | Authored Shared bindings, GUI primitive/pattern/layout/template/composition registries, token/state/accessibility/localization, responsive, and CLI/API/event/SDK/tool conventions; owner conformance pending |
-| PDP-3 Complete Product Experience | pdp-3-product-experience/ | 47 canonical screen IDs (48 contract files including a job-family specialization), 30 journeys including J-29/J-30, action/state/channel proposals, 27 HTTP operations and 43 gRPC RPCs observed in the current contract inventory; 11 fixture/plan CLI commands versus 12 broader CLI proposal records; SDK, event, tool, and service registries remain proposal-level; owner acceptance pending |
-| Experience Explorer projection | explorer/, apps/media-experience-explorer/, and libs/media-experience-simulation/ | Deterministic local projection and verification client; not a fifth semantic phase |
+| PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | `DEV_COMPLETE` at source cut `adc9aa6`; 462 capability leaves and 38 requirements. Formal semantic acceptance remains separate. |
+| PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | `DEV_COMPLETE` at source cut `adc9aa6`; canonical domain, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision definitions are source-pinned. External contract acceptance remains separate. |
+| PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | `DEV_COMPLETE` at source cut `adc9aa6`; definition-only conformance passed. Shared package release and independent accessibility/design acceptance remain separate. |
+| PDP-3 Complete Product Experience | pdp-3-product-experience/ | `DEV_COMPLETE` at source cut `adc9aa6`; 47 screens, 30 journeys/130 ordered steps, 147 UI actions, 31 scenario definitions (four seeded journeys and 26 explicitly unseeded), and 105 bounded recovery oracles without an implemented same-identity query. HTTP/gRPC/SDK/event/tool registries do not establish runtime reachability. |
+| Experience Explorer projection | explorer/, apps/media-experience-explorer/, and libs/media-experience-simulation/ | Deterministic local projection and verification client; not a fifth semantic phase. |
+
+These four `DEV_COMPLETE` declarations are source-development results, not
+independent semantic acceptance, runtime qualification, Lifecycle receipt
+currentness, migration cutover, or release authorization. The [current status
+projection](implementation/post-pdp-current-status.json) records those
+dimensions separately and carries the source revision label.
 
 The complete intended surface denominator and per-surface ownership/contract
 references are in [surface-registry.yaml](../.product-experience/surface-registry.yaml).

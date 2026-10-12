@@ -15,5 +15,5 @@ test("Media renderer DOM regression passes in the UI package", () => {
   assert.equal(result.error, undefined, result.error?.message);
   assert.equal(result.status, 0, output);
   assert.match(output, /Test Files\s+1 passed \(1\)/u);
-  assert.match(output, /Tests\s+10 passed \(10\)/u);
+  assert.match(output, /Tests\s+11 passed \(11\)/u);
 });

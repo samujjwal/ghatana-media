@@ -4,6 +4,18 @@
 not a semantic authority. Product meaning is owned by accepted decisions and
 records beneath `.product-experience/`; proposals remain proposals.
 
+## Current phase-development status (2026-10-12)
+
+This file's 2026-10-07 migration observations below are a historical snapshot.
+At definition cut `adc9aa6`, all four phase-development status records declare
+`DEV_COMPLETE`; the checkpoint at `0837fef` refreshed those records and their
+verification logs without changing the pinned definition content. The phase
+result does not assert independent semantic acceptance, package publication,
+runtime implementation or qualification, Lifecycle receipt currentness,
+migration cutover, or release authorization. See the [current dimensional
+status projection](../implementation/post-pdp-current-status.json) and the
+[current gap classifications](../../.product-experience/gap-current-status.yaml).
+
 ## Repository and Product Definition
 
 The canonical editable source remains `ghatana/services/media` until the

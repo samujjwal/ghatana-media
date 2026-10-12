@@ -5,6 +5,13 @@ runtime, clients, contracts, tests, fixtures, and product-owned operations
 material. It is being prepared from `ghatana/services/media` under the
 [expert-reviewed migration plan](docs/migration/expert-reviewed-master-plan.md).
 
+> **Current development status (2026-10-12):** PDP-0 through PDP-3 are
+> `DEV_COMPLETE` at source cut `adc9aa6` (status records refreshed at
+> `0837fef`). This records completion of the four definition-development
+> gates; independent semantic acceptance, external package acceptance,
+> Lifecycle receipts, runtime qualification, migration cutover, and release
+> authorization remain separate and open. See the [current status view](docs/implementation/post-pdp-current-status.json).
+
 Start with the [documentation overview](docs/README.md), [vision](docs/VISION.md),
 [requirements](docs/REQUIREMENTS.md), [design](docs/DESIGN.md), and
 [examples](docs/EXAMPLES.md). The user's Four-Phase Product Definition Hardening
@@ -49,21 +56,19 @@ wire source still does not settle the canonical PDP-1/PDP-3 operation model.
 
 ## Migration status
 
-The files here are a migration-preparation copy. The source Media service
+The files here remain a migration-preparation copy. The source Media service
 remains canonical until a reviewed parity report and cutover manifest satisfy
-the migration gates. This checkout is not yet an independently buildable or
-qualified runtime: its current Gradle settings and several dependency contracts
-still rely on Ghatana workspace projects ([GAP-02](.product-experience/gaps.yaml)).
+the migration gates. This checkout is not a qualified runtime: its current
+Gradle settings and several dependency contracts still rely on Ghatana
+workspace projects ([GAP-02](.product-experience/gaps.yaml)).
 
-The accepted product-definition scope remains the migration-specific PDP-0
-boundary slice. The four canonical PDPs now have source registries for Product
-Truth, Domain/Data, Design/Interfaces, and complete Product Experience. The
-Explorer is a projection outside those phases. The local simulation includes
-synthetic project, upload, verification-job, and transcription states; acceptance
-gates remain pending, and owner/native evidence still must be admitted. None of
-these proposals claims runtime availability, qualification, licensing, or production readiness. Current
-source, path, and consumer records are under [`migration/`](migration/) and
-[`.product-experience/`](.product-experience/).
+The four canonical PDPs have completed their source-development gates. Formal
+semantic acceptance and the evidence-backed runtime, migration, and release
+gates remain pending. The Explorer is a projection outside those phases. The
+local simulation includes synthetic project, upload, verification-job, and
+transcription states; it does not establish runtime availability, qualification,
+licensing, or production readiness. Current source, path, and consumer records
+are under [`migration/`](migration/) and [`.product-experience/`](.product-experience/).
 
 ## Product boundary
 

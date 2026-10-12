@@ -1,0 +1,43 @@
+schemaVersion: media.gap-current-status.v1
+productId: media
+asOf: '2026-10-12'
+sourceOfGapIdentityAndHistoricalDetail: .product-experience/gaps.yaml
+purpose: >-
+  Current classification overlay for the 27 gap-register records. The gap register
+  retains historical findings and exact evidence. This overlay separates current
+  disposition from those dated observations; it does not resolve or accept a gap.
+classificationVocabulary:
+  - DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING
+  - IMPLEMENTATION_OPEN
+  - MIGRATION_OPEN
+  - OWNER_EXTERNAL
+  - HISTORICAL_SNAPSHOT
+  - ACTUAL_NEW_DEFECT
+entries:
+  - { id: GAP-01, classification: MIGRATION_OPEN, basis: Consumer and source inventory remains a cutover prerequisite. }
+  - { id: GAP-02, classification: OWNER_EXTERNAL, basis: Public immutable package publication and owner acceptance remain pending; local builds do not establish either. }
+  - { id: GAP-03, classification: OWNER_EXTERNAL, basis: TutorPutor and Media owners have not approved the external reuse boundary. }
+  - { id: GAP-04, classification: HISTORICAL_SNAPSHOT, basis: Resolved for the in-progress record; the later cutover policy remains separately governed. }
+  - { id: GAP-05, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: PDP-0 through PDP-3 source-development gates are complete; cross-interface owner acceptance and admitted runtime bindings remain open. }
+  - { id: GAP-06, classification: MIGRATION_OPEN, basis: Contract-source transfer and reproducible regeneration ownership remain open. }
+  - { id: GAP-07, classification: OWNER_EXTERNAL, basis: Benchmark source owner provenance and licensing are required. }
+  - { id: GAP-08, classification: OWNER_EXTERNAL, basis: AI Inference owns the public execution contract and admission decision. }
+  - { id: GAP-09, classification: IMPLEMENTATION_OPEN, basis: Affected external artifacts still require license and security admission before distribution or execution. }
+  - { id: GAP-10, classification: IMPLEMENTATION_OPEN, basis: Engine, GPU, model quality, and reproducibility qualification has not been demonstrated. }
+  - { id: GAP-11, classification: OWNER_EXTERNAL, basis: Tools public package acceptance and Lifecycle-owned currentness remain separate. }
+  - { id: GAP-12, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: PDP-3 source-development gate is complete; independent visual and accessibility review remains pending. }
+  - { id: GAP-MEDIA-EXPLORER-CONTENT-COVERAGE, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: PDP source gate is complete; Explorer projections do not replace owner-accepted semantic traceability. }
+  - { id: GAP-13, classification: IMPLEMENTATION_OPEN, basis: Storage, outbox, worker recovery, erasure, soak, and SLO runtime evidence is absent. }
+  - { id: GAP-14, classification: MIGRATION_OPEN, basis: Document Intelligence consumer relocation and parity require owner-reviewed handover. }
+  - { id: GAP-15, classification: MIGRATION_OPEN, basis: Cross-repository source cutover authorizations remain outstanding. }
+  - { id: GAP-MEDIA-PHASE2-COVERAGE, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: PDP-3 source-development gate is complete; formal experience acceptance and implementation admission remain separate. }
+  - { id: GAP-MEDIA-DI-PUBLIC-CLIENT, classification: OWNER_EXTERNAL, basis: Document Intelligence owner controls public client publication. }
+  - { id: GAP-MEDIA-TOOLS-SCHEMA-BINDING, classification: OWNER_EXTERNAL, basis: Tools owner phase-validator binding and acceptance are not recorded. }
+  - { id: GAP-MEDIA-CURRENTNESS-COVERAGE-GENERATION, classification: OWNER_EXTERNAL, basis: Lifecycle owns currentness generation and receipt admission. }
+  - { id: GAP-MEDIA-DOMAIN-REVIEWER-APPOINTMENT, classification: OWNER_EXTERNAL, basis: Qualified independent domain reviewer appointment and decision are external. }
+  - { id: GAP-MEDIA-CAPABILITY-LEAF-DETAIL, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: Frozen definition source gate passed; remaining claim adjudication is acceptance work and historical denominators do not reopen development. }
+  - { id: GAP-MEDIA-NODE-YAML-PARSER, classification: IMPLEMENTATION_OPEN, basis: The recorded local YAML parser tooling limitation remains a toolchain issue. }
+  - { id: GAP-MEDIA-QUALITY-CAPABILITY-MAPPING, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: Frozen definition source gate passed; external review and qualification evidence remain separate. }
+  - { id: GAP-MEDIA-PHASE1-COMPONENT-COVERAGE, classification: DEFINITION_COMPLETE_BUT_ACCEPTANCE_PENDING, basis: PDP-2 source-development gate passed; external package and independent design acceptance remain separate. }
+  - { id: GAP-MEDIA-MIGRATION-SEMANTICS, classification: MIGRATION_OPEN, basis: Migration provenance and source-owner reconciliation remain open. }
+  - { id: GAP-MEDIA-CLEAN-5-STALE-DOCKER-GRADLE-PATHS, classification: MIGRATION_OPEN, basis: Gated path normalization depends on authorized consumer cutover. }

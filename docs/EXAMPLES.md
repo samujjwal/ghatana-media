@@ -688,6 +688,29 @@ but are not bound to this HTTP route. The crosswalk explicitly leaves its PDP-1 
 transport execution remains `NOT_ADMITTED`. This example does not make the
 job-search contract runnable.
 
+## Local channel examples and exact contract boundaries
+
+These examples separate source-defined local behavior from transport and
+runtime support. `BOUNDARY.md` keeps the sibling `ghatana/services/media`
+checkout as canonical runtime authority until an admitted cutover; code,
+tests, OpenAPI, and Product Experience registries in this migration repository
+do not by themselves prove that a production service or client is available.
+
+| Channel | Exact source available here | Example and recovery limit |
+| --- | --- | --- |
+| Local GUI | The [Media Experience Explorer](../apps/media-experience-explorer/README.md) and [fixture simulator](../libs/media-experience-simulation/README.md) render deterministic Product Experience fixtures. | Use the fixture-backed journeys above to inspect a state and its surfaced reason. This is not a GUI for a live Media runtime and does not establish provider effects or external acceptance. |
+| HTTP API | [OpenAPI](../contracts/openapi/media.yaml) and its [route manifest](../config/route-manifest.json) define exact local route shapes; the [post-PDP audit](implementation/post-pdp-runtime-evidence-2026-10-12.md) records the source-parity limitation. | The `GET /api/v1/jobs` shape above is an illustrative transport projection. For an unauthorized/denied response, correct caller credentials and tenant scope before repeating a read. If an ambiguous effectful request has a known `jobId`, `GET /api/v1/jobs/{jobId}` reads that job; when no ID was received, the admitted API contract does not define same-request reconciliation. A timeout or missing response is not proof of no effect. The API does not bind the PDP search operation or establish deployed availability. |
+| CLI | The [CLI registry](../.product-experience/pdp-3-product-experience/cli/command-registry.yaml) and [simulator source](../libs/media-experience-simulation/src/cli.ts) define fixture commands, including `ghatana-media job status --job <job-id>` and `job check-outcome`. | A malformed option is a local `INVALID_ARGUMENT`; correct it and inspect the fixture again. Unknown outcomes are reconciled against the same fixture identity, never replayed as a new effect. Registry execution is synthetic-fixture-only; there is no admitted production CLI connection. |
+| SDK | The [SDK operation registry](../.product-experience/pdp-3-product-experience/sdk/operation-registry.yaml) defines candidate method/route crosswalks. | No admitted public SDK request/response example is available: registry methods remain `NOT_ADMITTED`, and source compatibility does not establish network behavior. Use the exact HTTP contract above only as transport documentation; do not infer an SDK retry method. |
+| Event | The local [lifecycle publisher source](../launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java) and [focused test](../launcher/src/test/java/com/ghatana/media/launcher/MediaLifecyclePublisherTest.java) show an HTTP append envelope, event ID as idempotency key, and acceptance only on `201`. | In this source implementation, a non-`201` or interrupted send raises an error and is not retried. The post-PDP audit says this publisher has no durable outbox, retry worker, or restart reconciliation; no safe replay/reconciliation workflow is defined here, and the migration boundary does not admit it as canonical runtime evidence. HTTP acceptance alone is not consumer processing. |
+| Agent | The [tool registry](../.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml) records observed local handler behavior and explicitly marks execution non-admitted. | Invalid handler input may return a bounded local failure; delegate rejection remains an error channel and effectful post-dispatch uncertainty requires reconciliation. There is no admitted public schema, configured delegate, authority proof, or runtime binding, so no Agent request/result transcript is presented as runnable. |
+
+The source-linked CLI and Event examples describe only the named local
+simulator or publisher code. The API example describes only its published
+transport shape. None establishes release readiness, a live production
+runtime, a canonical cutover, provider execution, consumer processing, or
+external acceptance.
+
 ## P3-08 coverage and remaining gaps
 
 | P3-08 family | Trace | Current source status / unresolved dependency |

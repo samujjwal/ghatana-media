@@ -147,6 +147,13 @@
     "title": "View Projections"
   },
   {
+    "artifactId": "ART-MEDIA-GAP-CURRENT-STATUS",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/gap-current-status.yaml",
+    "title": "Gap Current Status"
+  },
+  {
     "artifactId": "ART-GOV-GAPS",
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
@@ -1302,6 +1309,13 @@
     "title": "Experience Specification.Candidate"
   },
   {
+    "artifactId": "ART-P3-IMPLEMENTATION-HANDOFF-V1",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/generated/implementation-handoff.v1.json",
+    "title": "Implementation Handoff.V1"
+  },
+  {
     "artifactId": "ART-MEDIA-96177BF670D050B776EA",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -2399,6 +2413,13 @@
     "phase": "CROSS_PHASE",
     "path": ".product-experience/surface-registry.yaml",
     "title": "Surface Registry"
+  },
+  {
+    "artifactId": "ART-MEDIA-PHYSICAL-TOPOLOGY-V1",
+    "authorityClass": "CROSS_PHASE_GOVERNANCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/surfaces/media-physical-topology.v1.json",
+    "title": "Media Physical Topology.V1"
   },
   {
     "artifactId": "ART-P0-TRACEABILITY",

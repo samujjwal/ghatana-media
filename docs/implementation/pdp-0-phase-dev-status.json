@@ -3,10 +3,10 @@
   "phase": "PDP-0",
   "mainSha": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
   "sourceShaSet": {
-    ".product-experience/artifact-identities.yaml": "f9ca5e06d4e95465ee432abe7604a2e0786b9ccad13e24d14508d9ec0ef4af7c",
+    ".product-experience/artifact-identities.yaml": "3c9d38afc79d8f00a2defeb65f73448bf4cea94d7255524c154d3167d08f1eec",
     ".product-experience/authority-map.yaml": "03d010ab4985ff76b8dafea6a32d86196fe7bf2a034f8b43216b6378c35ead3e",
     ".product-experience/decision-log.md": "cdea20d6fa57cc4d7bbea866d911c03685eeb74e0bfdb4e0a5df0c90ded56db4",
-    ".product-experience/gaps.yaml": "115eb8d33ecf12b63547f2368db91468e9ab655fba7acb19038699fcd8da937c",
+    ".product-experience/gaps.yaml": "539ae8d99c596b19ccfe439303ed20273cd712f32c4cd84fe12149f7be7ddfe9",
     ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md": "e90a1c8ce077a1a0ac649d9445abd2ae7f1e9f197c42f4d1908468a364e69df6",
     ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
     ".product-experience/pdp-0-product-truth/applications-channels.yaml": "88d3dbf26a245755eb8844c5c58b4e12632d735d6d53de25bfe7d8f3ebdbd63d",
@@ -38,9 +38,9 @@
     ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e",
     ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
     ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "65923f1d333c0b7cf259eb1bc0ddfaab30f115dda8993b5685b253526d397904",
-    ".product-experience/source-manifest.yaml": "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
-    "apps/media-experience-explorer/specification-artifacts.json": "728a42b0b9241d5bb1820acf91e80ca855bea04615b6e8a3d8993f774b4a72de",
-    "docs/PRODUCT-DEFINITION-COVERAGE.md": "791591a794e7752bb5fe40f5337cfe4ab5db738e4cecd5057f33b5c1e8c1516e",
+    ".product-experience/source-manifest.yaml": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+    "apps/media-experience-explorer/specification-artifacts.json": "aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890",
+    "docs/PRODUCT-DEFINITION-COVERAGE.md": "d84562a297b0f21d2db842064ea6dc3c6e5226a6b7eed136fdba9aec0ce72820",
     "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "a5fed262ff217bd2994cc63b23ee1dc072b37bb1bbacf49ad54865d8eed14938",
     "docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json": "b3b80fc6fc6f5fafba25edd878f3f7a4fc4688daaf616ff2d71c0a1b5affa906",
     "docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json": "9ce6d0a30933e3f4a95b08fcc56f2294af1c3270ea5ad6e2cbff177a15a18656",
@@ -61,7 +61,7 @@
     "docs/implementation/verification/pdp-38/p0-upload-byte-length-minimum-current-source-review.json": "9a6cd435f128015b65ea4067f953b0b4d494402623ac2af8a3b84dd5ae5c9e7e",
     "docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json": "eff17d84f91e1e14483f41938fe0fd39bb6e5a9db5c227163e92de1f90e02aec",
     "docs/implementation/verification/pdp-38/policy-input-threats-current-source-observation.json": "f823bea83a0aee74c46a510a26dadbe7797081cf4e34c6f29582be63374b58ec",
-    "docs/migration/current-master-plan-claim-dispositions.json": "02d95f69484527d66f35ea94aa54cfc9c985471787ae89cb3dc63006c84f216f",
+    "docs/migration/current-master-plan-claim-dispositions.json": "bcf4867714026d1e9be60459fb8c70efae73298318796e5cc3e566da446aa0b9",
     "docs/migration/master-plan-source-change-claims.yaml": "fe24d413531e57725e163f3c6a1b1293d9dda835c05ff28804b4f5c7f7dbf468",
     "scripts/check-product-definition-authority.mjs": "0d3503b098c753642d10b4a9b6940d0c327fd6522ad1d72cab7a34bcdb19441e",
     "scripts/generate-media-phase-projections.mjs": "977a0f8fff2c08ba1a11e075742b5494a1e8fd34cb8b429874ab63e378df6a94",
@@ -1050,5 +1050,64 @@
       "interpretation": "The legacy applicability counts describe a historical source cut that awaited exact operation evidence. Current P0 owner records define capability intent and channel applicability independently; future operation, request/result, and transition bindings are downstream PDP-1 handoff obligations."
     }
   ],
-  "status": "DEV_COMPLETE"
+  "status": "DEV_COMPLETE",
+  "postCutPinRefresh": {
+    "asOf": "2026-10-12",
+    "classification": "IMPLEMENTATION_OR_STATUS_PROJECTION_ONLY",
+    "reason": "Scoped BASE-01/BASE-02/EXP-01 review of post-definition status documentation and renderer/Explorer projection files. Generated source-manifest projection pin refreshed after current BASE/SUR source registrations; no normative phase meaning changed.",
+    "changedNormativeMeaningIds": [],
+    "changedSourcePins": [
+      {
+        "path": "docs/PRODUCT-DEFINITION-COVERAGE.md",
+        "reviewedSha": "791591a794e7752bb5fe40f5337cfe4ab5db738e4cecd5057f33b5c1e8c1516e",
+        "currentSha": "d84562a297b0f21d2db842064ea6dc3c6e5226a6b7eed136fdba9aec0ce72820"
+      },
+      {
+        "path": ".product-experience/artifact-identities.yaml",
+        "reviewedSha": "f9ca5e06d4e95465ee432abe7604a2e0786b9ccad13e24d14508d9ec0ef4af7c",
+        "currentSha": "3c9d38afc79d8f00a2defeb65f73448bf4cea94d7255524c154d3167d08f1eec"
+      },
+      {
+        "path": ".product-experience/gaps.yaml",
+        "reviewedSha": "115eb8d33ecf12b63547f2368db91468e9ab655fba7acb19038699fcd8da937c",
+        "currentSha": "539ae8d99c596b19ccfe439303ed20273cd712f32c4cd84fe12149f7be7ddfe9"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "reviewedSha": "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
+        "currentSha": "f24803bf4667ef382adfeea247e09aa1097f1d84ea74468f8005ad3fb99f1fd5"
+      },
+      {
+        "path": "apps/media-experience-explorer/specification-artifacts.json",
+        "reviewedSha": "728a42b0b9241d5bb1820acf91e80ca855bea04615b6e8a3d8993f774b4a72de",
+        "currentSha": "aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "reviewedSha": "f24803bf4667ef382adfeea247e09aa1097f1d84ea74468f8005ad3fb99f1fd5",
+        "currentSha": "0d3b3a74bfb05d81062a3df10623a77a70ef82eec28e92a96b66b456896bb5a9"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "reviewedSha": "0d3b3a74bfb05d81062a3df10623a77a70ef82eec28e92a96b66b456896bb5a9",
+        "currentSha": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+      },
+      {
+        "path": "docs/migration/current-master-plan-claim-dispositions.json",
+        "reviewedSha": "02d95f69484527d66f35ea94aa54cfc9c985471787ae89cb3dc63006c84f216f",
+        "currentSha": "bcf4867714026d1e9be60459fb8c70efae73298318796e5cc3e566da446aa0b9"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "reviewedSha": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+        "currentSha": "f7ce2e322a3dab0787259d49df8a327c18b293abfae1082b743b64ae10fc0cfa"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "reviewedSha": "f7ce2e322a3dab0787259d49df8a327c18b293abfae1082b743b64ae10fc0cfa",
+        "currentSha": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+        "reason": "Source-manifest projection was regenerated after artifact registrations settled; verified generated projection pin only, with historical verification cuts and normative meaning preserved."
+      }
+    ]
+  }
 }

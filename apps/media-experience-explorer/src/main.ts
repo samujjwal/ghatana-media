@@ -17,8 +17,10 @@ import { ProductReview, type ReviewView } from "./product-review.js";
 import "@audio-video/ui/styles.css";
 import { specificationArtifacts, traceMetadataForArtifact, type ExperiencePhase, type SpecificationArtifact } from "./specification.js";
 import { exerciseMediaToolsConsumer } from "./tools-consumer.js";
+import { applicabilityRelation, consumersFor, mediaPhysicalTopology, topologyNode, topologyRoot, type TopologySelection } from "./physical-topology.js";
+import { formatTopologyHash, isTopologyRoute, parseTopologyHash } from "./topology-route.js";
 
-type ExplorerMode = "product" | "explore" | "specification" | "verify" | "overview" | "truth" | "domain" | "design-system" | "experience" | "interfaces" | "journeys" | "states-data" | "traceability" | "dependencies" | "tools-review";
+type ExplorerMode = "product" | "explore" | "specification" | "verify" | "overview" | "truth" | "domain" | "design-system" | "experience" | "interfaces" | "journeys" | "states-data" | "traceability" | "dependencies" | "tools-review" | "physical-topology";
 type ExplorerChannel = "web" | "cli";
 type ProductView = ReviewView;
 
@@ -79,6 +81,7 @@ const supportedModes: readonly { readonly id: ExplorerMode; readonly label: stri
   { id: "traceability", label: "Traceability", shortcut: "c" },
   { id: "dependencies", label: "Dependencies", shortcut: "d" },
   { id: "tools-review", label: "Tools Review", shortcut: "e" },
+  { id: "physical-topology", label: "Physical Topology", shortcut: "f" },
 ];
 // Keep the five task-first Explorer activities visible. Source-domain and
 // integration workspaces remain available under one native disclosure so
@@ -108,6 +111,7 @@ function legacyRouteArtifactFromLocation(): SpecificationArtifact | undefined {
 const modeFromLocation = (): ExplorerMode | undefined => {
   if (location.hash === "#product") return "product";
   if (location.hash.startsWith("#product/view/")) return "specification";
+  if (isTopologyRoute(location.hash)) return "physical-topology";
   return supportedModes.find(({ id }) => location.hash === `#${id}`)?.id;
 };
 
@@ -168,6 +172,7 @@ function readableProposalPurpose(purpose: string | undefined, fallback: string):
 }
 
 let mode: ExplorerMode = modeFromLocation() ?? "explore";
+const initialTopologyRoute = parseTopologyHash(location.hash, mediaPhysicalTopology);
 let channel: ExplorerChannel = "web";
 let state: MediaExperienceState = createFixtureState("media.scenario.transcript-ready");
 let productView: ProductView = "transcript";
@@ -184,6 +189,8 @@ let reducedMotion = false;
 let cliHistory: { command: string; output: string; exitCode: number }[] = [];
 let lastResult: TransitionResult | null = null;
 let versionPurpose = "";
+let topologySelection: TopologySelection = initialTopologyRoute.selection ?? { kind: "root", id: topologyRoot.surfaceId };
+let topologyRouteError: string | null = isTopologyRoute(location.hash) ? initialTopologyRoute.error : null;
 let detailsVisible = true;
 let transientAnnouncement = "";
 type ToolsConsumerResult = Awaited<ReturnType<typeof exerciseMediaToolsConsumer>>;
@@ -741,7 +748,7 @@ function indexedInterfaceRows(artifact: SpecificationArtifact, source: string): 
 }
 
 function semanticModeSurface(): string {
-  type SemanticMode = Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify" | "tools-review">;
+  type SemanticMode = Exclude<ExplorerMode, "product" | "explore" | "specification" | "verify" | "tools-review" | "physical-topology">;
   type ModeDefinition = { readonly title: string; readonly summary: string; readonly predicate: (artifact: SpecificationArtifact) => boolean; readonly groups: readonly { readonly label: string; readonly predicate: (artifact: SpecificationArtifact) => boolean }[] };
   const has = (artifact: SpecificationArtifact, ...terms: string[]): boolean => terms.some((term) => artifact.path.toLocaleLowerCase().includes(term));
   const phase = (value: ExperiencePhase) => (artifact: SpecificationArtifact): boolean => artifact.phase === value;
@@ -778,6 +785,25 @@ function semanticModeSurface(): string {
   return `<main class="semantic-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">SOURCE-LINKED SEMANTIC PROJECTION</div><h1>${escapeHtml(definition.title)}</h1><p>${escapeHtml(definition.summary)}</p></div><span class="proposal-chip"><span></span> INDEXED · LOCAL ONLY</span></header>${countSummary}<section class="semantic-summary"><strong>${candidates.length} indexed source records</strong><span>Cards open their canonical source record. Proposal status, unresolved bindings, and local verification scope remain visible; semantic fingerprints, Lifecycle currentness, and owner acceptance are not generated here.</span></section>${groupMarkup}${interfaceMarkup}${empty}</main>`;
 }
 
+function physicalTopologySurface(): string {
+  const selectionOptions = `<option value="root:${escapeHtml(topologyRoot.surfaceId)}" ${topologySelection.kind === "root" ? "selected" : ""}>Repository root · ${escapeHtml(topologyRoot.surfaceId)}</option><optgroup label="Semantic compositions">${mediaPhysicalTopology.compositions.filter((item) => item.kind !== "REPOSITORY_ROOT").map((item) => `<option value="composition:${escapeHtml(item.surfaceId)}" ${topologySelection.kind === "composition" && topologySelection.id === item.surfaceId ? "selected" : ""}>${escapeHtml(item.name ?? item.surfaceId)} · ${escapeHtml(item.surfaceId)}</option>`).join("")}</optgroup><optgroup label="Physical candidates">${mediaPhysicalTopology.manifestCandidates.map((item) => `<option value="physical:${escapeHtml(item.surfaceId)}" ${topologySelection.kind === "physical" && topologySelection.id === item.surfaceId ? "selected" : ""}>${escapeHtml(item.sourcePath ?? item.surfaceId)} · ${escapeHtml(item.surfaceId)}</option>`).join("")}</optgroup>`;
+  const selection = topologySelection;
+  const node = topologyNode(selection);
+  if (!node) return `<main class="semantic-workspace" id="main-content" tabindex="-1"><h1>Physical topology</h1><p role="alert">The selected source record is unavailable in the checked crosswalk.</p></main>`;
+  const phases = Object.entries(node.phaseApplicability ?? {}).map(([phase, cell]) => {
+    const authorityRefs = [cell.authorityRef, ...(cell.authorityRefs ?? [])].filter((value): value is string => Boolean(value));
+    const ids = Object.entries(cell).filter(([key, value]) => /Ids$/u.test(key) && Array.isArray(value) && value.length > 0)
+      .map(([key, value]) => `<div class="topology-id-list"><strong>${escapeHtml(key.replace(/Ids$/u, " IDs"))}</strong><span>${(value as string[]).map(escapeHtml).join(" · ")}</span></div>`).join("");
+    const relation = applicabilityRelation(cell.disposition);
+    return `<article class="topology-phase-card"><div class="topology-phase-head"><strong>${escapeHtml(phase)}</strong><span class="section-count">${relation} · ${escapeHtml(cell.disposition)}</span></div><p>${escapeHtml(cell.rationale ?? "No rationale recorded in the source crosswalk.")}</p>${authorityRefs.length ? `<div class="topology-source-refs"><strong>Authority references</strong>${authorityRefs.map((ref) => `<code>${escapeHtml(ref)}</code>`).join("")}</div>` : ""}${ids}</article>`;
+  }).join("");
+  const consumers = consumersFor(selection, node);
+  const directNodeLink = `${location.origin}${location.pathname}${formatTopologyHash(selection)}`;
+  const childRecords = selection.kind === "physical" ? [] : (node.children ?? []).map((id) => mediaPhysicalTopology.manifestCandidates.find((candidate) => candidate.surfaceId === id) ?? mediaPhysicalTopology.compositions.find((candidate) => candidate.surfaceId === id)).filter((item) => item !== undefined);
+  const selectedConsumerRefs = selection.kind === "physical" ? node.consumerSurfaceRefs ?? [] : [];
+  return `<main class="semantic-workspace physical-topology-workspace" id="main-content" tabindex="-1"><header class="verify-header"><div><div class="eyebrow">MEDIA-OWNED SOURCE CROSSWALK</div><h1>Physical topology</h1><p>One read-only view of the repository root, semantic compositions, and physical candidates. Phase applicability and consumer mappings are shown from the Media source crosswalk; no Lifecycle API is connected.</p></div><span class="proposal-chip"><span></span> ${escapeHtml(mediaPhysicalTopology.lifecycleContractStatus.hierarchicalMediaContractStatus)}</span></header><section class="semantic-summary"><strong>Lifecycle hierarchy: UPSTREAM_NOT_AVAILABLE</strong><span>${escapeHtml(mediaPhysicalTopology.lifecycleContractStatus.conclusion)}</span></section><section class="verify-section"><label class="topology-selector-label" for="physical-topology-selection">Select a root, composition, or physical candidate</label><select id="physical-topology-selection" class="topology-selector">${selectionOptions}</select>${topologyRouteError ? `<p class="topology-route-error" role="alert">${escapeHtml(topologyRouteError)}</p>` : ""}<p class="topology-direct-link"><strong>Stable direct link to this node</strong><a href="${escapeHtml(formatTopologyHash(selection))}">${escapeHtml(directNodeLink)}</a></p><p class="trace-honesty-note">Source: <code>.product-experience/surfaces/media-physical-topology.v1.json</code> · source cut <code>${escapeHtml(mediaPhysicalTopology.sourceCut)}</code> · ${mediaPhysicalTopology.manifestCandidates.length} physical candidates. “DIRECT” means the selected node declares phase meaning/applicability; “REFERENCE” means its cell points to root/authority meaning. “DECLARED” preserves other exact source dispositions without reinterpreting them.</p></section><section class="verify-section"><div class="verify-section-heading"><div><h2>${escapeHtml(node.name ?? node.sourcePath ?? node.surfaceId)}</h2><p><code>${escapeHtml(node.surfaceId)}</code> · ${escapeHtml(node.kind ?? node.disposition ?? "PHYSICAL")}</p></div><span class="section-count">${escapeHtml(node.disposition ?? "SOURCE CROSSWALK")}</span></div>${node.sourcePath ? `<div class="topology-summary-grid"><div><strong>Repository path</strong><code>${escapeHtml(node.sourcePath)}</code></div><div><strong>Manifest/source path</strong><code>${escapeHtml(node.manifestPath ?? "Not recorded")}</code></div><div><strong>Build system</strong><span>${escapeHtml(node.buildSystem ?? "Not recorded")}</span></div><div><strong>Deployability classification</strong><span>${escapeHtml(node.deployability ?? "Not recorded")}</span></div><div><strong>Owner field</strong><span>${escapeHtml(node.owner ?? "Not recorded")}</span></div><div><strong>Candidate rationale</strong><span>${escapeHtml(node.dispositionRationale ?? "Not recorded")}</span></div></div>` : `<p>${escapeHtml(String(node.directMeaning ?? ""))}</p><p>Status: <strong>${escapeHtml(String(node.status ?? "Not recorded"))}</strong> · canonical owner field: ${escapeHtml(String(node.canonicalOwner ?? "Not recorded"))}</p>`}<h3>Exact phase applicability</h3><div class="topology-phase-grid">${phases || "<p>No phase applicability cells are recorded for this node.</p>"}</div>${childRecords.length ? `<h3>${selection.kind === "root" ? "Root contents" : "Explicit composition children"}</h3><ul class="topology-members">${childRecords.map((child) => `<li><code>${escapeHtml(child.surfaceId)}</code><span>${escapeHtml(child.sourcePath ?? child.name ?? child.kind ?? "")}</span></li>`).join("")}</ul><p class="trace-honesty-note">Membership is the crosswalk’s explicit child list; dependency edges are not treated as containment. Child phase cells are not copied into this composition view.</p>` : ""}<h3>Consumer mappings</h3>${selectedConsumerRefs.length ? `<p>Node-declared consumer surface refs: ${selectedConsumerRefs.map((ref) => `<code>${escapeHtml(ref)}</code>`).join(" ")} · mapping state <strong>${escapeHtml(String(node.consumerMappingState ?? "Not recorded"))}</strong></p>` : ""}${consumers.length ? `<div class="topology-consumer-list">${consumers.map((consumer) => `<article><strong>${escapeHtml(consumer.surfaceId)}</strong><span>${escapeHtml(consumer.consumerType)} · ${escapeHtml(consumer.bindingState)}</span><p>${escapeHtml(consumer.statusReason)}</p><code>${escapeHtml(consumer.registryAuthority)}</code></article>`).join("")}</div>` : `<p>No consumer crosswalk entries map directly to this selection or its explicit physical children.</p>`}<p class="trace-honesty-note">These source bindings do not assert deployment, production availability, runtime qualification, Lifecycle currentness, or owner acceptance. The Explorer remains developer tooling, not a Media product UI.</p></section></main>`;
+}
+
 function runToolsConsumerReview(): void {
   const run = ++toolsConsumerRun;
   toolsConsumerResult = null;
@@ -807,6 +833,7 @@ function mainContent(): string {
     case "specification": return specificationSurface();
     case "verify": return verificationSurface();
     case "tools-review": return toolsReviewSurface();
+    case "physical-topology": return physicalTopologySurface();
     default: return semanticModeSurface();
   }
 }
@@ -938,7 +965,8 @@ function terminalProjection(): string {
 
 function updateMode(nextMode: ExplorerMode, restoreTabFocus = false): void {
   if (mode === nextMode) return;
-  history.pushState({ explorerMode: nextMode }, "", `#${nextMode}`);
+  const nextHash = nextMode === "physical-topology" ? formatTopologyHash(topologySelection) : `#${nextMode}`;
+  history.pushState({ explorerMode: nextMode }, "", nextHash);
   mode = nextMode;
   selectedProductContract = null;
   transientAnnouncement = "";
@@ -950,6 +978,11 @@ function updateMode(nextMode: ExplorerMode, restoreTabFocus = false): void {
 
 window.addEventListener("popstate", () => {
   mode = modeFromLocation() ?? "explore";
+  const topologyRoute = parseTopologyHash(location.hash, mediaPhysicalTopology);
+  if (isTopologyRoute(location.hash)) {
+    topologySelection = topologyRoute.selection ?? { kind: "root", id: topologyRoot.surfaceId };
+    topologyRouteError = topologyRoute.error;
+  } else topologyRouteError = null;
   selectedProductContract = productContractFromLocation() ?? null;
   const routeArtifact = legacyRouteArtifactFromLocation();
   if (routeArtifact) {
@@ -1143,6 +1176,15 @@ root.addEventListener("change", (event) => {
           ? "job-status"
           : "transcript";
     transientAnnouncement = `Loaded ${scenarioId.replace("media.scenario.", "")} scenario.`;
+    render();
+  } else if (target.id === "physical-topology-selection") {
+    const [kind, ...rest] = target.value.split(":");
+    const id = rest.join(":");
+    if ((kind === "root" || kind === "composition" || kind === "physical") && id) {
+      topologySelection = { kind, id };
+      topologyRouteError = null;
+      history.pushState({ explorerMode: "physical-topology", topologySelection }, "", formatTopologyHash(topologySelection));
+    }
     render();
   } else if (target.id === "channel-picker") {
     channel = target.value as ExplorerChannel;

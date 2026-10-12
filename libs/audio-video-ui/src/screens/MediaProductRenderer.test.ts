@@ -8,6 +8,8 @@ import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 import {
+  MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS,
+  MEDIA_SCREEN_COMPONENTS,
   MediaProductRenderer,
   type MediaActionPort,
   type MediaContextPort,
@@ -41,6 +43,21 @@ const common = {
 } satisfies { data: MediaDataPort; actions: readonly MediaScreenAction[]; nextSafeActionIds: readonly string[]; actionPort: MediaActionPort; navigationPort: MediaNavigationPort; context: MediaContextPort };
 
 describe("MediaProductRenderer", () => {
+  it("classifies every screen contract without admitting a product route", () => {
+    const dispositions = Object.values(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS);
+    const counts = dispositions.reduce<Record<string, number>>((result, item) => {
+      result[item.status] = (result[item.status] ?? 0) + 1;
+      expect(item.productRoute).toBe("NOT_ADMITTED");
+      return result;
+    }, {});
+
+    expect(Object.keys(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS).sort()).toEqual(Object.keys(MEDIA_SCREEN_COMPONENTS).sort());
+    expect(dispositions).toHaveLength(47);
+    expect(counts).toEqual({ LOCAL_SIMULATION: 12, CONTRACT_PREVIEW: 35 });
+    expect(dispositions.some(({ status }) => status === "LIVE_IMPLEMENTED")).toBe(false);
+    expect(dispositions.some(({ status }) => status === "NOT_ADMITTED")).toBe(false);
+  });
+
   it.each([
     {
       name: "first-use/project",

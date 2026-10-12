@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS,
   MediaProductRenderer,
   type MediaScreenAction,
 } from "@audio-video/ui";
@@ -9,6 +10,10 @@ import { projectExperience } from "@ghatana/media-experience-simulation";
 import type { MediaAction, MediaExperienceState, TransitionResult } from "@ghatana/media-experience-simulation";
 
 const MEDIA_RENDERER_PUBLIC_EXPORT = "@audio-video/ui#MediaProductRenderer" as const;
+const screenRealizationCounts = Object.values(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS).reduce<Record<string, number>>((counts, disposition) => {
+  counts[disposition.status] = (counts[disposition.status] ?? 0) + 1;
+  return counts;
+}, {});
 type MediaRendererBinding = {
   readonly identity: typeof MEDIA_RENDERER_PUBLIC_EXPORT;
   readonly ports: {
@@ -154,6 +159,11 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
     : state.workflow === "artifact-verification" ? `Synthetic verification job ${state.artifactVerification.jobId}; state ${state.artifactVerification.status}; finality ${state.artifactVerification.finality}.`
     : `Synthetic transcription scenario ${state.scenarioId}; job ${state.job.jobId ?? "not submitted"}; state ${state.job.state}; finality ${state.job.finality}.`;
   const notice = <aside className="candidate-review-notice" role="note"><strong>CANDIDATE · NOT ADMITTED</strong><p>Shared presentation mounted in the Explorer review host. This synthetic fixture is not a production service or admitted Web screen.</p><p>{stateText}</p></aside>;
+  const realizationCoverage = <details className="screen-realization-coverage">
+    <summary>47 screen contract realization states</summary>
+    <p>{screenRealizationCounts.LOCAL_SIMULATION ?? 0} local simulation · {screenRealizationCounts.CONTRACT_PREVIEW ?? 0} contract preview · {screenRealizationCounts.LIVE_IMPLEMENTED ?? 0} live implemented · {screenRealizationCounts.NOT_ADMITTED ?? 0} not admitted. Product routes remain not admitted.</p>
+    <ul>{Object.entries(MEDIA_PRODUCT_SCREEN_REALIZATION_DISPOSITIONS).map(([screenId, disposition]) => <li key={screenId}><code>{screenId}</code> — {disposition.status}</li>)}</ul>
+  </details>;
   const job = state.workflow === "artifact-verification" ? { jobId: state.artifactVerification.jobId, observedAt: `fixture sequence ${state.sequence}`, finality: state.artifactVerification.finality, message: stateText }
     : state.workflow === "transcription" ? { jobId: state.job.jobId ?? "fixture-job-not-submitted", sourceArtifactVersion: state.source.artifactVersion, observedAt: `fixture sequence ${state.sequence}`, connectionObservation: "unavailable" as const, finality: state.job.finality, message: stateText }
       : undefined;
@@ -199,5 +209,5 @@ export function ProductReview({ state, view, onAction }: { state: MediaExperienc
     data-action-port="MediaActionPort"
     data-action-ids={JSON.stringify(safeIds)}
     data-error-port="MediaActionDispatchResult"
-    data-error-outcomes={JSON.stringify(errorOutcomes)}>{notice}{screen}</div>;
+    data-error-outcomes={JSON.stringify(errorOutcomes)}>{notice}{realizationCoverage}{screen}</div>;
 }

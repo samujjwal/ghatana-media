@@ -1,0 +1,428 @@
+{
+  "schemaVersion": "media.post-pdp-current-status.v1",
+  "productId": "media",
+  "sourceDefinitionCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+  "asOf": "2026-10-12",
+  "authority": "Derived status projection. Phase source-development status comes from the four phase status records; other dimensions remain separately owned.",
+  "phaseDevelopment": {
+    "status": "DEV_COMPLETE",
+    "definitionContentCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+    "allSourcePinsCurrent": true,
+    "phases": [
+      {
+        "phase": "PDP-0",
+        "developmentStatus": "DEV_COMPLETE",
+        "definitionContentCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+        "statusRecord": "docs/implementation/pdp-0-phase-dev-status.json",
+        "pinnedSourceCount": 107,
+        "currentSourcePinsMatch": true,
+        "staleSourceRefs": [],
+        "postCutPinRefresh": {
+          "asOf": "2026-10-12",
+          "classification": "IMPLEMENTATION_OR_STATUS_PROJECTION_ONLY",
+          "reason": "Scoped BASE-01/BASE-02/EXP-01 review of post-definition status documentation and renderer/Explorer projection files. Generated source-manifest projection pin refreshed after current BASE/SUR source registrations; no normative phase meaning changed.",
+          "changedNormativeMeaningIds": [],
+          "changedSourcePins": [
+            {
+              "path": "docs/PRODUCT-DEFINITION-COVERAGE.md",
+              "reviewedSha": "791591a794e7752bb5fe40f5337cfe4ab5db738e4cecd5057f33b5c1e8c1516e",
+              "currentSha": "d84562a297b0f21d2db842064ea6dc3c6e5226a6b7eed136fdba9aec0ce72820"
+            },
+            {
+              "path": ".product-experience/artifact-identities.yaml",
+              "reviewedSha": "f9ca5e06d4e95465ee432abe7604a2e0786b9ccad13e24d14508d9ec0ef4af7c",
+              "currentSha": "3c9d38afc79d8f00a2defeb65f73448bf4cea94d7255524c154d3167d08f1eec"
+            },
+            {
+              "path": ".product-experience/gaps.yaml",
+              "reviewedSha": "115eb8d33ecf12b63547f2368db91468e9ab655fba7acb19038699fcd8da937c",
+              "currentSha": "539ae8d99c596b19ccfe439303ed20273cd712f32c4cd84fe12149f7be7ddfe9"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
+              "currentSha": "f24803bf4667ef382adfeea247e09aa1097f1d84ea74468f8005ad3fb99f1fd5"
+            },
+            {
+              "path": "apps/media-experience-explorer/specification-artifacts.json",
+              "reviewedSha": "728a42b0b9241d5bb1820acf91e80ca855bea04615b6e8a3d8993f774b4a72de",
+              "currentSha": "aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "f24803bf4667ef382adfeea247e09aa1097f1d84ea74468f8005ad3fb99f1fd5",
+              "currentSha": "0d3b3a74bfb05d81062a3df10623a77a70ef82eec28e92a96b66b456896bb5a9"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "0d3b3a74bfb05d81062a3df10623a77a70ef82eec28e92a96b66b456896bb5a9",
+              "currentSha": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+            },
+            {
+              "path": "docs/migration/current-master-plan-claim-dispositions.json",
+              "reviewedSha": "02d95f69484527d66f35ea94aa54cfc9c985471787ae89cb3dc63006c84f216f",
+              "currentSha": "bcf4867714026d1e9be60459fb8c70efae73298318796e5cc3e566da446aa0b9"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+              "currentSha": "f7ce2e322a3dab0787259d49df8a327c18b293abfae1082b743b64ae10fc0cfa"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "f7ce2e322a3dab0787259d49df8a327c18b293abfae1082b743b64ae10fc0cfa",
+              "currentSha": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+              "reason": "Source-manifest projection was regenerated after artifact registrations settled; verified generated projection pin only, with historical verification cuts and normative meaning preserved."
+            }
+          ]
+        },
+        "verificationResultsRemainAtRecordedCut": true
+      },
+      {
+        "phase": "PDP-1",
+        "developmentStatus": "DEV_COMPLETE",
+        "definitionContentCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+        "statusRecord": "docs/implementation/pdp-1-phase-dev-status.json",
+        "pinnedSourceCount": 113,
+        "currentSourcePinsMatch": true,
+        "staleSourceRefs": [],
+        "postCutPinRefresh": null,
+        "verificationResultsRemainAtRecordedCut": true
+      },
+      {
+        "phase": "PDP-2",
+        "developmentStatus": "DEV_COMPLETE",
+        "definitionContentCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+        "statusRecord": "docs/implementation/pdp-2-phase-dev-status.json",
+        "pinnedSourceCount": 148,
+        "currentSourcePinsMatch": true,
+        "staleSourceRefs": [],
+        "postCutPinRefresh": {
+          "asOf": "2026-10-12",
+          "classification": "IMPLEMENTATION_OR_STATUS_PROJECTION_ONLY",
+          "reason": "Scoped BASE-01/BASE-02/EXP-01 status refresh retained; additional EXP-02/EXP-07 current-source refresh covers the focused renderer/Explorer implementation and examples below. apps/media-experience-explorer/src/styles.css: EXP-02/EXP-07 realization styling adds a visible focus outline and lays out the existing screen-realization coverage panel; it changes presentation only. SUR-09 Explorer physical-topology view and local realization styling are implementation/projection-only; no normative phase meaning changed. Additional SUR-09 Explorer physical-topology deep-link/navigation implementation refresh is projection-only; no normative PDP meaning changed.",
+          "changedNormativeMeaningIds": [],
+          "changedSourcePins": [
+            {
+              "path": "apps/media-experience-explorer/src/product-review.tsx",
+              "reviewedSha": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+              "currentSha": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "22278f1c589615dd95e8e4ebc831e9bcbaf021adee35ee8c057e6c167a13e583",
+              "currentSha": "1abc952c0f89e88b7dba4046249686d3a2f7ba003fa11be5f1f1cb3389ad232b"
+            },
+            {
+              "path": "libs/audio-video-ui/src/screens/MediaProductRenderer.test.ts",
+              "reviewedSha": "3beb8bab2a9e205ea3e7a28d9ee166507493967edaf48bd6fab809bad2392ed3",
+              "currentSha": "538209c8bb5797430a86f2606073a5b98db836e04fc88e9b91b29f3a5e39ee7c"
+            },
+            {
+              "path": "libs/audio-video-ui/src/screens/MediaProductRenderer.tsx",
+              "reviewedSha": "f4d6a5e2a2eb879710b60936e3e145523223e042b092513340b1c25ca7ef0448",
+              "currentSha": "665c888da246d69347eb96e8f1054bc48899a82823d2e9949ade8d865296c14c"
+            },
+            {
+              "path": "libs/audio-video-ui/src/screens/index.ts",
+              "reviewedSha": "f16a0f3a223197f63ebd713e5477a77fcb7dc4fba448ecb7c0c9a8ea7e5816fe",
+              "currentSha": "03035c195715dd4ea08dd28c640575c6b5dee1681e6b0fb3f66fea90ef986a78"
+            },
+            {
+              "path": "apps/media-experience-explorer/specification-artifacts.json",
+              "reviewedSha": "728a42b0b9241d5bb1820acf91e80ca855bea04615b6e8a3d8993f774b4a72de",
+              "currentSha": "aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890"
+            },
+            {
+              "path": "tests/pdp2-media-renderer-dom.test.mjs",
+              "reviewedSha": "bc977e636c158a12cece8f47103a5fcc248528a6b16fb8cb4fd1b7b17aa1f87f",
+              "currentSha": "f3bb65382b8d8e40826883e6673e373626a498f68073c8a49a4ba3c669f58065"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "1abc952c0f89e88b7dba4046249686d3a2f7ba003fa11be5f1f1cb3389ad232b",
+              "currentSha": "38afacacb7844948a600569c81492f3d8b43700d38542bcce504b76e91c1374f"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/main.ts",
+              "reviewedSha": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+              "currentSha": "2484cd0d055d23acf21c73e41427b3728f90d886af2d0b36a5d0b7cf218716cb"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "38afacacb7844948a600569c81492f3d8b43700d38542bcce504b76e91c1374f",
+              "currentSha": "de6a9c5804c5abe17d96f6532fc0d5f68e6896a942511202d37a0aca851982ce"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/main.ts",
+              "reviewedSha": "2484cd0d055d23acf21c73e41427b3728f90d886af2d0b36a5d0b7cf218716cb",
+              "currentSha": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "de6a9c5804c5abe17d96f6532fc0d5f68e6896a942511202d37a0aca851982ce",
+              "currentSha": "a1e64c2a6e9d5e22a408784ef66bf52437bf71d470bd9591b809151a8922d57c"
+            }
+          ]
+        },
+        "verificationResultsRemainAtRecordedCut": true
+      },
+      {
+        "phase": "PDP-3",
+        "developmentStatus": "DEV_COMPLETE",
+        "definitionContentCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+        "statusRecord": "docs/implementation/pdp-3-phase-dev-status.json",
+        "pinnedSourceCount": 329,
+        "currentSourcePinsMatch": true,
+        "staleSourceRefs": [],
+        "postCutPinRefresh": {
+          "asOf": "2026-10-12",
+          "classification": "IMPLEMENTATION_OR_STATUS_PROJECTION_ONLY",
+          "reason": "Scoped BASE-01/BASE-02/EXP-01 status refresh retained; additional EXP-02/EXP-07 current-source refresh covers the focused renderer/Explorer implementation and examples below. apps/media-experience-explorer/src/styles.css: EXP-02/EXP-07 realization styling adds a visible focus outline and lays out the existing screen-realization coverage panel; it changes presentation only. docs/EXAMPLES.md: EXP-07 documentation adds source-linked local channel examples and explicitly preserves runtime, external acceptance, and admission boundaries; it changes documentation only. Additional PDP-3 source pin refresh: downstream status record refresh only. SUR-09 Explorer physical-topology view and local realization styling are implementation/projection-only; generated source-manifest projection reflects current registrations; downstream phase-status pins refreshed only, with no normative phase meaning changed. Additional SUR-09 Explorer physical-topology deep-link/navigation implementation refresh is projection-only; its downstream PDP-2 status pin is refreshed only. No normative PDP meaning changed.",
+          "changedNormativeMeaningIds": [],
+          "changedSourcePins": [
+            {
+              "path": "apps/media-experience-explorer/src/product-review.tsx",
+              "reviewedSha": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
+              "currentSha": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "22278f1c589615dd95e8e4ebc831e9bcbaf021adee35ee8c057e6c167a13e583",
+              "currentSha": "1abc952c0f89e88b7dba4046249686d3a2f7ba003fa11be5f1f1cb3389ad232b"
+            },
+            {
+              "path": "docs/implementation/pdp-0-phase-dev-status.json",
+              "reviewedSha": "17082b2c74e69038dd4fac082da0b8d7bb22a5a6547fd2b9bae0507a19bcb06d",
+              "currentSha": "824786b7ff284af84c6cf31a7acdcc2254bc2256126f94bbf09829c113139247"
+            },
+            {
+              "path": "docs/implementation/pdp-2-phase-dev-status.json",
+              "reviewedSha": "8bb9590206eda3381ebdc9727ffc6a642a39884694a87e0751208567ca2c7b8e",
+              "currentSha": "07f46b507a921a31020684da9b8a19bed2b5ea27e4e065538b0adea41ff6c2eb"
+            },
+            {
+              "path": "libs/audio-video-ui/src/screens/MediaProductRenderer.test.ts",
+              "reviewedSha": "3beb8bab2a9e205ea3e7a28d9ee166507493967edaf48bd6fab809bad2392ed3",
+              "currentSha": "538209c8bb5797430a86f2606073a5b98db836e04fc88e9b91b29f3a5e39ee7c"
+            },
+            {
+              "path": "libs/audio-video-ui/src/screens/MediaProductRenderer.tsx",
+              "reviewedSha": "f4d6a5e2a2eb879710b60936e3e145523223e042b092513340b1c25ca7ef0448",
+              "currentSha": "665c888da246d69347eb96e8f1054bc48899a82823d2e9949ade8d865296c14c"
+            },
+            {
+              "path": "libs/audio-video-ui/src/screens/index.ts",
+              "reviewedSha": "f16a0f3a223197f63ebd713e5477a77fcb7dc4fba448ecb7c0c9a8ea7e5816fe",
+              "currentSha": "03035c195715dd4ea08dd28c640575c6b5dee1681e6b0fb3f66fea90ef986a78"
+            },
+            {
+              "path": ".product-experience/artifact-identities.yaml",
+              "reviewedSha": "f9ca5e06d4e95465ee432abe7604a2e0786b9ccad13e24d14508d9ec0ef4af7c",
+              "currentSha": "3c9d38afc79d8f00a2defeb65f73448bf4cea94d7255524c154d3167d08f1eec"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
+              "currentSha": "f24803bf4667ef382adfeea247e09aa1097f1d84ea74468f8005ad3fb99f1fd5"
+            },
+            {
+              "path": "apps/media-experience-explorer/specification-artifacts.json",
+              "reviewedSha": "728a42b0b9241d5bb1820acf91e80ca855bea04615b6e8a3d8993f774b4a72de",
+              "currentSha": "aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890"
+            },
+            {
+              "path": "docs/implementation/pdp-0-phase-dev-status.json",
+              "reviewedSha": "824786b7ff284af84c6cf31a7acdcc2254bc2256126f94bbf09829c113139247",
+              "currentSha": "84c3c9dbe164bcb120138b9f0e07d8027fdc0c4585a39ab47792b53225131c83"
+            },
+            {
+              "path": "docs/implementation/pdp-2-phase-dev-status.json",
+              "reviewedSha": "07f46b507a921a31020684da9b8a19bed2b5ea27e4e065538b0adea41ff6c2eb",
+              "currentSha": "40f5cb0fd1319c681b225700e96129eee16a920fc5c7e23a205f8be7262386ff"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "f24803bf4667ef382adfeea247e09aa1097f1d84ea74468f8005ad3fb99f1fd5",
+              "currentSha": "0d3b3a74bfb05d81062a3df10623a77a70ef82eec28e92a96b66b456896bb5a9"
+            },
+            {
+              "path": "docs/implementation/pdp-0-phase-dev-status.json",
+              "reviewedSha": "84c3c9dbe164bcb120138b9f0e07d8027fdc0c4585a39ab47792b53225131c83",
+              "currentSha": "fb43df400330284669d7112b195d58692dcfa37b771a456c386497efbdde1918"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "0d3b3a74bfb05d81062a3df10623a77a70ef82eec28e92a96b66b456896bb5a9",
+              "currentSha": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc"
+            },
+            {
+              "path": "docs/implementation/pdp-0-phase-dev-status.json",
+              "reviewedSha": "fb43df400330284669d7112b195d58692dcfa37b771a456c386497efbdde1918",
+              "currentSha": "3efc3db811f7eacded65aa53fd8718ffa964a46a66175817f93d82b85e895b51"
+            },
+            {
+              "path": "tests/pdp2-media-renderer-dom.test.mjs",
+              "reviewedSha": "bc977e636c158a12cece8f47103a5fcc248528a6b16fb8cb4fd1b7b17aa1f87f",
+              "currentSha": "f3bb65382b8d8e40826883e6673e373626a498f68073c8a49a4ba3c669f58065"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "1abc952c0f89e88b7dba4046249686d3a2f7ba003fa11be5f1f1cb3389ad232b",
+              "currentSha": "38afacacb7844948a600569c81492f3d8b43700d38542bcce504b76e91c1374f"
+            },
+            {
+              "path": "docs/EXAMPLES.md",
+              "reviewedSha": "034b2513d9e1c53078363cdb685fd18745af49608bf7b399a42f3e797d080e3b",
+              "currentSha": "ed0cf0d333762ef26bbaab71d947b300134fda61389f49132835b05a3948f9f1"
+            },
+            {
+              "path": "docs/implementation/pdp-2-phase-dev-status.json",
+              "reviewedSha": "40f5cb0fd1319c681b225700e96129eee16a920fc5c7e23a205f8be7262386ff",
+              "currentSha": "cfbbd5189cd45ca0bee4922176e804bc3ab00f9a6cddb9d8c97f5a907ebe93c7"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "10a574c283a292c62f6830dc645e7e24b8af2b9061ff343e15d1285e40e12cbc",
+              "currentSha": "f7ce2e322a3dab0787259d49df8a327c18b293abfae1082b743b64ae10fc0cfa"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/main.ts",
+              "reviewedSha": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+              "currentSha": "2484cd0d055d23acf21c73e41427b3728f90d886af2d0b36a5d0b7cf218716cb"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "38afacacb7844948a600569c81492f3d8b43700d38542bcce504b76e91c1374f",
+              "currentSha": "de6a9c5804c5abe17d96f6532fc0d5f68e6896a942511202d37a0aca851982ce"
+            },
+            {
+              "path": "docs/implementation/pdp-0-phase-dev-status.json",
+              "reviewedSha": "3efc3db811f7eacded65aa53fd8718ffa964a46a66175817f93d82b85e895b51",
+              "currentSha": "cf05f2cd070c312e8dccbaece13a74faa880249c8014b4b125e2965112da07ac"
+            },
+            {
+              "path": "docs/implementation/pdp-2-phase-dev-status.json",
+              "reviewedSha": "cfbbd5189cd45ca0bee4922176e804bc3ab00f9a6cddb9d8c97f5a907ebe93c7",
+              "currentSha": "e53a20f3e51b04a6c21583b088e740f8a659be1af2c171825e1e2331f6b79dec"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/main.ts",
+              "reviewedSha": "2484cd0d055d23acf21c73e41427b3728f90d886af2d0b36a5d0b7cf218716cb",
+              "currentSha": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb"
+            },
+            {
+              "path": "apps/media-experience-explorer/src/styles.css",
+              "reviewedSha": "de6a9c5804c5abe17d96f6532fc0d5f68e6896a942511202d37a0aca851982ce",
+              "currentSha": "a1e64c2a6e9d5e22a408784ef66bf52437bf71d470bd9591b809151a8922d57c"
+            },
+            {
+              "path": "docs/implementation/pdp-2-phase-dev-status.json",
+              "reviewedSha": "e53a20f3e51b04a6c21583b088e740f8a659be1af2c171825e1e2331f6b79dec",
+              "currentSha": "04fe1e799d7fc2ef1fbdf6a9b7afd6605e66cfb71b7217a3fba922b63da8507f"
+            },
+            {
+              "path": ".product-experience/source-manifest.yaml",
+              "reviewedSha": "f7ce2e322a3dab0787259d49df8a327c18b293abfae1082b743b64ae10fc0cfa",
+              "currentSha": "1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+              "reason": "Source-manifest projection was regenerated after artifact registrations settled; verified generated projection pin only, with historical verification cuts and normative meaning preserved."
+            },
+            {
+              "path": "docs/implementation/pdp-0-phase-dev-status.json",
+              "reviewedSha": "cf05f2cd070c312e8dccbaece13a74faa880249c8014b4b125e2965112da07ac",
+              "currentSha": "3f0dc82741542d2ade3a2b9b0461797cf483c14bb94dae7ef03a1aadbc3170ba",
+              "reason": "Downstream PDP-0 status record pin refreshed after its source-manifest projection pin update; historical verification cuts and normative meaning preserved."
+            }
+          ]
+        },
+        "verificationResultsRemainAtRecordedCut": true
+      }
+    ]
+  },
+  "readinessDimensions": {
+    "independentAccepted": {
+      "status": "PENDING",
+      "claim": false,
+      "basis": "Independent PDP semantic and accessibility review is explicitly deferred in phase records; bounded Media owner decisions do not substitute for it.",
+      "sourceRefs": [
+        "docs/implementation/pdp-0-phase-dev-status.json",
+        "docs/implementation/pdp-2-phase-dev-status.json",
+        "docs/implementation/pdp-3-phase-dev-status.json",
+        ".product-experience/acceptance.yaml"
+      ]
+    },
+    "runtimeQualified": {
+      "status": "NOT_QUALIFIED",
+      "claim": false,
+      "basis": "Runtime implementation, host admission, and production qualification remain deferred; definition and simulation records do not establish deployment.",
+      "sourceRefs": [
+        "docs/implementation/pdp-1-phase-dev-status.json",
+        "docs/implementation/pdp-2-phase-dev-status.json",
+        "docs/implementation/pdp-3-phase-dev-status.json",
+        "README.md"
+      ]
+    },
+    "LifecycleReceiptCurrent": {
+      "status": "NOT_RECORDED",
+      "claim": false,
+      "basis": "Lifecycle owns evidence admission, receipt issuance, and currentness; absence of a Media-local receipt reference is not a zero-receipt assertion.",
+      "sourceRefs": [
+        ".product-experience/README.md",
+        ".product-experience/gaps.yaml"
+      ]
+    },
+    "publicContractAcceptance": {
+      "status": "PENDING_EXTERNAL_OWNER",
+      "claim": false,
+      "basis": "Published Shared/platform package and consumer acceptance are not established by local workspace builds.",
+      "sourceRefs": [
+        "docs/implementation/pdp-2-phase-dev-status.json",
+        "docs/implementation/pdp-3-phase-dev-status.json",
+        ".product-experience/gaps.yaml"
+      ]
+    },
+    "migrationCutover": {
+      "status": "OPEN",
+      "claim": false,
+      "basis": "The source service remains canonical until reviewed parity and cutover admission.",
+      "sourceRefs": [
+        "README.md",
+        "BOUNDARY.md",
+        "docs/migration/repository-preparation-status.md"
+      ]
+    },
+    "productionQualified": {
+      "status": "NOT_QUALIFIED",
+      "claim": false,
+      "basis": "No production qualification is declared by source-development status.",
+      "sourceRefs": [
+        "docs/implementation/pdp-3-phase-dev-status.json",
+        "README.md"
+      ]
+    },
+    "releaseReady": {
+      "status": "NOT_AUTHORIZED",
+      "claim": false,
+      "basis": "No release authorization is recorded; production and commercial release remain deferred.",
+      "sourceRefs": [
+        "docs/implementation/pdp-3-phase-dev-status.json",
+        "README.md"
+      ]
+    }
+  },
+  "historicalVerification": {
+    "reportedFullSuite": {
+      "result": "REPORTED_PASS",
+      "tests": 1423,
+      "failures": 0,
+      "skips": 0,
+      "independentlyReproducedInThisStatusProjection": false,
+      "sourceRef": "docs/implementation/verification"
+    },
+    "historicalPdp0FocusedSkipCount": 10,
+    "note": "The PDP-0 historical focused run records documented skips. It is not the reported full-suite run."
+  },
+  "targetedVerificationEvidenceRefs": [
+    "docs/implementation/verification/post-pdp-2026-10-12.json"
+  ]
+}

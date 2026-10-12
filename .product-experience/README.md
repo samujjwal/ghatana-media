@@ -8,9 +8,25 @@ and task ledger. A plan statement becomes accepted product meaning only through
 the appropriate owner review and acceptance record; source presence, repository
 migration, or a generated view does not confer acceptance.
 
+## Current status (2026-10-12)
+
+The source-development gates for PDP-0, PDP-1, PDP-2, and PDP-3 are all
+`DEV_COMPLETE` at definition content cut `adc9aa6`. The four checked-in phase
+status records carry 697 source-pin entries (607 unique paths). At the reviewed
+`0837fef` checkpoint, every pinned digest matched and the delta from the
+definition cut changed status records and verification logs only. The current
+status projection lists any later source-cut differences explicitly; those
+differences do not by themselves reopen a phase gate.
+`DEV_COMPLETE` does not imply formal independent semantic acceptance, external
+package acceptance, runtime implementation or qualification, Lifecycle receipt
+currentness, migration cutover, or release authorization. See the generated
+[current status view](../docs/implementation/post-pdp-current-status.json) and
+the [dated gap classification overlay](./gap-current-status.yaml) and
+the [versioned PDP-3 implementation handoff](./pdp-3-product-experience/generated/implementation-handoff.v1.json).
+
 ## Current scope
 
-Within PDP-0, only the **P0-001 migration boundary slice** is accepted. Its readable record is
+Within formal semantic acceptance, only the **P0-001 migration boundary slice** is accepted. Its readable record is
 [`pdp-0-product-truth/PRODUCT-TRUTH.md`](./pdp-0-product-truth/PRODUCT-TRUTH.md),
 with the accepted document-intelligence ownership overlay in
 [`MDI-001`](../docs/migration/decisions/MDI-001-document-intelligence-ownership.md).
@@ -48,15 +64,18 @@ The active metadata migration to canonical PDP labels is approved under
 stable artifact, task, gap, and requirement identifiers remain unchanged, and
 Explorer remains outside the PDP phase ledger.
 
-P0-002 through P0-009 have authored material in this tree, but that material is
-proposal or work in progress pending the relevant human and external-owner
-reviews. P0-010 independent semantic acceptance is pending. In response to the
-current request, PDP-1 through PDP-3 contain proposals for the first-use,
+P0-002 through P0-009 have authored material in this tree, and their source
+development criteria are complete. Broader formal semantic acceptance and
+external-owner reviews remain pending. P0-010 independent semantic acceptance
+is pending. PDP-1 through PDP-3 contain source-complete definition contracts for the first-use,
 artifact-intake, and long-running transcription-job recovery journeys plus a
 bounded audio transcript and caption-correction lane. PDP-3 includes metadata-only upload fixtures, a
 local browser review client, and the canonical `ghatana-media` fixture-command
-simulator. PDP-3 indexes the full 47-screen and 30-journey denominators. All 28 baseline journeys now have PDP-0-grounded proposal files, with J-29/J-30 represented as explicit extension contracts; complete action/state/scenario/channel bindings and full-phase coverage remain pending. These proposals do
-not pass their upstream gates or claim production behavior. See
+simulator. PDP-3 indexes 47 screens and 30 journeys; its checked-in status
+record reports 147 UI actions, 130 ordered steps, 31 scenario definitions (four
+journeys seeded and 26 without seeded scenarios), and 105 bounded recovery
+oracles without an implemented same-identity query. Those are definition
+populations, not production behavior. See
 [`acceptance.yaml`](./acceptance.yaml) for acceptance inputs and
 [`traceability.yaml`](./traceability.yaml) for the authored, partial relation
 map.

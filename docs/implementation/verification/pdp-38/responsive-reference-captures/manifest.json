@@ -1,11 +1,11 @@
 {
   "schemaVersion": "media.pdp-responsive-rendered-reference-captures.v1",
-  "generatedAt": "2026-10-11T11:09:57.251Z",
+  "generatedAt": "2026-10-12T16:32:56.887Z",
   "sourceBaseUrl": "http://127.0.0.1:4179/",
   "sourceFingerprints": {
     ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-    "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-    "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+    "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+    "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
     "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
     "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
   },
@@ -23,12 +23,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "review-transcript-narrow-390.png",
-      "screenshotSha256": "7731a8ce4baf5818a4b926c882372b3d304cae7ad481a799d3b12bb77085cf69",
+      "screenshotSha256": "cebcba3e4b9e9b3a08b48e2bb8c4cd4cf5baa8867dd1d17fa10616be9457eea9",
       "contractSha256": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -261,12 +261,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "review-transcript-medium-768.png",
-      "screenshotSha256": "ceaedbd8d1c1c8efdd29b4cddcfced813adfb4da60dbd28da28cb0d7a36ccf49",
+      "screenshotSha256": "6f09b89e914bd1d68a9f5564ad36adee34700e69b2669d60b3b1dc49dc11e3c7",
       "contractSha256": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -499,12 +499,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "review-transcript-wide-1280.png",
-      "screenshotSha256": "d7edb761a788771860f5aab4e73850c79b8a5cc7418c227fd7d36a1894a09d9d",
+      "screenshotSha256": "268e43fe28c2ceb035f27968e8fa9808e857794bff6100bc8c832cc66ce23794",
       "contractSha256": "ca01fea9de3761bbee9b53f501778dde55571bbc7c1bb7bea3db482de807f368",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -737,12 +737,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "job-status-narrow-390.png",
-      "screenshotSha256": "1eb65fe55cfca1ffcaea538daa47c92988da779482b8fcae52e70ce92c81ac70",
+      "screenshotSha256": "5735a6417dd930f708745c1180b90f3bbd7e841718fc2fab239b851cc7fb003a",
       "contractSha256": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -867,12 +867,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "job-status-medium-768.png",
-      "screenshotSha256": "41f2c954ca310c7aa315ff538af9068bfa9049c2227161a5bed7efc3ce2805ee",
+      "screenshotSha256": "1d528136b2c2eb4cbb00e16d5c5c965a5cf9bc73727494ddcce6120066fcfbbb",
       "contractSha256": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -997,12 +997,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "job-status-wide-1280.png",
-      "screenshotSha256": "f0b28ee27c4c542b739c4d22e5eaffc90a98c845a527b12cec8a9b95d603e513",
+      "screenshotSha256": "a285600fbd025d6b8a23c6fdf39ba1c66d58e2432469845f2c4c64451f66f5cc",
       "contractSha256": "c4a19e45d2dd5e2586cba7242fbcaea8a666d9d62eb1932fab5bd10191630fbb",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -1127,12 +1127,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "work-in-project-narrow-390.png",
-      "screenshotSha256": "1ef31b74a69459c48cdfd6cd663df12db178025ab43555c3f41fa04dff4352c7",
+      "screenshotSha256": "06f213b0dbbdbb6b7d5165543523b87df25341e8dfcb255e2d7767c4581b4c78",
       "contractSha256": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -1253,12 +1253,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "work-in-project-medium-768.png",
-      "screenshotSha256": "d39a2bc62affcb9551b6825539ffdc8e280c65d2b926db0b7ac78bbb1bf3cf3a",
+      "screenshotSha256": "907d0b79e037c10aa1e11a55bd0a64d6f0dac7802b9202269eafe2b879965cd7",
       "contractSha256": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },
@@ -1379,12 +1379,12 @@
       },
       "status": "RENDERED_SIMULATION_FIXTURE; NOT_ADMITTED; NOT_ACCEPTANCE",
       "screenshot": "work-in-project-wide-1280.png",
-      "screenshotSha256": "15b81627b983932e324286d4f288d849be7e57ebe97bfcbaa6bee117394a2807",
+      "screenshotSha256": "27d1d730fbb1b9d360f0be834d02475b0f8cc411dd5ea38ec04a43b3962c62e0",
       "contractSha256": "9df409fa8a91b004f40378e90168bafb8e66073523b1cbeaf0ac52e120a1bc0f",
       "layoutAndRendererSourceFingerprints": {
         ".product-experience/pdp-2-design-interface-system/typography-layout.yaml": "5e213f0ee1e953df407d45b96b0cd8824931fd2aed2685b3ec4cf0c5797881ca",
-        "apps/media-experience-explorer/src/product-review.tsx": "7dbc5d2cb32edf977e79ff36c6977b9d71fc1c09387da299ef8b7d003589c508",
-        "apps/media-experience-explorer/src/main.ts": "328c48eac55e9ce1fa3307b8d2cd497492ca3f229d47c66a0c5a2b7161ccb8ec",
+        "apps/media-experience-explorer/src/product-review.tsx": "c4420ad36b27c42969860b399d3f91dc81bbcec4b5d5ba46c78e0f34ffba91a4",
+        "apps/media-experience-explorer/src/main.ts": "ea69356d05a36e28491611609b118449e40fe508e517c9d9ffed61182961eddb",
         "libs/media-experience-simulation/src/fixtures.ts": "848cec03856aad03bf364cac38947e141a901920502d7140aceae294f3e6e3fe",
         "libs/media-experience-simulation/src/model.ts": "b4f4bc388adddc25721e3f64b82469977e49f14deba397250044b5d57ed61a01"
       },

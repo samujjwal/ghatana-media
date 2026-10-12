@@ -7,6 +7,15 @@
 
 ### Live execution ledger — 2026-10-11 (all phases development-complete)
 
+> **Current-state note (2026-10-12):** The ledger below records the four
+> `DEV_COMPLETE` phase-development results. It is not an independent acceptance
+> or release result. The reviewed definition cut is `adc9aa6`; `0837fef` refreshed
+> only the four phase status records and verification logs. See the generated
+> [current status projection](./post-pdp-current-status.json), which checks the
+> exact recorded source pins and shows later working-tree differences by file.
+> Post-PDP implementation, migration, external owner acceptance, Lifecycle
+> receipts, production qualification, and release authorization remain separate.
+
 This ledger records the current development-only sequence. The evaluated checkout is based on `5e138efbcef02c71e3255a57e2ee13b3179f49b5`; the local PDP-1 source cut is recorded in `pdp-1-phase-dev-status.json`. Phase status artifacts are valid only for the exact source hashes they record.
 
 | Order | Phase | State | Exit record / next step |
