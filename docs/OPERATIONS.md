@@ -1,5 +1,7 @@
 # Media operations
 
+> **Source-scope note (October 12, 2026):** PDP-0…PDP-3 definition work is **DEV_COMPLETE** (0 remaining PDP tasks). This guide contains runtime-copy observations that can predate later canonical changes in `ghatana/services/media`. [Build, integration and delivery](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) own all runtime fixes, tests and production qualification; historical statements here are not live service-admission claims.
+
 ## Operational posture
 
 Media has an active local runtime and an internal-preview service contract.
