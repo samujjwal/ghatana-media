@@ -64,7 +64,11 @@
     "independentSpecialistAttestation": "NOT_CLAIMED",
     "lifecycleClosure": "NOT_CLAIMED",
     "build": "NOT_ENTERED",
-    "delivery": "BLOCKED"
+    "delivery": "BLOCKED",
+    "delegatedOwnerAcceptanceArtifact": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
+    "acceptanceStatus": "APPROVED_EXACT_PDP0_MATERIAL_AS_INTERNAL_OWNER_INPUT_NOT_PHASE_EXIT",
+    "technicalObservationStillReportsHistoricalNotObtained": true,
+    "mdc06AcceptanceInputJoinRequired": true
   },
   "verificationPerformedByAssistant": [
     "Remote GitHub main HEAD read",

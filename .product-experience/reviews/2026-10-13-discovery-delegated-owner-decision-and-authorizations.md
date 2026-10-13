@@ -5,6 +5,8 @@
 **Material fingerprint reviewed:** `sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a`  
 **Evidence:** [Owner review evidence](../../docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json), [PDP-0 observation](../../docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json), [200-cell execution matrix](../../docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json)
 
+**Machine-readable acceptance:** [PDP-0 exact-cut owner input](../../docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json). This records the owner's choices in typed JSON; it is not a test receipt or a standalone currentness capture. The implementer must join it to the *fresh technical observation* for the same material fingerprint. The current observer's historical `ownerAcceptance: NOT_OBTAINED` field must not be rewritten as if it always had this later approval.
+
 ## Attribution and authorization
 
 The user expressly delegated Media product-definition, engineering, owner and reviewer choices to this assistant. These decisions are **internal delegated AI-assisted owner decisions**, recorded transparently as such, **not the signature of a separate human**, an independent qualified legal/security/accessibility professional, or a claim to exercise another repository owner's authority. The human account owner remains accountable. Do not replace missing external or legally required independent signoffs with this record.

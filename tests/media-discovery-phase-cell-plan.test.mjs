@@ -67,3 +67,18 @@ test('Every phase cell has executable prescriptive links, owner, scope and no ma
     assert.deepEqual(c.phaseTaskIds, matrix.phaseTaskMap[c.phase]);
   }
 });
+
+test('machine owner acceptance is an exact source-bound input, never a phase-exit or independent review', () => {
+  const approval = read('docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json');
+  const observation = read('docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json');
+  assert.equal(approval.subject.phase, 'PDP-0');
+  assert.equal(approval.subject.materialSourceSetFingerprint, observation.materialSourceSetFingerprint);
+  assert.equal(approval.subject.surfaceScope.totalPhaseCells, 50);
+  assert.equal(approval.subject.observedTechnicalCurrentCells, 50);
+  assert.equal(approval.subject.outstandingMeaningIds.length, 0);
+  assert.equal(approval.decision.internalDevelopmentDefinitionAcceptance, 'APPROVED_FOR_REUSE');
+  assert.equal(approval.decision.actualPhaseExitStatus, 'NOT_PUBLISHED');
+  assert.equal(approval.decision.canAdvanceToPdp1, false);
+  assert.equal(approval.authority.humanIndependentSignatureProvided, false);
+  assert.equal(approval.authority.qualifiedExternalSpecialistSignoffProvided, false);
+});

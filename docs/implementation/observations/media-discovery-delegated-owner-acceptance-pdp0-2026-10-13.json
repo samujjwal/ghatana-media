@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "media.discovery-internal-delegated-owner-acceptance.v1",
+  "recordKind": "OWNER_DECISION_INPUT_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT",
+  "decisionId": "MEDIA-OWN-P0-2026-10-13",
+  "decisionDate": "2026-10-13",
+  "timeZone": "America/Los_Angeles",
+  "decisionStatus": "APPROVED_INTERNAL_DELEGATED_EXACT_MATERIAL_CUT",
+  "authority": {
+    "repository": "samujjwal/ghatana-media",
+    "ownerRole": "Media Product Truth / development-status",
+    "actorKind": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorizationBasis": "User explicit delegation in this October 13, 2026 conversation to act as owner/decision maker and publish owner decisions to main",
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "decisionDocumentRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+    "decisionEvidenceRef": "docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json"
+  },
+  "subject": {
+    "phase": "PDP-0",
+    "baselineReviewedHead": "14643ce933d0fe23cf68937e9d3bf88e887db894",
+    "historicalDevCompleteCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+    "historicalDevStatus": "DEV_COMPLETE",
+    "materialSourceSetFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a",
+    "changedMeaningIds": [],
+    "outstandingMeaningIds": [],
+    "surfaceScope": {
+      "physicalCandidates": 26,
+      "physicalDispositions": {
+        "PHYSICAL": 12,
+        "SUPPORT_ONLY": 12,
+        "SUBSUMED": 2
+      },
+      "semanticCompositions": 6,
+      "repositoryRoot": 1,
+      "nonphysicalConsumerCrosswalks": 17,
+      "totalPhaseCells": 50
+    },
+    "observedTechnicalCurrentCells": 50,
+    "observedExternalContractDigestMatches": 30,
+    "originalTechnicalObservationRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json"
+  },
+  "decision": {
+    "internalDevelopmentDefinitionAcceptance": "APPROVED_FOR_REUSE",
+    "observedSourceCurrentnessOwnerDisposition": "ACCEPT_EXACT_MATERIAL_FINGERPRINT",
+    "meaningDevelopmentTasksRemaining": 0,
+    "mayExecuteMdc06": true,
+    "actualPhaseExitStatus": "NOT_PUBLISHED",
+    "canAdvanceToPdp1": false,
+    "scopeBoundary": "No new meaning authority granted to derived status, physical crosswalk, Explorer or external contract consumer.",
+    "requiresBeforeExit": [
+      "Fresh Lifecycle-public-currentness capture for current source set after planning commits",
+      "All 50 PDP-0 scope cells CURRENT or explicit N/A on identical accepted normative fingerprint; no actual missing meaning IDs",
+      "Actual targeted checks and recorded outcomes; historical skips not reported as runs",
+      "Explicit join of this owner record and an independent technical capture with identical materialSourceSetFingerprint",
+      "New source-bound PDP-0 phase exit observation, without rewriting old DEV_COMPLETE status snapshots or the historical technical observation"
+    ],
+    "onMaterialChange": "This owner approval is not portable to a changed meaning fingerprint. Compute exact affected meaning IDs, decide only new material deltas, and preserve unaffected accepted phases.",
+    "independentApprovals": "NOT_CLAIMED_AND_NOT_WAIVED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "build": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "links": {
+    "controllingExecutionPlan": "docs/implementation/MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md",
+    "currentWorklist": "docs/implementation/media-discovery-reconciliation-worklist-2026-10-13.json",
+    "sourceObserverScript": "scripts/record-media-discovery-pdp0-currentness.mjs",
+    "expectedNewExitRecordPattern": "docs/implementation/observations/media-discovery-pdp0-exit-<fresh-cut-id>.json"
+  }
+}

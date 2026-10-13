@@ -271,6 +271,17 @@ Produce **new immutable observations**, one per phase and one Discovery barrier,
 | Lifecycle receipts, convergence and deployment | **NOT ENTERED** | Lifecycle native closure and Build/Delivery owners | Not required to author PDP definitions; required later at real gates |
 | Material source changes after this plan commit | **RECAPTURE REQUIRED** | MDC-06 and affected later phase owner; compare exact semantic digests | Never reuse stale `CURRENT` unexamined |
 
+## MDC-06 machine-readable owner-acceptance join — implementation contract
+
+**Approved owner input:** [PDP-0 delegated owner acceptance](observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json). The implementer does **not** choose this approval or seek it again for an unchanged material fingerprint.
+
+**Observed implementation detail:** `scripts/record-media-discovery-pdp0-currentness.mjs` still emits `phaseDisposition.ownerAcceptance = NOT_OBTAINED` and `pdp0Exit = BLOCKED_PENDING_OWNER_ACCEPTANCE` (the historical technical-observation view at capture time). Treat these as **technical-observer output only**, not a veto on this separate, later owner input. Do **not** edit the old capture's JSON to imply an approval existed then.
+
+**Precisely implement the join under MDC-06:** read the machine owner input and capture **new** technical currentness. Validate owner-role/phase/decision ID, the accepted `materialSourceSetFingerprint`, exact 26+6+1+17 scope, zero changed/outstanding meaning IDs and actual required checks. Publish a *new* phase-exit record with separate `technicalCurrentness`, `delegatedOwnerAcceptance`, `testOutcomes` and `phaseExit` axes; PASS only if all prerequisites independently pass. A material fingerprint mismatch must yield `STALE_APPROVAL_FOR_CHANGED_MATERIAL` and a targeted owner-change review, not silently reinterpret the old acceptance. If only the root repository's membership changed because planning docs/tests were added and material PDP semantics did not, recompute the current cut through Lifecycle continuity rules and retain this scoped owner decision after verifying the identical material fingerprint.
+
+**Do not rewrite the existing fixed-name observation in place.** The current observer uses a fixed output path and preserves `observedAt`; choose a new immutable capture filename or a separate owned phase-exit artifact. An observer change must avoid self-recursive hashing and count actual tests (including skips) accurately. The assistant did not run pnpm, Node test suites or browser tests in this approval pass.
+
+
 ## Immediate implementer instructions
 
 1. Read this plan, [owner decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md), [evidence](observations/media-discovery-delegated-owner-evidence-2026-10-13.json) and [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json). Treat their internal choices as decided, not a request for implementer to impersonate the owner.

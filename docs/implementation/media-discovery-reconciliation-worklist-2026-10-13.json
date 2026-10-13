@@ -45,7 +45,8 @@
       "MDC-04",
       "MDC-05"
     ],
-    "currentPhaseExitPublished": false
+    "currentPhaseExitPublished": false,
+    "machineOwnerAcceptanceRef": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json"
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -767,13 +768,16 @@
       ],
       "where": [
         "docs/implementation/pdp-0-phase-dev-status.json (historical read-only)",
-        "docs/implementation/ (new immutable current-cut observation)"
+        "docs/implementation/ (new immutable current-cut observation)",
+        "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json"
       ],
       "done": "Historical DEV_COMPLETE stays intact; new source-bound status asserts current=TRUE only after every applicable P0 row validates and zero actual outstanding meaning IDs; otherwise stage barrier FAIL.",
       "status": "READY_INTERNAL_OWNER_ACCEPTED_AWAITING_FRESH_VALIDATION_AND_PUBLISH",
-      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition; docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json; .product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
-      "executionNote": "Delegated Media Product Truth owner has now approved the exact observed PDP-0 material fingerprint; this resolves the internal decision request, not the remaining actual recapture/tests/publication. The historical technical observation remains immutable with its then-correct NOT_OBTAINED. MDC-06 must publish a separate current source-cut exit after fresh checks; PDP-1 remains gated.",
-      "ownerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md"
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition; docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json; .product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md; docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
+      "executionNote": "Delegated Media Product Truth owner has now approved the exact observed PDP-0 material fingerprint; this resolves the internal decision request, not the remaining actual recapture/tests/publication. The historical technical observation remains immutable with its then-correct NOT_OBTAINED. MDC-06 must publish a separate current source-cut exit after fresh checks; PDP-1 remains gated. Binding contract: read exact machine owner acceptance JSON and join with fresh currentness; the fixed historical technical observer still says NOT_OBTAINED because it must not retroactively invent an owner decision. Publish separate new exit.",
+      "ownerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+      "ownerAcceptanceInput": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
+      "technicalObserverDoesNotJoinOwnerRecord": true
     },
     {
       "id": "MDC-10",
