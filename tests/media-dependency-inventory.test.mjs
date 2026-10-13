@@ -14,7 +14,7 @@ const EXPECTED_DENOMINATORS = Object.freeze({
   cargoLockfileCount: 2,
   cargoLockedPackageCount: 114,
   gradleDeclarationCount: 315,
-  dockerfileCount: 9,
+  dockerfileCount: 8,
   pythonDependencyManifestCount: 0,
   trackedAssetOrFixtureCount: 31,
   modelOrWeightBinaryCount: 0,
@@ -71,7 +71,7 @@ test("source pins cover the exact manifests, locks, policy authorities, and asse
     "gradle/libs.versions.toml", "gradle.properties",
     ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
     ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
-    "docker/Dockerfile.ai-voice",
+    "docker/Dockerfile.stt-service",
     "scripts/lib/media-dependency-inventory.mjs",
     "scripts/report-media-dependency-inventory.mjs",
     "tests/media-dependency-inventory.test.mjs",
@@ -130,8 +130,8 @@ test("the inventory keeps legal, transitive, codec, model, and font states unres
   assert.equal(report.status.codecAndContainerChain, "REVIEW_REQUIRED; source selection does not establish an assembled, licensed, qualified chain");
   assert.equal(report.status.modelWeightRights, "NO_TRACKED_WEIGHT_BYTES_FOUND; RUNTIME_OR_EXTERNAL_WEIGHTS_REMAIN_UNKNOWN");
   assert.equal(report.status.fontRights, "NO_TRACKED_FONT_BYTES_FOUND; EXTERNAL_OR_RUNTIME_FONTS_REMAIN_UNKNOWN");
-  assert.ok(report.containers.inputs.some((item) => item.reference === "python:3.11-slim-bookworm" && !item.exactDigestPinned));
-  assert.ok(report.containers.unresolvedBuildReferences.some((item) => item.path === "modules/intelligence/ai-voice/requirements.txt"));
+  assert.ok(!report.sourcePins.some((pin) => pin.path === "docker/Dockerfile.ai-voice"), "retired success-mock AI Voice container must not be admitted");
+  assert.ok(!report.containers.unresolvedBuildReferences.some((item) => item.path === "modules/intelligence/ai-voice/requirements.txt"), "retired image must not advertise missing AI Voice requirements");
   assert.ok(report.trackedAssets.every((item) => item.licenseReview === "REVIEW_REQUIRED"));
   assert.equal(report.candidatePolicies.technologyCandidates.length, 38);
   assert.ok(report.candidatePolicies.technologyCandidates.every((item) => item.licenseAdmission === "NOT_ADMITTED_BY_SELECTION_RECORD" && item.patentReview === "REVIEW_REQUIRED"));

@@ -2,7 +2,7 @@
   "name": "@ghatana/ai-voice-ui-react",
   "private": true,
   "version": "0.1.0-SNAPSHOT",
-  "description": "Accessible React components and hooks for governed AI Voice production workflows",
+  "description": "Host-dependent React UI components for governed Media AI Voice experiences (provider admission separate)",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
