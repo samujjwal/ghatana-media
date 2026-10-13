@@ -1,6 +1,8 @@
-# Audio-Video Integration Tests
+# Media Integration Tests
 
-This directory contains integration tests for the audio-video product suite, testing end-to-end workflows and service interactions.
+These tests cover Media service contracts and cross-module behavior in the prepared runtime source tree. Their execution and environmental prerequisites vary; file presence does not establish a deployed service, customer-visible journey, production recovery, or release readiness. Integration against the currently authoritative runtime remains a Build-stage concern.
+
+**Source inventory:** `AudioVideoIntegrationTest`, `FullWorkflowIntegrationTest`, `ErrorScenarioIntegrationTest`, `PerformanceIntegrationTest`, `AudioVideoDataCloudAepIntegrationJourneyTest`, `AudioVideoDataCloudAepAgentE2ETest`, `MediaServicesIntegrationTest` and `MediaProviderJobLifecycleE2ETest` are tracked test suites; do not infer that all are runnable without their required dependencies.
 
 ## Test Structure
 

@@ -10,7 +10,7 @@ The October 12 cleanup removed the dead AI Voice Python success-mock backend, it
 
 ## Automated source-wide audit
 
-Run `pnpm audit:repository-hygiene` for a read-only inventory of **every Git-tracked file**. Use `pnpm audit:repository-hygiene -- --json` to obtain path-by-path exact-duplicate groups, historical logs, archive references, compatibility names, broken relative Markdown links and nonportable Docker build recipes. Use `node scripts/audit-media-repository.mjs --check` to fail only for unreadable tracked files, broken local links in maintained entry points, or known stale phase-status claims in those guides.
+Run `pnpm audit:repository-hygiene` for a read-only inventory of **every Git-tracked file**. Use `node scripts/audit-media-repository.mjs --json` to obtain path-by-path exact-duplicate groups, historical logs, archive references, compatibility names, broken relative Markdown links and nonportable Docker build recipes. Use `node scripts/audit-media-repository.mjs --check` to fail only for unreadable tracked files, broken local links in maintained entry points, or known stale phase-status claims in those guides.
 
 The audit **does not delete** any file. Identical bytes are not enough to justify deleting a file required by a versioned source reference or a consumer. Four module-local Dockerfiles still reference the obsolete `products/audio-video` monorepo layout, while four repository-root Dockerfile candidates have separate build-context issues. They are not qualified images. Review genuine consumers and owner-approved build packaging before consolidating these paths.
 

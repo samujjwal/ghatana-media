@@ -1,6 +1,6 @@
-# tts-service
+# Media Text-to-Speech Service
 
-Text-to-Speech (TTS) service for the Audio-Video platform.
+Prepared Media TTS source and typed gRPC service contracts. The canonical executable runtime remains under `ghatana/services/media` pending cutover; the presence of this module does not qualify a voice model, license or live synthesis endpoint.
 
 ## Purpose
 

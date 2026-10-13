@@ -1,6 +1,6 @@
-# multimodal-service (vision-service)
+# Media Multimodal Analysis Service
 
-Multimodal analysis service for the Audio-Video platform — referred to as `vision-service` in the platform audit.
+Prepared Media multimodal service source, separate from the Vision service. Its gRPC contracts and tests describe cross-modal composition; production execution and provider qualification remain separate from PDP development completion. The former `vision-service` label was a historical audit alias, not the module's identity.
 
 ## Purpose
 

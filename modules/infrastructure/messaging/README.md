@@ -1,6 +1,6 @@
-# infrastructure/messaging
+# Media Infrastructure — Messaging Adapter
 
-Message-broker integration for the Audio-Video platform.
+Prepared Media-specific broker integration source; not a competing Event Plane or Shared messaging engine. Production publication/finality must use the owning platform's admitted interface and independently verified effects.
 
 ## Purpose
 

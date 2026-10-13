@@ -1,6 +1,6 @@
-# infrastructure/cache
+# Media Infrastructure — Cache Adapter
 
-In-memory and distributed caching layer for the Audio-Video platform.
+Prepared Media caching adapter source; not an independently deployed cache service or a replacement for the authoritative Shared/platform cache contracts. In-memory caching and Redis integrations require separate Build-stage testing and host wiring.
 
 ## Purpose
 
