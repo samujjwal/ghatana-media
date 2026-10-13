@@ -8,7 +8,7 @@ const outputPath = resolve(root, 'migration/evidence/media-transfer-manifest-can
 const pathMapPath = resolve(root, 'migration/path-map.yaml');
 const inventoryPath = resolve(root, 'migration/source-inventory.yaml');
 const exceptionsPath = resolve(root, 'migration/transfer-exceptions.yaml');
-const crosswalkPath = resolve(root, 'docs/migration/evidence/media-source-target-tree-crosswalk-2026-10-12.json');
+const crosswalkPath = resolve(root, 'docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-12.json');
 
 const localRepos = new Map([
   ['samujjwal/ghatana', resolve(root, '../ghatana')],
@@ -67,8 +67,8 @@ function git(repo, args) {
   return execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8' }).trimEnd();
 }
 
-function head(repo) {
-  return git(repo, ['rev-parse', 'HEAD']).trim();
+function head(repo, ref = 'HEAD') {
+  return git(repo, ['rev-parse', `${ref}^{commit}`]).trim();
 }
 
 function branch(repo) {
@@ -76,25 +76,21 @@ function branch(repo) {
 }
 
 function readTree(repo, ref) {
-  try {
-    const raw = execFileSync('git', ['-C', repo, 'ls-tree', '-r', '-z', '--full-tree', ref], {
-      encoding: 'buffer', maxBuffer: 256 * 1024 * 1024,
-    }).toString('utf8');
-    const tree = new Map();
-    for (const record of raw.split('\0').filter(Boolean)) {
-      const [meta, path] = record.split('\t');
-      const [mode, type, objectId] = meta.split(' ');
-      if (type === 'blob') tree.set(path, { mode, objectId });
-    }
-    return tree;
-  } catch {
-    return new Map();
+  const raw = execFileSync('git', ['-C', repo, 'ls-tree', '-r', '-z', '--full-tree', ref], {
+    encoding: 'buffer', maxBuffer: 256 * 1024 * 1024,
+  }).toString('utf8');
+  const tree = new Map();
+  for (const record of raw.split('\0').filter(Boolean)) {
+    const [meta, path] = record.split('\t');
+    const [mode, type, objectId] = meta.split(' ');
+    if (type === 'blob') tree.set(path, { mode, objectId });
   }
+  return tree;
 }
 
 function key(repo, path) { return `${repo}\0${path}`; }
 
-export function buildTransferManifest({ pathMap, inventory, exceptions, crosswalk, repoHeads, repoBranches, repoPaths, repoTrees }) {
+export function buildTransferManifest({ pathMap, inventory, exceptions, crosswalk, repoHeads, repoBranches, repoHeadRefs = {}, repoPaths, repoTrees, repoTreeStatuses = new Map() }) {
   const pathMapByKey = new Map(pathMap.map((entry) => [key(entry.sourceRepository, entry.sourcePath), entry]));
   const inventoryByKey = new Map(inventory.map((entry) => [key(entry.sourceRepository, entry.sourcePath), entry]));
   const exceptionsByKey = new Map(exceptions.map((entry) => [key(entry.sourceRepository, entry.sourcePath), entry]));
@@ -156,6 +152,7 @@ export function buildTransferManifest({ pathMap, inventory, exceptions, crosswal
         mode: currentSource?.mode ?? null,
         blob: currentSource?.objectId ?? null,
         present: Boolean(currentSource),
+        observationStatus: repoTreeStatuses.get(`${entry.sourceRepository}\0HEAD`)?.status ?? (repoHeads[entry.sourceRepository] ? 'OBSERVED' : 'UNVERIFIABLE_REPOSITORY_HEAD_UNAVAILABLE'),
       },
       targetRepository: entry.targetRepository,
       targetPath: mappedTargetPath,
@@ -165,7 +162,11 @@ export function buildTransferManifest({ pathMap, inventory, exceptions, crosswal
         mode: currentTarget?.mode ?? null,
         blob: currentTarget?.objectId ?? null,
         present: Boolean(currentTarget),
+        observationStatus: repoTreeStatuses.get(`${entry.targetRepository}\0HEAD`)?.status ?? (repoHeads[entry.targetRepository] ? 'OBSERVED' : 'UNVERIFIABLE_REPOSITORY_HEAD_UNAVAILABLE'),
       },
+      sourceIdentityObservationStatus: pinned ? 'PINNED_COMMIT_TREE_OBSERVED'
+        : sourceRecord?.sourceFingerprint?.value ? 'HISTORICAL_INVENTORY_FINGERPRINT; PINNED_TREE_UNVERIFIABLE'
+          : 'UNVERIFIABLE_SOURCE_IDENTITY',
       targetDisposition: entry.disposition,
       pathMapOwnershipLabel: entry.ownership ?? sourceRecord?.ownership ?? null,
       inventoryGroup: entry.inventoryGroup ?? sourceRecord?.inventoryGroup ?? null,
@@ -219,21 +220,24 @@ export function buildTransferManifest({ pathMap, inventory, exceptions, crosswal
       refreshedCrosswalkEntryCount: crosswalk.entries.length,
       transferExceptionCount: exceptions.length,
     sourceTreeCrosswalk: {
-      path: 'docs/migration/evidence/media-source-target-tree-crosswalk-2026-10-12.json',
+      path: 'docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-12.json',
       source: crosswalk.source,
       target: crosswalk.target,
       counts: crosswalk.counts,
     },
-    crosswalkHeadAlignment: {
+      crosswalkHeadAlignment: {
+      status: crosswalk.unverifiable === true || crosswalk.status === 'UNVERIFIABLE' ? 'UNVERIFIABLE' : 'OBSERVED',
       sourceCrosswalkRevision: crosswalk.source.revision,
       sourceObservedHead: repoHeads[crosswalk.source.repository] ?? null,
-      sourceAligned: crosswalk.source.revision === (repoHeads[crosswalk.source.repository] ?? null),
+      sourceAligned: crosswalk.unverifiable !== true && crosswalk.status !== 'UNVERIFIABLE'
+        && crosswalk.source.revision === (repoHeads[crosswalk.source.repository] ?? null),
       targetCrosswalkRevision: crosswalk.target.revision,
       targetObservedHead: repoHeads[crosswalk.target.repository] ?? null,
-      targetAligned: crosswalk.target.revision === (repoHeads[crosswalk.target.repository] ?? null),
+      targetAligned: crosswalk.unverifiable !== true && crosswalk.status !== 'UNVERIFIABLE'
+        && crosswalk.target.revision === (repoHeads[crosswalk.target.repository] ?? null),
     },
       repositories: Object.fromEntries(Object.keys(repoHeads).sort().map((repository) => [repository, {
-        head: repoHeads[repository], branch: repoBranches[repository],
+        head: repoHeads[repository], branch: repoBranches[repository], ref: repoHeadRefs[repository] ?? null,
       }])),
       consumerInventory: {
         path: 'migration/consumer-inventory.yaml',
@@ -246,9 +250,11 @@ export function buildTransferManifest({ pathMap, inventory, exceptions, crosswal
       affectedConsumerOwnerApprovals: 'PENDING',
       packageSecurityAcceptanceDecisions: 'PENDING_AS_APPLICABLE',
       exactReleaseBranchAndEnvironmentInventory: 'PENDING',
-      refreshedCrosswalkAgainstObservedSourceHead: crosswalk.source.revision === (repoHeads[crosswalk.source.repository] ?? null)
-        ? 'CURRENT_FOR_OBSERVED_HEAD'
-        : 'PENDING_SOURCE_HEAD_RECONCILIATION',
+      refreshedCrosswalkAgainstObservedSourceHead: crosswalk.unverifiable === true || crosswalk.status === 'UNVERIFIABLE'
+        ? 'UNVERIFIABLE'
+        : crosswalk.source.revision === (repoHeads[crosswalk.source.repository] ?? null)
+          ? 'CURRENT_FOR_OBSERVED_HEAD'
+          : 'PENDING_SOURCE_HEAD_RECONCILIATION',
       nonProductionRollbackRehearsal: 'PENDING',
       signedChangeWindow: 'PENDING',
       databaseDataAndSecretOwnership: 'UNRESOLVED_OWNER_REVIEW_REQUIRED',
@@ -260,8 +266,10 @@ export function buildTransferManifest({ pathMap, inventory, exceptions, crosswal
       ownerResolvedCount: rows.filter((row) => row.namedOwnerStatus !== 'UNRESOLVED_OWNER_REVIEW_REQUIRED').length,
       generatorResolvedCount: rows.filter((row) => row.canonicalGeneratorStatus !== 'UNRESOLVED_OWNER_REVIEW_REQUIRED').length,
       transferAuthorizedCount: rows.filter((row) => row.transferAuthorization === 'AUTHORIZED').length,
-      currentSourceObservationUnavailableCount: rows.filter((row) => !row.currentSourceHeadObservation.present).length,
-      currentTargetObservationUnavailableCount: rows.filter((row) => !row.targetHeadObservation.present).length,
+      currentSourceObservationUnavailableCount: rows.filter((row) => row.currentSourceHeadObservation.observationStatus !== 'OBSERVED').length,
+      currentSourcePathAbsentCount: rows.filter((row) => row.currentSourceHeadObservation.observationStatus === 'OBSERVED' && !row.currentSourceHeadObservation.present).length,
+      currentTargetObservationUnavailableCount: rows.filter((row) => row.targetHeadObservation.observationStatus !== 'OBSERVED').length,
+      currentTargetPathAbsentCount: rows.filter((row) => row.targetHeadObservation.observationStatus === 'OBSERVED' && !row.targetHeadObservation.present).length,
     },
     entries: rows,
   };
@@ -272,19 +280,26 @@ function createCurrentManifest() {
   const inventory = parseRecordBlocks(readFileSync(inventoryPath, 'utf8'), 'entries');
   const exceptions = parseRecordBlocks(readFileSync(exceptionsPath, 'utf8'), 'records');
   const crosswalk = JSON.parse(readFileSync(crosswalkPath, 'utf8'));
+  if (!Array.isArray(crosswalk.entries) || crosswalk.unverifiable === true || crosswalk.status === 'UNVERIFIABLE') {
+    throw new Error(`MIG-02 current source crosswalk is UNVERIFIABLE; inspect ${crosswalkPath} and preserve it for diagnosis`);
+  }
   const repoHeads = {};
   const repoBranches = {};
+  const repoHeadRefs = {};
   for (const repository of new Set([...pathMap.map((row) => row.sourceRepository), ...pathMap.map((row) => row.targetRepository)])) {
     const localPath = localRepos.get(repository);
     if (!localPath) continue;
     try {
-      repoHeads[repository] = head(localPath);
+      const cutRef = ['samujjwal/ghatana', 'samujjwal/ghatana-media'].includes(repository) ? 'origin/main' : 'HEAD';
+      repoHeads[repository] = head(localPath, cutRef);
+      repoHeadRefs[repository] = cutRef;
       repoBranches[repository] = branch(localPath);
     } catch {
       // Keep an unavailable repository explicit in evidence rather than inventing its revision.
     }
   }
   const repoTrees = new Map();
+  const repoTreeStatuses = new Map();
   const sourceRevisions = new Map();
   for (const row of inventory) {
     if (!sourceRevisions.has(row.sourceRepository)) sourceRevisions.set(row.sourceRepository, new Set());
@@ -292,12 +307,23 @@ function createCurrentManifest() {
   }
   for (const [repository, localPath] of localRepos) {
     if (!repoHeads[repository]) continue;
-    repoTrees.set(`${repository}\0HEAD`, readTree(localPath, 'HEAD'));
+    try {
+      const currentRef = repoHeadRefs[repository] ?? 'HEAD';
+      repoTrees.set(`${repository}\0HEAD`, readTree(localPath, currentRef));
+      repoTreeStatuses.set(`${repository}\0HEAD`, { status: 'OBSERVED', ref: currentRef });
+    } catch (error) {
+      repoTreeStatuses.set(`${repository}\0HEAD`, { status: 'UNVERIFIABLE', reason: String(error.message ?? error) });
+    }
     for (const revision of sourceRevisions.get(repository) ?? []) {
-      repoTrees.set(`${repository}\0${revision}`, readTree(localPath, revision));
+      try {
+        repoTrees.set(`${repository}\0${revision}`, readTree(localPath, revision));
+        repoTreeStatuses.set(`${repository}\0${revision}`, { status: 'OBSERVED' });
+      } catch (error) {
+        repoTreeStatuses.set(`${repository}\0${revision}`, { status: 'UNVERIFIABLE', reason: String(error.message ?? error) });
+      }
     }
   }
-  return buildTransferManifest({ pathMap, inventory, exceptions, crosswalk, repoHeads, repoBranches, repoPaths: localRepos, repoTrees });
+  return buildTransferManifest({ pathMap, inventory, exceptions, crosswalk, repoHeads, repoBranches, repoHeadRefs, repoPaths: localRepos, repoTrees, repoTreeStatuses });
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

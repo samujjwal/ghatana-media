@@ -1,5 +1,6 @@
 import React from "react";
-import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import { MediaTaskScreen, type MediaScreenAction, type MediaTaskScreenProps } from "./MediaTaskScreen";
+import type { MediaActionDispatchContext, MediaActionDispatchResult } from "../ports";
 
 export type TranscriptCaptionView = "select-source" | "monitor-transcription" | "review-transcript" | "correct-captions" | "compare-caption-versions";
 
@@ -41,12 +42,43 @@ export interface TranscriptCaptionScreenProps extends Omit<MediaTaskScreenProps,
   readonly onCompareVersionSelection?: (side: "left" | "right", versionId: string) => void;
 }
 
+/** Preserve the host's action scope while binding the exact displayed versions to an edit. */
+export function transcriptActionContext(
+  action: MediaScreenAction | undefined,
+  exactSubjectRefs: readonly (string | undefined)[] = [],
+): MediaActionDispatchContext {
+  return {
+    subjectRefs: [...new Set([
+      ...(action?.subjectRefs ?? []),
+      ...exactSubjectRefs.filter((ref): ref is string => typeof ref === "string" && ref.trim().length > 0),
+    ])],
+  };
+}
+
+function dispatchMessage(result: MediaActionDispatchResult): string {
+  switch (result.status) {
+    case "failed":
+    case "denied":
+    case "unavailable":
+      return `${result.status}: ${result.reason}`;
+    case "local-applied":
+      return "The source-defined draft change was applied locally; no remote effect is implied.";
+    case "intent-accepted":
+      return "The action intent was accepted; no domain effect is confirmed.";
+    case "request-started":
+    case "request-acknowledged":
+      return `Request acknowledged (${result.requestId}); completion remains unobserved.`;
+  }
+}
+
 /** Candidate J-03 body for source selection, transcript review, caption correction and version comparison. */
 export function TranscriptCaptionScreen({
   transcript, onCaptionEdit, onCaptionTimingDraftChange, onVersionPurposeChange,
   onCompareVersionSelection,
   actions = [], nextSafeActionIds = [], actionPort, ...flow
 }: TranscriptCaptionScreenProps): React.ReactElement {
+  const [payloadActionStatus, setPayloadActionStatus] = React.useState<string | undefined>();
+  const [pendingPayloadAction, setPendingPayloadAction] = React.useState<string | undefined>();
   const heading = {
     "select-source": "Select a source recording",
     "monitor-transcription": "Transcription status",
@@ -63,6 +95,35 @@ export function TranscriptCaptionScreen({
   const payloadActions = new Set(["media.action.correct-caption", "media.action.align-caption-timing", "media.action.save-caption-version", "media.action.compare-caption-versions"]);
   const flowActions = actions.filter((action) => !payloadActions.has(action.id));
   const flowSafeActionIds = nextSafeActionIds.filter((id) => !payloadActions.has(id));
+  const transcriptSubjectRefs = [
+    transcript.sourceArtifactVersion,
+    transcript.transcriptVersion,
+    transcript.captionDraftVersion,
+  ];
+  const invokePayloadAction = (
+    actionId: string,
+    payload: Readonly<Record<string, string | number | boolean | null>>,
+    exactSubjectRefs: readonly (string | undefined)[] = transcriptSubjectRefs,
+  ): void => {
+    const action = availableActions.get(actionId);
+    if (!action?.enabled || pendingPayloadAction !== undefined) return;
+    setPendingPayloadAction(actionId);
+    setPayloadActionStatus("Request submitted; completion remains unknown until a fresh owner projection arrives.");
+    void (async () => {
+      try {
+        const result = await actionPort.invoke(
+          actionId,
+          payload,
+          transcriptActionContext(action, exactSubjectRefs),
+        );
+        setPayloadActionStatus(dispatchMessage(result));
+      } catch {
+        setPayloadActionStatus("Request outcome is unknown. Reconcile this same source and version before retrying.");
+      } finally {
+        setPendingPayloadAction(undefined);
+      }
+    })();
+  };
 
   return <MediaTaskScreen {...flow} actions={flowActions} nextSafeActionIds={flowSafeActionIds} actionPort={actionPort}>
     <section className="media-screen-body" aria-labelledby="transcript-caption-title">
@@ -86,8 +147,8 @@ export function TranscriptCaptionScreen({
           {transcript.sourceChoices.map((source) => <li key={source.artifactVersion}>
             <p>{source.label}</p>
             <p><code>{source.artifactVersion}</code>{source.availability ? ` · ${source.availability}` : ""}</p>
-            <button type="button" className="media-action-button media-action-button--primary" disabled={!availableActions.get("media.action.choose-source")?.enabled}
-              onClick={() => void actionPort.invoke("media.action.choose-source", { artifactVersion: source.artifactVersion })}>Select this source</button>
+            <button type="button" className="media-action-button media-action-button--primary" disabled={!availableActions.get("media.action.choose-source")?.enabled || pendingPayloadAction !== undefined}
+              onClick={() => invokePayloadAction("media.action.choose-source", { artifactVersion: source.artifactVersion }, [source.artifactVersion])}>Select this source</button>
           </li>)}
         </ul>
       </section> : null}
@@ -97,8 +158,8 @@ export function TranscriptCaptionScreen({
           <label htmlFor={`caption-${segment.id}`}>Caption text for segment {segment.id}</label>
           <textarea id={`caption-${segment.id}`} className="media-input" value={segment.text} disabled={!onCaptionEdit || !canCorrect}
             onChange={(event) => onCaptionEdit?.(segment.id, event.currentTarget.value)} rows={2} />
-          <button type="button" className="media-action-button media-action-button--primary" disabled={!canCorrect} onClick={() => {
-            if (canCorrect) void actionPort.invoke("media.action.correct-caption", { segmentId: segment.id, text: segment.text });
+          <button type="button" className="media-action-button media-action-button--primary" disabled={!canCorrect || pendingPayloadAction !== undefined} onClick={() => {
+            invokePayloadAction("media.action.correct-caption", { segmentId: segment.id, text: segment.text });
           }}>Apply caption correction</button>
           {correctAction?.disabledReason && <p>{correctAction.disabledReason}</p>}
           <p>{[segment.confidence, segment.provenance].filter(Boolean).join(" · ")}</p>
@@ -110,10 +171,10 @@ export function TranscriptCaptionScreen({
             <label htmlFor={`caption-end-${segment.id}`}>End tick</label>
             <input id={`caption-end-${segment.id}`} className="media-input" type="number" min={0} max={transcript.durationTicks} step={1}
               value={segment.endTick ?? ""} onChange={(event) => onCaptionTimingDraftChange?.(segment.id, "endTick", event.currentTarget.value === "" ? null : Number(event.currentTarget.value))} />
-            <button type="button" className="media-action-button media-action-button--primary" disabled={!alignAction?.enabled || segment.startTick == null || segment.endTick == null}
+            <button type="button" className="media-action-button media-action-button--primary" disabled={!alignAction?.enabled || segment.startTick == null || segment.endTick == null || pendingPayloadAction !== undefined}
               onClick={() => {
                 if (segment.startTick != null && segment.endTick != null) {
-                  void actionPort.invoke("media.action.align-caption-timing", {
+                  invokePayloadAction("media.action.align-caption-timing", {
                     segmentId: segment.id, startTick: segment.startTick, endTick: segment.endTick,
                   });
                 }
@@ -147,13 +208,13 @@ export function TranscriptCaptionScreen({
           <option value="">Choose a version</option>
           {transcript.versions?.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
         </select>
-        <button type="button" className="media-action-button media-action-button--primary" disabled={!compareAction?.enabled || !transcript.leftCompareVersionId || !transcript.rightCompareVersionId}
+        <button type="button" className="media-action-button media-action-button--primary" disabled={!compareAction?.enabled || !transcript.leftCompareVersionId || !transcript.rightCompareVersionId || pendingPayloadAction !== undefined}
           onClick={() => {
             if (transcript.leftCompareVersionId && transcript.rightCompareVersionId) {
-              void actionPort.invoke("media.action.compare-caption-versions", {
+              invokePayloadAction("media.action.compare-caption-versions", {
                 leftVersionId: transcript.leftCompareVersionId,
                 rightVersionId: transcript.rightCompareVersionId,
-              });
+              }, [...transcriptSubjectRefs, transcript.leftCompareVersionId, transcript.rightCompareVersionId]);
             }
           }}>{compareAction?.label ?? "Compare selected versions"}</button>
         {compareAction?.disabledReason && <p>{compareAction.disabledReason}</p>}
@@ -164,13 +225,14 @@ export function TranscriptCaptionScreen({
         <input id="caption-version-purpose" className="media-input" type="text" value={transcript.versionPurpose ?? ""}
           disabled={!onVersionPurposeChange || !saveAction?.enabled}
           onChange={(event) => onVersionPurposeChange?.(event.currentTarget.value)} />
-        <button type="button" className="media-action-button media-action-button--primary" disabled={!saveAction?.enabled} onClick={() => {
+        <button type="button" className="media-action-button media-action-button--primary" disabled={!saveAction?.enabled || pendingPayloadAction !== undefined} onClick={() => {
           const purpose = transcript.versionPurpose?.trim();
-          void actionPort.invoke("media.action.save-caption-version", purpose ? { purpose } : {});
+          invokePayloadAction("media.action.save-caption-version", purpose ? { purpose } : {});
         }}>{saveAction?.label ?? "Save caption version"}</button>
         {saveAction?.disabledReason && <p>{saveAction.disabledReason}</p>}
       </section>}
       {transcript.view === "monitor-transcription" && <p role="status">The latest job state and outcome are shown in the operation observation above.</p>}
+      {payloadActionStatus && <p role="status" aria-live="polite">{payloadActionStatus}</p>}
     </section>
   </MediaTaskScreen>;
 }

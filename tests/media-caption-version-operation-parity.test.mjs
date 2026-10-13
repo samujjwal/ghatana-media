@@ -25,7 +25,7 @@ const bindings = [
     command: "caption save-version",
     actionResult: 'actionResult("media.cli.caption.save-version", {\n      type: "media.action.save-caption-version",',
     inputMarkers: ["--draft-version", "--purpose", "state.captionDraft.versionId", 'parsed.options["--purpose"]!.length > 240', 'typeof value.purpose === "string"'],
-    uiMarker: 'actionPort.invoke("media.action.save-caption-version", purpose ? { purpose } : {});',
+    uiMarker: 'invokePayloadAction("media.action.save-caption-version", purpose ? { purpose } : {});',
     effectMarkers: ["registeredCaptionVersions: [...state.registeredCaptionVersions, versionId]", "captionHistory: [...state.captionHistory, registeredVersion]"],
     finalityMarkers: ["A new caption version is saved; it has not been delivered or published."],
     actionContractMarkers: ["effect: append-a-new-immutable-caption-version-with-exact-parent-and-required-registration-provenance-metadata; no-provenance-export", "finality: internal-version-registration-only; no-delivery-or-publication"],
@@ -42,7 +42,7 @@ const bindings = [
     command: "caption compare-versions",
     actionResult: 'actionResult("media.cli.caption.compare-versions", {\n      type: "media.action.compare-caption-versions",',
     inputMarkers: ["--left-version", "--right-version", 'readonly leftVersionId: string', 'readonly rightVersionId: string'],
-    uiMarker: 'actionPort.invoke("media.action.compare-caption-versions", {',
+    uiMarker: 'invokePayloadAction("media.action.compare-caption-versions", {',
     effectMarkers: ["const sameSource = left.sourceArtifactVersion === right.sourceArtifactVersion", "return result(state, [], sameSource"],
     finalityMarkers: ["The selected caption versions share the same source recording version.", "The selected caption versions use different source recording versions; differences may not be comparable."],
     actionContractMarkers: ["effect: show-text-timing-provenance-and-source-version-differences-without-changing-either-version", "finality: read-only"],
@@ -104,6 +104,14 @@ function validate({ operations, parity, canonicalCli, cliSource, uiSource, model
     for (const marker of item.finalityMarkers) if (!reducerSource.includes(marker)) errors.push(`${item.operation}: fixture finality source drift at ${marker}`);
     for (const marker of item.authorityMarkers) if (!reducerSource.includes(marker) && !actionRegistry.includes(marker)) errors.push(`${item.operation}: authority/precondition source drift at ${marker}`);
   }
+  const contextDispatchMarkers = [
+    "const result = await actionPort.invoke(",
+    "          actionId,",
+    "          payload,",
+    "          transcriptActionContext(action, exactSubjectRefs),",
+    "        );",
+  ];
+  if (contextDispatchMarkers.some((marker) => !uiSource.includes(marker))) errors.push("caption UI actions must carry exact source refs through the shared dispatch context");
   if (!parity.includes("denominator: 147") || !parity.includes("operationBindingCounts: {mappedProposal: 14, ownerDefinedIntentOnly: 1, ambiguous: 0, unresolved: 132}")) errors.push("current UI action census must be 14 proposed exact refs, one PXD-077 owner-defined intent only, and 132 without exact refs; historical 146/PXD-029 remains separate");
   if (!parity.includes("registryPopulation: 12") || !parity.includes("operationBindingCounts: {mappedProposal: 2, unresolved: 0}")) errors.push("caption-version CLI slice must remain 2/2 mapped within the 12-record registry");
   if (!parity.includes("semanticOperationBinding: all-11-fixture-identities-have-exact-action-to-operation-intent-crosswalk-through-current-PDP1-action-ref-resolution; only-two-command-registry-rows-carry-direct-operationRef-fields; fixture-parser-does-not-invoke-canonical-operations; production-cli-not-admitted")) errors.push("fixture CLI identities must retain the exact intent crosswalk while fixture execution and production CLI admission stay separate");

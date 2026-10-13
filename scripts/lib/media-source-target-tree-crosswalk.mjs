@@ -1,7 +1,12 @@
 import { execFileSync } from 'node:child_process';
 
 function git(repo, args) {
-  return execFileSync('git', ['-C', repo, ...args], { encoding: 'buffer' });
+  try {
+    return execFileSync('git', ['-C', repo, ...args], { encoding: 'buffer', stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (error) {
+    const details = error.stderr?.toString('utf8').trim();
+    throw new Error(details || error.message);
+  }
 }
 
 export function parseLsTreeZ(raw) {
@@ -72,32 +77,91 @@ function readBranch(repo) {
 }
 
 function readTree(repo, ref, path) {
-  return parseLsTreeZ(git(repo, ['ls-tree', '-r', '-z', '--full-tree', ref, '--', path]));
+  const args = ['ls-tree', '-r', '-z', '--full-tree', ref];
+  if (path !== '.') args.push('--', path);
+  return parseLsTreeZ(git(repo, args));
+}
+
+function workingTree(repo) {
+  const raw = git(repo, ['status', '--porcelain=v1', '--untracked-files=all']).toString('utf8');
+  return raw.split(/\r?\n/u).filter(Boolean).map((line) => line.slice(3));
+}
+
+function observeCut(repo, ref, path) {
+  const commit = readRef(repo, `${ref}^{commit}`);
+  const tree = readGitTreeObjectId(repo, ref, path === '.' ? null : path);
+  const entries = readTree(repo, ref, path);
+  const checkoutRevision = readRef(repo, 'HEAD^{commit}');
+  const branch = readBranch(repo);
+  const isMainCheckout = branch === 'main';
+  return {
+    commit,
+    tree,
+    entries,
+    checkout: {
+      branch,
+      revision: checkoutRevision,
+      alignment: checkoutRevision === commit ? 'ALIGNED'
+        : isMainCheckout ? 'UNVERIFIABLE_BRANCH_HEAD_MISMATCH' : 'LOCAL_BRANCH_DIFFERS_FROM_REMOTE_CUT',
+    },
+  };
 }
 
 export function buildMediaSourceTargetTreeCrosswalk({ targetRoot, sourceRoot }) {
-  const sourceRef = 'HEAD';
-  const targetRef = 'HEAD';
-  const sourceHead = readRef(sourceRoot, sourceRef);
-  const targetHead = readRef(targetRoot, targetRef);
-  const sourceTree = readTree(sourceRoot, sourceRef, 'services/media');
-  const targetTree = readTree(targetRoot, targetRef, '.');
-  const comparison = compareSourceTargetTrees(sourceTree, targetTree);
+  // Compare only the checked remote-tracking main cuts. A local feature branch
+  // can be useful preparation evidence, but it is not a current public source cut.
+  const sourceRef = 'origin/main';
+  const targetRef = 'origin/main';
+  let sourceCut;
+  let targetCut;
+  let comparison;
+  const errors = [];
+  try { sourceCut = observeCut(sourceRoot, sourceRef, 'services/media'); }
+  catch (error) { errors.push({ repository: 'samujjwal/ghatana', ref: sourceRef, reason: String(error.message ?? error) }); }
+  try { targetCut = observeCut(targetRoot, targetRef, '.'); }
+  catch (error) { errors.push({ repository: 'samujjwal/ghatana-media', ref: targetRef, reason: String(error.message ?? error) }); }
+  if (sourceCut && targetCut) comparison = compareSourceTargetTrees(sourceCut.entries, targetCut.entries);
+  if (sourceCut?.checkout.alignment === 'UNVERIFIABLE_BRANCH_HEAD_MISMATCH') {
+    errors.push({ repository: 'samujjwal/ghatana', ref: sourceRef, reason: 'UNVERIFIABLE_BRANCH_HEAD_MISMATCH' });
+  }
+  if (targetCut?.checkout.alignment === 'UNVERIFIABLE_BRANCH_HEAD_MISMATCH') {
+    errors.push({ repository: 'samujjwal/ghatana-media', ref: targetRef, reason: 'UNVERIFIABLE_BRANCH_HEAD_MISMATCH' });
+  }
+  const sourceHead = sourceCut?.commit ?? null;
+  const targetHead = targetCut?.commit ?? null;
+  let gitVersion = null;
+  try { gitVersion = execFileSync('git', ['--version'], { encoding: 'utf8' }).trim(); } catch { /* reported as unavailable */ }
   return {
     schemaVersion: 'media.source-target-tree-crosswalk.v1',
     authority: 'BOUNDED_COMMITTED_TREE_PATH_COMPARISON_ONLY',
+    status: errors.length ? 'UNVERIFIABLE' : 'OBSERVED_REMOTE_TRACKING_CUTS',
+    unverifiable: errors.length > 0,
+    errors,
+    verification: {
+      profile: 'COMMITTED_GIT_TREE_PATH_COMPARISON_ONLY_NO_BUILD',
+      externalRetrieval: 'NOT_VERIFIED; refs are locally available remote-tracking observations',
+      gitVersion,
+      nodeVersion: process.version,
+      workingTreeIncluded: false,
+    },
     source: {
       repository: 'samujjwal/ghatana',
       branch: readBranch(sourceRoot),
       revision: sourceHead,
-      tree: readGitTreeObjectId(sourceRoot, sourceRef, 'services/media'),
+      ref: sourceRef,
+      tree: sourceCut?.tree ?? null,
+      checkout: sourceCut?.checkout ?? null,
+      workingTreePaths: workingTree(sourceRoot),
       pathPrefix: 'services/media/',
     },
     target: {
       repository: 'samujjwal/ghatana-media',
       branch: readBranch(targetRoot),
       revision: targetHead,
-      tree: readGitTreeObjectId(targetRoot, targetRef),
+      ref: targetRef,
+      tree: targetCut?.tree ?? null,
+      checkout: targetCut?.checkout ?? null,
+      workingTreePaths: workingTree(targetRoot),
       pathPrefix: '',
     },
     method: {
@@ -108,7 +172,7 @@ export function buildMediaSourceTargetTreeCrosswalk({ targetRoot, sourceRoot }) 
       ownershipOrSemanticParityInferred: false,
       pathMapRelocationsApplied: false,
     },
-    counts: comparison.counts,
-    entries: comparison.entries,
+    counts: comparison?.counts ?? null,
+    entries: comparison?.entries ?? null,
   };
 }

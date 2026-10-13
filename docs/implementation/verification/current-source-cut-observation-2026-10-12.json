@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "media.current-source-cut-observation.v1",
+  "authority": "LOCAL_CURRENT_SOURCE_OBSERVATION_NO_OWNER_AUTHORITY_OR_EXTERNAL_RETRIEVAL_CLAIM",
+  "status": "OBSERVED_REMOTE_TRACKING_CUTS",
+  "profile": "COMMITTED_GIT_TREE_PATH_COMPARISON_ONLY_NO_BUILD",
+  "externalRetrieval": "NOT_VERIFIED; refs are locally available remote-tracking observations",
+  "committedPair": {
+    "source": {
+      "repository": "samujjwal/ghatana",
+      "ref": "origin/main",
+      "revision": "e8c792546ab45990bdb97cbedc87c595364eba50",
+      "tree": "429ee70ce4c68b580a423314a245e233326c7db7",
+      "pathPrefix": "services/media/"
+    },
+    "target": {
+      "repository": "samujjwal/ghatana-media",
+      "ref": "origin/main",
+      "revision": "0b16b84cc72a56759785020e4a82dd2f27bb721b",
+      "tree": "e9a06e8bfe5225e6fad409d766a48cffc77a328b",
+      "pathPrefix": ""
+    }
+  },
+  "localCheckouts": {
+    "source": {
+      "branch": "codex/eni-v7-3-source-progress-2026-10-12",
+      "revision": "e8c792546ab45990bdb97cbedc87c595364eba50",
+      "alignment": "ALIGNED",
+      "localOnlyRevision": null,
+      "dirtyDeltas": {
+        "allPaths": [],
+        "canonicalMediaPaths": [],
+        "unrelatedPaths": []
+      }
+    },
+    "target": {
+      "branch": "main",
+      "revision": "0b16b84cc72a56759785020e4a82dd2f27bb721b",
+      "alignment": "ALIGNED",
+      "dirtyDeltas": {
+        "allPaths": [
+          ".product-experience/source-manifest.yaml",
+          "docs/implementation/post-pdp-runtime-evidence-2026-10-12.md",
+          "docs/implementation/post-pdp-task-dispositions-2026-10-12.md",
+          "docs/implementation/verification/current-source-cut-observation-2026-10-12.json",
+          "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
+          "docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-12.json",
+          "docs/migration/post-pdp-dependency-cutover-checklist-2026-10-12.md",
+          "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.test.ts",
+          "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+          "migration/evidence/media-transfer-manifest-candidate-2026-10-12.json",
+          "scripts/generate-media-transfer-manifest.mjs",
+          "scripts/lib/media-source-target-tree-crosswalk.mjs",
+          "scripts/report-media-source-target-tree.mjs",
+          "scripts/test-tools-media-consumer.mjs",
+          "tests/media-caption-version-operation-parity.test.mjs",
+          "tests/media-source-target-tree-crosswalk.test.mjs",
+          "tests/media-transfer-manifest.test.mjs"
+        ],
+        "mediaRepositoryPaths": [
+          ".product-experience/source-manifest.yaml",
+          "docs/implementation/post-pdp-runtime-evidence-2026-10-12.md",
+          "docs/implementation/post-pdp-task-dispositions-2026-10-12.md",
+          "docs/implementation/verification/current-source-cut-observation-2026-10-12.json",
+          "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
+          "docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-12.json",
+          "docs/migration/post-pdp-dependency-cutover-checklist-2026-10-12.md",
+          "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.test.ts",
+          "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+          "migration/evidence/media-transfer-manifest-candidate-2026-10-12.json",
+          "scripts/generate-media-transfer-manifest.mjs",
+          "scripts/lib/media-source-target-tree-crosswalk.mjs",
+          "scripts/report-media-source-target-tree.mjs",
+          "scripts/test-tools-media-consumer.mjs",
+          "tests/media-caption-version-operation-parity.test.mjs",
+          "tests/media-source-target-tree-crosswalk.test.mjs",
+          "tests/media-transfer-manifest.test.mjs"
+        ]
+      }
+    }
+  },
+  "comparison": {
+    "counts": {
+      "sourceTrackedPathCount": 689,
+      "identicalModeAndBlobCount": 521,
+      "differentModeOrBlobCount": 119,
+      "absentAtSameRelativePathCount": 49
+    },
+    "sourceTrackedPathCount": 689
+  },
+  "errors": []
+}

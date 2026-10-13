@@ -17,8 +17,8 @@ externalOwnerObservations:
   repositories:
   - repositoryId: ghatana
     available: true
-    revision: 65567dfff57d5ee9f5d7e8479dd311e5a7b6895d
-    workingTree: MODIFIED
+    revision: e8c792546ab45990bdb97cbedc87c595364eba50
+    workingTree: CLEAN
     files:
       - path: "config/repo-boundary.json"
         sha256: 01408eb197101d3e3c2491eb472ca93b9c965c8f556c87db5a396c482b476ee0
@@ -61,7 +61,7 @@ externalOwnerObservations:
     workingTree: MODIFIED
     files:
       - path: "pnpm-lock.yaml"
-        sha256: ef20b9621d7040f84ff68effa370490c1b5871f9175488bd9f59def1dc3e1ce3
+        sha256: 1226cb5c8cc77dff2de5cce531ef616362e54a312c8683fdc20dda702b9f6d3b
       - path: "products/org/apps/api/src/modules/document-extraction/document-intelligence.config.ts"
         sha256: aeda2d44fcbfc86fb90de8909ed7952590fdd7f4a6593277cfe39bfd83a07223
   - repositoryId: ghatana-tools
