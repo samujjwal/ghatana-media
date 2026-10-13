@@ -40,6 +40,16 @@ const mandatoryDocs = new Set([
 const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'buffer' })
   .toString('utf8').split('\0').filter(Boolean).sort();
 const trackedSet = new Set(tracked);
+const trackedDirs = new Set();
+for (const name of tracked) {
+  const segments = name.split('/');
+  for (let i = 1; i < segments.length; i++) {
+    trackedDirs.add(segments.slice(0, i).join('/'));
+  }
+}
+const localTrackedDeltaPaths = execFileSync('git', ['diff', '--name-only', '-z', 'HEAD', '--'], {
+  cwd: root, encoding: 'buffer'
+}).toString('utf8').split('\0').filter(Boolean).sort();
 const absolute = (name) => resolve(root, name);
 const decode = (value) => {
   try { return decodeURIComponent(value); } catch { return value; }
@@ -66,10 +76,7 @@ const isText = (path) => {
     /^Dockerfile(?:\.[^/]+)?$/u.test(base) ||
     ['Makefile', '.gitignore', '.gitattributes', 'gradlew'].includes(base);
 };
-const directoryTracked = (prefix) => {
-  const withSlash = prefix.endsWith('/') ? prefix : prefix + '/';
-  return tracked.some((path) => path.startsWith(withSlash));
-};
+const directoryTracked = (prefix) => trackedDirs.has(prefix.replace(/\/$/u, ''));
 function relativeLinks(markdown, from) {
   const results = [];
   const exp = /(?<!!)\[[^\]]*]\((<[^>]+>|[^)\s]+)(?:\s+["'][^)]*["'])?\)/g;
@@ -166,6 +173,8 @@ const activeDupes = duplicates.filter((group) =>
 const result = {
   schemaVersion: 'media.repository-hygiene-audit.v1',
   sourceRevision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
+  sourceObservation: localTrackedDeltaPaths.length ? 'HEAD_WITH_LOCAL_TRACKED_MODIFICATIONS' : 'COMMITTED_HEAD_TRACKED_BYTES',
+  localTrackedDeltaPaths,
   trackedFiles: tracked.length,
   scannedFiles,
   unreadable,
@@ -195,6 +204,7 @@ if (args.has('--json')) console.log(JSON.stringify(result, null, 2));
 else {
   console.log('Ghatana Media tracked-file hygiene inventory');
   console.log('  revision:', result.sourceRevision);
+  console.log('  source observation:', result.sourceObservation, 'tracked diffs:', result.localTrackedDeltaPaths.length);
   console.log('  tracked/scanned:', tracked.length, scannedFiles);
   console.log('  file bytes:', totalBytes);
   console.log('  categories:', JSON.stringify(result.categories));
