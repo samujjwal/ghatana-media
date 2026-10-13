@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: audio-video
+  name: media-candidate-not-admitted
   labels:
-    app.kubernetes.io/part-of: ghatana-audio-video
+    app.kubernetes.io/part-of: media-candidate-not-admitted
     app.kubernetes.io/managed-by: kubectl
