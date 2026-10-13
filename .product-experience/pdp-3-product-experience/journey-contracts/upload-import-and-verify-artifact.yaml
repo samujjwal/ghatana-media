@@ -24,6 +24,7 @@ channels:
   - media.channel.web
   - media.channel.http-api
   - media.channel.sdk
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Resolve the current principal, workspace, and any selected project before
     exposing or mutating protected artifact data.

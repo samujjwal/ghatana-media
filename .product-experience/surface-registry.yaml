@@ -281,14 +281,14 @@ surfaces:
     availabilityExpectations: degraded modes, provider failures, and compensation/reconciliation are explicit
     versioningExpectations: integration adapters are compatibility boundaries, never semantic authorities
     compatibilityExpectations: preserve source, consent, retention, and failure provenance at every handoff
-    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2]
+    applicablePdpArtifacts: [PDP-0, PDP-1, PDP-2, PDP-3]
     explorerProjection: '#dependencies'
     semanticStatus: PROPOSED
     implementationStatus: SOURCE_ONLY
     qualificationStatus: PENDING
-    applicabilityDisposition: OWNER_DECISION_PENDING
+    applicabilityDisposition: TARGET_HOST_CONTRACT_PENDING
     applicabilityRationale: >-
-      Each external handoff requires its own owner-approved contract and availability evidence.
+      PDP-3 applies to Media's source-only integration contracts as a contract-only experience. Each external handoff remains host-dependent and requires its own owner-approved contract and host/runtime admission; no external runtime or availability is admitted here.
   - surfaceId: media.surface.types-library
     surfaceType: LIBRARY
     purpose: Public TypeScript domain and wire-facing types consumed by Media clients and integrating products.

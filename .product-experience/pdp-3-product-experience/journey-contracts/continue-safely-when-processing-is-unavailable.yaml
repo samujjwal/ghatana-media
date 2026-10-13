@@ -25,8 +25,7 @@ channels:
   - media.channel.web
   - media.channel.http-api
   - media.channel.cli
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
-  transport, and accessibility equivalence remain unbound.
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Capability qualification, license, runtime availability, and fallback policy
     are checked independently.

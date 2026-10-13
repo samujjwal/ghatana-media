@@ -2,6 +2,12 @@ schemaVersion: media.journey-contract.v1
 productId: media
 journeyId: J-03
 title: Transcribe an audio recording and correct captions
+channels:
+  - media.channel.web
+  - media.channel.cli
+  - media.channel.grpc-api
+  - media.channel.sdk
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 status: proposal; all-upstream-acceptance-and-role-review-pending
 definitionReview:
   status: SOURCE_DEFINED_OWNER_ACCEPTED

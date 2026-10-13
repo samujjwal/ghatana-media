@@ -20,8 +20,7 @@ actors:
 channels:
   - media.channel.web
   - media.channel.grpc-api
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
-  transport, and accessibility equivalence remain unbound.
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Source, translation intent, voice authority, subtitle/voice locales, and
     destination are independently specified.
@@ -780,14 +779,21 @@ steps:
       proposal:
         - Keep source audio/video PTS, transcript/translation versions, voices,
           caption tracks, and review notes.
+    transitionDisposition:
+      status: NO_P1_MACHINE_TRANSITION
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-068
+      reason: >-
+        P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version.
+        Language or timing edits remain draft-only until a separately defined save/version operation.
     bindingStatus:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference-and-transition
+      stateRefs: no canonical domain state machine applies to a session-local caption draft
       canonicalOperationRef: pending-no-step-bound-action; candidate-action-refs-not-promoted
       authorityRef: pending-explicit-step-authority-binding
       decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
+      transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
       handoffRef: pending-explicit-step-handoff-allocation
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#operations/@id=media.operation.caption-draft-write/outputSemantics;

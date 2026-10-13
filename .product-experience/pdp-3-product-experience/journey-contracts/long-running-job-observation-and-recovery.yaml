@@ -12,6 +12,10 @@ actors:
   - media.creator
   - media.editor
   - media.operator
+channels:
+  - media.channel.web
+  - media.channel.cli
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 intent: media.intent.resolve-job
 preconditions:
   - The job has one stable owner-issued identity and the current actor may view
@@ -1556,7 +1560,26 @@ steps:
       [.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema]
     surfaceRefs: []
     objectRefs: []
-    stateRefs: []
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RETRY_PENDING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/OUTCOME_UNKNOWN
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RECONCILING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/COMPLETED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
     canonicalOperationRef: media.operation-slice.cancel-job
     authorityRef: null
     decisionRef: null
@@ -1623,16 +1646,22 @@ steps:
         - source-artifact-version
         - attempt-state-when-authorized
         - last-observed-finality
+    transitionDisposition:
+      status: NO_EXACT_ACTION_TRANSITION
+      transitionRef: null
+      reason: >-
+        P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
+        Cancellation request and finality observation require exact current job and attempt identities; CANCEL_REQUESTED is not CANCELLED, and unknown effects remain unknown.
     bindingStatus:
       surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
         channel admission and step-specific mapping remain pending
       objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
+      stateRefs: exact P1 media-job and media-attempt state observations linked; no terminal effect inferred
       canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk;
         owner-acceptance-pending
       authorityRef: pending-explicit-step-authority-binding
       decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
+      transitionRef: NO_EXACT_ACTION_TRANSITION; job family refs are unresolved and attempt edges have no operation binding
       handoffRef: pending-explicit-step-handoff-binding
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.cancel-job/ownerWireSchema/resultSchema;
@@ -1911,7 +1940,26 @@ steps:
       [.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema]
     surfaceRefs: []
     objectRefs: []
-    stateRefs: []
+    stateRefs:
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/QUEUED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RUNNING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RETRY_PENDING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/OUTCOME_UNKNOWN
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/RECONCILING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/COMPLETED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
+      - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
     canonicalOperationRef: media.operation-slice.retry-job
     authorityRef: null
     decisionRef: null
@@ -1979,16 +2027,22 @@ steps:
         - source-artifact-version
         - attempt-state-when-authorized
         - last-observed-finality
+    transitionDisposition:
+      status: NO_EXACT_ACTION_TRANSITION
+      transitionRef: null
+      reason: >-
+        P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
+        Retry requires the exact prior attempt classification and bounded authority; unknown outcomes cannot be replayed, and a new CLAIMED attempt is not provider dispatch.
     bindingStatus:
       surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
         channel admission and step-specific mapping remain pending
       objectRefs: pending-explicit-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference
+      stateRefs: exact P1 media-job and media-attempt state observations linked; no terminal effect inferred
       canonicalOperationRef: candidate-copied-from-explicit-PDP1-action-operation-crosswalk;
         owner-acceptance-pending
       authorityRef: pending-explicit-step-authority-binding
       decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-legal-transition-binding
+      transitionRef: NO_EXACT_ACTION_TRANSITION; job family refs are unresolved and attempt edges have no operation binding
       handoffRef: pending-explicit-step-handoff-binding
       success: step-scoped immediate result defined by
         .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.retry-job/ownerWireSchema/resultSchema;

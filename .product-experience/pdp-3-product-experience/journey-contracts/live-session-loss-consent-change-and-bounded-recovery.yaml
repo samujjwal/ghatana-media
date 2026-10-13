@@ -17,6 +17,10 @@ actors:
 channelRefs:
   - media.channel.web
   - media.channel.grpc-api
+channels:
+  - media.channel.web
+  - media.channel.grpc-api
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 orderedViews:
   - media.view.work-in-project
   - media.view.job-status

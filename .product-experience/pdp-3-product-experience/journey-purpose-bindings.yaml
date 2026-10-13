@@ -1616,6 +1616,12 @@ records:
   - media.domain.transcript-version
   - media.domain.caption-version
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 caption-draft-write returns a session-local draft snapshot; the composition step does not imply a rendered or delivered output.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -2437,6 +2443,12 @@ records:
   ownerOperationBindingRef: null
   domainObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_EXACT_ACTION_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 media-delivery transitions have no operation refs, and the delivery operation has no state refs. No exact delivery action-to-transition binding exists; a request receipt is not destination acknowledgement.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -2714,6 +2726,12 @@ records:
   ownerOperationBindingRef: null
   domainObjectRefs: [media.domain.artifact-version, media.domain.delivery-outcome]
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_EXACT_ACTION_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 media-delivery transitions have no operation refs, and the delivery operation has no state refs. No exact delivery action-to-transition binding exists; only destination evidence can establish acknowledgement.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -3473,6 +3491,12 @@ records:
   stateRefs:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project/stateDefinitions/ACTIVE
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-project-version/stateDefinitions/COMMITTED
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 create-project establishes the initial ACTIVE project and COMMITTED revision atomically; there is no prior project state to transition from.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -4571,6 +4595,23 @@ records:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
+  stateBindingDisposition: job and attempt identity observations only; they do not establish a transition or finality.
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_EXACT_ACTION_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 job transitions use the unresolved generic media.operation.job-lifecycle family; attempt transitions have no operation refs. Cancellation remains pending until owner evidence establishes finality.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -4634,6 +4675,23 @@ records:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/PARTIALLY_SUCCEEDED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/FAILED
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-job/stateDefinitions/CANCELLED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CLAIMED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCH_INTENT_RECORDED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/DISPATCHED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/RUNNING
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_REQUESTED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUCCEEDED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/FAILED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/CANCEL_CONFIRMED
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/OUTCOME_UNKNOWN
+  - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-attempt/stateDefinitions/SUPERSEDED
+  stateBindingDisposition: job and attempt identity observations only; they do not establish a transition or finality.
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_EXACT_ACTION_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 job transitions use the unresolved generic media.operation.job-lifecycle family; attempt transitions have no operation refs. Retry requires classified prior-attempt evidence and must not replay an unknown outcome.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -5691,6 +5749,13 @@ records:
   - media.domain.processing-job
   - media.domain.provenance-manifest
   stateRefs: []
+  operationBindingBlocker: MDC30-S-06 exact action-to-capability/job.submit wrapper join unresolved; no state ref is asserted.
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      Blocker MDC30-S-06: the PDP-3 action exact operation is media.operation.action.submit-validated-request, but the purpose binding selects media.operation.capability.media-multimodal-observe-source-grounded. P1 job.submit is not source-linked as the wrapper for this exact action; no state or transition is bound.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
@@ -5700,10 +5765,10 @@ records:
   recovery: preserve source version and request identity; reconcile unknown submission before retry; never claim analysis completion from acceptance
   sourceRefs:
   - .product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml#/steps/0
-  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.search-product-guidance
-  - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts.media.operation.action.search-product-guidance
-  mappingBasis: Read or navigate using the exact selected context; do not mutate a source object or infer permission
-    from its presence.
+  - .product-experience/pdp-1-domain-data/operations.yaml#operationContracts/records/@id=media.operation.action.submit-validated-request
+  - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-observe-source-grounded
+  - .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job.submit.v1
+  mappingBasis: The P1 action operation and capability operation are separately defined; P1 job.submit is a typed wrapper candidate, but this action-to-wrapper join is not explicit in the source and no P1 state is therefore bound.
   runtimeAdmission: NOT_ADMITTED
   acceptanceEffect: none
   allowedOperationRefs:
@@ -6290,6 +6355,12 @@ records:
   - media.domain.artifact-version
   - media.domain.processing-job
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      Submission receipt is an observation, not a P1 state transition.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -6449,6 +6520,12 @@ records:
   - media.domain.transcript-version
   - media.domain.caption-version
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 caption-draft-write returns a session-local draft snapshot; no machine state transition is implied.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -6502,6 +6579,12 @@ records:
   - media.domain.transcript-version
   - media.domain.caption-version
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 caption-draft-write returns a session-local draft snapshot; no machine state transition is implied.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -6555,6 +6638,12 @@ records:
   - media.domain.artifact-version
   - media.domain.transcription
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      Caption registration is append-only and immutable; the write does not imply a machine state transition.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -6758,6 +6847,12 @@ records:
   - media.domain.transcript-version
   - media.domain.caption-version
   stateRefs: []
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      P1 caption-draft-write returns a session-local draft snapshot; the composition step does not imply a rendered or delivered output.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
@@ -6958,6 +7053,12 @@ records:
   - media.domain.artifact-version
   stateRefs:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING
+  transitionRefs: []
+  transitionDisposition:
+    status: NO_P1_MACHINE_TRANSITION
+    transitionRef: null
+    reason: >-
+      Upload initiation establishes the initial RECEIVING identity; it does not imply a state transition.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=upload-and-import-admission
@@ -7022,6 +7123,12 @@ records:
   stateRefs:
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/RECEIVING
   - .product-experience/pdp-1-domain-data/states.yaml#stateMachines/media-upload-and-artifact/stateDefinitions/VERIFYING
+  transitionRefs: [media-upload-and-artifact/T01]
+  transitionDisposition:
+    status: EXACT_GUARDED_P1_TRANSITION
+    transitionRef: media-upload-and-artifact/T01
+    reason: >-
+      Only complete-upload binds P1 media-upload-and-artifact/T01 (RECEIVING to VERIFYING) under its exact guard. append-upload-chunk has no transition; availability is not claimed.
   authorityRefs:
   - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
   - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy.enforcementPoints/@point=upload-and-import-admission

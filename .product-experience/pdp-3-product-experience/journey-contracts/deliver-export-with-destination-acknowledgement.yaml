@@ -21,8 +21,7 @@ channels:
   - media.channel.http-api
   - media.channel.cli
   - media.channel.product-integration
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
-  transport, and accessibility equivalence remain unbound.
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Exact output, destination, rights, approval, and external-effect authority
     are current.
@@ -484,6 +483,12 @@ steps:
       proposal:
         - Retain output/version, destination, authorization/approval refs,
           effect status, and receipt if returned.
+    transitionDisposition:
+      status: NO_EXACT_ACTION_TRANSITION
+      transitionRef: null
+      reason: >-
+        P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
+        Only authoritative destination evidence can establish acknowledgement.
     bindingStatus:
       surfaceRefs: candidate mapping from owner-reviewed channel-surface proposal;
         channel admission and step-specific mapping remain pending

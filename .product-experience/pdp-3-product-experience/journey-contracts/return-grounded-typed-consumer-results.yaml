@@ -19,8 +19,7 @@ channels:
   - media.channel.http-api
   - media.channel.grpc-api
   - media.channel.product-integration
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
-  transport, and accessibility equivalence remain unbound.
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Consumer purpose and artifact access are authorized; Media-specific
     scene-text intent is distinguished from document extraction.
@@ -84,14 +83,20 @@ steps:
       proposal:
         - Return owner, operation/version, opaque request/job reference, status,
           and accepted artifact refs.
+    transitionDisposition:
+      status: NO_P1_MACHINE_TRANSITION
+      transitionRef: null
+      decisionRef: .product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md#MD30-03
+      reason: >-
+        The PDP-3 action's exact operation is media.operation.action.submit-validated-request, while its capability operation is media.operation.capability.media-multimodal-observe-source-grounded. The canonical job.submit wrapper join is not established for this action; do not infer a P1 state from the requested receipt.
     bindingStatus:
       surfaceRefs: candidate-copied-from-explicit-screen-contract; acceptance-pending
       objectRefs: pending-explicit-step-domain-object-reference
-      stateRefs: pending-owner-bound-state-reference-and-transition
+      stateRefs: no state bound; submission intent only while operation join is unresolved
       canonicalOperationRef: media.operation.job.submit.v1; selected target operation remains user-bound
       authorityRef: trusted tenant/principal/delegation context is host-supplied and rechecked
       decisionRef: pending-explicit-owner-decision-binding
-      transitionRef: pending-explicit-legal-transition-binding
+      transitionRef: NO_P1_MACHINE_TRANSITION; accepted receipt establishes initial job identity only
       handoffRef: pending-explicit-step-handoff-allocation
       success: candidate-proposal-only; journey-level outcome not allocated to this step
       failure: candidate-proposal-only; journey-level exceptions not allocated to this

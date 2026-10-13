@@ -1,0 +1,343 @@
+{
+  "schemaVersion": "media.external-contract-recapture.v1",
+  "recordKind": "IMMUTABLE_SOURCE_OBSERVATION",
+  "observationId": "MEDIA-PDP3-MDC30-EXTERNAL-CONTRACT-RECAPTURE-2026-10-13-R2",
+  "observedAt": "2026-10-13T23:42:58.780Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "macroStage": "DISCOVERY",
+    "phase": "PDP-3",
+    "taskId": "MDC30-E-01"
+  },
+  "sourceAuthority": {
+    "path": ".product-experience/source-manifest.yaml",
+    "sha256": "76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+    "repositoryCount": 6,
+    "declaredFileCount": 30
+  },
+  "method": {
+    "hash": "SHA-256",
+    "input": "raw bytes read from each declared repository-relative path in its current working tree",
+    "repositoryRevisionAndWorkingTree": "diagnostic provenance only"
+  },
+  "summary": {
+    "status": "SOURCE_BYTE_RECAPTURE_COMPLETE",
+    "expectedFiles": 30,
+    "observedFiles": 30,
+    "matches": 30,
+    "mismatches": 0,
+    "missing": 0,
+    "repositoryCount": 6,
+    "repositories": {
+      "ghatana": 11,
+      "ghatana-products": 3,
+      "gharbatai": 2,
+      "ghatana-tools": 8,
+      "ghatana-lifecycle": 2,
+      "ghatana-shared": 4
+    }
+  },
+  "interpretation": {
+    "materialChange": "All available named current byte streams match the digests in the captured source-manifest; this observation finds no external contract byte change requiring semantic reopen.",
+    "provenance": "Observed revision or dirty-tree differences alone are provenance; they are not treated as material contract changes when each named byte digest matches.",
+    "boundary": "This is a source-byte observation only. It does not establish schema validation, semantic currentness, external owner acceptance, runtime admission, or release qualification."
+  },
+  "repositories": [
+    {
+      "repositoryId": "ghatana",
+      "declaredAvailable": true,
+      "declaredRevision": "c83e3bbf119234c88ebd340a2cd5bcfa06f2e1db",
+      "declaredWorkingTree": "CLEAN",
+      "observedRevision": "c83e3bbf119234c88ebd340a2cd5bcfa06f2e1db",
+      "observedWorkingTree": "CLEAN",
+      "workingTreeChangeCounts": {
+        "modifiedOrOther": 0,
+        "untracked": 0,
+        "deleted": 0
+      },
+      "fileCount": 11,
+      "files": [
+        {
+          "path": "config/repo-boundary.json",
+          "declaredSha256": "01408eb197101d3e3c2491eb472ca93b9c965c8f556c87db5a396c482b476ee0",
+          "observedSha256": "01408eb197101d3e3c2491eb472ca93b9c965c8f556c87db5a396c482b476ee0",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "config/service-contract-source.json",
+          "declaredSha256": "e648a58ae081c708aa412931e24d1d276e2a28f27c21c4b0ede31146d1c564a9",
+          "observedSha256": "e648a58ae081c708aa412931e24d1d276e2a28f27c21c4b0ede31146d1c564a9",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/media/service-contract.yaml",
+          "declaredSha256": "9bfadfe9305c00b986c6d0124ef0c74b5747d46b4518724600952c579fe7a6f9",
+          "observedSha256": "9bfadfe9305c00b986c6d0124ef0c74b5747d46b4518724600952c579fe7a6f9",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/media/service-contract-supplements/source-overlay.json",
+          "declaredSha256": "7dc93b29ac3d0783325ac74d64c0b126825fbae7173ebb2cd664ab38f50655b3",
+          "observedSha256": "7dc93b29ac3d0783325ac74d64c0b126825fbae7173ebb2cd664ab38f50655b3",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/document-intelligence/clients/typescript/package.json",
+          "package": "@ghatana/document-intelligence-client",
+          "version": "0.1.0",
+          "declaredSha256": "e8c4775ec9dc1c5d826d588f1fc5142ee2d4ede6bce7bdf7395a6ed68c280883",
+          "observedSha256": "e8c4775ec9dc1c5d826d588f1fc5142ee2d4ede6bce7bdf7395a6ed68c280883",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/document-intelligence/contracts/protocol-v1.md",
+          "declaredSha256": "17282fbbd6263ad521d1ea28f319c421604e8681f60b5a1f0117dc9c2df62e30",
+          "observedSha256": "17282fbbd6263ad521d1ea28f319c421604e8681f60b5a1f0117dc9c2df62e30",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/document-intelligence/contracts/shared-contract.lock.json",
+          "declaredSha256": "2c88b84977540555599c0f46acf0841cb8368b60bb40ef618d92b41ce2844e80",
+          "observedSha256": "2c88b84977540555599c0f46acf0841cb8368b60bb40ef618d92b41ce2844e80",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/ai-inference/contracts/openapi/ai-inference.yaml",
+          "declaredSha256": "f5d3889496b2520fb3a1a9aa521447425a2207158191b4fc94a212f9087597ee",
+          "observedSha256": "f5d3889496b2520fb3a1a9aa521447425a2207158191b4fc94a212f9087597ee",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/data-cloud/contracts/openapi/data-cloud-lifecycle.yaml",
+          "declaredSha256": "cb38cfbfc5d5f874776c812f19827b60bc71bfa64b35606d9f09ada6a69f38fd",
+          "observedSha256": "cb38cfbfc5d5f874776c812f19827b60bc71bfa64b35606d9f09ada6a69f38fd",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/action-plane/contracts/openapi/action-plane.yaml",
+          "declaredSha256": "4398545773e1589a2e5c88bbe8f142e836567192c2f66ffe452c4794bb37bb35",
+          "observedSha256": "4398545773e1589a2e5c88bbe8f142e836567192c2f66ffe452c4794bb37bb35",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "services/event-plane/contracts/openapi/event-plane.yaml",
+          "declaredSha256": "b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272",
+          "observedSha256": "b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272",
+          "disposition": "MATCH"
+        }
+      ]
+    },
+    {
+      "repositoryId": "ghatana-products",
+      "declaredAvailable": true,
+      "declaredRevision": "9489609087fec32a9479bc7bf6677a688091ca65",
+      "declaredWorkingTree": "CLEAN",
+      "observedRevision": "9489609087fec32a9479bc7bf6677a688091ca65",
+      "observedWorkingTree": "CLEAN",
+      "workingTreeChangeCounts": {
+        "modifiedOrOther": 0,
+        "untracked": 0,
+        "deleted": 0
+      },
+      "fileCount": 3,
+      "files": [
+        {
+          "path": "config/product-extraction-records/media.yaml",
+          "declaredSha256": "ef74d8c43336166bab95571735cfeba7833b3d174175a48223ca230b51023a05",
+          "observedSha256": "ef74d8c43336166bab95571735cfeba7833b3d174175a48223ca230b51023a05",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "products/tutorputor/config/dependency-requests/TP-GHATANA-AI-001.json",
+          "declaredSha256": "0d4f87cd6b261c70c49162fc07e139083287124217c3db051ed298b40fb5cd5c",
+          "observedSha256": "0d4f87cd6b261c70c49162fc07e139083287124217c3db051ed298b40fb5cd5c",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "products/tutorputor/config/dependency-requests/TP-GHATANA-MEDIA-001.json",
+          "declaredSha256": "7ed204413749a3c82c1cba4b531d34c9bc4d7440489363f5dfdc3310e4fdf618",
+          "observedSha256": "7ed204413749a3c82c1cba4b531d34c9bc4d7440489363f5dfdc3310e4fdf618",
+          "disposition": "MATCH"
+        }
+      ]
+    },
+    {
+      "repositoryId": "gharbatai",
+      "declaredAvailable": true,
+      "declaredRevision": "7e3884205e2b75072d12c07e206d54288a53263e",
+      "declaredWorkingTree": "CLEAN",
+      "observedRevision": "7e3884205e2b75072d12c07e206d54288a53263e",
+      "observedWorkingTree": "MODIFIED",
+      "workingTreeChangeCounts": {
+        "modifiedOrOther": 0,
+        "untracked": 21,
+        "deleted": 0
+      },
+      "fileCount": 2,
+      "files": [
+        {
+          "path": "pnpm-lock.yaml",
+          "declaredSha256": "6a2f09475d4a9be1197613e126e712da2e5838332ca744dc338ca6b164917cfc",
+          "observedSha256": "6a2f09475d4a9be1197613e126e712da2e5838332ca744dc338ca6b164917cfc",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "products/org/apps/api/src/modules/document-extraction/document-intelligence.config.ts",
+          "declaredSha256": "aeda2d44fcbfc86fb90de8909ed7952590fdd7f4a6593277cfe39bfd83a07223",
+          "observedSha256": "aeda2d44fcbfc86fb90de8909ed7952590fdd7f4a6593277cfe39bfd83a07223",
+          "disposition": "MATCH"
+        }
+      ]
+    },
+    {
+      "repositoryId": "ghatana-tools",
+      "declaredAvailable": true,
+      "declaredRevision": "d84189b423a8f150dbf18108871088e1ab900341",
+      "declaredWorkingTree": "CLEAN",
+      "observedRevision": "d84189b423a8f150dbf18108871088e1ab900341",
+      "observedWorkingTree": "CLEAN",
+      "workingTreeChangeCounts": {
+        "modifiedOrOther": 0,
+        "untracked": 0,
+        "deleted": 0
+      },
+      "fileCount": 8,
+      "files": [
+        {
+          "path": "libs/product-development/product-definition/package.json",
+          "package": "@ghatana/product-definition",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "72e89e7258d009981f223197114235a3fd168fe2f40b4ca4a2a945c823462c45",
+          "observedSha256": "72e89e7258d009981f223197114235a3fd168fe2f40b4ca4a2a945c823462c45",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "libs/product-development/product-definition/schemas/product-definition.v1.schema.json",
+          "declaredSha256": "6b68d10972e56767f3e893ea8fb51b36a42b6f9f80fad75f45ce9508259f5882",
+          "observedSha256": "6b68d10972e56767f3e893ea8fb51b36a42b6f9f80fad75f45ce9508259f5882",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "libs/product-development/experience-language/package.json",
+          "package": "@ghatana/experience-language",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "f3eaa9e7394f8c864c7e42d9545d7259b1bfed0443d44cee0f5a281d049fbd9c",
+          "observedSha256": "f3eaa9e7394f8c864c7e42d9545d7259b1bfed0443d44cee0f5a281d049fbd9c",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "libs/product-development/experience-language/schemas/experience-language.v1.schema.json",
+          "declaredSha256": "19ec73af7941ea30e6e7c482956ebaa25f692726cf3367db0df6b71652ba5f31",
+          "observedSha256": "19ec73af7941ea30e6e7c482956ebaa25f692726cf3367db0df6b71652ba5f31",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "libs/product-development/experience-specification/package.json",
+          "package": "@ghatana/experience-specification",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "8c3d3a7dece2879eeada603c67fb49f1af4e1b95f864ef72483db8c2e6923b6f",
+          "observedSha256": "8c3d3a7dece2879eeada603c67fb49f1af4e1b95f864ef72483db8c2e6923b6f",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "libs/product-development/experience-specification/schemas/experience-specification.v1.schema.json",
+          "declaredSha256": "005ac5171fb3cf386e05269401499a01e1514e652f3d33ebc482ab0ee9206d9e",
+          "observedSha256": "005ac5171fb3cf386e05269401499a01e1514e652f3d33ebc482ab0ee9206d9e",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "libs/product-development/experience-package/package.json",
+          "package": "@ghatana/experience-package",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "7f0d73ec4e822702f12eea04d7486483b0725519ae0b927f94170a43510fc58a",
+          "observedSha256": "7f0d73ec4e822702f12eea04d7486483b0725519ae0b927f94170a43510fc58a",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "tools/product-development/explorer/package.json",
+          "package": "@ghatana/product-dev-explorer",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "ea614e2b85ad661034e2e4441f0f2dbf36e3fd0e569e3706595a5b76844faf6e",
+          "observedSha256": "ea614e2b85ad661034e2e4441f0f2dbf36e3fd0e569e3706595a5b76844faf6e",
+          "disposition": "MATCH"
+        }
+      ]
+    },
+    {
+      "repositoryId": "ghatana-lifecycle",
+      "declaredAvailable": true,
+      "declaredRevision": "5b0a7dbd15d3f31467dc584bfdc1cb39bd952dac",
+      "declaredWorkingTree": "MODIFIED",
+      "observedRevision": "5b0a7dbd15d3f31467dc584bfdc1cb39bd952dac",
+      "observedWorkingTree": "MODIFIED",
+      "workingTreeChangeCounts": {
+        "modifiedOrOther": 4,
+        "untracked": 0,
+        "deleted": 0
+      },
+      "fileCount": 2,
+      "files": [
+        {
+          "path": "package.json",
+          "package": "@ghatana/lifecycle",
+          "version": "0.1.0-rc.1",
+          "declaredSha256": "41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd",
+          "observedSha256": "41c42b77f2fa20e1831f32ae116ae49d07ed8150b0b00265cda64e27f55f47bd",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "scripts/checks/check-pdp-acceptance.mjs",
+          "declaredSha256": "447f4b8e8c6bca3c546d929034262ab4aaba9b37debc4716f6a9cf9b3bf0a792",
+          "observedSha256": "447f4b8e8c6bca3c546d929034262ab4aaba9b37debc4716f6a9cf9b3bf0a792",
+          "disposition": "MATCH"
+        }
+      ]
+    },
+    {
+      "repositoryId": "ghatana-shared",
+      "declaredAvailable": true,
+      "declaredRevision": "60f5698423ca18b5209e11ad2ce95e6fe7768d57",
+      "declaredWorkingTree": "MODIFIED",
+      "observedRevision": "60f5698423ca18b5209e11ad2ce95e6fe7768d57",
+      "observedWorkingTree": "MODIFIED",
+      "workingTreeChangeCounts": {
+        "modifiedOrOther": 35,
+        "untracked": 170,
+        "deleted": 73
+      },
+      "fileCount": 4,
+      "files": [
+        {
+          "path": "platform/typescript/tokens/package.json",
+          "package": "@ghatana/tokens",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "5ee166c0c46b1865146fced8b354d071076f37f5ae5887a576e605f2daa8bf4c",
+          "observedSha256": "5ee166c0c46b1865146fced8b354d071076f37f5ae5887a576e605f2daa8bf4c",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "platform/typescript/tokens/src/semantic-roles.ts",
+          "declaredSha256": "778a1524e8f0e690e759618f2321277083c969712beb7202daa0417fd394157b",
+          "observedSha256": "778a1524e8f0e690e759618f2321277083c969712beb7202daa0417fd394157b",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "platform/typescript/theme/package.json",
+          "package": "@ghatana/theme",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "807b350250d306e526abbcfb10e18ee249709bff7066647b27f17e6c1543cdf4",
+          "observedSha256": "807b350250d306e526abbcfb10e18ee249709bff7066647b27f17e6c1543cdf4",
+          "disposition": "MATCH"
+        },
+        {
+          "path": "platform/typescript/design-system/package.json",
+          "package": "@ghatana/design-system",
+          "version": "0.1.0-SNAPSHOT",
+          "declaredSha256": "1ca1ff0ad5e40c5ac2901f586a357cbe80c8ffaa30db41ff35677258611c3f92",
+          "observedSha256": "1ca1ff0ad5e40c5ac2901f586a357cbe80c8ffaa30db41ff35677258611c3f92",
+          "disposition": "MATCH"
+        }
+      ]
+    }
+  ]
+}

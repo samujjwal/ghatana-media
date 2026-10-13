@@ -1652,6 +1652,13 @@
     "title": "Interaction Registry"
   },
   {
+    "artifactId": "ART-PDP3-JOURNEY-CHANNEL-CONTRACT-BINDINGS",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+    "title": "Journey Channel Contract Bindings"
+  },
+  {
     "artifactId": "ART--PRODUCT-EXPERIENCE-PHASE-2-PRODUCT-EXPERIENCE-JOURNEY-CONTRACTS-ANALYZE-IMAGE-VIDEO-GEOMETRY-AND-TRACKS-YAML",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -2441,6 +2448,13 @@
     "phase": "CROSS_PHASE",
     "path": ".product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md",
     "title": "2026 10 13 Pdp0 Discovery Delegated Review"
+  },
+  {
+    "artifactId": "ART-PDP3-MDC30-DELEGATED-OWNER-DECISIONS-2026-10-13",
+    "authorityClass": "OBSERVATION_ONLY_SOURCE",
+    "phase": "CROSS_PHASE",
+    "path": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+    "title": "2026 10 13 Pdp3 Mdc30 Delegated Owner Decisions"
   },
   {
     "artifactId": "ART-MEDIA-4E7104A99344",

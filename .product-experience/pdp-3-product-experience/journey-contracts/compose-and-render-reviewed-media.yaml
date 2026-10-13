@@ -19,8 +19,7 @@ actors:
   - media.reviewer
 channels:
   - media.channel.web
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
-  transport, and accessibility equivalence remain unbound.
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Exact assets/fonts/brand claims, timeline mapping, color profile, and output
     destination are authorized.
@@ -904,6 +903,13 @@ steps:
       status: not-run
       reason: Required checks are proposal requirements only; no step-level execution
         evidence is present.
+    transitionDisposition:
+      status: NO_P1_MACHINE_TRANSITION
+      transitionRef: null
+      decisionRef: .product-experience/decision-log.md#PXD-068
+      reason: >-
+        P1 caption-draft-write returns a session-local draft snapshot and does not register a canonical caption version.
+        The composition step does not imply a rendered or delivered output.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:
@@ -920,6 +926,8 @@ steps:
       reason: Journey-level channels are candidate surface refs only; step-level
         object/state/operation/authority/decision/transition/handoff/requirement
         bindings are not declared.
+      stateRefs: no canonical domain state machine applies to a session-local caption draft
+      transitionRef: NO_P1_MACHINE_TRANSITION; session-local draft snapshot only
     stepDefinitionSemantics:
       schemaVersion: media.pdp-3-step-definition.v1
       sourceRef: .product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml#/steps/3

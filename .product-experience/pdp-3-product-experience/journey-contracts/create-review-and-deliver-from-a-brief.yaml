@@ -21,8 +21,7 @@ actors:
 channels:
   - media.channel.web
   - media.channel.product-integration
-channelBindingState: PDP-0 proposed channels only; per-channel operation, state,
-  transport, and accessibility equivalence remain unbound.
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Intent, source/reference rights, budget, quality/preservation choices, and
     required reviewers are explicit.
@@ -2459,6 +2458,12 @@ steps:
       status: not-run
       reason: Required checks are proposal requirements only; no step-level execution
         evidence is present.
+    transitionDisposition:
+      status: NO_EXACT_ACTION_TRANSITION
+      transitionRef: null
+      reason: >-
+        P1 contains candidate state-machine edges, but none has a source-backed exact action/operation binding for this step. Preserve request/observation semantics; do not infer an effect edge from names or family membership.
+        A delivery request or owner receipt is not destination acknowledgement.
     bindingStatus:
       status: pending-owner-binding
       candidateFields:

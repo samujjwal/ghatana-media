@@ -1,0 +1,991 @@
+{
+  "schemaVersion": "media.discovery.pdp3-mdc30-execution-observation.v1",
+  "recordKind": "IMMUTABLE_IMPLEMENTATION_OBSERVATION",
+  "observationId": "MEDIA-PDP3-MDC30-EXECUTION-2026-10-13-R1",
+  "observedAt": "2026-10-13T23:42:58.780Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "baseHead": "0c61893dd3c43d0346109747bbb70c7d45a80b15",
+    "originMainAtCapture": "0c61893dd3c43d0346109747bbb70c7d45a80b15",
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-3",
+    "exactTask": "MDC-30",
+    "scope": {
+      "physicalCandidates": 26,
+      "physicalDispositions": {
+        "PHYSICAL": 12,
+        "SUPPORT_ONLY": 12,
+        "SUBSUMED": 2
+      },
+      "semanticCompositions": 6,
+      "rootAggregates": 1,
+      "consumerBindings": 17,
+      "totalPdp3Cells": 50,
+      "totalCampaignCells": 200
+    }
+  },
+  "authority": {
+    "planRef": "docs/implementation/MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md",
+    "ownerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+    "ownerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+    "sourceManifestRef": ".product-experience/source-manifest.yaml",
+    "externalRecaptureObservationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-external-contract-recapture-2026-10-13-r2.json"
+  },
+  "sourcePinReview": {
+    "historicalPdp3Status": "DEV_COMPLETE",
+    "historicalPdp3SourcePinCount": 337,
+    "historicalPdp3SourcePinCounts": {
+      "matched": 301,
+      "changed": 36,
+      "missing": 0
+    },
+    "currentObservedHistoricalPdp3SourceSetFingerprint": "sha256:db931f0fe7330753999ea47802cd5ed420b1e32077d5c42befc02d6af0fc5f05",
+    "fingerprintAlgorithm": "sha256 of JSON.stringify over sorted [repository-relative path, current file sha256 hex] pairs for the 337 paths in docs/implementation/pdp-3-phase-dev-status.json sourceShaSet",
+    "additionalPdp3MaterialSources": [
+      {
+        "path": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        "sha256": "sha256:b52ca38559e9c4f44a4185ca941621ced54836b91bd9ca8addc238fac705f737",
+        "alreadyInHistoricalPdp3PinSet": false
+      },
+      {
+        "path": ".product-experience/surface-registry.yaml",
+        "sha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1",
+        "alreadyInHistoricalPdp3PinSet": false
+      },
+      {
+        "path": ".product-experience/surfaces/media-physical-topology.v1.json",
+        "sha256": "sha256:b29c6d320d681e6f71d0ef9f193143e7090c05fa93857c85231cf521c09c5c41",
+        "alreadyInHistoricalPdp3PinSet": false
+      },
+      {
+        "path": ".product-experience/pdp-3-product-experience/services/service-registry.yaml",
+        "sha256": "sha256:b743461f6d5584fcd79d47b6ef9c17046152cd4c905e583b7b7e945c1e711449",
+        "alreadyInHistoricalPdp3PinSet": true
+      }
+    ],
+    "expandedCurrentPdp3SourceSetFingerprint": "sha256:1e6a056a256222c43aab0cec3a030a0d648a550b76d2ec4428cc22b775e28f38",
+    "phasePinAudits": [
+      {
+        "phase": "PDP-0",
+        "historicalStatus": "DEV_COMPLETE",
+        "historicalSourceCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+        "historicalPinCount": 107,
+        "currentPinCounts": {
+          "matched": 100,
+          "changed": 7,
+          "missing": 0
+        },
+        "disposition": "HISTORICAL_PIN_DRIFT_REQUIRES_MATERIALITY_RECHECK",
+        "changedOrMissingSources": [
+          {
+            "path": ".product-experience/artifact-identities.yaml",
+            "recordedSha256": "sha256:3c9d38afc79d8f00a2defeb65f73448bf4cea94d7255524c154d3167d08f1eec",
+            "observedSha256": "sha256:cd6709b2e3bfff3c0b824f6e7e3c2c12777f688259beabbdbfeb1a261bd568f6",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/gaps.yaml",
+            "recordedSha256": "sha256:539ae8d99c596b19ccfe439303ed20273cd712f32c4cd84fe12149f7be7ddfe9",
+            "observedSha256": "sha256:3f58ca80e96f999960a4e4e0e91491a5f9a99bc9348223bbeb18426ba1cf4afd",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+            "recordedSha256": "sha256:ec9bbc0c9b489db2a959b60fe6a6c8c1db9be72d10453033fc5f0a92f89eb0e9",
+            "observedSha256": "sha256:13c0789a6fa94c51abfbc60da8465e340406947a3f5a1dff4ec5a37bcef7e341",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+            "recordedSha256": "sha256:e90a1c8ce077a1a0ac649d9445abd2ae7f1e9f197c42f4d1908468a364e69df6",
+            "observedSha256": "sha256:c16aafc7a7a6d6b473f34e2c8c66e0450c06d161b00854cc4ea787634cc66c33",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/source-manifest.yaml",
+            "recordedSha256": "sha256:1228dadcde7fc7c57eae53f2a3df79e01d1e56d4dba82809acd373faafc3cbc2",
+            "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "apps/media-experience-explorer/specification-artifacts.json",
+            "recordedSha256": "sha256:aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890",
+            "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "docs/PRODUCT-DEFINITION-COVERAGE.md",
+            "recordedSha256": "sha256:d84562a297b0f21d2db842064ea6dc3c6e5226a6b7eed136fdba9aec0ce72820",
+            "observedSha256": "sha256:92a9acbfc19a9d420faf42e8fdcc356c3ae22adfc28943bbb3e1fe71506bf094",
+            "disposition": "CHANGED"
+          }
+        ]
+      },
+      {
+        "phase": "PDP-1",
+        "historicalStatus": "DEV_COMPLETE",
+        "historicalSourceCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+        "historicalPinCount": 113,
+        "currentPinCounts": {
+          "matched": 109,
+          "changed": 4,
+          "missing": 0
+        },
+        "disposition": "HISTORICAL_PIN_DRIFT_REQUIRES_MATERIALITY_RECHECK",
+        "changedOrMissingSources": [
+          {
+            "path": ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md",
+            "recordedSha256": "sha256:7f751370b1fcf8380756bfea5dddfac779d6a6800a3b7d63f40a915c4579b5f3",
+            "observedSha256": "sha256:21c4712b5613e0640756ebf537c10d1c8d0d1f91df638c862d9719f01982d1e0",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "scripts/check-media-contract-parity.mjs",
+            "recordedSha256": "sha256:3dfb3c33c4aa15f91f59bb5a9f1ddb57e079850baf3c36420196726d0019d3ee",
+            "observedSha256": "sha256:c443ba57cc5273864cc90ebdd111114eef764629080ff4979cfb734da8d25485",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "tests/media-contract-parity-definition-only-cli.test.mjs",
+            "recordedSha256": "sha256:61e516a75c72196c697f7480af8a9ab0805796af1ec4fd3b7f6606c51fb7c3c1",
+            "observedSha256": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "tests/media-contract-parity.test.mjs",
+            "recordedSha256": "sha256:582b43c7ef832f14a3c8db30b004ecb4e50c13640d12b7df51245240453dc03e",
+            "observedSha256": "sha256:3b2ebd2a9dcbe68f1afb86438fa55953851596a5d5c359a888bc94bb95eb4cc4",
+            "disposition": "CHANGED"
+          }
+        ]
+      },
+      {
+        "phase": "PDP-2",
+        "historicalStatus": "DEV_COMPLETE",
+        "historicalSourceCut": "81386992d273a98237451702c2daf618c77c8e51",
+        "historicalPinCount": 154,
+        "currentPinCounts": {
+          "matched": 150,
+          "changed": 4,
+          "missing": 0
+        },
+        "disposition": "HISTORICAL_PIN_DRIFT_REQUIRES_MATERIALITY_RECHECK",
+        "changedOrMissingSources": [
+          {
+            "path": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
+            "recordedSha256": "sha256:5f5aa8a85d9c0fab195eada9d143b1e6fa045d170c381980f5ba224472b34a79",
+            "observedSha256": "sha256:76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "apps/media-experience-explorer/specification-artifacts.json",
+            "recordedSha256": "sha256:aa7e92e74819d86a54a2a9737ab03c2bd6557e08ac8b17a7bc37f4cf93ec5890",
+            "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+            "recordedSha256": "sha256:1311af4d6c97fb4a32e822d975f4fa36ccb9e802992a0c98912156d042ef37b3",
+            "observedSha256": "sha256:298229ec5101c181981eb4e4c3b9c79fb61b4c2ce4b1e7ca602964faaca91776",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts",
+            "recordedSha256": "sha256:740ada211bf443404f5d54550f34b4d42a23747e73dcd76b0f2c5d37a7ace5b4",
+            "observedSha256": "sha256:af12e13337b3b106679c0899ae18e1652d3bf2cc81f34b4f8daa6da1f6f53f75",
+            "disposition": "CHANGED"
+          }
+        ]
+      },
+      {
+        "phase": "PDP-3",
+        "historicalStatus": "DEV_COMPLETE",
+        "historicalSourceCut": "81386992d273a98237451702c2daf618c77c8e51",
+        "historicalPinCount": 337,
+        "currentPinCounts": {
+          "matched": 301,
+          "changed": 36,
+          "missing": 0
+        },
+        "disposition": "HISTORICAL_PIN_DRIFT_REQUIRES_MATERIALITY_RECHECK",
+        "changedOrMissingSources": [
+          {
+            "path": ".product-experience/artifact-identities.yaml",
+            "recordedSha256": "sha256:c26eada9cef07827211acc0541892b40505f4785fbce460a724efa140817a31e",
+            "observedSha256": "sha256:cd6709b2e3bfff3c0b824f6e7e3c2c12777f688259beabbdbfeb1a261bd568f6",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md",
+            "recordedSha256": "sha256:723955bd515104f6f5410be0b94185334e4a22d46016bf741dde3236ae92c8f9",
+            "observedSha256": "sha256:da305fec425233ffe9479a1a5e9ec6d6e058863ad969f474adfddf99ab5d8d37",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml",
+            "recordedSha256": "sha256:28dacec9e35e1e4a634f8e58a0b2718d9b24b07db9a4c1447f10ad65326e8851",
+            "observedSha256": "sha256:44364f89dcd4d0c2c5099c56714a74ee1cfe63aa53b8f5c7dea9773e9ab72a4f",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml",
+            "recordedSha256": "sha256:c443ab0050d109d5a41b7708b6ec1b0a84a6909ad586e7db6f764aa295368240",
+            "observedSha256": "sha256:3a8e760da5cc3f7ca7488656db9333d8f6742f789ab6079ec14d27c86e71b8a3",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml",
+            "recordedSha256": "sha256:c9d301ca2b2de0e1c82334e3000cacc968394e6ab036d775a12323f267f6253c",
+            "observedSha256": "sha256:426004cc15c26e8b08b84bed4b240b6b6fd1f6b87592b4532dd65a2b497ed1c8",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml",
+            "recordedSha256": "sha256:33fb881eccfcc83794cd21ca34e60022f3d73cd9157183563c559a1e4e9b220c",
+            "observedSha256": "sha256:8400375b292bb2d66e6c868ad584a8e1412393d73ac4bb26fe4f46814e74bd98",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
+            "recordedSha256": "sha256:e825c2291f458159bee28a728b70947134c440fd73b3fa8ead282daedf70088b",
+            "observedSha256": "sha256:0bba8dde85e9f72ea4f92907215d7a2650a2c467eb9e7d406c26fd252107f3a1",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml",
+            "recordedSha256": "sha256:0647c4754fc0762812b82425983417a2366b92063ea7a4f3b645dfee5b0b2e2f",
+            "observedSha256": "sha256:0593181a3208a9594eea642b97c333e6e1a7b8ca1b62f8c5666e79f3973d682b",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml",
+            "recordedSha256": "sha256:edff1b6219370bb38b67dd111232500bcf16555f1c24bf0fa28fd5878428a9f7",
+            "observedSha256": "sha256:0e22a79abc289c0483633f00f8f4167e70d20bc76f83091a2266757e6197a354",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml",
+            "recordedSha256": "sha256:67bf48d99e42a5c7278116ebd498de2afd8dae1f1b299c9460ed85a3b45678f9",
+            "observedSha256": "sha256:d9801c5a35cd42f8e3c04fb0455e3dc28ffc05e006a6711e8924e0e3638c6468",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml",
+            "recordedSha256": "sha256:6576a2ec2dd847be99dd7792ff3a86d05d254ef94a8ba40dfdae63ee3f2b436d",
+            "observedSha256": "sha256:dcccdfef3171ab0ce6c142d96ab8c11bafe5ac35200e9c80c3489b895209c8e4",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml",
+            "recordedSha256": "sha256:0fec7ff0e3b5f1617b9107652c7aa7f04ea4234082cb5a4082f8ef7a09f0968b",
+            "observedSha256": "sha256:d220c11393a92ce17a782dc26613a6c2e23996c9ac3d54cc6049c411da1e5297",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml",
+            "recordedSha256": "sha256:fe9732c7fffc2edfcea9201592933be72b842494187e403e381e6404ec1a7ef0",
+            "observedSha256": "sha256:bb376fa7bb9d8259ffd5b1d349f550927656939575b9477568ee6cb7c464ca8f",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml",
+            "recordedSha256": "sha256:61f780b09da713d822829d82df73011b2731ee447fbdd54a9b1e6dab2fe9521c",
+            "observedSha256": "sha256:299c6983968cb22f6f514c3201351de1e87087af445424f277618eeb2342911e",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml",
+            "recordedSha256": "sha256:9f3ca8eb013a6bbe7c5b737a299b5c8f8582eb983b8728d767673433ca4d0342",
+            "observedSha256": "sha256:5e24626b10c3b6cd27976081e126aceff9663a235e61dd5500b6f6f19a5011b6",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml",
+            "recordedSha256": "sha256:8ee9e0330ee4677510596c65538acb3d900261c8c7da51d808972c42280e2750",
+            "observedSha256": "sha256:bdc0349f61805fb694b6d82e722f0bc6c067c14a8fb996377681ee7b70b4db5d",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml",
+            "recordedSha256": "sha256:13c4ac9e663dc85a9a5d139483ff62473f604f8aa0b5b34fdb1cb723451b2f4f",
+            "observedSha256": "sha256:69452bf26cf796576f65d173e58ceedb671b115a895e7027fea1ccf36ec173c9",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml",
+            "recordedSha256": "sha256:d1f92206926963d639c6c51727644d8ae99108610d70a36d737ec480e7632d17",
+            "observedSha256": "sha256:80bcfa65f2318a1ffb51e9241ac04f551b5484d0724c23924d7560b6e98b7482",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml",
+            "recordedSha256": "sha256:ddea7a6980c55b6898a41c8b942c6a8545526f58b50ebf7ba2a79ced1c04b158",
+            "observedSha256": "sha256:888fc8fa6c8da0a309dc572a7c8c0d5023d6702b513612b8a76e192feb1e72c6",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml",
+            "recordedSha256": "sha256:05b0a67bf1259f32540353393d3ee6185dee64fbff4ceb481ebce6c9d48bd7ff",
+            "observedSha256": "sha256:1ad8ada6e36ee0f3000f916aab5147a6a08c3a2a8ca11e0980f08c051e35319e",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml",
+            "recordedSha256": "sha256:b5eb6abb656e67ca1b7f6c38832d938d22b82eff393a92e60c86f8b3b424b100",
+            "observedSha256": "sha256:85db307e1ca25b788f07e68f2a1e7f4694196ca21c1e03399b92d0323627fb08",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml",
+            "recordedSha256": "sha256:1fed4fd153499db8c2390f4818eaf9c222ff0319d21d5488ab2bc9c7ed288240",
+            "observedSha256": "sha256:3bb3a27598c9998fee3d9a6dd9d7e232448140f570175358124fc0cdd3f9f599",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml",
+            "recordedSha256": "sha256:e67413811c384c7b3553c764cc39cf0dd40378b3d2780ecfdc784d3aafe0817a",
+            "observedSha256": "sha256:37f7fa0014993246f96d25d74f9dd0456f5f3b951996a1f0fb5bf8a4a5098ff2",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml",
+            "recordedSha256": "sha256:5f5aaf48df4db6e6b92df223fc7b3f709d82ca4b55cf12c10dab11fa4329e01d",
+            "observedSha256": "sha256:fc0bb619c5bd722cee2e93bc7b45e78beb92e3b636f4b45935e25029730877a9",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml",
+            "recordedSha256": "sha256:0b4dd27736f26258362604a3cc61fe15a11b8a17be10c682d4954435e6005715",
+            "observedSha256": "sha256:0ef5811cb9e2ff99ce151c7eb515746cca71a8a343fb2345124d143a09868706",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml",
+            "recordedSha256": "sha256:507f5232b105f28d94c7c1a17409ad8abe083e3be5a86e4a286b919a7b287613",
+            "observedSha256": "sha256:4fe1a4b4ef3a703f7bd86e1a769679259fce19ad6bba3c8c78f57a84a6473a8e",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml",
+            "recordedSha256": "sha256:ff8b386b8971666a568d7a8e18bbaa6f2223f1e9e9273d46ce0961eae9991e1e",
+            "observedSha256": "sha256:d2a4781e236b84be2277319b71f92002f18cc3d2fc0b9aa8e3e46ef2510c5da5",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml",
+            "recordedSha256": "sha256:d77b2b1bec59c93db94a286a629e6ad596a4b5b883dafc586412193f41ed1051",
+            "observedSha256": "sha256:092115b710b817cd93fc2658ad63eb489390457d790bb26c401324879696095c",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml",
+            "recordedSha256": "sha256:0116c0638bd8cfd8ad97038b70170acf9d53a9be65fa60d08529be65e2f4ba1f",
+            "observedSha256": "sha256:94b28ec00faff882ad11f0b96ced2dafa56c5e41462ae1e380604492506ac692",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml",
+            "recordedSha256": "sha256:0b9387686a75d4d389f26ddca7e859733bc8e773d6ab495db8db9ed28f7c9a59",
+            "observedSha256": "sha256:c6437407d2eecb5d547a82a19e9d8da81bef457a75913719e3bc0fc4d7f9a608",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml",
+            "recordedSha256": "sha256:7cbc04c8f1870f9533b3da9e6805ee74fad9dc48ed5f6b86935050cea80d9c2e",
+            "observedSha256": "sha256:8c115471e0401240f6925d5b15d15e182891e65b2a615bfd458f42565557c326",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml",
+            "recordedSha256": "sha256:a90b215ddf40a2017ff8ab29b853339d9b3c6ee1744ca789ff0f75cb59a6f56e",
+            "observedSha256": "sha256:fd08167e9e2b518f73963f21c26faafe74ddf56050ba99678e4bf0191ba62ac1",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+            "recordedSha256": "sha256:e0db7b142f24fcfca8e9c063050c7fa1f488baba3b0adddf8ea6362cb22ae3a0",
+            "observedSha256": "sha256:cd4fcd2d117fb27af05bbf88186a4cb16c2f48c8e4facd2fa2730ace11848aac",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": ".product-experience/source-manifest.yaml",
+            "recordedSha256": "sha256:3585dce67cef314913f942984a0a8c43c5693f9650dee9a8ea6141f785bb892a",
+            "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "apps/media-experience-explorer/specification-artifacts.json",
+            "recordedSha256": "sha256:e88b8d0ce9c41b710ca065b8a25ff2ab95d257b0d24ee88599ac86c42b3ba7ac",
+            "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+            "disposition": "CHANGED"
+          },
+          {
+            "path": "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+            "recordedSha256": "sha256:1311af4d6c97fb4a32e822d975f4fa36ccb9e802992a0c98912156d042ef37b3",
+            "observedSha256": "sha256:298229ec5101c181981eb4e4c3b9c79fb61b4c2ce4b1e7ca602964faaca91776",
+            "disposition": "CHANGED"
+          }
+        ]
+      }
+    ],
+    "interpretation": "Pin mismatches are exact byte differences against historical phase status records. They do not by themselves prove a semantic defect; affected earlier PDP materiality and exit currentness remain a separate recheck. Historical phase records were not rewritten."
+  },
+  "generatedProjections": {
+    "command": "pnpm generate:product-definition-manifest",
+    "status": "PASS",
+    "sourceManifestRecords": 355,
+    "explorerRecords": null,
+    "explorerIndexDigestPrefix": "2aadeeffe41ea354",
+    "artifactIdentityCoverage": "PASS"
+  },
+  "externalOwnerContractRecapture": {
+    "observationRef": "docs/implementation/observations/media-discovery-pdp3-mdc30-external-contract-recapture-2026-10-13-r2.json",
+    "declaredFiles": 30,
+    "observedFiles": 30,
+    "matches": 30,
+    "mismatches": 0,
+    "missing": 0,
+    "sourceManifestSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a"
+  },
+  "journeyChannelDefinition": {
+    "contracts": 30,
+    "contractsWithChannels": 30,
+    "contractsWithChannelBindingState": 30,
+    "registryRef": ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+    "registryStatus": "SOURCE_BOUND_LOGICAL_DEFINITIONS_PARTIAL; CHANNEL_TRANSPORT_EQUIVALENCE_UNBOUND; RUNTIME_NOT_ADMITTED",
+    "intendedEdges": 61,
+    "sourceBoundLogicalDefinitionEdges": 29,
+    "incompleteP1StateOrObservationEdges": 32,
+    "channelTransportEquivalenceUnboundEdges": 61,
+    "runtimeAdmission": "NOT_ADMITTED",
+    "remainingChannelTaskIds": [
+      "MDC30-C-03",
+      "MDC30-C-04",
+      "MDC30-C-06",
+      "MDC30-C-07",
+      "MDC30-C-11",
+      "MDC30-C-12",
+      "MDC30-C-15",
+      "MDC30-C-16",
+      "MDC30-C-17",
+      "MDC30-C-21",
+      "MDC30-C-22",
+      "MDC30-C-25",
+      "MDC30-C-27",
+      "MDC30-C-30"
+    ],
+    "remainingEdgesByTask": [
+      {
+        "taskId": "MDC30-C-03",
+        "journeyId": "J-03",
+        "channels": [
+          "media.channel.cli",
+          "media.channel.grpc-api",
+          "media.channel.sdk",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-04",
+        "journeyId": "J-04",
+        "channels": [
+          "media.channel.grpc-api",
+          "media.channel.sdk",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-06",
+        "journeyId": "J-06",
+        "channels": [
+          "media.channel.grpc-api",
+          "media.channel.http-api",
+          "media.channel.product-integration"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-07",
+        "journeyId": "J-07",
+        "channels": [
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-11",
+        "journeyId": "J-11",
+        "channels": [
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-12",
+        "journeyId": "J-12",
+        "channels": [
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-15",
+        "journeyId": "J-15",
+        "channels": [
+          "media.channel.product-integration",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-16",
+        "journeyId": "J-16",
+        "channels": [
+          "media.channel.grpc-api",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-17",
+        "journeyId": "J-17",
+        "channels": [
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-21",
+        "journeyId": "J-21",
+        "channels": [
+          "media.channel.product-integration",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-22",
+        "journeyId": "J-22",
+        "channels": [
+          "media.channel.cli",
+          "media.channel.http-api",
+          "media.channel.product-integration",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-25",
+        "journeyId": "J-25",
+        "channels": [
+          "media.channel.http-api",
+          "media.channel.product-integration"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-27",
+        "journeyId": "J-27",
+        "channels": [
+          "media.channel.cli",
+          "media.channel.http-api",
+          "media.channel.web"
+        ]
+      },
+      {
+        "taskId": "MDC30-C-30",
+        "journeyId": "J-30",
+        "channels": [
+          "media.channel.cli",
+          "media.channel.http-api",
+          "media.channel.web"
+        ]
+      }
+    ],
+    "incompleteEdgeCountsByChannel": {
+      "media.channel.cli": 4,
+      "media.channel.grpc-api": 4,
+      "media.channel.http-api": 5,
+      "media.channel.product-integration": 5,
+      "media.channel.sdk": 2,
+      "media.channel.web": 12
+    },
+    "observationCandidateAudit": {
+      "incompleteEdgesWithOperationOverlap": 11,
+      "exactPurposeCitedObservationJoins": 0,
+      "fullJourneyOperationCoverage": 0,
+      "candidates": [
+        {
+          "journeyId": "J-06",
+          "channelRef": "media.channel.http-api",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.provenance-completeness.v1",
+              "operationsJoined": [
+                "media.operation-slice.inspect-provenance"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-06",
+          "channelRef": "media.channel.grpc-api",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.provenance-completeness.v1",
+              "operationsJoined": [
+                "media.operation-slice.inspect-provenance"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-06",
+          "channelRef": "media.channel.product-integration",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.provenance-completeness.v1",
+              "operationsJoined": [
+                "media.operation-slice.inspect-provenance"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-15",
+          "channelRef": "media.channel.web",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.quality-evidence.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.quality-action-plan.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.language-uncertainty.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-15",
+          "channelRef": "media.channel.product-integration",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.quality-evidence.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.quality-action-plan.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.language-uncertainty.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-17",
+          "channelRef": "media.channel.web",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.quality-evidence.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.quality-action-plan.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.language-uncertainty.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-21",
+          "channelRef": "media.channel.web",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.provenance-completeness.v1",
+              "operationsJoined": [
+                "media.operation-slice.inspect-provenance"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-21",
+          "channelRef": "media.channel.product-integration",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.provenance-completeness.v1",
+              "operationsJoined": [
+                "media.operation-slice.inspect-provenance"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-27",
+          "channelRef": "media.channel.web",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.quality-evidence.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.quality-action-plan.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.language-uncertainty.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-27",
+          "channelRef": "media.channel.http-api",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.quality-evidence.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.quality-action-plan.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.language-uncertainty.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        },
+        {
+          "journeyId": "J-27",
+          "channelRef": "media.channel.cli",
+          "candidates": [
+            {
+              "observationId": "media.observation-contract.quality-evidence.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.quality-action-plan.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            },
+            {
+              "observationId": "media.observation-contract.language-uncertainty.v1",
+              "operationsJoined": [
+                "media.operation.action.inspect-quality-evidence"
+              ],
+              "purposeCites": false,
+              "coversAllEdgeOperations": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "consequentialStepBinding": {
+    "taskCount": 14,
+    "completeTaskIds": [
+      "MDC30-S-01",
+      "MDC30-S-02",
+      "MDC30-S-03",
+      "MDC30-S-04",
+      "MDC30-S-05",
+      "MDC30-S-07",
+      "MDC30-S-08",
+      "MDC30-S-09",
+      "MDC30-S-10",
+      "MDC30-S-11",
+      "MDC30-S-12",
+      "MDC30-S-13",
+      "MDC30-S-14"
+    ],
+    "blockedTaskIds": [
+      "MDC30-S-06"
+    ],
+    "blocker": "J-06:01 source records identify action, capability operation, and job.submit wrapper separately but do not establish the exact join. No state transition or QUEUED assertion was added.",
+    "s14Disposition": "T01 binds only to guarded complete-upload (RECEIVING to VERIFYING); append is not separately promoted and AVAILABLE is not claimed.",
+    "otherTransitionClassification": "The shared transition-edge registry and PDP-1 transition/state sources were not edited; their 54 source-only transition classifications and 118 null state dispositions were not promoted."
+  },
+  "integrationApplicability": {
+    "surfaceId": "media.surface.integrations",
+    "applicablePdpArtifacts": [
+      "PDP-0",
+      "PDP-1",
+      "PDP-2",
+      "PDP-3"
+    ],
+    "applicabilityDisposition": "TARGET_HOST_CONTRACT_PENDING",
+    "semanticStatus": "PROPOSED",
+    "implementationStatus": "SOURCE_ONLY",
+    "qualificationStatus": "PENDING",
+    "topologyBindingState": "HOST_DEPENDENT",
+    "topologyConsumerCrosswalkPath": ".product-experience/surfaces/media-physical-topology.v1.json",
+    "matrixDisposition": "APPLICABLE_CONSUMER_BINDING",
+    "matrixOwnerDecisionSourceStatus": "APPLIED_TO_CANONICAL_SOURCE; CURRENTNESS_RECHECK_PENDING",
+    "serviceRegistryDisposition": "NOT_MODIFIED; existing implementations remain inventory only"
+  },
+  "validation": [
+    {
+      "command": "node --test tests/media-pdp-p3-dev-status.test.mjs tests/pdp-3-overview-denominator.test.mjs tests/pdp-3-screen-source-bindings.test.mjs tests/pdp-3-definition-branch-coverage.test.mjs tests/pdp3-api-experience-source-bindings.test.mjs tests/media-discovery-pdp3-owner-directions.test.mjs tests/pdp3-journey-channel-contract-bindings.test.mjs tests/media-pdp3-mdc30-s-step-bindings.test.mjs",
+      "status": "PASS",
+      "tests": 35,
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "pnpm check:product-experience-local",
+      "status": "PASS",
+      "tests": null,
+      "skipped": null,
+      "notes": "Local structure and projection check only; printed remaining proposal-only operation/effect/domain-state/behavioral-oracle links and did not establish semantic acceptance or native currentness."
+    }
+  ],
+  "taskLedger": {
+    "MDC30C": {
+      "total": 30,
+      "edgeSetsAuthored": 30,
+      "tasksWithIncompleteEdges": 14,
+      "remainingIncompleteBindingTaskIds": [
+        "MDC30-C-03",
+        "MDC30-C-04",
+        "MDC30-C-06",
+        "MDC30-C-07",
+        "MDC30-C-11",
+        "MDC30-C-12",
+        "MDC30-C-15",
+        "MDC30-C-16",
+        "MDC30-C-17",
+        "MDC30-C-21",
+        "MDC30-C-22",
+        "MDC30-C-25",
+        "MDC30-C-27",
+        "MDC30-C-30"
+      ],
+      "note": "All intended journey-channel edges are authored and covered; 29 edges have exact logical source joins, while 32 edges under the listed tasks remain incomplete."
+    },
+    "MDC30S": {
+      "total": 14,
+      "completed": 13,
+      "blockedTaskIds": [
+        "MDC30-S-06"
+      ]
+    },
+    "MDC30I01": {
+      "status": "APPLIED_TO_CANONICAL_SOURCE; TOPOLOGY_HOST_DEPENDENT_RETAINED; EXTERNAL_ADMISSION_NOT_CLAIMED"
+    },
+    "MDC30E01": {
+      "status": "COMPLETE_BYTE_RECAPTURE",
+      "expectedFiles": 30,
+      "matches": 30,
+      "mismatches": 0,
+      "missing": 0
+    },
+    "MDC30V01": {
+      "validationCommandsPass": true,
+      "phaseAcceptance": "BLOCKED_BY_MDC30_DEFINITION_GAPS_AND_UNRESOLVED_PREREQUISITE_CURRENTNESS"
+    }
+  },
+  "phaseDisposition": {
+    "currentPdp3SourceCurrentness": "NOT_ESTABLISHED; 36 OF 337 HISTORICAL PIN BYTES DIFFER AND NEW PDP3 MATERIAL WAS ADDED",
+    "phaseLocalDefinitionStatus": "BLOCKED_MDC30",
+    "currentPhaseExit": "NOT_PUBLISHED",
+    "ownerAcceptanceForExactCurrentSourceSet": "NOT_OBTAINED",
+    "independentSignoff": "NOT_CLAIMED",
+    "discoveryBarrier": "FAIL",
+    "buildLane": "NOT_ENTERED",
+    "pdpClosureLane": "NOT_ENTERED",
+    "deliveryGate": "BLOCKED",
+    "nextAllowedPhase": "Continue MDC-30 only after preserving the exact blockers and re-establishing any impacted prerequisite currentness; MDC-31/32 remain gated."
+  },
+  "worktreeAtCapture": {
+    "status": "MODIFIED",
+    "changedPathCount": 41,
+    "baseHead": "0c61893dd3c43d0346109747bbb70c7d45a80b15",
+    "recordPathIsNew": true
+  },
+  "claimsBoundary": {
+    "sourceAuthoring": "PARTIAL; 32 channel edges and MDC30-S-06 remain incomplete",
+    "pdp3DevComplete": "NOT_ESTABLISHED",
+    "nativePdpClosure": "NOT_ENTERED",
+    "releaseQualification": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED"
+  }
+}

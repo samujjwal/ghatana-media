@@ -24,6 +24,11 @@ channelRefs:
   - media.channel.web
   - media.channel.http-api
   - media.channel.cli
+channels:
+  - media.channel.web
+  - media.channel.http-api
+  - media.channel.cli
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 orderedViews:
   - media.view.check-processing-options
   - media.view.check-processing-readiness

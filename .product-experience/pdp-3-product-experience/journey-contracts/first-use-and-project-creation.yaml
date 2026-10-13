@@ -18,6 +18,7 @@ actors:
 intent: media.intent.restore-project
 channels:
   - media.channel.web
+channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
 preconditions:
   - Resolve an authenticated principal and authorized tenant/workspace through the admitted Shared
     identity contract before showing protected project data.
