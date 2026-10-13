@@ -2,7 +2,7 @@
 
 **Product:** Media (`media`)
 **Artifact:** `media.pdp-1.domain-data.v1`
-**Status:** owner-defined logical dispositions are recorded alongside source proposals and observations; full PDP-1 semantic acceptance and independent P0-010 remain open
+**Development status:** `DEV_COMPLETE` at the recorded PDP-1 source cut; no remaining PDP development tasks. The canonical logical/domain definitions are complete for that cut. Independent/formal phase acceptance and working runtime/public interfaces remain separate.
 
 This directory organizes domain and data semantics recorded in PDP-0 into
 machine-readable registries. PDP-0 remains the source for product truth and

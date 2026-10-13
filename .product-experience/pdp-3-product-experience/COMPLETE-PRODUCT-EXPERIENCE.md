@@ -1,7 +1,8 @@
 # Media Product Experience Specification
 
-**Authority:** PDP-3 proposal over PDP-0, PDP-1, and PDP-2\
-**Acceptance:** proposal; depends on accepted PDP-2 and full experience review; no complete-experience acceptance is recorded\
+**Authority:** Canonical Media PDP-3 experience definitions consuming PDP-0, PDP-1, and PDP-2.
+**Development status:** `DEV_COMPLETE` at its recorded source cut (47 screens, 30 journeys, 130 ordered steps); zero remaining PDP-3 authoring tasks. Independent/full production-experience acceptance and real channel implementation remain separate.
+
 **Development completion:** `docs/implementation/pdp-3-phase-dev-status.json` records all 10 criteria passing for the 47-screen/30-journey/130-step population, with strict current projections, valid schemas/public validators, and zero field-mapping blockers. The terminal cross-phase and full development suite are repository integration checks; they do not establish product-owner or independent acceptance, runtime admission, Lifecycle receipts or closure, or release qualification.\
 **Detailed work slices:** J-01 project setup, J-02 artifact intake, J-20 job observation/recovery, and `media.lane.transcribe-and-correct-captions`
 **Lane media scope:** Audio sources only; video audio-extraction and source-time mapping are outside this slice of J-03.

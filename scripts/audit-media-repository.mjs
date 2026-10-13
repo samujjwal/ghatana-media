@@ -11,8 +11,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, lstatSync, readFileSync, readlinkSync } from 'node:fs';
-import { dirname, join, normalize, relative, resolve, sep } from 'node:path';
+import { lstatSync, readFileSync, readlinkSync } from 'node:fs';
+import { dirname, normalize, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');

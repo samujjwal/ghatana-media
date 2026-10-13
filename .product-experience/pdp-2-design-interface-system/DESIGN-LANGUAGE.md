@@ -1,8 +1,8 @@
 # Media Design Language
 
-**Authority:** PDP-2 proposal over PDP-0 Product Truth\
-**Acceptance:** PDP-1 canonical domain handoff consumed; Shared admission and independent visual/accessibility acceptance remain pending\
-**Experience contracts prepared here:** all 17 master-plan component families are indexed by 28 family-level proposals; detailed interaction implementation remains selected-lane only
+**Authority:** Media PDP-2 reusable design and interface meaning, consuming PDP-0 Product Truth and PDP-1 Domain/Data.
+**Development status:** `DEV_COMPLETE` at the recorded source cut; no outstanding PDP-2 authoring tasks. Shared public package admission and independent accessibility/visual certification are separate Build/Delivery concerns.
+**Definition population:** 31 component families (28 typed family contracts), 13 templates, 11 layouts, 13 recipes, 42 composition rules and 19 interaction patterns. Source definitions do not imply deployed presentation.
 
 This phase defines how Media meaning appears and behaves. It does not add capabilities, change authority, or redefine job, consent, artifact, time, or finality states. The Media-specific records in this directory are the only editable authorities for their stated design decisions. Shared retains the generic token, component primitive, theme, accessibility, and localization contracts.
 

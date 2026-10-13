@@ -1,7 +1,7 @@
 /**
  * @ghatana/ai-voice-ui-react
  *
- * Accessible components and hooks for governed AI Voice production workflows.
+ * React components and hooks for governed, host-dependent AI Voice UI workflows.
  *
  * @packageDocumentation
  */
