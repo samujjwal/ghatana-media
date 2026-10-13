@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const topologyPath = path.join(repo, '.product-experience/surfaces/media-physical-topology.v1.json');
 const source = (p) => fs.readFileSync(path.join(repo, p), 'utf8');
+const sourcePath = (ref) => ref.split('#', 1)[0];
+const existsRef = (root, ref) => fs.existsSync(path.join(root, sourcePath(ref)));
 const ids = (p) => new Set([...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]));
 const idList = (p) => [...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]);
 
@@ -34,11 +36,16 @@ export function validateTopology(topology, root = repo) {
     for (const ref of [candidate.manifestPath, candidate.publicBoundaryRef]) {
       if (!fs.existsSync(path.join(root, ref))) fail(`${candidate.surfaceId}: missing source ref ${ref}`);
     }
+    if (!candidate.manifestPath.startsWith(`${candidate.sourcePath}/`)
+      || !candidate.publicBoundaryRef.startsWith(`${candidate.sourcePath}/`)) {
+      fail(`${candidate.surfaceId}: manifest and public boundary refs must resolve inside the declared source owner`);
+    }
     for (const phase of phases) {
       const cell = candidate.phaseApplicability?.[phase];
       if (!cell || !cell.disposition || !cell.rationale) fail(`${candidate.surfaceId}: ${phase} applicability cell is incomplete`);
       const refs = [cell.authorityRef, cell.operationAuthorityRef, ...(cell.authorityRefs ?? [])].filter(Boolean);
-      for (const ref of refs) if (!fs.existsSync(path.join(root, ref))) fail(`${candidate.surfaceId}: ${phase} has missing authority ref ${ref}`);
+      for (const ref of refs) if (!existsRef(root, ref)) fail(`${candidate.surfaceId}: ${phase} has missing authority ref ${ref}`);
+      for (const ref of cell.implementationRefs ?? []) if (!existsRef(root, ref)) fail(`${candidate.surfaceId}: ${phase} has missing implementation ref ${ref}`);
     }
   }
   const crosswalk = topology.consumerCrosswalk ?? [];
@@ -51,7 +58,7 @@ export function validateTopology(topology, root = repo) {
   for (const consumer of crosswalk) {
     if (!bindingStates.has(consumer.bindingState) || !consumer.statusReason) fail(`${consumer.surfaceId}: binding state and reason are required`);
     if (!registryIds.has(consumer.surfaceId)) fail(`${consumer.surfaceId}: not present in surface-registry.yaml`);
-    for (const ref of consumer.sourceContracts ?? []) if (!fs.existsSync(path.join(root, ref))) fail(`${consumer.surfaceId}: missing contract source ${ref}`);
+    for (const ref of consumer.sourceContracts ?? []) if (!existsRef(root, ref)) fail(`${consumer.surfaceId}: missing contract source ${ref}`);
     for (const ref of consumer.physicalRefs) {
       if (!byId.has(ref)) fail(`${consumer.surfaceId}: unknown physical ref ${ref}`);
       else reverse.get(ref).push(consumer.surfaceId);
@@ -64,6 +71,71 @@ export function validateTopology(topology, root = repo) {
     if (JSON.stringify(expected) !== JSON.stringify(recorded)) fail(`${candidate.surfaceId}: physical-to-consumer reverse refs do not match the crosswalk`);
     if (!['MAPPED', 'NO_DIRECT_CONSUMER_SUPPORT_ONLY'].includes(candidate.consumerMappingState)) fail(`${candidate.surfaceId}: explicit consumer mapping state is required`);
     if (expected.length === 0 && candidate.consumerMappingState !== 'NO_DIRECT_CONSUMER_SUPPORT_ONLY') fail(`${candidate.surfaceId}: missing consumer must be explicitly support-only`);
+  }
+  const aiVoiceUi = byId.get('media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react');
+  if (aiVoiceUi) {
+    const p2 = aiVoiceUi.phaseApplicability?.['PDP-2'];
+    const expectedComponents = ['media.component.voice-production-workflow', 'media.component.waveform-spectrogram', 'media.component.timeline-keyframe-editor'];
+    const expectedAuthorityRefs = [
+      '.product-experience/pdp-2-design-interface-system/interface-grammar.yaml#channels/GUI',
+      '.product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml',
+      '.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#media.component.voice-production-workflow',
+      '.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#media.component.waveform-spectrogram',
+      '.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#media.component.timeline-keyframe-editor',
+      '.product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow',
+      '.product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram',
+      '.product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.timeline-keyframe-editor',
+      '.product-experience/pdp-2-design-interface-system/component-value-types.yaml'
+    ];
+    const expectedImplementationRefs = [
+      'modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json#exports',
+      'modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts#PhraseTimeline,Waveform,VoiceProductionWorkflow'
+    ];
+    if (p2?.disposition !== 'GUI_LIBRARY_HOST_DEPENDENT') fail(`${aiVoiceUi.surfaceId}: exported React component library must be classified as host-dependent GUI applicability`);
+    compareExactIds(p2?.componentRefs, expectedComponents, `${aiVoiceUi.surfaceId} PDP-2 GUI component refs`, fail);
+    compareExactIds(p2?.authorityRefs, expectedAuthorityRefs, `${aiVoiceUi.surfaceId} PDP-2 GUI authority refs`, fail);
+    compareExactIds(p2?.implementationRefs, expectedImplementationRefs, `${aiVoiceUi.surfaceId} PDP-2 implementation refs`, fail);
+    const packageManifest = source(aiVoiceUi.manifestPath);
+    const entry = source('modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts');
+    const guiBindings = source('.product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml');
+    const componentContracts = source('.product-experience/pdp-2-design-interface-system/component-contracts.yaml');
+    if (!packageManifest.includes('"name": "@ghatana/ai-voice-ui-react"')
+      || !packageManifest.includes('"exports":')
+      || !['PhraseTimeline', 'Waveform', 'VoiceProductionWorkflow'].every((name) => entry.includes(name))
+      || expectedComponents.some((id) => !guiBindings.includes(`componentRef: ${id}`)
+        || !componentContracts.includes(`id: ${id}`))) {
+      fail(`${aiVoiceUi.surfaceId}: package manifest and public component exports do not support the declared GUI source trace`);
+    }
+    const p0 = aiVoiceUi.phaseApplicability?.['PDP-0'];
+    if ((p0?.capabilityIntentIds ?? []).length > 1 || (p0?.capabilityIntentIds ?? []).some((id) => !id.startsWith('media.speech.synthesis.text-to-speech'))) {
+      fail(`${aiVoiceUi.surfaceId}: PDP-0 UI scope cannot imply every speech-synthesis processing leaf`);
+    }
+  }
+  const agentTools = crosswalk.find((consumer) => consumer.surfaceId === 'media.surface.agent-tools');
+  const common = byId.get('media.physical.libs-common');
+  if (agentTools && common) {
+    const observation = agentTools.handlerSourceObservation;
+    if (!agentTools.physicalRefs.includes('media.physical.runtime-contracts')
+      || !agentTools.physicalRefs.includes('media.physical.libs-common')) {
+      fail('media.surface.agent-tools must preserve runtime-contracts association and map its libs/common handler source owner');
+    }
+    if (observation?.physicalOwner !== 'media.physical.libs-common'
+      || observation?.operationAssociation !== 'media.physical.runtime-contracts'
+      || observation?.classification !== 'LEGACY_SUBSUMED_NOT_ADMITTED'
+      || !existsRef(root, observation?.sourcePath ?? '')) {
+      fail('media.surface.agent-tools handler source must remain observational, legacy/subsumed, and not admitted');
+    }
+    const sourceRegistry = source('.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml');
+    const handlers = [...sourceRegistry.matchAll(/^\s+handlerSource:\s*([^\s]+)$/gm)].map((match) => match[1]);
+    if (handlers.length !== 4 || handlers.some((handler) => !handler.startsWith(`${observation?.sourcePath}/`) || !existsRef(root, handler))) {
+      fail('Agent Tool source observation must cover the four exact handler files under libs/common');
+    }
+    if (!common.consumerSurfaceRefs.includes('media.surface.agent-tools')
+      || !common.sourceOwnedObservations?.some((item) => item.consumerSurfaceId === 'media.surface.agent-tools'
+        && item.classification === 'LEGACY_SUBSUMED_NOT_ADMITTED'
+        && item.sourcePath === observation?.sourcePath)) {
+      fail('libs/common must reverse-map the Agent Tool observational source link without claiming runtime admission');
+    }
   }
   const compositions = topology.compositions ?? [];
   const compositionById = new Map(compositions.map((x) => [x.surfaceId, x]));
@@ -87,7 +159,7 @@ export function validateTopology(topology, root = repo) {
       const cell = composition.phaseApplicability?.[phase];
       if (!cell?.disposition || !cell?.rationale) fail(`${composition.surfaceId}: ${phase} applicability cell is incomplete`);
       for (const ref of [cell.authorityRef, ...(cell.authorityRefs ?? [])].filter(Boolean)) {
-        if (!fs.existsSync(path.join(root, ref))) fail(`${composition.surfaceId}: ${phase} has missing authority ref ${ref}`);
+        if (!existsRef(root, ref)) fail(`${composition.surfaceId}: ${phase} has missing authority ref ${ref}`);
       }
     }
     for (const child of composition.children ?? []) {
@@ -175,8 +247,7 @@ export function validateTopology(topology, root = repo) {
   compareExactIds([...new Set(responsibleNodes.flatMap((node) => node.phaseApplicability?.['PDP-3']?.screenIds ?? []))], idList('.product-experience/pdp-3-product-experience/screen-registry.yaml'), 'responsible physical/composition PDP-3 screen IDs', fail);
   compareExactIds([...new Set(responsibleNodes.flatMap((node) => node.phaseApplicability?.['PDP-3']?.journeyIds ?? []))], idList('.product-experience/pdp-3-product-experience/journey-registry.yaml'), 'responsible physical/composition PDP-3 journey IDs', fail);
   for (const entry of topology.additionalBoundarySources ?? []) {
-    const ref = entry.sourcePath.split('#')[0];
-    if (!fs.existsSync(path.join(root, ref))) fail(`additional boundary source is missing: ${entry.sourcePath}`);
+    if (!existsRef(root, entry.sourcePath)) fail(`additional boundary source is missing: ${entry.sourcePath}`);
     if (!registryIds.has(entry.consumerSurfaceId)) fail(`additional boundary source has unknown consumer: ${entry.consumerSurfaceId}`);
     if (!entry.binding || !entry.kind) fail(`additional boundary source lacks an explicit binding decision: ${entry.sourcePath}`);
   }

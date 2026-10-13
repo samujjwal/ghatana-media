@@ -84,3 +84,45 @@ test('dependency edges cannot be represented as containment members', () => {
   const errors = validateTopology(changed);
   assert.ok(errors.some((error) => error.includes('children must be direct CONTAINS IDs')));
 });
+
+test('AI Voice React package is a source-bound host-dependent GUI library with bounded PDP-0 scope', () => {
+  const changed = copy();
+  const candidate = changed.manifestCandidates.find((item) => item.surfaceId === 'media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react');
+  candidate.phaseApplicability['PDP-2'].disposition = 'HEADLESS_CONTRACT';
+  candidate.phaseApplicability['PDP-0'].capabilityIntentIds.push('media.speech.synthesis.dub');
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('host-dependent GUI applicability')));
+  assert.ok(errors.some((error) => error.includes('cannot imply every speech-synthesis processing leaf')));
+});
+
+test('AI Voice GUI applicability rejects missing exact component or grammar references', () => {
+  const changed = copy();
+  const candidate = changed.manifestCandidates.find((item) => item.surfaceId === 'media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react');
+  candidate.phaseApplicability['PDP-2'].componentRefs.pop();
+  candidate.phaseApplicability['PDP-2'].authorityRefs = candidate.phaseApplicability['PDP-2'].authorityRefs.filter((ref) => !ref.includes('gui/semantic-component-bindings.yaml'));
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('PDP-2 GUI component refs must exactly match')));
+  assert.ok(errors.some((error) => error.includes('PDP-2 GUI authority refs must exactly match')));
+});
+
+test('Agent Tool handler source maps bidirectionally to subsumed libs/common and retains non-admission', () => {
+  const changed = copy();
+  const consumer = changed.consumerCrosswalk.find((item) => item.surfaceId === 'media.surface.agent-tools');
+  const common = changed.manifestCandidates.find((item) => item.surfaceId === 'media.physical.libs-common');
+  consumer.physicalRefs = ['media.physical.runtime-contracts'];
+  common.consumerSurfaceRefs = [];
+  common.consumerMappingState = 'NO_DIRECT_CONSUMER_SUPPORT_ONLY';
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('preserve runtime-contracts association and map its libs/common handler source owner')));
+  assert.ok(errors.some((error) => error.includes('libs/common must reverse-map')));
+});
+
+test('Agent Tool handler mappings cannot claim execution admission or lose exact handler source coverage', () => {
+  const changed = copy();
+  const consumer = changed.consumerCrosswalk.find((item) => item.surfaceId === 'media.surface.agent-tools');
+  consumer.handlerSourceObservation.classification = 'ADMITTED';
+  consumer.handlerSourceObservation.sourcePath = 'libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java';
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('must remain observational, legacy/subsumed, and not admitted')));
+  assert.ok(errors.some((error) => error.includes('four exact handler files under libs/common')));
+});

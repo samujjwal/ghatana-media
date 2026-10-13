@@ -106,7 +106,8 @@
         "pinnedSourceCount": 154,
         "currentSourcePinsMatch": false,
         "staleSourceRefs": [
-          "apps/media-experience-explorer/specification-artifacts.json"
+          "apps/media-experience-explorer/specification-artifacts.json",
+          "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
         ],
         "postCutPinRefresh": null,
         "verificationResultsRemainAtRecordedCut": true
@@ -117,8 +118,11 @@
         "definitionContentCut": "81386992d273a98237451702c2daf618c77c8e51",
         "statusRecord": "docs/implementation/pdp-3-phase-dev-status.json",
         "pinnedSourceCount": 337,
-        "currentSourcePinsMatch": true,
-        "staleSourceRefs": [],
+        "currentSourcePinsMatch": false,
+        "staleSourceRefs": [
+          ".product-experience/source-manifest.yaml",
+          "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
+        ],
         "postCutPinRefresh": null,
         "verificationResultsRemainAtRecordedCut": true
       }

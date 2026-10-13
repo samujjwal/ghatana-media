@@ -1472,8 +1472,18 @@
           "screenIds": []
         }
       },
-      "consumerSurfaceRefs": [],
-      "consumerMappingState": "NO_DIRECT_CONSUMER_SUPPORT_ONLY"
+      "consumerSurfaceRefs": [
+        "media.surface.agent-tools"
+      ],
+      "consumerMappingState": "MAPPED",
+      "sourceOwnedObservations": [
+        {
+          "sourcePath": "libs/common/src/main/java/com/ghatana/audio/video/tools",
+          "consumerSurfaceId": "media.surface.agent-tools",
+          "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
+          "statusReason": "Observed Agent Tool handler sources are legacy support inside this subsumed library; no execution authority is established."
+        }
+      ]
     },
     {
       "surfaceId": "media.physical.libs-java-common",
@@ -2169,28 +2179,12 @@
             "media.speech.synthesis"
           ],
           "capabilityIntentIds": [
-            "media.speech.synthesis.text-to-speech",
-            "media.speech.synthesis.streaming",
-            "media.speech.synthesis.multilingual",
-            "media.speech.synthesis.cross-lingual",
-            "media.speech.synthesis.expressive",
-            "media.speech.synthesis.control.prosody",
-            "media.speech.synthesis.control.rate",
-            "media.speech.synthesis.control.pitch",
-            "media.speech.synthesis.control.emotion-style",
-            "media.speech.synthesis.control.pronunciation",
-            "media.speech.synthesis.control.phoneme",
-            "media.speech.synthesis.speaker.condition",
-            "media.speech.synthesis.speaker.clone-authorized",
-            "media.speech.synthesis.voice.convert",
-            "media.speech.synthesis.speech-to-speech",
-            "media.speech.synthesis.speech.translate",
-            "media.speech.synthesis.dub"
+            "media.speech.synthesis.text-to-speech"
           ],
           "requirementIds": [
             "MEDIA-REQ-CAP-SPEECH-SYNTHESIS"
           ],
-          "rationale": "Exact source capability leaves are selected by their canonical family; target capability scope does not claim runtime admission.",
+          "rationale": "The package is a source-bound presentation candidate for the canonical text-to-speech intent; package presence does not establish implementation of every speech-synthesis processing leaf or runtime admission.",
           "intentIds": [
             "media.intent.create"
           ]
@@ -2209,13 +2203,28 @@
           "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml"
         },
         "PDP-2": {
-          "disposition": "HEADLESS_CONTRACT",
+          "disposition": "GUI_LIBRARY_HOST_DEPENDENT",
           "authorityRefs": [
-            ".product-experience/pdp-2-design-interface-system/api/",
-            ".product-experience/pdp-2-design-interface-system/sdk/",
-            ".product-experience/pdp-2-design-interface-system/gui/"
+            ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml#channels/GUI",
+            ".product-experience/pdp-2-design-interface-system/gui/screen-composition-schema.yaml",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#media.component.voice-production-workflow",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#media.component.waveform-spectrogram",
+            ".product-experience/pdp-2-design-interface-system/gui/semantic-component-bindings.yaml#media.component.timeline-keyframe-editor",
+            ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.voice-production-workflow",
+            ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.waveform-spectrogram",
+            ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#media.component.timeline-keyframe-editor",
+            ".product-experience/pdp-2-design-interface-system/component-value-types.yaml"
           ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+          "implementationRefs": [
+            "modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json#exports",
+            "modules/intelligence/ai-voice/libs/ai-voice-ui-react/src/index.ts#PhraseTimeline,Waveform,VoiceProductionWorkflow"
+          ],
+          "componentRefs": [
+            "media.component.voice-production-workflow",
+            "media.component.waveform-spectrogram",
+            "media.component.timeline-keyframe-editor"
+          ],
+          "rationale": "The exported React component library has GUI component contracts for a voice workflow, waveform candidate, and phrase timeline candidate. The source-bound components do not establish full family equivalence, an available host, Shared admission, or implementation of every speech-synthesis action."
         },
         "PDP-3": {
           "disposition": "HOST_DEPENDENT_EXPERIENCE",
@@ -3482,11 +3491,22 @@
       "surfaceId": "media.surface.agent-tools",
       "consumerType": "AGENT_TOOL",
       "physicalRefs": [
-        "media.physical.runtime-contracts"
+        "media.physical.runtime-contracts",
+        "media.physical.libs-common"
       ],
       "bindingState": "CONTRACT_ONLY",
       "statusReason": "Tool definitions are source-owned; execution/owner boundary remains pending.",
-      "registryAuthority": ".product-experience/surface-registry.yaml"
+      "registryAuthority": ".product-experience/surface-registry.yaml",
+      "sourceContracts": [
+        ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml"
+      ],
+      "handlerSourceObservation": {
+        "sourcePath": "libs/common/src/main/java/com/ghatana/audio/video/tools",
+        "physicalOwner": "media.physical.libs-common",
+        "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
+        "operationAssociation": "media.physical.runtime-contracts",
+        "statusReason": "Four handler files are source observations only; the runtime-contract association remains logical and none is admitted for execution."
+      }
     },
     {
       "surfaceId": "media.surface.events",
