@@ -38,6 +38,10 @@ The separate `deploy/k8s/deployment.yaml` had a production-enabled, two-replica 
 
 The root `monitoring/docker-compose.monitoring.yml` was similarly retired to `services: {}`: it previously referred to missing local configuration mounts and used default Grafana/PostgreSQL credentials. Canonical metrics/alerts/dashboard source candidates are preserved independently; an installed qualified observability stack needs an explicit deployment owner and configuration.
 
+## Isolated static Kubernetes manifests
+
+Every service, ConfigMap, ServiceAccount, NetworkPolicy, and Namespace in `infra/kubernetes/`, and the separate root runtime candidate in `deploy/k8s/deployment.yaml`, now uses **`media-candidate-not-admitted`**. This is a non-production, non-admitted namespace distinct from the real `media` and `audio-video` namespaces. Even if someone applies the static candidate directory, Services and broad network policies cannot override resources within either active namespace. Service Deployments stay at zero replicas and use unpullable image references. The dedicated namespace itself is not a release approval or safe substitute for validating a final production manifest.
+
 ## Intent-based naming and preservation
 
 Use Media for new product and domain names; use precise action/outcome names for operations and modules. Preserve published `audio-video` library/package/Gradle and route identities until a tested compatibility migration is admitted. Do not rename the stable 462 capability, 47 screen, or 30 journey identities. Source ownership remains one-way: Shared, Document Intelligence, AI Inference, Platform and Lifecycle generic modules are consumed through public contracts, not copied.
