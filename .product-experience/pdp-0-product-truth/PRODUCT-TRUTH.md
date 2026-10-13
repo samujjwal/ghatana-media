@@ -1,6 +1,6 @@
 # Media Product Truth
 
-**Definition state:** Internal semantic review is part of PDP-0 development completion. Independent P0-010 acceptance and specialist reviews remain separate. PXD-026 records bounded cross-phase owner-policy decisions; it does not accept this Product Truth, individual records, or any complete PDP phase.
+**Definition state:** PDP-0 Product Truth is `DEV_COMPLETE` at its recorded development source cut, with zero remaining PDP authoring tasks. Independent P0-010 acceptance and qualified specialist reviews are separate from completed development. PXD-026 is a bounded product-policy decision, not an independent acceptance or runtime qualification.
 **Product:** Media (`media`)  
 **Target repository:** `samujjwal/ghatana-media`  
 **Media product-meaning authority:** `.product-experience` is the single editable authority. `samujjwal/ghatana:services/media` remains a migration/implementation observation and compatibility source until an approved cutover executes; it is not a competing Product Truth authority.
@@ -63,7 +63,7 @@ and neutral document/extraction contracts remain Shared-owned. Media may use a
 public Document Intelligence contract for media-specific temporal or scene-text
 semantics, such as associating recognized regions with frames over time. MIME
 type alone does not turn media into a document or a document into a Media
-capability. See [MDI-001](../../migration/decisions/MDI-001-document-intelligence-ownership.md).
+capability. See [MDI-001](../../docs/migration/decisions/MDI-001-document-intelligence-ownership.md).
 
 ## Principles and scope
 
