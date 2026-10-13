@@ -1,7 +1,10 @@
 # Ghatana Media — controlling PDP-0–3 Discovery DEV_COMPLETE execution plan
 
+> **Controlling new delegated owner decision (October 13, 2026):** [PDP-3 MDC-30 decision](../../.product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md) and [machine-readable source-backed action packet](observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json) settle Media's internal channel, consequential-state, and integrations-applicability choices for the exact reviewed source cut. These are **approved directions, not implemented bindings, tested outcomes, current PDP-3 exit, external owner approval, or independent specialist attestation**. Earlier references below to “owner decisions pending” are prior observations and do not supersede this decision. Preserve PDP-0 R2/PDP-1 R3/PDP-2 R2 current exits unless actual source material invalidates affected units. Continue `MDC-30` only.
+
+
 **Campaign:** samujjwal/ghatana-media, whole-repo Media Discovery. **Source baseline:** HEAD `2aaa15f5a15ce9d05726cc133885b6415317efff`; observed PDP-3 source-set fingerprint `sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9` over the 337 paths pinned by the historical PDP-3 status.
-**Current macro stage / exact phase:** **DISCOVERY / PDP-3 MDC-30**. PDP-0 R2, PDP-1 R3 and PDP-2 R2 have source-bound current phase exits. Current-cut PDP-3 reconciliation is blocked by journey channel-binding gaps, an unresolved integrations applicability decision, and unfinished consequential state/transition binding review. MDC-31 and MDC-32 remain gated. The Discovery barrier remains **FAIL**.
+**Current macro stage / exact phase:** **DISCOVERY / PDP-3 MDC-30**. PDP-0 R2, PDP-1 R3 and PDP-2 R2 have current source-bound phase exits. The internal owner has now decided channel scope, integrations PDP-3 applicability and consequential state/finality interpretation. PDP-3 nevertheless remains blocked until canonical source changes and true currentness/tests/exits are performed. MDC-31 and MDC-32 remain gated. The Discovery barrier remains **FAIL**.
 **Denominator:** 26 physical manifest candidates (12 physical, 12 support-only, 2 subsumed), six semantic compositions, one root, 17 non-physical consumer bindings: 50 review identities × four PDP phases = **200 phase-review cells**. Four archived source locations remain separately referenced; archived desktop consumer is among the 17 and is not physically closable.  
 **Authoritative owner decision:** [2026-10-13 delegated decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md). **Canonical worklist:** [17-task ledger](media-discovery-reconciliation-worklist-2026-10-13.json). **Per-cell implementation detail:** [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json). **Grounding:** historical [P0 capture](observations/media-discovery-pdp0-currentness-2026-10-13.json), [owner evidence](observations/media-discovery-delegated-owner-evidence-2026-10-13.json), and current [PDP-0 R2 phase exit](observations/media-discovery-pdp0-exit-2026-10-13-r2.json) at commit `2aaa15f`, material fingerprint `sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b`.
 
@@ -10,6 +13,109 @@
 **Owner APPROVED WITH COMMENTS.** The prior PDP-0–3 `DEV_COMPLETE` claims remain historical source-cut statements. PDP-0 has a published R2 phase exit with exact-fingerprint delegated owner acceptance and required checks. PDP-1 R3 and PDP-2 R2 current exits each cover 50 cells and preserve separate owner-acceptance and independent-signoff status. Current-cut PDP-3 review found new definition/linkage gaps and reopened PDP-3 for MDC-30; this does not rewrite the historical status file. The Discovery barrier remains **FAIL**; Build NOT_ENTERED; native PDP closure NOT_ENTERED; Delivery BLOCKED. See [MDC-30 observation](observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json).
 
 **Critical rule:** The owner decisions and implementation prescriptions here are **already selected**. The implementer must execute them without reopening the decision queue for unchanged material. Never claim test runs, Browser Explorer quality, independent human attestations, Lifecycle receipts, runtime or deployment until performed/approved by the real owner. Each actual current-cut phase exit is a distinct source-bound record. Never rewrite historical `mainSha`, source hashes, skipped tests or acceptance facts.
+
+## Newly approved, exhaustive MDC-30 subtask register
+
+**Decision:** `MEDIA-PDP3-MDC30-OWNER-DIRECTIONS-2026-10-13` — exact reviewed main `58fb822179f782175b6025d37f63a631f4fe66a6`, 337-source-path PDP-3 fingerprint `sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9`. **5 remaining campaign tasks:** `MDC-30`, `MDC-31`, `MDC-32`, `MDC-40`, `MDC-41`. The 30+14+3 items below are subtasks *of MDC-30*, not a reopened backlog for PDP-0/1/2. The machine packet includes the exact source path, approved channels, action and operation identity, accepted behavior and acceptance test for each.
+
+### MDC30-C-01 through C-30 — 30 complete per-channel journey definitions
+
+**What:** make all 30 intended product journeys complete for their actual declared channels, including 24 proposal-only contracts, J-01/J-02 common binding states, J-03/J-20 missing canonical top-level channel declaration, and J-29/J-30 whose existing `channelRefs` are authoritative.
+
+**Where:** `.product-experience/pdp-3-product-experience/journey-contracts/`, `journey-registry.yaml`, `application-channel-registry.yaml`, approved `journey-channel-contract-bindings.yaml`, P1 `operations.yaml`/`states.yaml`, P2 GUI/headless interface authority, API/grpc/SDK/CLI/service registries. **How:** author one source-linked mapping edge per intended journey×channel (**61 intended edges**); connect exact logical operations, state/owner observation, actor/auth, purpose and immutable version, typed request/result/error, finality, denied/timeout/unknown/retry/recovery, and appropriate a11y or machine grammar. Source-only transport is permitted with explicit non-admission, but cannot conceal missing logical definition. Do not invent endpoints, RPCs or production CLI from fixtures.
+
+| Subtask | Journey | Owner-approved target channels | Canonical contract to inspect |
+| --- | --- | --- | --- |
+| `MDC30-C-01` | `J-01` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/first-use-and-project-creation.yaml` |
+| `MDC30-C-02` | `J-02` | `media.channel.web`, `media.channel.http-api`, `media.channel.sdk` | `.product-experience/pdp-3-product-experience/journey-contracts/upload-import-and-verify-artifact.yaml` |
+| `MDC30-C-03` | `J-03` | `media.channel.web`, `media.channel.cli`, `media.channel.grpc-api`, `media.channel.sdk` | `.product-experience/pdp-3-product-experience/journey-contracts/transcribe-and-correct-captions.yaml` |
+| `MDC30-C-04` | `J-04` | `media.channel.web`, `media.channel.grpc-api`, `media.channel.sdk` | `.product-experience/pdp-3-product-experience/journey-contracts/authorized-text-to-speech-to-approved-audio.yaml` |
+| `MDC30-C-05` | `J-05` | `media.channel.web`, `media.channel.grpc-api`, `media.channel.sdk` | `.product-experience/pdp-3-product-experience/journey-contracts/analyze-image-video-geometry-and-tracks.yaml` |
+| `MDC30-C-06` | `J-06` | `media.channel.http-api`, `media.channel.grpc-api`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/return-grounded-typed-consumer-results.yaml` |
+| `MDC30-C-07` | `J-07` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/clean-noisy-interview-audio.yaml` |
+| `MDC30-C-08` | `J-08` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/repair-video-with-measured-quality.yaml` |
+| `MDC30-C-09` | `J-09` | `media.channel.web`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/create-review-and-deliver-from-a-brief.yaml` |
+| `MDC30-C-10` | `J-10` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/generate-from-references-and-review-continuity.yaml` |
+| `MDC30-C-11` | `J-11` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/edit-tracked-media-region-with-undo.yaml` |
+| `MDC30-C-12` | `J-12` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/animate-vector-or-procedural-scenes.yaml` |
+| `MDC30-C-13` | `J-13` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/animate-3d-scenes-and-characters.yaml` |
+| `MDC30-C-14` | `J-14` | `media.channel.web`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/explore-domain-simulation-and-review-measurements.yaml` |
+| `MDC30-C-15` | `J-15` | `media.channel.web`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/refine-simulation-passes-with-semantic-validation.yaml` |
+| `MDC30-C-16` | `J-16` | `media.channel.web`, `media.channel.grpc-api` | `.product-experience/pdp-3-product-experience/journey-contracts/translate-and-dub-existing-video.yaml` |
+| `MDC30-C-17` | `J-17` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/mix-and-master-music-and-effects.yaml` |
+| `MDC30-C-18` | `J-18` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/compose-and-render-reviewed-media.yaml` |
+| `MDC30-C-19` | `J-19` | `media.channel.web` | `.product-experience/pdp-3-product-experience/journey-contracts/inspect-quality-and-optimize-within-bounds.yaml` |
+| `MDC30-C-20` | `J-20` | `media.channel.web`, `media.channel.cli` | `.product-experience/pdp-3-product-experience/journey-contracts/long-running-job-observation-and-recovery.yaml` |
+| `MDC30-C-21` | `J-21` | `media.channel.web`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/review-exact-version-and-recheck-changes.yaml` |
+| `MDC30-C-22` | `J-22` | `media.channel.web`, `media.channel.http-api`, `media.channel.cli`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/deliver-export-with-destination-acknowledgement.yaml` |
+| `MDC30-C-23` | `J-23` | `media.channel.web`, `media.channel.cli` | `.product-experience/pdp-3-product-experience/journey-contracts/work-locally-and-reconcile-after-reconnect.yaml` |
+| `MDC30-C-24` | `J-24` | `media.channel.cli`, `media.channel.http-api` | `.product-experience/pdp-3-product-experience/journey-contracts/run-cli-batch-and-review-verified-outputs.yaml` |
+| `MDC30-C-25` | `J-25` | `media.channel.product-integration`, `media.channel.http-api` | `.product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml` |
+| `MDC30-C-26` | `J-26` | `media.channel.web`, `media.channel.http-api`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/delete-or-revoke-media-with-visible-lifecycle.yaml` |
+| `MDC30-C-27` | `J-27` | `media.channel.web`, `media.channel.http-api`, `media.channel.cli` | `.product-experience/pdp-3-product-experience/journey-contracts/continue-safely-when-processing-is-unavailable.yaml` |
+| `MDC30-C-28` | `J-28` | `media.channel.web`, `media.channel.product-integration` | `.product-experience/pdp-3-product-experience/journey-contracts/export-spatial-media-with-format-loss-reporting.yaml` |
+| `MDC30-C-29` | `J-29` | `media.channel.web`, `media.channel.grpc-api` | `.product-experience/pdp-3-product-experience/journey-contracts/live-session-loss-consent-change-and-bounded-recovery.yaml` |
+| `MDC30-C-30` | `J-30` | `media.channel.web`, `media.channel.http-api`, `media.channel.cli` | `.product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml` |
+
+**Acceptance:** no intended channel omitted or duplicated; all 61 edges have exact authority, valid owned source refs, operation/state/negative/recovery grammar or reasoned exact no-equivalence, no fabricated runtime; negative fixtures must reject missing edge, invented route, mismatched version, missing auth, unknown outcome conflation and CLI fixture-as-production. Source-change invalidation must be evaluated after authoring.
+
+### MDC30-S-01 through S-14 — consequential step/state/finality binding
+
+**What:** reconcile all 14 actual consequential actions. **Where:** `journey-purpose-bindings.yaml`, `step-definition-oracles.yaml`, `journey-transition-edge-bindings.yaml`, `state-transition-bindings.yaml`, `pdp-1-domain-data/states.yaml`, `transitions.yaml`, `operations.yaml`, transition guards, exact journey source. **How:** apply owner-approved interpretation per step below, confirm canonical P1 state machine and operation/guard links or a source-justified `NO_P1_MACHINE_TRANSITION` / deferred owner observation; distinguish request receipt, effect finality, destination ACK, session draft and new immutable version. Never invent P1 transition IDs.
+
+| Subtask | Step | Exact authored P1 operation(s) | Owner-approved effect/finality |
+| --- | --- | --- | --- |
+| `MDC30-S-01` | `J-09:09` | `media.operation.action.deliver-exact-version` | `REQUEST_NOT_DESTINATION_ACK` |
+| `MDC30-S-02` | `J-22:02` | `media.operation.action.deliver-exact-version` | `REQUEST_NOT_DESTINATION_ACK` |
+| `MDC30-S-03` | `J-01:03` | `media.operation-slice.create-project` | `INITIAL_STATE_CREATION_NOT_TRANSITION` |
+| `MDC30-S-04` | `J-20:05` | `media.operation-slice.cancel-job` | `REQUEST_NOT_CANCELLED_FINALITY` |
+| `MDC30-S-05` | `J-20:06` | `media.operation-slice.retry-job` | `GUARDED_RETRY_NOT_BLIND_REPLAY` |
+| `MDC30-S-06` | `J-06:01` | `media.operation.capability.media-multimodal-observe-source-grounded` | `SUBMIT_INTENT_NOT_RESULT` |
+| `MDC30-S-07` | `J-02:02` | `media.operation-slice.begin-upload` | `INITIAL_SESSION_RECEIVING_AFTER_RECEIPT` |
+| `MDC30-S-08` | `J-03:02` | `media.operation.transcription-submission` | `TRANSCRIPTION_SUBMISSION_NOT_SUCCESS` |
+| `MDC30-S-09` | `J-03:05` | `media.operation.caption-draft-write` | `SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS` |
+| `MDC30-S-10` | `J-03:06` | `media.operation.caption-draft-write` | `SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS` |
+| `MDC30-S-11` | `J-03:07` | `media.operation.caption-version-write` | `IMMUTABLE_VERSION_REGISTRATION_NOT_APPROVAL` |
+| `MDC30-S-12` | `J-16:03` | `media.operation.caption-draft-write` | `SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS` |
+| `MDC30-S-13` | `J-18:04` | `media.operation.caption-draft-write` | `SESSION_LOCAL_EDIT_IF_SOURCE_CONFIRMS` |
+| `MDC30-S-14` | `J-02:03` | `media.operation-slice.append-upload-chunk` + `media.operation-slice.complete-upload` | `ORDERED_APPEND_COMPLETE_THEN_VERIFICATION` |
+
+**Acceptance:** 14/14 exact action+operation identities with source-grounded P1 state/edge or explicit no-transition; success, denied, timeout, unknown and recovery have correct finality, conservative denial on missing guard facts, no extra job/delivery state; 54 other source-only transition records retain their real **3 operation-family + 44 event-pending + 1 no-verification-operation + 6 external authority-event** classifications. The observed 118 null dispositions (33 passive, 70 read-only, 14 consequential, 1 external) are review classifications, not 118 executable commands.
+
+### MDC30-I-01 — Approved integrations PDP-3 applicability, canonical source update
+
+**Decision:** `media.surface.integrations` **IS** PDP-3 applicable as source-defined **contract-only** system integration; its host remains `HOST_DEPENDENT`, runtime `SOURCE_ONLY` and qualification `PENDING`. The previous `OWNER_DECISION_PENDING` is **an observed source status, not an unanswered Media owner choice now**.
+
+**Where:** `.product-experience/surface-registry.yaml` consumer `media.surface.integrations`, its topology consumerCrosswalk, `.product-experience/pdp-3-product-experience/services/service-registry.yaml`, J-09/14/22/25/26/28. **How:** add PDP-3 to `applicablePdpArtifacts`, change `applicabilityDisposition` to `TARGET_HOST_CONTRACT_PENDING`, provide explicit PDP-3 machine contract and negative/recovery rationale. Keep service registry 25 implementations as **inventory only**, not accepted product integration endpoints. Bind exact external handoff identities/observation or `UNBOUND` with failure states; no fake provider approval.
+
+**Acceptance:** source consumer record and 17-consumer matrix agree with the approved decision and affected journey edges, all real contract meaning source-linked; external admission still not claimed. Because `surface-registry.yaml` can be upstream material, recapture and selectively reissue impacted PDP-0/1/2 currentness/owner cut **only when actual input fingerprints require it**, not by globally redoing their definitions.
+
+### MDC30-E-01 — External owner-contract material recapture
+
+**Where:** `.product-experience/source-manifest.yaml`, named Media-facing sibling files, public Lifecycle source-currentness adapter. **How:** compare declared contract-file digest to each current content byte stream including locally modified relevant contracts; Git commit ID, dirty/untracked marker and newer remote `main` are provenance, never proof that bytes changed or did not change. Classify actual mismatch by exact path and Media surface/meaning ID; unknown files remain UNKNOWN until read. Do not alter external repo contract authority or manually refresh old immutable observation.
+
+**Acceptance:** all required declared external bytes/membership either current and matching or explicitly impact-mapped with authorized source correction; no meaningless global reopen on metadata-only changes.
+
+### MDC30-V-01 — Validation, status and phase lock
+
+**Where:** targeted PDP-3 suites and new regression tests, `docs/implementation/observations/`, 200-cell matrix. **How:** run `node --test tests/media-pdp-p3-dev-status.test.mjs tests/pdp-3-overview-denominator.test.mjs tests/pdp-3-screen-source-bindings.test.mjs tests/pdp-3-definition-branch-coverage.test.mjs tests/pdp3-api-experience-source-bindings.test.mjs tests/media-discovery-pdp3-owner-directions.test.mjs`, plus new channel-edge/state adversarial tests and `pnpm check:product-experience-local`. Capture exact HEAD, material membership/digests, all 50 PDP-3 applicability rows, outcome counts/skips, source-bound owner acceptance and new immutable MDC-30 observation. Older 19/19 and 8/8 tests are historical observations, **not** proof the forthcoming changes passed.
+
+**Acceptance:** zero outstanding real PDP-3 definition gaps, all per-channel and step-negative fixtures grounded, integrations source status resolved, external material explained, 50 phase cells source-current (or grounded N/A), and a new accepted MDC-30 record. **Only then** start MDC-31.
+
+### Remaining campaign after MDC-30
+
+**MDC-31:** make Explorer **actually usable**, not a static demo: read-only root/composition/26 physical/17 consumer navigation, all PDP0-3 sources, GUI components/tokens/screens and API/gRPC/SDK/CLI/Agent/event contracts, searchable canonical IDs, deep links, keyboard/focus/accessibility, responsive layout, deterministic scenario branch replay, and source status failure visibility. Run actual browser tests at desktop and mobile with verified evidence; never label previews as live product functionality.
+
+**MDC-32:** after MDC-31, validate all 50 PDP-3 cells and canonical 47 screens/30 journeys/130 steps/147 actions/31 scenarios/105 recovery oracles against the *current* source, publish immutable PDP-3 source-current `DEV_COMPLETE` exit with zero open authoring tasks. Do not rewrite historical phase record or claim qualified signoff.
+
+**MDC-40:** derive Discovery PASS/FAIL over 200 phase-review cells from **compatible** current exact-source PDP-0/1/2/3 exits plus Explorer actual checks, preserving unaffected prior exits and fail closed on stale affected descendants; no native Lifecycle closure assertion.
+
+**MDC-41:** after PASS only, freeze source-authoritative Build handoff and start runtime development/test plus independently authorized PDP closure in parallel. Delivery waits for current formal closure and Build/release qualification, not the phase-development status alone.
+
+### Blocker and owner disposition
+
+Internal Media product owner decisions on channel scope, 14 effect categories, integration applicability and generic source-currentness policy are **RESOLVED** by the machine packet. Implementer work that remains includes **source edits, exact P1 transition or no-transition verification, newly generated currentness, tests, Explorer operation and actual phase-exit publication**. External host admission, human-independent certification and Lifecycle receipts remain separate authority, not silently authorized or fabricated. A new actual contradiction must be escalated with exact source ID, digest and bounded alternative; unchanged approved design choices should not be resubmitted.
+
 
 ## Precise unfinished task inventory (5 remaining tasks)
 

@@ -38,7 +38,11 @@
     "pdp3ObservedHead": "2aaa15f5a15ce9d05726cc133885b6415317efff",
     "pdp3ObservedSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
     "pdp3Mdc30Observation": "docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json",
-    "pdp3Mdc30Status": "BLOCKED_DEFINITION_RECONCILIATION"
+    "pdp3Mdc30Status": "BLOCKED_DEFINITION_RECONCILIATION",
+    "pdp3OwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+    "pdp3OwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+    "pdp3SourceBindingComplete": false,
+    "pdp3OwnerDesignDecisionsRecorded": true
   },
   "denominators": {
     "physicalCandidates": 26,
@@ -61,7 +65,7 @@
     "pdp0": "CURRENT_PHASE_EXIT_PASS",
     "pdp1": "CURRENT_PHASE_EXIT_PASS",
     "pdp2": "CURRENT_PHASE_EXIT_PASS",
-    "pdp3": "NOT_REVALIDATED",
+    "pdp3": "MDC30_CURRENT_CUT_REVIEWED_WITH_DEFINITION_GAPS_OWNER_CHOICES_APPROVED",
     "discovery": "FAIL",
     "build": "NOT_ENTERED",
     "nativePdpClosure": "NOT_ENTERED",
@@ -307,7 +311,21 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.apps-media-experience-explorer::PDP-0",
@@ -528,7 +546,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.audio-video-observability::PDP-0",
@@ -729,7 +751,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.integration-tests::PDP-0",
@@ -930,7 +955,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.launcher::PDP-0",
@@ -1151,7 +1179,20 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-02",
+        "J-06",
+        "J-22",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.libs-audio-video-client::PDP-0",
@@ -1386,7 +1427,22 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-20",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-27",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.libs-audio-video-types::PDP-0",
@@ -1622,7 +1678,16 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.libs-audio-video-ui::PDP-0",
@@ -1874,7 +1939,39 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.libs-common::PDP-0",
@@ -2095,7 +2192,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.libs-java-common::PDP-0",
@@ -2296,7 +2397,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.libs-media-experience-simulation::PDP-0",
@@ -2531,7 +2635,19 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-20",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-27",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-audio-streaming::PDP-0",
@@ -2732,7 +2848,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-infrastructure-cache::PDP-0",
@@ -2953,7 +3072,21 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-infrastructure-messaging::PDP-0",
@@ -3188,7 +3321,21 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-infrastructure-persistence::PDP-0",
@@ -3409,7 +3556,21 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-infrastructure-security::PDP-0",
@@ -3630,7 +3791,21 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-integration-tests::PDP-0",
@@ -3831,7 +4006,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react::PDP-0",
@@ -4070,7 +4248,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-intelligence-multimodal-service::PDP-0",
@@ -4306,7 +4488,18 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust::PDP-0",
@@ -4507,7 +4700,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-speech-stt-service::PDP-0",
@@ -4743,7 +4939,18 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-speech-tts-service::PDP-0",
@@ -4979,7 +5186,18 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-video-streaming::PDP-0",
@@ -5180,7 +5398,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.modules-vision-vision-service::PDP-0",
@@ -5416,7 +5637,18 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.providers-aws-postgresql::PDP-0",
@@ -5637,7 +5869,21 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.physical.runtime-contracts::PDP-0",
@@ -5902,7 +6148,25 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-22",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-29",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.repository-root::PDP-0",
@@ -6082,7 +6346,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.ingestion-and-versioned-artifacts::PDP-0",
@@ -6274,7 +6541,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.governed-job-execution::PDP-0",
@@ -6466,7 +6736,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.speech-and-caption-workflows::PDP-0",
@@ -6658,7 +6931,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.vision-and-multimodal-analysis::PDP-0",
@@ -6850,7 +7126,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.creation-composition-and-delivery::PDP-0",
@@ -7042,7 +7321,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.composition.client-and-machine-interfaces::PDP-0",
@@ -7234,7 +7516,10 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.web::PDP-0",
@@ -7449,7 +7734,39 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-01",
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-07",
+        "J-08",
+        "J-09",
+        "J-10",
+        "J-11",
+        "J-12",
+        "J-13",
+        "J-14",
+        "J-15",
+        "J-16",
+        "J-17",
+        "J-18",
+        "J-19",
+        "J-20",
+        "J-21",
+        "J-22",
+        "J-23",
+        "J-26",
+        "J-27",
+        "J-28",
+        "J-29",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.embedded::PDP-0",
@@ -7667,7 +7984,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.public-http::PDP-0",
@@ -7895,7 +8216,20 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-02",
+        "J-06",
+        "J-22",
+        "J-24",
+        "J-25",
+        "J-26",
+        "J-27",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.service-grpc::PDP-0",
@@ -8162,7 +8496,18 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-04",
+        "J-05",
+        "J-06",
+        "J-16",
+        "J-29"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.grpc.stt::PDP-0",
@@ -8377,7 +8722,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.grpc.tts::PDP-0",
@@ -8592,7 +8941,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.grpc.vision::PDP-0",
@@ -8807,7 +9160,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.grpc.multimodal::PDP-0",
@@ -9022,7 +9379,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.sdk::PDP-0",
@@ -9250,7 +9611,16 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-02",
+        "J-03",
+        "J-04",
+        "J-05"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.cli::PDP-0",
@@ -9477,7 +9847,19 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-03",
+        "J-20",
+        "J-22",
+        "J-23",
+        "J-24",
+        "J-27",
+        "J-30"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.agent-tools::PDP-0",
@@ -9705,7 +10087,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.events::PDP-0",
@@ -9930,7 +10316,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.integrations::PDP-0",
@@ -10197,7 +10587,7 @@
       "currentPhaseExitPublished": false,
       "acceptWhen": "All applicable human/machine experiences current, source-linked and inspectable; negative/recovery cases covered with honest fixtures; Explorer actually tested; zero meaning IDs and new phase exit.",
       "status": "PDP3_CURRENTNESS_BLOCKED_MDC30",
-      "nextLegalAction": "MDC-30 remains open: obtain the authoritative PDP-3 applicability decision for integrations and reconcile the linked journeys. Keep this cell UNKNOWN_OWNER_DECISION_PENDING; MDC-31 and MDC-32 remain gated.",
+      "nextLegalAction": "Apply owner-approved PDP3 contract-only integrations applicability to canonical surface-registry.yaml, then validate topology/source material changes and exact affected prior-phase currentness; finish MDC30. No external runtime admission.",
       "phaseApplicabilityAuthorityRefs": [
         ".product-experience/surface-registry.yaml#/surfaces/12",
         ".product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/12"
@@ -10210,7 +10600,24 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [
+        "J-06",
+        "J-09",
+        "J-14",
+        "J-15",
+        "J-21",
+        "J-22",
+        "J-25",
+        "J-26",
+        "J-28"
+      ],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true,
+      "ownerApprovedApplicabilityDisposition": "PDP3_APPLICABLE_CONTRACT_ONLY_HOST_DEPENDENT",
+      "ownerApprovedCanonicalRegistryDisposition": "TARGET_HOST_CONTRACT_PENDING",
+      "ownerDecisionSourceStatus": "RECORDED_NOT_APPLIED_TO_CANONICAL_SOURCE"
     },
     {
       "cellId": "media.surface.types-library::PDP-0",
@@ -10425,7 +10832,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.ui-library::PDP-0",
@@ -10653,7 +11064,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.explorer::PDP-0",
@@ -10881,7 +11296,11 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     },
     {
       "cellId": "media.surface.desktop-archive::PDP-0",
@@ -11073,9 +11492,24 @@
         "MDC-30",
         "MDC-31",
         "MDC-32"
-      ]
+      ],
+      "delegatedMediaOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "delegatedMediaOwnerBindingPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "relevantJourneyIds": [],
+      "sourceOwnerDecisionDoesNotProveCurrentness": true
     }
   ],
   "currentPhase": "PDP-3",
-  "nextLegalAction": "Continue PDP-3 MDC-30 source reconciliation; resolve journey channel/state bindings and integrations applicability before starting MDC-31."
+  "nextLegalAction": "MDC-30 remains active: implement source-grounded 61 journey×channel edges, 14 consequential step mappings, the approved integrations applicability, exact contract digest recapture, and tests; MDC-31/32 gated.",
+  "ownerDecisionOverlay": {
+    "recordKind": "NON_NORMATIVE_OWNER_REVIEW_OVERLAY",
+    "decisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+    "packetRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+    "journeyCount": 30,
+    "channelEdgeCount": 61,
+    "consequentialSteps": 14,
+    "integrationsApplicabilityApproved": true,
+    "sourceNotYetUpdated": true,
+    "currentPdp3Exit": false
+  }
 }

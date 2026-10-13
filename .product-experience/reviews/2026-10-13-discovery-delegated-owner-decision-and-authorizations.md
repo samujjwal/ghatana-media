@@ -1,4 +1,7 @@
 # Media Discovery — delegated owner decisions and bounded approval
+
+> **Later phase-scoped owner decision:** PDP-3 MDC-30 source-backed channel, state/finality and integration applicability choices were reviewed on October 13, 2026 in [the phase-specific owner record](2026-10-13-pdp3-mdc30-delegated-owner-decisions.md) and [the machine-readable packet](../../docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json). Their decision is binding for unchanged Media internal product meaning; technical PDP-3 bindings, currentness and phase exit remain unperformed. Earlier PDP-0 authorizations below are not superseded.
+
 **Decision ID:** `MEDIA-DISCOVERY-OWNER-AUTHORIZATION-2026-10-13`  
 **Recorded:** October 13, 2026 (America/Los_Angeles)  
 **Repository/head reviewed:** `samujjwal/ghatana-media@14643ce933d0fe23cf68937e9d3bf88e887db894`  

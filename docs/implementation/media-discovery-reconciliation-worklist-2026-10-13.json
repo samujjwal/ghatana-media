@@ -10,12 +10,14 @@
     "ownerDecisionAtHead": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
     "originalObservationCaptureHead": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
     "controllingMaterialFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a",
-    "pdp3ObservedSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9"
+    "pdp3ObservedSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
+    "latestDelegatedOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+    "latestDelegatedOwnerReviewedHead": "58fb822179f782175b6025d37f63a631f4fe66a6"
   },
   "campaign": {
     "stage": "DISCOVERY",
     "activePhase": "PDP-3",
-    "discoveryBarrier": "FAIL_PDP3_MDC30_DEFINITION_AND_APPLICABILITY_GAPS",
+    "discoveryBarrier": "FAIL_PDP3_MDC30_SOURCE_BINDING_AND_VERIFICATION_PENDING",
     "sourceMeaningStatus": "PDP0_PDP1_PDP2_HISTORICAL_DEV_COMPLETE_WITH_CURRENT_EXITS; PDP3_REOPENED_AT_CURRENT_CUT",
     "sourceCurrentness": "PDP0_PDP1_PDP2_CURRENT_PHASE_EXITS_PASS_PDP3_MDC30_BLOCKED",
     "implementationLane": "NOT_ENTERED",
@@ -61,10 +63,13 @@
     "currentPhaseSourceSetFingerprint": "sha256:e48e639bfe200c2a715d55bde3aa33f064410e80e1e418d793421876d53ccac9",
     "currentPhaseBlockerIds": [
       "MDC30-CHANNEL-BINDING-COMPLETENESS",
-      "MDC30-INTEGRATIONS-APPLICABILITY-UNKNOWN",
       "MDC30-STEP-STATE-BINDING-REVIEW",
-      "MDC30-EXTERNAL-SOURCE-OBSERVATION-STALE"
-    ]
+      "MDC30-INTEGRATIONS-CANONICAL_SOURCE_UPDATE",
+      "MDC30-EXTERNAL_SOURCE_OBSERVATION_STALE"
+    ],
+    "currentPhaseOwnerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+    "currentPhaseOwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+    "currentPhaseOwnerChoiceStatus": "DECIDED_NOT_SOURCE_IMPLEMENTED"
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -994,11 +999,68 @@
       ],
       "where": [
         ".product-experience/pdp-3-product-experience/",
-        "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
+        "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx",
+        "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+        ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+        ".product-experience/pdp-3-product-experience/journey-channel-contract-bindings.yaml",
+        ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml",
+        ".product-experience/surface-registry.yaml"
       ],
       "done": "47 screen IDs, 30 journeys/130 steps, 147 UI actions and 31 scenarios plus 105 bounded recovery oracles keep exact version/outcome/negative states; 17 consumer channels have discoverable headless/GUI contracts and explicit non-admission.",
-      "status": "BLOCKED_IN_PROGRESS",
-      "executionNote": "Prescribed MDC-30 suite passes 19/19 and matrix/transition audit regression passes 8/8, both with zero skips and the 337 historical P3 source pins were reviewed (five drift paths classified). Current definition is not complete: 24 journey contracts leave per-channel operation/state/transport/accessibility equivalence unbound; J-01/J-02 lack the common channel-binding state and J-03/J-20 lack top-level channel lists; bounded state/transition review is complete: 54 transition records are precisely categorized, while 14 consequential command/workflow records still lack accepted exact state mappings; integrations applicability remains UNKNOWN_OWNER_DECISION_PENDING; external source-manifest snapshots are stale. See docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json. MDC-31 and MDC-32 remain gated."
+      "status": "IN_PROGRESS_OWNER_CHOICES_APPROVED_SOURCE_RECONCILIATION_PENDING",
+      "executionNote": "Prescribed MDC-30 suite passes 19/19 and matrix/transition audit regression passes 8/8, both with zero skips and the 337 historical P3 source pins were reviewed (five drift paths classified). Current definition is not complete: 24 journey contracts leave per-channel operation/state/transport/accessibility equivalence unbound; J-01/J-02 lack the common channel-binding state and J-03/J-20 lack top-level channel lists; bounded state/transition review is complete: 54 transition records are precisely categorized, while 14 consequential command/workflow records still lack accepted exact state mappings; integrations applicability remains UNKNOWN_OWNER_DECISION_PENDING; external source-manifest snapshots are stale. See docs/implementation/observations/media-discovery-pdp3-mdc30-currentness-2026-10-13-r1.json. MDC-31 and MDC-32 remain gated.\nOctober 13 delegated Media owner choices are explicitly recorded (30 journey channel sets, 14 consequential cases, PDP3 integrations applicability). The implementation and source-current phase exit remain unperformed. See machine packet for exact 47 subtasks. No additional internal design decision required for unchanged source inputs.",
+      "ownerDecisionRef": ".product-experience/reviews/2026-10-13-pdp3-mdc30-delegated-owner-decisions.md",
+      "machineOwnerDecisionRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json",
+      "subtaskIds": [
+        "MDC30-C-01",
+        "MDC30-C-02",
+        "MDC30-C-03",
+        "MDC30-C-04",
+        "MDC30-C-05",
+        "MDC30-C-06",
+        "MDC30-C-07",
+        "MDC30-C-08",
+        "MDC30-C-09",
+        "MDC30-C-10",
+        "MDC30-C-11",
+        "MDC30-C-12",
+        "MDC30-C-13",
+        "MDC30-C-14",
+        "MDC30-C-15",
+        "MDC30-C-16",
+        "MDC30-C-17",
+        "MDC30-C-18",
+        "MDC30-C-19",
+        "MDC30-C-20",
+        "MDC30-C-21",
+        "MDC30-C-22",
+        "MDC30-C-23",
+        "MDC30-C-24",
+        "MDC30-C-25",
+        "MDC30-C-26",
+        "MDC30-C-27",
+        "MDC30-C-28",
+        "MDC30-C-29",
+        "MDC30-C-30",
+        "MDC30-S-01",
+        "MDC30-S-02",
+        "MDC30-S-03",
+        "MDC30-S-04",
+        "MDC30-S-05",
+        "MDC30-S-06",
+        "MDC30-S-07",
+        "MDC30-S-08",
+        "MDC30-S-09",
+        "MDC30-S-10",
+        "MDC30-S-11",
+        "MDC30-S-12",
+        "MDC30-S-13",
+        "MDC30-S-14",
+        "MDC30-I-01",
+        "MDC30-E-01",
+        "MDC30-V-01"
+      ],
+      "ownerReviewDisposition": "APPROVED_WITH_IMPLEMENTATION_CORRECTIONS_NOT_EXIT"
     },
     {
       "id": "MDC-31",
@@ -1014,7 +1076,8 @@
         ".product-experience/explorer/"
       ],
       "done": "Read-only root/composition/physical and consumer drill-down; four phase source links; token/component/screen and API/SDK/CLI/Event/Agent inspectability; correct search/deep links/scenarios, missing-state disclosure; no simulated behavior disguised as live.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "PLANNED_NOT_PERFORMED",
+      "upstreamApprovedOwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json"
     },
     {
       "id": "MDC-32",
@@ -1028,7 +1091,8 @@
         "docs/implementation/ (current-cut view)"
       ],
       "done": "Every applicable PDP-3 row has current source/experience contract, negative and recovery behavior coverage, meaningful fixtures/explorer projection; preserve historical cut and independent acceptance distinction.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "PLANNED_NOT_PERFORMED",
+      "upstreamApprovedOwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json"
     },
     {
       "id": "MDC-40",
@@ -1046,7 +1110,8 @@
         "AGENTS.md"
       ],
       "done": "All in-scope leaves plus compositions/root current and DEV_COMPLETE across applicable four PDPs, zero real definition tasks, no unknown membership/material digests, unaffected closed phases reused, Build gate explicitly PASS; no native closure/release claims.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "PLANNED_NOT_PERFORMED",
+      "upstreamApprovedOwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json"
     },
     {
       "id": "MDC-41",
@@ -1061,7 +1126,8 @@
         "docs/implementation/post-pdp-task-dispositions-2026-10-12.md"
       ],
       "done": "Run actual product implementation and tests in Build; PDP acceptance/closure may run independently in parallel, and Delivery waits for both required lanes and release authority.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "PLANNED_NOT_PERFORMED",
+      "upstreamApprovedOwnerPacketRef": "docs/implementation/observations/media-discovery-pdp3-owner-binding-directions-2026-10-13.json"
     }
   ]
 }
