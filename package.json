@@ -42,7 +42,8 @@
     "test:experience-browser": "node scripts/check-experience-browser.mjs",
     "report:pdp-readiness": "node scripts/report-media-pdp-readiness.mjs",
     "check:physical-topology": "node scripts/check-media-physical-topology.mjs",
-    "test:physical-topology": "node --test tests/media-physical-topology.test.mjs"
+    "test:physical-topology": "node --test tests/media-physical-topology.test.mjs",
+    "audit:repository-hygiene": "node scripts/audit-media-repository.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
