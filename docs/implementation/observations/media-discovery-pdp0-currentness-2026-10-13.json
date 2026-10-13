@@ -5,10 +5,10 @@
   "campaign": {
     "repository": "samujjwal/ghatana-media",
     "branch": "main",
-    "observedHead": "220b51b5744915b5c9d95e7de91dd50f6c0e10fb",
-    "observedOriginMain": "220b51b5744915b5c9d95e7de91dd50f6c0e10fb",
-    "observedRemoteMain": "220b51b5744915b5c9d95e7de91dd50f6c0e10fb",
-    "worktreeStatusAtCapture": "M .product-experience/README.md\n M .product-experience/artifact-identities.yaml\n M .product-experience/gaps.yaml\n M .product-experience/source-manifest.yaml\n M apps/media-experience-explorer/specification-artifacts.json\n M docs/PRODUCT-DEFINITION-COVERAGE.md\n M docs/implementation/media-discovery-reconciliation-worklist-2026-10-13.json\n M package.json\n M pnpm-lock.yaml\n?? docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json\n?? scripts/media-discovery-currentness.mjs\n?? scripts/record-media-discovery-pdp0-currentness.mjs\n?? tests/media-discovery-currentness.test.mjs",
+    "observedHead": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
+    "observedOriginMain": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
+    "observedRemoteMain": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
+    "worktreeStatusAtCapture": "M docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json",
     "scope": "Repository-wide Discovery; active phase PDP-0 only.",
     "reviewedPlanBaseline": "90065c229debe88ca2143e58cad708d5ebc83cf5"
   },
