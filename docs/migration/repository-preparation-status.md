@@ -16,9 +16,13 @@ migration cutover, or release authorization. See the [current dimensional
 status projection](../implementation/post-pdp-current-status.json) and the
 [current gap classifications](../../.product-experience/gap-current-status.yaml).
 
-## Repository and Product Definition
+## Current ownership and completed definition handoff
 
-The canonical editable source remains `ghatana/services/media` until the
+**As of October 12, 2026, PDP-0, PDP-1, PDP-2 and PDP-3 are `DEV_COMPLETE`, with zero remaining PDP authoring tasks.** Media product meaning is owned in `ghatana-media/.product-experience/`; the canonical executable runtime and writer remains `ghatana/services/media` until an authorized transfer. The narrow historical P0-001 migration-boundary acceptance is not the same dimension as completed PDP source development. The old snapshot below must not be read as an active PDP backlog.
+
+## Historical October 7 migration/source observations (not current PDP tasks)
+
+The canonical **executable runtime** source remains `ghatana/services/media` until the
 reviewed cross-repository cutover manifest is admitted and executed. This
 checkout is still migration preparation; repository registration, local builds,
 or source presence do not establish cutover, runtime qualification, production
@@ -26,10 +30,12 @@ availability, or activation. The generic Document Intelligence runtime remains
 platform-owned under accepted MDI-001; public client publication and Media
 rebinding remain pending.
 
-The four PDP directories, source manifest, surface registry, Explorer, and
-local structural checks are present. Only the bounded P0-001 migration
-boundary slice is accepted. Remaining PDP-0 meaning and independent review are
-open. Current fixed denominators are 10 P0 outcomes, 38 functional requirement
+At this **October 7 source-observation snapshot**, the four PDP directories,
+source manifest, surface registry, Explorer, and local structural checks were
+present. Only the bounded P0-001 migration boundary slice then had separate
+formal acceptance; development semantics have since been completed in the four
+recorded phase cuts, while independent review remains a separate gate.
+The historic fixed source denominators were 10 P0 outcomes, 38 functional requirement
 groups, 462 capability leaves, 28 PDP-2 component contracts, 47 canonical
 screens in 48 screen-contract files, 30 journeys, 27 HTTP operations, 43 gRPC
 RPCs, 11 CLI fixture/plan commands versus 12 broader proposal records, and four Agent
@@ -44,7 +50,9 @@ implementation evidence; Agent Tools and events/integrations retain owner
 questions; desktop is archived and inactive. No surface is thereby promoted
 to supported or qualified.
 
-## Current evidence and gaps
+## Historical source observations and external gaps (October 7)
+
+The numerical findings in this section were recorded during migration planning and have not been reasserted against the completed PDP definition cut. They must not be used to create new PDP development tasks.
 
 - The local checker verifies structure and selected references only; it does
   not establish semantic acceptance or production behavior.
