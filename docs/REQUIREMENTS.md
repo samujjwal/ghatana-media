@@ -1,4 +1,6 @@
-# Media requirements and current-state ledger
+# Media requirements and Build handoff
+
+**As of October 12, 2026:** all four PDP definitions are `DEV_COMPLETE` and the pending **PDP task count is zero**. [Canonical requirements](../.product-experience/pdp-0-product-truth/requirements.yaml) guide implementation. The [Build handoff](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) is the current work plan. Older wave/task tables below are **historical source crosswalks**, not active PDP to-do lists.
 
 The editable Media-specific requirements are maintained under
 [`.product-experience/pdp-0-product-truth/requirements.yaml`](../.product-experience/pdp-0-product-truth/requirements.yaml).
@@ -11,9 +13,9 @@ The four-phase authority model is approved: PDP-0 owns product truth and
 requirements; PDP-1 owns canonical domain objects, operations, states,
 transitions, events, evidence, provenance, and authority; PDP-2 owns design and
 interface language; PDP-3 owns complete surface experiences. Explorer remains a
-projection outside phase numbering. Approval of this model and bounded semantic
-policies does not accept all records or close a phase; only the P0-001 migration
-boundary slice is accepted in the current source tree.
+projection outside phase numbering. The four definition-development phases have completed at their recorded
+source cuts; formal independent acceptance and the earlier narrow P0-001
+migration-boundary approval are separate decisions.
 
 The owner-approved semantic boundaries distinguish request acceptance from
 queueing, retry eligibility from retry execution, cancellation requests from
@@ -27,8 +29,8 @@ owner decision record is linked as [review provenance](../.product-experience/re
 
 The source tree now has one canonical Product Definition root and source
 registries for the applicable GUI, CLI, API, SDK, agent/tool, event, and service
-surfaces. These records are proposals unless an acceptance record says
-otherwise. The repository currently contains:
+surfaces. The authored definitions are development-complete, while provider,
+transport and production admission remain separate. The registry includes:
 
 - 38 functional requirement groups and 462 PDP-0 capability leaves. Their
   presence and structural links do not establish complete owner-approved

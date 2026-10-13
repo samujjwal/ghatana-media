@@ -52,9 +52,9 @@ qualification dispositions are indexed in
 expert-reviewed migration plan remains an execution and provenance reference;
 it does not override meaning in the owning PDP authority.
 
-This directory normalization establishes the intended structure; it does not
-accept the semantics in those directories. Existing task IDs remain planning
-provenance, and source presence or relocation does not accept product meaning.
+PDP-0, PDP-1, PDP-2 and PDP-3 are `DEV_COMPLETE` at their recorded
+definition cuts, with **zero remaining PDP authoring tasks**. The source tree
+provides product contracts, not actual deployment or service qualification.
 
 The complete vision-to-requirement-to-experience crosswalk is maintained in
 [PRODUCT-DEFINITION-COVERAGE.md](PRODUCT-DEFINITION-COVERAGE.md) and its
@@ -65,6 +65,7 @@ canonical journey or an explicitly classified supporting view. Each later
 phase retains those links; implementation, owner acceptance, currentness, and
 native evidence remain separate statuses.
 
-Only the P0-001 migration boundary slice is accepted in the current source
-tree; the remaining phase material is proposal or local implementation work
-until its owner and native evidence gates are satisfied.
+The earlier narrow P0-001 migration-boundary acceptance is distinct from
+completed PDP development. Independent reviews, public provider admission,
+runtime implementation and production release are downstream, not unfinished
+PDP tasks.

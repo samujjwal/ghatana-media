@@ -1,5 +1,7 @@
 # Media design
 
+> **Current document scope (2026-10-12):** The four Media PDP definitions are `DEV_COMPLETE` with **zero remaining PDP tasks**. Historical implementation/migration observations below are not new PDP gates. Follow the [Build handoff](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) and the current canonical runtime for actual implementation decisions.
+
 ## Purpose, consumers, and change policy
 
 This guide explains existing runtime decisions and the prescribed product
