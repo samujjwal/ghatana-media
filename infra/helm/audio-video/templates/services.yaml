@@ -49,6 +49,10 @@ spec:
             - name: http-health
               containerPort: {{ .Values.stt.ports.health }}
           env:
+            - name: STT_GRPC_PORT
+              value: {{ .Values.stt.ports.grpc | quote }}
+            - name: AV_HEALTH_PORT
+              value: {{ .Values.stt.ports.health | quote }}
             {{- range $k, $v := .Values.stt.env }}
             - name: {{ $k }}
               value: {{ $v | quote }}
@@ -192,6 +196,10 @@ spec:
             - name: http-health
               containerPort: {{ .Values.tts.ports.health }}
           env:
+            - name: TTS_GRPC_PORT
+              value: {{ .Values.tts.ports.grpc | quote }}
+            - name: AV_HEALTH_PORT
+              value: {{ .Values.tts.ports.health | quote }}
             {{- range $k, $v := .Values.tts.env }}
             - name: {{ $k }}
               value: {{ $v | quote }}
@@ -335,6 +343,10 @@ spec:
             - name: http-health
               containerPort: {{ .Values.vision.ports.health }}
           env:
+            - name: VISION_GRPC_PORT
+              value: {{ .Values.vision.ports.grpc | quote }}
+            - name: AV_HEALTH_PORT
+              value: {{ .Values.vision.ports.health | quote }}
             {{- range $k, $v := .Values.vision.env }}
             - name: {{ $k }}
               value: {{ $v | quote }}
@@ -478,6 +490,10 @@ spec:
             - name: http-health
               containerPort: {{ .Values.multimodal.ports.health }}
           env:
+            - name: MULTIMODAL_GRPC_PORT
+              value: {{ .Values.multimodal.ports.grpc | quote }}
+            - name: AV_HEALTH_PORT
+              value: {{ .Values.multimodal.ports.health | quote }}
             - name: STT_SERVICE_HOST
               value: {{ printf "%s-stt" .Release.Name | quote }}
             - name: STT_SERVICE_PORT

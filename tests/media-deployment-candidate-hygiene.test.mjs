@@ -39,6 +39,10 @@ test('Helm is opt-in, immutable-digest only and has no retired AI Voice backend'
     assert.match(template, new RegExp('required "[^"]+" \\.Values\\.' + c.id + '\\.image\\.digest', 'u'));
     assert.ok(values.includes('grpc: ' + c.port), c.id + ' expected gRPC');
     assert.ok(values.includes('health: ' + c.health), c.id + ' expected health');
+    assert.ok(template.includes('.Values.' + c.id + '.ports.grpc | quote'), c.id + ' bound gRPC port');
+    assert.ok(template.includes('.Values.' + c.id + '.ports.health | quote'), c.id + ' bound HTTP health port');
+    assert.ok(template.includes('name: ' + c.id.toUpperCase() + '_GRPC_PORT'), c.id + ' gRPC env supplied');
+
   }
   assert.doesNotMatch(template, /\.image\.tag\s*\|\s*default|\.Values\.aiVoice|optional: true/u);
   assert.doesNotMatch(values, /aiVoice:|tag: ""|enabled: true/u);

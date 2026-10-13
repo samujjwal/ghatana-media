@@ -18,7 +18,7 @@ The audit **does not delete** any file. Identical bytes are not enough to justif
 
 Helm's four service workloads, autoscalers and network policy are disabled by default. Enabling an individual service requires a selected lowercase `sha256` image digest; Helm no longer falls back to an implicit chart version. The retired AI Voice mock has no Helm workload. Current static `infra/kubernetes/*.yaml` service Deployments are deliberately **replicas=0** with unpullable `registry.invalid` image references and no enabled Vision autoscaler, so they cannot accidentally deploy unqualified binaries. These are compatibility/integration examples, not an approved rollout.
 
-The port contract is source-driven: STT gRPC/health `50051/8090`, TTS `50052/8091`, Vision `50054/8092`, Multimodal `50055/8093`; health uses the Media `HealthMetricsServer` `/health`, `/ready`, and `/metrics` endpoints. Apply actual immutable image digests, admitted providers, secrets, service account and qualified monitoring only in the separate release process.
+The Helm service templates now explicitly inject each server's `*_GRPC_PORT` and `AV_HEALTH_PORT` from their own port values rather than relying on the common HTTP health-server's default `8090`. The port contract is source-driven: STT gRPC/health `50051/8090`, TTS `50052/8091`, Vision `50054/8092`, Multimodal `50055/8093`; health uses the Media `HealthMetricsServer` `/health`, `/ready`, and `/metrics` endpoints. Apply actual immutable image digests, admitted providers, secrets, service account and qualified monitoring only in the separate release process.
 
 ## Deterministic build intent
 
