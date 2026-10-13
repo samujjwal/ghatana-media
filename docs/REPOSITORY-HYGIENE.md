@@ -32,6 +32,12 @@ The dependency inventory explicitly lists the four `installDist` output prerequi
 
 The source-only Vision `OcrService` and `KernelOcrProviderAdapter` are retained **legacy compatibility** classes, not a Media-owned generic OCR engine. Their JavaDocs and Gradle dependency comments now reflect Document Intelligence ownership. Stub-based structural tests do not establish 95% OCR accuracy, model rights, public client publication or production suitability. Existing `.product-experience/pdp-0-product-truth/ocr-ownership.yaml` specifically requires retaining compatibility until the external public client can be integrated and verified. Remove or replace those classes only as an actual Build migration, not by deleting them as apparently orphaned code.
 
+## Retired root deployments and monitoring
+
+The separate `deploy/k8s/deployment.yaml` had a production-enabled, two-replica Media runtime using a mutable `ghatana/media:0.1.0` reference. It now defaults to **replicas=0**, `MEDIA_RUNTIME_ENABLED=false`, an unpullable `registry.invalid` image and a nonproduction environment. The static PDB permits zero available replicas. Historical source identity and route declarations remain recoverable, but no executable Media writer may be started from this unadmitted prepared-copy repository.
+
+The root `monitoring/docker-compose.monitoring.yml` was similarly retired to `services: {}`: it previously referred to missing local configuration mounts and used default Grafana/PostgreSQL credentials. Canonical metrics/alerts/dashboard source candidates are preserved independently; an installed qualified observability stack needs an explicit deployment owner and configuration.
+
 ## Intent-based naming and preservation
 
 Use Media for new product and domain names; use precise action/outcome names for operations and modules. Preserve published `audio-video` library/package/Gradle and route identities until a tested compatibility migration is admitted. Do not rename the stable 462 capability, 47 screen, or 30 journey identities. Source ownership remains one-way: Shared, Document Intelligence, AI Inference, Platform and Lifecycle generic modules are consumed through public contracts, not copied.

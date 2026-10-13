@@ -1,10 +1,14 @@
+# NON-DEPLOYABLE compatibility record. The canonical executable runtime remains
+# ghatana/services/media; this repo has no production cutover approval.
+# replicas=0, runtime disabled and registry.invalid ensure fail-closed defaults.
+# Construct a separate pinned-digest manifest only after release admission.
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: media
   labels:
-    ghatana.io/runtime: "true"
+    ghatana.io/runtime: "false"
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -19,8 +23,8 @@ metadata:
   name: media-config
   namespace: media
 data:
-  MEDIA_RUNTIME_ENABLED: "true"
-  MEDIA_RUNTIME_ENVIRONMENT: "production"
+  MEDIA_RUNTIME_ENABLED: "false"
+  MEDIA_RUNTIME_ENVIRONMENT: "internal"
   MEDIA_HTTP_PORT: "8095"
   MEDIA_LOCAL_STORES_ENABLED: "false"
   MEDIA_LOCAL_PROVIDER_ENABLED: "false"
@@ -35,10 +39,10 @@ metadata:
   namespace: media
   labels:
     app.kubernetes.io/name: media
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: "not-admitted"
     app.kubernetes.io/part-of: ghatana
 spec:
-  replicas: 2
+  replicas: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: media
@@ -51,7 +55,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: media
-        ghatana.io/runtime: "true"
+        ghatana.io/runtime: "false"
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -69,8 +73,8 @@ spec:
           type: RuntimeDefault
       containers:
         - name: media
-          image: ghatana/media:0.1.0
-          imagePullPolicy: IfNotPresent
+          image: registry.invalid/ghatana-media/runtime:not-admitted
+          imagePullPolicy: Never
           ports:
             - name: http
               containerPort: 8095
@@ -132,7 +136,7 @@ metadata:
   name: media
   namespace: media
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: media
@@ -151,7 +155,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              ghatana.io/runtime: "true"
+              ghatana.io/runtime: "false"
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: monitoring
@@ -162,7 +166,7 @@ spec:
     - to:
         - namespaceSelector:
             matchLabels:
-              ghatana.io/runtime: "true"
+              ghatana.io/runtime: "false"
     - to:
         - namespaceSelector: {}
           podSelector:

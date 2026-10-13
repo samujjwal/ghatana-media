@@ -55,3 +55,19 @@ test('Prometheus monitors real internal metrics paths, not retired mocks', () =>
   assert.equal((prom.match(/metrics_path: "\/metrics"/gu) ?? []).length, 4);
   for (const c of services) assert.ok(prom.includes(c.id + '-service:' + c.health));
 });
+
+test('root Media runtime and old monitoring candidates are inert until release admission', () => {
+  const deployment = read('deploy/k8s/deployment.yaml');
+  assert.match(deployment, /NON-DEPLOYABLE compatibility record/u);
+  assert.match(deployment, /MEDIA_RUNTIME_ENABLED: "false"/u);
+  assert.match(deployment, /MEDIA_RUNTIME_ENVIRONMENT: "internal"/u);
+  assert.match(deployment, /replicas: 0/u);
+  assert.match(deployment, /image: registry\.invalid\/ghatana-media\/runtime:not-admitted/u);
+  assert.match(deployment, /imagePullPolicy: Never/u);
+  assert.match(deployment, /minAvailable: 0/u);
+  assert.doesNotMatch(deployment, /replicas: [1-9]|MEDIA_RUNTIME_ENABLED: "true"|ghatana\/media:0\.1\.0/u);
+  const monitor = read('monitoring/docker-compose.monitoring.yml');
+  assert.match(monitor, /^services: \{\}$/mu);
+  assert.match(monitor, /releaseAdmission: NOT_ADMITTED/u);
+  assert.doesNotMatch(monitor, /GRAFANA_ADMIN_PASSWORD|postgres:postgres|restart: unless-stopped/u);
+});
