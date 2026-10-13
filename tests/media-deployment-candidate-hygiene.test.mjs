@@ -75,7 +75,7 @@ test('unqualified static resource trees use an isolated namespace', () => {
     assert.doesNotMatch(c, /^\s*namespace: (?:media|audio-video)\s*$/mu);
   }
   const root = read('deploy/k8s/deployment.yaml');
-  assert.match(root, /kind: Namespace\nmetadata:\n  name: media-candidate-not-admitted/u);
+  assert.doesNotMatch(root, /kind: Namespace/u, 'namespace is owned only by infra/kubernetes/namespace.yaml');
   assert.match(root, /MEDIA_RUNTIME_ENABLED: "false"/u);
   assert.match(root, /replicas: 0/u);
 });
