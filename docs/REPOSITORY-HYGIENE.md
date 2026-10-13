@@ -14,6 +14,12 @@ Run `pnpm audit:repository-hygiene` for a read-only inventory of **every Git-tra
 
 The audit **does not delete** any file. Identical bytes are not enough to justify deleting a file required by a versioned source reference or a consumer. Four duplicate module-local Dockerfiles using the obsolete `products/audio-video` monorepo layout have been retired. The four canonical `docker/Dockerfile.<service>` candidates now consume only an externally built Gradle `installDist` distribution and share one restrictive root `.dockerignore`; they do not compile code inside the container, bypass tests, or imply standalone artifact availability. Generate each distribution in the approved source-composite build first. Validate its binaries, SBOM, rights and runtime before any release.
 
+## Deployment candidates (fail-closed)
+
+Helm's four service workloads, autoscalers and network policy are disabled by default. Enabling an individual service requires a selected lowercase `sha256` image digest; Helm no longer falls back to an implicit chart version. The retired AI Voice mock has no Helm workload. Current static `infra/kubernetes/*.yaml` service Deployments are deliberately **replicas=0** with unpullable `registry.invalid` image references and no enabled Vision autoscaler, so they cannot accidentally deploy unqualified binaries. These are compatibility/integration examples, not an approved rollout.
+
+The port contract is source-driven: STT gRPC/health `50051/8090`, TTS `50052/8091`, Vision `50054/8092`, Multimodal `50055/8093`; health uses the Media `HealthMetricsServer` `/health`, `/ready`, and `/metrics` endpoints. Apply actual immutable image digests, admitted providers, secrets, service account and qualified monitoring only in the separate release process.
+
 ## Intent-based naming and preservation
 
 Use Media for new product and domain names; use precise action/outcome names for operations and modules. Preserve published `audio-video` library/package/Gradle and route identities until a tested compatibility migration is admitted. Do not rename the stable 462 capability, 47 screen, or 30 journey identities. Source ownership remains one-way: Shared, Document Intelligence, AI Inference, Platform and Lifecycle generic modules are consumed through public contracts, not copied.

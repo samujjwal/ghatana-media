@@ -1,3 +1,6 @@
+# NOT_ADMITTED static integration candidate: intentionally scaled to zero.
+# Image reference is unpullable; use qualified, digest-pinned Helm admission
+# after runtime/provider, security, rights and owner release checks.
 ---
 # =============================================================================
 # Vision Service — Kubernetes Manifests
@@ -11,7 +14,7 @@ metadata:
     app: vision-service
     app.kubernetes.io/part-of: ghatana-audio-video
 data:
-  VISION_GRPC_PORT: "50053"
+  VISION_GRPC_PORT: "50054"
   AV_HEALTH_PORT: "8092"
   AV_RATE_LIMIT_TPS: "20"
   AV_RATE_LIMIT_BURST: "40"
@@ -28,9 +31,9 @@ metadata:
   labels:
     app: vision-service
     app.kubernetes.io/part-of: ghatana-audio-video
-    app.kubernetes.io/version: latest
+    app.kubernetes.io/version: unqualified
 spec:
-  replicas: 2
+  replicas: 0
   selector:
     matchLabels:
       app: vision-service
@@ -51,17 +54,17 @@ spec:
       serviceAccountName: audio-video-sa
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: 10001
+        fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: vision
-          image: ghcr.io/ghatana/audio-video/vision-service:latest
-          imagePullPolicy: Always
+          image: registry.invalid/ghatana-media/vision-service:not-admitted
+          imagePullPolicy: Never
           ports:
             - name: grpc
-              containerPort: 50053
+              containerPort: 50054
               protocol: TCP
             - name: http-health
               containerPort: 8092
@@ -75,7 +78,7 @@ spec:
                 secretKeyRef:
                   name: audio-video-secrets
                   key: jwt-secret
-                  optional: true
+                  optional: false
           resources:
             requests:
               memory: "2Gi"
@@ -137,36 +140,10 @@ spec:
     app: vision-service
   ports:
     - name: grpc
-      port: 50053
-      targetPort: 50053
+      port: 50054
+      targetPort: 50054
       protocol: TCP
     - name: http-health
       port: 8092
       targetPort: 8092
       protocol: TCP
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: vision-service-hpa
-  namespace: audio-video
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: vision-service
-  minReplicas: 1
-  maxReplicas: 5
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: 80
