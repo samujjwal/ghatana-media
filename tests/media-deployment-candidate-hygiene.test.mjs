@@ -56,6 +56,30 @@ test('Prometheus monitors real internal metrics paths, not retired mocks', () =>
   for (const c of services) assert.ok(prom.includes(c.id + '-service:' + c.health));
 });
 
+test('unqualified static resource trees use an isolated namespace', () => {
+  const namespace = 'media-candidate-not-admitted';
+  const definition = read('infra/kubernetes/namespace.yaml');
+  assert.match(definition, /kind: Namespace\nmetadata:\n  name: media-candidate-not-admitted/u);
+  const sourceFiles = [
+    'infra/kubernetes/stt-configmap.yaml',
+    'infra/kubernetes/stt-deployment.yaml',
+    'infra/kubernetes/tts-deployment.yaml',
+    'infra/kubernetes/vision-service.yaml',
+    'infra/kubernetes/multimodal-service.yaml',
+    'infra/kubernetes/networkpolicy.yaml',
+    'deploy/k8s/deployment.yaml'
+  ];
+  for (const path of sourceFiles) {
+    const c = read(path);
+    assert.ok(c.includes('namespace: ' + namespace), path);
+    assert.doesNotMatch(c, /^\s*namespace: (?:media|audio-video)\s*$/mu);
+  }
+  const root = read('deploy/k8s/deployment.yaml');
+  assert.match(root, /kind: Namespace\nmetadata:\n  name: media-candidate-not-admitted/u);
+  assert.match(root, /MEDIA_RUNTIME_ENABLED: "false"/u);
+  assert.match(root, /replicas: 0/u);
+});
+
 test('root Media runtime and old monitoring candidates are inert until release admission', () => {
   const deployment = read('deploy/k8s/deployment.yaml');
   assert.match(deployment, /NON-DEPLOYABLE compatibility record/u);
