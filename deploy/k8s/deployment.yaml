@@ -4,13 +4,6 @@
 # Construct a separate pinned-digest manifest only after release admission.
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: media-candidate-not-admitted
-  labels:
-    ghatana.io/runtime: "false"
----
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: media
