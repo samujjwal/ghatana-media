@@ -1,5 +1,7 @@
 # Product Definition coverage and alignment
 
+> **Source-definition state:** The four PDPs are `DEV_COMPLETE` with **0 outstanding PDP development tasks**. Historic coverage and candidate-source observations below retain their recorded context; new implementation work belongs to the [Build handoff](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md).
+
 This document is a human-readable audit projection of the canonical Media
 Product Definition records. The YAML registries under
 [.product-experience](../.product-experience/) remain the semantic
