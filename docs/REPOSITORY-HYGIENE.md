@@ -42,6 +42,8 @@ The root `monitoring/docker-compose.monitoring.yml` was similarly retired to `se
 
 Every service, ConfigMap, ServiceAccount, NetworkPolicy, and Namespace in `infra/kubernetes/`, and the separate root runtime candidate in `deploy/k8s/deployment.yaml`, now uses **`media-candidate-not-admitted`**. This is a non-production, non-admitted namespace distinct from the real `media` and `audio-video` namespaces. Even if someone applies the static candidate directory, Services and broad network policies cannot override resources within either active namespace. Service Deployments stay at zero replicas and use unpullable image references. The dedicated namespace itself is not a release approval or safe substitute for validating a final production manifest.
 
+Only `infra/kubernetes/namespace.yaml` declares the candidate `Namespace` resource. The root runtime example references the existing candidate namespace instead of creating a second Namespace definition, avoiding conflicting labels and resource ownership.
+
 ## Intent-based naming and preservation
 
 Use Media for new product and domain names; use precise action/outcome names for operations and modules. Preserve published `audio-video` library/package/Gradle and route identities until a tested compatibility migration is admitted. Do not rename the stable 462 capability, 47 screen, or 30 journey identities. Source ownership remains one-way: Shared, Document Intelligence, AI Inference, Platform and Lifecycle generic modules are consumed through public contracts, not copied.
