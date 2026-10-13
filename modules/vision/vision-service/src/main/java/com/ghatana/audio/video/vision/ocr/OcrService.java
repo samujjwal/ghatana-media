@@ -9,20 +9,17 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Optical Character Recognition (OCR) service for the Vision pipeline (AV-009.3).
+ * Retained OCR compatibility shim for the older Vision pipeline.
  *
- * <p>Extracts text regions from images using a pluggable {@link OcrModel}.
- * Returns a structured list of {@link TextRegion} objects that include the
- * recognised text, bounding box, and confidence score.
- *
- * <h3>Acceptance criteria (AV-009.3)</h3>
- * <ul>
- *   <li>Text extraction from images with structural output.</li>
- *   <li>OCR accuracy &gt;95% (validated in quality tests).</li>
- * </ul>
+ * <p>Generic OCR engines and accuracy/model qualification belong to Document
+ * Intelligence, not to Media Product Truth. This local adapter has no admitted
+ * public Document Intelligence binding and must not be auto-selected as a
+ * production OCR provider. It returns model-supplied text regions, bounding
+ * boxes and confidence; unit tests with stub models do not establish accuracy
+ * or license/rights qualification.
  *
  * @doc.type class
- * @doc.purpose OCR text extraction service for the vision analysis pipeline
+ * @doc.purpose Legacy OCR compatibility pending published Document Intelligence consumer
  * @doc.layer product
  * @doc.pattern Service
  */

@@ -29,15 +29,17 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Kernel Product API adapter for the Media-owned OCR service.
+ * Legacy Kernel Product API adapter retained for OCR compatibility only.
  *
- * <p>The adapter owns only the transport-neutral mapping and operation lifecycle. The OCR model,
- * model identity, confidence policy, and image decoding remain Media-owned. A payload reference
- * without inline bytes is rejected because resolving objects belongs to the Kernel object-storage
- * provider; this adapter never guesses or reads a product-local object store.</p>
+ * <p>Generic OCR execution, model selection and qualification belong to
+ * Document Intelligence. This adapter temporarily preserves older transport
+ * and operation-lifecycle behavior; it is not canonical Media OCR ownership or
+ * an admitted public Document Intelligence client. A payload reference without
+ * inline bytes is rejected because resolving objects belongs to the owning
+ * storage service; this adapter never guesses or reads an object store.</p>
  *
  * @doc.type class
- * @doc.purpose Map Media OCR execution to the public Kernel OcrProvider contract
+ * @doc.purpose Legacy compatibility mapping; not an admitted Media-owned OCR execution service
  * @doc.layer adapter
  * @doc.pattern Adapter
  */

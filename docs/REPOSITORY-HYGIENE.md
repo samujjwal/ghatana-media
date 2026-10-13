@@ -28,6 +28,10 @@ The historical `docs/migration/compatibility-cutover-observation.json` intention
 
 The dependency inventory explicitly lists the four `installDist` output prerequisites required by the Docker runtime images. Those generated binaries are **not** source-pinned or admitted release artifacts. `.dockerignore` is a tracked, pinned build input and the container audit must not confuse a Dockerfile with an available distribution.
 
+## Document Intelligence compatibility boundary
+
+The source-only Vision `OcrService` and `KernelOcrProviderAdapter` are retained **legacy compatibility** classes, not a Media-owned generic OCR engine. Their JavaDocs and Gradle dependency comments now reflect Document Intelligence ownership. Stub-based structural tests do not establish 95% OCR accuracy, model rights, public client publication or production suitability. Existing `.product-experience/pdp-0-product-truth/ocr-ownership.yaml` specifically requires retaining compatibility until the external public client can be integrated and verified. Remove or replace those classes only as an actual Build migration, not by deleting them as apparently orphaned code.
+
 ## Intent-based naming and preservation
 
 Use Media for new product and domain names; use precise action/outcome names for operations and modules. Preserve published `audio-video` library/package/Gradle and route identities until a tested compatibility migration is admitted. Do not rename the stable 462 capability, 47 screen, or 30 journey identities. Source ownership remains one-way: Shared, Document Intelligence, AI Inference, Platform and Lifecycle generic modules are consumed through public contracts, not copied.
