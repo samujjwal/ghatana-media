@@ -322,7 +322,7 @@ export function buildMediaDependencyInventory(rootPath = process.cwd()) {
       // Runtime-only candidate images consume a pre-built Gradle application
       // distribution. This is a build prerequisite, not a tracked source input,
       // an image digest, or a claim that the output exists in this checkout.
-      const dist = /^\\s*COPY\\s+--chown=[^\\s]+\\s+(modules\\/[^\\s]+\\/build\\/install\\/[^\\s]+\\/)\\s+\\/app\\/\\s*$/u.exec(line);
+      const dist = /^\s*COPY\s+--chown=[^\s]+\s+(modules\/[^\s]+\/build\/install\/[^\s]+\/)\s+\/app\/\s*$/u.exec(line);
       if (dist) generatedInstallDistInputs.push({
         outputPath: dist[1],
         sourceRef: `${path}:${index + 1}`,
