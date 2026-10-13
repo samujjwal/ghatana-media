@@ -17,6 +17,7 @@ const CAPABILITIES = [
     dockerfile: 'docker/Dockerfile.stt-service',
     distribution: 'stt-service',
     port: 50051,
+    healthPort: 8090,
     portKey: 'STT_GRPC_PORT',
     tests: [
       'modules/speech/stt-service/src/test/java/com/ghatana/stt/functional/SttFunctionalCompletenessTest.java',
@@ -31,6 +32,7 @@ const CAPABILITIES = [
     dockerfile: 'docker/Dockerfile.tts-service',
     distribution: 'tts-service',
     port: 50052,
+    healthPort: 8091,
     portKey: 'TTS_GRPC_PORT',
     tests: [
       'modules/speech/tts-service/src/test/java/com/ghatana/tts/functional/TtsFunctionalCompletenessTest.java',
@@ -45,6 +47,7 @@ const CAPABILITIES = [
     dockerfile: 'docker/Dockerfile.vision-service',
     distribution: 'vision-service',
     port: 50054,
+    healthPort: 8092,
     portKey: 'VISION_GRPC_PORT',
     tests: [
       'modules/vision/vision-service/src/test/java/com/ghatana/vision/functional/VisionFunctionalCompletenessTest.java',
@@ -59,6 +62,7 @@ const CAPABILITIES = [
     dockerfile: 'docker/Dockerfile.multimodal-service',
     distribution: 'multimodal-service',
     port: 50055,
+    healthPort: 8093,
     portKey: 'MULTIMODAL_GRPC_PORT',
     tests: [
       'modules/intelligence/multimodal-service/src/test/java/com/ghatana/multimodal/functional/MultimodalFunctionalCompletenessTest.java',
@@ -106,8 +110,9 @@ export function findMediaProviderSourceViolations({ root = process.cwd() } = {})
         errors.push(cap.id + ': candidate must consume exact Gradle application distribution');
       }
       if (!recipe.includes('ENV ' + cap.portKey + '=' + cap.port) ||
-          !recipe.includes('EXPOSE ' + cap.port)) {
-        errors.push(cap.id + ': container port does not match Media service contract');
+          !recipe.includes('AV_HEALTH_PORT=' + cap.healthPort) ||
+          !recipe.includes('EXPOSE ' + cap.port + ' ' + cap.healthPort)) {
+        errors.push(cap.id + ': gRPC/health ports do not match Media server contracts');
       }
       if (/COPY\s+(?:buildSrc|products\/audio-video|\.\s+\.)|shadowJar|-x\s+(?:test|checkstyleMain|compileJava)/u.test(recipe)) {
         errors.push(cap.id + ': obsolete build context or skipped qualification in container');

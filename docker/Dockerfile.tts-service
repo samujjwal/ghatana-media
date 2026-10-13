@@ -8,7 +8,8 @@ FROM eclipse-temurin:21-jre-jammy
 RUN groupadd --gid 10001 media && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin media
 WORKDIR /app
 COPY --chown=10001:10001 modules/speech/tts-service/build/install/tts-service/ /app/
-ENV TTS_GRPC_PORT=50052
+ENV TTS_GRPC_PORT=50052 \
+    AV_HEALTH_PORT=8091
 USER 10001:10001
-EXPOSE 50052
+EXPOSE 50052 8091
 ENTRYPOINT ["/app/bin/tts-service"]
