@@ -1,0 +1,889 @@
+{
+  "schemaVersion": "media.discovery-reconciliation-worklist.v1",
+  "authority": "DELEGATED_MEDIA_PRODUCT_REVIEW_PLAN_ONLY_NOT_SOURCE_CURRENTNESS_OR_LIFECYCLE_RECEIPT",
+  "source": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "reviewedSha": "90065c229debe88ca2143e58cad708d5ebc83cf5",
+    "date": "2026-10-13"
+  },
+  "campaign": {
+    "stage": "DISCOVERY",
+    "activePhase": "PDP-0",
+    "discoveryBarrier": "FAIL_NOT_SOURCE_CURRENTLY_VALIDATED",
+    "sourceMeaningStatus": "DEV_COMPLETE_AT_HISTORICAL_CUT",
+    "sourceCurrentness": "UNKNOWN",
+    "implementationLane": "NOT_ENTERED",
+    "closureLane": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "denominator": {
+    "physicalCandidateCount": 26,
+    "dispositions": {
+      "PHYSICAL": 12,
+      "SUPPORT_ONLY": 12,
+      "SUBSUMED": 2
+    },
+    "semanticCompositions": 6,
+    "root": 1,
+    "consumerCrosswalk": 17
+  },
+  "decisionsRef": ".product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md",
+  "planRef": "docs/implementation/MEDIA-DISCOVERY-SOURCE-CURRENTNESS-EXIT-PLAN-2026-10-13.md",
+  "scope": {
+    "physical": [
+      {
+        "id": "media.physical.adapters-ledger",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.apps-media-experience-explorer",
+        "disposition": "PHYSICAL",
+        "owner": "media-product-engineering",
+        "phaseApplicability": {
+          "PDP-0": "NO_IMPLEMENTATION_ADMITTED",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.audio-video-observability",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.integration-tests",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.launcher",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.libs-audio-video-client",
+        "disposition": "PHYSICAL",
+        "owner": "media-client-owner",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.libs-audio-video-types",
+        "disposition": "PHYSICAL",
+        "owner": "media-types-owner",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.libs-audio-video-ui",
+        "disposition": "PHYSICAL",
+        "owner": "media-ui-owner",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "GUI_LIBRARY",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.libs-common",
+        "disposition": "SUBSUMED",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.libs-java-common",
+        "disposition": "SUBSUMED",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.libs-media-experience-simulation",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-product-engineering",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-audio-streaming",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "NO_IMPLEMENTATION_ADMITTED",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-infrastructure-cache",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-infrastructure-messaging",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-infrastructure-persistence",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-infrastructure-security",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-integration-tests",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-platform",
+        "phaseApplicability": {
+          "PDP-0": "NOT_APPLICABLE_SUPPORT",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "TOOLING_OR_SUPPORT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        "disposition": "PHYSICAL",
+        "owner": "media-ui-owner",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "GUI_LIBRARY_HOST_DEPENDENT",
+          "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-intelligence-multimodal-service",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-speech-stt-service",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-speech-tts-service",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-video-streaming",
+        "disposition": "SUPPORT_ONLY",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "NO_IMPLEMENTATION_ADMITTED",
+          "PDP-1": "REFERENCED_ONLY",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.modules-vision-vision-service",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.providers-aws-postgresql",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "NOT_APPLICABLE",
+          "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.physical.runtime-contracts",
+        "disposition": "PHYSICAL",
+        "owner": "media-runtime",
+        "phaseApplicability": {
+          "PDP-0": "APPLICABLE",
+          "PDP-1": "APPLICABLE",
+          "PDP-2": "HEADLESS_CONTRACT",
+          "PDP-3": "CONSUMER_CONTRACT"
+        },
+        "sourceCurrentness": "UNKNOWN"
+      }
+    ],
+    "compositions": [
+      {
+        "id": "media.composition.repository-root",
+        "kind": "REPOSITORY_ROOT",
+        "children": [
+          "media.composition.client-and-machine-interfaces",
+          "media.composition.creation-composition-and-delivery",
+          "media.composition.governed-job-execution",
+          "media.composition.ingestion-and-versioned-artifacts",
+          "media.composition.speech-and-caption-workflows",
+          "media.composition.vision-and-multimodal-analysis",
+          "media.physical.audio-video-observability",
+          "media.physical.integration-tests",
+          "media.physical.libs-common",
+          "media.physical.libs-java-common",
+          "media.physical.libs-media-experience-simulation",
+          "media.physical.modules-integration-tests",
+          "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.composition.ingestion-and-versioned-artifacts",
+        "kind": "SEMANTIC_COMPOSITION",
+        "children": [
+          "media.physical.runtime-contracts",
+          "media.physical.launcher",
+          "media.physical.modules-infrastructure-persistence",
+          "media.physical.modules-infrastructure-security",
+          "media.physical.modules-infrastructure-messaging",
+          "media.physical.modules-infrastructure-cache",
+          "media.physical.providers-aws-postgresql",
+          "media.physical.adapters-ledger"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.composition.governed-job-execution",
+        "kind": "SEMANTIC_COMPOSITION",
+        "children": [
+          "media.physical.runtime-contracts",
+          "media.physical.launcher",
+          "media.physical.modules-infrastructure-messaging",
+          "media.physical.modules-infrastructure-persistence",
+          "media.physical.modules-infrastructure-security",
+          "media.physical.modules-infrastructure-cache"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.composition.speech-and-caption-workflows",
+        "kind": "SEMANTIC_COMPOSITION",
+        "children": [
+          "media.physical.modules-speech-stt-service",
+          "media.physical.modules-speech-tts-service",
+          "media.physical.modules-audio-streaming",
+          "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.composition.vision-and-multimodal-analysis",
+        "kind": "SEMANTIC_COMPOSITION",
+        "children": [
+          "media.physical.modules-vision-vision-service",
+          "media.physical.modules-intelligence-multimodal-service",
+          "media.physical.modules-video-streaming",
+          "media.physical.runtime-contracts"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.composition.creation-composition-and-delivery",
+        "kind": "SEMANTIC_COMPOSITION",
+        "children": [
+          "media.physical.launcher",
+          "media.physical.runtime-contracts",
+          "media.physical.modules-infrastructure-persistence",
+          "media.physical.modules-infrastructure-messaging",
+          "media.physical.libs-audio-video-types",
+          "media.physical.libs-audio-video-client",
+          "media.physical.libs-audio-video-ui"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.composition.client-and-machine-interfaces",
+        "kind": "SEMANTIC_COMPOSITION",
+        "children": [
+          "media.physical.runtime-contracts",
+          "media.physical.libs-audio-video-types",
+          "media.physical.libs-audio-video-client",
+          "media.physical.libs-audio-video-ui",
+          "media.physical.modules-speech-stt-service",
+          "media.physical.modules-speech-tts-service",
+          "media.physical.modules-vision-vision-service",
+          "media.physical.modules-intelligence-multimodal-service",
+          "media.physical.apps-media-experience-explorer"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      }
+    ],
+    "consumers": [
+      {
+        "id": "media.surface.web",
+        "consumerType": "GUI_WEB",
+        "bindingState": "HOST_DEPENDENT",
+        "physicalRefs": [
+          "media.physical.libs-audio-video-ui"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.embedded",
+        "consumerType": "GUI_EMBEDDED",
+        "bindingState": "HOST_DEPENDENT",
+        "physicalRefs": [
+          "media.physical.libs-audio-video-ui"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.public-http",
+        "consumerType": "PUBLIC_API",
+        "bindingState": "HOST_DEPENDENT",
+        "physicalRefs": [
+          "media.physical.launcher",
+          "media.physical.runtime-contracts"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.service-grpc",
+        "consumerType": "SERVICE_API",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.runtime-contracts",
+          "media.physical.modules-speech-stt-service",
+          "media.physical.modules-speech-tts-service",
+          "media.physical.modules-vision-vision-service",
+          "media.physical.modules-intelligence-multimodal-service"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.grpc.stt",
+        "consumerType": "SERVICE_API",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.modules-speech-stt-service"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.grpc.tts",
+        "consumerType": "SERVICE_API",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.modules-speech-tts-service"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.grpc.vision",
+        "consumerType": "SERVICE_API",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.modules-vision-vision-service"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.grpc.multimodal",
+        "consumerType": "SERVICE_API",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.modules-intelligence-multimodal-service"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.sdk",
+        "consumerType": "SDK",
+        "bindingState": "PHYSICAL",
+        "physicalRefs": [
+          "media.physical.libs-audio-video-client",
+          "media.physical.libs-audio-video-types"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.cli",
+        "consumerType": "CLI",
+        "bindingState": "HOST_DEPENDENT",
+        "physicalRefs": [
+          "media.physical.libs-audio-video-client",
+          "media.physical.libs-media-experience-simulation"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.agent-tools",
+        "consumerType": "AGENT_TOOL",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.runtime-contracts",
+          "media.physical.libs-common"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.events",
+        "consumerType": "EVENT_STREAM",
+        "bindingState": "CONTRACT_ONLY",
+        "physicalRefs": [
+          "media.physical.modules-infrastructure-messaging",
+          "media.physical.runtime-contracts"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.integrations",
+        "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
+        "bindingState": "HOST_DEPENDENT",
+        "physicalRefs": [
+          "media.physical.adapters-ledger",
+          "media.physical.providers-aws-postgresql",
+          "media.physical.modules-infrastructure-persistence",
+          "media.physical.modules-infrastructure-security",
+          "media.physical.modules-infrastructure-cache",
+          "media.physical.modules-infrastructure-messaging"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.types-library",
+        "consumerType": "LIBRARY",
+        "bindingState": "PHYSICAL",
+        "physicalRefs": [
+          "media.physical.libs-audio-video-types"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.ui-library",
+        "consumerType": "LIBRARY",
+        "bindingState": "HOST_DEPENDENT",
+        "physicalRefs": [
+          "media.physical.libs-audio-video-ui",
+          "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.explorer",
+        "consumerType": "EXPLORER_TOOLING",
+        "bindingState": "PHYSICAL",
+        "physicalRefs": [
+          "media.physical.apps-media-experience-explorer",
+          "media.physical.libs-media-experience-simulation"
+        ],
+        "sourceCurrentness": "UNKNOWN"
+      },
+      {
+        "id": "media.surface.desktop-archive",
+        "consumerType": "OBSOLETE",
+        "bindingState": "ARCHIVED",
+        "physicalRefs": [],
+        "sourceCurrentness": "UNKNOWN"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "MDC-00",
+      "phase": "PDP-0",
+      "name": "Freeze and classify current source cut",
+      "owner": "Media Product Truth/status",
+      "dependsOn": [],
+      "where": [
+        "docs/implementation/pdp-0-phase-dev-status.json",
+        "docs/implementation/post-pdp-current-status.json",
+        ".product-experience/reviews/2026-10-12-current-source-development-review.md"
+      ],
+      "done": "Record complete exact diff inventory versus recorded cut, including status wording and all six P0 mismatches; no silent historical hash overwrite.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-01",
+      "phase": "PDP-0",
+      "name": "Reconcile Product Truth status statement",
+      "owner": "Media Product Truth/status",
+      "dependsOn": [
+        "MDC-00"
+      ],
+      "where": [
+        ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
+        "docs/PRODUCT-DEFINITION-COVERAGE.md"
+      ],
+      "done": "Retain DEV_COMPLETE at historical cut; record classification of status/doc change and whether any meaning ID changed; forbid phase-current claim until validated.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-02",
+      "phase": "PDP-0",
+      "name": "Bind exact physical, composite and consumer scope",
+      "owner": "Media product/surface owners",
+      "dependsOn": [
+        "MDC-00"
+      ],
+      "where": [
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/surface-registry.yaml",
+        "scripts/check-media-physical-topology.mjs"
+      ],
+      "done": "Reconcile all 26 physical/support/subsumed candidates, six semantic compositions plus root, and 17 consumer crosswalks with stable IDs, explicit phase applicability, TTS-only AI Voice GUI intent and legacy Agent handler mapping; no double-counting.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-03",
+      "phase": "PDP-0",
+      "name": "Classify source-manifest and external impacts",
+      "owner": "Media product/contract owners",
+      "dependsOn": [
+        "MDC-00",
+        "MDC-02"
+      ],
+      "where": [
+        ".product-experience/source-manifest.yaml",
+        ".product-experience/artifact-identities.yaml",
+        ".product-experience/gaps.yaml",
+        "apps/media-experience-explorer/specification-artifacts.json"
+      ],
+      "done": "List exact changed media-facing external contract digests and distinguish remote Git revision, dirty worktree, generated metadata and consumer lockfile noise; unresolved contract changes block only owning meaning.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-04",
+      "phase": "PDP-0",
+      "name": "Wire authoritative source-currentness observation",
+      "owner": "Media status adapter; Lifecycle public contract owner",
+      "dependsOn": [
+        "MDC-02",
+        "MDC-03"
+      ],
+      "where": [
+        "scripts/ (new bounded Media adapter)",
+        "tests/ (focused currentness tests)",
+        "ghatana-lifecycle public repository-source-currentness contract (read/consume, do not fork)"
+      ],
+      "done": "Pass explicit declared membership, content fingerprints, owner graph, physical catalog and external/provider fingerprints; fail closed on missing inputs, journal gaps and concurrent edits; do not synthesize Lifecycle receipts or semantic acceptance.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-05",
+      "phase": "PDP-0",
+      "name": "Validate every physical, composition and consumer phase cell",
+      "owner": "Media Product Truth/surface owners",
+      "dependsOn": [
+        "MDC-01",
+        "MDC-04"
+      ],
+      "where": [
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/surface-registry.yaml",
+        "docs/implementation/ (generated currentness view)"
+      ],
+      "done": "Every row has phase-local required source set, exact fingerprint, applicable meaning refs or reasoned N/A, source-current PASS or precise blocker; deduplicated composition/root coverage and inverse edges reconcile.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-06",
+      "phase": "PDP-0",
+      "name": "Publish source-current PDP-0 exit observation",
+      "owner": "Media Product Truth/status",
+      "dependsOn": [
+        "MDC-05"
+      ],
+      "where": [
+        "docs/implementation/pdp-0-phase-dev-status.json (historical read-only)",
+        "docs/implementation/ (new immutable current-cut observation)"
+      ],
+      "done": "Historical DEV_COMPLETE stays intact; new source-bound status asserts current=TRUE only after every applicable P0 row validates and zero actual outstanding meaning IDs; otherwise stage barrier FAIL.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-10",
+      "phase": "PDP-1",
+      "name": "Classify contract parity script/test drift",
+      "owner": "Media domain/interface owners",
+      "dependsOn": [
+        "MDC-06"
+      ],
+      "where": [
+        "scripts/check-media-contract-parity.mjs",
+        "tests/media-contract-parity.test.mjs",
+        "tests/media-contract-parity-definition-only-cli.test.mjs",
+        ".product-experience/pdp-3-product-experience/agent-tools/runtime-dispositions.json"
+      ],
+      "done": "Recheck changed Agent Tool fail-closed disposition, preserve four NOT_ADMITTED and unresolved strict owner parity; distinguish validation code changes from domain meaning.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-11",
+      "phase": "PDP-1",
+      "name": "Revalidate per-surface canonical domain and transitions",
+      "owner": "Media domain/surface owners",
+      "dependsOn": [
+        "MDC-10"
+      ],
+      "where": [
+        ".product-experience/pdp-1-domain-data/",
+        ".product-experience/interface-parity/"
+      ],
+      "done": "Exact source-current typed 448 canonical operations plus 14 bindings, 79 owner-action wires, 55 guards and applicable state/event/identity/tenant/time/provenance semantics across physical and consumer rows; report material deviations only.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-12",
+      "phase": "PDP-1",
+      "name": "Record current PDP-1 phase cut",
+      "owner": "Media domain/status owner",
+      "dependsOn": [
+        "MDC-11"
+      ],
+      "where": [
+        "docs/implementation/ (current-cut view)"
+      ],
+      "done": "All applicable PDP-1 cells source-current, historical status preserved, zero outstanding definition meaning IDs; strict external approval remains separate.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-20",
+      "phase": "PDP-2",
+      "name": "Reconcile design and implementation-projection source drift",
+      "owner": "Media design/interface owner",
+      "dependsOn": [
+        "MDC-12"
+      ],
+      "where": [
+        ".product-experience/pdp-2-design-interface-system/",
+        "apps/media-experience-explorer/specification-artifacts.json",
+        "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
+      ],
+      "done": "Classify changed React screen behavior as Build code unless it contradicts normative design; validate GUI library host-dependence and appropriate headless grammar, without requiring phantom UI for API/CLI.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-21",
+      "phase": "PDP-2",
+      "name": "Per-surface design currentness and exit",
+      "owner": "Media design/status owner",
+      "dependsOn": [
+        "MDC-20"
+      ],
+      "where": [
+        ".product-experience/pdp-2-design-interface-system/",
+        "docs/implementation/ (current-cut view)"
+      ],
+      "done": "31 component families and 13 templates/11 layouts/13 recipes/42 rules/19 patterns remain traceable, machine channels have typed error/finality/concurrency/security conventions, and each applicable surface cell is current or legitimately N/A.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-30",
+      "phase": "PDP-3",
+      "name": "Reconcile complete journey and interface contracts",
+      "owner": "Media experience owner",
+      "dependsOn": [
+        "MDC-21"
+      ],
+      "where": [
+        ".product-experience/pdp-3-product-experience/",
+        "libs/audio-video-ui/src/screens/TranscriptCaptionScreen.tsx"
+      ],
+      "done": "47 screen IDs, 30 journeys/130 steps, 147 UI actions and 31 scenarios plus 105 bounded recovery oracles keep exact version/outcome/negative states; 17 consumer channels have discoverable headless/GUI contracts and explicit non-admission.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-31",
+      "phase": "PDP-3",
+      "name": "Make Experience Explorer genuinely usable as a Discovery projection",
+      "owner": "Media Explorer/design owners",
+      "dependsOn": [
+        "MDC-30"
+      ],
+      "where": [
+        "apps/media-experience-explorer/",
+        "libs/media-experience-simulation/",
+        ".product-experience/explorer/"
+      ],
+      "done": "Read-only root/composition/physical and consumer drill-down; four phase source links; token/component/screen and API/SDK/CLI/Event/Agent inspectability; correct search/deep links/scenarios, missing-state disclosure; no simulated behavior disguised as live.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-32",
+      "phase": "PDP-3",
+      "name": "Record current PDP-3 phase cut",
+      "owner": "Media experience/status owner",
+      "dependsOn": [
+        "MDC-31"
+      ],
+      "where": [
+        "docs/implementation/ (current-cut view)"
+      ],
+      "done": "Every applicable PDP-3 row has current source/experience contract, negative and recovery behavior coverage, meaningful fixtures/explorer projection; preserve historical cut and independent acceptance distinction.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-40",
+      "phase": "DISCOVERY_EXIT",
+      "name": "Aggregate final Discovery barrier",
+      "owner": "Media product/status authority",
+      "dependsOn": [
+        "MDC-06",
+        "MDC-12",
+        "MDC-21",
+        "MDC-32"
+      ],
+      "where": [
+        "docs/implementation/ (generated barrier and matrix)",
+        "AGENTS.md"
+      ],
+      "done": "All in-scope leaves plus compositions/root current and DEV_COMPLETE across applicable four PDPs, zero real definition tasks, no unknown membership/material digests, unaffected closed phases reused, Build gate explicitly PASS; no native closure/release claims.",
+      "status": "PLANNED_NOT_PERFORMED"
+    },
+    {
+      "id": "MDC-41",
+      "phase": "DISCOVERY_EXIT",
+      "name": "Release Build handoff without conflating closure",
+      "owner": "Media engineering owner",
+      "dependsOn": [
+        "MDC-40"
+      ],
+      "where": [
+        "docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md",
+        "docs/implementation/post-pdp-task-dispositions-2026-10-12.md"
+      ],
+      "done": "Run actual product implementation and tests in Build; PDP acceptance/closure may run independently in parallel, and Delivery waits for both required lanes and release authority.",
+      "status": "PLANNED_NOT_PERFORMED"
+    }
+  ]
+}
