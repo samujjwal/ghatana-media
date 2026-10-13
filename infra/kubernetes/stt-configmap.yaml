@@ -2,10 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: stt-service-config
-  namespace: audio-video
+  namespace: media-candidate-not-admitted
   labels:
     app: stt-service
-    app.kubernetes.io/part-of: ghatana-audio-video
+    app.kubernetes.io/part-of: media-candidate-not-admitted
 data:
   STT_GRPC_PORT: "50051"
   AV_HEALTH_PORT: "8090"
