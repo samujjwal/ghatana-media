@@ -20,6 +20,12 @@ Helm's four service workloads, autoscalers and network policy are disabled by de
 
 The port contract is source-driven: STT gRPC/health `50051/8090`, TTS `50052/8091`, Vision `50054/8092`, Multimodal `50055/8093`; health uses the Media `HealthMetricsServer` `/health`, `/ready`, and `/metrics` endpoints. Apply actual immutable image digests, admitted providers, secrets, service account and qualified monitoring only in the separate release process.
 
+## Deterministic build intent
+
+The root Gradle `buildAll` task now delegates to the actual full Media build rather than silently invoking only the root `build` task. `buildMediaJvm` selects Media Java subprojects with real build scripts; the pnpm build scopes itself to Media apps/libs/modules instead of rebuilding linked Shared/Tools/Lifecycle siblings. The Rust workspace remains under its own Cargo build. This is a **source-level build graph correction**; it is not a recorded success of running the full polyglot build.
+
+The dependency inventory explicitly lists the four `installDist` output prerequisites required by the Docker runtime images. Those generated binaries are **not** source-pinned or admitted release artifacts. `.dockerignore` is a tracked, pinned build input and the container audit must not confuse a Dockerfile with an available distribution.
+
 ## Intent-based naming and preservation
 
 Use Media for new product and domain names; use precise action/outcome names for operations and modules. Preserve published `audio-video` library/package/Gradle and route identities until a tested compatibility migration is admitted. Do not rename the stable 462 capability, 47 screen, or 30 journey identities. Source ownership remains one-way: Shared, Document Intelligence, AI Inference, Platform and Lifecycle generic modules are consumed through public contracts, not copied.

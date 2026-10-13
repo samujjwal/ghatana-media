@@ -230,6 +230,7 @@ export function buildMediaDependencyInventory(rootPath = process.cwd()) {
     ...packagePaths, ...cargoManifestPaths, ...cargoLockPaths, ...pythonManifestPaths,
     ...tracked.filter((path) => /(?:^|\/)(?:build\.gradle(?:\.kts)?|settings\.gradle(?:\.kts)?|gradle\.properties|libs\.versions\.toml)$/u.test(path)),
     ...tracked.filter((path) => /(?:^|\/)Dockerfile(?:\.[^/]+)?$/u.test(path)),
+    ...tracked.filter((path) => path === ".dockerignore"),
     ...tracked.filter((path) => [".product-experience/pdp-0-product-truth/reuse-decisions.yaml", ".product-experience/pdp-0-product-truth/qualification-policy.yaml", "config/provider-manifest.json", "config/route-manifest.json"].includes(path)),
     ...tracked.filter(isFixturePath),
     ...tracked.filter((path) => assetKind(path) !== null),
@@ -311,12 +312,23 @@ export function buildMediaDependencyInventory(rootPath = process.cwd()) {
 
   const dockerFiles = tracked.filter((path) => /(?:^|\/)Dockerfile(?:\.[^/]+)?$/u.test(path));
   const unresolvedBuildReferences = [];
+  const generatedInstallDistInputs = [];
   const containerInputs = dockerFiles.flatMap((path) => {
     const lines = readFileSync(join(root, path), "utf8").split(/\r?\n/u);
     const inputs = [];
     let currentStage = "UNNAMED_BUILD_STAGE";
     for (let index = 0; index < lines.length; index++) {
       const line = lines[index] ?? "";
+      // Runtime-only candidate images consume a pre-built Gradle application
+      // distribution. This is a build prerequisite, not a tracked source input,
+      // an image digest, or a claim that the output exists in this checkout.
+      const dist = /^\\s*COPY\\s+--chown=[^\\s]+\\s+(modules\\/[^\\s]+\\/build\\/install\\/[^\\s]+\\/)\\s+\\/app\\/\\s*$/u.exec(line);
+      if (dist) generatedInstallDistInputs.push({
+        outputPath: dist[1],
+        sourceRef: `${path}:${index + 1}`,
+        status: "BUILD_OUTPUT_REQUIRED_NOT_SOURCE_PINNED",
+        releaseAdmission: "NOT_ASSESSED"
+      });
       const from = /^\s*FROM\s+(?:--platform=\S+\s+)?([^\s]+)(?:\s+AS\s+([^\s]+))?/iu.exec(line);
       if (from) {
         currentStage = from[2] ?? `stage-${inputs.filter((item) => item.kind === "container-base-image").length + 1}`;
@@ -424,7 +436,7 @@ export function buildMediaDependencyInventory(rootPath = process.cwd()) {
     pnpmLock,
     cargo: { manifests: cargoManifestPaths, directDependencies: cargoDirectDependencies, locks: cargoLockPaths, lockedPackages: cargoPackages, transitiveLicenseStatus: "UNKNOWN_REQUIRES_SBOM" },
     gradle: { versionCatalog: catalogPath ?? null, declaredDependencies: gradle, lockfiles: gradleLockfiles, transitiveClosureStatus: gradleLockfiles.length ? "LOCKFILE_PRESENT_REVIEW_REQUIRED" : "UNKNOWN_NO_LOCKFILE_OR_VERIFICATION_METADATA" },
-    containers: { dockerfiles: dockerFiles, inputs: containerInputs, unresolvedBuildReferences, baseImageDigestAndTransitiveLicenseStatus: "REVIEW_REQUIRED" },
+    containers: { dockerfiles: dockerFiles, inputs: containerInputs, generatedInstallDistInputs, unresolvedBuildReferences, baseImageDigestAndTransitiveLicenseStatus: "REVIEW_REQUIRED" },
     python: { dependencyManifests: pythonManifestPaths, manifestStatus: pythonManifestPaths.length ? "PRESENT_REVIEW_REQUIRED" : "NONE_FOUND_IN_TRACKED_SOURCE", pythonSourceFiles: tracked.filter((path) => path.endsWith(".py")), dependencyClosureStatus: pythonManifestPaths.length ? "REVIEW_REQUIRED" : "UNKNOWN_NO_DEPENDENCY_MANIFEST" },
     trackedAssets: assets,
     candidatePolicies: {

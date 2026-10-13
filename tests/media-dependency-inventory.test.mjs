@@ -71,6 +71,7 @@ test("source pins cover the exact manifests, locks, policy authorities, and asse
     "gradle/libs.versions.toml", "gradle.properties",
     ".product-experience/pdp-0-product-truth/reuse-decisions.yaml",
     ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+    ".dockerignore",
     "docker/Dockerfile.stt-service",
     "docker/Dockerfile.tts-service",
     "docker/Dockerfile.vision-service",
@@ -122,6 +123,20 @@ test("nine responsive reference PNGs are pinned as local test evidence, not lice
       licenseReview === "REVIEW_REQUIRED" && distributionProfile === "TEST_ONLY_UNLESS_SEPARATELY_PACKAGED"));
   }
   assert.ok(report.trackedAssets.every(({ licenseReview }) => licenseReview === "REVIEW_REQUIRED"));
+});
+
+test("runtime-only container candidates require generated installDist artifacts", () => {
+  const report = buildMediaDependencyInventory(root);
+  const generated = report.containers.generatedInstallDistInputs;
+  assert.deepEqual(generated.map(({ outputPath }) => outputPath).sort(), [
+    "modules/intelligence/multimodal-service/build/install/multimodal-service/",
+    "modules/speech/stt-service/build/install/stt-service/",
+    "modules/speech/tts-service/build/install/tts-service/",
+    "modules/vision/vision-service/build/install/vision-service/"
+  ].sort());
+  assert.ok(generated.every((x) => x.status === "BUILD_OUTPUT_REQUIRED_NOT_SOURCE_PINN"
+    && x.releaseAdmission === "NOT_ASSESSED"));
+  assert.equal(report.containers.dockerfiles.length, 4);
 });
 
 test("the inventory keeps legal, transitive, codec, model, and font states unresolved", () => {

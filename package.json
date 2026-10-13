@@ -44,7 +44,7 @@
     "check:physical-topology": "node scripts/check-media-physical-topology.mjs",
     "test:physical-topology": "node --test tests/media-physical-topology.test.mjs",
     "audit:repository-hygiene": "node scripts/audit-media-repository.mjs",
-    "test:repository-hygiene": "node --test tests/media-repository-hygiene.test.mjs tests/media-retired-ai-voice-service.test.mjs tests/media-container-candidate-hygiene.test.mjs tests/media-deployment-candidate-hygiene.test.mjs scripts/conformance/__tests__/check-audio-video-provider-readiness.test.mjs"
+    "test:repository-hygiene": "node --test tests/media-repository-hygiene.test.mjs tests/media-retired-ai-voice-service.test.mjs tests/media-container-candidate-hygiene.test.mjs tests/media-deployment-candidate-hygiene.test.mjs scripts/conformance/__tests__/check-audio-video-provider-readiness.test.mjs tests/media-build-task-hygiene.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",

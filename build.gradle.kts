@@ -11,18 +11,22 @@ plugins {
 group = "com.ghatana.audio-video"
 version = "0.1.0-SNAPSHOT"
 
-// Aggregate task to build all language components
+// Compatibility alias: the old buildAll task previously built only the root
+// Gradle project while claiming a polyglot build. Delegate to the real aggregate.
 tasks.register("buildAll") {
     group = "build"
-    description = "Builds all language components (Java, TypeScript, Rust)"
-    dependsOn("build")
+    description = "Compatibility alias for full local Media build"
+    dependsOn("buildFull")
 }
 
 // Task to verify pnpm build
 tasks.register<Exec>("buildPnpm") {
     group = "build"
     description = "Builds TypeScript/JavaScript components using pnpm"
-    commandLine("pnpm", "-r", "build")
+    // Workspace includes Shared/Tools/Lifecycle siblings for development resolution,
+    // but Media's aggregate build must not rebuild unrelated repositories.
+    commandLine("pnpm", "--filter", "./apps/**", "--filter", "./libs/**",
+        "--filter", "./modules/**", "-r", "build")
     workingDir = projectDir
 }
 
@@ -34,11 +38,20 @@ tasks.register<Exec>("buildCargo") {
     workingDir = projectDir
 }
 
-// Wrapper task to build all components
+// Build only the real Media JVM child projects, not synthetic namespace
+// parents, sibling Data Cloud projects, or imported Shared composite projects.
+tasks.register("buildMediaJvm") {
+    group = "build"
+    description = "Builds Media JVM subprojects with Gradle"
+    dependsOn(subprojects
+        .filter { (it.path.startsWith(":services:media:") || it.path.startsWith(":media:")) && it.buildFile.isFile }
+        .map { "${it.path}:build" })
+}
+
+// A full polyglot build is intentionally allowed to fail when any Media
+// compilation or installed public dependency fails; no compile/test exclusions.
 tasks.register("buildFull") {
     group = "build"
-    description = "Builds all components across all languages"
-    dependsOn("build")
-    dependsOn("buildPnpm")
-    dependsOn("buildCargo")
+    description = "Builds Media Java, TypeScript and Rust source"
+    dependsOn("buildMediaJvm", "buildPnpm", "buildCargo")
 }
