@@ -106,6 +106,9 @@ importers:
       '@ghatana/evidence-contracts':
         specifier: 0.1.0-rc.1
         version: link:../ghatana-lifecycle/libs/evidence-contracts
+      '@ghatana/verification-planner':
+        specifier: workspace:*
+        version: link:../ghatana-lifecycle/tools/verification-planner
       playwright:
         specifier: 1.63.0
         version: 1.63.0

@@ -8,20 +8,21 @@ and task ledger. A plan statement becomes accepted product meaning only through
 the appropriate owner review and acceptance record; source presence, repository
 migration, or a generated view does not confer acceptance.
 
-## Controlling PDP completion and Build handoff — 2026-10-12
+## Historical PDP completion and gated Build handoff — 2026-10-12
 
-**PDP-0, PDP-1, PDP-2 and PDP-3 are `DEV_COMPLETE` with zero remaining PDP development tasks.** Once definition development is complete, the only scheduled work is product **Build → Integration/Test → Delivery**, not another PDP review cycle. [Build handoff](../docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) and [owner correction](./reviews/2026-10-12-delegated-pdp-dev-owner-review.md#controlling-correction--pdp-to-build-transition-october-12-2026) supersede the former “remaining PDP” plan.
+**PDP-0, PDP-1, PDP-2 and PDP-3 remain `DEV_COMPLETE` with zero outstanding meaning IDs at their recorded historical cuts.** Their completed authoring work is not an open PDP backlog. The repository-wide source-currentness Discovery barrier is being reconciled separately and has not passed; this validation preserves the completed definitions without reopening them. Product **Build → Integration/Test → Delivery** is the next stage only after the current Discovery barrier and the applicable Build and release gates pass. The [Build handoff](../docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) and [owner correction](./reviews/2026-10-12-delegated-pdp-dev-owner-review.md#controlling-correction--pdp-to-build-transition-october-12-2026) supersede the former “remaining PDP” plan.
 
 Source/Explorer projection changes, UI/package integration defects, provider unavailability, runtime compilation, source migration and independent release audits do not create unfinished PDP tasks. Product-definition source cuts remain complete; an actual *new normative requirement* requires an explicitly approved versioned change request and does not retroactively turn this definition into an open backlog. Existing historical acceptance details below are retained for governance, **not as active PDP development TODOs**.
 
 ## Current status (2026-10-12)
 
 The source-development gates for PDP-0, PDP-1, PDP-2, and PDP-3 are all
-`DEV_COMPLETE` at definition content cut `adc9aa6`. The four checked-in phase
-status records carry 697 source-pin entries (607 unique paths). At the reviewed
+`DEV_COMPLETE` at their recorded historical phase cuts: PDP-0 and PDP-1 at
+`adc9aa6`, and PDP-2 and PDP-3 at `8138699`. The four checked-in phase status
+records carry 697 source-pin entries (607 unique paths). At the reviewed
 `0837fef` checkpoint, every pinned digest matched and the delta from the
-definition cut changed status records and verification logs only. The current
-status projection lists any later source-cut differences explicitly; those
+definition cuts changed status records and verification logs only. The current
+status projection lists later source-cut differences explicitly; those
 differences do not by themselves reopen a phase gate.
 `DEV_COMPLETE` does not imply formal independent semantic acceptance, external
 package acceptance, runtime implementation or qualification, Lifecycle receipt

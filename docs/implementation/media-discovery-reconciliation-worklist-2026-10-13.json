@@ -10,12 +10,13 @@
   "campaign": {
     "stage": "DISCOVERY",
     "activePhase": "PDP-0",
-    "discoveryBarrier": "FAIL_NOT_SOURCE_CURRENTLY_VALIDATED",
+    "discoveryBarrier": "FAIL_PDP0_OWNER_ACCEPTANCE_PENDING_AND_PDP1_PDP3_NOT_VALIDATED",
     "sourceMeaningStatus": "DEV_COMPLETE_AT_HISTORICAL_CUT",
-    "sourceCurrentness": "UNKNOWN",
+    "sourceCurrentness": "PDP0_CURRENT_PDP1_PDP3_NOT_VALIDATED",
     "implementationLane": "NOT_ENTERED",
     "closureLane": "NOT_ENTERED",
-    "delivery": "BLOCKED"
+    "delivery": "BLOCKED",
+    "statusObservationRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition"
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -42,7 +43,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.apps-media-experience-explorer",
@@ -54,7 +55,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.audio-video-observability",
@@ -66,7 +67,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.integration-tests",
@@ -78,7 +79,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.launcher",
@@ -90,7 +91,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.libs-audio-video-client",
@@ -102,7 +103,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.libs-audio-video-types",
@@ -114,7 +115,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.libs-audio-video-ui",
@@ -126,7 +127,7 @@
           "PDP-2": "GUI_LIBRARY",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.libs-common",
@@ -138,7 +139,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.libs-java-common",
@@ -150,7 +151,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.libs-media-experience-simulation",
@@ -162,7 +163,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-audio-streaming",
@@ -174,7 +175,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-infrastructure-cache",
@@ -186,7 +187,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-infrastructure-messaging",
@@ -198,7 +199,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-infrastructure-persistence",
@@ -210,7 +211,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-infrastructure-security",
@@ -222,7 +223,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-integration-tests",
@@ -234,7 +235,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "TOOLING_OR_SUPPORT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
@@ -246,7 +247,7 @@
           "PDP-2": "GUI_LIBRARY_HOST_DEPENDENT",
           "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-intelligence-multimodal-service",
@@ -258,7 +259,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
@@ -270,7 +271,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-speech-stt-service",
@@ -282,7 +283,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-speech-tts-service",
@@ -294,7 +295,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-video-streaming",
@@ -306,7 +307,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.modules-vision-vision-service",
@@ -318,7 +319,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.providers-aws-postgresql",
@@ -330,7 +331,7 @@
           "PDP-2": "NOT_APPLICABLE",
           "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.physical.runtime-contracts",
@@ -342,7 +343,7 @@
           "PDP-2": "HEADLESS_CONTRACT",
           "PDP-3": "CONSUMER_CONTRACT"
         },
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       }
     ],
     "compositions": [
@@ -364,7 +365,7 @@
           "media.physical.modules-integration-tests",
           "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.composition.ingestion-and-versioned-artifacts",
@@ -379,7 +380,7 @@
           "media.physical.providers-aws-postgresql",
           "media.physical.adapters-ledger"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.composition.governed-job-execution",
@@ -392,7 +393,7 @@
           "media.physical.modules-infrastructure-security",
           "media.physical.modules-infrastructure-cache"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.composition.speech-and-caption-workflows",
@@ -403,7 +404,7 @@
           "media.physical.modules-audio-streaming",
           "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.composition.vision-and-multimodal-analysis",
@@ -414,7 +415,7 @@
           "media.physical.modules-video-streaming",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.composition.creation-composition-and-delivery",
@@ -428,7 +429,7 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.composition.client-and-machine-interfaces",
@@ -444,7 +445,7 @@
           "media.physical.modules-intelligence-multimodal-service",
           "media.physical.apps-media-experience-explorer"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       }
     ],
     "consumers": [
@@ -455,7 +456,7 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.embedded",
@@ -464,7 +465,7 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-ui"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.public-http",
@@ -474,7 +475,7 @@
           "media.physical.launcher",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.service-grpc",
@@ -487,7 +488,7 @@
           "media.physical.modules-vision-vision-service",
           "media.physical.modules-intelligence-multimodal-service"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.grpc.stt",
@@ -496,7 +497,7 @@
         "physicalRefs": [
           "media.physical.modules-speech-stt-service"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.grpc.tts",
@@ -505,7 +506,7 @@
         "physicalRefs": [
           "media.physical.modules-speech-tts-service"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.grpc.vision",
@@ -514,7 +515,7 @@
         "physicalRefs": [
           "media.physical.modules-vision-vision-service"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.grpc.multimodal",
@@ -523,7 +524,7 @@
         "physicalRefs": [
           "media.physical.modules-intelligence-multimodal-service"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.sdk",
@@ -533,7 +534,7 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-audio-video-types"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.cli",
@@ -543,7 +544,7 @@
           "media.physical.libs-audio-video-client",
           "media.physical.libs-media-experience-simulation"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.agent-tools",
@@ -553,7 +554,7 @@
           "media.physical.runtime-contracts",
           "media.physical.libs-common"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.events",
@@ -563,7 +564,7 @@
           "media.physical.modules-infrastructure-messaging",
           "media.physical.runtime-contracts"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.integrations",
@@ -577,7 +578,7 @@
           "media.physical.modules-infrastructure-cache",
           "media.physical.modules-infrastructure-messaging"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.types-library",
@@ -586,7 +587,7 @@
         "physicalRefs": [
           "media.physical.libs-audio-video-types"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.ui-library",
@@ -596,7 +597,7 @@
           "media.physical.libs-audio-video-ui",
           "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.explorer",
@@ -606,14 +607,14 @@
           "media.physical.apps-media-experience-explorer",
           "media.physical.libs-media-experience-simulation"
         ],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       },
       {
         "id": "media.surface.desktop-archive",
         "consumerType": "OBSOLETE",
         "bindingState": "ARCHIVED",
         "physicalRefs": [],
-        "sourceCurrentness": "UNKNOWN"
+        "sourceCurrentness": "CURRENT_AT_ACTIVE_PHASE_PDP0"
       }
     ]
   },
@@ -630,7 +631,9 @@
         ".product-experience/reviews/2026-10-12-current-source-development-review.md"
       ],
       "done": "Record complete exact diff inventory versus recorded cut, including status wording and all six P0 mismatches; no silent historical hash overwrite.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_SOURCE_EVIDENCE",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#historicalPhaseStatusComparison; #historicalPdp0PinDriftClassifications; #campaign; #externalOwnerContracts",
+      "executionNote": "Captured current HEAD/remote, working-tree paths, all four historical pin sets, six classified PDP-0 pin changes, two required source additions, and declared external contract digests. Historical phase files remain unchanged."
     },
     {
       "id": "MDC-01",
@@ -645,7 +648,9 @@
         "docs/PRODUCT-DEFINITION-COVERAGE.md"
       ],
       "done": "Retain DEV_COMPLETE at historical cut; record classification of status/doc change and whether any meaning ID changed; forbid phase-current claim until validated.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_MEANING_REVIEW",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#authority; .product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md#MDO-02",
+      "executionNote": "Reconciled historical DEV_COMPLETE wording and coverage table; changedMeaningIds is empty. Product Truth source meaning remains at its historical cut."
     },
     {
       "id": "MDC-02",
@@ -661,7 +666,9 @@
         "scripts/check-media-physical-topology.mjs"
       ],
       "done": "Reconcile all 26 physical/support/subsumed candidates, six semantic compositions plus root, and 17 consumer crosswalks with stable IDs, explicit phase applicability, TTS-only AI Voice GUI intent and legacy Agent handler mapping; no double-counting.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_TOPOLOGY_EVIDENCE",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#denominators; #physicalCompositeConsumerCells; pnpm check:physical-topology; pnpm test:physical-topology",
+      "executionNote": "Bound 26 physical candidates, six semantic compositions, one root, and 17 consumers with applicability, meaning references, exact material sets, and inverse mappings."
     },
     {
       "id": "MDC-03",
@@ -679,7 +686,9 @@
         "apps/media-experience-explorer/specification-artifacts.json"
       ],
       "done": "List exact changed media-facing external contract digests and distinguish remote Git revision, dirty worktree, generated metadata and consumer lockfile noise; unresolved contract changes block only owning meaning.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_EXTERNAL_DIGEST_EVIDENCE",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#externalOwnerContracts",
+      "executionNote": "Verified all 30 declared external contract-file digests. Repository revision and dirty-state observations remain diagnostics; no contract digest mismatch remains."
     },
     {
       "id": "MDC-04",
@@ -696,7 +705,9 @@
         "ghatana-lifecycle public repository-source-currentness contract (read/consume, do not fork)"
       ],
       "done": "Pass explicit declared membership, content fingerprints, owner graph, physical catalog and external/provider fingerprints; fail closed on missing inputs, journal gaps and concurrent edits; do not synthesize Lifecycle receipts or semantic acceptance.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_PUBLIC_ADAPTER_AND_TESTS",
+      "executionEvidence": "scripts/media-discovery-currentness.mjs; scripts/record-media-discovery-pdp0-currentness.mjs; tests/media-discovery-currentness.test.mjs; node --test tests/media-discovery-currentness.test.mjs",
+      "executionNote": "Uses Lifecycle public repository-source-currentness API, exact cell paths and owner/catalog/provider fingerprints; reset, missing path, persistence, race, changed-source, external-fingerprint, and topology cases fail closed."
     },
     {
       "id": "MDC-05",
@@ -713,7 +724,9 @@
         "docs/implementation/ (generated currentness view)"
       ],
       "done": "Every row has phase-local required source set, exact fingerprint, applicable meaning refs or reasoned N/A, source-current PASS or precise blocker; deduplicated composition/root coverage and inverse edges reconcile.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "COMPLETED_WITH_50_CELL_VALIDATION",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#physicalCompositeConsumerCells; docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#lifecycleSourceCurrentness",
+      "executionNote": "All 50 PDP-0 physical/composite/root/consumer cells have exact applicability, meaning references or reasoned N/A, source digests, and CURRENT status on one stable capture."
     },
     {
       "id": "MDC-06",
@@ -728,7 +741,9 @@
         "docs/implementation/ (new immutable current-cut observation)"
       ],
       "done": "Historical DEV_COMPLETE stays intact; new source-bound status asserts current=TRUE only after every applicable P0 row validates and zero actual outstanding meaning IDs; otherwise stage barrier FAIL.",
-      "status": "PLANNED_NOT_PERFORMED"
+      "status": "BLOCKED_PENDING_OWNER_ACCEPTANCE",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition; .product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md#MDO-10",
+      "executionNote": "Technical PDP-0 source currentness is observed PASS with zero outstanding meaning IDs, but the required owner-accepted current status is not available. Do not advance to PDP-1 or claim Discovery exit."
     },
     {
       "id": "MDC-10",

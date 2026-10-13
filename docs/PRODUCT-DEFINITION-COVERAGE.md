@@ -1,6 +1,6 @@
 # Product Definition coverage and alignment
 
-> **Source-definition state:** The four PDPs are `DEV_COMPLETE` with **0 outstanding PDP development tasks**. Historic coverage and candidate-source observations below retain their recorded context; new implementation work belongs to the [Build handoff](implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md).
+> **Historical source-development state:** The four PDP phase records remain `DEV_COMPLETE` with **0 outstanding meaning IDs** at their recorded cuts. The repository-wide source-currentness Discovery barrier is still being reconciled and has not passed; validating that baseline does not reopen the completed definition backlog. Build work becomes the next stage only after the current Discovery barrier and its other required gates pass.
 
 This document is a human-readable audit projection of the canonical Media
 Product Definition records. The YAML registries under
@@ -19,8 +19,8 @@ canonical folders use these phase labels:
 | --- | --- | --- |
 | PDP-0 Product Truth | pdp-0-product-truth/ truth, goals, actors, requirements, policies, quality, channels, and journeys | `DEV_COMPLETE` at source cut `adc9aa6`; 462 capability leaves and 38 requirements. Formal semantic acceptance remains separate. |
 | PDP-1 Canonical Domain and Data Model | pdp-1-domain-data/ plus PDP-0 source references | `DEV_COMPLETE` at source cut `adc9aa6`; canonical domain, operation, state, event, evidence, provenance, privacy, versioning, offline, interoperability, authority, and decision definitions are source-pinned. External contract acceptance remains separate. |
-| PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | `DEV_COMPLETE` at source cut `adc9aa6`; definition-only conformance passed. Shared package release and independent accessibility/design acceptance remain separate. |
-| PDP-3 Complete Product Experience | pdp-3-product-experience/ | `DEV_COMPLETE` at source cut `adc9aa6`; 47 screens, 30 journeys/130 ordered steps, 147 UI actions, 31 scenario definitions (four seeded journeys and 26 explicitly unseeded), and 105 bounded recovery oracles without an implemented same-identity query. HTTP/gRPC/SDK/event/tool registries do not establish runtime reachability. |
+| PDP-2 Design Language and Interface System | pdp-2-design-interface-system/ | `DEV_COMPLETE` at source cut `8138699`; definition-only conformance passed. Shared package release and independent accessibility/design acceptance remain separate. |
+| PDP-3 Complete Product Experience | pdp-3-product-experience/ | `DEV_COMPLETE` at source cut `8138699`; 47 screens, 30 journeys/130 ordered steps, 147 UI actions, 31 scenario definitions (four seeded journeys and 26 explicitly unseeded), and 105 bounded recovery oracles without an implemented same-identity query. HTTP/gRPC/SDK/event/tool registries do not establish runtime reachability. |
 | Experience Explorer projection | explorer/, apps/media-experience-explorer/, and libs/media-experience-simulation/ | Deterministic local projection and verification client; not a fifth semantic phase. |
 
 These four `DEV_COMPLETE` declarations are source-development results, not
