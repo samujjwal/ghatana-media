@@ -1,5 +1,7 @@
 # Post-PDP remaining work and completion path — 2026-10-12
 
+> **PDP stages finished (owner correction, October 12, 2026):** PDP-0…PDP-3 are `DEV_COMPLETE`, with **0 remaining PDP development tasks**. All open IDs in this dated document belong to **Build/Integration/Test/Delivery** or real release/qualification decisions, not PDP authoring. Follow the [Build-stage handoff](MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md); the former 15-card remaining-PDP list is superseded. Dated implementation dispositions and authentic external authority requirements remain unchanged.
+
 > **Execution priority / delegated Media owner direction (2026-10-12):** Follow [the source-reviewed 47-task owner execution directive](post-pdp-owner-reviewed-execution-directive-2026-10-12.md) for the current technical decisions, verified topology/runtime defects, no-wait engineering paths, task-by-task implementation and wave order. This checklist preserves original task IDs, historical dispositions and closure requirements; the directive does not create independent reviews, native receipts, published contracts, production cutover or release authorization.
 
 This checklist expands the 47-task disposition into the concrete actions, owners, and evidence required to reach the post-PDP goal. It is a work plan, not an owner approval, Lifecycle receipt, migration admission, or release authorization.

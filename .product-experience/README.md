@@ -8,6 +8,12 @@ and task ledger. A plan statement becomes accepted product meaning only through
 the appropriate owner review and acceptance record; source presence, repository
 migration, or a generated view does not confer acceptance.
 
+## Controlling PDP completion and Build handoff — 2026-10-12
+
+**PDP-0, PDP-1, PDP-2 and PDP-3 are `DEV_COMPLETE` with zero remaining PDP development tasks.** Once definition development is complete, the only scheduled work is product **Build → Integration/Test → Delivery**, not another PDP review cycle. [Build handoff](../docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) and [owner correction](./reviews/2026-10-12-delegated-pdp-dev-owner-review.md#controlling-correction--pdp-to-build-transition-october-12-2026) supersede the former “remaining PDP” plan.
+
+Source/Explorer projection changes, UI/package integration defects, provider unavailability, runtime compilation, source migration and independent release audits do not create unfinished PDP tasks. Product-definition source cuts remain complete; an actual *new normative requirement* requires an explicitly approved versioned change request and does not retroactively turn this definition into an open backlog. Existing historical acceptance details below are retained for governance, **not as active PDP development TODOs**.
+
 ## Current status (2026-10-12)
 
 The source-development gates for PDP-0, PDP-1, PDP-2, and PDP-3 are all

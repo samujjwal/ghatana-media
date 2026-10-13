@@ -1,5 +1,7 @@
 # Post-PDP 47-task disposition — 2026-10-12
 
+> **PDP stages finished (owner correction, October 12, 2026):** PDP-0…PDP-3 are `DEV_COMPLETE`, with **0 remaining PDP development tasks**. All open IDs in this dated document belong to **Build/Integration/Test/Delivery** or real release/qualification decisions, not PDP authoring. Follow the [Build-stage handoff](MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md); the former 15-card remaining-PDP list is superseded. Dated implementation dispositions and authentic external authority requirements remain unchanged.
+
 This is the local coordinator’s disposition of the 47 follow-on tasks in the deep review. It records source implementation, verification, and remaining authority/dependency gates; it does not replace the task ledger, transfer receipt, independent reviews, Lifecycle records, or release decision. The user’s request authorizes scoped Media implementation and product decisions. It does not make this coordinator the Shared, Platform, Lifecycle, independent-review, or commercial-release owner.
 
 **Disposition vocabulary:** `LOCAL_COMPLETE` means the scoped local criterion is implemented and checked; `LOCAL_COMPLETE_EXTERNAL_REVIEW_PENDING` means local source work is in place but required independent/owner review remains; `PARTIAL` means useful bounded implementation exists but the task’s completion criteria are not met; `UPSTREAM_NOT_AVAILABLE`, `EXTERNAL_PENDING`, `BLOCKED_DEPENDENCY`, and `DEFERRED` preserve the exact external boundary.

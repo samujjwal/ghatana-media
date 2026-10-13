@@ -4,7 +4,7 @@
 **Review date:** 2026-10-12  
 **Reviewed repository/source:** `samujjwal/ghatana-media`, remote `main@5e6210088a91978f5e7eeb213e2f99f101a91155`  
 **Authority:** user's explicit delegation of **Media product-definition and engineering** review/decisions in the October 12 conversation; recorded with an AI assistant acting for this scoped review. This is **not** a personal signature by the user, a qualified independent review, another repository owner's signoff, or a native Lifecycle receipt.  
-**Verdict:** **APPROVED FOR PDP DEFINITION DEVELOPMENT ONLY**, preserving previously established `DEV_COMPLETE` cuts. Two per-surface classification inconsistencies require bounded source corrections before proclaiming a newly reviewed current topology cut. Neither requires runtime development.
+**Current verdict:** **PDP-0…PDP-3 are `DEV_COMPLETE`, with zero remaining PDP definition tasks.** Earlier requests to perform source-projection corrections as PDP prerequisites are superseded by the controlling owner correction below.
 
 ## Exactly what was reviewed
 
@@ -61,3 +61,18 @@ Remote review limit: the coordinator's latest changes to `ghatana/services/media
 | Production, security qualification, release and GA | **NOT AUTHORIZED; OUT OF SCOPE** | Release/security/operations owners |
 
 **Disposition:** No new PDP normative feature, provider, runtime or migratory task is authorized or required by this review. The remaining work is a bounded `ghatana-media` product-source inspection/correction and reconfirmation pass described in [the PDP-only execution plan](../../docs/implementation/MEDIA-PDP-0-3-DEV-ONLY-REMAINING-2026-10-12.md). After the two source-projection corrections and a source-delta check, the implementer should report the four `DEV_COMPLETE` gates individually, with exact current source limitations. Do not ask again for any Media design choice explicitly decided above; ask only for a genuinely new substantive decision not covered here.
+
+
+---
+
+## Controlling correction — PDP-to-Build transition (October 12, 2026)
+
+**Superseding owner decision: PDP-0, PDP-1, PDP-2, PDP-3 are `DEV_COMPLETE`; their remaining development task count is ZERO.** The user explicitly rejected the previous practice of generating more PDP authoring/review tasks after the four phase-development gates were complete. This correction is authoritative for the Media-owned planning classification.
+
+- Prior requests in this review to fix two topology/source-projection mismatches *before completing PDP development* are withdrawn. The AI Voice React GUI misclassification and Agent Tool legacy-handler source crosswalk are tracked as `BUILD-UI-TOPOLOGY-01` and `BUILD-AGENT-MAPPING-01` during actual UI/consumer integration. They do not alter the completed normative design/experience definitions.
+- The 15-task `MEDIA-PDP-0-3-DEV-ONLY-REMAINING-2026-10-12.md` plan is superseded. Some cards become actual Build integration/test tasks; repeated phase re-review and source-pin-chasing tasks are not scheduled.
+- Existing four `DEV_COMPLETE` phase source cuts are preserved. New provider, UI or transport code, modified derived manifests and release/test failures do **not** reopen PDP authoring. Only an explicitly approved *new versioned normative product change* can trigger a successor definition.
+- Legitimate independent specialist/public owner reviews and production/rights/security/release authorizations are neither forged nor waived; they are associated with actual implementation, public admission or production delivery, **not remaining PDP development tasks**.
+- Future progress reports must show PDP backlog **0** and report outstanding work only in [Build/Implement/Test/Deliver](../../docs/implementation/MEDIA-POST-PDP-BUILD-IMPLEMENT-TEST-DELIVER-2026-10-12.md) or delivery/release streams.
+
+**Current verdict:** The four PDP definition phases are finished at their recorded cuts. Proceed with product building, integration, testing and delivery. No additional Media PDP review cycle is authorized by this correction.
