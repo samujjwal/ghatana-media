@@ -1,13 +1,13 @@
 # Prometheus Configuration for Audio-Video Platform
-# Scrapes metrics from all 5 Audio-Video services:
-#   STT (port 8090), TTS (8091), Vision (8092), Multimodal (8093), AI-Voice (8095)
+# Internal Media diagnostics: STT (8090), TTS (8091), Vision (8092), Multimodal (8093).
+# No production monitoring target is admitted merely by this file.
 
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    cluster: "audio-video-production"
-    environment: "prod"
+    cluster: "media-internal-unqualified"
+    environment: "internal"
     product: "audio-video"
 
 alerting:
@@ -22,7 +22,7 @@ rule_files:
 scrape_configs:
   # STT Service — Java/gRPC, Spring Actuator metrics on port 8090
   - job_name: "stt-service"
-    metrics_path: "/actuator/prometheus"
+    metrics_path: "/metrics"
     static_configs:
       - targets: ["stt-service:8090"]
         labels:
@@ -38,7 +38,7 @@ scrape_configs:
 
   # TTS Service — Java/gRPC, Spring Actuator metrics on port 8091
   - job_name: "tts-service"
-    metrics_path: "/actuator/prometheus"
+    metrics_path: "/metrics"
     static_configs:
       - targets: ["tts-service:8091"]
         labels:
@@ -49,7 +49,7 @@ scrape_configs:
 
   # Vision Service — Java/gRPC, Spring Actuator metrics on port 8092
   - job_name: "vision-service"
-    metrics_path: "/actuator/prometheus"
+    metrics_path: "/metrics"
     static_configs:
       - targets: ["vision-service:8092"]
         labels:
@@ -60,24 +60,13 @@ scrape_configs:
 
   # Multimodal Service — Java/gRPC, Spring Actuator metrics on port 8093
   - job_name: "multimodal-service"
-    metrics_path: "/actuator/prometheus"
+    metrics_path: "/metrics"
     static_configs:
       - targets: ["multimodal-service:8093"]
         labels:
           service: "multimodal-service"
           tier: "application"
           runtime: "jvm"
-          protocol: "grpc"
-
-  # AI Voice Service — Python/gRPC, Prometheus client on port 8095
-  - job_name: "ai-voice-service"
-    metrics_path: "/metrics"
-    static_configs:
-      - targets: ["ai-voice-service:8095"]
-        labels:
-          service: "ai-voice-service"
-          tier: "application"
-          runtime: "python"
           protocol: "grpc"
 
   # Node Exporter (system-level metrics)

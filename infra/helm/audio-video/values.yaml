@@ -1,24 +1,25 @@
+# No workload or image is admitted by default; enable only with actual digest and authority.
 global:
   imageRegistry: ghcr.io/ghatana/audio-video
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   namespace: audio-video
   existingSecret: audio-video-secrets
 
 serviceAccount:
-  create: true
+  create: false
   name: audio-video-sa
 
 networkPolicy:
-  enabled: true
+  enabled: false
   monitoringNamespace: monitoring
 
 # ── STT Service ────────────────────────────────────────────────────────────
 stt:
-  enabled: true
+  enabled: false
   replicaCount: 2
   image:
     repository: ghcr.io/ghatana/audio-video/stt-service
-    tag: ""
+    digest: ""
   ports:
     grpc: 50051
     health: 8090
@@ -38,18 +39,18 @@ stt:
     AV_MAX_REQUEST_BYTES: "104857600"
   modelsClaimName: stt-models-pvc
   hpa:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 6
     targetCPUUtilization: 70
 
 # ── TTS Service ────────────────────────────────────────────────────────────
 tts:
-  enabled: true
+  enabled: false
   replicaCount: 2
   image:
     repository: ghcr.io/ghatana/audio-video/tts-service
-    tag: ""
+    digest: ""
   ports:
     grpc: 50052
     health: 8091
@@ -69,20 +70,20 @@ tts:
     AV_MAX_REQUEST_BYTES: "52428800"
   modelsClaimName: tts-models-pvc
   hpa:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 6
     targetCPUUtilization: 70
 
 # ── Vision Service ─────────────────────────────────────────────────────────
 vision:
-  enabled: true
+  enabled: false
   replicaCount: 2
   image:
     repository: ghcr.io/ghatana/audio-video/vision-service
-    tag: ""
+    digest: ""
   ports:
-    grpc: 50053
+    grpc: 50054
     health: 8092
   resources:
     requests:
@@ -100,20 +101,20 @@ vision:
     AV_MAX_REQUEST_BYTES: "52428800"
   modelsClaimName: vision-models-pvc
   hpa:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 5
     targetCPUUtilization: 70
 
 # ── Multimodal Service ─────────────────────────────────────────────────────
 multimodal:
-  enabled: true
+  enabled: false
   replicaCount: 1
   image:
     repository: ghcr.io/ghatana/audio-video/multimodal-service
-    tag: ""
+    digest: ""
   ports:
-    grpc: 50054
+    grpc: 50055
     health: 8093
   resources:
     requests:
@@ -126,26 +127,7 @@ multimodal:
     STT_SERVICE_HOST: "{{ .Release.Name }}-stt"
     STT_SERVICE_PORT: "50051"
     VISION_SERVICE_HOST: "{{ .Release.Name }}-vision"
-    VISION_SERVICE_PORT: "50053"
-
-# ── AI Voice Service ───────────────────────────────────────────────────────
-aiVoice:
-  enabled: true
-  replicaCount: 1
-  image:
-    repository: ghcr.io/ghatana/audio-video/ai-voice
-    tag: ""
-  ports:
-    grpc: 50055
-    health: 8095
-  resources:
-    requests:
-      memory: "4Gi"
-      cpu: "1000m"
-    limits:
-      memory: "8Gi"
-      cpu: "4000m"
-  modelsClaimName: ai-voice-models-pvc
+    VISION_SERVICE_PORT: "50054"
 
 # ── Platform Shared Services ───────────────────────────────────────────────
 platformServices:
@@ -155,8 +137,8 @@ platformServices:
 
 podSecurityContext:
   runAsNonRoot: true
-  runAsUser: 1000
-  fsGroup: 1000
+  runAsUser: 10001
+  fsGroup: 10001
   seccompProfile:
     type: RuntimeDefault
 
