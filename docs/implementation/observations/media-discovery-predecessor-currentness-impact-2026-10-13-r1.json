@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "media.discovery.predecessor-currentness-impact.v1",
+  "recordKind": "READ_ONLY_CROSS_PHASE_HANDOFF",
+  "observationId": "MEDIA-DISCOVERY-PREDECESSOR-CURRENTNESS-IMPACT-2026-10-13-R1",
+  "observedAt": "2026-10-13T23:46:45.311Z",
+  "campaign": {
+    "repository": "samujjwal/ghatana-media",
+    "branch": "main",
+    "observedHead": "abc27c7aefa1a289e34304b29888a355a847e0b9",
+    "originMain": "abc27c7aefa1a289e34304b29888a355a847e0b9",
+    "macroStage": "DISCOVERY",
+    "activePhase": "PDP-3",
+    "activeTask": "MDC-30"
+  },
+  "scope": "Read-only byte-level comparison of prior PDP phase-exit source material against current committed bytes after MDC-30 source updates. No prior phase definition, phase-dev-status file, owner decision, or exit record was edited.",
+  "method": {
+    "hash": "SHA-256",
+    "comparison": "For each exact source path in the prior phase-exit sourceCurrentness record, compare recorded fileContentDigests/sourceContentDigests with current raw file bytes. This is a source-pin impact check, not a new semantic review or phase exit."
+  },
+  "phaseExitAudits": [
+    {
+      "phase": "PDP-0",
+      "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
+      "exitRecordId": "MEDIA-PDP0-EXIT-cc0aadd8031b",
+      "exitStatus": "PASS",
+      "historicalSourceCurrentness": "PASS",
+      "historicalMaterialSourceSetFingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b",
+      "sourcePathCount": 146,
+      "currentPinCounts": {
+        "matching": 142,
+        "changed": 4,
+        "missing": 0
+      },
+      "changedPaths": [
+        {
+          "path": ".product-experience/artifact-identities.yaml",
+          "recordedSha256": "sha256:ed1d0a7ee4ed8422624ff8efb486ea667680532560de1031c01d0531b905f8f8",
+          "observedSha256": "sha256:cd6709b2e3bfff3c0b824f6e7e3c2c12777f688259beabbdbfeb1a261bd568f6"
+        },
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "recordedSha256": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+          "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a"
+        },
+        {
+          "path": ".product-experience/surface-registry.yaml",
+          "recordedSha256": "sha256:3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+          "observedSha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1"
+        },
+        {
+          "path": "apps/media-experience-explorer/specification-artifacts.json",
+          "recordedSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+          "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75"
+        }
+      ],
+      "missingPaths": [],
+      "disposition": "SOURCE_CURRENTNESS_RECHECK_REQUIRED"
+    },
+    {
+      "phase": "PDP-1",
+      "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
+      "exitRecordId": "MEDIA-PDP1-CURRENTNESS-2026-10-13-R3",
+      "exitStatus": "PASS",
+      "historicalSourceCurrentness": "PASS",
+      "historicalMaterialSourceSetFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
+      "sourcePathCount": 329,
+      "currentPinCounts": {
+        "matching": 325,
+        "changed": 4,
+        "missing": 0
+      },
+      "changedPaths": [
+        {
+          "path": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+          "recordedSha256": "sha256:634a5e33b20d65131b2912c80b8e669d271c85b997b2d79c4a1135c4dc0c9ffc",
+          "observedSha256": "sha256:596d3cad8a18296b586094f91bc201ebba4cdb9d41a2e993b324d8e7ff5f5e76"
+        },
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "recordedSha256": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+          "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a"
+        },
+        {
+          "path": ".product-experience/surface-registry.yaml",
+          "recordedSha256": "sha256:3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+          "observedSha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1"
+        },
+        {
+          "path": "apps/media-experience-explorer/specification-artifacts.json",
+          "recordedSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+          "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75"
+        }
+      ],
+      "missingPaths": [],
+      "disposition": "SOURCE_CURRENTNESS_RECHECK_REQUIRED"
+    },
+    {
+      "phase": "PDP-2",
+      "exitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
+      "exitRecordId": "MEDIA-PDP2-CURRENTNESS-2026-10-13-R2",
+      "exitStatus": "PASS",
+      "historicalSourceCurrentness": "PASS",
+      "historicalMaterialSourceSetFingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea",
+      "sourcePathCount": 405,
+      "currentPinCounts": {
+        "matching": 401,
+        "changed": 4,
+        "missing": 0
+      },
+      "changedPaths": [
+        {
+          "path": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+          "recordedSha256": "sha256:634a5e33b20d65131b2912c80b8e669d271c85b997b2d79c4a1135c4dc0c9ffc",
+          "observedSha256": "sha256:596d3cad8a18296b586094f91bc201ebba4cdb9d41a2e993b324d8e7ff5f5e76"
+        },
+        {
+          "path": ".product-experience/source-manifest.yaml",
+          "recordedSha256": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+          "observedSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a"
+        },
+        {
+          "path": ".product-experience/surface-registry.yaml",
+          "recordedSha256": "sha256:3d4955aa77c9fdd142682df8b247853d98183f56276394dbb6eb6e5954d320f6",
+          "observedSha256": "sha256:b2484d65d897da75ea151b4f08b466ef075aa0d631e5c9f34181b4225eeb40c1"
+        },
+        {
+          "path": "apps/media-experience-explorer/specification-artifacts.json",
+          "recordedSha256": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+          "observedSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75"
+        }
+      ],
+      "missingPaths": [],
+      "disposition": "SOURCE_CURRENTNESS_RECHECK_REQUIRED"
+    }
+  ],
+  "summary": {
+    "phasesChecked": 3,
+    "phasesWithChangedMaterial": [
+      "PDP-0",
+      "PDP-1",
+      "PDP-2"
+    ],
+    "changedPinCount": 12,
+    "missingPinCount": 0,
+    "currentness": "NOT_REESTABLISHED_FOR_PDP0_PDP1_PDP2"
+  },
+  "interpretation": {
+    "materiality": "All three old PASS exit records cite source digests that no longer match every exact current source path. The changed paths include the canonical surface registry for all three phases, the generated source manifest and Explorer index, plus phase-specific owner/artifact metadata. Resolve affected materiality and regenerate source-currentness/owner-cut evidence in order before treating those exits as current for this source cut.",
+    "historicalRecords": "Old phase-exit and DEV_COMPLETE records remain historical and unchanged.",
+    "semanticScope": "No PDP-0, PDP-1, or PDP-2 meaning was re-reviewed or reopened by this handoff. Reopen a definition only if the ordered currentness impact review finds a material meaning defect.",
+    "acceptance": "No owner acceptance, phase exit, native closure, Build admission, or Delivery readiness is asserted."
+  },
+  "nextLegalAction": "Start with PDP-0 source-currentness impact review; then re-establish PDP-1 and PDP-2 exact source currentness as affected; resume PDP-3 MDC-30 acceptance only after predecessor currentness is current. Keep MDC-31 and MDC-32 gated."
+}
