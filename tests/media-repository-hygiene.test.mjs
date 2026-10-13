@@ -20,6 +20,9 @@ test('repository hygiene audit inspects every tracked file without changing it',
   assert.equal(audit.trackedFiles, list.length);
   assert.equal(audit.scannedFiles, list.length);
   assert.deepEqual(audit.unreadable, []);
+  assert.ok(['COMMITTED_HEAD_TRACKED_BYTES', 'HEAD_WITH_LOCAL_TRACKED_MODIFICATIONS'].includes(audit.sourceObservation));
+  assert.ok(Array.isArray(audit.localTrackedDeltaPaths));
+  assert.equal(audit.sourceObservation === 'COMMITTED_HEAD_TRACKED_BYTES', audit.localTrackedDeltaPaths.length === 0);
   assert.equal(audit.policy.autoDelete, false);
   assert.ok(audit.totalBytes > 0);
   assert.ok(audit.categories['canonical-product-definition']?.files > 0);
