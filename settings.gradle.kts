@@ -1,3 +1,6 @@
+// Preserve this historical Gradle build identity for source/consumer compatibility.
+// The canonical product/domain name is Media; a Gradle root rename requires a
+// separately tested coordinate migration.
 rootProject.name = "audio-video"
 
 // Detect build mode
@@ -92,13 +95,13 @@ fun includeProject(projectPath: String, projectDir: File) {
     project(":$projectPath").projectDir = projectDir
 }
 
-// DEPRECATED: products/ directory is no longer used. In monorepo builds, canonical paths
-// are services/media/*. In standalone builds, we use the local directory structure.
-// This section maintained for backward compatibility only and can be removed in a future release.
+// Stable project coordinates: :services:media in a standalone composite,
+// :media when included by the canonical monorepo. Parent projects are
+// synthetic namespace nodes, not extra runtime implementations.
 include(productProjectPrefix)
-// The standalone root project already owns rootDir. Keep the legacy :media
-// aggregator as a synthetic parent so child paths remain addressable without
-// assigning the same directory to two Gradle projects.
+// The standalone root project already owns rootDir. Use a synthetic
+// namespace parent so child paths remain addressable without assigning
+// the same directory to two Gradle project identities.
 if (isStandaloneBuild) {
     project(":services").projectDir = rootDir.parentFile.parentFile
 }

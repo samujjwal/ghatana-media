@@ -1,12 +1,12 @@
-# stt-service
+# Media Speech-to-Text service
 
-Speech-to-Text (STT) service for the Audio-Video platform.
+Media-owned STT service module in the prepared runtime source tree; the canonical runtime remains `ghatana/services/media` until approved transfer. Source presence is not a claim of qualified provider availability.
 
 ## Purpose
 
 Transcribes audio streams and files to text through the Whisper gRPC service. The client adapter supports `GRPC` and explicit `NOP` modes. Exposes a gRPC API and persists transcription results for downstream consumers.
 
-> **Engine decision:** The STT engine is an **external gRPC dependency**, not a local ONNX/JNI bundle. See [ADR-STT-001](../../docs-generated/02-architecture-decisions-design/ADR-STT-001-whisper-external-dependency.md) for rationale, integration guide, and the conformance contract for any Whisper gRPC implementation.
+> **Engine decision:** The STT engine is an **external gRPC dependency**, not a local ONNX/JNI bundle. See the [STT gRPC configuration contract](../../../docs/configuration/stt-grpc-configuration.md) for prerequisite and admission constraints. The former `docs-generated/ADR-STT-001` link is not present in this repository and is not a source authority.
 
 ## Layer
 
