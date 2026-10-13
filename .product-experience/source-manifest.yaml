@@ -46,8 +46,8 @@ externalOwnerObservations:
         sha256: b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272
   - repositoryId: ghatana-products
     available: true
-    revision: 744bf53ee69009f8140214c6f909254ecfb7f8fd
-    workingTree: MODIFIED
+    revision: 5fc2a366eda1657c3678628381565f6a4929b2dc
+    workingTree: CLEAN
     files:
       - path: "config/product-extraction-records/media.yaml"
         sha256: ef74d8c43336166bab95571735cfeba7833b3d174175a48223ca230b51023a05
@@ -97,7 +97,7 @@ externalOwnerObservations:
         sha256: ea614e2b85ad661034e2e4441f0f2dbf36e3fd0e569e3706595a5b76844faf6e
   - repositoryId: ghatana-lifecycle
     available: true
-    revision: 146cd6a6d6841ac029efdaa7cca46aa5b8ad12f6
+    revision: 86e0703521295b26fd925001b057fdb5a2c4c8e7
     workingTree: MODIFIED
     files:
       - path: "package.json"
@@ -108,8 +108,8 @@ externalOwnerObservations:
         sha256: 447f4b8e8c6bca3c546d929034262ab4aaba9b37debc4716f6a9cf9b3bf0a792
   - repositoryId: ghatana-shared
     available: true
-    revision: 5fef6c34886481e4639267dc6dc5e6dd58c97b43
-    workingTree: MODIFIED
+    revision: 0c816bed7b8f39f6a9595e54d8f5c74ead089373
+    workingTree: CLEAN
     files:
       - path: "platform/typescript/tokens/package.json"
         package: "@ghatana/tokens"
@@ -1052,7 +1052,7 @@ productArtifactIndex:
     explorerProjection: SPECIFICATION_SOURCE_RECORD
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
-      contentSha256: ec9bbc0c9b489db2a959b60fe6a6c8c1db9be72d10453033fc5f0a92f89eb0e9
+      contentSha256: 13c0789a6fa94c51abfbc60da8465e340406947a3f5a1dff4ec5a37bcef7e341
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-P0-GLOSSARY
@@ -8114,6 +8114,29 @@ productArtifactIndex:
     semanticFingerprint:
       status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
       contentSha256: 0a24dd4fe811e5ea4a0db6b4cc6fb65baa297655b6faac40d912716afac4fedc
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-GOV-DISCOVERY-DELEGATED-OWNER-DECISIONS-20261013
+    title: "2026 10 13 Discovery Delegated Owner Decision And Authorizations"
+    owner: ghatana-media-product-owners
+    authorityClass: CROSS_PHASE_GOVERNANCE
+    owningPhase: CROSS_PHASE
+    path: .product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md
+    surfaceIds: []
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
+    dependencies: []
+    dependents: []
+    schema: cross_phase.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 634a5e33b20d65131b2912c80b8e669d271c85b997b2d79c4a1135c4dc0c9ffc
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
   - artifactId: ART-GOV-PDP0-DISCOVERY-OWNER-REVIEW-20261013

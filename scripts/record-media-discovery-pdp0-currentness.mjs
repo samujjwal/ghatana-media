@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   canonicalizeVerificationValue,
   captureRepositorySourceCurrentness,
@@ -232,7 +232,7 @@ function compactCellEvidence(cell, sharedPaths) {
   };
 }
 
-function main() {
+export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedAt = true } = {}) {
   const topologyPath = '.product-experience/surfaces/media-physical-topology.v1.json';
   const registryPath = '.product-experience/surface-registry.yaml';
   const sourceManifestPath = '.product-experience/source-manifest.yaml';
@@ -314,7 +314,7 @@ function main() {
   const observation = {
     schemaVersion: 'media.discovery-pdp0-currentness-observation.v1',
     observationId: 'MEDIA-PDP0-CURRENTNESS-2026-10-13',
-    observedAt: existing?.observedAt ?? new Date().toISOString(),
+    observedAt: preserveExistingObservedAt ? (existing?.observedAt ?? new Date().toISOString()) : new Date().toISOString(),
     campaign: {
       repository: 'samujjwal/ghatana-media',
       branch: runGit(['branch', '--show-current']),
@@ -381,20 +381,28 @@ function main() {
       'Later PDP phases remain unvalidated until the PDP-0 exit gate is formally accepted.',
     ],
   };
+  return {
+    observation,
+    summary: {
+      outputPath,
+      sourceCurrent,
+      sourceCellCurrentCount: currentness.cells.filter((cell) => cell.sourceCurrentness === 'CURRENT').length,
+      sourceCellUnknownCount: currentness.cells.filter((cell) => cell.sourceCurrentness === 'UNKNOWN').length,
+      historicalPdp0PinCounts: p0Comparison.currentPinCounts,
+      externalContractCounts: { total: external.totalFiles, matched: external.digestMatches, mismatched: external.digestMismatches.length },
+      consistencyStable,
+      blockers: observation.lifecycleSourceCurrentness.blockers,
+      pdp0Exit: observation.phaseDisposition.pdp0Exit,
+    },
+  };
+}
+
+function main() {
+  const { observation, summary } = buildMediaPdp0CurrentnessObservation();
   const destination = path.join(root, outputPath);
   fs.mkdirSync(path.dirname(destination), { recursive: true });
   fs.writeFileSync(destination, `${JSON.stringify(observation, null, 2)}\n`);
-  process.stdout.write(`${JSON.stringify({
-    outputPath,
-    sourceCurrent,
-    sourceCellCurrentCount: currentness.cells.filter((cell) => cell.sourceCurrentness === 'CURRENT').length,
-    sourceCellUnknownCount: currentness.cells.filter((cell) => cell.sourceCurrentness === 'UNKNOWN').length,
-    historicalPdp0PinCounts: p0Comparison.currentPinCounts,
-    externalContractCounts: { total: external.totalFiles, matched: external.digestMatches, mismatched: external.digestMismatches.length },
-    consistencyStable,
-    blockers: observation.lifecycleSourceCurrentness.blockers,
-    pdp0Exit: observation.phaseDisposition.pdp0Exit,
-  }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 }
 
-main();
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) main();

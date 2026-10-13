@@ -319,7 +319,7 @@ gaps:
   evidence: >-
     The original source-pinned review register and its 1,340-item population remain historical evidence. Its 260
     unresolved source units and the 361 locator-only claim candidates in migration-semantics-review.yaml are preserved
-    as historical counts, not as the current P0-03 exit denominator. Current generated source index: 352 source-derived records plus the manifest projection (353 total); this is an inventory observation, not a PDP meaning count or currentness result.
+    as historical counts, not as the current P0-03 exit denominator. Current generated source index: 353 source-derived records plus the manifest projection (354 total); this is an inventory observation, not a PDP meaning count or currentness result.
     The active source-change delta is
     docs/migration/current-master-plan-claim-dispositions.json: 129 exact current-source claims are dispositioned
     (20 clarified, 12 adopted, 57 execution-only, 7 external-owner, 12 superseded, 21 out-of-current-product-scope),

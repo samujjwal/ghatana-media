@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "media.discovery-internal-delegated-owner-acceptance.v1",
+  "recordKind": "OWNER_DECISION_INPUT_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT",
+  "decisionId": "MEDIA-OWN-P0-2026-10-13-R2",
+  "decisionDate": "2026-10-13",
+  "timeZone": "America/Los_Angeles",
+  "decisionStatus": "APPROVED_INTERNAL_DELEGATED_EXACT_MATERIAL_CUT",
+  "authority": {
+    "repository": "samujjwal/ghatana-media",
+    "ownerRole": "Media Product Truth / development-status",
+    "actorKind": "AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION",
+    "authorizationBasis": "The user explicitly delegated Media owner and reviewer decisions in this conversation; the prior decision document records this delegation and its independent-authority limits.",
+    "humanIndependentSignatureProvided": false,
+    "qualifiedExternalSpecialistSignoffProvided": false,
+    "decisionDocumentRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+    "supersedesForThisMaterialFingerprintOnly": "MEDIA-OWN-P0-2026-10-13"
+  },
+  "subject": {
+    "phase": "PDP-0",
+    "baselineReviewedHead": "a7a24d220bf512816f37a6cc03cc58e167fdbce9",
+    "historicalDevCompleteCut": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8",
+    "historicalDevStatus": "DEV_COMPLETE",
+    "priorMaterialSourceSetFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a",
+    "materialSourceSetFingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b",
+    "changedMeaningIds": [],
+    "outstandingMeaningIds": [],
+    "surfaceScope": {
+      "physicalCandidates": 26,
+      "physicalDispositions": {
+        "PHYSICAL": 12,
+        "SUPPORT_ONLY": 12,
+        "SUBSUMED": 2
+      },
+      "semanticCompositions": 6,
+      "repositoryRoot": 1,
+      "nonphysicalConsumerCrosswalks": 17,
+      "totalPhaseCells": 50
+    },
+    "materialPathCount": 146,
+    "reviewedChanges": [
+      {
+        "path": ".product-experience/artifact-identities.yaml",
+        "priorDigest": "sha256:06a048812fc992048d849c94f895201da481240c2a5a8e799cdf11de3a1a0a1f",
+        "currentDigest": "sha256:ed1d0a7ee4ed8422624ff8efb486ea667680532560de1031c01d0531b905f8f8",
+        "classification": "GOVERNANCE_IDENTITY_ADDED_FOR_EXISTING_DELEGATED_DECISION_DOCUMENT_NO_PRODUCT_MEANING_CHANGE"
+      },
+      {
+        "path": ".product-experience/gaps.yaml",
+        "priorDigest": "sha256:b53a40c21505c22a74e0073b7d41c1680ddc1c719fc63df6586e5bc7201e2f28",
+        "currentDigest": "sha256:3f58ca80e96f999960a4e4e0e91491a5f9a99bc9348223bbeb18426ba1cf4afd",
+        "classification": "ACTIVE_GENERATED_SOURCE_CENSUS_CORRECTED_FROM_352_PLUS_MANIFEST_TO_353_PLUS_MANIFEST_HISTORICAL_GAP_WORDING_PRESERVED"
+      },
+      {
+        "path": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
+        "priorDigest": "sha256:ec9bbc0c9b489db2a959b60fe6a6c8c1db9be72d10453033fc5f0a92f89eb0e9",
+        "currentDigest": "sha256:13c0789a6fa94c51abfbc60da8465e340406947a3f5a1dff4ec5a37bcef7e341",
+        "classification": "GENERATED_SOURCE_DIGEST_AND_BYTE_COUNT_REFRESH_TO_THE_UNCHANGED_CURRENT_PRODUCT_TRUTH_SOURCE"
+      },
+      {
+        "path": ".product-experience/source-manifest.yaml",
+        "priorDigest": "sha256:5e756251e270f732fb67143e621bf070fe6b6813e105d40ed98a49447836831f",
+        "currentDigest": "sha256:532e2fc1ace3af61b2fcf9ab7b5e076664cace68e9ad7fdd1e3d5ff882bd21dc",
+        "classification": "GENERATED_SOURCE_INDEX_ENTRY_AND_EXTERNAL_REPOSITORY_REVISION_DIRTY_STATE_DIAGNOSTICS_REFRESHED_WITH_ALL_30_DECLARED_CONTRACT_CONTENT_DIGESTS_MATCHING"
+      },
+      {
+        "path": "apps/media-experience-explorer/specification-artifacts.json",
+        "priorDigest": "sha256:e18db73399b740d98e5e6a58c0f38b8238f196ac0a26afb589e11f830b3b89a6",
+        "currentDigest": "sha256:ec1616ced628be48ae395d974803e4caebcb5399b1cc88b1eb4ba38d7efc0a30",
+        "classification": "GENERATED_EXPLORER_INDEX_ENTRY_AND_SOURCE_DIGEST_REFRESH_ONLY"
+      }
+    ],
+    "reviewConclusion": "The five changed material paths are source inventory, generated projections, or repository diagnostics. Canonical PDP-0 meaning files are unchanged from the prior technical observation; the existing Product Truth Markdown digest already matched the current source in that observation. No changed or outstanding meaning IDs were found."
+  },
+  "decision": {
+    "internalDevelopmentDefinitionAcceptance": "APPROVED_FOR_REUSE",
+    "observedSourceCurrentnessOwnerDisposition": "ACCEPT_EXACT_MATERIAL_FINGERPRINT_PENDING_FRESH_TECHNICAL_CAPTURE",
+    "meaningDevelopmentTasksRemaining": 0,
+    "mayExecuteMdc06": true,
+    "actualPhaseExitStatus": "NOT_PUBLISHED",
+    "canAdvanceToPdp1": false,
+    "requiresBeforeExit": [
+      "Fresh Lifecycle-public-currentness capture after the reviewed source changes are committed",
+      "All 50 PDP-0 cells CURRENT or explicit N/A on the exact fingerprint above",
+      "Actual MDC-06 checks with test counts and skips recorded",
+      "Join this owner input to an independent technical capture with the identical materialSourceSetFingerprint",
+      "Publish a new immutable PDP-0 phase-exit observation without editing historical status or technical observations"
+    ],
+    "independentApprovals": "NOT_CLAIMED_AND_NOT_WAIVED",
+    "lifecycleClosure": "NOT_ENTERED",
+    "build": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "links": {
+    "priorOwnerAcceptance": "docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13.json",
+    "priorTechnicalObservation": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json",
+    "controllingExecutionPlan": "docs/implementation/MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md",
+    "expectedNewExitRecord": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json"
+  }
+}

@@ -1,0 +1,123 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { joinMediaPdp0PhaseExit, mediaPdp0RequiredCommands } from '../scripts/lib/media-discovery-pdp0-phase-exit.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+const fingerprint = `sha256:${'a'.repeat(64)}`;
+const owner = {
+  recordKind: 'OWNER_DECISION_INPUT_NOT_TECHNICAL_CURRENTNESS_NOT_LIFECYCLE_RECEIPT',
+  decisionId: 'MEDIA-OWN-P0-2026-10-13-R2',
+  decisionStatus: 'APPROVED_INTERNAL_DELEGATED_EXACT_MATERIAL_CUT',
+  authority: {
+    ownerRole: 'Media Product Truth / development-status',
+    actorKind: 'AI_ASSISTANT_ACTING_UNDER_EXPLICIT_USER_DELEGATION',
+    humanIndependentSignatureProvided: false,
+    qualifiedExternalSpecialistSignoffProvided: false,
+  },
+  subject: {
+    phase: 'PDP-0',
+    materialSourceSetFingerprint: fingerprint,
+    changedMeaningIds: [],
+    outstandingMeaningIds: [],
+    surfaceScope: {
+      physicalCandidates: 26,
+      physicalDispositions: { PHYSICAL: 12, SUPPORT_ONLY: 12, SUBSUMED: 2 },
+      semanticCompositions: 6,
+      repositoryRoot: 1,
+      nonphysicalConsumerCrosswalks: 17,
+      totalPhaseCells: 50,
+    },
+  },
+  decision: {
+    meaningDevelopmentTasksRemaining: 0,
+    mayExecuteMdc06: true,
+    internalDevelopmentDefinitionAcceptance: 'APPROVED_FOR_REUSE',
+    observedSourceCurrentnessOwnerDisposition: 'ACCEPT_EXACT_MATERIAL_FINGERPRINT_PENDING_FRESH_TECHNICAL_CAPTURE',
+  },
+};
+
+function technical() {
+  const cells = Array.from({ length: 50 }, (_, index) => ({
+    cellId: `surface-${index}:PDP-0`,
+    surfaceId: `surface-${index}`,
+    cellType: 'PHYSICAL_CANDIDATE',
+    applicability: { disposition: 'APPLICABLE', rationale: 'fixture rationale' },
+    sourceCurrentness: 'CURRENT',
+    expectedPathCount: 1,
+    expectedPathSetFingerprint: fingerprint,
+    sourceSetFingerprint: fingerprint,
+    blockers: [],
+  }));
+  return {
+    materialSourceSetFingerprint: fingerprint,
+    campaign: { observedHead: 'abc123', branch: 'main' },
+    denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 },
+    physicalCompositeConsumerCells: cells,
+    unclassifiedHistoricalPdp0PinChanges: [],
+    externalOwnerContracts: { totalFiles: 30, digestMatches: 30, digestMismatches: [] },
+    authority: { changedMeaningIds: [] },
+    materialPathDenominator: { uniquePaths: 146, sharedPaths: 20, cellSpecificPaths: 126 },
+    sharedMaterialPaths: [],
+    sourceContentDigests: {},
+    historicalPhaseStatusComparison: [],
+    historicalPdp0PinDriftClassifications: [],
+    requiredPdp0SourceMembership: [],
+    lifecycleSourceCurrentness: { continuity: 'CONTINUOUS', consistencyStable: true },
+    phaseDisposition: {
+      historicalDefinitionStatus: 'DEV_COMPLETE',
+      historicalOutstandingMeaningIds: [],
+      currentSourceCurrentness: 'PASS',
+      sourceCurrent: true,
+    },
+  };
+}
+
+const testOutcomes = mediaPdp0RequiredCommands.map((command) => ({
+  command,
+  status: 'PASS',
+  exitCode: 0,
+  ...(command.startsWith('node --test ')
+    ? { testCount: 1, passedCount: 1, failedCount: 0, skippedCount: 0 }
+    : {}),
+}));
+
+test('PDP-0 phase exit passes only when the source cut, delegated owner input, scope, and required outcomes join', () => {
+  const exit = joinMediaPdp0PhaseExit({
+    technicalCurrentness: technical(), ownerAcceptance: owner, testOutcomes, baselineSha: 'abc123', observedAt: '2026-10-13T00:00:00.000Z',
+  });
+  assert.equal(exit.phaseExit.status, 'PASS');
+  assert.equal(exit.phaseExit.nextLegalAction, 'ADVANCE_TO_PDP1_MDC10');
+  assert.equal(exit.sourceCurrentness.cells.length, 50);
+  assert.equal(exit.delegatedOwnerAcceptance.humanIndependentSignatureProvided, false);
+});
+
+test('a fingerprint mismatch is a stale owner approval and cannot pass PDP-0', () => {
+  const changedTechnical = technical();
+  changedTechnical.materialSourceSetFingerprint = `sha256:${'b'.repeat(64)}`;
+  const exit = joinMediaPdp0PhaseExit({ technicalCurrentness: changedTechnical, ownerAcceptance: owner, testOutcomes });
+  assert.equal(exit.phaseExit.status, 'STALE_APPROVAL_FOR_CHANGED_MATERIAL');
+  assert.ok(exit.phaseExit.blockers.includes('STALE_APPROVAL_FOR_CHANGED_MATERIAL'));
+  assert.equal(exit.phaseExit.nextLegalAction, 'TARGETED_OWNER_CHANGE_REVIEW_THEN_RECAPTURE_PDP0');
+});
+
+test('failed or skipped required tests cannot be collapsed into a passing phase exit', () => {
+  const failedOutcomes = testOutcomes.map((outcome) => outcome.command.startsWith('node --test ')
+    ? { ...outcome, status: 'FAIL', exitCode: 1, testCount: 2, passedCount: 1, failedCount: 1 }
+    : outcome);
+  const exit = joinMediaPdp0PhaseExit({ technicalCurrentness: technical(), ownerAcceptance: owner, testOutcomes: failedOutcomes });
+  assert.equal(exit.phaseExit.status, 'FAIL');
+  assert.ok(exit.phaseExit.blockers.some((blocker) => blocker.startsWith('REQUIRED_CHECK_FAILED:')));
+});
+
+test('the current delegated owner input is explicitly bound to the reviewed PDP-0 source cut', () => {
+  const currentOwner = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/media-discovery-delegated-owner-acceptance-pdp0-2026-10-13-r2.json'), 'utf8'));
+  assert.equal(currentOwner.decisionId, 'MEDIA-OWN-P0-2026-10-13-R2');
+  assert.equal(currentOwner.subject.materialSourceSetFingerprint, 'sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b');
+  assert.deepEqual(currentOwner.subject.changedMeaningIds, []);
+  assert.deepEqual(currentOwner.subject.outstandingMeaningIds, []);
+  assert.equal(currentOwner.authority.humanIndependentSignatureProvided, false);
+});
