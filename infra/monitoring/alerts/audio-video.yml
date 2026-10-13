@@ -1,6 +1,6 @@
 groups:
   # -------------------------------------------------------------------------
-  # 1. Service Availability — all 5 Audio-Video services
+  # 1. Service Availability — existing Media service candidates
   # -------------------------------------------------------------------------
   - name: audio_video.availability
     rules:
@@ -49,17 +49,6 @@ groups:
           component: multimodal
         annotations:
           summary: "Multimodal gRPC service is down"
-          description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
-
-      - alert: AiVoiceServiceDown
-        expr: up{job="ai-voice-service"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          product: audio-video
-          component: ai-voice
-        annotations:
-          summary: "AI Voice (Python) service is down"
           description: "{{ $labels.instance }} has been unreachable for more than 1 minute."
 
   # -------------------------------------------------------------------------
