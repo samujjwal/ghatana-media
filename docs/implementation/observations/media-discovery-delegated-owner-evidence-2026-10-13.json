@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "media.discovery-delegated-owner-evidence.v1",
+  "kind": "REVIEW_AND_DECISION_EVIDENCE_NOT_TEST_RUN_OR_LIFECYCLE_RECEIPT",
+  "decisionId": "MEDIA-DISCOVERY-OWNER-AUTHORIZATION-2026-10-13",
+  "actor": "ChatGPT as delegated Media internal product-definition/engineering review and status decision-maker",
+  "authoritySource": "User's explicit October 13, 2026 instruction to act as owner, specialist, approver, reviewer and update main",
+  "authenticatedGitActorNote": "GitHub commit identity authenticates a repository mutation; it does not constitute independent human specialist attestation",
+  "source": {
+    "repository": "samujjwal/ghatana-media",
+    "reviewedMainHead": "14643ce933d0fe23cf68937e9d3bf88e887db894",
+    "originalPdp0ObservationCaptureHead": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
+    "comparisonBase": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
+    "comparisonHead": "14643ce933d0fe23cf68937e9d3bf88e887db894",
+    "changedFilesSinceCapture": [
+      "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json"
+    ],
+    "originalPdp0Observation": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json",
+    "ownerDecision": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+    "materialSetFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a"
+  },
+  "directReadFacts": {
+    "physicalCandidateCount": 26,
+    "semanticCompositions": 6,
+    "repositoryRoots": 1,
+    "consumerCrosswalkCount": 17,
+    "pdp0ObservedPhaseCellCount": 50,
+    "pdp0ObservedCurrentCells": 50,
+    "pdp0ObservedCellBlockers": 0,
+    "historicalPhaseStatuses": [
+      {
+        "phase": "PDP-0",
+        "status": "DEV_COMPLETE",
+        "mainSha": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8"
+      },
+      {
+        "phase": "PDP-1",
+        "status": "DEV_COMPLETE",
+        "mainSha": "adc9aa6adb9c3ee2f79bf9b3975a2f6daa944ae8"
+      },
+      {
+        "phase": "PDP-2",
+        "status": "DEV_COMPLETE",
+        "mainSha": "81386992d273a98237451702c2daf618c77c8e51"
+      },
+      {
+        "phase": "PDP-3",
+        "status": "DEV_COMPLETE",
+        "mainSha": "81386992d273a98237451702c2daf618c77c8e51"
+      }
+    ],
+    "pdp0HistoricalChangedMeaningIds": [],
+    "pdp0HistoricalUnclassifiedPinChanges": 0,
+    "externalObservedContractFiles": 30,
+    "externalObservedDigestMatches": 30,
+    "externalObservedDigestMismatches": [],
+    "lifecycleCaptureModel": "ROOT_WIDE_LIFECYCLE_CONTINUITY_WITH_EXACT_PER_CELL_PROJECTION",
+    "lifecycleCaptureContinuity": "CONTINUOUS",
+    "capturedWorktreeStatus": "M docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json"
+  },
+  "reviewDispositions": {
+    "pdp0MaterialAndOwnerDecision": "APPROVED_SCOPED_AT_EXACT_SOURCE_FINGERPRINT",
+    "pdp0ExitPublication": "NOT_RUN_NOT_CLAIMED",
+    "laterPhaseTechnicalCurrentness": "NOT_RUN_NOT_CLAIMED",
+    "independentSpecialistAttestation": "NOT_CLAIMED",
+    "lifecycleClosure": "NOT_CLAIMED",
+    "build": "NOT_ENTERED",
+    "delivery": "BLOCKED"
+  },
+  "verificationPerformedByAssistant": [
+    "Remote GitHub main HEAD read",
+    "Read current committed topology, PDP0 observation and task worklist",
+    "Compared ceaf96c to 14643ce: only observation JSON changed",
+    "Checked structural cell and task counts in review orchestration"
+  ],
+  "verificationNotPerformedByAssistant": [
+    "No local npm/pnpm tests",
+    "No new Lifecycle currentness capture",
+    "No browser Explorer run",
+    "No human-independent specialist reviews",
+    "No production/release qualification"
+  ],
+  "interpretation": "This record is a provenance-labelled review evidence ledger, not a generated currentness PASS for later phases or a signature/receipt. Changing repo membership by committing these planning artifacts requires implementer to recapture currentness before publishing MDC-06."
+}

@@ -1,5 +1,8 @@
 # Ghatana Media — prescriptive Discovery source-currentness reconciliation and exit plan
 
+> **Controlling update — October 13, 2026:** The status/owner-pending statements below describe an earlier review cut. The [delegated Media owner decision](../../.product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md) approves PDP-0's exact source fingerprint and resolves the *internal owner-selection* blocker, but MDC-06 still needs a fresh technical capture and published phase exit. The [controlling plan](MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md) and [200-cell matrix](media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json) supersede this file's older progress claims; the task methodology remains useful. No PDP-1–3 currentness or Discovery PASS is claimed.
+
+
 **Campaign scope:** Entire `samujjwal/ghatana-media` Discovery (PDP-0→3), including physical leaves, semantic compositions/root and channel consumers.
 **Baseline:** GitHub `main@90065c229debe88ca2143e58cad708d5ebc83cf5` on 2026-10-13; validate `HEAD` and source digests again before execution.
 **Stage:** DISCOVERY. **Active phase:** PDP-0; PDP-1/PDP-2/PDP-3 sections below are dependency-ordered future tasks, **not current-phase authorization**.

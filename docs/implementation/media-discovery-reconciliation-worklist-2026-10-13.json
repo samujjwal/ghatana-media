@@ -4,19 +4,48 @@
   "source": {
     "repository": "samujjwal/ghatana-media",
     "branch": "main",
-    "reviewedSha": "90065c229debe88ca2143e58cad708d5ebc83cf5",
-    "date": "2026-10-13"
+    "reviewedSha": "14643ce933d0fe23cf68937e9d3bf88e887db894",
+    "date": "2026-10-13",
+    "priorReviewedSha": "90065c229debe88ca2143e58cad708d5ebc83cf5",
+    "ownerDecisionAtHead": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+    "originalObservationCaptureHead": "ceaf96ca9b5bcc0094335377bfec07cd86a87fe1",
+    "controllingMaterialFingerprint": "sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a"
   },
   "campaign": {
     "stage": "DISCOVERY",
     "activePhase": "PDP-0",
-    "discoveryBarrier": "FAIL_PDP0_OWNER_ACCEPTANCE_PENDING_AND_PDP1_PDP3_NOT_VALIDATED",
+    "discoveryBarrier": "FAIL_PDP0_EXIT_NOT_PUBLISHED_AND_PDP1_PDP3_NOT_VALIDATED",
     "sourceMeaningStatus": "DEV_COMPLETE_AT_HISTORICAL_CUT",
-    "sourceCurrentness": "PDP0_CURRENT_PDP1_PDP3_NOT_VALIDATED",
+    "sourceCurrentness": "PDP0_TECHNICALLY_CURRENT_AT_PRECOMMIT_CAPTURE_PDP1_PDP3_NOT_VALIDATED",
     "implementationLane": "NOT_ENTERED",
     "closureLane": "NOT_ENTERED",
     "delivery": "BLOCKED",
-    "statusObservationRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition"
+    "statusObservationRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition",
+    "ownerAcceptance": "PDP0_INTERNAL_DELEGATED_APPROVED_AT_EXACT_FINGERPRINT",
+    "planEvidenceRef": "docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json",
+    "phaseCellExecutionMatrixRef": "docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json",
+    "remainingDiscoveryTaskIds": [
+      "MDC-06",
+      "MDC-10",
+      "MDC-11",
+      "MDC-12",
+      "MDC-20",
+      "MDC-21",
+      "MDC-30",
+      "MDC-31",
+      "MDC-32",
+      "MDC-40",
+      "MDC-41"
+    ],
+    "completedTaskIds": [
+      "MDC-00",
+      "MDC-01",
+      "MDC-02",
+      "MDC-03",
+      "MDC-04",
+      "MDC-05"
+    ],
+    "currentPhaseExitPublished": false
   },
   "denominator": {
     "physicalCandidateCount": 26,
@@ -29,8 +58,8 @@
     "root": 1,
     "consumerCrosswalk": 17
   },
-  "decisionsRef": ".product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md",
-  "planRef": "docs/implementation/MEDIA-DISCOVERY-SOURCE-CURRENTNESS-EXIT-PLAN-2026-10-13.md",
+  "decisionsRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+  "planRef": "docs/implementation/MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md",
   "scope": {
     "physical": [
       {
@@ -741,9 +770,10 @@
         "docs/implementation/ (new immutable current-cut observation)"
       ],
       "done": "Historical DEV_COMPLETE stays intact; new source-bound status asserts current=TRUE only after every applicable P0 row validates and zero actual outstanding meaning IDs; otherwise stage barrier FAIL.",
-      "status": "BLOCKED_PENDING_OWNER_ACCEPTANCE",
-      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition; .product-experience/reviews/2026-10-13-pdp0-discovery-delegated-review.md#MDO-10",
-      "executionNote": "Technical PDP-0 source currentness is observed PASS with zero outstanding meaning IDs, but the required owner-accepted current status is not available. Do not advance to PDP-1 or claim Discovery exit."
+      "status": "READY_INTERNAL_OWNER_ACCEPTED_AWAITING_FRESH_VALIDATION_AND_PUBLISH",
+      "executionEvidence": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json#phaseDisposition; docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json; .product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md",
+      "executionNote": "Delegated Media Product Truth owner has now approved the exact observed PDP-0 material fingerprint; this resolves the internal decision request, not the remaining actual recapture/tests/publication. The historical technical observation remains immutable with its then-correct NOT_OBTAINED. MDC-06 must publish a separate current source-cut exit after fresh checks; PDP-1 remains gated.",
+      "ownerDecisionRef": ".product-experience/reviews/2026-10-13-discovery-delegated-owner-decision-and-authorizations.md"
     },
     {
       "id": "MDC-10",

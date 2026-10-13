@@ -1,0 +1,47 @@
+# Media Discovery — delegated owner decisions and bounded approval
+**Decision ID:** `MEDIA-DISCOVERY-OWNER-AUTHORIZATION-2026-10-13`  
+**Recorded:** October 13, 2026 (America/Los_Angeles)  
+**Repository/head reviewed:** `samujjwal/ghatana-media@14643ce933d0fe23cf68937e9d3bf88e887db894`  
+**Material fingerprint reviewed:** `sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a`  
+**Evidence:** [Owner review evidence](../../docs/implementation/observations/media-discovery-delegated-owner-evidence-2026-10-13.json), [PDP-0 observation](../../docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-13.json), [200-cell execution matrix](../../docs/implementation/media-discovery-pdp0-3-phase-cell-execution-matrix-2026-10-13.json)
+
+## Attribution and authorization
+
+The user expressly delegated Media product-definition, engineering, owner and reviewer choices to this assistant. These decisions are **internal delegated AI-assisted owner decisions**, recorded transparently as such, **not the signature of a separate human**, an independent qualified legal/security/accessibility professional, or a claim to exercise another repository owner's authority. The human account owner remains accountable. Do not replace missing external or legally required independent signoffs with this record.
+
+**Owner verdict: APPROVED WITH COMMENTS** for the *scoped PDP-0 source-current development baseline*, generic forward execution policy, applicability and future phase design choices. **Do not mark the current full Discovery barrier PASS.** `MDC-06` is now **READY FOR ACTUAL VERIFICATION AND PHASE-EXIT PUBLICATION**, not completed; PDP-1–3 current phases have not been rerun.
+
+### Binding PDP-0 owner acceptance — `MEDIA-OWN-P0-2026-10-13`
+
+I **APPROVE** reuse of the existing PDP-0 `DEV_COMPLETE` definition with zero outstanding meaning IDs for the exact current material set `sha256:3373ed962440640a0437d454877b34e06ae72bc9fa764d469413835a29529a3a`, anchored to the 50 observed PDP-0 cells and the scope/crosswalk represented in the source files. The earlier "owner acceptance NOT_OBTAINED" in the immutable observed technical record is **superseded by this separate decision for this exact fingerprint only**. It is deliberately not overwritten, and was true when observed. The subsequent commit from `ceaf96c` to `14643ce` modified the observation itself only, not canonical definition content.
+
+Grounding is limited to what the existing observation proves: 50/50 cells `CURRENT`, no P0 cell blockers, zero unclassified historical P0 pin changes, no changed meaning IDs, full material membership that includes the surface registry and physical topology, and 30/30 matching *declared* external content digests at the recorded capture. Its original worktree status noted a modified observation; fresh recapture and actual targeted tests remain mandatory before MDC-06 can publish phase exit.
+
+**P0 approved product choices:** preserve all 462 adjudicated capability leaves, 38 requirement groups, 19 intents and 30 journeys at their historical status cut unless affected meaning is demonstrated; distinguish product intent from runtime/provider availability; do not widen AI Voice React beyond its TTS-intent GUI host context; preserve two subsumed libraries and nonadmitted Agent Tools as non-executable until Build admission. The consumer crosswalk is not an extra set of physical leaves. No change in normative semantics is ordered by this approval.
+
+### Prospective owner directions for PDP-1–3 (NOT prospective source-currentness claims)
+
+| Decision | Disposition and exact owner direction | Explicitly not approved |
+| --- | --- | --- |
+| `MEDIA-OWN-P1` | **APPROVE DESIGN DIRECTION**: canonical identities/versioned source/results; typed request/result; 448 operation schemas plus 14 intent bindings; 79 owner wires and 55 guards as historical expected populations; actor/tenancy/provenance/retention, state transitions/finality and negative/unknown outcomes. For the four Agent Tools use `NOT_ADMITTED` until genuine typed execution/public-owner approval. Distinguish one read-only installed CLI route from 11 fixture-only command definitions. | No new PDP-1 currentness, runtime parity, deployed host, transport owner acceptance or passed tests |
+| `MEDIA-OWN-P2` | **APPROVE DESIGN DIRECTION**: Shared-referenced tokens/components, interaction states, responsive/a11y/locale grammar and consistent headless HTTP/gRPC/SDK/CLI/event/tool interface contracts. AI Voice React is `GUI_LIBRARY_HOST_DEPENDENT`. Retain valid explicit N/A for internal support packages without a consumer interface. | No currentness, external Shared artifact acceptance, independent accessibility certification or functional product UI |
+| `MEDIA-OWN-P3` | **APPROVE DESIGN DIRECTION**: 47 screen definitions, 30 journeys/130 steps, 147 UI-action identities, 31 scenarios and bounded recovery oracles as historical source populations; actual counts must be rechecked. Definition-complete may have 4 seeded journeys and 26 bounded unseeded journeys. All applicable machine/GUI consumer interfaces are inspectable. `CONTRACT_PREVIEW`, `LOCAL_SIMULATION`, `HOST_DEPENDENT` and `NOT_ADMITTED` must not be mislabeled live. Explorer is a projection, not PDP-4 or a source of truth. | No PDP-3 currentness, browser proof, implementation admission, real media action or release qualification |
+
+### Owner approvals and blocker dispositions
+
+1. `MEDIA-OWN-SCOPE` — **APPROVED** 26 physical candidates = 12 PHYSICAL + 12 SUPPORT_ONLY + 2 SUBSUMED; six direct-meaning composites; one reference root; 17 crosswalk consumers including one archived. Validate 200 phase/crosswalk review cells without inflating the closable physical denominator. Preserve explicit applicability rationales.
+2. `MEDIA-OWN-SEMANTIC-REUSE` — **APPROVED** historical `DEV_COMPLETE` authoring with **zero open authoring tasks**. No requirement to rewrite old P0/P1/P2/P3 `mainSha`, `sourceShaSet`, test counts or truthfully skipped tests. Real new material meaning IDs reopen their owning earliest PDP plus affected descendants only.
+3. `MEDIA-OWN-CURRENTNESS` — **APPROVED** Lifecycle public source-currentness capture via the installed `@ghatana/verification-planner` API, with per-cell exact membership and owner/physical/provider/contract fingerprints. Only an executed current capture can yield new `CURRENT` claims; root and aggregate must fail closed over unknown children.
+4. `MEDIA-OWN-SPECIALIST` — **DESIGN REVIEWS ACCEPTED WITH COMMENTS:** owner-level audio/media, speech, multimedia, distributed lifecycle, privacy-by-design, security-by-design, design-system, accessibility-by-design, SRE, performance and API/SDK/CLI review criteria are adopted as **internal engineering choices** in the phase task plan. This **does not** attest independent clinical/legal/privacy/security/a11y certifications, and no unqualified actor may forge them.
+5. `MEDIA-OWN-CONTRACTS` — **APPROVED CLASSIFICATION:** all 30 external contract digests matched in the previous capture; external repo revisions/dirty worktree alone are diagnostic. If material public contract bytes change, fail closed and route to the relevant external owner for actual approval/admission; do not invent permission. Public-owner parity questions without new missing canonical domain meaning belong to acceptance/Build, not artificial PDP task resurrection.
+6. `MEDIA-OWN-EXPLORER` — **APPROVED** a fully navigable developer Explorer inspecting four complete PDPs, source/owner/status/negative outcomes, component/token/layout recipes, scenarios, non-GUI interfaces, and compositions. Real browser verification is required for the tooling outcome, but implementing actual product functionality is forbidden in this Discovery campaign.
+7. `MEDIA-OWN-EXECUTION` — **PREAUTHORIZED** Media-scoped reconciliation source/plan/status updates, targeted checks and the Explorer inspection tooling needed by MDC-06 through MDC-41. Do not request another owner selection for an unchanged internally approved architecture. Evidence, actual test run, and new material-semantic change adjudication remain explicit prerequisites.
+8. `MEDIA-OWN-BOUNDARIES` — **NOT AUTHORIZED** external repo edits, dependent owner public contract signature, fake independent specialist signoff, native Lifecycle closure receipt, provider publication, Build production implementation or Delivery. Their blockers are tracked separately and cannot silently be waived.
+
+### Status and next action
+
+**Now:** Discovery FAIL / active phase PDP-0 / PDP-0 source-current observed and owner accepted at exact fingerprint / new PDP-0 phase-exit NOT PUBLISHED / PDP-1–3 current validation NOT RUN / Build NOT_ENTERED / native PDP closure NOT_ENTERED / Delivery BLOCKED.
+
+**Next:** rerun actual current capture and scoped checks for `MDC-06`; if material fingerprint still matches and the tests pass, publish source-bound PDP-0 exit in a new record. If changed, compute targeted semantic diff and obtain a *new exact-input* delegated decision as needed. Then progress PDP-1, PDP-2, PDP-3 sequentially, no prospective PASS claims. See [controlling execution plan](../../docs/implementation/MEDIA-DISCOVERY-PDP0-3-CONTROLLING-EXECUTION-PLAN-2026-10-13.md).
+
+**Do not ask the implementer to make the above policy/product choices again.** Implementers should execute, verify, document accurate results and escalate only newly discovered material contradictions or truly external independent authority.
