@@ -35,5 +35,6 @@ test('audit output is stable for an unchanged checkout and contains exact paths'
   assert.ok(Array.isArray(a.brokenRelativeMarkdownLinks));
   assert.ok(Array.isArray(a.referencedArchivedPaths));
   assert.ok(Array.isArray(a.compatibilityNames));
+  assert.ok(Array.isArray(a.nonPortableBuildRecipes));
   assert.ok(a.historicalLogFiles.every((path) => path.endsWith('.log')));
 });

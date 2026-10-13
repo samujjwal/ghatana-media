@@ -30,7 +30,12 @@ const textExtensions = new Set([
 const mandatoryDocs = new Set([
   'README.md', 'docs/README.md', 'BOUNDARY.md', 'OWNER.md', 'docs/VISION.md',
   'docs/REQUIREMENTS.md', 'docs/ARCHITECTURE.md', 'docs/DESIGN.md',
-  'docs/OPERATIONS.md', 'docs/TESTING.md'
+  'docs/OPERATIONS.md', 'docs/TESTING.md',
+  '.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md',
+  '.product-experience/pdp-1-domain-data/DOMAIN-MODEL.md',
+  '.product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md',
+  '.product-experience/pdp-3-product-experience/COMPLETE-PRODUCT-EXPERIENCE.md',
+  'modules/intelligence/ai-voice/README.md', 'modules/speech/stt-service/README.md'
 ]);
 const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'buffer' })
   .toString('utf8').split('\0').filter(Boolean).sort();
@@ -58,7 +63,8 @@ const isText = (path) => {
   const base = path.split('/').at(-1);
   const dot = base.lastIndexOf('.');
   return (dot !== -1 && textExtensions.has(base.slice(dot))) ||
-    ['Dockerfile', 'Makefile', '.gitignore', '.gitattributes', 'gradlew'].includes(base);
+    /^Dockerfile(?:\.[^/]+)?$/u.test(base) ||
+    ['Makefile', '.gitignore', '.gitattributes', 'gradlew'].includes(base);
 };
 const directoryTracked = (prefix) => {
   const withSlash = prefix.endsWith('/') ? prefix : prefix + '/';
@@ -94,6 +100,7 @@ const brokenLinks = [];
 const compatibilityNames = [];
 const referencedArchivePaths = new Map();
 const legacyLogFiles = [];
+const nonPortableBuildRecipes = [];
 let totalBytes = 0;
 let scannedFiles = 0;
 let textFiles = 0;
@@ -128,6 +135,16 @@ for (const path of tracked) {
   if (!isText(path)) continue;
   textFiles++;
   const content = bytes.toString('utf8');
+  if (/(?:^|\/)Dockerfile(?:\.[^/]+)?$/u.test(path)) {
+    for (const [pattern, reason] of [
+      [/COPY\s+(?:products\/audio-video\/|build-logic\/|shared-services\/)/u,
+        'OBSOLETE_MONOREPO_BUILD_CONTEXT'],
+      [/COPY\s+buildSrc\//u, 'MISSING_ROOT_BUILDSRC_CONTEXT'],
+      [/-x\s+(?:test|compileJava)/u, 'SKIPPED_BUILD_VERIFICATION']
+    ]) {
+      if (pattern.test(content)) nonPortableBuildRecipes.push({ path, reason });
+    }
+  }
   if (path.endsWith('.md')) brokenLinks.push(...relativeLinks(content, path));
   if (!path.startsWith('archive/')) {
     for (const match of content.matchAll(/archive\/media-desktop-apps\/[a-zA-Z0-9_.\/-]+/gu)) {
@@ -160,6 +177,7 @@ const result = {
   activeDuplicateGroups: activeDupes,
   historicalLogFileCount: legacyLogFiles.length,
   historicalLogFiles: legacyLogFiles,
+  nonPortableBuildRecipes,
   compatibilityNames,
   referencedArchivedPaths: [...referencedArchivePaths].map(([path, references]) =>
     ({ path, references })).sort((a, b) => a.path.localeCompare(b.path)),
@@ -182,6 +200,7 @@ else {
   console.log('  categories:', JSON.stringify(result.categories));
   console.log('  exact duplicate groups:', duplicates.length, '(active:', activeDupes.length + ')');
   console.log('  historical log files:', legacyLogFiles.length);
+  console.log('  non-portable build-recipe findings:', nonPortableBuildRecipes.length);
   console.log('  compatibility aliases:', compatibilityNames.length);
   console.log('  archived source references:', referencedArchivePaths.size);
   console.log('  broken local markdown links:', brokenLinks.length);

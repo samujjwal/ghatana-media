@@ -34,6 +34,10 @@ test('active configuration and telemetry do not advertise the retired provider',
   assert.doesNotMatch(env, /AI_VOICE_(?:GRPC|MODEL|CLONING|DEMUCS|USE_GPU|CACHE)/u);
   assert.doesNotMatch(alertRules, /AiVoiceServiceDown|ai-voice-service/u);
   assert.doesNotMatch(JSON.stringify(dashboard), /ai-voice-service/u);
+  const legacyCompose = read('config/docker-compose.prod.yml');
+  assert.match(legacyCompose, /^services:\s*\{\}/mu);
+  assert.match(legacyCompose, /releaseAdmission:\s*NOT_ADMITTED/u);
+  assert.doesNotMatch(legacyCompose, /POSTGRES_PASSWORD|RABBITMQ_DEFAULT_PASS|image:\s*\S+:latest/u);
 });
 
 test('AI Voice retains a real host-dependent UI package, not a simulated backend', () => {
