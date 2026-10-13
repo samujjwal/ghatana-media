@@ -1,59 +1,14 @@
-# =============================================================================
-# Multimodal Service - Multi-stage Dockerfile
-# Orchestrates STT + Vision services; gRPC on port 50054
-# =============================================================================
-
-# ---- Build stage ----
-FROM eclipse-temurin:21-jdk-jammy AS builder
-
-WORKDIR /workspace
-
-COPY gradlew gradlew.bat ./
-COPY gradle/ gradle/
-COPY settings.gradle.kts gradle.properties ./
-COPY buildSrc/ buildSrc/
-COPY build.gradle.kts ./
-
-COPY . .
-
-RUN chmod +x gradlew && \
-    ./gradlew :services:media:modules:intelligence:multimodal-service:shadowJar \
-      --no-daemon \
-      -x test \
-      -x checkstyleMain
-
-# ---- Runtime stage ----
-FROM eclipse-temurin:21-jre-jammy AS runtime
-
-RUN groupadd -r multimodal && useradd -r -g multimodal multimodal
-
+# Media multimodal-service — development candidate, NOT a qualified release image.
+# Prerequisite: run ./gradlew :services:media:modules:intelligence:multimodal-service:installDist
+# in the approved source-composite toolchain. Run docker build -f docker/Dockerfile.multimodal-service .
+# This stage consumes ONLY the verified Gradle application distribution from the
+# active build tree; it never builds from obsolete products/audio-video paths.
+# Build/published-image digest, license/SBOM and environment admission are separate.
+FROM eclipse-temurin:21-jre-jammy
+RUN groupadd --gid 10001 media && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin media
 WORKDIR /app
-
-COPY --from=builder \
-    /workspace/modules/intelligence/multimodal-service/build/libs/*-all.jar \
-    app.jar
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:${AV_HEALTH_PORT:-8093}/health || exit 1
-
-USER multimodal
-
-EXPOSE 50054 8093
-
-ENV MULTIMODAL_GRPC_PORT=50054 \
-    AV_HEALTH_PORT=8093 \
-    STT_SERVICE_HOST=stt-service \
-    STT_SERVICE_PORT=50051 \
-    VISION_SERVICE_HOST=vision-service \
-    VISION_SERVICE_PORT=50053 \
-    AV_RATE_LIMIT_TPS=10 \
-    AV_RATE_LIMIT_BURST=20 \
-    AV_RATE_LIMIT_MAX_CONCURRENT=5 \
-    AV_CB_FAILURE_THRESHOLD=5 \
-    AV_CB_RESET_TIMEOUT_MS=30000
-
-ENTRYPOINT ["java", \
-    "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-Djava.security.egd=file:/dev/./urandom", \
-    "-jar", "app.jar"]
+COPY --chown=10001:10001 modules/intelligence/multimodal-service/build/install/multimodal-service/ /app/
+ENV MULTIMODAL_GRPC_PORT=50055
+USER 10001:10001
+EXPOSE 50055
+ENTRYPOINT ["/app/bin/multimodal-service"]

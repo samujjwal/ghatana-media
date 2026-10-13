@@ -1,57 +1,14 @@
-# =============================================================================
-# STT Service - Multi-stage Dockerfile
-# =============================================================================
-
-# ---- Build stage ----
-FROM eclipse-temurin:21-jdk-jammy AS builder
-
-WORKDIR /workspace
-
-# Copy Gradle wrapper and build files first for layer caching
-COPY gradlew gradlew.bat ./
-COPY gradle/ gradle/
-COPY settings.gradle.kts gradle.properties ./
-COPY buildSrc/ buildSrc/
-COPY build.gradle.kts ./
-
-# Build from the standalone Media repository root. Gradle settings own the
-# module graph and may require runtime-contracts and generated protobuf inputs.
-COPY . .
-
-RUN chmod +x gradlew && \
-    ./gradlew :services:media:modules:speech:stt-service:shadowJar \
-      --no-daemon \
-      -x test \
-      -x checkstyleMain
-
-# ---- Runtime (CPU) stage ----
-FROM eclipse-temurin:21-jre-jammy AS runtime-cpu
-
-RUN groupadd -r stt && useradd -r -g stt stt
-
+# Media stt-service — development candidate, NOT a qualified release image.
+# Prerequisite: run ./gradlew :services:media:modules:speech:stt-service:installDist
+# in the approved source-composite toolchain. Run docker build -f docker/Dockerfile.stt-service .
+# This stage consumes ONLY the verified Gradle application distribution from the
+# active build tree; it never builds from obsolete products/audio-video paths.
+# Build/published-image digest, license/SBOM and environment admission are separate.
+FROM eclipse-temurin:21-jre-jammy
+RUN groupadd --gid 10001 media && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin media
 WORKDIR /app
-
-COPY --from=builder /workspace/modules/speech/stt-service/build/libs/*-all.jar app.jar
-
-# Health check against the /health HTTP endpoint
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:${AV_HEALTH_PORT:-8090}/health || exit 1
-
-USER stt
-
-EXPOSE 50051 8090
-
-ENV STT_GRPC_PORT=50051 \
-    AV_HEALTH_PORT=8090 \
-    AV_RATE_LIMIT_TPS=50 \
-    AV_RATE_LIMIT_BURST=100 \
-    AV_RATE_LIMIT_MAX_CONCURRENT=20 \
-    AV_CB_FAILURE_THRESHOLD=5 \
-    AV_CB_RESET_TIMEOUT_MS=30000 \
-    AV_MAX_REQUEST_BYTES=104857600
-
-ENTRYPOINT ["java", \
-    "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-Djava.security.egd=file:/dev/./urandom", \
-    "-jar", "app.jar"]
+COPY --chown=10001:10001 modules/speech/stt-service/build/install/stt-service/ /app/
+ENV STT_GRPC_PORT=50051
+USER 10001:10001
+EXPOSE 50051
+ENTRYPOINT ["/app/bin/stt-service"]

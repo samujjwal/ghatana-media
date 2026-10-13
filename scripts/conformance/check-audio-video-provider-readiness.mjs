@@ -1,214 +1,140 @@
 #!/usr/bin/env node
 /**
- * @fileoverview Audio-Video provider readiness guard.
+ * Media-owned PROVIDER SOURCE PREFLIGHT only.
  *
- * @doc.type script
- * @doc.purpose Verify Audio-Video remains a provider capability with real routes, tests, gates, and runtime probes
- * @doc.layer infrastructure
- * @doc.pattern BoundaryCheck
+ * Legacy CLI filename and exported function remain for existing conformance
+ * consumers. This no longer interrogates Data Cloud internal source files from
+ * a standalone Media checkout, nor claims runtime, provider or release readiness.
  */
-
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-
-const ROOT = process.cwd();
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const CAPABILITIES = [
   {
-    id: "STT",
-    module: "modules/speech/stt-service",
-    proto: "modules/speech/stt-service/src/main/proto/stt_service.proto",
-    dockerfile: "modules/speech/stt-service/Dockerfile",
+    id: 'STT',
+    module: 'modules/speech/stt-service',
+    proto: 'modules/speech/stt-service/src/main/proto/stt_service.proto',
+    dockerfile: 'docker/Dockerfile.stt-service',
+    distribution: 'stt-service',
+    port: 50051,
+    portKey: 'STT_GRPC_PORT',
     tests: [
-      "modules/speech/stt-service/src/test/java/com/ghatana/stt/functional/SttFunctionalCompletenessTest.java",
-      "modules/speech/stt-service/src/test/java/com/ghatana/stt/grpc/SttGrpcServiceInProcessIntegrationTest.java",
+      'modules/speech/stt-service/src/test/java/com/ghatana/stt/functional/SttFunctionalCompletenessTest.java',
+      'modules/speech/stt-service/src/test/java/com/ghatana/stt/grpc/SttGrpcServiceInProcessIntegrationTest.java'
     ],
-    gates: ["media-privacy", "content-safety", "artifact-retention", "stt-model-validation"],
-    probe: "AUDIO_VIDEO_STT",
+    gates: ['media-privacy', 'content-safety', 'artifact-retention', 'stt-model-validation']
   },
   {
-    id: "TTS",
-    module: "modules/speech/tts-service",
-    proto: "modules/speech/tts-service/src/main/proto/tts_service.proto",
-    dockerfile: "modules/speech/tts-service/Dockerfile",
+    id: 'TTS',
+    module: 'modules/speech/tts-service',
+    proto: 'modules/speech/tts-service/src/main/proto/tts_service.proto',
+    dockerfile: 'docker/Dockerfile.tts-service',
+    distribution: 'tts-service',
+    port: 50052,
+    portKey: 'TTS_GRPC_PORT',
     tests: [
-      "modules/speech/tts-service/src/test/java/com/ghatana/tts/functional/TtsFunctionalCompletenessTest.java",
-      "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsGrpcServiceInProcessIntegrationTest.java",
+      'modules/speech/tts-service/src/test/java/com/ghatana/tts/functional/TtsFunctionalCompletenessTest.java',
+      'modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsGrpcServiceInProcessIntegrationTest.java'
     ],
-    gates: ["media-privacy", "content-safety", "artifact-retention", "tts-model-validation"],
-    probe: "AUDIO_VIDEO_TTS",
+    gates: ['media-privacy', 'content-safety', 'artifact-retention', 'tts-model-validation']
   },
   {
-    id: "Vision",
-    module: "modules/vision/vision-service",
-    proto: "modules/vision/vision-service/src/main/proto/vision_service.proto",
-    dockerfile: "modules/vision/vision-service/Dockerfile",
+    id: 'Vision',
+    module: 'modules/vision/vision-service',
+    proto: 'modules/vision/vision-service/src/main/proto/vision_service.proto',
+    dockerfile: 'docker/Dockerfile.vision-service',
+    distribution: 'vision-service',
+    port: 50054,
+    portKey: 'VISION_GRPC_PORT',
     tests: [
-      "modules/vision/vision-service/src/test/java/com/ghatana/vision/functional/VisionFunctionalCompletenessTest.java",
-      "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/grpc/VisionGrpcServiceInProcessIntegrationTest.java",
+      'modules/vision/vision-service/src/test/java/com/ghatana/vision/functional/VisionFunctionalCompletenessTest.java',
+      'modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/grpc/VisionGrpcServiceInProcessIntegrationTest.java'
     ],
-    gates: ["media-privacy", "content-safety", "artifact-retention", "vision-model-validation"],
-    probe: "AUDIO_VIDEO_VISION",
+    gates: ['media-privacy', 'content-safety', 'artifact-retention', 'vision-model-validation']
   },
   {
-    id: "Multimodal",
-    module: "modules/intelligence/multimodal-service",
-    proto: "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
-    dockerfile: "modules/intelligence/multimodal-service/Dockerfile",
+    id: 'Multimodal',
+    module: 'modules/intelligence/multimodal-service',
+    proto: 'modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto',
+    dockerfile: 'docker/Dockerfile.multimodal-service',
+    distribution: 'multimodal-service',
+    port: 50055,
+    portKey: 'MULTIMODAL_GRPC_PORT',
     tests: [
-      "modules/intelligence/multimodal-service/src/test/java/com/ghatana/multimodal/functional/MultimodalFunctionalCompletenessTest.java",
-      "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServiceInProcessIntegrationTest.java",
+      'modules/intelligence/multimodal-service/src/test/java/com/ghatana/multimodal/functional/MultimodalFunctionalCompletenessTest.java',
+      'modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServiceInProcessIntegrationTest.java'
     ],
-    gates: ["media-privacy", "content-safety", "artifact-retention", "multimodal-model-validation"],
-    probe: "AUDIO_VIDEO_MULTIMODAL",
-  },
-];
-
-const REQUIRED_GATE_TERMS = [
-  "MediaRuntimeContracts.MediaConsentAuthority",
-  "PostgresqlMediaConsentAuthority",
-  "PostgresqlMediaPrivacyMaintenance",
-  "MediaSemanticRedactionRuntime",
+    gates: ['media-privacy', 'content-safety', 'artifact-retention', 'multimodal-model-validation']
+  }
 ];
 
 const REQUIRED_AUTHORITY_PATHS = [
-  "modules/infrastructure/security/src/test/java/com/ghatana/audio/video/infrastructure/security/MediaProcessingSecurityValidatorTest.java",
-  "launcher/src/test/java/com/ghatana/media/launcher/MediaConsentRevocationTest.java",
-  "launcher/src/test/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntimeTest.java",
+  'modules/infrastructure/security/src/test/java/com/ghatana/audio/video/infrastructure/security/MediaProcessingSecurityValidatorTest.java',
+  'launcher/src/test/java/com/ghatana/media/launcher/MediaConsentRevocationTest.java',
+  'launcher/src/test/java/com/ghatana/media/launcher/MediaSemanticRedactionRuntimeTest.java'
+];
+const REQUIRED_TERMS = [
+  'MediaRuntimeContracts.MediaConsentAuthority',
+  'PostgresqlMediaConsentAuthority',
+  'PostgresqlMediaPrivacyMaintenance',
+  'MediaSemanticRedactionRuntime'
 ];
 
-function read(root, path) {
-  return readFileSync(join(root, path), "utf8");
-}
-
-function assertExists(errors, root, path, label) {
-  if (!existsSync(join(root, path))) {
-    errors.push(`${label} does not exist: ${path}`);
-  }
-}
-
-function containsFieldValue(value, field, expected) {
-  if (Array.isArray(value)) {
-    return value.some((entry) => containsFieldValue(entry, field, expected));
-  }
-  if (value == null || typeof value !== "object") return false;
-  if (value[field] === expected) return true;
-  return Object.values(value).some((entry) => containsFieldValue(entry, field, expected));
-}
-
-export function findAudioVideoProviderReadinessViolations({ root = ROOT } = {}) {
+export function findMediaProviderSourceViolations({ root = process.cwd() } = {}) {
   const errors = [];
-  const capabilityMapPath = "docs/capability-map.md";
-  const privacyPolicyPath = "docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md";
-  const dataCloudRoutesPath = "services/data-cloud/delivery/ui/src/routes.tsx";
-  const routeManifestPath = "services/data-cloud/config/route-manifest.json";
-  const dependencyProbeRegistryPath =
-    "services/data-cloud/delivery/launcher/src/main/java/com/ghatana/datacloud/launcher/http/runtime/DependencyProbeRegistry.java";
-  const surfaceDefinitionsPath =
-    "services/data-cloud/delivery/launcher/src/main/java/com/ghatana/datacloud/launcher/http/runtime/SurfaceDefinitions.java";
-  const runtimeTruthTestPath =
-    "services/data-cloud/delivery/launcher/src/test/java/com/ghatana/datacloud/launcher/http/RuntimeTruthServiceTest.java";
-
-  try {
-    for (const path of [
-      capabilityMapPath,
-      privacyPolicyPath,
-      dataCloudRoutesPath,
-      routeManifestPath,
-      dependencyProbeRegistryPath,
-      surfaceDefinitionsPath,
-      runtimeTruthTestPath,
-    ]) {
-      assertExists(errors, root, path, "Required readiness input");
-    }
-    for (const path of REQUIRED_AUTHORITY_PATHS) {
-      assertExists(errors, root, path, "Required Media privacy authority test");
-    }
-    if (errors.length > 0) {
-      return errors;
-    }
-
-    const capabilityMap = read(root, capabilityMapPath);
-    const privacyPolicy = read(root, privacyPolicyPath);
-    const dataCloudRoutes = read(root, dataCloudRoutesPath);
-    const routeManifest = JSON.parse(read(root, routeManifestPath));
-    const dependencyProbeRegistry = read(root, dependencyProbeRegistryPath);
-    const surfaceDefinitions = read(root, surfaceDefinitionsPath);
-    const runtimeTruthTest = read(root, runtimeTruthTestPath);
-
-    for (const capability of CAPABILITIES) {
-      assertExists(errors, root, capability.module, `${capability.id} module`);
-      assertExists(errors, root, capability.proto, `${capability.id} proto`);
-      assertExists(errors, root, capability.dockerfile, `${capability.id} runtime Dockerfile`);
-      for (const testPath of capability.tests) {
-        assertExists(errors, root, testPath, `${capability.id} provider test`);
-      }
-      for (const gate of capability.gates) {
-        if (!capabilityMap.includes(gate)) {
-          errors.push(`${capability.id} capability map missing gate ${gate}`);
-        }
-      }
-      if (!dependencyProbeRegistry.includes(capability.probe)) {
-        errors.push(`DependencyProbeRegistry missing ${capability.probe}`);
-      }
-      if (!surfaceDefinitions.includes(capability.probe)) {
-        errors.push(`SurfaceDefinitions does not integrate probe ${capability.probe}`);
-      }
-    }
-
-    for (const term of REQUIRED_GATE_TERMS) {
-      if (!privacyPolicy.includes(term) && !capabilityMap.includes(term)) {
-        errors.push(`Audio-Video privacy/model gate evidence missing term: ${term}`);
-      }
-    }
-
-    if (!capabilityMap.includes("Audio-Video is a capability provider")) {
-      errors.push("capability-map.md must state Audio-Video is a capability provider");
-    }
-    if (!capabilityMap.includes("Data Cloud owns the user-facing Media") || !capabilityMap.includes("Artifacts surface")) {
-      errors.push("capability-map.md must state Data Cloud owns Media Artifacts UX");
-    }
-    if (!capabilityMap.includes("Broader Data Cloud production-readiness and external provider completeness remain separate")) {
-      errors.push("capability-map.md must keep Data Cloud production-readiness separate from provider completeness");
-    }
-
-    if (dataCloudRoutes.includes("media.audioVideo") || dataCloudRoutes.includes("audio-video")) {
-      errors.push("Data Cloud routes must not present Audio-Video provider capability as a first-class UX route");
-    }
-    if (!dataCloudRoutes.includes("media.artifacts")) {
-      errors.push("Data Cloud routes must present Media Artifacts through media.artifacts");
-    }
-    if (!containsFieldValue(routeManifest, "surfaceId", "media.artifacts")) {
-      errors.push("route-manifest.json must include media.artifacts routes");
-    }
-    const serializedManifest = JSON.stringify(routeManifest);
-    if (serializedManifest.includes('"surfaceId":"audioVideo.')
-        || containsFieldValue(routeManifest, "surfaceId", "media.audioVideo")) {
-      errors.push("route-manifest.json must not expose audio-video provider surfaces as Data Cloud UX");
-    }
-    if (!runtimeTruthTest.includes("Media provider down") || !runtimeTruthTest.includes("AUDIO_VIDEO_STT")) {
-      errors.push("RuntimeTruthServiceTest must cover provider probe degradation");
-    }
-
-    return errors;
-  } catch (error) {
-    errors.push(`Audio-Video readiness input could not be parsed: ${error.message}`);
-    return errors;
+  const exists = (p) => existsSync(join(root, p));
+  const requireFile = (p) => {
+    if (!exists(p)) errors.push('Media source input missing: ' + p);
+    return exists(p);
+  };
+  const capabilityMap = requireFile('docs/capability-map.md')
+    ? readFileSync(join(root, 'docs/capability-map.md'), 'utf8') : '';
+  const privacyPolicy = requireFile('docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md')
+    ? readFileSync(join(root, 'docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md'), 'utf8') : '';
+  for (const p of REQUIRED_AUTHORITY_PATHS) requireFile(p);
+  const ignore = requireFile('.dockerignore')
+    ? readFileSync(join(root, '.dockerignore'), 'utf8') : '';
+  if (ignore && (!ignore.includes('**/*') || !ignore.includes('!modules/'))) {
+    errors.push('Docker context must exclude repository by default and include only distributions');
   }
-}
-
-function main() {
-  const errors = findAudioVideoProviderReadinessViolations();
-  if (errors.length > 0) {
-    console.error(`FAIL: Audio-Video provider readiness check found ${errors.length} violation(s):`);
-    for (const error of errors) {
-      console.error(`  - ${error}`);
+  for (const cap of CAPABILITIES) {
+    for (const p of [cap.module, cap.proto, ...cap.tests]) requireFile(p);
+    if (requireFile(cap.dockerfile)) {
+      const recipe = readFileSync(join(root, cap.dockerfile), 'utf8');
+      const distribution = cap.module + '/build/install/' + cap.distribution + '/';
+      if (!recipe.includes(distribution) || !recipe.includes('ENTRYPOINT ["/app/bin/' + cap.distribution + '"]')) {
+        errors.push(cap.id + ': candidate must consume exact Gradle application distribution');
+      }
+      if (!recipe.includes('ENV ' + cap.portKey + '=' + cap.port) ||
+          !recipe.includes('EXPOSE ' + cap.port)) {
+        errors.push(cap.id + ': container port does not match Media service contract');
+      }
+      if (/COPY\s+(?:buildSrc|products\/audio-video|\.\s+\.)|shadowJar|-x\s+(?:test|checkstyleMain|compileJava)/u.test(recipe)) {
+        errors.push(cap.id + ': obsolete build context or skipped qualification in container');
+      }
+      if (!/^USER\s+(?:\d+:\d+|media)\s*$/mu.test(recipe)) {
+        errors.push(cap.id + ': runtime image must use an unprivileged identity');
+      }
     }
-    process.exit(1);
+    for (const gate of cap.gates) if (!capabilityMap.includes(gate)) {
+      errors.push(cap.id + ': source capability map missing gate ' + gate);
+    }
   }
-  console.log("PASS: Audio-Video provider readiness check passed");
+  for (const term of REQUIRED_TERMS) if (!privacyPolicy.includes(term) && !capabilityMap.includes(term)) {
+    errors.push('Media privacy source contract missing ' + term);
+  }
+  return errors;
 }
+// Compatibility export for the previous checker entrypoint. Same source-only
+// semantics; its name must not be read as actual provider admission.
+export const findAudioVideoProviderReadinessViolations = findMediaProviderSourceViolations;
 
-if (process.argv[1]?.endsWith("check-audio-video-provider-readiness.mjs")) {
-  main();
+if (process.argv[1]?.endsWith('check-audio-video-provider-readiness.mjs')) {
+  const violations = findMediaProviderSourceViolations();
+  if (violations.length) {
+    console.error('FAIL: Media provider source preflight:', violations.join('\n  - '));
+    process.exitCode = 1;
+  } else {
+    console.log('PASS: Media provider SOURCE preflight. Provider execution, licensing and release NOT_QUALIFIED.');
+  }
 }

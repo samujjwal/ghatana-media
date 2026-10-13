@@ -1,0 +1,32 @@
+# Only Gradle application distributions enter the Docker build context.
+# Do not send source, credentials, fixtures, browser output or governance data.
+# The four Dockerfiles are non-release candidates, not production deployments.
+**/*
+!modules/
+!modules/speech/
+!modules/speech/stt-service/
+!modules/speech/stt-service/build/
+!modules/speech/stt-service/build/install/
+!modules/speech/stt-service/build/install/stt-service/
+!modules/speech/stt-service/build/install/stt-service/**
+!modules/
+!modules/speech/
+!modules/speech/tts-service/
+!modules/speech/tts-service/build/
+!modules/speech/tts-service/build/install/
+!modules/speech/tts-service/build/install/tts-service/
+!modules/speech/tts-service/build/install/tts-service/**
+!modules/
+!modules/vision/
+!modules/vision/vision-service/
+!modules/vision/vision-service/build/
+!modules/vision/vision-service/build/install/
+!modules/vision/vision-service/build/install/vision-service/
+!modules/vision/vision-service/build/install/vision-service/**
+!modules/
+!modules/intelligence/
+!modules/intelligence/multimodal-service/
+!modules/intelligence/multimodal-service/build/
+!modules/intelligence/multimodal-service/build/install/
+!modules/intelligence/multimodal-service/build/install/multimodal-service/
+!modules/intelligence/multimodal-service/build/install/multimodal-service/**
